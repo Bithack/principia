@@ -4,7 +4,18 @@ Principia is a sandbox physics game originally released in November 2013. It is 
 
 The project can be built on Windows, Linux, Android or iOS. The iOS version lags behind and lacks a lot of UI. The Android version is outdated and probably needs some work to compile.
 
-Compilation on Windows and Linux should be easy, see below.
+Compilation on Windows and Linux should be easy, see further below.
+
+NOTE!
+Mote documentation and resources will come.
+
+Getting involved
+--------
+Please join the Official Unofficial Discord here:
+https://discord.gg/qV6APzKfk9
+
+Follow Bithack on Twitter:
+https://www.twitter.com/Bithack
 
 Compiling and running
 --------
