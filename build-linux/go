@@ -7,7 +7,6 @@ CXX=g++
 
 debug="1"
 nodebug="0"
-lite="0"
 release="0"
 run="1"
 cores="7"
@@ -68,10 +67,6 @@ while test $# -gt 0; do
             run="0"
             break
             ;;
-        -l|--lite)
-            lite="1"
-            shift
-            ;;
         --without-gdb)
             debug="0"
             shift
@@ -123,10 +118,6 @@ else
     CPPFLAGS="$DEBUGFLAGS_CXX"
 fi
 
-if [ "$lite" -eq "1" ]; then
-    CFLAGS+=" -DLITE=1"
-fi
-
 if [ "$do_test" -eq "1" ]; then
     echo "Running tests..."
     INCLUDEMAN=" -I../src/SDL-pc/SDL/include -I../src/tms/backends/linux/ -I../src/SDL_ttf/ -I../src/SDL_mixer/ -I../src/SDL_image/ -I../src/freetype/builds -I../src/freetype/include -I../src/src/ -I../src/ -I../src/jpeg/ -I../src/png/ -I../src/zlib/ -I/usr/include/ -I../src/curl-7.32.0/lib/ -I../src/curl-7.32.0/include/ -I../src/include/ -I../src/gtk-undo -DGLEW_STATIC "
@@ -135,7 +126,6 @@ if [ "$do_test" -eq "1" ]; then
 fi
 
 echo "Release: $release"
-echo "Lite:    $lite"
 echo "Run:     $run"
 
 if [ "$static_analysis" -eq "1" ]; then

@@ -3210,18 +3210,14 @@ GtkMenuItem     *editor_menu_set_as_player;
 GtkMenuItem     *editor_menu_toggle_mark_entity;
 /* -------------------------- */
 GtkMenuItem     *editor_menu_lvl_prop;
-#ifndef LITE
 GtkMenuItem     *editor_menu_save;
 GtkMenuItem     *editor_menu_save_copy;
 # ifdef DEBUG
 GtkMenuItem     *editor_menu_package_manager;
 # endif
 GtkMenuItem     *editor_menu_publish;
-#endif
 GtkMenuItem     *editor_menu_settings;
-#ifndef LITE
 GtkMenuItem     *editor_menu_login;
-#endif
 struct goto_mark *editor_menu_last_created = new goto_mark(MARK_ENTITY, "Last created entity", 0, tvec2f(0.f, 0.f));
 struct goto_mark *editor_menu_last_cam_pos = new goto_mark(MARK_POSITION, "Last camera position", 0, tvec2f(0.f, 0.f));
 static std::deque<struct goto_mark*> editor_menu_marks;
@@ -9653,7 +9649,6 @@ int _gtk_loop(void *p)
 
         editor_menu_lvl_prop = add_menuitem_m(editor_menu, "Level _properties", editor_menu_activate);
 
-#ifndef LITE
         add_menuitem_m(editor_menu, "_New level", activate_new_level);
         editor_menu_save = add_menuitem_m(editor_menu, "_Save", activate_save);
         editor_menu_save_copy = add_menuitem_m(editor_menu, "Save _copy", activate_save_copy);
@@ -9664,13 +9659,10 @@ int _gtk_loop(void *p)
 #endif
 
         editor_menu_publish = add_menuitem_m(editor_menu, "P_ublish online", activate_publish);
-#endif
 
         editor_menu_settings = add_menuitem_m(editor_menu, "S_ettings", activate_settings);
 
-#ifndef LITE
         editor_menu_login = add_menuitem_m(editor_menu, "_Login", activate_login);
-#endif
 
         add_menuitem_m(editor_menu, "_Back to menu", editor_menu_back_to_menu);
         add_menuitem(editor_menu, "Help: Principia Wiki", activate_principiawiki);
@@ -13104,18 +13096,14 @@ _open_sandbox_menu(gpointer unused)
     gtk_widget_show_all(GTK_WIDGET(editor_menu));
 
     if (G->state.sandbox) {
-#ifndef LITE
         gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_save),      true);
         gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_save_copy), true);
         gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_publish),   true);
-#endif
         gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_lvl_prop),  true);
     } else {
-#ifndef LITE
         gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_save),      false);
         gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_save_copy), false);
         gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_publish),   false);
-#endif
         gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_lvl_prop),  false);
     }
 
@@ -13181,10 +13169,8 @@ _open_sandbox_menu(gpointer unused)
         gtk_widget_hide(GTK_WIDGET(editor_menu_toggle_mark_entity));
     }
 
-#ifndef LITE
     // Disable the Login button if the user is already logged in.
     gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_login), (P.user_id == 0));
-#endif
 
     return false;
 }
@@ -14906,16 +14892,8 @@ ui::open_dialog(int num, void *data/*=0*/)
         case DIALOG_JUMPER:         gdk_threads_add_idle(_open_jumper, 0); break;
         case DIALOG_PIXEL_COLOR:    gdk_threads_add_idle(_open_pixel_color, 0); break;
         case DIALOG_POLYGON_COLOR:  gdk_threads_add_idle(_open_polygon_color, 0); break;
-#ifdef LITE
-        case DIALOG_SAVE:           MSG("Saving in sandbox is disabled for the Lite version!\nUpgrade to the full version to enable this feature."); break;
-#else
         case DIALOG_SAVE:           gdk_threads_add_idle(_open_save_window, 0); break;
-#endif
-#ifdef LITE
-        case DIALOG_OPEN:           MSG("Opening levels is disabled for the Lite version!\nUpgrade to the full version to enable this feature."); break;
-#else
         case DIALOG_OPEN:           gdk_threads_add_idle(_open_open_dialog, 0); break;
-#endif
 
         case DIALOG_OPEN_STATE:
             if (data && VOID_TO_UINT8(data) == 1) {

@@ -34,7 +34,6 @@ p_text *gui_spritesheet::t_win;
 p_text *gui_spritesheet::t_lose;
 p_text *gui_spritesheet::t_player_death;
 p_text *gui_spritesheet::t_submit_score;
-p_text *gui_spritesheet::t_saving_disabled;
 
 p_text *gui_spritesheet::t_out[NUM_SOCKET_SPRITES];
 p_text *gui_spritesheet::t_in[NUM_SOCKET_SPRITES];
@@ -858,7 +857,6 @@ gui_spritesheet::init()
     t_lose = new p_text(font::xlarge);
     t_player_death = new p_text(font::xlarge);
     t_submit_score = new p_text(font::large);
-    t_saving_disabled = new p_text(font::medium);
 
 #if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
     t_test_playing_back->set_text("Test-playing level. Press B to return to sandbox.");
@@ -877,7 +875,6 @@ gui_spritesheet::init()
     t_lose->set_text("Game over");
     t_player_death->set_text("You died");
     t_submit_score->set_text("Submit score");
-    t_saving_disabled->set_text("Warning: Saving is disabled in the lite version.");
 
 
     char ss[64];

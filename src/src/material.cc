@@ -224,11 +224,6 @@ static tms::texture *tex_line = 0;
 
 tms::texture *tex_bg = 0;
 tms::texture *tex_bedrock = 0;
-#ifdef LITE
-# ifdef TMS_BACKEND_ANDROID
-tms::texture *tex_full_version = 0;
-# endif
-#endif
 
 const char *available_bgs[] = {
     "Wood 1",
@@ -1202,16 +1197,6 @@ material_factory::init(bool is_shitty/*=false*/)
     TEX_INIT_LAZYLOAD(decoration);
     TEX_INIT_LAZYLOAD(robot_armor);
 #undef TEX_INIT_LAZYLOAD
-
-#ifdef LITE
-# ifdef TMS_BACKEND_ANDROID
-    tex_full_version = new tms::texture();
-    tex_full_version->format = GL_RGBA;
-    tex_full_version->load("data-mobile/textures/menu/get_full_version.png");
-    tex_full_version->upload();
-    tex_full_version->free_buffer();
-# endif
-#endif
 
     material_factory::load_bg_texture();
 
