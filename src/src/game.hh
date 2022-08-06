@@ -441,7 +441,6 @@ class game : public pscreen
     void refresh_widgets();
     bool widget_clicked(principia_wdg *w, uint8_t button_id, int pid);
     void refresh_info_label();
-    void refresh_demo_label();
     void refresh_axis_rot();
     /** Widgets **/
     principia_wdg *wdg_username;
@@ -485,7 +484,6 @@ class game : public pscreen
     principia_wdg *wdg_freq_down;
     principia_wdg *wdg_selection_slider[ENTITY_MAX_SLIDERS];
     p_text        *info_label;
-    p_text        *demo_label;
     principia_wdg *wdg_follow_connections;
     principia_wdg *wdg_follow_cables;
     principia_wdg *wdg_additive;

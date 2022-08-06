@@ -32,14 +32,10 @@ menu_create::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             break;
 
         case BTN_ADVENTURE:
-            if (LICENSE_IS_VALID()) {
-                G->resume_action = GAME_RESUME_NEW;
-                G->resume_level_type = LCAT_ADVENTURE;
-                G->screen_back = 0;
-                tms::set_screen(G);
-            } else {
-                ui::message("Creating generated adventures not available in the DEMO version.");
-            }
+            G->resume_action = GAME_RESUME_NEW;
+            G->resume_level_type = LCAT_ADVENTURE;
+            G->screen_back = 0;
+            tms::set_screen(G);
             break;
 
         case BTN_EMPTY_ADVENTURE:

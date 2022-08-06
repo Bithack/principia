@@ -3925,12 +3925,6 @@ GtkButton       *freq_range_ok;
 GtkButton       *freq_range_cancel;
 GtkLabel        *freq_range_info;
 
-/** --License dialog **/
-GtkDialog       *license_dialog;
-
-/** --Token dialog **/
-GtkDialog       *token_dialog;
-
 /** --Login **/
 GtkWindow       *login_window;
 GtkEntry        *login_username;
@@ -9093,9 +9087,6 @@ on_login_hide(GtkWidget *wdg, void *unused)
 {
     tms_infof("login hiding");
     prompt_is_open = 0;
-    if (ui::next_action == ACTION_LICENSE_CHECK) {
-        P.add_action(ACTION_LICENSE_CHECK, 0);
-    }
 }
 
 gboolean
@@ -11832,57 +11823,6 @@ int _gtk_loop(void *p)
         gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
     }
 
-    /* invalid license dialog */
-    {
-        license_dialog = GTK_DIALOG(gtk_message_dialog_new(
-                    0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-                    GTK_MESSAGE_INFO,
-                    GTK_BUTTONS_NONE,
-                    "Demo Version"));
-
-        apply_defaults(license_dialog);
-
-        GTK_BUTTON(gtk_dialog_add_button(license_dialog, "More Info", GTK_RESPONSE_ACCEPT));
-        GTK_BUTTON(gtk_dialog_add_button(license_dialog, GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE));
-
-        gtk_message_dialog_set_markup(GTK_MESSAGE_DIALOG(license_dialog),
-                "<b>Thank you for playing Principia.</b>"
-                "\n\n"
-
-                "This is the demo version with limited functionality."
-                "\n\n"
-
-                "Purchase the full version to get rid of this annoying message, and to get unlimited publishing and downloading access to the community website."
-                "\n\n"
-
-                "Get the full version for a discounted price by referring your friends to buy it too. Read more on the store page."
-                "\n\n"
-                );
-    }
-
-    /* invalid license dialog */
-    {
-        token_dialog = GTK_DIALOG(gtk_message_dialog_new(
-                    0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-                    GTK_MESSAGE_WARNING,
-                    GTK_BUTTONS_NONE,
-                    "Oh no!"));
-
-        apply_defaults(token_dialog);
-
-        GTK_BUTTON(gtk_dialog_add_button(token_dialog, "More Info", GTK_RESPONSE_ACCEPT));
-        GTK_BUTTON(gtk_dialog_add_button(token_dialog, GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE));
-
-        gtk_message_dialog_set_markup(GTK_MESSAGE_DIALOG(token_dialog),
-                "<b>You have run out of download tokens :(</b>"
-                "\n\n"
-
-                "What to do now? Buy Principia to support our development and get unlimited access.\n"
-                "You can also get 10 more download tokens by referring one of your friends to install the Principia Demo. Read more by clicking the button below."
-                "\n\n"
-                );
-    }
-
     /** --Multi config **/
     {
         multi_config_window = new_window_defaults("Multi config", &on_multi_config_show);
@@ -13406,54 +13346,6 @@ _open_publish_dialog(gpointer unused)
 }
 
 static gboolean
-_open_license_dialog(gpointer unused)
-{
-    prompt_is_open = 1;
-    P.focused = false;
-    int response = (int)gtk_dialog_run(license_dialog);
-    P.focused = true;
-    prompt_is_open = 0;
-
-    switch (response) {
-        case GTK_RESPONSE_ACCEPT:
-            ui::open_url("http://" COMMUNITY_HOST "/store");
-            break;
-
-        default:
-        case GTK_RESPONSE_CLOSE:
-            break;
-    }
-    gtk_widget_hide(GTK_WIDGET(license_dialog));
-    last_license_check = _tms.last_time;
-
-    return false;
-}
-
-static gboolean
-_open_token_dialog(gpointer unused)
-{
-    prompt_is_open = 1;
-    P.focused = false;
-    int response = (int)gtk_dialog_run(token_dialog);
-    P.focused = true;
-    prompt_is_open = 0;
-
-    switch (response) {
-        case GTK_RESPONSE_ACCEPT:
-            ui::open_url("http://" COMMUNITY_HOST "/login");
-            break;
-
-        default:
-        case GTK_RESPONSE_CLOSE:
-            break;
-    }
-    gtk_widget_hide(GTK_WIDGET(token_dialog));
-    last_license_check = _tms.last_time;
-
-    return false;
-}
-
-static gboolean
 _open_login_dialog(gpointer unused)
 {
     activate_login(NULL, 0);
@@ -14328,8 +14220,8 @@ _open_sfx_window(gpointer unused)
                 entity *e = G->selection.e;
 
                 if (e && e->g_id == O_SFX_EMITTER) {
-                    e->set_property(0, (uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(sfx_cb))); 
-                    e->set_property(1, (uint8_t)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sfx_global))); 
+                    e->set_property(0, (uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(sfx_cb)));
+                    e->set_property(1, (uint8_t)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sfx_global)));
                 }
             }
             break;
@@ -14353,11 +14245,11 @@ _open_sfx2_window(gpointer unused)
                 entity *e = G->selection.e;
 
                 if (e && e->g_id == O_SFX_EMITTER) {
-                    e->set_property(0, (uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(sfx2_cb))); 
-                    e->set_property(1, (uint8_t)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sfx2_global))); 
-                    e->set_property(3, (uint8_t)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sfx2_loop))); 
+                    e->set_property(0, (uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(sfx2_cb)));
+                    e->set_property(1, (uint8_t)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sfx2_global)));
+                    e->set_property(3, (uint8_t)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sfx2_loop)));
 
-                    uint32_t active_sub = (uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(sfx2_sub_cb)); 
+                    uint32_t active_sub = (uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(sfx2_sub_cb));
 
                     if (active_sub == 0) {
                         e->properties[2].v.i = SFX_CHUNK_RANDOM;
@@ -14819,7 +14711,7 @@ _open_elistener_window(gpointer unused)
                 entity *e = G->selection.e;
 
                 if (e && e->g_id == 156) {
-                    e->set_property(0, (uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(elistener_cb))); 
+                    e->set_property(0, (uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(elistener_cb)));
                 }
             }
             break;
@@ -15081,8 +14973,6 @@ ui::open_dialog(int num, void *data/*=0*/)
 
         case DIALOG_PUBLISH:        gdk_threads_add_idle(_open_publish_dialog, 0); break;
         case DIALOG_LOGIN:          gdk_threads_add_idle(_open_login_dialog, 0); break;
-        case DIALOG_INVALID_LICENSE: gdk_threads_add_idle(_open_license_dialog, 0); break;
-        case DIALOG_OUT_OF_TOKENS: gdk_threads_add_idle(_open_token_dialog, 0); break;
 
         case DIALOG_PROMPT:
             if (G) {
