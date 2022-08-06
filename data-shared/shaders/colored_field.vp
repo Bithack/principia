@@ -1,0 +1,18 @@
+attribute vec3 position;
+attribute vec3 normal;
+
+uniform mat4 MVP;
+uniform mat4 MV;
+uniform mat3 N;
+UNIFORMS
+
+VARYINGS
+varying lowp vec3 FS_n;
+
+void main(void)
+{
+    vec4 pos = MVP*vec4(position, 1.);
+    FS_n = N*normal;
+    gl_Position = pos;
+}
+

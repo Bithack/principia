@@ -1,0 +1,497 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>Sqrat - Squirrel Binding Utility</title>
+		
+		<link type="text/css" href="style.css" rel="stylesheet" />
+	</head>
+	
+	<body>
+	
+	<div id="header">
+		<h1>Sqrat - Squirrel Binding Utility</h1>
+		<h3>&copy; 2009 Brandon Jones</h3>
+		<h3>&copy; 2012 Li-Cheng (Andy) Tai</h3>
+	</div>
+		
+	<div id="index">
+		<h2>Table of Contents</h2>
+		
+		<ul>
+			<li><a href="index.html">Home</a></li>
+			<li><a href="binding.html">Binding Library</a>
+				<ul>
+					<li><a href="#including">Including In Your Project</a></li>
+					<li><a href="#basicUsage">Basic Usage</a></li>
+					<li><a href="#scripts">Scripts</a></li>
+					<li><a href="#object">Objects</a></li>
+					<li><a href="#table">Tables</a></li>
+					<li><a href="#class">Classes</a></li>
+					<li><a href="#const">Constants and Enumerations</a></li>
+					<li><a href="#function">Functions</a></li>
+					<li><a href="#limitations">Limitations</a></li>
+				</ul>
+			</li>
+			<li><a href="import.html">Module Import Library</a></li>
+			<li><a href="threading.html">Threading Library</a></li>
+		</ul>
+	</div>
+		
+	<div id="text">
+		
+		<h2 id="including">Including In Your Project</h2>
+
+		</p>Ensure that "&lt;sqrat root&gt;/include" is in your include path and include 
+		"sqrat.h" Yup, that's all there is to it!</p>
+		
+		<h2 id="basicUsage">Basic Usage</h2>
+
+		<p>The core of Sqrat revolves around it's ability to bind C++ classes, 
+		functions, and variables. All binding is done on either a Table or 
+		Class, and looks like this:</p>
+		
+	<pre>
+	void myFunc() { }
+
+	class MyClass {
+	public:
+		void Foo() {}
+		int bar;
+	};
+
+	void BindSquirrel(HSQUIRRELVM vm) {
+		using namespace Sqrat;
+
+		Table myTable(vm);
+		myTable.Func("MyFunc", &myFunc);
+		
+		Class&lt;MyClass&gt; myClass(vm);
+		myClass.Func("Foo", &amp;MyClass::Foo);
+		myClass.Var("bar", &amp;MyClass::bar);
+		
+		RootTable(vm).Bind("MyTable", myTable);
+		RootTable(vm).Bind("MyClass", myClass);
+	}
+	</pre>
+		
+		<p>After running the above code you will then have access to both MyTable 
+		and MyClass in Squirrel, accessed via the root table like so:</p>
+		
+	<pre>
+	MyTable.MyFunc();
+
+	instance &lt;- MyClass();
+	instance.Foo();
+	instance.bar = 1;
+	</pre>
+		
+		<p>A couple of things to notice: Niether the Table or Class were assigned 
+		names when they were created. They were only associated with a name when 
+		bound to their parent table (root). This closely models Squirrel's slot 
+		system and allows for greater flexibility when binding, not to mention 
+		more uniformity of the interface.</p>
+		
+		<p>Also, notice that we need to explicitly define which table the objects 
+		are binding to, root is never implied. Doing so allows nesting of table 
+		definitions like so:</p>
+		
+	<pre>
+	RootTable(vm).Bind("MyTable", myTable);
+	myTable.Bind("MyClass", myClass);
+	</pre>
+			
+		<p>Which would then be accessed in Squirrel as such (and can be used to 
+		emulate namespaces):</p>
+		
+	<pre>
+	instance <- MyTable.MyClass();
+	</pre>
+			
+		<p>Aside from the basic syntax shown above there are a couple of 
+		alternative syntaxes for defining bindings that can reduce the amount of 
+		redundant typing needed and make the code easier to read. First off, all 
+		variable and function definitions can be chained together like so 
+		(Whitespace is irrelevant):</p>
+		
+	<pre>
+	myClass
+		.Func("Foo", &amp;MyClass::Foo)
+		.Var("bar", &amp;MyClass::Bar)
+		;
+	</pre>
+				
+		<p>Definitions like this can also be inlined inside Bind calls:</p>
+		
+	<pre>
+	RootTable(vm).Bind("MyClass", Class&lt;MyClass&gt;(vm)
+		.Func("Foo", &amp;MyClass::Foo)
+		.Var("bar", &amp;MyClass::Bar)
+	);
+	</pre>
+		
+		<p>The only function that cannot be chained is Bind itself, due to static 
+		order of initialization issues. Altogether this means that the first 
+		binding sample could also be declared like such with no change in 
+		functionality:</p>
+
+	<pre>
+	void BindSquirrel(HSQUIRRELVM vm) {
+		using namespace Sqrat;
+		
+		RootTable(vm).Bind("MyTable", Table(vm)
+			.Func("MyFunc", &amp;myFunc)
+		);
+		
+		RootTable(vm).Bind("MyClass", Class&lt;MyClass&gt;(vm)
+			.Func("Foo", &amp;MyClass::Foo)
+			.Var("bar", &amp;MyClass::Bar)
+		);
+	}
+	</pre>
+	
+		<p>In addition, if you don't need to differentiate between multiple virtual 
+		machines you can cut down on some code by specifying a Default VM:</p>
+		
+	<pre>
+	void BindSquirrel(HSQUIRRELVM vm) {
+		using namespace Sqrat;
+		
+		DefaultVM::Set(vm);
+		
+		RootTable().Bind("MyTable", Table()
+			.Func("MyFunc", &amp;myFunc)
+		);
+		
+		RootTable().Bind("MyClass", Class&lt;MyClass&gt;()
+			.Func("Foo", &amp;MyClass::Foo)
+			.Var("bar", &amp;MyClass::Bar)
+		);
+	}
+	</pre>
+	
+		<p>The default vm takes effect globally once set, and can be retrieved at 
+		any time using Sqrat::DefaultVM::Get()</p>
+		
+		<h2 id="scripts">Scripts</h2>
+		
+		<p>Sqrat provides helper objects for the loading, compiling, and running of
+		scripts either from a string or a file. In addition, compiled scripts can
+		be written out to a file for faster loading later on.</a>
+		
+		<p>To compile and run a script, use the following code:</p>
+		
+	<pre>
+	try {
+		Script script1, script2;
+		
+		script1.CompileString("::print(\"Hello World\");");
+		script2.CompileFile("/Path/to/Script.nut");
+		
+		script1.Run();
+		script2.Run();
+	} catch( Exception ) {
+		// Handle exceptions here
+	}
+	</pre>
+	
+		<p>Note that if either the compile or run fails they will throw a 
+		Sqrat::Exception. Calling Message() on the exception will give details about 
+		the failure.</p>
+		
+		<h2 id="object">Objects</h2>
+
+		<p>The Sqrat Object is the base class for both the Table and Class. It is 
+		essentially a smart pointer wrapper for HSQOBJECTs. The HSQOBJECT has a 
+		reference added any time a Sqrat Object is created or copied and is 
+		dereferenced upon deletion.</p>
+		
+		<p>If the object represents a Table or Class you may also retrieve the 
+		values of a given slot using GetSlot. This will return another Sqrat 
+		Object:</p>
+		
+	<pre>
+	Object slotVal = myObject.GetSlot("myVal");
+	</pre>
+	
+		<p>If the object represents a value you can retreive that value by calling 
+		Cast with the appropriate type:</p>
+		
+	<pre>
+	int objVal = myObject.Cast&lt;int&gt;();
+	</pre>
+	
+		<p>This also works for class instances:</p>
+		
+	<pre>
+	MyClass* mc = myObject.Cast&lt;MyClass*&gt;();
+	</pre>
+		
+		<p>You can test if an Object points to a NULL value using IsNull(). Putting 
+		these methods together gives you a consistent way of accessing Squirrel
+		variables:</p>
+		
+	<pre>
+	// Get the int value of myVar from the root table
+	Object myIntObj = RootTable().GetSlot("myInt");
+	if(!myIntObj.IsNull()) {
+		int myInt = myIntObj.Cast&lt;int&gt;();
+	}
+	</pre>
+		
+		<h2 id="table">Tables</h2>
+			
+		<p>The Sqrat Table is an Object that can have functions or values bound to 
+		it. Functions are bound by calling Func:</p>
+		
+	<pre>
+	myTable.Func("MyFunc", &amp;myFunc);
+	</pre>
+		
+		<p>In this case &amp;myFunc is a reference to a global or static function. If 
+		there are multiple overloads for myFunc, Sqrat needs to know which to 
+		use. These cases can be disambiguated by providing the function 
+		signature as a template type to Func:</p>
+		
+	<pre>
+	myTable.Func&lt;bool (*)(int, float)&gt;("MyFunc", &amp;myFunc);
+	</pre>
+	
+		<p>If you want to bind multiple function to the same name, the Overload function is used:</p>
+		
+	<pre>
+	myTable.Overload&lt;bool (*)(int)&gt;("MyFunc", &amp;myFunc);
+	myTable.Overload&lt;bool (*)(int, float)&gt;("MyFunc", &amp;myFunc);
+	</pre>
+	
+		<p>When overloading a function, each overload must have a different number of parameters. Also
+		be aware that there is some additional overhead when using Overload instead of Func, as the call
+		must be disambiguated at runtime.</p>
+		
+		<p>Raw Squirrel functions can also be bound to a table using SquirrelFunc, 
+		which is called exactly like Func:</p>
+		
+	<pre>
+	myTable.SquirrelFunc("MySqFunc", &amp;mySqFunc);
+	</pre>
+		
+		<p>The function passed to SquirrelFunc must be a SQFUNCTION, which is 
+		defined like so:</p>
+		
+	<pre>
+	SQInteger mySqFunc(HSQUIRRELVM vm) {}
+	</pre>
+		
+		<p>When using a Squirrel Function you are responsible for all stack 
+		management.</p>
+
+		<h2 id="class">Classes</h2>
+
+		<p>Sqrat Classes are used very much like tables, but can have instances 
+		created of them from within Squirrel. Function binding is identical to 
+		tables, but are now passed references to member functions instead:</p>
+		
+	<pre>
+	myClass.Func("MyFunc", &amp;MyClass::MyFunc);
+	</pre>
+		
+		<p>Class functions are disambiguated the same way as table functions, and can
+		also be overloaded like table functions using the Overload function. In 
+		addition to member functions, you can also bind a global or static 
+		function as a member function using GlobalFunc, which has syntax 
+		identical to Func:</p>
+		
+	<pre>
+	myClass.GlobalFunc("MyFunc", &amp;myGlobalFunc);
+	</pre>
+		
+		<p>When binding a function using GlobalFunc, the first argument of the 
+		bound function must be a pointer to the class type that the function is 
+		being bound to, which will be set to the calling instance when the 
+		function is invoked.</p>
+
+		<p>Static functions can also be bound in the same way using StaticFunc, but 
+		static functions will not be passed the calling instance:</p>
+		
+	<pre>
+	myClass.StaticFunc("MyStaticFunc", &amp;MyClass::myStaticFunc)
+	myClass.StaticFunc("MyStaticFunc2", &amp;globalStaticFunc)
+	</pre>
+		
+		<p>Static functions do not need to be called on an instance within Squirrel 
+		(although they can be), you can call them directly on the class:</p>
+		
+	<pre>
+	MyClass.MyStaticFunc();
+	</pre>
+		
+		<p>Variables are treated simliarly to Functions. Instance variables are 
+		bound with Var:</p>
+		
+	<pre>
+	myClass.Var("MyInt", &amp;MyClass::MyInt);
+	</pre>
+		
+		<p>And static variables are bound with StaticVar:</p>
+		
+	<pre>
+	myClass.StaticVar("MyStaticInt", &amp;MyClass::MyStaticInt);
+	</pre>
+	
+		<p>Sqrat also allows you to expose Properties to Squirrel via the Prop method.
+		A property is a variable that is accessed via a getter and setter function 
+		natively, but appears to Squirrel as a standard variable. For example, if you
+		had a class defined like so:</p>
+
+	<pre>
+	class MyClass {
+	public:
+		int GetMyVar() { return myVar; }
+		void SetMyVar(int i) { myVar = i; }
+		
+	private:
+		int myVar;
+	};
+	</pre>
+	
+		<p>you can bind the Get and Set methods as a property rather than as separate 
+		functions.</p>
+		
+	<pre>
+	myClass.Prop("MyVar", &amp;MyClass::GetMyVar, &amp;MyClass::SetMyVar);
+	</pre>
+	
+		<p>Accessing the variable in Squirrel then works like any other variable:</p>
+
+	<pre>
+	mc <- MyClass();
+	mc.MyVar = 5;
+	</pre>
+	
+		<p>If you wish, you can make the property read only by only supplying a Get 
+		function</p>
+		
+	<pre>
+	myClass.Prop("MyVar", &amp;MyClass::GetMyVar);
+	</pre>
+	
+		<h2 id="const">Constants and Enumerations</h2>
+
+		<p>Constants and enumerations are both handled similarly by Squirrel in 
+		that both are evaluated at compile time (like C++ defines). This can 
+		improve the performance of scripts by skipping the table lookups 
+		normally associated with variable use.</p>
+
+		<p>Constant binding happens on the ConstTable object, which functions in a 
+		very similar manner to the RootTable object. It is limited to two 
+		operations, however: Const and Enum. Const will set one of the valid 
+		constant values (int, float, or string) to the given name:</p>
+		
+	<pre>
+	ConstTable(vm)
+		.Const("ConstInt", 12)
+		.Const("ConstFloat", 3.14)
+		.Const("ConstString", "Hello World!")
+		;
+	</pre>
+		
+		<p>These are accessed from the script as global variables:</p>
+		
+	<pre>
+	::print(ConstString); // prints "Hello World!"
+	local x = ConstInt - 4; // x = 8;
+	</pre>
+		
+		<p>Enumerations are simply named groups of constant values. Creation of an 
+		enumeration is done with the Enumeration object and bound to the 
+		ConstTable with Enum.</p>
+		
+	<pre>
+	Enumeration color(vm);
+	color.Const("Red", 1);
+	color.Const("Green", 2);
+	color.Const("Blue", 3);
+	
+	ConstTable(vm).Enum("Color", color);
+	</pre>
+		
+		<p>Or, of course:</p>
+		
+	<pre>
+	ConstTable(vm).Enum("Color", Enumeration(vm)
+		.Const("Red", 1)
+		.Const("Green", 2)
+		.Const("Blue", 3)
+	);
+	</pre>
+		
+		<p>Enumerations are accessed from script like static class members:</p>
+		
+	<pre>
+	::print(Color.Red); // prints "1"
+	</pre>
+		
+		<h2 id="function">Functions</h2>
+
+		<p>Functions from Squirrel can be queried and called from C++ or even be 
+		passed to C++ as an argument using the Sqrat::Function object. There are two
+		ways to retrieve a squirrel function:</p>
+		
+	<pre>
+	Function funcA(RootTable(vm), "FunctionName"); // Via the constructor
+	Function funcB = RootTable().GetFunction("FunctionName"); // Via the class or table
+	</pre>
+	
+		<p>As with objects, IsNull will indicate if the function retreived is valid</p>
+		
+	<pre>
+	if(funcA.IsNull()) { /* function not retreived. handle appropriately */ }
+	</pre>
+	
+		<p>Once retrieved, a function can be called using either the Evaluate or 
+		Execute function. Both will call the squirrel function, while Evaluate will
+		return the result of the call (if there is one). Both can be called with up
+		to 9 arguments.</p>
+		
+	<pre>
+	int result = funcA.Evaluate&lt;int&gt;(1, "String");
+	funcA.Execute(2, "Bob");
+	funcA(3, "Hello!"); // Same as Execute
+	</pre>
+	
+		<p>A function can also be passed to you from Squirrel (like a callback)</p>
+		
+	<pre>
+	// Squirrel Code
+	function Add(a, b) { return a + b; }
+	d = ::NativeFunc(1, 2, Add); // d should equal 3
+
+	// C++ Code
+	int NativeFunc(int a, int b, Function op) {
+		return op.Evaluate&lt;int&gt;(a, b);
+	}
+	</pre>
+	
+		<p>Please note that Sqrat has no way of determining if the number or type of 
+		arguments you pass to the function call match what Squirrel is expecting.
+		It is up to the developer to ensure that calls from C++ match their squirrel
+		counterparts.</p>
+
+		<h2 id="limitations">Limitations</h2>
+		<h3>Calling sq_suspendvm()</h3>
+		<p>Due to the design of the Squirrel API <A href="http://squirrel-lang.org/doc/squirrel3.html#sq_suspendvm">
+		sq_suspendvm()</A>, calling it from a
+		C++ function which is in turn called by Squirrel code will not suspend the VM successfully;
+		you can suspend a given VM by calling ::suspend() from Squirrel code.
+		(note from 
+		<A href="https://sourceforge.net/tracker/?func=detail&aid=3507590&group_id=261661&atid=2349886">SourceForge Bug 3507590</A>)
+		</p>
+		<h3>Constructors with multiple arguments</h3>
+		<p>
+		Current Sqrat does not support binding C++ constructors with one or more arguments.  This is to be addressed in future versions. 
+		(note from 
+		<A href="https://sourceforge.net/tracker/?func=detail&aid=3514004&group_id=261661&atid=2349886">SourceForge Bug 3514004</A>)
+		</p>
+	
+	</div>
+	</body>
+</html>

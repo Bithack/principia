@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/ScrollViewBody"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:scrollbars="none" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:id="@+id/display_ll_wrap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:padding="15dp"
+                android:text="@string/wrap_around" />
+
+            <CheckBox
+                android:id="@+id/cb_wrap_around"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ll_dd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:padding="15dp"
+                android:text="@string/initial_position" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:padding="15dp"
+                android:text="@string/current_symbol" />
+
+            <TextView
+                android:id="@+id/tv_dd_symbol_id"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp"
+                android:text="" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp"
+                android:text="@string/delim" />
+
+            <TextView
+                android:id="@+id/tv_dd_num_symbols"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp"
+                android:text="" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal" >
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center"
+                android:orientation="vertical" >
+
+                <Button
+                    android:id="@+id/btn_dd_insert"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/insert" />
+
+                <Button
+                    android:id="@+id/btn_dd_append"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/append" />
+
+                <Button
+                    android:id="@+id/btn_dd_remove"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/remove" />
+
+            </LinearLayout>
+
+            <TableLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal" >
+
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal" >
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal" >
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_6"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_7"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_8"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_9"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_10"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal" >
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_11"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_12"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_13"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_14"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_15"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal" >
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_16"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_17"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_19"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_20"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal" >
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_21"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_22"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_23"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_24"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_25"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal" >
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_26"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_27"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_28"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_29"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_30"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal" >
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_31"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_32"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_33"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_34"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_dd_35"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp" />
+                </TableRow>
+            </TableLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center"
+                android:orientation="vertical" >
+
+                <Button
+                    android:id="@+id/btn_dd_next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/next" />
+
+                <Button
+                    android:id="@+id/btn_dd_previous"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/previous" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

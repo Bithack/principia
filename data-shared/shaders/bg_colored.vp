@@ -1,0 +1,33 @@
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec2 texcoord;
+
+uniform mat4 M;
+uniform mat4 MVP;
+uniform mat3 N;
+UNIFORMS
+
+varying lowp float FS_diffuse;
+VARYINGS
+
+void main(void)
+{
+    vec4 _pos = M*vec4(position, 1.);
+    vec4 pos = MVP*vec4(position, 1.);
+
+    FS_diffuse = dot(LIGHT, normalize(normal))*_DIFFUSE;
+
+    SET_SHADOW
+    SET_GI
+
+#ifdef ENABLE_AO
+#ifdef SHADOW_AO_COMBINE
+    FS_ao = (SMVP * (pos - .5*MVP[2])).xy;
+#else
+    FS_ao = (AOMVP * (pos)).xy;
+#endif
+#endif
+
+    gl_Position = pos;
+}
+

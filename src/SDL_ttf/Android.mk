@@ -1,0 +1,1 @@
+LOCAL_SRC_FILES += SDL_ttf/SDL_ttf.c

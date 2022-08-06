@@ -1,0 +1,9 @@
+#ifndef _TMS_SETTINGS__H_
+#define _TMS_SETTINGS__H_
+
+#define TMS_MESH_MAX_ATTRIBUTES 64
+#define TMS_MESH_MAX_TEXTURES   8
+
+#define TMS_NUM_PIPELINES 4
+
+#endif

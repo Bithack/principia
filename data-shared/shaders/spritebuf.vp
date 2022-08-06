@@ -1,0 +1,21 @@
+attribute vec3 position;
+attribute vec2 uv;
+attribute vec4 vcolor;
+
+uniform mat4 MVP;
+UNIFORMS
+
+varying lowp vec2 FS_texcoord;
+varying lowp vec4 FS_color;
+VARYINGS
+
+void main(void)
+{
+    vec4 pos = MVP*vec4(position.xyz, 1.);
+    SET_SHADOW
+    SET_AMBIENT_OCCL
+    FS_texcoord = uv;
+    FS_color = vcolor;
+    gl_Position = pos;
+}
+

@@ -1,0 +1,15 @@
+--------------------
+./configure
+Sat Aug  3 14:05:30 WEDT 2013
+Checking for gcc...
+=== ztest9476.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c ztest9476.c
+... using gcc
+Please use win32/Makefile.gcc instead.
+** ./configure aborting.
+--------------------
+
+

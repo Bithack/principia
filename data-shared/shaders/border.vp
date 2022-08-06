@@ -1,0 +1,29 @@
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec2 texcoord;
+
+uniform mat4 M;
+uniform mat4 MVP;
+uniform mat3 N;
+UNIFORMS
+
+varying lowp vec3 FS_texcoord_diffuse;
+VARYINGS
+
+uniform vec4 scale;
+
+void main(void)
+{
+    vec4 _pos = M*vec4(position, 1.);
+    vec4 pos = MVP*vec4(position, 1.);
+
+    FS_texcoord_diffuse = vec3(
+            _pos.x*.125 + _pos.z*.125*scale.x,
+            _pos.y*.125 + _pos.z*.125*scale.y,
+            max(dot(LIGHT, normal)*_DIFFUSE, 0.)
+            );
+
+    SET_SHADOW
+
+    gl_Position = pos;
+}

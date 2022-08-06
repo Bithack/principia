@@ -1,0 +1,17 @@
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec2 texcoord;
+
+varying mediump float FS_diffuse;
+varying mediump vec2 FS_texcoord;
+
+uniform mat4 MVP;
+
+void main(void)
+{
+    FS_texcoord = texcoord;
+    FS_diffuse = max(dot(vec3(0,0,1), normal), 0.);
+        /*+ min(position.z-1., 0.)*.5*/;
+    gl_Position = MVP*vec4(position, 1.);
+}
+

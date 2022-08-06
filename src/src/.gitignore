@@ -1,0 +1,3 @@
+local_config.h
+*.lua
+*.js

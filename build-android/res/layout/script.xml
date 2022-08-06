@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="0dp"
+    android:orientation="vertical"
+    tools:context=".shared.ScriptDialog" >
+
+    <LinearLayout
+        android:id="@+id/ll_end"
+        style="@style/ButtonBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" >
+
+        <Button
+            android:id="@+id/script_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/save" />
+
+        <Button
+            android:id="@+id/script_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/cancel" />
+
+        <com.bithack.principia.shared.MultiSpinner
+            android:id="@+id/script_libraries"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <com.bithack.principia.shared.CustomLinearLayout
+        android:id="@+id/ll_code"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/ll_end" >
+
+        <EditText
+            android:id="@+id/script_code"
+            style="@style/CodeText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ems="10"
+            android:hint="@string/code"
+            android:maxLength="66000"
+            android:imeOptions="actionDone|flagNoFullscreen|flagNoExtractUi|flagNoEnterAction"
+            android:inputType="text|textNoSuggestions|textMultiLine"
+            android:textAppearance="?android:attr/textAppearanceSmallInverse"
+            android:typeface="monospace" >
+
+            <requestFocus />
+        </EditText>
+    </com.bithack.principia.shared.CustomLinearLayout>
+
+</RelativeLayout>
+            <!--  android:imeOptions="actionDone|flagNoFullscreen|flagNoExtractUi|flagNoEnterAction|flagForceAscii"-->

@@ -1,0 +1,10 @@
+Makefile.in
+aclocal.m4
+configure
+autom4te.cache
+depcomp
+Makefile
+principia
+ss-*.png
+principia.error
+config.sh

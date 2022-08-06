@@ -1,0 +1,17 @@
+attribute vec3 position;
+attribute vec2 texcoord;
+
+uniform mat4 M;
+uniform mat4 MVP;
+uniform mat3 N;
+UNIFORMS
+
+varying mediump vec2 FS_texcoord;
+VARYINGS
+
+void main(void)
+{
+    FS_texcoord = texcoord;
+    gl_Position = MVP*vec4(position, 1.);
+}
+

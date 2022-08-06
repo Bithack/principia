@@ -1,0 +1,6 @@
+*.class
+.classpath
+.project
+.settings/
+gen/
+project.properties

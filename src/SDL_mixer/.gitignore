@@ -1,0 +1,4 @@
+Makefile
+SDL2_mixer.pc
+autom4te.cache/
+libtool

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="32" height="32" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" source="tileset.tsx"/>
+ <layer name="1" width="32" height="32">
+  <data encoding="base64" compression="zlib">
+   eJzNls0KxCAMhLPgsUdvvv97LoUKQ/AnyaTuBkJP7TeOE6uIv+rTH+ga+E6kqsz5vU+wNf/u8iIfueXpX/BvRhuwcQ/eYs98P8mfsf+Nn6UD933F1vnL8mKVd91Ncj2437+M7L7+otisBg8fNSA3qsHL1llELyIaLtln3jqLDJ/xgMkBy2fn8RIuA6ihP70adv+cSBa9fEngN4JvPf8tfK8G3DPrOZw5i3r9UR/wP+Kp0fwyHmTxmTOB9WF3D7Xq8BZyPfeSbH7GTET5qAP5Xg0RvtYy6n5Wt4W2SP5WGkaF9yCd1wy2VcfJiuj4AsRkDX8=
+  </data>
+ </layer>
+ <objectgroup name="object" width="32" height="32">
+  <object name="plank" type="1" x="489" y="360" width="65" height="68"/>
+  <object name="robot" type="59" x="447" y="607" width="67" height="68"/>
+ </objectgroup>
+</map>

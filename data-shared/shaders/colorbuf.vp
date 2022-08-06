@@ -1,0 +1,24 @@
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec3 color;
+
+uniform mat4 MVP;
+UNIFORMS
+
+varying lowp float FS_diffuse;
+varying lowp vec4 FS_color;
+VARYINGS
+
+void main(void)
+{
+    vec3 nor = normal;
+
+    FS_color = vec4(color, 1.);
+    vec4 pos = MVP*vec4(position, 1.);
+    SET_SHADOW
+    SET_AMBIENT_OCCL
+    SET_GI
+    FS_diffuse = max(dot(LIGHT, nor)*_DIFFUSE, 0.);
+    gl_Position = pos;
+}
+

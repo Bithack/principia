@@ -1,0 +1,25 @@
+attribute vec3 position;
+attribute vec3 normal;
+
+uniform mat4 MVP;
+uniform mat4 MV;
+uniform mat3 N;
+UNIFORMS
+
+varying mediump vec3 FS_normal;
+varying mediump vec3 FS_eye;
+VARYINGS
+
+void main(void)
+{
+    FS_normal = N*normal;
+
+    vec4 pos = MVP*vec4(position, 1.);
+
+    SET_SHADOW
+
+    FS_eye = (MV*vec4(position, 1.)).xyz;
+
+    gl_Position = pos;
+}
+

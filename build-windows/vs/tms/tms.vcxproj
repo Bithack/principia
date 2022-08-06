@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0C0534D2-1C7B-4954-86A9-9184E0F8D464}</ProjectGuid>
+    <RootNamespace>tms</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>../../../src/;../../../src/SDL_image;../../../src/png;../../../src/jpeg;../../../src/tms/backends/windows/;../../../src/SDL-pc/SDL/include;%(AdditionalIncludeDirectories);$(SolutionDir)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>default_defines.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\tms\bindings\cpp\cpp.cc" />
+    <ClCompile Include="..\..\..\src\tms\core\atlas.c" />
+    <ClCompile Include="..\..\..\src\tms\core\backend.c" />
+    <ClCompile Include="..\..\..\src\tms\core\batch.c" />
+    <ClCompile Include="..\..\..\src\tms\core\batch3d.c" />
+    <ClCompile Include="..\..\..\src\tms\core\builtin-shaders.inc.c" />
+    <ClCompile Include="..\..\..\src\tms\core\camera.c" />
+    <ClCompile Include="..\..\..\src\tms\core\ddraw.c" />
+    <ClCompile Include="..\..\..\src\tms\core\entity.c" />
+    <ClCompile Include="..\..\..\src\tms\core\event.c" />
+    <ClCompile Include="..\..\..\src\tms\core\framebuffer.c" />
+    <ClCompile Include="..\..\..\src\tms\core\gbuffer.c" />
+    <ClCompile Include="..\..\..\src\tms\core\graph.c" />
+    <ClCompile Include="..\..\..\src\tms\core\hdrbuffer.c" />
+    <ClCompile Include="..\..\..\src\tms\core\material.c" />
+    <ClCompile Include="..\..\..\src\tms\core\mesh.c" />
+    <ClCompile Include="..\..\..\src\tms\core\meshfactory.c" />
+    <ClCompile Include="..\..\..\src\tms\core\model.c" />
+    <ClCompile Include="..\..\..\src\tms\core\pipeline.c" />
+    <ClCompile Include="..\..\..\src\tms\core\program.c" />
+    <ClCompile Include="..\..\..\src\tms\core\scene.c" />
+    <ClCompile Include="..\..\..\src\tms\core\screen.c" />
+    <ClCompile Include="..\..\..\src\tms\core\shader.c" />
+    <ClCompile Include="..\..\..\src\tms\core\surface.c" />
+    <ClCompile Include="..\..\..\src\tms\core\texture.c" />
+    <ClCompile Include="..\..\..\src\tms\core\tms.c" />
+    <ClCompile Include="..\..\..\src\tms\core\varray.c" />
+    <ClCompile Include="..\..\..\src\tms\core\wdg.c" />
+    <ClCompile Include="..\..\..\src\tms\math\intersect.c" />
+    <ClCompile Include="..\..\..\src\tms\math\lorenz.c" />
+    <ClCompile Include="..\..\..\src\tms\math\math.c" />
+    <ClCompile Include="..\..\..\src\tms\math\rk4.c" />
+    <ClCompile Include="..\..\..\src\tms\modules\3ds\3ds.c" />
+    <ClCompile Include="..\..\..\src\tms\modules\jpeg\jpeg.c" />
+    <ClCompile Include="..\..\..\src\tms\modules\png\png.c" />
+    <ClCompile Include="..\..\..\src\tms\util\hash.c" />
+    <ClCompile Include="..\..\..\src\tms\util\list.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\tms\backends\windows\tms\backend\opengl.h" />
+    <ClInclude Include="..\..\..\src\tms\backends\windows\tms\backend\print.h" />
+    <ClInclude Include="..\..\..\src\tms\bindings\cpp\cpp.hh" />
+    <ClInclude Include="..\..\..\src\tms\core\atlas.h" />
+    <ClInclude Include="..\..\..\src\tms\core\backend.h" />
+    <ClInclude Include="..\..\..\src\tms\core\batch.h" />
+    <ClInclude Include="..\..\..\src\tms\core\batch3d.h" />
+    <ClInclude Include="..\..\..\src\tms\core\camera.h" />
+    <ClInclude Include="..\..\..\src\tms\core\ddraw.h" />
+    <ClInclude Include="..\..\..\src\tms\core\entity.h" />
+    <ClInclude Include="..\..\..\src\tms\core\err.h" />
+    <ClInclude Include="..\..\..\src\tms\core\event.h" />
+    <ClInclude Include="..\..\..\src\tms\core\framebuffer.h" />
+    <ClInclude Include="..\..\..\src\tms\core\gbuffer.h" />
+    <ClInclude Include="..\..\..\src\tms\core\glob.h" />
+    <ClInclude Include="..\..\..\src\tms\core\graph.h" />
+    <ClInclude Include="..\..\..\src\tms\core\hdrbuffer.h" />
+    <ClInclude Include="..\..\..\src\tms\core\hdrchain.h" />
+    <ClInclude Include="..\..\..\src\tms\core\material.h" />
+    <ClInclude Include="..\..\..\src\tms\core\mesh.h" />
+    <ClInclude Include="..\..\..\src\tms\core\meshfactory.h" />
+    <ClInclude Include="..\..\..\src\tms\core\model.h" />
+    <ClInclude Include="..\..\..\src\tms\core\module.h" />
+    <ClInclude Include="..\..\..\src\tms\core\pipeline.h" />
+    <ClInclude Include="..\..\..\src\tms\core\program.h" />
+    <ClInclude Include="..\..\..\src\tms\core\project.h" />
+    <ClInclude Include="..\..\..\src\tms\core\scene.h" />
+    <ClInclude Include="..\..\..\src\tms\core\screen.h" />
+    <ClInclude Include="..\..\..\src\tms\core\settings.h" />
+    <ClInclude Include="..\..\..\src\tms\core\shader.h" />
+    <ClInclude Include="..\..\..\src\tms\core\surface.h" />
+    <ClInclude Include="..\..\..\src\tms\core\texture.h" />
+    <ClInclude Include="..\..\..\src\tms\core\tms.h" />
+    <ClInclude Include="..\..\..\src\tms\core\transition.h" />
+    <ClInclude Include="..\..\..\src\tms\core\varray.h" />
+    <ClInclude Include="..\..\..\src\tms\core\vertex.h" />
+    <ClInclude Include="..\..\..\src\tms\core\viewport.h" />
+    <ClInclude Include="..\..\..\src\tms\core\wdg.h" />
+    <ClInclude Include="..\..\..\src\tms\math\glob.h" />
+    <ClInclude Include="..\..\..\src\tms\math\intersect.h" />
+    <ClInclude Include="..\..\..\src\tms\math\lorenz.h" />
+    <ClInclude Include="..\..\..\src\tms\math\matrix.h" />
+    <ClInclude Include="..\..\..\src\tms\math\misc.h" />
+    <ClInclude Include="..\..\..\src\tms\math\quat.h" />
+    <ClInclude Include="..\..\..\src\tms\math\rk4.h" />
+    <ClInclude Include="..\..\..\src\tms\math\vector.h" />
+    <ClInclude Include="..\..\..\src\tms\util\glob.h" />
+    <ClInclude Include="..\..\..\src\tms\util\hash.h" />
+    <ClInclude Include="..\..\..\src\tms\util\list.h" />
+    <ClInclude Include="..\..\..\src\tms\util\packme.h" />
+    <ClInclude Include="..\..\..\src\tms\util\unpackme.h" />
+    <ClInclude Include="..\..\..\src\tms\util\util.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

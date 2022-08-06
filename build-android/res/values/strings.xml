@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Principia</string>
+    <string name="app_name_lite">Principia LITE</string>
+    <string-array name="follow_modes">
+        <item>Smooth follow</item>
+        <item>Snap to object</item>
+        <item>Relative follow</item>
+        <item>Linear follow</item>
+    </string-array>
+    <string-array name="offset_modes">
+        <item>Global</item>
+        <item>Relative</item>
+    </string-array>
+    <string-array name="commands">
+        <item>Stop</item>
+        <item>Start/Stop toggle</item>
+        <item>Left</item>
+        <item>Right</item>
+        <item>Left/Right toggle</item>
+        <item>Jump</item>
+        <item>Aim</item>
+        <item>Attack</item>
+        <item>Layer up</item>
+        <item>Layer down</item>
+        <item>Increase speed</item>
+        <item>Decrease speed</item>
+        <item>Set speed</item>
+        <item>Full health</item>
+    </string-array>
+    <string-array name="resource_types">
+        <item>Ruby</item>
+        <item>Sapphire</item>
+        <item>Emerald</item>
+        <item>Topaz</item>
+        <item>Diamond</item>
+        <item>Copper</item>
+        <item>Iron</item>
+        <item>Wood</item>
+        <item>Aluminium</item>
+    </string-array>
+    <string-array name="events">
+        <item>Player die</item>
+        <item>Enemy die</item>
+        <item>Interactive object destroyed</item>
+        <item>Player respawn</item>
+        <item>Touch/Mouse click</item>
+        <item>Touch/Mouse release</item>
+        <item>Any object absorbed</item>
+    </string-array>
+    <string-array name="effects">
+        <item></item>
+        <item>Explosion</item>
+        <item>Highlight</item>
+        <item>Destroy connections</item>
+        <item>Smoke</item>
+        <item>Magic</item>
+        <item>Break</item>
+    </string-array>
+    <string-array name="script_libraries">
+        <item>string</item>
+        <item>table</item>
+    </string-array>
+
+    <!-- Color Picker -->
+    <string name="dialog_color_picker">Color Picker</string>
+    <string name="press_color_to_apply">Press on Color to apply</string>
+
+    <!-- Preferences -->
+    <string name="pref_category">Category</string>
+    <string name="color1_title">Color 1</string>
+    <string name="color1_summary">black color by default, set by reference</string>
+    <string name="color2_title">Color 2</string>
+    <string name="color2_summary">not persistent color\nalpha slider added via code</string>
+    <string name="color3_title">Color 3</string>
+    <string name="color3_summary">picker with alpha slider</string>
+    <string name="color4_title">Color 4</string>
+    <string name="color4_summary">color set with HEX code in xml</string>
+    <string name="community">Community</string>
+
+    <!-- License checking status messages -->
+    <string name="check_license">Check license</string>
+    <string name="checking_license">Checking license&#8230;</string>
+    <string name="dont_allow">Don\'t allow the user access</string>
+    <string name="allow">Allow the user access</string>
+    <string name="application_error">Application error: %1$s</string>
+
+    <!-- Unlicensed dialog messages -->
+    <string name="unlicensed_dialog_title">Application not licensed</string>
+    <string name="unlicensed_dialog_body">This application is not licensed. Please purchase it from Android Market.</string>
+    <string name="unlicensed_dialog_retry_body">Unable to validate license. Check to see if a network connection is available.</string>
+    <string name="buy_button">Buy app</string>
+    <string name="retry_button">Retry</string>
+    <string name="quit_button">Exit</string>
+
+    <string name="initial_dir">Initial Direction</string>
+    <string name="dir_right">Right</string>
+    <string name="random">Random</string>
+    <string name="dir_left">Left</string>
+    <string name="default_state">Default state</string>
+    <string name="faction">Faction</string>
+    <string name="friendly">Friendly</string>
+    <string name="neutral">Neutral</string>
+    <string name="enemy">Enemy</string>
+    <string name="chaotic">Chaotic</string>
+    <string name="idle">Idle</string>
+    <string name="walking">Walking</string>
+    <string name="dead">Dead</string>
+    <string name="roaming">Roaming</string>
+    <string name="follow_mode">Follow mode</string>
+    <string name="offset_mode">Offset mode</string>
+    <string name="command">Command</string>
+    <string name="event">Event</string>
+    <string name="effect_1">Effect 1</string>
+    <string name="effect_2">Effect 2</string>
+    <string name="effect_3">Effect 3</string>
+    <string name="effect_4">Effect 4</string>
+    <string name="level_id">Level ID</string>
+    <string name="initial_position">Initial Position</string>
+    <string name="symbols">Symbols</string>
+    <string name="wrap_around">Wrap around</string>
+    <string name="add">Add</string>
+    <string name="remove">Remove</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="current_symbol">Current symbol:</string>
+    <string name="delim">/</string>
+    <string name="frequency">Frequency</string>
+    <string name="frequency_requirements">Min frequency: 0 Max frequency: 4,294,967,295</string>
+    <string name="frequency_start">Frequency start</string>
+    <string name="frequency_range">Frequency range</string>
+    <string name="insert">Insert</string>
+    <string name="append">Append</string>
+    <string name="object_name">Object name</string>
+    <string name="info">Info</string>
+    <string name="world">World</string>
+    <string name="gameplay">Gameplay</string>
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+    <string name="background">Background</string>
+    <string name="gravity_x">Gravity X</string>
+    <string name="horizontal_gravity">Horizontal gravity</string>
+    <string name="gravity_y">Gravity Y</string>
+    <string name="vertical_gravity">Vertical gravity</string>
+    <string name="final_score">Final score</string>
+    <string name="level_type">Level type</string>
+    <string name="level_type_adventure">Adventure</string>
+    <string name="level_type_custom">Custom</string>
+    <string name="level_type_puzzle">Puzzle</string>
+    <string name="disable_layer_switch">Disable layer switch</string>
+    <string name="disable_interactive">Disable interactive</string>
+    <string name="pause_on_win">Pause on win</string>
+    <string name="display_score">Display score</string>
+    <string name="disable_static_connections">Disable static connections</string>
+    <string name="disable_jumping">Disable jumping</string>
+    <string name="disable_fall_damage">Disable fall damage</string>
+    <string name="disable_connections">Disable connections</string>
+    <string name="disable_cam_movement">Disable cam movement</string>
+    <string name="disable_initial_wait">Disable initial wait</string>
+    <string name="disable_robot_hit_score">Disable robot hit score</string>
+    <string name="disable_zoom">Disable zoom</string>
+    <string name="absorb_dead_enemies">Absorb dead enemies</string>
+    <string name="snap_by_default">Snap by default</string>
+    <string name="unlimited_enemy_vision">Unlimited enemy vision</string>
+    <string name="interactive_destruction">Interactive destruction</string>
+    <string name="disable_damage">Disable damage</string>
+    <string name="single_layer_explosions">Single-layer explosions</string>
+    <string name="disable_continue_button">Disable continue button</string>
+    <string name="hide_beam_connections">Hide beam connections</string>
+    <string name="level_version">Level version</string>
+    <string name="bottom_border_explanation">TODO</string>
+    <string name="left_border_explanation">TODO</string>
+    <string name="right_border_explanation">TODO</string>
+    <string name="top_border_explanation">TODO</string>
+    <string name="left_border">Left border</string>
+    <string name="right_border">Right border</string>
+    <string name="top_border">Top border</string>
+    <string name="bottom_border">Bottom border</string>
+    <string name="position_iterations">Position iterations</string>
+    <string name="velocity_iterations">Velocity iterations</string>
+    <string name="iterations_warning">It is recommended that you set the number of iterations as low as possible, as it will allow players with less powerful devices to play your level.</string>
+    <string name="physics_description">This section allows you to tweak the physics simulation to fine tune the performance of your level. Lesser iterations improves performance at the cost of accuracy. The amount of position iterations primarily affects dynamic objects, while tuning velocity iterations affects motors and connections.</string>
+    <string name="final_score_description">Set a final score to determine when the game is finished. Set to 0 to disable the score system. Read more about level completion in the object description of the Game Manager object.</string>
+    <string name="autofit_borders">Auto-fit borders</string>
+    <string name="seconds">Seconds</string>
+    <string name="milliseconds">Milliseconds</string>
+    <string name="num_ticks">Num ticks</string>
+    <string name="num_ticks_descr">0 = Infinite ticks</string>
+    <string name="radius">Radius</string>
+    <string name="count">Count</string>
+    <string name="interval">Interval</string>
+    <string name="high">High</string>
+    <string name="ultra">Ultra</string>
+    <string name="presets">Presets</string>
+    <string name="medium">Medium</string>
+    <string name="low">Low</string>
+    <string name="advanced">Advanced</string>
+    <string name="ambient_occlusion">Ambient occlusion</string>
+    <string name="enable_shadows">Enable shadows</string>
+    <string name="NA">N/A</string>
+    <string name="off">Off</string>
+    <string name="on">On</string>
+    <string name="graph">Graph (may drain FPS)</string>
+    <string name="shadow_res">Shadow resolution</string>
+    <string name="shadow_softness">Shadow softness</string>
+    <string name="texture_quality">Texture quality</string>
+    <string name="sharp">Sharp</string>
+    <string name="soft">Soft</string>
+    <string name="lowest">Lowest</string>
+    <string name="allow_derivatives">Allow derivatives</string>
+    <string name="locked">Locked</string>
+    <string name="allow_derivatives_description">Allow other players to download, edit your level and publish it as their own.</string>
+    <string name="locked_description">Disallow players from seeing or playing this level outside of packages.</string>
+    <string name="password">Password</string>
+    <string name="username">Username</string>
+    <string name="dont_show_again">Don\'t show this dialog again</string>
+    <string name="disable_3rd_layer">Disable third layer</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="password_limits">Your password must contain a minimum of 6 characters.</string>
+    <string name="email">Email address</string>
+    <string name="link_account_description">Link your already existing Bithack Forum account to your purchase of Principia.</string>
+    <string name="link_account">Link account</string>
+    <string name="register_account">Register new account</string>
+    <string name="register_account_description">Register a new Bithack account to access the community site.</string>
+    <string name="uiscale">UI Scale</string>
+    <string name="uiscale_description">This option requires a full restart to take effect.</string>
+    <string name="button_1">Button #1</string>
+    <string name="button_2">Button #2</string>
+    <string name="button_3">Button #3</string>
+    <string name="prompt_button_description">Leave the button text empty to disable the button.</string>
+    <string name="prompt_message">Enter the prompt message here.</string>
+    <string name="alpha">Alpha</string>
+    <string name="green">Green</string>
+    <string name="blue">Blue</string>
+    <string name="red">Red</string>
+    <string name="disable_camera_rc_snap">Disable RC camera snap</string>
+    <string name="portrait_mode">Portrait mode</string>
+    <string name="variable_name">Variable name</string>
+    <string name="reset_this_variable">Reset this variable</string>
+    <string name="reset_all_variables">Reset all variables</string>
+    <string name="sound_effect">Sound effect</string>
+    <string name="base_frequency">Base frequency</string>
+    <string name="freq_vibrato">Freq vibrato</string>
+    <string name="peak_frequency">Peak frequency</string>
+    <string name="volume_vibrato">Volume vibrato</string>
+    <string name="waveform">Waveform</string>
+    <string name="bitcrushing">Bitcrushing</string>
+    <string name="global">Global</string>
+    <string name="global_sound">Global sound</string>
+    <string name="disable_physics">Disable physics</string>
+    <string name="pulse_width">Pulse width</string>
+    <string name="volume_vibrato_hz">Volume vibrato Hz</string>
+    <string name="volume_vibrato_extent">Volume vibrato extent</string>
+    <string name="freq_vibrato_hz">Freq vibrato Hz</string>
+    <string name="freq_vibrato_extent">Freq vibrato extent</string>
+    <string name="zero">0</string>
+    <string name="color_preview">Color preview</string>
+    <string name="cam_speed">Camera swipe speed</string>
+    <string name="zoom_speed">Zoom speed</string>
+    <string name="smooth_cam">Smooth camera</string>
+    <string name="smooth_zoom">Smooth zoom</string>
+    <string name="step_width">Step width</string>
+    <string name="sequence">Sequence</string>
+    <string name="sequence_description">Enter a sequence of zeros and ones to specify what the sequencer should output at the given step.</string>
+    <string name="value">Value</string>
+    <string name="vertical_borders">Vertical borders</string>
+    <string name="horizontal_borders">Horizontal borders</string>
+    <string name="do_not_require_dragfield">Do not require dragfield</string>
+    <string name="published_successfully_message_p1">Your level has been successfully published on the community website.</string>
+    <string name="published_successfully_message_p2">To view your level, or to submit it to a running contest, please click the button below.</string>
+    <string name="go_to_level_page">Go to level page</string>
+    <string name="cancel">Cancel</string>
+    <string name="published_successfully">Published Successfully!</string>
+
+    <string name="enable_border_scroll">Enable border scrolling</string>
+    <string name="border_scroll_speed">Border scroll speed</string>
+    <string name="app_id">119988168195668</string>
+    <string name="lite_app_id">1502221383335469</string>
+    <string name="facebook_opt_out">Limit how events sent to Facebook will be used</string>
+    <string name="code">insert_code_here();</string>
+    <string name="save">Save</string>
+    <string name="quickadd">Object name (will add to center of screen)</string>
+    <string name="confirm_level_upgrade"><b>Are you sure you want to upgrade the version of this level?</b>\n\nTo get access to new features the version associated with this level must be upgraded. This action can not be undone. Please save a copy before upgrading your level.\n\nBy upgrading this level, some object properties such as density, restitution, friction and applied forces might differ from earlier versions and affect how your level is simulated.</string>
+    <string name="confirm_cancel_script_dialog">Are you sure you want to cancel the LuaScript dialog? Any unsaved changes will be lost!</string>
+    <string name="close">Close</string>
+    <string name="consumable">Consumable</string>
+    <string name="restitution">Restitution</string>
+    <string name="friction">Friction</string>
+    <string name="display_object_id">Display object IDs</string>
+    <string name="loading">Loading…</string>
+    <string name="prismatic_tolerance">Prismatic tolerance</string>
+    <string name="pivot_tolerance">Pivot tolerance</string>
+    <string name="ok">OK</string>
+    <string name="right">Right</string>
+    <string name="up">Up</string>
+    <string name="left">Left</string>
+    <string name="down">Down</string>
+    <string name="shape_extruder">Shape Extruder</string>
+    <string name="libraries">Libraries</string>
+    <string name="disable_robot_special_action">Disable robot boxing</string>
+    <string name="disable_adventure_max_zoom">Disable adventure zoom constraints</string>
+    <string name="reload">Reload</string>
+    <string name="disable_roam_layer_switch">Disable roam layer switch</string>
+    <string name="flags">Flags</string>
+    <string name="use_system_time">Use system time</string>
+    <string name="chunked_level_loading">Chunked level loading</string>
+    <string name="disable_caveview">Disable caveview</string>
+    <string name="disable_rocket_trigger_explosives">Disable rocket trigger explosives</string>
+    <string name="background_color">Background color</string>
+    <string name="color">Color</string>
+    <string name="recipes">Recipes</string>
+    <string name="resources">Resources</string>
+    <string name="factory">Factory</string>
+    <string name="recipe_explanation">This is the list of recipes that you can craft via the factory inputs.</string>
+    <string name="resource_type">Resource type</string>
+    <string name="display_grapher_value">Display grapher value</string>
+    <string name="display_wireless_frequency">Display wireless frequency</string>
+    <string name="mute_all_sound">Mute all sounds</string>
+    <string name="volume">Volume</string>
+    <string name="back">Back</string>
+    <string name="open_save">Open save</string>
+    <string name="restart_level">Restart level</string>
+    <string name="back_to_main_menu">Back to main menu</string>
+    <string name="back_to_sandbox">Back to sandbox</string>
+    <string name="back_to_community">Back to community</string>
+    <string name="allow_high_score_submissions">Allow high score submissions</string>
+    <string name="allow_quicksaving">Allow quicksaving</string>
+    <string name="allow_respawn_without_checkpoint">Allow respawn without checkpoint</string>
+    <string name="store_score_on_game_over">Store high score on game over</string>
+    <string name="disable_endscreens">Disable end-screens</string>
+    <string name="lower_score_is_better">Lower score is better</string>
+    <string name="save_state">Save state</string>
+    <string name="dead_creature_destruction">Allow creature corpse destruction</string>
+    <string name="state">State</string>
+    <string name="equipment">Equipment</string>
+    <string name="head_equipment">Head equipment</string>
+    <string name="head">Head</string>
+    <string name="back_equipment">Back equipment</string>
+    <string name="front_equipment">Front equipment</string>
+    <string name="feet">Feet</string>
+    <string name="bolt_set">Bolt set</string>
+    <string name="weapons">Weapons</string>
+    <string name="tools">Tools</string>
+    <string name="circuits">Circuits</string>
+    <string name="hide_tips">Hide tips</string>
+    <string name="sandbox_back_dna">Do not ask when quitting sandbox level</string>
+    <string name="linear_damping">Linear damping</string>
+    <string name="angular_damping">Angular damping</string>
+    <string name="joint_friction">Joint friction</string>
+    <string name="creature_absorb_time">Creature absorb time</string>
+    <string name="player_respawn_time">Player respawn time</string>
+    <string name="confirm_quit_level">Are you sure you want to quit this level?</string>
+    <string name="x_offset">X offset</string>
+    <string name="y_offset">Y offset</string>
+    <string name="sublayer_depth">Sublayer depth</string>
+    <string name="front_align">Front align</string>
+    <string name="plastic_polygon">Plastic polygon</string>
+    <string name="key_listener">Key listener</string>
+    <string name="absorb_entity_after">Absorb entity:</string>
+    <string name="emitter">Emitter</string>
+    <string name="item">Item</string>
+    <string name="resource">Resource</string>
+    <string name="decoration">Decoration</string>
+    <string name="animal">Animal</string>
+    <string name="sound_manager">Sound Manager</string>
+    <string name="catch_all">Catch all</string>
+    <string name="display_fps">Display FPS</string>
+    <string name="selfdestruct">Self-destruct</string>
+
+    <string name="joint_strength">Joint strength</string>
+    <string name="plastic_color">Plastic color</string>
+    <string name="plastic_density">Plastic density</string>
+    <string name="connection_render_type">Connection render type</string>
+    <string name="misc">Miscellanous</string>
+    <string name="unlock_all">Unlock all</string>
+    <string name="disconnect_all">Disconnect all</string>
+    <string name="render_type">Render type</string>
+    <string name="normal">Normal</string>
+    <string name="small">Small</string>
+    <string name="hidden">Hidden</string>
+    <string name="apply">Apply</string>
+    <string name="dec_zero">0.0</string>
+    <string name="amount">Amount</string>
+    <string name="vendor">Vendor</string>
+</resources>

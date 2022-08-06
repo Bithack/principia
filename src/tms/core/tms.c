@@ -1,0 +1,255 @@
+#include <string.h>
+#include <stdlib.h>
+#ifdef _MSC_VER
+#include <time.h>
+#include <WinSock2.h> // lol
+#else
+#include <sys/time.h>
+#endif
+#include <stdarg.h>
+
+#include "tms.h"
+#include "screen.h"
+#include "transition.h"
+#include "event.h"
+#include "material.h"
+#include "backend.h"
+#include "shader.h"
+#include "project.h"
+
+#include "../util/glob.h"
+
+#include "builtin-shaders.inc.c"
+
+struct tms_singleton _tms = {
+    .in_frame = 0,
+    .window_width = 0,
+    .window_height = 0,
+    .gamma = 2.2,
+    .gl_extensions = "",
+    .delta_cap = 0,
+    .emulating_portrait = 0,
+};
+
+int
+tms_init(void)
+{
+    tms.image_loaders = thash_create_string_table(8);
+    tms.model_loaders = thash_create_string_table(8);
+    tms.framebuffer = 0;
+    tms.is_paused = 0;
+    tms.state = TMS_STATE_DEFAULT;
+
+    tgen_init();
+    tbackend_init_surface();
+
+    tms.gl_extensions = glGetString(GL_EXTENSIONS);
+    //tms_infof("opengl extensions: %s", tms.gl_extensions);
+
+    tmat4_set_ortho(tms.window_projection, 0, tms.window_width, 0, tms.window_height, 1, -1);
+
+#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
+    tms_shader_global_define_vs("lowp", "");
+    tms_shader_global_define_fs("lowp", "");
+    tms_shader_global_define_vs("mediump", "");
+    tms_shader_global_define_fs("mediump", "");
+    tms_shader_global_define_vs("highp", "");
+    tms_shader_global_define_fs("highp", "");
+#endif
+
+    tproject_init();
+    tproject_init_pipelines();
+    tproject_initialize();
+
+    return T_OK;
+}
+
+/** 
+ * Register an image filetype loader
+ * @relates tms
+ **/
+int
+tms_register_image_loader(int (*load_fn)(struct tms_texture *, FILE *), const char *ext)
+{
+    thash_add(tms.image_loaders, ext, strlen(ext), load_fn);
+    tms_debugf("registered image loader (%p) for \"%s\"", load_fn, ext);
+    return T_OK;
+}
+
+/** 
+ * Register a 3D model filetype loader
+ * @relates tms
+ **/
+int
+tms_register_model_loader(struct tms_mesh* (*load_fn)(struct tms_model *, SDL_RWops *, int *), const char *ext)
+{
+    thash_add(tms.model_loaders, ext, strlen(ext), load_fn);
+    tms_debugf("registered model loader (%p) for \"%s\"", load_fn, ext);
+    return T_OK;
+}
+
+int
+tms_set_screen(struct tms_screen *screen)
+{
+    struct tms_screen *cur_screen = tms.screen;
+
+    if (!tms.in_frame) {
+        if (tms.screen != 0) {
+            if (tms.screen->spec->pause != 0) {
+                tms.screen->spec->pause(tms.screen);
+            }
+        }
+
+        if (screen != 0) {
+            if (screen->spec->resume != 0) {
+                screen->spec->resume(screen);
+            }
+        }
+    }
+
+    if (tms.screen != cur_screen) {
+        tms_infof("current screen changed, skipping set");
+    } else
+        tms.screen = screen;
+
+    return T_OK;
+}
+
+#if defined(TMS_BACKEND_IOS)
+uint64_t tms_IOS_get_time();
+#endif
+
+TMS_STATIC_INLINE void
+init_frame_time(void)
+{
+#ifndef TMS_BACKEND_IOS
+    struct timeval t;
+#endif
+    uint64_t curr_time, delta;
+
+#if defined(TMS_BACKEND_IOS)
+    curr_time = tms_IOS_get_time();
+#else
+    gettimeofday(&t, 0);
+    curr_time = t.tv_usec + t.tv_sec * 1000000ull;
+#endif
+
+    if (tms.last_time == 0)
+        tms.last_time = curr_time;
+
+    delta = curr_time - tms.last_time;
+
+    if (tms.delta_cap != 0 && delta < tms.delta_cap) {
+        /* XXX */
+        SDL_Delay((tms.delta_cap - delta)/1000);
+        delta = tms.delta_cap;
+
+#if defined(TMS_BACKEND_IOS)
+        curr_time = tms_IOS_get_time();
+#else
+        gettimeofday(&t, 0);
+        curr_time = t.tv_usec + t.tv_sec * 1000000ull;
+#endif
+    }
+    tms.last_time = curr_time;
+
+    /* TODO: handle too large delta number */
+
+    tms.time_accum += delta;
+
+    if (tms.last_time != 0ull) {
+        tms.dt = (double)(delta) / 1000000.0;
+    } else {
+        tms.dt = 0.f;
+    }
+
+    if (tms.dt_accum >= TMS_FPS_MEAN_LIMIT) {
+        tms.fps_mean = 1.0 / (tms.dt_accum / tms.dt_count);
+        tms.dt_count = 0;
+        tms.dt_accum = 0.0;
+    } else {
+        tms.dt_count ++;
+        tms.dt_accum += tms.dt;
+    }
+
+    /* direct fps estimation */
+    tms.fps = 1.0 / tms.dt;
+}
+
+int
+tms_begin_frame(void)
+{
+    tms.active_screen = tms.screen;
+    tms.in_frame = 1;
+
+#ifdef TMS_BACKEND_IOS
+    glBindFramebuffer(GL_FRAMEBUFFER, viewFramebuffer);
+#endif
+
+    tms_screen_begin_frame(tms.active_screen);
+    return T_OK;
+}
+
+int
+tms_end_frame(void)
+{
+    tms_screen_end_frame(tms.active_screen);
+
+    if (tms.active_screen != tms.screen) {
+        /* the screen was changed */
+        if (tms.active_screen != 0) {
+            if (tms.active_screen->spec->pause != 0) {
+                tms.active_screen->spec->pause(tms.active_screen);
+            }
+        }
+
+        if (tms.screen != 0) {
+            if (tms.screen->spec->resume != 0) {
+                tms.screen->spec->resume(tms.screen);
+            }
+        }
+    }
+
+    tms.in_frame = 0;
+    return T_OK;
+}
+
+void
+tms_step(void)
+{
+    tproject_step();
+}
+
+int
+tms_render(void)
+{
+    init_frame_time();
+
+    if (tms.state == TMS_STATE_TRANSITIONING) {
+        if (tms.transition->render((long) (tms.dt*1000.0)) == T_OK) {
+            tms.state = TMS_STATE_DEFAULT;
+            tms_set_screen(tms.next);
+        }
+    } else {
+        struct tms_screen *s = tms.active_screen;
+
+        tms_event_process_all(s);
+
+        tms_screen_step(s, tms.dt);
+        tms_screen_render(s);
+    }
+
+    return T_OK;
+}
+
+int
+tms_begin_transition(struct tms_transition *trans, struct tms_screen *next)
+{
+    trans->begin(tms.screen, next);
+    tms.state = TMS_STATE_TRANSITIONING;
+    tms.transition = trans;
+    tms.next = next;
+
+    return T_OK;
+}
+

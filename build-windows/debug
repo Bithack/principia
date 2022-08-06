@@ -1,0 +1,1 @@
+gdb -x ./gdb-run-script

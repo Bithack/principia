@@ -1,0 +1,4 @@
+NAME="jpeg"
+INIT=tmod_jpeg_init
+SOURCES=( jpeg.c )
+LIBS=( jpeg )

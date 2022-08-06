@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="beforeDescendants"
+    android:divider="@drawable/div"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    android:showDividers="middle" >
+
+    <LinearLayout
+        android:id="@+id/factory_ll_tabs"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:divider="@drawable/div"
+        android:orientation="horizontal"
+        android:padding="7dp"
+        android:paddingBottom="3dp"
+        android:showDividers="middle" >
+
+        <ToggleButton
+            android:id="@+id/factory_tab_resources"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:text="@string/resources"
+            android:textOff="@string/resources"
+            android:textOn="@string/resources" />
+
+        <ToggleButton
+            android:id="@+id/factory_tab_recipes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/recipes"
+            android:textOff="@string/recipes"
+            android:textOn="@string/recipes" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/factory_ll_buttons"
+        style="@style/ButtonBar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/factory_btn_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/save" />
+
+        <Button
+            android:id="@+id/factory_btn_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/cancel" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/factory_sv_resources"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/factory_ll_buttons"
+        android:layout_below="@id/factory_ll_tabs"
+        android:layout_gravity="top"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="3dp"
+        android:visibility="visible" >
+
+        <LinearLayout
+            android:id="@+id/factory_ll_resources"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+        </LinearLayout>
+    </ScrollView>
+
+    <ScrollView
+        android:id="@+id/factory_sv_recipes"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/factory_ll_buttons"
+        android:layout_below="@id/factory_ll_tabs"
+        android:layout_gravity="top"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="3dp"
+        android:visibility="gone" >
+
+        <LinearLayout
+            android:id="@+id/factory_ll_recipes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/recipe_explanation"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TableLayout
+                android:id="@+id/factory_recipes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:stretchColumns="*" >
+
+            </TableLayout>
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

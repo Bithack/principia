@@ -1,0 +1,6 @@
+NAME=png
+INIT=tmod_png_init
+
+SOURCES=( png.c )
+LIBS=( png )
+

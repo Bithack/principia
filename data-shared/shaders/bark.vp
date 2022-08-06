@@ -1,0 +1,31 @@
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec3 tangent;
+attribute vec2 texcoord;
+
+uniform mat4 MVP;
+uniform mat3 N;
+UNIFORMS
+
+varying lowp vec2 FS_texcoord;
+varying lowp vec3 FS_n;
+varying lowp vec3 FS_t;
+varying lowp vec3 FS_b;
+VARYINGS
+
+void main(void)
+{
+    FS_n = normalize(N*normal);
+    FS_t = normalize(N*tangent);
+    FS_b = cross(FS_n, FS_t);
+
+    vec4 pos = MVP*vec4(position, 1.);
+
+    SET_SHADOW
+    SET_AMBIENT_OCCL
+
+    FS_texcoord = texcoord;
+
+    gl_Position = pos;
+}
+

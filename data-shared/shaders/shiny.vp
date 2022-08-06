@@ -1,0 +1,37 @@
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec2 texcoord;
+
+uniform mat4 MVP;
+uniform mat4 MV;
+uniform mat4 M;
+uniform mat3 N;
+UNIFORMS
+
+varying mediump float FS_diffuse;
+varying lowp vec2 FS_texcoord;
+varying lowp vec2 FS_texcoord2;
+varying mediump vec3 FS_normal;
+varying mediump vec3 FS_eye;
+VARYINGS
+
+void main(void)
+{
+    vec3 nor = N*normal;
+    vec4 pos = MVP*vec4(position, 1.);
+
+    SET_SHADOW
+    SET_AMBIENT_OCCL
+
+    FS_texcoord = texcoord;
+
+    vec4 tmp = (M*vec4(position, 1.)) + vec4(MV[3].xy*.25,0.,0.);
+    FS_texcoord2 = (tmp.xy+vec2(tmp.z)) / 25.;
+    FS_diffuse = max(dot(LIGHT, nor)*_DIFFUSE, 0.);
+
+    FS_normal = nor;
+    FS_eye = (MV*vec4(position, 1.)).xyz;
+
+    gl_Position = pos;
+}
+

@@ -1,0 +1,10 @@
+*.class
+.classpath
+.project
+libs/
+obj/
+BuildConfig.java
+gen/R.java.d
+local.properties
+R.java
+bin

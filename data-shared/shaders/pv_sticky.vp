@@ -1,0 +1,37 @@
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec2 texcoord;
+
+uniform vec4 sprite_coords;
+uniform mat4 MVP;
+uniform mat4 MV;
+uniform mat3 N;
+UNIFORMS
+
+varying mediump vec4 FS_diffuse_texcoord;
+varying lowp vec3 FS_normal;
+varying lowp vec3 FS_eye;
+VARYINGS
+
+void main(void)
+{
+    vec3 nor = N*normal;
+
+    vec4 difftex;
+
+    vec4 pos = MVP*vec4(position, 1.);
+
+    difftex.zw = mix(sprite_coords.xy, sprite_coords.zw, texcoord.xy);
+    difftex.xy = vec2(max(dot(LIGHT, nor)*_DIFFUSE, 0.), 0.);
+
+    FS_diffuse_texcoord = difftex;
+
+    SET_SHADOW
+    SET_AMBIENT_OCCL
+
+    FS_normal = normalize(nor);
+    FS_eye = normalize((MV*vec4(position, 1.)).xyz);
+
+    gl_Position = pos;
+}
+
