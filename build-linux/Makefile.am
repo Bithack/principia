@@ -26,8 +26,8 @@ apparatus2_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99 -DFT2_BUILD_LIBRARY\
 	-DLOAD_PCX -DLOAD_PNM -DLOAD_TGA -DLOAD_XCF -DLOAD_XPM \
 	-DLOAD_XV
 apparatus2_CXXFLAGS = ${GLOBAL_FLAGS}
-apparatus2_LDADD = -lz -ldl -lGL -lpthread -lX11 -lXi -lrt
-apparatus2_LDFLAGS = ${GTK_LIBS}
+apparatus2_LDADD = -lz -ldl -lGL -lpthread -lX11 -lXi -lrt ${GTK_LIBS}
+apparatus2_LDFLAGS = 
 
 apparatus2_SOURCES = \
 ../src/jpeg/jaricom.c \

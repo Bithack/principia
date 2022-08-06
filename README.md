@@ -20,7 +20,7 @@ https://www.twitter.com/Bithack
 Compiling and running
 --------
 
-Building on Windows
+## Building on Windows
 
 - Install MSYS2 64bit
 
@@ -43,7 +43,23 @@ $ ./go
 Clean with:
 $ make clean
 
-See the build-linux directory for Linux instructions. More info coming soon.
+
+## Building on Linux (Debian)
+
+$ sudo apt-get install automake libgtk2.0-dev libgl-dev libxss-dev libxxf86vm-dev libasound2-dev libudev-dev valgrind
+
+$ cd build-linux;
+
+$ ./go
+
+
+If everything goes well, Principia will start but then freeze at the loading screen due some uninitialize directories. Terminate Principia by replying 'y' in the gdb prompt in the terminal, then in the same terminal, go up a directory and launch it from the parent directory instead:
+
+$ cd ..
+
+$ build-linux/apparatus2
+
+(this bug will be fixed in short)
 
 
 License
