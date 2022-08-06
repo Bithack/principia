@@ -75,17 +75,6 @@ enum {
 #define IDD_PLAYING_COMMUNITY_LEVEL (1ULL << 3)
 #define IDD_IN_MENU                 (1ULL << 4)
 
-#define LICENSE_LEVEL_ID 3726592
-#define LICENSE_CHECK_INTERVAL_MINUTES 10
-#define LICENSE_CHECK_INTERVAL \
-    (1000000*60*LICENSE_CHECK_INTERVAL_MINUTES)
-
-#if defined TMS_BACKEND_LINUX || defined TMS_BACKEND_WINDOWS
-#define LICENSE_IS_VALID() (progress::get_level_progress(LEVEL_MAIN, LICENSE_LEVEL_ID)->completed)
-#else
-#define LICENSE_IS_VALID() true
-#endif
-
 #define NUM_LAYERS 3
 #define LAYER_DEPTH 1.f
 

@@ -349,7 +349,6 @@ void P_focus(int focus);
 extern "C" {
 #endif
 void P_get_cookie_data(char **u, char **k, char **sid, char **l);
-extern uint64_t last_license_check;
 #ifdef __cplusplus
 }
 #endif

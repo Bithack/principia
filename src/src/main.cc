@@ -322,8 +322,6 @@ static int _publish_level(void *p);
 static int _download_level(void *p);
 static int _check_version_code(void *_unused);
 static int _get_featured_levels(void *_unused);
-static int _license_check_offline(void *_unused);
-static int _license_check_online(void *_unused);
 
 static void
 gi_end(void)
@@ -746,7 +744,6 @@ intermediary::window_size_changed()
     }
 }
 
-uint64_t last_license_check=0;
 char *featured_levels_buf = 0;
 size_t featured_levels_buf_size = 0;
 static int featured_levels_left = 0;
@@ -781,29 +778,6 @@ tproject_step(void)
                                 _get_featured_levels,
                                 "_get_featured_levels",
                                 UINT_TO_VOID(num_featured_levels));
-                    }
-                    break;
-
-                case ACTION_LICENSE_CHECK_OFFLINE:
-                    {
-                        last_license_check = _tms.last_time;
-
-                        create_thread(
-                                _license_check_offline,
-                                "_license_check_offline",
-                                0);
-
-                    }
-                    break;
-
-                case ACTION_LICENSE_CHECK:
-                    {
-                        last_license_check = _tms.last_time;
-
-                        create_thread(
-                                _license_check_online,
-                                "_license_check_online",
-                                0);
                     }
                     break;
 
@@ -1351,7 +1325,6 @@ tproject_step(void)
                     ui::emit_signal(SIGNAL_PLAY_COMMUNITY_LEVEL);
                     G->resume_action = GAME_RESUME_OPEN;
                     G->screen_back = 0;
-                    last_license_check = _tms.last_time;
 
                     if (_tms.screen == &P.s_loading_screen->super) {
                         /* we set the screen following the loading screen to an
@@ -2666,25 +2639,6 @@ _check_version_code(void *_unused)
     }
 
     P.add_action(ACTION_REFRESH_HEADER_DATA, 0);
-
-#if defined TMS_BACKEND_WINDOWS || defined TMS_BACKEND_LINUX
-    if (res != 1) {
-        char *u,*k,*s,*l;
-        P_get_cookie_data(&u, &k, &s, &l);
-
-        if (u && l) {
-            if (atoi(u) > 1) {
-                //tms_infof("logged in");
-                P.add_action(ACTION_LICENSE_CHECK, 0);
-            } else {
-                ui::set_next_action(ACTION_LICENSE_CHECK);
-                ui::open_dialog(DIALOG_LOGIN);
-            }
-        }
-    } else {
-        P.add_action(ACTION_LICENSE_CHECK_OFFLINE, 0);
-    }
-#endif
 
     tms_debugf("exiting version check thread");
     return 0;
@@ -4568,49 +4522,6 @@ P_get_cookie_data(char **u, char **k, char **sid, char **l)
         }
     }
     unlock_curl("get_cookie_data");
-}
-
-static int
-_license_check_offline(void *data)
-{
-    if (P.curl) {
-        char *u,*k,*s,*l;
-        P_get_cookie_data(&u, &k, &s, &l);
-
-        lvl_progress *lvl = progress::get_level_progress(LEVEL_MAIN, LICENSE_LEVEL_ID);
-        if (lvl->completed && u && atoi(u) == lvl->top_score) {
-            /* licensed */
-            tms_debugf("license valid (offline)");
-        } else {
-            ui::open_dialog(DIALOG_INVALID_LICENSE);
-        }
-    }
-
-    return 0;
-}
-
-static int
-_license_check_online(void *data)
-{
-    if (P.curl) {
-        char *u,*k,*s,*l;
-        P_get_cookie_data(&u, &k, &s, &l);
-        tms_debugf("license check: %s", u);
-
-        if (u && l && atoi(l)>0 && atoi(u) > 1) {
-            lvl_progress *lvl = progress::get_level_progress(LEVEL_MAIN, LICENSE_LEVEL_ID);
-            lvl->completed = 1;
-            lvl->top_score = atoi(u);
-            tms_debugf("valid pc license!");
-        } else {
-            lvl_progress *lvl = progress::get_level_progress(LEVEL_MAIN, LICENSE_LEVEL_ID);
-            lvl->completed = 0;
-            tms_debugf("invalid pc license");
-            ui::open_dialog(DIALOG_INVALID_LICENSE);
-        }
-    }
-
-    return 0;
 }
 
 extern "C" void

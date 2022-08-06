@@ -252,10 +252,7 @@ pscreen::handle_input(tms::event *ev, int action)
                 && !prompt_is_open
 #endif
            ) {
-            if (_tms.last_time - last_license_check >= LICENSE_CHECK_INTERVAL) {
-                last_license_check = _tms.last_time;
-                P.add_action(ACTION_VERSION_CHECK, 0);
-            }
+            P.add_action(ACTION_VERSION_CHECK, 0);
         }
 #endif
     }
