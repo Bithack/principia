@@ -35,7 +35,7 @@ $ pacman -Syu
 
 The terminal will then ask you to close it when done. Proceed with doign so, and then go to the start menu and run MSYS Mingw32 64-bit. It is important that you run the "MINGW64 64-Bit" version and not the "MSYS2 MSYS" or "MINGW64 32-Bit". Run the commands below to install the necessary dependencies.
 
-$ pacman -S --neded base-devel mingw-w64-x86_64-toolchain autotools
+$ pacman -S --needed base-devel mingw-w64-x86_64-toolchain autotools
 
 $ pacman -S mingw-w64-x86_64-gtk2
 
