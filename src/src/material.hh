@@ -340,11 +340,6 @@ extern m m_robot_armor;
 
 extern tms::texture *tex_bg;
 extern tms::texture *tex_bedrock;
-#ifdef LITE
-# ifdef TMS_BACKEND_ANDROID
-extern tms::texture *tex_full_version;
-# endif
-#endif
 
 /*
 extern tms::shader *shader_colored;

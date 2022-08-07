@@ -170,7 +170,6 @@ class gui_spritesheet
     static p_text *t_lose; /* Game over */
     static p_text *t_player_death; /* You died */
     static p_text *t_submit_score; /* Submit score */
-    static p_text *t_saving_disabled; /* Warning: Saving is disabled in the lite version */
 
     static p_text *t_in[NUM_SOCKET_SPRITES];
     static p_text *t_out[NUM_SOCKET_SPRITES];

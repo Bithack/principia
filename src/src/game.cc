@@ -1738,7 +1738,6 @@ game::step(double dt)
     }
 #endif
 
-#ifndef LITE
     if (this->state.sandbox && W->is_paused() && !this->state.test_playing) {
         /* do autosave */
         if (_tms.last_time > this->state.last_autosave_try+GAME_AUTOSAVE_INTERVAL && !down[0] && !down[1]) {
@@ -1755,7 +1754,6 @@ game::step(double dt)
             }
         }
     }
-#endif
 
 #ifdef PROFILING
     Uint32 ss = SDL_GetTicks();
@@ -6438,16 +6436,6 @@ game::handle_input_playing(tms::event *ev, int action)
             }
         }
 
-#ifdef LITE
-        if (this->opened_special_level == 1) {
-            if (tproj.x > -0.3f && tproj.x < 4.4f && tproj.y > 0.8f && tproj.y < 2.8f) {
-                ui::emit_signal(SIGNAL_LITE_SPECIAL_BUTTON);
-                ui::open_url("http://play.google.com/store/apps/details?id=com.bithack.principia");
-            }
-            tms_debugf("%.2f/%.2f", tproj.x, tproj.y);
-        }
-#endif
-
         if (this->selection.e && this->check_click_shape_resize(ev->data.motion.x, ev->data.motion.y)) {
             tms_debugf("enablding shape resize");
             resizing[pid] = 1;
@@ -7082,13 +7070,6 @@ game::proceed()
         this->previous_level = this->state.pkg->get_level_index(W->level.local_id);
         if (next == 0) {
             tms_infof("completed all levels");
-#ifdef LITE
-            tms_infof("a: %d. b: %d", this->state.pkg->type, this->state.pkg->id);
-            if (this->state.pkg->type == LEVEL_MAIN && this->state.pkg->id == 8) {
-                this->open_play(this->state.pkg->type, SPECIAL_LITE_LEVEL, this->state.pkg);
-                return;
-            }
-#endif
 
             tms::set_screen(P.s_menu_pkg);
         } else  {
@@ -7217,11 +7198,6 @@ game::open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing/*=fals
     this->state.sandbox = false;
     this->state.test_playing = test_playing;
     this->opened_special_level = 0;
-#ifdef LITE
-    if (id_type == LEVEL_MAIN && pkg->id == 8 && id == SPECIAL_LITE_LEVEL) { /* id of the lite "main" package */
-        this->opened_special_level = 1;
-    }
-#endif
 
     bool paused = false;
 
@@ -7363,9 +7339,7 @@ game::open_sandbox(int id_type, uint32_t id)
 
     if (id == 0 && id_type == LEVEL_LOCAL) {
         /* open autosave */
-#ifndef LITE
         W->open_autosave();
-#endif
     } else {
         W->open(id_type, id, true, true);
     }
@@ -7457,15 +7431,11 @@ game::save(bool create_icon/*=true*/, bool force/*=false*/)
 bool
 game::save_copy()
 {
-#ifdef LITE
-    return false;
-#else
     W->level.local_id = 0;
     W->level.parent_id = W->level.community_id;
     W->level.community_id = 0;
 
     return this->save();
-#endif
 }
 
 void

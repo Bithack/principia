@@ -1056,9 +1056,6 @@ tproject_step(void)
 
                 case ACTION_OPEN:
                     {
-#ifdef LITE
-                        ui::message("Playing community levels is disabled for the Lite version.\nPlease upgrade to the Full version to enable this feature.", true);
-#else
                         uint32_t id = VOID_TO_UINT32(data);
                         G->resume_action = GAME_RESUME_OPEN;
                         tms_debugf("ACTION_OPEN: %u", id);
@@ -1069,7 +1066,6 @@ tproject_step(void)
                         } else if (_tms.screen != &G->super){
                             tms::set_screen(G);
                         }
-#endif
                     }
                     break;
 
@@ -1111,25 +1107,19 @@ tproject_step(void)
 
                 case ACTION_LOGIN:
                     {
-#ifndef LITE
                         create_thread(_login, "_login", data);
-#endif
                     }
                     break;
 
                 case ACTION_REGISTER:
                     {
-#ifndef LITE
                         create_thread(_register, "_register", data);
-#endif
                     }
                     break;
 
                 case ACTION_LINK_ACCOUNT:
                     {
-#ifndef LITE
                         create_thread(_link_account, "_link_account", data);
-#endif
                     }
                     break;
 
@@ -1157,32 +1147,23 @@ tproject_step(void)
                     break;
 
                 case ACTION_SAVE:
-#ifdef LITE
-                    ui::message("Saving in sandbox is disabled for the Lite version!\nUpgrade to the full version to enable saving.");
-#else
                     if (G->save()) {
                         ui::emit_signal(SIGNAL_SAVE_LEVEL);
                         ui::message("Saved!");
                     } else {
                         ui::message("Unable to save level.");
                     }
-#endif
                     break;
                 case ACTION_SAVE_COPY:
-#ifdef LITE
-                    ui::message("Saving in sandbox is disabled for the Lite version!\nUpgrade to the full version to enable saving.");
-#else
                     if (G->save_copy()) {
                         ui::message("Saved copy!");
                     } else {
                         ui::message("Unable to save copy.");
                     }
-#endif
                     break;
 
                 case ACTION_UPGRADE_LEVEL:
                     {
-#ifndef LITE
                         /* make sure the chunk preloader has loaded all chunks */
 
                         W->level.version = LEVEL_VERSION;
@@ -1200,7 +1181,6 @@ tproject_step(void)
                             ui::message("An error occurred while upgrading the level.");
                         }
                         */
-#endif
                     }
                     break;
 
@@ -1221,11 +1201,7 @@ tproject_step(void)
                 {
                     int type = VOID_TO_INT(data);
                     if (type == 0) {
-#ifndef LITE
                         P.s_menu_pkg->set_pkg(LEVEL_MAIN, 7);
-#else
-                        P.s_menu_pkg->set_pkg(LEVEL_MAIN, 8);
-#endif
                     } else {
                         P.s_menu_pkg->set_pkg(LEVEL_MAIN, 9);
                     }
@@ -1280,9 +1256,6 @@ tproject_step(void)
                     break;
 
                 case ACTION_PUBLISH_PKG:
-#ifdef LITE
-                    ui::message("Publishing is disabled in the Lite version!\nPlease upgrade to the Full version to enable publishing.");
-#else
                     _publish_pkg_id = VOID_TO_UINT32(data);
                     G->resume_action = GAME_RESUME_OPEN;
                     if (_tms.screen == &P.s_loading_screen->super) {
@@ -1290,13 +1263,9 @@ tproject_step(void)
                     } else {
                         P.s_loading_screen->load(publish_pkg_loader, G);
                     }
-#endif
                     break;
 
                 case ACTION_PLAY_PKG:
-#ifdef LITE
-                    ui::message("Playing community levels is disabled for the Lite version.\nPlease upgrade to the Full version to enable this feature.");
-#else
                     if (data != (void*)0) {
                         _play_id = VOID_TO_UINT32(data);
                         //_play_type = LEVEL_LOCAL;
@@ -1307,7 +1276,6 @@ tproject_step(void)
                     } else {
                         P.s_loading_screen->load(pkg_loader, P.s_menu_pkg);
                     }
-#endif
                     break;
 
                 case ACTION_WARP:
@@ -1319,9 +1287,6 @@ tproject_step(void)
                     break;
 
                 case ACTION_OPEN_PLAY:
-#ifdef LITE
-                    ui::message("Playing community levels is disabled for the Lite version.\nPlease upgrade to the Full version to enable this feature.", true);
-#else
                     ui::emit_signal(SIGNAL_PLAY_COMMUNITY_LEVEL);
                     G->resume_action = GAME_RESUME_OPEN;
                     G->screen_back = 0;
@@ -1334,13 +1299,9 @@ tproject_step(void)
                     } else {
                         P.s_loading_screen->load(level_loader, G);
                     }
-#endif
                     break;
 
                 case ACTION_DERIVE:
-#ifdef LITE
-                    ui::message("Playing community levels is disabled for the Lite version.\nPlease upgrade to the Full version to enable this feature.", true);
-#else
                     G->resume_action = GAME_RESUME_OPEN;
                     G->screen_back = 0;
 
@@ -1349,13 +1310,10 @@ tproject_step(void)
                     } else {
                         P.s_loading_screen->load(open_loader, G);
                     }
-#endif
                     break;
 
                 case ACTION_EDIT:
-#ifdef LITE
                     ui::message("Playing community levels is disabled for the Lite version.\nPlease upgrade to the Full version to enable this feature.", true);
-#else
                     G->resume_action = GAME_RESUME_OPEN;
                     G->screen_back = 0;
 
@@ -1364,17 +1322,12 @@ tproject_step(void)
                     } else {
                         P.s_loading_screen->load(edit_loader, G);
                     }
-#endif
                     break;
 
                 case ACTION_PUBLISH:
-#ifdef LITE
-                    ui::message("Publishing is disabled in the Lite version!\nPlease upgrade to the Full version to enable publishing.");
-#else
                     tms_debugf("action publish");
                     P.s_loading_screen->load(publish_loader, G);
                     G->resume_action = GAME_RESUME_CONTINUE;
-#endif
                     break;
 
                 case ACTION_SUBMIT_SCORE:
@@ -2300,10 +2253,6 @@ level_loader(int step)
 
     switch (step) {
         case 0:
-#ifdef LITE
-            ui::message("Playing community levels is disabled for the Lite version.\nPlease upgrade to the Full version to enable this feature.", true);
-            return LOAD_DONE;
-#endif
             _play_lock = true;
             _play_downloading = false;
             _play_download_for_pkg = false;
@@ -2356,10 +2305,6 @@ open_loader(int step)
 {
     switch (step) {
         case 0:
-#ifdef LITE
-            ui::message("Playing community levels is disabled for the Lite version.\nPlease upgrade to the Full version to enable this feature.", true);
-            return LOAD_DONE;
-#endif
             _play_lock = true;
             _play_downloading = false;
             _play_download_for_pkg = false;
@@ -2394,10 +2339,6 @@ edit_loader(int step)
 {
     switch (step) {
         case 0:
-#ifdef LITE
-            ui::message("Playing community levels is disabled for the Lite version.\nPlease upgrade to the Full version to enable this feature.", true);
-            return LOAD_DONE;
-#endif
             _play_lock = true;
             _play_downloading = false;
             _play_download_for_pkg = false;
@@ -2432,10 +2373,6 @@ pkg_loader(int step)
 {
     switch (step) {
         case 0:
-#ifdef LITE
-            ui::message("Playing community levels is disabled for the Lite version.\nPlease upgrade to the Full version to enable this feature.", true);
-            return LOAD_DONE;
-#endif
             _play_lock = true;
             _play_pkg_id = _play_id;
             _play_pkg_type = _play_type;
@@ -2605,7 +2542,6 @@ _check_version_code(void *_unused)
 
                 if (server_version_code > PRINCIPIA_VERSION_CODE) {
                     P.new_version_available = true;
-#ifndef LITE
 # ifdef TMS_BACKEND_ANDROID
                     ui::message("A new version of Principia is available. Please go to Google Play to download the latest version.", true);
 #elif defined TMS_BACKEND_IOS
@@ -2613,7 +2549,6 @@ _check_version_code(void *_unused)
 # else
                     ui::message("A new version of Principia is available. Please go to " COMMUNITY_HOST " to download the latest version.", true);
 # endif
-#endif
                 }
 
                 tms_debugf("Client: %d. Server: %d", PRINCIPIA_VERSION_CODE, server_version_code);
@@ -2931,11 +2866,6 @@ _get_featured_levels(void *_num)
 static int
 _publish_pkg(void *_unused)
 {
-#ifdef LITE
-    _publish_pkg_done = true;
-    _publish_pkg_error = true;
-    return T_OK;
-#else
     uint32_t pkg_id = _publish_pkg_id;
 
     pkginfo p;
@@ -3105,15 +3035,11 @@ _publish_pkg(void *_unused)
     _publish_pkg_done = true;
 
     return T_OK;
-#endif
 }
 
 static int
 _publish_level(void *p)
 {
-#ifdef LITE
-    return T_OK;
-#else
     uint32_t level_id = _publish_lvl_id;
     int community_id    = 0;
     int error           = 0;
@@ -3291,7 +3217,6 @@ _publish_level(void *p)
     _publish_lvl_uploading = false;
 
     return T_OK;
-#endif
 }
 
 static int
@@ -3500,9 +3425,6 @@ _ping(void *p)
 int
 _login(void *p)
 {
-#ifdef LITE
-    return T_OK;
-#else
     struct login_data *data = static_cast<struct login_data*>(p);
 
     int res             = T_OK;
@@ -3598,16 +3520,12 @@ _login(void *p)
     free(data);
 
     return res;
-#endif
 }
 
 /** --Register **/
 int
 _register(void *p)
 {
-#ifdef LITE
-    return T_OK;
-#else
     struct register_data *data = static_cast<struct register_data*>(p);
     int res = T_OK;
     int num_tries = 0;
@@ -3743,16 +3661,12 @@ _register(void *p)
     free(data);
 
     return res;
-#endif
 }
 
 /** --Link account **/
 int
 _link_account(void *p)
 {
-#ifdef LITE
-    return T_OK;
-#else
     struct account_link_data *data = static_cast<struct account_link_data*>(p);
     int res = T_OK;
     int num_tries = 0;
@@ -3865,7 +3779,6 @@ _link_account(void *p)
     free(data);
 
     return res;
-#endif
 }
 
 static int
@@ -3873,10 +3786,6 @@ publish_pkg_loader(int step)
 {
     switch (step) {
         case 0:
-#ifdef LITE
-            ui::message("Publishing is disabled for the lite version.\nThis code should not be reached.");
-            return LOAD_DONE;
-#endif
             break;
 
         case 1:
@@ -3914,10 +3823,6 @@ publish_loader(int step)
 {
     switch (step) {
         case 0:
-#ifdef LITE
-            ui::message("Publishing is disabled for the lite version.\nThis code should not be reached.");
-            return LOAD_DONE;
-#endif
             G->save();
             _publish_lvl_id = W->level.local_id;
             _publish_lvl_community_id = 0;

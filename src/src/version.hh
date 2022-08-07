@@ -10,11 +10,7 @@
 #define PRINCIPIA_VERSION_STRING _COOL_VERSION_STRING
 #endif
 
-#ifdef LITE
-#define PRINCIPIA_STRING "Principia Lite"
-#else
 #define PRINCIPIA_STRING "Principia"
-#endif
 
 #define PRINCIPIA_USERAGENT PRINCIPIA_STRING "/" STR(PRINCIPIA_VERSION_CODE) " (" OS_STRING ")"
 
