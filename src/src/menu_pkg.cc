@@ -165,12 +165,6 @@ menu_pkg::set_pkg(int type, uint32_t id)
         return false;
     }
 
-#ifdef LITE
-    if (type == LEVEL_MAIN && id == 8) {
-        this->pkg.num_levels -= 1;
-    }
-#endif
-
     if (this->pkg.num_levels <= 0)
         return false;
 

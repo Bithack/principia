@@ -616,9 +616,6 @@ pkgman::get_next_object_id()
 bool
 pkginfo::save()
 {
-#ifdef LITE
-    return false;
-#else
     if (this->type < 0 || this->type >= 3) {
         tms_errorf("invalid level type");
         return false;
@@ -655,7 +652,6 @@ pkginfo::save()
     }
 
     return true;
-#endif
 }
 
 bool
@@ -1365,9 +1361,6 @@ lvledit::print_gids()
 bool
 lvledit::save(void)
 {
-#ifdef LITE
-    return false;
-#else
     if (this->lvl.get_size() != this->header_size) {
         /* new header size does not match old header size,
          * we need to perform a memmove on the object data */
@@ -1404,15 +1397,11 @@ lvledit::save(void)
 
     tms_errorf("could not open file '%s' for writing", filename);
     return false;
-#endif
 }
 
 bool
 lvledit::save_to_path(const char *path)
 {
-#ifdef LITE
-    return false;
-#else
     if (this->lvl.get_size() != this->header_size) {
         /* new header size does not match old header size,
          * we need to perform a memmove on the object data */
@@ -1446,7 +1435,6 @@ lvledit::save_to_path(const char *path)
 
     tms_errorf("could not open file '%s' for writing", path);
     return false;
-#endif
 }
 
 void

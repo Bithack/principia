@@ -25,7 +25,7 @@ public class SaveAsDialog
 
     public static Dialog get_dialog()
     {
-        if (_dialog == null && PrincipiaActivity.FULL) {
+        if (_dialog == null) {
             AlertDialog.Builder bld = new AlertDialog.Builder(PrincipiaActivity.mSingleton);
             bld.setTitle("Save a copy");
 

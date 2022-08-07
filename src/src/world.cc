@@ -2444,9 +2444,7 @@ world::save_partial(std::set<entity*> *entity_list, const char *name, uint32_t p
 void
 world::open_autosave()
 {
-#ifndef LITE
     this->open(LEVEL_LOCAL, 0, true, false);
-#endif
 }
 
 bool
@@ -2485,10 +2483,6 @@ world::save(int save_type)
 
     this->cwindow->preloader.write_gentypes(&this->level, &this->lb);
     this->cwindow->preloader.write_chunks(&this->level, &this->lb);
-
-#ifdef LITE
-    this->level.local_id = 1;
-#endif
 
     char filename[1024];
 

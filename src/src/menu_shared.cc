@@ -73,11 +73,7 @@ menu_shared::init()
         tex->gamma_correction = 0;
         tex->colors = GL_RGBA;
 
-#ifdef LITE
-        tex->load("data-shared/textures/menu/main_menu_lite.png");
-#else
         tex->load("data-shared/textures/menu/main_menu.png");
-#endif
 
         tex->upload();
 

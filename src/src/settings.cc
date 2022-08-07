@@ -126,7 +126,7 @@ _settings::init()
     this->add("widget_control_sensitivity", S_FLOAT, 1.5f);
     this->add("rc_lock_cursor",     S_BOOL,  false);
     this->add("control_type",       S_UINT8,  1);
-#if defined(LITE) || defined(TMS_BACKEND_PC)
+#if defined(TMS_BACKEND_PC)
     this->add("default_level_type", S_INT32,   LCAT_ADVENTURE);
 #else
     this->add("default_level_type", S_INT32,   LCAT_CUSTOM);

@@ -2919,28 +2919,6 @@ game::render_gui(void)
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //glDisable(GL_DEPTH_TEST);
-#ifdef LITE
-# ifdef TMS_BACKEND_ANDROID
-    if (this->opened_special_level == 1) {
-        struct tms_sprite tmp;
-        tmp.bl = (tvec2){0.f, 0.f};
-        tmp.tr = (tvec2){1.f, 1.f};
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, tex_full_version->gl_texture);
-
-        tms_ddraw_set_color(this->dd, 1.f, 1.f, 1.f, 1.f);
-        float x = 2.f;
-        float y = 2.f;
-        float w = 6.f;
-        float h = 1.5f;
-        tms_ddraw_sprite(this->dd, &tmp,
-                x, y,
-                w, h
-                );
-    }
-# else
-# endif
-#endif
 
     glBindTexture(GL_TEXTURE_2D, gui_spritesheet::atlas->texture.gl_texture);
 
@@ -3003,14 +2981,6 @@ game::render_gui(void)
                     1.f, 1.f, 1.f, a);
         }
     }
-
-#ifdef LITE
-    if (this->state.sandbox && W->is_paused()) {
-        this->add_text(gui_spritesheet::t_saving_disabled,
-                _tms.window_width/2.f,
-                _tms.window_height - gui_spritesheet::t_saving_disabled->get_height());
-    }
-#endif
 
     if (this->numfeed_timer > 0.f) {
         this->numfeed_text->set_text(this->numfeed_str);
