@@ -101,7 +101,8 @@ menu_pkg::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
 
     switch (button_id) {
         case BTN_BACK:
-            P.add_action(ACTION_GOTO_PLAY, 0x1);
+            P.add_action(ACTION_GOTO_MAINMENU, 0x1);
+            //P.add_action(ACTION_GOTO_PLAY, 0x1);
             break;
 
         default: return false;

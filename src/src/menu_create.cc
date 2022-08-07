@@ -141,7 +141,7 @@ menu_create::menu_create()
                 this->get_surface(), TMS_WDG_LABEL,
                 BTN_CUSTOM, area);
         this->wdg_custom->set_label("Custom", font::xmedium);
-        this->wdg_custom->priority = 970;
+        this->wdg_custom->priority = 995;
         this->wdg_custom->render_background = true;
         this->wdg_custom->add();
 
