@@ -2,9 +2,7 @@ Principia Open Source Project
 =========
 Principia is a sandbox physics game originally released in November 2013. It is the successor to the Android hit game "Apparatus".
 
-The project can be built on Windows, Linux, Android or iOS. The iOS version lags behind and lacks a lot of UI. The Android version is outdated and probably needs some work to compile.
-
-Compilation on Windows and Linux should be easy, see further below.
+The project can be built on Windows, Linux, Android or iOS. The iOS version lags behind and lacks a lot of UI.
 
 NOTE!
 Mote documentation and resources will come.
@@ -61,8 +59,43 @@ $ build-linux/apparatus2
 
 (this bug will be fixed in short)
 
+## Building for Android (on Linux)
+
+These instructions can likely be easily adapted to build on any platform for Android.
+
+Download Android Studio from:
+https://developer.android.com/studio
+
+Untar the archive (your version number might differ from the example below) and run studio.sh:
+
+$ tar xzf android-studio-2021.2.1.16-linux.tar.gz
+
+$ cd bin; ./studio.sh
+
+Choose Custom in the Installer, click Next a bunch of times. Android Studio will download components for a while. Once finished, in the "Welcome to Android Studio" dialog, choose "Customize" in the left menu and then click "All Settings..." at the bottom center. Open Appearance -> System Settings -> Android SDK. Click the SDK Tools tab and check the following items:
+
+- NDK (Side by side)
+- Android SDK Command-line tools
+
+Click Apply and wait for the components to download. Close Android Studio forever.
+
+Open a terminal and run the build scripts:
+
+$ cd build-android;
+
+$ export ANDROID_HOME=/home/EXAMPLE/Android/Sdk
+
+$ ./gradlew build
+
+ANDROID_HOME should be set to the location where Android Studio installed the SDK (which you chose during setup). You might want to put that export line in your .bashrc file.
+
+Finally, to install the game on your device:
+
+$ ./gradew install
+
 
 License
 ---------
 See LICENSE.md
+
 

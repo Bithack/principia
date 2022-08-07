@@ -41,3 +41,4 @@ gdb.txt
 principia.state
 sha1_test
 .DS_Store
+*.iml
