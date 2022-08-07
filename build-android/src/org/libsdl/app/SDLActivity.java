@@ -292,21 +292,6 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
 
         if (i != null) {
             if (i.getScheme() != null && i.getScheme().equals("principia")) {
-                if (false == PrincipiaActivity.FULL) {
-                    PackageManager pm = getPackageManager();
-                    List<ApplicationInfo> packages = pm.getInstalledApplications(0);
-                    for (ApplicationInfo ai : packages) {
-                        Log.v("Principia", "package installed " + ai.packageName);
-                        if (ai.packageName.equals("com.bithack.principia")) {
-                            Intent b = pm.getLaunchIntentForPackage("com.bithack.principia");
-                            b.putExtras(i);
-                            b.setData(i.getData());
-                            b.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                            this.startActivityForResult(b, 1);
-                            return;
-                        }
-                    }
-                }
                 PrincipiaBackend.setarg(i.getDataString());
             }
         }
@@ -758,7 +743,6 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
     public static final int SIGNAL_SAVE_LEVEL           = 402;
     public static final int SIGNAL_PLAY_COMMUNITY_LEVEL = 403;
     public static final int SIGNAL_MAIN_LEVEL_COMPLETED = 404;
-    public static final int SIGNAL_LITE_SPECIAL_BUTTON  = 405;
     protected static final String TAG = "Principia";
 
     public static void emit_signal(final int signal_id)
@@ -791,9 +775,6 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
                     break;
                 case SIGNAL_MAIN_LEVEL_COMPLETED:
                     PrincipiaActivity.mSingleton.mLogger.logEvent("Main level completed"); /* TODO: this needs a bundle with the ID */
-                    break;
-                case SIGNAL_LITE_SPECIAL_BUTTON:
-                    PrincipiaActivity.mSingleton.mLogger.logEvent("Lite special button");
                     break;
                 }
             }
@@ -871,11 +852,7 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
         } catch (NameNotFoundException e) {
             version = 0;
         }
-        if (PrincipiaActivity.FULL) {
-            SDLActivity.wv.getSettings().setUserAgentString(String.format(Locale.US, "Principia WebView/%d (Android)", version));
-        } else {
-            SDLActivity.wv.getSettings().setUserAgentString(String.format(Locale.US, "Principia Lite WebView/%d (Android)", version));
-        }
+        SDLActivity.wv.getSettings().setUserAgentString(String.format(Locale.US, "Principia WebView/%d (Android)", version));
         SDLActivity.wv.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -1275,40 +1252,26 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
 
                 final CharSequence[] items;
 
-                if (PrincipiaActivity.FULL) {
-                    items = new CharSequence[] {
-                        "Level properties",
-                        "New level",
-                        "Save",
-                        "Save a copy",
-                        "Open",
-                        "Publish online",
-                        "Settings",
-                        "Log in",
-                        "Help: Getting started",
-                        "Help: Principia Wiki",
-                        "Browse levels online",
-                        "Back to menu",
-                        "Quit"
-                    };
-                } else {
-                    items = new CharSequence[] {
-                        "Level properties",
-                        "New level",
-                        "Settings",
-                        "Get full version",
-                        "Help: Getting started",
-                        "Help: Principia Wiki",
-                        "Back to menu",
-                        "Quit"
-                    };
-                }
+                items = new CharSequence[] {
+                    "Level properties",
+                    "New level",
+                    "Save",
+                    "Save a copy",
+                    "Open",
+                    "Publish online",
+                    "Settings",
+                    "Log in",
+                    "Help: Getting started",
+                    "Help: Principia Wiki",
+                    "Browse levels online",
+                    "Back to menu",
+                    "Quit"
+                };
 
                 bld.setItems(items, new DialogInterface.OnClickListener(){
                     public void onClick(DialogInterface dialog, int which) {
                         /* TODO: Use dialog fragments */
-                        if (PrincipiaActivity.FULL) {
-                            switch (which) {
+                        switch (which) {
                             case 0: showDialog(DIALOG_LEVEL_PROPERTIES); break;
                             case 1: showDialog(DIALOG_NEW_LEVEL); break;
                             case 2: if (PrincipiaBackend.getLevelName().length() == 0) {SaveAsDialog.refresh_name=true; SaveAsDialog.copy=false; showDialog(DIALOG_SAVE);} else PrincipiaBackend.triggerSave(false);  break;
@@ -1322,19 +1285,8 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
                             case 10: SDLActivity.open_url("http://principiagame.com/"); break;
                             case 11: PrincipiaBackend.addActionAsInt(ACTION_GOTO_MAINMENU, 0); break;
                             case 12: SDLActivity.cleanQuit(); break;
-                            }
-                        } else {
-                            switch (which) {
-                            case 0: showDialog(DIALOG_LEVEL_PROPERTIES); break;
-                            case 1: showDialog(DIALOG_NEW_LEVEL); break;
-                            case 2: showDialog(DIALOG_SETTINGS); break;
-                            case 3: SDLActivity.open_url("http://principiagame.com/get_full.php?android"); break;
-                            case 4: SDLActivity.open_url("http://principiagame.com/gettingstarted.php"); break;
-                            case 5: SDLActivity.open_url("http://wiki.principiagame.com/wiki/Main_Page"); break;
-                            case 6: PrincipiaBackend.addActionAsInt(ACTION_GOTO_MAINMENU, 0); break;
-                            case 7: SDLActivity.cleanQuit(); break;
-                            }
                         }
+
                         dialog.dismiss();
                     }
                 });
