@@ -341,17 +341,7 @@ world::step()
         if (_tms.time_accum >= WORLD_STEP) {
             this->step_count ++;
 
-            /* license checking, limit playtime to 20 minutes */
-            if (this->step_count >= 125*60*20) {
-                if (!(LICENSE_IS_VALID())) {
-                    this->locked = true;
-                    return false;
-                } else {
-                    this->locked = false;
-                }
-            } else {
-                this->locked = false;
-            }
+            this->locked = false;
 
 #ifdef PROFILING
             Uint32 ss = SDL_GetTicks();

@@ -104,7 +104,6 @@ tms_sprite *catsprites[of::num_categories+1];
 tms_sprite *catsprite_hints[of::num_categories];
 tms_sprite *filterlabel;
 tms_sprite *factionlabel;
-tms_sprite *demosprite;
 static int widest_catsprite = 0;
 static int tallest_catsprite = 0;
 
@@ -1594,7 +1593,6 @@ game::init_gui(void)
     filterlabel = this->text_small->add_to_atlas(this->texts, "Categories:");
     factionlabel = this->text_small->add_to_atlas(this->texts, "Faction:");
     catsprites[n] = this->text_small->add_to_atlas(this->texts, "Recent");
-    demosprite = this->text_small->add_to_atlas(this->texts, "DEMO");
 
 #if defined(DEBUG) && (defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX))
     char path[512];
@@ -1696,12 +1694,6 @@ game::init_gui(void)
 
     this->wm = new widget_manager(this, false, true);
     this->info_label = new p_text(font::medium, ALIGN_CENTER, ALIGN_CENTER);
-
-    this->demo_label = new p_text(font::medium, ALIGN_CENTER, ALIGN_CENTER);
-    this->demo_label->active = false;
-    this->demo_label->set_text("Oh no! This level has reached its maximum demo time.\n"\
-                              "Buy Principia to continue playing.");
-    this->demo_label->set_position(_tms.window_width/2.f, _tms.window_height/2.f);
 
 #ifdef TMS_BACKEND_PC
     this->hov_text = new p_text(font::medium, ALIGN_CENTER, ALIGN_BOTTOM);
@@ -2084,16 +2076,6 @@ game::init_gui(void)
     tms_progressf("+");
     this->init_panel_edit();
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 10", ierr);
-}
-
-void
-game::refresh_demo_label()
-{
-    if (W->locked) {
-        this->demo_label->active = true;
-    } else {
-        this->demo_label->active = false;
-    }
 }
 
 void
@@ -2931,8 +2913,6 @@ game::render_gui(void)
         return;
     }
 
-    this->refresh_demo_label();
-
     int ierr;
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render_gui begin", ierr);
     glEnable(GL_BLEND);
@@ -3305,18 +3285,6 @@ game::render_gui(void)
         tms_ddraw_line(this->get_surface()->ddraw,
                 this->wdg_base_x, this->wdg_base_y,
                 knob_x, knob_y);
-    }
-
-    if (!LICENSE_IS_VALID()) {
-        glBindTexture(GL_TEXTURE_2D, this->texts->texture.gl_texture);
-        /* render DEMO label */
-        tms_ddraw_set_color(this->get_surface()->ddraw, 1.f, 0.f, 0.f, 1.f);
-        tms_ddraw_sprite(this->get_surface()->ddraw, demosprite,
-                _tms.window_width/2.f,
-                demosprite->height,
-                demosprite->width,
-                demosprite->height
-                );
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);

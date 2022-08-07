@@ -1039,7 +1039,6 @@ game::game()
     , wdg_base_y(0)
     , text_small(0)
     , info_label(0)
-    , demo_label(0)
     , help_dragpanel(0)
     , panel_edit_need_scroll(false)
     , render_controls(false)
@@ -1194,9 +1193,6 @@ game::~game()
     }
     if (this->info_label) {
         delete this->info_label;
-    }
-    if (this->demo_label) {
-        delete this->demo_label;
     }
     if (this->help_dragpanel) {
         delete this->help_dragpanel;
@@ -7313,11 +7309,6 @@ game::create_level(int type, bool empty, bool play)
         case LCAT_CUSTOM:     tms_infof("Creating a Custom level"); break;
     }
 
-    if (!play && !empty && !(LICENSE_IS_VALID())) {
-        ui::message("Creating generated adventures not available in the DEMO version.");
-        return;
-    }
-
     this->reset();
     this->state.sandbox = !play;
     this->state.test_playing = false;
@@ -10628,74 +10619,7 @@ game::timed_absorb(uint32_t id, double time)
 bool
 game::allow_construct_entity(uint32_t g_id)
 {
-    int num_allowed=-1;
-
-    if (!LICENSE_IS_VALID()) {
-        switch (g_id) { /* add restrictions to how many entities we can create of specific types
-                          for DEMO players only */
-
-            case O_BOMBER:
-            case O_LOBBER:
-            case O_COMPANION:
-            case O_SPIKEBOT:
-            case O_ROBOT:
-            case O_BOMB:
-            case O_LANDMINE:
-            case O_WHEEL:
-                num_allowed = 8;
-                break;
-
-            case O_SERVO_MOTOR:
-            case O_DC_MOTOR:
-            case O_LINEAR_MOTOR:
-            case O_LINEAR_SERVO_MOTOR:
-            case O_DUMMY:
-                num_allowed = 6;
-                break;
-
-            case O_EMITTER:
-            case O_MINI_EMITTER:
-            case O_ABSORBER:
-            case O_MINI_ABSORBER:
-            case O_ROCKET:
-            case O_THRUSTER:
-            case O_ITEM:
-            case O_POWER_SUPPLY:
-            case O_RC_BASIC:
-            case O_RC_IO3:
-            case O_RC_MONSTRO:
-            case O_CRANE:
-                num_allowed = 2;
-                break;
-
-            case O_OILRIG:
-            case O_FACTORY:
-            case O_ROBOT_FACTORY:
-            case O_FLUID:
-            case O_SYNTHESIZER:
-                num_allowed = 1;
-                break;
-
-            case O_MULTI_EMITTER:
-            case O_ESCRIPT:
-            case O_TIMECTRL:
-                num_allowed = 0;
-                break;
-
-        }
-    }
-
-    if (num_allowed > -1) {
-        if (num_allowed == 0 || W->has_num_entities_with_gid(g_id, num_allowed)) {
-            if (num_allowed == 0) {
-                ui::messagef("DEMO version does not allow using '%s'", of::get_object_name_by_gid(g_id));
-            } else {
-                ui::messagef("DEMO version: only %d allowed object%s of type '%s'", num_allowed, num_allowed>1?"s":"", of::get_object_name_by_gid(g_id));
-            }
-            return false;
-        }
-    }
-
+    // Previously used for restricting objects in DEMO mode.
     return true;
 }
 
@@ -11868,9 +11792,6 @@ game::post_render()
 {
     if (this->info_label && this->info_label->active) {
         this->info_label->render(this->get_surface()->ddraw, true);
-    }
-    if (this->demo_label && this->demo_label->active) {
-        this->demo_label->render(this->get_surface()->ddraw, true);
     }
 
     pscreen::post_render();
