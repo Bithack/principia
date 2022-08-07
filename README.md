@@ -5,13 +5,9 @@ Principia Open Source Project
 
 Principia is a sandbox physics game originally released in November 2013. It is the successor to the Android hit game "Apparatus".
 
-<<<<<<< HEAD
-The project can be built on Windows, Linux, Android or iOS. The iOS version lags behind and lacks a lot of UI.
-=======
-Principia can be built on Windows, Linux, Android or iOS. The iOS version lags behind and lacks a lot of UI. The Android version is outdated and probably needs some work to compile.
+Principia can be built on Windows, Linux, Android or iOS. The iOS version lags behind and lacks a lot of UI.
 
 Compilation on Windows and Linux should be easy, see further below.
->>>>>>> cd23158822e626864b30747d356f9f4c203119a9
 
 NOTE!
 More documentation and resources will come in short!
