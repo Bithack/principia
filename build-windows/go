@@ -85,6 +85,6 @@ if [ "$run" -eq "1" ]; then
     elif [ "$debug" -eq "1" ]; then
         gdb principia
     else
-        principia
+        ./principia.exe
     fi
 fi
