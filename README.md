@@ -14,10 +14,17 @@ More documentation and resources will come in short!
 
 Getting involved
 --------
+
+Feel free to fork this project and send in your pull requests. This is a community project and the community decides how the project evolves. If you are serious about joining and taking a bigger role, please fill in this form:
+
+https://forms.gle/Pu7Lw5Vjc6yD4jwVA
+
 Please join the Official Unofficial Discord here:
+
 https://discord.gg/qV6APzKfk9
 
 Follow Bithack on Twitter:
+
 https://www.twitter.com/Bithack
 
 Building and running
