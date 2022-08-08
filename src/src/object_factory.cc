@@ -612,6 +612,7 @@ static const char *categories[] = {
  "Tools/effects",
  "Interaction",
  "Game",
+ "Testing",
 };
 
 static const char *category_hints[] = {
@@ -625,6 +626,7 @@ static const char *category_hints[] = {
  "t/fx",
  "i",
  "game",
+ "test",
 };
 
 /* Basic */
@@ -889,6 +891,16 @@ static int c9_ids[] = {
     O_DECORATION,
 };
 
+static int c10_ids[] = {
+	14,
+	91,
+	97,
+	120,
+	203,
+	204,
+	147,
+};
+
 static const int num_objects[of::num_categories] = {
     (sizeof(c0_ids)/sizeof(int)),
     (sizeof(c1_ids)/sizeof(int)),
@@ -900,10 +912,11 @@ static const int num_objects[of::num_categories] = {
     (sizeof(c7_ids)/sizeof(int)),
     (sizeof(c8_ids)/sizeof(int)),
     (sizeof(c9_ids)/sizeof(int)),
+    (sizeof(c10_ids)/sizeof(int)),
 };
 
 static int *ids[] = {
-    c0_ids, c1_ids, c2_ids, c3_ids, c4_ids, c5_ids, c6_ids,c7_ids,c8_ids,c9_ids
+    c0_ids, c1_ids, c2_ids, c3_ids, c4_ids, c5_ids, c6_ids,c7_ids,c8_ids,c9_ids,c10_ids
 };
 
 static char *o_descr_buf = 0;
