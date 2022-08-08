@@ -9517,6 +9517,9 @@ int _gtk_loop(void *p)
 
     gtk_init(0,0);
 
+    // Release versions of Linux will use the user's default GTK theme just fine,
+    // debug versions not so much... For whatever reason.
+#if !defined(TMS_BACKEND_LINUX) || defined(DEBUG)
     gtk_rc_parse_string(
 "style \"test\" {\n"
 
@@ -9551,6 +9554,7 @@ int _gtk_loop(void *p)
 "}\n"
 "widget \"*\" style \"test\"\n"
             );
+#endif
 
     /*
     gtk_rc_parse_string(

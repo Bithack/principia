@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Principia
+GenericName=Physics-based sandbox building game
+Exec=principia
+Type=Application
+StartupNotify=true
+Icon=principia
+StartupWMClass=principia
+Categories=Game;
