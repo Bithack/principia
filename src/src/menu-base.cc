@@ -32,8 +32,8 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                     pscreen::refresh_username();
                     P.add_action(ACTION_REFRESH_WIDGETS, 0);
 
-                    char tmp[256];
-                    snprintf(tmp, 255, "http://" COMMUNITY_HOST "/user/%s", P.username);
+                    char tmp[1024];
+                    snprintf(tmp, 1023, "http://%s/user/%s", P.community_host, P.username);
                     ui::open_url(tmp);
                 } else {
                     ui::open_dialog(DIALOG_LOGIN);
@@ -42,7 +42,11 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             break;
 
         case BTN_MESSAGE:
-            ui::open_url("http://" COMMUNITY_HOST "/version-redir.php");
+	    {
+                char url[1024];
+                snprintf(url, 1023, "http://%s/version-redir.php", P.community_host);
+                ui::open_url(url);
+	    }
             break;
 
         case BTN_BITHACK:
@@ -56,8 +60,8 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
         case BTN_ENTITY:
             {
                 uint32_t id = VOID_TO_UINT32(w->data3);
-                char tmp[512];
-                snprintf(tmp, 511, "http://" COMMUNITY_HOST "/level/%" PRIu32, id);
+                char tmp[1024];
+                snprintf(tmp, 1023, "http://%s/level/%" PRIu32, P.community_host, id);
                 ui::open_url(tmp);
             }
             break;
@@ -65,8 +69,8 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
         case BTN_CONTEST:
             {
                 uint32_t id = VOID_TO_UINT32(w->data3);
-                char tmp[512];
-                snprintf(tmp, 511, "http://" COMMUNITY_HOST "/contest/%" PRIu32, id);
+                char tmp[1024];
+                snprintf(tmp, 1023, "http://%s/contest/%" PRIu32, P.community_host, id);
                 ui::open_url(tmp);
             }
             break;

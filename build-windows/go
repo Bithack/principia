@@ -78,7 +78,7 @@ if [ "$release" -eq "1" ]; then
     exit
 fi
 
-($skipmake || $makecmd CFLAGS="$DEBUGFLAGS_CC" CXXFLAGS="$DEBUGFLAGS_CXX") &&
+($skipmake || $makecmd CFLAGS="$DEBUGFLAGS_CC" CXXFLAGS="$DEBUGFLAGS_CXX" -j9 ) &&
 if [ "$run" -eq "1" ]; then
     if [ "$debug" -eq "2" ]; then
         drmemory -logdir ./drmemory -- principia

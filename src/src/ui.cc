@@ -583,7 +583,7 @@ void
 ui_cb_back_to_community(void)
 {
     char tmp[1024];
-    snprintf(tmp, 1023, "http://" COMMUNITY_HOST "/level/%d", W->level.community_id);
+    snprintf(tmp, 1023, "http://%s/level/%d", P.community_host, W->level.community_id);
     
     ui::open_url(tmp);
 }
@@ -936,7 +936,7 @@ extern "C" jstring
 Java_org_libsdl_app_PrincipiaBackend_getLevelPage(JNIEnv *env, jclass jcls)
 {
     char tmp[1024];
-    snprintf(tmp, 1023, "http://" COMMUNITY_HOST "/level/%d", W->level.community_id);
+    snprintf(tmp, 1023, "http://%s/level/%d", P.community_host, W->level.community_id);
 
     return env->NewStringUTF(tmp);
 }
@@ -1770,8 +1770,8 @@ Java_org_libsdl_app_PrincipiaBackend_setConsumableType(JNIEnv *env, jclass _jcls
 extern "C" jstring
 Java_org_libsdl_app_PrincipiaBackend_getCurrentCommunityUrl(JNIEnv *env, jclass _jcls)
 {
-    char tmp[256];
-    snprintf(tmp, 255, "http://" COMMUNITY_HOST "/level/%d", W->level.community_id);
+    char tmp[1024];
+    snprintf(tmp, 1023, "http://%s/level/%d", P.community_host, W->level.community_id);
 
     return env->NewStringUTF(tmp);
 }
@@ -9105,7 +9105,9 @@ on_login_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
             gtk_label_set_text(login_status, "Enter data into both fields.");
         }
     } else if (btn_pressed(w, login_btn_forgot_password, user_data)) {
-        ui::open_url("http://" COMMUNITY_HOST "/forgot_password.php");
+        char url[1024];
+        snprintf(url, 1023, "http://%s/forgot_password.php", P.community_host);
+        ui::open_url(url);
     }
 
     return false;
@@ -13533,7 +13535,7 @@ _open_tips_dialog(gpointer unused)
         }
 
         if (result == GTK_RESPONSE_YES)
-            ui::open_url("http://" COMMUNITY_HOST "/gettingstarted.php");
+            ui::open_url("http://wiki.principiagame.com/");
 
         break;
     } while (true);
@@ -13738,7 +13740,7 @@ _open_published(gpointer unused)
         case GTK_RESPONSE_ACCEPT:
             {
                 char tmp[1024];
-                snprintf(tmp, 1023, "http://" COMMUNITY_HOST "/level/%d", W->level.community_id);
+                snprintf(tmp, 1023, "http://%s/level/%d", P.community_host, W->level.community_id);
 
                 ui::open_url(tmp);
             }

@@ -25,7 +25,7 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
     switch (button_id) {
         case BTN_SHITTY:
             {
-                ui::open_url("http://wiki." COMMUNITY_HOST "/wiki/Bad_Graphics");
+                ui::open_url("http://wiki.principiagame.com/wiki/Bad_Graphics");
             }
             break;
 
@@ -56,7 +56,7 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                 ui::open_url(0);
 #else
                 char tmp[512];
-                sprintf(tmp, "http://%s/", COMMUNITY_HOST);
+                snprintf(tmp, 511, "http://%s/", P.community_host);
                 ui::open_url(tmp);
 #endif
             }
@@ -226,7 +226,7 @@ menu_main::handle_input(tms::event *ev, int action)
                 return T_OK;
 
             case TMS_KEY_V:
-                tms_debugf("Community host: %s. Update URL: %s", COMMUNITY_HOST, UPDATE_URL);
+                tms_debugf("Community host: %s. Update URL: %s", P.community_host, UPDATE_URL);
                 return T_OK;
 
             case TMS_KEY_O:

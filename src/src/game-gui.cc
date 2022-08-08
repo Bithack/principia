@@ -1444,7 +1444,7 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                 P.add_action(ACTION_AUTOSAVE, 0);
                 P.num_unread_messages = 0;
                 char tmp[256];
-                snprintf(tmp, 255, "http://" COMMUNITY_HOST "/user/%s", P.username);
+                snprintf(tmp, 255, "http://%s/user/%s", P.community_host, P.username);
                 ui::open_url(tmp);
 
                 snprintf(tmp, 255, "%s", P.username);

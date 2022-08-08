@@ -25,28 +25,15 @@ class pkginfo;
 #define STR1(x) #x
 #define STR(x) STR1(x)
 
-#if defined(DEBUG)
-# ifdef PAJLADA
-//#  define COMMUNITY_HOST "pajlada.se"
-#  define COMMUNITY_HOST "principiagame.com"
-# else
-#  define COMMUNITY_HOST "principiagame.com"
-# endif
-#else
-# define COMMUNITY_HOST "principiagame.com"
-#endif
+#define UPDATE_URL "http://www.principiagame.com/download"
 
 #if defined(TMS_BACKEND_WINDOWS)
 #define OS_STRING "Windows"
-#define UPDATE_URL "http://" COMMUNITY_HOST "/download"
 #elif defined(TMS_BACKEND_LINUX_SS)
 #define OS_STRING "Linux_SS"
-#define UPDATE_URL "http://" COMMUNITY_HOST "/download"
 #elif defined(TMS_BACKEND_LINUX)
 #define OS_STRING "Linux"
-#define UPDATE_URL "http://" COMMUNITY_HOST "/download"
 #elif defined(TMS_BACKEND_ANDROID)
-#define UPDATE_URL "http://play.google.com/store/apps/details?id=com.bithack.principia"
 # if defined(TMS_BACKEND_ANDROID_X86)
 #  define OS_STRING "Android x86"
 # elif defined(TMS_BACKEND_ANDROID_ARMEABI)
@@ -57,11 +44,9 @@ class pkginfo;
 #  define OS_STRING "Android"
 # endif
 #elif defined(TMS_BACKEND_IOS)
-#define UPDATE_URL "http://" COMMUNITY_HOST "/download?appstore"
 #define OS_STRING "iOS"
 #else
 #define OS_STRING "unknown"
-#define UPDATE_URL "http://" COMMUNITY_HOST "/download"
 #endif
 
 #if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
@@ -280,6 +265,7 @@ extern class principia
     int  focused;
     bool loaded;
 
+    const char *community_host;
     char *username;
     int user_id;
     int num_unread_messages;
