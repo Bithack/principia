@@ -99,6 +99,7 @@ static volatile int loading_counter = 0;
 static int fl_fetch_time = 0;
 
 static uint32_t      _play_id;
+static char          _community_host[512] = {0}; /* Temporary input host from principia:// url, not to be confused with P.community_host */
 static uint32_t      _play_type;
 static bool          _play_lock;
 static volatile bool _play_downloading = false;
@@ -576,6 +577,32 @@ tproject_set_args(int argc, char **argv)
                 break;
 
             s+=12;
+
+            /* extract the host */
+            _community_host[0] = '\0';
+            for (n=0; n<511; n++) {
+                if (*(s+n) == '/' || *(s+n) == '\0') {
+                    break;
+                }
+            }
+
+            strncpy(_community_host, s, n);
+            s += n;
+
+            if (*s == '\0') {
+                break;
+            }
+
+            s ++;
+
+            /* backwards compatibility, if the "host" equals any of the reserved words below we default to the
+             * currently signed-in community host instead and backset the pointer */
+            if (strcmp(_community_host, "play") == 0 || 
+                strcmp(_community_host, "sandbox") == 0 || 
+                strcmp(_community_host, "edit") == 0) {
+                s -= strlen(_community_host) + 1;
+                strcpy(_community_host, P.community_host);
+            }
 
             if (strncmp(s, "play/", 5) == 0) {
                 s+=5;
@@ -2109,10 +2136,11 @@ _download_level(void *p)
         }
     }
 
+    const char *host = strlen(_community_host) > 0 ? _community_host : P.community_host;
 
     char url[1024];
     snprintf(url, 1023, "http://%s/" COMMUNITY_SECRET "/%s.php?i=%d&h=%u",
-            P.community_host,
+            host,
             _play_download_for_pkg ? "xxxxx" : (type == LEVEL_DB ? "x":(derive == true ? "xxx" : "xxxxxx")),
             _play_id, r);
     //tms_infof("url: %s", url);
