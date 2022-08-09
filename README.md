@@ -62,12 +62,17 @@ $ ./go
 
 Principia will launch if everything was successful. Note that the compilation might take up to 10 minutes depending on your system.
 
-## Building on Linux (Debian)
+## Building on Linux 
 
-Install dependencies:
-
+#### Install Dependencies:
+Debian: 
 $ sudo apt-get install automake libgtk2.0-dev libgl-dev libxss-dev libxxf86vm-dev libasound2-dev libudev-dev valgrind
 
+Fedora:
+$ sudo dnf groupinstall "Development Tools" "Development Libraries"
+$ sudo dnf install gtk2-devel mesa-libGL-devel libXScrnSaver-devel libXxf86vm-devel alsa-lib-devel systemd-devel
+
+#### Compile: 
 Navigate to the build-linux directory and start the building process:
 
 $ cd build-linux;
