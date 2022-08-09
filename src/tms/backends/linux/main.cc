@@ -530,7 +530,7 @@ tbackend_init_surface()
 #endif
 
     tms_progressf("Creating window... ");
-    _window = SDL_CreateWindow("Super Slime Blab", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _tms.window_width, _tms.window_height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    _window = SDL_CreateWindow("Principia", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _tms.window_width, _tms.window_height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (_window == NULL) {
         tms_progressf("ERROR: %s\n", SDL_GetError());
         exit(1);
@@ -721,7 +721,7 @@ const char *tbackend_get_storage_path(void)
         struct passwd *pw = getpwuid(getuid());
 
         strcpy(path, pw->pw_dir);
-        strcat(path, "/Principia");
+        strcat(path, "/.principia");
 
         _storage_path = path;
     }

@@ -65,7 +65,7 @@ while test $# -gt 0; do
         -s|--silent)
             echo "only compiling"
             run="0"
-            break
+            shift
             ;;
         --without-gdb)
             debug="0"
@@ -77,19 +77,19 @@ while test $# -gt 0; do
             ;;
         -v|--valgrind)
             debug="2"
-            break
+            shift
             ;;
         --leak)
             debug="4"
-            break
+            shift
             ;;
         -c|--cachegrind)
             debug="3"
-            break
+            shift
             ;;
         -t)
             do_test="1"
-            break
+            shift
             ;;
         --single)
             cores="1"

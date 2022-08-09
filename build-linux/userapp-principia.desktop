@@ -1,9 +1,0 @@
-[Desktop Entry]
-name=Principia
-Exec=/home/sdac/git/principia/build-linux/principia
-Icon=
-Terminal=true
-Type=Application
-Categories=
-Comment=Cool
-MimeType=x-scheme-handler/principia
