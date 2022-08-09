@@ -248,7 +248,7 @@ class of
   public:
     static uint32_t _id; /* global entity id counter */
 
-    static const int num_categories = 11;
+    static const int num_categories = 15;
 
     static const char *get_object_description(entity *e);
     static const char *get_object_name(entity *e);
