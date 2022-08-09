@@ -25,7 +25,7 @@ Oil used for faster running speed.
 Oil used for jumping higher.
 -----
 7:Armour oil
-Oil that adds armor. 
+Oil that adds armor.
 -----
 8:Zapper
 Useful tool used for mining and various other things.
@@ -37,7 +37,7 @@ Can be used on:
 * Ores to gather minerals
 -----
 9:Miner upgrade
-Currently unused (BETA)
+Item with the model of an Oil item, but completely blue. Can be absorbed by the robot by putting it close with the builder, but it does nothing.
 -----
 10:Rocket Launcher
 Strong rocket launcher. Be careful with this bad boy.
@@ -107,7 +107,7 @@ Rocket used by the rocket launcher.
 Bring this item to a repair station to equip it.
 -----
 27:Mega Buster
-Chargeable weapon for stronger bullets. 
+Chargeable weapon for stronger bullets.
 -----
 28:Mega Buster Solar Bullet
 Solar bullet used by the mega buster.
@@ -219,4 +219,28 @@ A tool that uses vacuum to suck in, compress and store an item.
 * Can emit the items at any time
 
 This useful tool allows you to move several items at once to e.g a repair station.
+-----
+52:King's crown
+Pretty snazzy crown.
+
+Bring this item to a repair station to equip it.
+-----
+53:Dummy head
+Dummy head, nothing much else.
+
+Bring this item to a repair station to equip it.
+-----
+54:Jester hat
+Ooh, Jester hat!
+
+Bring this item to a repair station to equip it.
+-----
+55:Training sword
+A melee sword made out of wood. Not very strong, but it does the job.
+-----
+57:War hammer
+Big hammer! Great for bonking robots with.
+-----
+71:Pickaxe
+It's a pickaxe... You can't mine with. Hit someone in the head with it.
 -----
