@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <cxxabi.h>
+#include <unistd.h>
+#include <libgen.h>
 
 #include <tms/core/project.h>
 #include <tms/core/event.h>
@@ -46,8 +48,8 @@ int _pipe_listener(void *p)
     ssize_t sz;
 
     while (1) {
-        tms_infof("attempting to open principia.run O_RDONLY");
-        while ((pipe_h = open("principia.run", O_RDONLY)) == -1) {
+        tms_infof("attempting to open /tmp/principia.run O_RDONLY");
+        while ((pipe_h = open("/tmp/principia.run", O_RDONLY)) == -1) {
             if (errno != EINTR)
                 return 1;
         }
@@ -57,7 +59,7 @@ int _pipe_listener(void *p)
 
             if (sz > 0) {
                 buf[sz] = '\0';
-                _args[1] = buf; 
+                _args[1] = buf;
                 tproject_set_args(2, _args);
             }
         }
@@ -78,7 +80,7 @@ main(int argc, char **argv)
     SDL_Event  ev;
     int        done = 0;
 
-    int status = mkfifo("principia.run", S_IWUSR | S_IRUSR);
+    int status = mkfifo("/tmp/principia.run", S_IWUSR | S_IRUSR);
     int skip_pipe = 0;
 
     if (status == 0) {
@@ -89,9 +91,9 @@ main(int argc, char **argv)
             skip_pipe = 1;
         }
     }
-    
+
     if (!skip_pipe) {
-        if ((pipe_h = open("principia.run", O_WRONLY | O_NONBLOCK)) == -1) {
+        if ((pipe_h = open("/tmp/principia.run", O_WRONLY | O_NONBLOCK)) == -1) {
             if (errno != ENXIO) {
                 skip_pipe = 1;
                 tms_infof("error: %s", strerror(errno));
@@ -115,6 +117,12 @@ main(int argc, char **argv)
         tms_infof("Starting fifo listener thread");
         SDL_CreateThread(_pipe_listener, "_pipe_listener", 0);
     }
+
+    char buf[512];
+    readlink("/proc/self/exe", buf, 511);
+    dirname(buf);
+    tms_infof("chdirring to %s", buf);
+    chdir(buf);
 
     char path[512];
     const char *storage = tbackend_get_storage_path();
