@@ -2,10 +2,10 @@
 
 !define MUI_ICON "icon.ico"
 !define /ifndef VER_MAJOR 1
-!define /ifndef VER_MINOR 4
+!define /ifndef VER_MINOR 6
 !define /ifndef VER_BUILD 0
 
-!define /ifndef VER_REVISION 1404
+!define /ifndef VER_REVISION 1600
 
 !define /ifndef VERSION 'beta-windows'
 
@@ -23,7 +23,7 @@ RequestExecutionLevel admin
 
 !define MUI_ABORTWARNING
 
-!insertmacro MUI_PAGE_LICENSE "..\COPYING"
+!insertmacro MUI_PAGE_LICENSE "..\LICENSE.md"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
@@ -47,8 +47,8 @@ Section "Core Files (required)" SecCore
 
   SetOutPath "$INSTDIR"
   
-  File principia.exe
-  File *.dll
+  File "release\principia.exe"
+  File "release\*.dll"
 
   SetOutPath "$INSTDIR\data-pc"
   File /r /x *.sw* "..\data-pc\bg"
