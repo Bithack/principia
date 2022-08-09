@@ -3528,6 +3528,11 @@ struct table_setting_row settings_interface_rows[] = {
         "A restart is required for this change to take effect",
         "uiscale",
         setting_row_type::create_hscale(0.25, 2.0, 0.05),
+    },{
+        "Autosave screen size",
+        "Save the screen size when resizing the window.",
+        "autosave_screensize",
+        setting_row_type::create_checkbox()
     }, {
         "Display object ID",
         "Display ID of object on selection (bottom-left corner).",

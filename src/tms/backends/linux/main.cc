@@ -208,7 +208,6 @@ main(int argc, char **argv)
                         switch (ev.window.event) {
                             case SDL_WINDOWEVENT_RESIZED:
                                 {
-#ifdef DEBUG
                                     tms_infof("Window %d resized to %dx%d",
                                             ev.window.windowID, ev.window.data1,
                                             ev.window.data2);
@@ -226,7 +225,6 @@ main(int argc, char **argv)
                                     SDL_SetWindowSize(_window, _tms.window_width, _tms.window_height);
 
                                     tproject_window_size_changed();
-#endif
                                 }
                                 break;
                         }
@@ -537,8 +535,15 @@ tbackend_init_surface()
     _tms.yppcm = 107.f/2.54f * 1.5f;
 #endif
 
+    uint32_t flags = 0;
+
+    flags |= SDL_WINDOW_OPENGL;
+    flags |= SDL_WINDOW_SHOWN;
+    flags |= SDL_WINDOW_RESIZABLE;
+
     tms_progressf("Creating window... ");
-    _window = SDL_CreateWindow("Principia", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _tms.window_width, _tms.window_height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    _window = SDL_CreateWindow("Principia", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _tms.window_width, _tms.window_height, flags);
+
     if (_window == NULL) {
         tms_progressf("ERROR: %s\n", SDL_GetError());
         exit(1);
