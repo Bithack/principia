@@ -602,259 +602,280 @@ static entity* (*c_creator[])(void) = {
 static int num_creators = sizeof(c_creator)/sizeof(void*);
 
 static const char *categories[] = {
- "Basic",
- "Mechanics",
- "Electronics",
- "Robotics",
- "Signal-i1o1",
- "Signal-i2o1",
- "Signal-misc",
- "Tools/effects",
- "Interaction",
- "Game",
- "Testing",
+    "Basic",
+    "Physics Passive",
+    "Physics Active",
+    "Electronics",
+    "Robotics",
+    "Sensors",
+    "Analog",
+    "Digital",
+    "Math",
+    "Comparison",
+    "Misc",
+    "Game",
+    "Adventure",
+    "Adventure Control",
 };
 
 static const char *category_hints[] = {
- "bas",
- "mech",
- "elec",
- "rob",
- "s-i1",
- "s-i2",
- "s-m",
- "t/fx",
- "i",
- "game",
- "test",
+    "bas",
+    "php",
+    "pha",
+    "elc",
+    "rob",
+    "sen",
+    "ana",
+    "dig",
+    "mat",
+    "cmp",
+    "msc",
+    "gam",
+    "adv",
+    "adc",
 };
 
 /* Basic */
 static int c0_ids[] = {
-    0,   /* Plank */
-    1,   /* Thick Plank */
-    2,   /* Wood ball */
-    93,  /* Wood box */
-    70,  /* Corner */
-    3,   /* Cylinder */
-    4,   /* Sublayer plank */
-    5,   /* Platform */
-    6,   /* Metal ball */
-    68,  /* Rubber Beam */
-    92,  /* Plastic Beam */
-    194,  /* Plastic Box */
+    0,   // Plank
+    1,   // Thick Plank
+    2,   // Wood Ball
+    93,  // Wood Box
+    70,	 // Corner
+    3,   // Cylinder
+    4,   // Sublayer Plank
+    5,   // Platform
+    6,   // Metal Ball
+    68,  // Rubber Beam
+    92,  // Plastic Beam
+    194, // Plasic Box
     O_PLASTIC_POLYGON,
-    /* O_SEPARATOR, */
-    /* O_ROOM, */
-    122,  /* Pixel */
-    O_TPIXEL,   /* Textured pixel */
-    62,  /* Dummy */
-    114, /* Spikes */
-    60,  /* Sticky note */
-    61,  /* Plastic Cup */
-    63,  /* Breadboard */
-    7,   /* Rail */
-    8,   /* Rail (up) */
-    9,   /* Rail (down) */
-    10,  /* Rail (turn) */
-    17,  /* Ball Pipeline */
+    O_SEPARATOR,
+    122, // Pixel
+    O_TPIXEL, // block
+    60,  // Sticky Note
+    7,   // Rail
+    8,   //  Rail Up
+    9,   //  Rail Down
+    10,  // Rail Turn
 };
 
-/* Mechanics */
+/* Physics Passive */
 static int c1_ids[] = {
-    11,  /* Trampoline */
-    12,  /* Rope */
-    95,  /* Rubber band */
-    13,  /* Wheel */
-    15,  /* Seesaw base */
-    16,  /* Open Pivot */
-    19,  /* Damper */
-    30,  /* Wall pivot */
-    73,  /* Thruster */
-    74,  /* Rocket */
-    90,  /* Conveyor */
-    126, /* Fan */
-    41,  /* Button */
-    78,  /* Toggle Button */
-    163, /* Weight */
-    85,  /* Bomb */
-    84,  /* Land mine */
-    //18,  /* Gearbox */
-    //97,  /* Angular Damper */
-    //120, /* Gear */ /* XXX */
-    //14,  /* Magnet */ /* XXX */
-    //91,  /* Electromagnet */ /* XXX */
+    62,  // Dummy
+    61,  // Plastic Cup
+    12,  // Rope
+    13,  // Wheel
+    15,  // Seesaw Base
+    16,  // Open Piviot
+    19,  // Damper 
+    30,  // Wall Pivot
+    163, // Weight
+    120, // Gear
+    180, //Shape Extruder
+    O_FLUID,
+    O_DRAGFIELD, 
+    81,  // Interactive Cylinder
+    108, // Interactive Box
+    109, // Interactive Ball
+};
+
+/* Physics Active */
+static int c2_ids[] = {
+    17,  // Ball Pipeline
+    11,  // Trampoline
+    95,  // Rubber Band
+    73,  // Thruster
+    74,  // Rocket
+    90,  // Conveyor
+    126, // Fan
+    85,  // Bomb
+    84,  // Landmine
+    97,  // Angular Damper
+    14,  // Magnet
+    130, // Stabilizer 
+    120, // Gear
+    191, // Electro Magnet
+    //18,  //Gearbox
+
 };
 
 /* Electronics */
-static int c2_ids[] = {
-    31,  /* Battery */
-    32,  /* Power Supply */
-    149,  /* Simple Motor */
-    33,  /* Power Cable */
-    34,  /* Signal Cable */
-    35,  /* Interface Cable */
-    107, /* Jumper */
-    36,  /* Magnetic Plug */
-    37,  /* Magnetic Socket */
-    39,  /* Interface Clip */
-    117, /* Signal Clip */
-    94,  /* EC Resistor */
-    123, /* Receiver */
-    124, /* Transmitter */
-    125, /* Broadcaster */
-    139, /* Mini Transmitter */
+static int c3_ids[] = {
+    63,  // Breadboard
+    32,  // Power Supply
+    31,  // Battery
+    33,  // Power Cable
+    34,  // Signal Cable
+    35,  // Interface Cable
+    107, // Jumper
+    139, // Mini Transmitter
+    123, // Reciever
+    117, // Signal Clip
+    39,  // Interface Clip
+    94,  // EC Resistor
+    124, // Transmitter
+    125, // Broadcaster
+    O_YSPLITTER,
+    O_MEGASPLITTER,
 };
 
 /* Robotics */
-static int c3_ids[] = {
-    20,  /* DC Motor */
-    21,  /* Servo motor */
-    22,  /* Linear motor */
-    23,  /* Linear Servo */
-    24,  /* CT Mini */
-    25,  /* CT Servo */
-    26,  /* CT Feedback */
-    137, /* RC Micro */
-    27,  /* RC Basic */
-    28,  /* RC IO-3 */
-    29,  /* RC MONSTRO */
-    71,  /* Laser */
-    151, /* Mirror */
-    152, /* Laser sensor */
-    75,  /* Proximity sensor */
-    99,  /* Pressure sensor */
-    144, /* Impact sensor */
-    //147, /* Old Laser */
-    150, /* Angular vel. meter */
-    153, /* Velocity meter */
-    72,  /* Tiltmeter */
-    40,  /* Gyroscope */
-    98,  /* Object finder */
-    80,  /* ID field */
-    115, /* Object field */
-    O_TARGET_SETTER,
+static int c4_ids[] = {
+    20,  // DC Motor
+    21,  // Servo Motor
+    22,  // Linear Motor
+    23,  // Linear Servo
+    137, // RC Micro
+    27,  // RC Basic
+    28,  // RC IO-3
+    29,  // RC MONSTRO
+    24,  // CT Mini
+    25,  // CT Servo
+    26,  // CT Feedback
+    71,  // Laser 
+    151, // Mirror
+    149, // Simple Motor
+    36,  // Magnetic Plug
+    37,  // Magnetic Socket
+    O_CRANE,
+    O_SUCTION_CUP,
 };
 
-/* Signal-i1o1 */
-static int c4_ids[] = {
-    46,  /* Inverter */
-    47,  /* Floor */
-    158, /* Ceil */
-    48,  /* Square */
-    49,  /* Sqrt */
-    50,  /* Sparsifier */
-    51,  /* Sparsifier+ */
-    52,  /* Epsilon */
-    54,  /* Toggler */
-    56,  /* Moving AVG */
-    57,  /* 0-reset Moving AVG */
-    55,  /* FIFO queue */
-    77,  /* Value shift */
-    53,  /* Clamp */
-    119, /* muladd */
-    138, /* sub */
+/* Sensors */
+static int c5_ids[] = {
+    99,  // Pressure Sensor
+    144, // Impact Sensor
+    80,  // ID Field
+    115, // Object Field
+    O_TARGET_SETTER,
+    75,  // Proximity Sensor
+    72,  // Tilt Meter
+    40,  // Gyroscope
+    153, // Velocity Meter
+    150, // Angular Velocity Meter
+    41,  // Button
+    78,  // Toggle Button
+    98,  // Object Finder
+    152, // Laser Sensor
+    183, // Cursor Field 
+    160, // Cursor Finder
+};
+
+/* Analog */
+static int c6_ids[] = {
+    168, // Grapher
+    47,  // Floor 
+    158, // Ceil
+    52,  // Epsilon
+    56,  // Moving AVG
+    57,  // 0-Reset Moving AVG
+    55,  // FIFO queue
+    77,  // Value Shift
+    53,  // Clamp
     O_DECAY,
     O_LINEAR_DECAY,
     O_LIMIT,
-    178, /* Snap */
+    178, // Snap
     O_BOUNDARY,
+    134, // Condenser
+    169, // Wrap Condenser
+    103, // Memory 
+    162, // Wrap Distance
+    111, // Half pack
+    110, // Half unpack
 };
 
-/* Signal-i2o1 */
-static int c5_ids[] = {
-    42,  /* XOR */
-    43,  /* OR */
-    44,  /* AND */
-    45,  /* NAND */
-    79,  /* IF */
-    171, /* cmp-e */
-    172, /* cmp-l */
-    173, /* cmp-le */
-    127, /* Min */
-    128, /* Max */
-    116, /* Sum */
-    136, /* Mul */
-    118, /* Avg */
-    134, /* Condenser */
-    169, /* Wrap condenser */
-    103, /* Memory */
-    154, /* Wrap add */
-    155, /* Wrap sub */
-    162, /* Wrap distance */
-};
-
-/* Signal-misc */
-static int c6_ids[] = {
-    O_YSPLITTER,  /* Y-splitter */
-    O_MEGASPLITTER,
-    170, /* IF-else */
-    O_IFSELECT,
-    110, /* Half unpack */
-    111, /* Half pack */
-    100, /* Sincos */
-    112, /* atan2 */
-    38,  /* Switch */
-    O_PASSIVE_DISPLAY, /* Passive display */
-    O_ACTIVE_DISPLAY, /* Active display */
-    58,  /* Debugger */
-    168,  /* Signal Graph */
-    113, /* Pointer */
-    O_CAMERA_ROTATOR,
-    101, /* Sinewave */
-    106, /* Sawtooth */
-    102, /* Random */
-    87,  /* Timer */
-    O_EVENT_LISTENER,
-    O_KEY_LISTENER,
-    146, /* HP Control */
-    O_SEQUENCER,
-    176, /* Var getter */
-    177, /* Var setter */
-};
-
-/* Tools/effects */
+/* Digital */
 static int c7_ids[] = {
-    135, /* FX Emitter */
-    174, /* SFX Emitter */
-    175, /* Synthesizer */
-    166, /* Time Ctrl */
-    104, /* Gravity manager */
-    105, /* Gravity setter */
-    191, /* Local gravity */
-    130, /* Stabilizer */
-    184, /* Escript */
-    180, /* Shape Extruder */
-    83,  /* Emitter */
-    88,  /* Mini emitter */
-    86,  /* Absorber */
-    89,  /* Mini absorber */
-    148, /* Multi-emitter */
-    O_AUTOABSORBER, /* Auto Absorber */
-    O_AUTOPROTECTOR, /* Auto Protector */
-    O_FLUID /* fluid */
+    58,  // Debuger
+    46,  // Inverter
+    50,  // Sparsifier 
+    51,  // Sparsifier +
+    54,  // Toggler
+    42,  // XOR
+    43,  // OR 
+    44,  // AND
+    45,  // NAND
+    38,  // Switch
+    87,  // Timer
+    O_SEQUENCER,
 };
 
-/* Interaction */
+/* Math */
 static int c8_ids[] = {
-    183, /* Cursor field */
-    160, /* Cursor finder */
-    167, /* Prompt */
-    121, /* Cam marker */
-    133, /* Cam targeter */
-    165, /* Cam zoomer */
-    159, /* RC Activator */
-    O_PLAYER_ACTIVATOR,
-    81,  /* Interactive cylinder */
-    108, /* Interactive box */
-    109, /* Interactive ball */
-    O_DRAGFIELD,
-    O_VENDOR,
-    O_TREASURE_CHEST,
+    48,  // Square
+    49,  // Sqrt
+    119, // Mul Add
+    138, // Sub
+    116, // Sum
+    154, // Wrap Add
+    136, // Mul
+    155, // Wrap Sub
+    118, // Avg
+    100, // Sincos
+    112, // Atan2
+};
+
+/* Comparison */
+static int c9_ids[] = {
+    79,  // If
+    170, // If Else
+    O_IFSELECT,
+    171, // CMP = 
+    172, // CMP <
+    173, // CMP <=
+    127, // Min
+    128, // Max
+};
+
+/* Misc */
+static int c10_ids[] = {
+    O_PASSIVE_DISPLAY,
+    O_ACTIVE_DISPLAY,
+    113, // Pointer
+    101, // Sinewave
+    106, // Sawtooth
+    102, // Random
+    135, // FX Emitter
+    174, // SFX Emitter
+    175, // Synthesizer
+    148, // Multi Emitter
+    83,  // Emitter
+    88,  // Mini Emitter
+    86,  // Absorber 
+    89,  // Mini Absorber
+    O_AUTOABSORBER,
+    O_AUTOPROTECTOR,
 };
 
 /* Game */
-static int c9_ids[] = {
+static int c11_ids[] = {
+    184, // Lua
+    O_EVENT_LISTENER,
+    O_KEY_LISTENER,
+    176, // Var Getter
+    177, // Var Setter
+    166, // Time Ctrl
+    104, // Gravity Manager
+    105, // Gravity Setter
+    191, // Local Gravity 
+    167, // Prompt
+    121, // Cam maker
+    133, // Cam Targeter
+    165, // Cam Zoomer
+    O_CAMERA_ROTATOR,
+    159, // RC Activator
+    O_GAMEMAN,
+    O_SOUNDMAN,
+    O_LEVEL_MANAGER,
+    O_PKG_WARP,
+    O_PKG_STATUS,
+    O_STATE_SAVER,
+};
+
+/* Adventure World */
+static int c12_ids[] = {
     O_ROBOT,
     O_SPIKEBOT,
     O_COMPANION,
@@ -865,40 +886,37 @@ static int c9_ids[] = {
     O_MINI_SPIKEBOT,
     O_LADDER,
     O_LADDER_STEP,
-    O_COMMAND_PAD,
-    O_GOAL,
-    O_BACKPACK,
-    O_CHECKPOINT,
-    O_GUARDPOINT,
-    O_GAMEMAN,
-    O_ROBOTMAN,
-    O_SOUNDMAN,
-    O_LEVEL_MANAGER,
-    O_PKG_WARP,
-    O_PKG_STATUS,
+    114, // Spikes
     O_ITEM,
-    O_OILRIG,
-    O_FACTORY,
-    O_ROBOT_FACTORY,
-    O_ARMORY,
-    O_OIL_MIXER,
-    O_REPAIR_STATION,
-    O_CRANE,
-    O_SUCTION_CUP,
+    O_TREASURE_CHEST,
     O_RESOURCE,
     O_PLANT,
-    O_STATE_SAVER,
     O_DECORATION,
 };
 
-static int c10_ids[] = {
-	14,
-	91,
-	97,
-	120,
-	203,
-	204,
-	147,
+/* Adventure Control */
+static int c13_ids[] = {
+    O_PLAYER_ACTIVATOR,
+    O_ROBOTMAN,
+    146, // HP Control
+    O_VENDOR,
+    O_GOAL,
+    O_COMMAND_PAD,
+    O_CHECKPOINT,
+    O_GUARDPOINT,
+    O_BACKPACK,
+    O_OILRIG,
+    O_FACTORY,
+    O_ARMORY,
+    O_OIL_MIXER,
+    O_REPAIR_STATION,
+    O_ROBOT_FACTORY,
+};
+
+/* Testing */
+static int c14_ids[] = {
+    147, // Old Laser
+    204, // Background
 };
 
 static const int num_objects[of::num_categories] = {
@@ -913,10 +931,14 @@ static const int num_objects[of::num_categories] = {
     (sizeof(c8_ids)/sizeof(int)),
     (sizeof(c9_ids)/sizeof(int)),
     (sizeof(c10_ids)/sizeof(int)),
+    (sizeof(c11_ids)/sizeof(int)),
+    (sizeof(c12_ids)/sizeof(int)),
+    (sizeof(c13_ids)/sizeof(int)),
+    (sizeof(c14_ids)/sizeof(int)),
 };
 
 static int *ids[] = {
-    c0_ids, c1_ids, c2_ids, c3_ids, c4_ids, c5_ids, c6_ids,c7_ids,c8_ids,c9_ids,c10_ids
+    c0_ids, c1_ids, c2_ids, c3_ids, c4_ids, c5_ids, c6_ids,c7_ids,c8_ids,c9_ids,c10_ids,c11_ids,c12_ids,c13_ids,c14_ids,
 };
 
 static char *o_descr_buf = 0;
