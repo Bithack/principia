@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <cxxabi.h>
+#include <unistd.h>
+#include <libgen.h>
 
 #include <tms/core/project.h>
 #include <tms/core/event.h>
@@ -46,8 +48,8 @@ int _pipe_listener(void *p)
     ssize_t sz;
 
     while (1) {
-        tms_infof("attempting to open principia.run O_RDONLY");
-        while ((pipe_h = open("principia.run", O_RDONLY)) == -1) {
+        tms_infof("attempting to open /tmp/principia.run O_RDONLY");
+        while ((pipe_h = open("/tmp/principia.run", O_RDONLY)) == -1) {
             if (errno != EINTR)
                 return 1;
         }
@@ -57,7 +59,7 @@ int _pipe_listener(void *p)
 
             if (sz > 0) {
                 buf[sz] = '\0';
-                _args[1] = buf; 
+                _args[1] = buf;
                 tproject_set_args(2, _args);
             }
         }
@@ -78,7 +80,7 @@ main(int argc, char **argv)
     SDL_Event  ev;
     int        done = 0;
 
-    int status = mkfifo("principia.run", S_IWUSR | S_IRUSR);
+    int status = mkfifo("/tmp/principia.run", S_IWUSR | S_IRUSR);
     int skip_pipe = 0;
 
     if (status == 0) {
@@ -89,9 +91,9 @@ main(int argc, char **argv)
             skip_pipe = 1;
         }
     }
-    
+
     if (!skip_pipe) {
-        if ((pipe_h = open("principia.run", O_WRONLY | O_NONBLOCK)) == -1) {
+        if ((pipe_h = open("/tmp/principia.run", O_WRONLY | O_NONBLOCK)) == -1) {
             if (errno != ENXIO) {
                 skip_pipe = 1;
                 tms_infof("error: %s", strerror(errno));
@@ -115,6 +117,12 @@ main(int argc, char **argv)
         tms_infof("Starting fifo listener thread");
         SDL_CreateThread(_pipe_listener, "_pipe_listener", 0);
     }
+
+    char buf[512];
+    readlink("/proc/self/exe", buf, 511);
+    dirname(buf);
+    tms_infof("chdirring to %s", buf);
+    chdir(buf);
 
     char path[512];
     const char *storage = tbackend_get_storage_path();
@@ -200,7 +208,6 @@ main(int argc, char **argv)
                         switch (ev.window.event) {
                             case SDL_WINDOWEVENT_RESIZED:
                                 {
-#ifdef DEBUG
                                     tms_infof("Window %d resized to %dx%d",
                                             ev.window.windowID, ev.window.data1,
                                             ev.window.data2);
@@ -218,7 +225,6 @@ main(int argc, char **argv)
                                     SDL_SetWindowSize(_window, _tms.window_width, _tms.window_height);
 
                                     tproject_window_size_changed();
-#endif
                                 }
                                 break;
                         }
@@ -529,8 +535,15 @@ tbackend_init_surface()
     _tms.yppcm = 107.f/2.54f * 1.5f;
 #endif
 
+    uint32_t flags = 0;
+
+    flags |= SDL_WINDOW_OPENGL;
+    flags |= SDL_WINDOW_SHOWN;
+    flags |= SDL_WINDOW_RESIZABLE;
+
     tms_progressf("Creating window... ");
-    _window = SDL_CreateWindow("Principia", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _tms.window_width, _tms.window_height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    _window = SDL_CreateWindow("Principia", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _tms.window_width, _tms.window_height, flags);
+
     if (_window == NULL) {
         tms_progressf("ERROR: %s\n", SDL_GetError());
         exit(1);

@@ -148,10 +148,8 @@ if [ "$run" -eq "1" ]; then
     elif [ "$debug" -eq "4" ]; then # --leak
         valgrind --suppressions=./valgrind.supp --tool=memcheck --leak-check=full --show-possibly-lost=yes --track-origins=yes ./apparatus2
     elif [ "$debug" -eq "1" ]; then
-	cd ../
-        gdb -ex run -ex quit build-linux/apparatus2
+        gdb -ex run -ex quit ./apparatus2
     else
-	cd ../
-        build-linux/apparatus2
+        ./apparatus2
     fi
 fi

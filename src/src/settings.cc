@@ -70,6 +70,9 @@ _settings::init()
     this->add("window_height",      S_INT32,   _tms.window_height);
     this->add("window_maximized",   S_BOOL,  0);
 
+    // False for now to allow for resetting the screensize if resizing somehow breaks it.
+    this->add("autosave_screensize",S_BOOL,  false);
+
 #if defined(TMS_BACKEND_IOS)
     this->add("shadow_quality",     S_UINT8,  is_shitty ? 0 : 1);
 #else
