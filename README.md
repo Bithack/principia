@@ -70,7 +70,7 @@ $ sudo apt-get install automake libgtk2.0-dev libgl-dev libxss-dev libxxf86vm-de
 
 Fedora:
 $ sudo dnf groupinstall "Development Tools" "Development Libraries"
-$ sudo dnf install gtk2-devel mesa-libGL-devel libXScrnSaver-devel libXxf86vm-devel alsa-lib-devel systemd-devel
+$ sudo dnf install gcc-c++ gtk2-devel mesa-libGL-devel libXScrnSaver-devel libXxf86vm-devel alsa-lib-devel systemd-devel
 
 #### Compile: 
 Navigate to the build-linux directory and start the building process:
