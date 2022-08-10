@@ -96,6 +96,10 @@ import android.media.*;
 import android.hardware.*;
 import android.widget.ArrayAdapter;
 
+import androidx.core.view.WindowInsetsControllerCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -186,10 +190,10 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
         // So we can call stuff from static callbacks
         mSingleton = this;
 
-        // Keep track of the paused state
-
         mSingleton.requestWindowFeature(Window.FEATURE_NO_TITLE);
         mSingleton.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        enableImmersiveMode();
 
         // Set up the surface
         mSurface = new SDLSurface(getApplication());
@@ -205,6 +209,17 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
         SDLActivity.open_adapter = new ArrayAdapter<Level>(SDLActivity.mSingleton,
                 android.R.layout.select_dialog_item);
         QuickaddDialog.object_adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
+    }
+
+    public void enableImmersiveMode()
+    {
+        WindowCompat.setDecorFitsSystemWindows(mSingleton.getWindow(), true);
+        WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(mSingleton.getWindow(), mSingleton.getWindow().getDecorView());
+
+        if (controller != null) {
+            controller.hide(WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.navigationBars());
+            controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        }
     }
 
     @Override
@@ -619,33 +634,18 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
     /* -----------------------------------------------------------------------------------------------------  TMS PRINCIPIA */
     public static boolean has_external_storage()
     {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state);
+        //String state = Environment.getExternalStorageState();
+        //return Environment.MEDIA_MOUNTED.equals(state);
+	return true;
     }
 
     public static String get_storage_path()
     {
-        File file_path = Environment.getExternalStorageDirectory();
-        String path = file_path.getAbsolutePath() + "/Principia";
+        File file_path[] = SDLActivity.getContext().getExternalFilesDirs(null);
 
-        File f = new File(path);
-        if (!f.exists()) {
-            Log.v("Principia", "Creating storage directory: "+path);
-            if (!f.mkdir()) {
-                Log.e(TAG, "Unable to create storage directory: " + path);
+        String path = file_path[0].toString();
 
-                File data_f = SDLActivity.getContext().getFilesDir();
-                Log.e(TAG, "try this: " + data_f);
-                if (!data_f.exists()) {
-                    Log.v(TAG, "Creating storage directory: "+ data_f);
-                    if (!data_f.mkdir()) {
-                        Log.e(TAG, "Unable to create data storage directory: " + data_f);
-                    }
-                }
-
-                return data_f.getAbsolutePath();
-            }
-        }
+        Log.v("FilesDir", path);
 
         return path;
     }
@@ -708,8 +708,9 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
     {
         SDLActivity.mSingleton.runOnUiThread(new Runnable(){
             public void run() {
+                String community_host = PrincipiaBackend.getCommunityHost();
                 if (SDLActivity.wv_cm != null) {
-                    String cookie_data = SDLActivity.wv_cm.getCookie(".principiagame.com");
+                    String cookie_data = SDLActivity.wv_cm.getCookie("."+community_host);
                     if (cookie_data != null) {
                         String[] prev_cookies = cookie_data.split("; ");
                         int uid = 1;
@@ -735,9 +736,9 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
 
                             if (u != 1 && u != 0 && k != null && sid != null) {
                                 // we got relevant cookies from curl!
-                                SDLActivity.wv_cm.setCookie(".principiagame.com", "phpbb_ziao2_u="+u);
-                                SDLActivity.wv_cm.setCookie(".principiagame.com", "phpbb_ziao2_k="+k);
-                                SDLActivity.wv_cm.setCookie(".principiagame.com", "phpbb_ziao2_sid="+sid);
+                                SDLActivity.wv_cm.setCookie("."+community_host, "phpbb_ziao2_u="+u);
+                                SDLActivity.wv_cm.setCookie("."+community_host, "phpbb_ziao2_k="+k);
+                                SDLActivity.wv_cm.setCookie("."+community_host, "phpbb_ziao2_sid="+sid);
                             }
                         }
                     }
@@ -786,7 +787,7 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
                     Log.v("Principia", "set arg "+url);
                     PrincipiaBackend.setarg(url);
                     SDLActivity.wv_dialog.dismiss();
-                } else if (host.equals("test.sprfuppsala.se") || host.equals("principiagame.com") || host.equals("img.principiagame.com") || host.equals("www.principiagame.com") || host.equals("test.principiagame.com")) {
+                } else if (true) {
                     // FIXME: Also IF HOST CONTAINS QUERY ?printable=yes
                     Log.v("Principia", "Load url "+url);
                     view.stopLoading();
@@ -1101,6 +1102,9 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
     {
         SDLActivity.mSingleton.runOnUiThread(new Runnable(){
             public void run() {
+                /* hack to prevent killing of immersive mode */
+                mSingleton.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+
                 new AlertDialog.Builder(mSingleton.getContext())
                     .setMessage(text)
                     .setPositiveButton(mSingleton.getString(R.string.close), new DialogInterface.OnClickListener() {
@@ -1110,6 +1114,9 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
                     })
                     .setIcon(android.R.drawable.ic_dialog_info)
                     .show();
+
+                mSingleton.getWindow().getDecorView().setSystemUiVisibility(mSingleton.getWindow().getDecorView().getSystemUiVisibility());
+                mSingleton.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
             }
         });
     }
@@ -1202,9 +1209,9 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
                             case 5: showDialog(DIALOG_PUBLISH); break;
                             case 6: showDialog(DIALOG_SETTINGS); break;
                             case 7: showDialog(DIALOG_LOGIN); break;
-                            case 8: SDLActivity.open_url("http://principiagame.com/gettingstarted.php"); break;
-                            case 9: SDLActivity.open_url("http://wiki.principiagame.com/wiki/Main_Page"); break;
-                            case 10: SDLActivity.open_url("http://principiagame.com/"); break;
+                            case 8: SDLActivity.open_url("https://principiagame.com/gettingstarted.php"); break;
+                            case 9: SDLActivity.open_url("https://wiki.principiagame.com/wiki/Main_Page"); break;
+                            case 10: SDLActivity.open_url("https://principiagame.com/"); break;
                             case 11: PrincipiaBackend.addActionAsInt(ACTION_GOTO_MAINMENU, 0); break;
                             case 12: SDLActivity.cleanQuit(); break;
                         }
@@ -1532,6 +1539,8 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
             SDLActivity.num_dialogs = 0;
             PrincipiaBackend.focusGL(true);
         }
+
+        enableImmersiveMode();
     }
 
     public void onShow(DialogInterface dialog) {

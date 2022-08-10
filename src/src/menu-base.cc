@@ -33,7 +33,7 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                     P.add_action(ACTION_REFRESH_WIDGETS, 0);
 
                     char tmp[1024];
-                    snprintf(tmp, 1023, "http://%s/user/%s", P.community_host, P.username);
+                    snprintf(tmp, 1023, "https://%s/user/%s", P.community_host, P.username);
                     ui::open_url(tmp);
                 } else {
                     ui::open_dialog(DIALOG_LOGIN);
@@ -44,13 +44,13 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
         case BTN_MESSAGE:
 	    {
                 char url[1024];
-                snprintf(url, 1023, "http://%s/version-redir.php", P.community_host);
+                snprintf(url, 1023, "https://%s/version-redir.php", P.community_host);
                 ui::open_url(url);
 	    }
             break;
 
         case BTN_BITHACK:
-            ui::open_url("http://bithack.com/");
+            ui::open_url("https://www.bithack.com/");
             break;
 
         case BTN_SETTINGS:
@@ -61,7 +61,7 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             {
                 uint32_t id = VOID_TO_UINT32(w->data3);
                 char tmp[1024];
-                snprintf(tmp, 1023, "http://%s/level/%" PRIu32, P.community_host, id);
+                snprintf(tmp, 1023, "https://%s/level/%" PRIu32, P.community_host, id);
                 ui::open_url(tmp);
             }
             break;
@@ -70,7 +70,7 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             {
                 uint32_t id = VOID_TO_UINT32(w->data3);
                 char tmp[1024];
-                snprintf(tmp, 1023, "http://%s/contest/%" PRIu32, P.community_host, id);
+                snprintf(tmp, 1023, "https://%s/contest/%" PRIu32, P.community_host, id);
                 ui::open_url(tmp);
             }
             break;
@@ -117,7 +117,7 @@ menu_base::menu_base(bool _include_logo)
     this->wdg_bithack = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             BTN_BITHACK, AREA_NOMARGIN_BOTTOM_LEFT,
-            gui_spritesheet::get_sprite(S_BITHACK));
+            gui_spritesheet::get_sprite(S_BITHACK), 0, 0.5f);
     this->wdg_bithack->add();
 
     this->wdg_settings = this->wm->create_widget(

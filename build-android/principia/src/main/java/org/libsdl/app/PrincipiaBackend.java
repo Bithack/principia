@@ -6,6 +6,7 @@ public class PrincipiaBackend
 {
     public static native int getLevelVersion();
     public static native String getCookies();
+    public static native String getCommunityHost();
 
     public static native void addAction(int id, String action_string);
     public static native void addActionAsInt(int action_id, long action_data);

@@ -312,7 +312,7 @@ FT_BEGIN_HEADER
   FT_MulFix_arm( FT_Int32  a,
                  FT_Int32  b )
   {
-    register FT_Int32  t, t2;
+    FT_Int32  t, t2;
 
 
     __asm
@@ -343,7 +343,7 @@ FT_BEGIN_HEADER
   FT_MulFix_arm( FT_Int32  a,
                  FT_Int32  b )
   {
-    register FT_Int32  t, t2;
+    FT_Int32  t, t2;
 
 
     __asm__ __volatile__ (
@@ -370,7 +370,7 @@ FT_BEGIN_HEADER
   FT_MulFix_i386( FT_Int32  a,
                   FT_Int32  b )
   {
-    register FT_Int32  result;
+    FT_Int32  result;
 
 
     __asm__ __volatile__ (
@@ -406,7 +406,7 @@ FT_BEGIN_HEADER
   FT_MulFix_i386( FT_Int32  a,
                   FT_Int32  b )
   {
-    register FT_Int32  result;
+    FT_Int32  result;
 
     __asm
     {

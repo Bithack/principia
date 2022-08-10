@@ -1970,7 +1970,7 @@ _download_pkg(void *_p)
     tms_debugf("save: %s", save_path);
 
     char url[1024];
-    snprintf(url, 1023, "http://%s/" COMMUNITY_SECRET "/xxxx.php?i=%d",
+    snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/xxxx.php?i=%d",
             P.community_host,
             _play_pkg_id);
     //tms_infof("url: %s", url);
@@ -2111,7 +2111,7 @@ _download_level(void *p)
 
 
     char url[1024];
-    snprintf(url, 1023, "http://%s/" COMMUNITY_SECRET "/%s.php?i=%d&h=%u",
+    snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/%s.php?i=%d&h=%u",
             P.community_host,
             _play_download_for_pkg ? "xxxxx" : (type == LEVEL_DB ? "x":(derive == true ? "xxx" : "xxxxxx")),
             _play_id, r);
@@ -2525,7 +2525,7 @@ _check_version_code(void *_unused)
         init_curl_defaults(P.curl);
 
         char url[1024];
-        snprintf(url, 1023, "http://%s/principia-version-code", P.community_host);
+        snprintf(url, 1023, "https://%s/principia-version-code", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
@@ -2629,9 +2629,9 @@ _get_featured_levels(void *_num)
 
         char url[1024];
         if (fl_fetch_time && file_exists(featured_data_path) && !ignore_fl_cache) {
-            snprintf(url, 1023, "http://%s/" COMMUNITY_SECRET "/get_feature.php?num=%" PRIu32 "&time=%d", P.community_host, num_featured_levels, fl_fetch_time);
+            snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/get_feature.php?num=%" PRIu32 "&time=%d", P.community_host, num_featured_levels, fl_fetch_time);
         } else {
-            snprintf(url, 1023, "http://%s/" COMMUNITY_SECRET "/get_feature.php?num=%" PRIu32, P.community_host, num_featured_levels);
+            snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/get_feature.php?num=%" PRIu32, P.community_host, num_featured_levels);
         }
 
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
@@ -2973,7 +2973,7 @@ _publish_pkg(void *_unused)
                     init_curl_defaults(P.curl);
 
                     char url[1024];
-                    snprintf(url, 1023, "http://%s/" COMMUNITY_SECRET "/upload_package.php", P.community_host);
+                    snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/upload_package.php", P.community_host);
                     curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
                     curl_easy_setopt(P.curl, CURLOPT_HTTPPOST, formpost);
@@ -3117,7 +3117,7 @@ _publish_level(void *p)
         init_curl_defaults(P.curl);
 
         char url[1024];
-        snprintf(url, 1023, "http://%s/upload.php", P.community_host);
+        snprintf(url, 1023, "https://%s/upload.php", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_HTTPPOST, formpost);
@@ -3309,7 +3309,7 @@ _submit_score(void *p)
         init_curl_defaults(P.curl);
 
         char url[1024];
-        snprintf(url, 1023, "http://%s/" COMMUNITY_SECRET "/submit_score.php", P.community_host);
+        snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/submit_score.php", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
@@ -3394,7 +3394,7 @@ _ping(void *p)
         init_curl_defaults(P.curl);
 
         char url[1024];
-        snprintf(url, 1023, "http://%s/ping.php", P.community_host);
+        snprintf(url, 1023, "https://%s/ping.php", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
@@ -3470,7 +3470,7 @@ _login(void *p)
         init_curl_defaults(P.curl);
 
         char url[1024];
-        snprintf(url, 1023, "http://%s/" COMMUNITY_SECRET "/xx.php", P.community_host);
+        snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/xx.php", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_HTTPPOST, formpost);
@@ -3588,7 +3588,7 @@ _register(void *p)
         if (P.curl) {
             init_curl_defaults(P.curl);
             char url[1024];
-            snprintf(url, 1023, "http://%s/" COMMUNITY_SECRET "/" REGISTER_ANDROID_FILE ".php", P.community_host);
+            snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/" REGISTER_ANDROID_FILE ".php", P.community_host);
             curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
             curl_easy_setopt(P.curl, CURLOPT_HTTPPOST, formpost);
@@ -3727,7 +3727,7 @@ _link_account(void *p)
             init_curl_defaults(P.curl);
 
             char url[1024];
-            snprintf(url, 1023, "http://%s/" COMMUNITY_SECRET "/" LINK_ACCOUNT_FILE ".php", P.community_host);
+            snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/" LINK_ACCOUNT_FILE ".php", P.community_host);
             curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
             curl_easy_setopt(P.curl, CURLOPT_HTTPPOST, formpost);
@@ -4400,7 +4400,7 @@ P_get_cookie_data(char **u, char **k, char **sid, char **l)
         init_curl_defaults(P.curl);
 
         char url[1024];
-        snprintf(url, 1023, "http://%s/" COMMUNITY_SECRET "/xx.php", P.community_host);
+        snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/xx.php", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         struct curl_slist *cookies;

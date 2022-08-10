@@ -231,7 +231,7 @@ T_intercept_input(SDL_Event ev)
     return T_OK;
 }
 
-static const char storage_path[1024];
+static char storage_path[1024];
 static const char*
 _JNI_get_storage_path()
 {
@@ -243,6 +243,8 @@ _JNI_get_storage_path()
         jstring s = (*mEnv)->CallStaticObjectMethod(mEnv, cls, mid);
 
         const char *tmp = (*mEnv)->GetStringUTFChars(mEnv, s, 0);
+
+        tms_infof("Storage path: %s", tmp ? tmp : "<NULL>");
 
         strcpy(storage_path, tmp);
 
@@ -261,7 +263,7 @@ const char *tbackend_get_storage_path(void)
     return _JNI_get_storage_path();
 }
 
-static const char device_info[1024];
+static char device_info[1024];
 static const char*
 _JNI_get_device_info()
 {
