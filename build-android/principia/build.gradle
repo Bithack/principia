@@ -13,10 +13,6 @@ android {
         versionCode 36
         versionName "1.6"
 
-        ndk {
-            abiFilters 'x86', 'armeabi-v7a'
-        }
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
