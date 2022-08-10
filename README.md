@@ -66,7 +66,7 @@ Principia will launch if everything was successful. Note that the compilation mi
 
 Install dependencies (example is for Debian-based packages):
 
-	$ sudo apt-get install automake libgtk2.0-dev libgl-dev libxss-dev libxxf86vm-dev libasound2-dev libudev-dev valgrind
+	$ sudo apt-get install automake libgtk2.0-dev libgl-dev libxss-dev libxxf86vm-dev libasound2-dev libudev-dev valgrind libcurl4-openssl-dev
 
 Navigate to the build-linux directory and start the building process:
 

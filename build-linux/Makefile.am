@@ -14,7 +14,6 @@ GLOBAL_FLAGS := -DGL_GLEXT_PROTOTYPES \
 GLOBAL_FLAGS += -I../src/SDL-pc/SDL/include -I../src/tms/backends/linux/ \
 				-I../src/SDL_ttf/ -I../src/SDL_mixer/ -I../src/SDL_image/ -I../src/freetype/builds -I../src/freetype/include \
 				-I../src/src/ -I../src/ -I../src/jpeg/ -I../src/png/ -I../src/zlib/ -I/usr/include/ \
-				-I../src/curl-7.32.0/lib/ -I../src/curl-7.32.0/include/ \
 				-I../src/include/ \
 				-I../src/gtk-undo \
 				-DGLEW_STATIC \
@@ -26,7 +25,7 @@ apparatus2_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99 -DFT2_BUILD_LIBRARY\
 	-DLOAD_PCX -DLOAD_PNM -DLOAD_TGA -DLOAD_XCF -DLOAD_XPM \
 	-DLOAD_XV
 apparatus2_CXXFLAGS = ${GLOBAL_FLAGS}
-apparatus2_LDADD = -lz -ldl -lGL -lpthread -lX11 -lXi -lrt ${GTK_LIBS}
+apparatus2_LDADD = -lz -ldl -lGL -lpthread -lX11 -lXi -lrt ${GTK_LIBS} -lcurl
 apparatus2_LDFLAGS = 
 
 apparatus2_SOURCES = \
@@ -624,26 +623,6 @@ apparatus2_SOURCES = \
 ../src/src/Box2D/Dynamics/Joints/b2PivotJoint.cc \
 ../src/src/Box2D/Dynamics/Joints/b2RopeJoint.cc \
 ../src/src/Box2D/Dynamics/Joints/b2WeldJoint.cc \
-../src/src/Box2D/Dynamics/Joints/b2WheelJoint.cc \
-../src/curl-7.32.0/lib/file.c ../src/curl-7.32.0/lib/timeval.c ../src/curl-7.32.0/lib/base64.c ../src/curl-7.32.0/lib/hostip.c ../src/curl-7.32.0/lib/progress.c ../src/curl-7.32.0/lib/formdata.c	\
-  ../src/curl-7.32.0/lib/cookie.c ../src/curl-7.32.0/lib/http.c ../src/curl-7.32.0/lib/sendf.c ../src/curl-7.32.0/lib/ftp.c ../src/curl-7.32.0/lib/url.c ../src/curl-7.32.0/lib/dict.c ../src/curl-7.32.0/lib/if2ip.c ../src/curl-7.32.0/lib/speedcheck.c	\
-  ../src/curl-7.32.0/lib/ldap.c ../src/curl-7.32.0/lib/ssluse.c ../src/curl-7.32.0/lib/version.c ../src/curl-7.32.0/lib/getenv.c ../src/curl-7.32.0/lib/escape.c ../src/curl-7.32.0/lib/mprintf.c ../src/curl-7.32.0/lib/telnet.c	\
-  ../src/curl-7.32.0/lib/netrc.c ../src/curl-7.32.0/lib/getinfo.c ../src/curl-7.32.0/lib/transfer.c ../src/curl-7.32.0/lib/strequal.c ../src/curl-7.32.0/lib/easy.c ../src/curl-7.32.0/lib/security.c ../src/curl-7.32.0/lib/krb4.c	\
-  ../src/curl-7.32.0/lib/curl_fnmatch.c ../src/curl-7.32.0/lib/fileinfo.c ../src/curl-7.32.0/lib/ftplistparser.c ../src/curl-7.32.0/lib/wildcard.c ../src/curl-7.32.0/lib/krb5.c		\
-  ../src/curl-7.32.0/lib/memdebug.c ../src/curl-7.32.0/lib/http_chunks.c ../src/curl-7.32.0/lib/strtok.c ../src/curl-7.32.0/lib/connect.c ../src/curl-7.32.0/lib/llist.c ../src/curl-7.32.0/lib/hash.c ../src/curl-7.32.0/lib/multi.c	\
-  ../src/curl-7.32.0/lib/content_encoding.c ../src/curl-7.32.0/lib/share.c ../src/curl-7.32.0/lib/http_digest.c ../src/curl-7.32.0/lib/md4.c ../src/curl-7.32.0/lib/md5.c	\
-  ../src/curl-7.32.0/lib/http_negotiate.c ../src/curl-7.32.0/lib/inet_pton.c ../src/curl-7.32.0/lib/strtoofft.c ../src/curl-7.32.0/lib/strerror.c ../src/curl-7.32.0/lib/amigaos.c		\
-  ../src/curl-7.32.0/lib/hostasyn.c ../src/curl-7.32.0/lib/hostip4.c ../src/curl-7.32.0/lib/hostip6.c ../src/curl-7.32.0/lib/hostsyn.c ../src/curl-7.32.0/lib/inet_ntop.c ../src/curl-7.32.0/lib/parsedate.c	\
-  ../src/curl-7.32.0/lib/select.c ../src/curl-7.32.0/lib/gtls.c ../src/curl-7.32.0/lib/sslgen.c ../src/curl-7.32.0/lib/tftp.c ../src/curl-7.32.0/lib/splay.c ../src/curl-7.32.0/lib/strdup.c ../src/curl-7.32.0/lib/socks.c ../src/curl-7.32.0/lib/ssh.c ../src/curl-7.32.0/lib/nss.c	\
-  ../src/curl-7.32.0/lib/qssl.c ../src/curl-7.32.0/lib/rawstr.c ../src/curl-7.32.0/lib/curl_addrinfo.c ../src/curl-7.32.0/lib/socks_gssapi.c ../src/curl-7.32.0/lib/socks_sspi.c		\
-  ../src/curl-7.32.0/lib/curl_sspi.c ../src/curl-7.32.0/lib/slist.c ../src/curl-7.32.0/lib/nonblock.c ../src/curl-7.32.0/lib/curl_memrchr.c ../src/curl-7.32.0/lib/imap.c ../src/curl-7.32.0/lib/pop3.c ../src/curl-7.32.0/lib/smtp.c	\
-  ../src/curl-7.32.0/lib/pingpong.c ../src/curl-7.32.0/lib/rtsp.c ../src/curl-7.32.0/lib/curl_threads.c ../src/curl-7.32.0/lib/warnless.c ../src/curl-7.32.0/lib/hmac.c ../src/curl-7.32.0/lib/polarssl.c		\
-  ../src/curl-7.32.0/lib/polarssl_threadlock.c ../src/curl-7.32.0/lib/curl_rtmp.c ../src/curl-7.32.0/lib/openldap.c ../src/curl-7.32.0/lib/curl_gethostname.c	\
-  ../src/curl-7.32.0/lib/gopher.c ../src/curl-7.32.0/lib/axtls.c ../src/curl-7.32.0/lib/idn_win32.c ../src/curl-7.32.0/lib/http_negotiate_sspi.c ../src/curl-7.32.0/lib/cyassl.c		\
-  ../src/curl-7.32.0/lib/http_proxy.c ../src/curl-7.32.0/lib/non-ascii.c ../src/curl-7.32.0/lib/asyn-ares.c ../src/curl-7.32.0/lib/asyn-thread.c ../src/curl-7.32.0/lib/curl_gssapi.c	\
-  ../src/curl-7.32.0/lib/curl_ntlm.c ../src/curl-7.32.0/lib/curl_ntlm_wb.c ../src/curl-7.32.0/lib/curl_ntlm_core.c ../src/curl-7.32.0/lib/curl_ntlm_msgs.c		\
-  ../src/curl-7.32.0/lib/curl_sasl.c ../src/curl-7.32.0/lib/curl_schannel.c ../src/curl-7.32.0/lib/curl_multibyte.c ../src/curl-7.32.0/lib/curl_darwinssl.c		\
-  ../src/curl-7.32.0/lib/hostcheck.c ../src/curl-7.32.0/lib/bundles.c ../src/curl-7.32.0/lib/conncache.c ../src/curl-7.32.0/lib/pipeline.c ../src/curl-7.32.0/lib/dotdot.c ../src/curl-7.32.0/lib/x509asn1.c      \
-  ../src/curl-7.32.0/lib/gskit.c
+../src/src/Box2D/Dynamics/Joints/b2WheelJoint.cc
 
 
