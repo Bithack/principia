@@ -62,29 +62,31 @@ $ ./go
 
 Principia will launch if everything was successful. Note that the compilation might take up to 10 minutes depending on your system.
 
-## Building on Linux (Debian)
+## Building on Linux
 
-Install dependencies:
+Install dependencies (example is for Debian-based packages):
 
-$ sudo apt-get install automake libgtk2.0-dev libgl-dev libxss-dev libxxf86vm-dev libasound2-dev libudev-dev valgrind
+	$ sudo apt-get install automake libgtk2.0-dev libgl-dev libxss-dev libxxf86vm-dev libasound2-dev libudev-dev valgrind
 
 Navigate to the build-linux directory and start the building process:
 
-$ cd build-linux;
+	$ cd build-linux;
+	$ ./autogen.sh
+	$ ./configure
+	$ ./go
 
-$ ./autogen.sh
+If everything goes well, Principia will start by default unless `--silent` is passed to the `go` script.
 
-$ ./configure
+### Packaging for Linux
+When building Principia for packaging, you would want to use the following command to replace the above. It will clean the source tree, build a release version and not automatically run Principia.
 
-$ ./go
+	./go --clean --release --silent
 
-If everything goes well, Principia will start but then freeze at the loading screen due some uninitialize directories. Terminate Principia by replying 'y' in the gdb prompt in the terminal, then in the same terminal, go up a directory and launch it from the parent directory instead:
 
-$ cd ..
 
-$ build-linux/apparatus2
+Right now Principia needs to be installed with its executable next to the data directories. Putting all of that in `/opt/principia/` and symlinking `/usr/bin/principia` => `/opt/principia/principia` should do for now.
 
-(this bug will be fixed in short)
+The `build-linux` directory contains desktop files and an usable icon, which can be installed into `/usr/share/applications/` and `/usr/share/pixmaps` respectively. `principia-url-handler.desktop` is for handling principia:// protocol links and is confirmed to work on at least Firefox and Chromium.
 
 ## Building for Android (on Linux)
 

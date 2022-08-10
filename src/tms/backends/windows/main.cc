@@ -307,7 +307,6 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
                                 break;
                             case SDL_WINDOWEVENT_RESIZED:
                                 {
-#ifdef DEBUG
                                     tms_infof("Window %d resized to %dx%d",
                                             ev.window.windowID, ev.window.data1,
                                             ev.window.data2);
@@ -323,7 +322,6 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
                                     SDL_SetWindowSize(_window, _tms.window_width, _tms.window_height);
 
                                     tproject_window_size_changed();
-#endif
                                 }
                                 break;
                             case SDL_WINDOWEVENT_MINIMIZED:
@@ -523,9 +521,8 @@ tbackend_init_surface()
 
     flags |= SDL_WINDOW_OPENGL;
     flags |= SDL_WINDOW_SHOWN;
-#ifdef DEBUG
     flags |= SDL_WINDOW_RESIZABLE;
-#endif
+
 #ifdef RECORDING
     flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 #endif
