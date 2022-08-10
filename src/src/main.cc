@@ -1967,6 +1967,9 @@ init_curl_defaults(void *curl)
 {
     curl_easy_reset(P.curl);
 
+    curl_easy_setopt(P.curl, CURLOPT_SSL_VERIFYHOST, 0); /* XXX */
+    curl_easy_setopt(P.curl, CURLOPT_SSL_VERIFYPEER, 0); /* XXX */
+
     curl_easy_setopt(P.curl, CURLOPT_USERAGENT, PRINCIPIA_USERAGENT);
 
     curl_easy_setopt(P.curl, CURLOPT_HEADERFUNCTION, _parse_headers);
