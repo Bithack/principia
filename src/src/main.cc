@@ -1863,20 +1863,20 @@ _parse_headers(void *buffer, size_t size, size_t nmemb, void *data)
         char *v = pch+2;
 
         if (data) {
-            if (strcmp(buf, "X-Error-Message") == 0) {
+            if (strcmp(buf, "x-error-message") == 0) {
                 ((struct header_data*)data)->error_message = strdup(v);
-            } else if (strcmp(buf, "X-Error-Action") == 0) {
+            } else if (strcmp(buf, "x-error-action") == 0) {
                 ((struct header_data*)data)->error_action = atoi(v);
-            } else if (strcmp(buf, "X-Notify-Message") == 0) {
+            } else if (strcmp(buf, "x-notify-message") == 0) {
                 ((struct header_data*)data)->notify_message = strdup(v);
             }
         }
 
-        if (strcmp(buf, "X-Principia-User-Id") == 0) {
+        if (strcmp(buf, "x-principia-user-id") == 0) {
             P.user_id = atoi(v);
-        } else if (strcmp(buf, "X-Principia-User-Name") == 0) {
+        } else if (strcmp(buf, "x-principia-user-name") == 0) {
             P.username = strdup(v);
-        } else if (strcmp(buf, "X-Principia-Unread") == 0) {
+        } else if (strcmp(buf, "x-principia-unread") == 0) {
             P.num_unread_messages = atoi(v);
         }
     }
@@ -1895,7 +1895,7 @@ _parse_headers_fl(void *buffer, size_t size, size_t nmemb, void *data)
         buf[nmemb-2] = '\0';
         char *v = pch+2;
 
-        if (strcmp(buf, "X-Fetch-Time") == 0) {
+        if (strcmp(buf, "x-fetch-time") == 0) {
             fl_fetch_time = atoi(v);
             tms_infof("fl_feetch_time: %d", fl_fetch_time);
 
@@ -1907,11 +1907,11 @@ _parse_headers_fl(void *buffer, size_t size, size_t nmemb, void *data)
             }
         }
 
-        if (strcmp(buf, "X-Principia-User-Id") == 0) {
+        if (strcmp(buf, "x-principia-user-id") == 0) {
             P.user_id = atoi(v);
-        } else if (strcmp(buf, "X-Principia-User-Name") == 0) {
+        } else if (strcmp(buf, "x-principia-user-name") == 0) {
             P.username = strdup(v);
-        } else if (strcmp(buf, "X-Principia-Unread") == 0) {
+        } else if (strcmp(buf, "x-principia-unread") == 0) {
             P.num_unread_messages = atoi(v);
         }
     }
