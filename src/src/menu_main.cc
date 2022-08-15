@@ -56,7 +56,7 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                 ui::open_url(0);
 #else
                 char tmp[512];
-                snprintf(tmp, 511, "http://%s/", P.community_host);
+                snprintf(tmp, 511, "https://%s/", P.community_host);
                 ui::open_url(tmp);
 #endif
             }
