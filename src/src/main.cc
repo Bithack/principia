@@ -597,11 +597,11 @@ tproject_set_args(int argc, char **argv)
 
             /* backwards compatibility, if the "host" equals any of the reserved words below we default to the
              * currently signed-in community host instead and backset the pointer */
-            if (strcmp(_community_host, "play") == 0 || 
-                strcmp(_community_host, "sandbox") == 0 || 
+            if (strcmp(_community_host, "play") == 0 ||
+                strcmp(_community_host, "sandbox") == 0 ||
                 strcmp(_community_host, "edit") == 0) {
                 s -= strlen(_community_host) + 1;
-                strcpy(_community_host, P.community_host);
+                _community_host[0] = '\0';
             }
 
             if (strncmp(s, "play/", 5) == 0) {
