@@ -26,7 +26,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.f)
         .set_mesh_offset(-.0125f, 0.f)
         .set_magnetic(true)
-        .set_unlocked(true)
         .add_worth(RESOURCE_IRON, 18)
         .add_worth(RESOURCE_RUBY, 4)
         ,
@@ -42,7 +41,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.f)
         .set_mesh_offset(-.0125f, 0.f)
         .set_magnetic(true)
-        .set_unlocked(true)
         .add_worth(RESOURCE_IRON, 12)
         .add_worth(RESOURCE_TOPAZ, 2)
         ,
@@ -58,7 +56,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.0f)
         .set_mesh_offset(-.0125f, 0.f)
         .set_magnetic(true)
-        .set_unlocked(true)
         .add_worth(RESOURCE_IRON, 22)
         .add_worth(RESOURCE_RUBY, 8)
         .add_worth(RESOURCE_EMERALD, 2)
@@ -74,7 +71,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(WEAPON_RAILGUN)
         .set_mesh_offset(-.025f, 0.f)
         .set_magnetic(true)
-        .set_unlocked(true)
         .add_worth(RESOURCE_IRON, 7)
         .add_worth(RESOURCE_ALUMINIUM, 7)
         .add_worth(RESOURCE_EMERALD, 10)
@@ -145,7 +141,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.0f)
         .set_mesh_offset(-.0125f, 0.f)
         .set_magnetic(true)
-        .set_unlocked(true)
         .add_worth(RESOURCE_IRON, 7)
         .add_worth(RESOURCE_ALUMINIUM, 7)
         .add_worth(RESOURCE_EMERALD, 10)
@@ -206,7 +201,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_magnetic(true)
         .set_rot_offs(-.175f)
         .set_menu_scale(1.125f)
-        .set_unlocked(true)
         .add_worth(RESOURCE_IRON, 15)
         .add_worth(RESOURCE_COPPER, 15)
         .add_worth(RESOURCE_EMERALD, 5)
@@ -277,7 +271,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_magnetic(true)
         .set_menu_scale(1.35f)
         .set_menu_scale(1.35f)
-        .set_unlocked(true)
         .add_worth(RESOURCE_ALUMINIUM, 7)
         .add_worth(RESOURCE_IRON, 14)
         .add_worth(RESOURCE_DIAMOND, 1)
@@ -294,7 +287,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_can_rotate(true)
         .set_magnetic(true)
         .set_menu_scale(1.25f)
-        .set_unlocked(true)
         .add_worth(RESOURCE_ALUMINIUM, 2)
         .add_worth(RESOURCE_IRON, 19)
         .add_worth(RESOURCE_TOPAZ, 1)
@@ -311,7 +303,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_can_rotate(true)
         .set_menu_scale(1.25f)
         .set_magnetic(true)
-        .set_unlocked(true)
         .add_worth(RESOURCE_ALUMINIUM, 2)
         .add_worth(RESOURCE_IRON, 24)
         .add_worth(RESOURCE_TOPAZ, 1)
@@ -331,7 +322,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_magnetic(true)
         .set_rot_offs(.175f)
         .set_menu_scale(1.5f)
-        .set_unlocked(true)
         .add_worth(RESOURCE_ALUMINIUM, 10)
         .add_worth(RESOURCE_IRON, 20)
         ,
@@ -594,7 +584,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_magnetic(true)
         .set_rot_offs(-.175f)
         .set_menu_scale(1.5f)
-        .set_unlocked(true)
         .add_worth(RESOURCE_ALUMINIUM, 10)
         .add_worth(RESOURCE_IRON, 20)
         ,
@@ -611,7 +600,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_mesh_offset(0,.1)
         .set_magnetic(true)
         .set_menu_scale(1.5f)
-        .set_unlocked(true)
         .add_worth(RESOURCE_ALUMINIUM, 3)
         .add_worth(RESOURCE_IRON, 3)
         .add_worth(RESOURCE_DIAMOND, 1)
@@ -683,7 +671,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
         .set_mesh_offset(0,-.14)
-        .set_unlocked(true)
         .add_worth(RESOURCE_WOOD, 15)
         ,
 
@@ -697,7 +684,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(HEAD_OSTRICH)
         .set_can_rotate(true)
         .set_magnetic(true)
-        .set_unlocked(true)
         ,
 
     item_option("Circuit of Regeneration")
@@ -710,7 +696,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(CREATURE_CIRCUIT_REGENERATION)
         .set_menu_scale(2.25f)
         .set_magnetic(true)
-        .set_unlocked(true)
         .add_worth(RESOURCE_COPPER, 15)
         .add_worth(RESOURCE_RUBY, 5)
         .add_worth(RESOURCE_EMERALD, 5)
@@ -787,7 +772,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.f)
         .set_mesh_offset(.115f, 0.f)
         .set_magnetic(true)
-        .set_unlocked(true)
         .add_worth(RESOURCE_IRON, 7)
         .add_worth(RESOURCE_ALUMINIUM, 7)
         .add_worth(RESOURCE_TOPAZ, 1)
@@ -804,7 +788,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
         .set_mesh_offset(0.f,-.1f)
-        .set_unlocked(false)
         ,
         
     item_option("Dummy head")
@@ -832,7 +815,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
         .set_mesh_offset(.1f,-.1f)
-        .set_unlocked(false)
         ,
         
     item_option("Training sword")
@@ -845,7 +827,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(WEAPON_TRAINING_SWORD)
         .set_menu_scale(0.75f)
         .set_mesh_offset(-.0125f, -.5f)
-        .set_unlocked(true)
         ,
         
     item_option("Witch Hat")
@@ -859,7 +840,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
         .set_mesh_offset(0,-.4)
-        .set_unlocked(false)
         ,
 
     item_option("War hammer")
@@ -872,7 +852,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(WEAPON_WAR_HAMMER)
         .set_menu_scale(0.75f)
         .set_mesh_offset(-.0125f, -.5f)
-        .set_unlocked(true)
         ,
         
     item_option("Simple axe")
@@ -885,7 +864,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(WEAPON_SIMPLE_AXE)
         .set_menu_scale(0.75f)
         .set_mesh_offset(-.0125f, -.3f)
-        .set_unlocked(true)
         ,
 
     item_option("Chainsaw")
@@ -898,7 +876,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(WEAPON_CHAINSAW)
         .set_menu_scale(0.75f)
         .set_mesh_offset(.2f, .1f)
-        .set_unlocked(false)
         ,
         
     item_option("Spiked Club")
@@ -911,7 +888,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(WEAPON_SPIKED_CLUB)
         .set_menu_scale(0.75f)
         .set_mesh_offset(-.0125f, -.5f)
-        .set_unlocked(true)
         ,
         
     item_option("Steel Sword")
@@ -924,7 +900,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(WEAPON_STEEL_SWORD)
         .set_menu_scale(0.75f)
         .set_mesh_offset(-.0125f, -.5f)
-        .set_unlocked(true)
         ,
         
     item_option("Baseball bat")
@@ -937,7 +912,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(WEAPON_BASEBALLBAT)
         .set_menu_scale(0.75f)
         .set_mesh_offset(-.0125f, -.45f)
-        .set_unlocked(true)
         ,
 
     item_option("Spear")
@@ -950,7 +924,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(WEAPON_SPEAR)
         .set_menu_scale(0.75f)
         .set_mesh_offset(0.f, -.45f)
-        .set_unlocked(true)
         ,
         
     item_option("War axe")
@@ -963,7 +936,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(WEAPON_WAR_AXE)
         .set_menu_scale(0.75f)
         .set_mesh_offset(.0125f, -.5f)
-        .set_unlocked(false)
         ,
         
     item_option("Pixel sword")
@@ -976,7 +948,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(WEAPON_PIXEL_SWORD)
         .set_menu_scale(0.75f)
         .set_mesh_offset(-.0125f, -.5f)
-        .set_unlocked(false)
         ,
         
     item_option("Hard hat")
@@ -990,7 +961,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
         .set_mesh_offset(0.f,-.1f)
-        .set_unlocked(true)
         ,
         
     item_option("Serpent Sword")
@@ -1003,7 +973,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(WEAPON_SERPENT_SWORD)
         .set_menu_scale(0.75f)
         .set_mesh_offset(-.0125f, -.5f)
-        .set_unlocked(false)
         ,
         
     item_option("Pioneer front")
@@ -1017,7 +986,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
         .set_magnetic(true)
-        .set_unlocked(false)
         ,
         
     item_option("Pioneer back")
@@ -1035,7 +1003,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(1.5f)
         .add_worth(RESOURCE_ALUMINIUM, 10)
         .add_worth(RESOURCE_IRON, 20)
-        .set_unlocked(false)
         ,
         
     item_option("Viking Helmet")
@@ -1049,7 +1016,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
         .set_mesh_offset(0.f,-.1f)
-        .set_unlocked(false)
         ,
         
     item_option("Pickaxe")
@@ -1062,7 +1028,6 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(WEAPON_PICKAXE)
         .set_menu_scale(0.75f)
         .set_mesh_offset(-.0125f, -.38f)
-        .set_unlocked(false)
         ,
 };
 
@@ -1195,13 +1160,7 @@ item::item(int32_t initial_item_id/*=-1*/)
     this->set_num_properties(2);
     this->properties[0].type = P_INT;
     if (initial_item_id < 0) {
-        if (progress::initialized) {
-            do {
-                initial_item_id = rand()%NUM_ITEMS;
-            } while (!item::is_unlocked(initial_item_id));
-        } else {
-            initial_item_id = ITEM_ARM_CANNON;
-        }
+        initial_item_id = rand()%NUM_ITEMS;
     }
     this->set_item_type(initial_item_id);
 
@@ -1862,91 +1821,11 @@ item::_init()
     }
 }
 
-bool
-item::is_unlocked(uint32_t item_type)
-{
-    /* As a security measure, we do not call any progress-related functions
-     * unless we know progress is initialized. */
-    if (!progress::initialized) {
-        return false;
-    }
-
-    const struct item_option &io = item_options[item_type];
-
-    /* If the item is unlocked by default */
-    if (io.unlocked) {
-        return true;
-    }
-
-    /* If the item category is one that we do not lock */
-    switch (io.category) {
-        case ITEM_CATEGORY_GENERIC:
-        case ITEM_CATEGORY_FEET:
-        case ITEM_CATEGORY_POWERUP:
-        case ITEM_CATEGORY_BOLT_SET:
-        case ITEM_CATEGORY_BULLET:
-            return true;
-    }
-
-    uint32_t level_id = UNLOCKED_ITEM_LEVEL_ID + item_type;
-
-    lvl_progress *lp = progress::get_level_progress(LEVEL_MAIN, level_id);
-
-    if (lp) {
-        return lp->completed;
-    }
-
-    return false;
-}
-
-void
-item::unlock(uint32_t item_type, bool signal/*=true*/)
-{
-    /* As a security measure, we do not call any progress-related functions
-     * unless we know progress is initialized. */
-    if (!progress::initialized) {
-        return;
-    }
-
-    /* Require the item to be unlocked using the "Start new adventure" button. */
-    if (!G->state.new_adventure) {
-        return;
-    }
-
-    /* An item can not be unlocked if it has already been unlocked.
-     * This is mainly here to prevent the notification to run rampant. */
-    if (item::is_unlocked(item_type)) {
-        return;
-    }
-
-    const struct item_option &io = item_options[item_type];
-    uint32_t level_id = UNLOCKED_ITEM_LEVEL_ID + item_type;
-    lvl_progress *lp = progress::get_level_progress(LEVEL_MAIN, level_id);
-
-    lp->completed = 1;
-    lp->top_score = 123;
-
-    char tmp[512];
-    snprintf(tmp, 511, "You unlocked the %s!!!", io.name);
-
-    ui::message(tmp);
-
-    sm::play(&sm::happy, 0, 0, 0, 1.0f, false, 0, true);
-
-    if (signal) {
-        ui::emit_signal(SIGNAL_QUICKADD_REFRESH);
-    }
-}
-
 const char*
 item::get_ui_name(uint32_t item_type)
 {
-    if (item::is_unlocked(item_type)) {
-        const struct item_option &io = item_options[item_type];
-        return io.name;
-    } else {
-        return "???";
-    }
+    const struct item_option &io = item_options[item_type];
+    return io.name;
 }
 
 void

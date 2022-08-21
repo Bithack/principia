@@ -649,7 +649,6 @@ treasure_chest::emit_item(struct treasure_chest_item &tci)
 
                 for (; tci.count > 0; --tci.count) {
                     item *i = static_cast<item*>(of::create(tci.g_id));
-                    item::unlock(tci.sub_id);
                     if (i) {
                         i->set_item_type(tci.sub_id);
                         i->set_position(rx, ry);
