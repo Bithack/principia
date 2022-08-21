@@ -2456,91 +2456,6 @@ write_memory_cb(void *contents, size_t size, size_t nmemb, void *userp)
     return realsize;
 }
 
-
-const int NUM_KEYS = 22;
-
-static unsigned char keys[NUM_KEYS] = {
-    0x01,
-    0x02,
-    0x03,
-    0x04,
-    0x13,
-    0xAA,
-    0x01,
-    0x02,
-    0x03,
-    0x04,
-    0x05,
-    0x13,
-    0xAA,
-    0xAB,
-    0xCF,
-    0xC1,
-    0xCC,
-    0xCB,
-    0xFC,
-    0x01,
-    0x02,
-    0x03,
-};
-
-static void
-compile_data(char *out)
-{
-    char data[2048];
-    static uint32_t num_version_checks = 0;
-
-    char *c = out+12;
-
-    uint64_t state = 0;
-    uint32_t community_id = 0;
-
-    if (G->state.sandbox) {
-        state |= IDD_IN_SANDBOX;
-    }
-
-    if (G->state.new_adventure) {
-        state |= IDD_IN_ADVENTURE;
-    }
-
-    if (G->state.is_main_puzzle || _tms.screen == &P.s_menu_pkg->super) {
-        state |= IDD_IN_MAIN_PUZZLE;
-    }
-
-    if (_tms.screen != &G->super) {
-        state |= IDD_IN_MENU;
-    }
-
-    if (W->level_id_type == LEVEL_DB && W->is_playing()) {
-        state |= IDD_PLAYING_COMMUNITY_LEVEL;
-        community_id = W->level.community_id;
-    }
-
-    // build data string
-    snprintf(data, 2047, "%d/%d/%" PRIu32 "/%" PRIu32 "/%" PRIu64,
-            _tms.window_width,
-            _tms.window_height,
-            num_version_checks++,
-            community_id, state);
-
-    size_t len = strlen(data);
-
-    for (size_t x=0; x<len; ++x) {
-        data[x] ^= keys[x%NUM_KEYS];
-    }
-
-    char b64[1024] = {0, };
-
-    int ret = base64encode(data, len, b64, 1024);
-
-    if (ret == 1) {
-        strcpy(out, "X-Principia:");
-        strcat(out, b64);
-    } else {
-        strcpy(out, "X-Principia:BADDATA");
-    }
-}
-
 static int
 _check_version_code(void *_unused)
 {
@@ -2562,14 +2477,6 @@ _check_version_code(void *_unused)
         curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
         curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
         curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 35L);
-
-        char tmp[2048];
-
-        compile_data(tmp);
-
-        struct curl_slist *headerlist = NULL;
-        headerlist = curl_slist_append(headerlist, tmp);
-        r = curl_easy_setopt(P.curl, CURLOPT_HTTPHEADER, headerlist);
 
         if ((r = curl_easy_perform(P.curl)) == CURLE_OK) {
             if (chunk.size > 0) {
