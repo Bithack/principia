@@ -4141,41 +4141,6 @@ add_text_column(GtkTreeView *tv, const char *title, int id)
     return renderer;
 }
 
-static void
-item_cb_renderer(GtkCellLayout *cell_layout, GtkCellRenderer *cell,
-        GtkTreeModel *model, GtkTreeIter *iter, gpointer data) {
-    gchar *label;
-    gtk_tree_model_get (model, iter, 0, &label, -1);
-
-    if (label) {
-        bool sensitive = true;
-
-        if (strcmp(label, "???") == 0) {
-            sensitive = false;
-        }
-
-        g_object_set (cell, "sensitive", sensitive ? TRUE : FALSE, NULL);
-    }
-}
-
-static void
-item_tbl_renderer(GtkCellLayout *cell_layout, GtkCellRenderer *cell,
-        GtkTreeModel *model, GtkTreeIter *iter, gpointer data) {
-    gchar *label;
-    gtk_tree_model_get (model, iter, 1, &label, -1);
-
-    if (label) {
-        bool sensitive = true;
-
-        if (strcmp(label, "???") == 0) {
-            sensitive = false;
-        }
-
-        g_object_set (cell, "sensitive", sensitive ? TRUE : FALSE, NULL);
-        g_object_set (cell, "activatable", sensitive ? TRUE : FALSE, NULL);
-    }
-}
-
 static GtkWidget*
 new_lbl(const char *text)
 {
@@ -4201,9 +4166,6 @@ new_item_cb()
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(cb), renderer, TRUE);
     gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(cb), renderer,
             "text", 0,
-            NULL);
-    gtk_cell_layout_set_cell_data_func(GTK_CELL_LAYOUT(cb), renderer,
-            item_cb_renderer, NULL,
             NULL);
 
     return cb;
@@ -6644,11 +6606,7 @@ on_tchest_entity_changed(GtkComboBox *cb, gpointer user_data)
                     item_cb_append(tchest_sub_entity, x, false);
                 }
 
-                int item_id;
-
-                do {
-                    item_id = rand()%NUM_ITEMS;
-                } while (!item::is_unlocked(item_id));
+                int item_id = rand()%NUM_ITEMS;
 
                 gtk_combo_box_set_active(GTK_COMBO_BOX(tchest_sub_entity), item_id);
             }
@@ -9263,21 +9221,18 @@ refresh_quickadd()
         }
     }
     for (int x=0; x<NUM_ITEMS; ++x) {
-        if (item::is_unlocked(x)) {
-            const struct item_option &io = item_options[x];
+        const struct item_option &io = item_options[x];
 
-            char tmp[512];
-            snprintf(tmp, 511, "%s (Item)", io.name);
+        char tmp[512];
+        snprintf(tmp, 511, "%s (Item)", io.name);
 
-            gtk_list_store_append(list, &iter);
-            gtk_list_store_set(list, &iter,
-                    0, x,
-                    1, tmp,
-                    2, LF_ITEM,
-                    -1
-                    );
-        }
-
+        gtk_list_store_append(list, &iter);
+        gtk_list_store_set(list, &iter,
+                0, x,
+                1, tmp,
+                2, LF_ITEM,
+                -1
+                );
     }
     for (int x=0; x<NUM_DECORATIONS; ++x) {
         const struct decoration_info &di = decorations[x];
@@ -9344,10 +9299,6 @@ activate_quickadd(GtkWidget *i, gpointer unused)
             case LF_ITEM:
                 {
                     for (int x=0; x<NUM_ITEMS; ++x) {
-                        if (!item::is_unlocked(x)) {
-                            continue;
-                        }
-
                         const struct item_option &io = item_options[x];
 
                         int diff = strncasecmp(search, io.name, len);
@@ -12333,10 +12284,6 @@ int _gtk_loop(void *p)
                     renderer,
                     "active",
                     ROBOT_COLUMN_EQUIPPED,
-                    NULL);
-
-            gtk_cell_layout_set_cell_data_func(GTK_CELL_LAYOUT(column), renderer,
-                    item_tbl_renderer, NULL,
                     NULL);
 
             gtk_tree_view_column_set_sizing(GTK_TREE_VIEW_COLUMN(column),

@@ -27,7 +27,6 @@ struct item_option {
     float rot_offs;
     struct worth worth;
     bool zappable;
-    bool unlocked;
     float activator_radius;
 
     struct tms_sprite image;
@@ -46,7 +45,6 @@ struct item_option {
         this->data_id = 0;
         this->ef = 0;
         this->menu_scale = 1.f;
-        this->unlocked = false;
 
         this->mesh = 0;
 
@@ -68,14 +66,6 @@ struct item_option {
     set_zappable(bool val)
     {
         this->zappable = val;
-
-        return *this;
-    }
-
-    struct item_option&
-    set_unlocked(bool val)
-    {
-        this->unlocked = val;
 
         return *this;
     }
@@ -413,7 +403,6 @@ class item : public entity, public activator
     void set_item_type(uint32_t item_type);
 
     static void _init();
-    static bool is_unlocked(uint32_t item_type);
     static void unlock(uint32_t item_type, bool signal=true);
     static const char *get_ui_name(uint32_t item_type);
 

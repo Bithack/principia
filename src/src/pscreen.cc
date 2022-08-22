@@ -232,15 +232,6 @@ pscreen::handle_input(tms::event *ev, int action)
                         ui::messagef("Played sound: %s", snd->name);
 
                         ++ snd_counter;
-                    } else if (ev->data.key.mod & TMS_MOD_CTRL) {
-#ifdef DEBUG
-                        bool old = G->state.new_adventure;
-                        G->state.new_adventure = true;
-                        for (int x=0; x<NUM_ITEMS; ++x) {
-                            item::unlock(x, false);
-                        }
-                        G->state.new_adventure = old;
-#endif
                     }
                 }
                 break;

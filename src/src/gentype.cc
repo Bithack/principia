@@ -416,9 +416,6 @@ randomize_equipment(struct enemy_random_equipment *equipments, int num_equipment
 {
     int index = 0;
     for (int n = num_equipments-1; n != 1; --n) {
-        if (G->state.new_adventure == false && !item::is_unlocked(equipments[n].item_id)) {
-            continue;
-        }
         if (rand()%equipments[n].prob == 0) {
             index = n;
             break;

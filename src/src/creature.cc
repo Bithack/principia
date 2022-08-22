@@ -2105,10 +2105,6 @@ creature::apply_destruction()
 
                 this->set_creature_flag(_equipment_destruction_flags[x], false);
                 this->equipments[x]->separate();
-
-                if (this->last_attacker_id == 0 || this->last_attacker_was_player()) {
-                    item::unlock(item_id);
-                }
             }
         }
     }
@@ -2125,10 +2121,6 @@ creature::apply_destruction()
         if (w) {
             uint32_t item_id = w->get_item_id();
 
-            if (this->last_attacker_id == 0 || this->last_attacker_was_player()) {
-                item::unlock(item_id);
-            }
-
             this->drop_item(item_id);
 
             this->remove_weapon(this->get_weapon());
@@ -2142,10 +2134,6 @@ creature::apply_destruction()
 
         if (t) {
             uint32_t item_id = t->get_item_id();
-
-            if (this->last_attacker_id == 0 || this->last_attacker_was_player()) {
-                item::unlock(item_id);
-            }
 
             this->drop_item(item_id);
 
