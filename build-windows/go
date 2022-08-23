@@ -33,7 +33,7 @@ while test $# -gt 0; do
         --clean)
             echo "cleaning"
             $makecmd clean
-            exit
+            shift
             ;;
         -f|--fastcompile)
             mingw32-make CFLAGS="$DEBUGFLAGS_CC" CXXFLAGS="$DEBUGFLAGS_CXX" -j5

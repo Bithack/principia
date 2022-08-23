@@ -38,35 +38,34 @@ Please find the latest version of the 64-bit MSYS2 here: https://www.msys2.org/
 
 After installation, a terminal opens. Run the following command to update the environment:
 
-$ pacman -Syu
+	$ pacman -Syu
 
 The terminal will then ask you to close it when done. Proceed with doign so, and then go to the start menu and run MSYS Mingw32 64-bit. It is important that you run the "MINGW64 64-Bit" version and not the "MSYS2 MSYS" or "MINGW64 32-Bit". Run the commands below to install the necessary dependencies.
 
-$ pacman -S --needed base-devel mingw-w64-x86_64-toolchain autotools
-
-$ pacman -S mingw-w64-x86_64-gtk2
-
-$ pacman -S mingw-w64-x86_64-curl
+	$ pacman -S --needed base-devel mingw-w64-x86_64-toolchain autotools
+	$ pacman -S mingw-w64-x86_64-curl mingw-w64-x86_64-gtk2 mingw-w64-x86_64-libpng mingw-w64-x86_64-libjpeg-turbo mingw-w64-x86_64-freetype mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_gfx mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_ttf
 
 Then navigate to the 'build-windows' folder inside of where you cloned Principia, for example:
 
-$ cd /c/Users/<username>/Principia/build-windows
+	$ cd /c/Users/<username>/Principia/build-windows
 
 And start the building process:
 
-$ ./autogen.sh
-
-$ ./configure
-
-$ ./go
+	$ ./autogen.sh
+	$ ./configure
+	$ ./go
 
 Principia will launch if everything was successful. Note that the compilation might take up to 10 minutes depending on your system.
 
 ## Building on Linux
 
-Install dependencies (example is for Debian-based packages):
+Install dependencies. For Debian-based distros:
 
-	$ sudo apt-get install automake libgtk2.0-dev libgl-dev libxss-dev libxxf86vm-dev libasound2-dev libudev-dev valgrind libcurl4-openssl-dev
+	$ sudo apt-get install automake libgtk2.0-dev libgl-dev libxss-dev libxxf86vm-dev libasound2-dev libudev-dev valgrind libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev
+
+For Arch-based distros:
+
+	$ sudo pacman -S gtk2 curl freetype libpng libjpeg sdl2 sdl2_gfx sdl2_image sdl2_mixer sdl2_ttf
 
 Navigate to the build-linux directory and start the building process:
 
@@ -81,8 +80,6 @@ If everything goes well, Principia will start by default unless `--silent` is pa
 When building Principia for packaging, you would want to use the following command to replace the above. It will clean the source tree, build a release version and not automatically run Principia.
 
 	./go --clean --release --silent
-
-
 
 Right now Principia needs to be installed with its executable next to the data directories. Putting all of that in `/opt/principia/` and symlinking `/usr/bin/principia` => `/opt/principia/principia` should do for now.
 
