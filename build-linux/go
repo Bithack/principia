@@ -5,7 +5,7 @@ makecmd="make"
 CC=gcc
 CXX=g++
 
-debug="1"
+debug="0"
 nodebug="0"
 release="0"
 run="1"
@@ -17,7 +17,7 @@ CONFIG_PATH=`pwd`/config.sh
 
 [[ -f "$CONFIG_PATH" ]] && source "$CONFIG_PATH"
 
-DEBUG_SHARED="-O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1 -D_DEBUG_DUMP=1 $EXTRA_DEBUGFLAGS_SHARED"
+DEBUG_SHARED="-O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1 $EXTRA_DEBUGFLAGS_SHARED"
 
 DEBUGFLAGS_CC="$DEBUG_SHARED  $EXTRA_DEBUGFLAGS $EXTRA_DEBUGFLAGS_CC"
 DEBUGFLAGS_CXX="$DEBUG_SHARED $EXTRA_DEBUGFLAGS $EXTRA_DEBUGFLAGS_CXX"
@@ -120,7 +120,7 @@ fi
 
 if [ "$do_test" -eq "1" ]; then
     echo "Running tests..."
-    INCLUDEMAN=" -I../src/SDL-pc/SDL/include -I../src/tms/backends/linux/ -I../src/SDL_ttf/ -I../src/SDL_mixer/ -I../src/SDL_image/ -I../src/freetype/builds -I../src/freetype/include -I../src/src/ -I../src/ -I../src/jpeg/ -I../src/png/ -I../src/zlib/ -I/usr/include/ -I../src/curl-7.32.0/lib/ -I../src/curl-7.32.0/include/ -I../src/include/ -I../src/gtk-undo -DGLEW_STATIC "
+    INCLUDEMAN=" -I/usr/include/ -I/usr/include/SDL2/ -I../src/tms/backends/linux/ -I../src/src/ -I../src/ -I../src/include/ -I../src/gtk-undo -DGLEW_STATIC "
     $CC $INCLUDEMAN ../src/src/tests/main.cc ../src/src/rand.c -o test && ./test
     exit
 fi
