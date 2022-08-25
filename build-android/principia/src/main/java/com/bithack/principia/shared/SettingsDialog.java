@@ -40,7 +40,6 @@ public class SettingsDialog implements OnSeekBarChangeListener, OnClickListener 
     final CheckBox settings_smooth_cam;
     final CheckBox settings_smooth_zoom;
     final CheckBox settings_border_scroll_enabled;
-    final CheckBox settings_facebook_opt_out;
     final CheckBox settings_display_object_ids;
     final CheckBox settings_display_grapher_value;
     final CheckBox settings_display_wireless_frequency;
@@ -122,7 +121,6 @@ public class SettingsDialog implements OnSeekBarChangeListener, OnClickListener 
         settings_display_wireless_frequency = (CheckBox)view.findViewById(R.id.settings_display_wireless_frequency);
         settings_hide_tips = (CheckBox)view.findViewById(R.id.settings_hide_tips);
         settings_sandbox_back_dna = (CheckBox)view.findViewById(R.id.settings_sandbox_back_dna);
-        settings_facebook_opt_out = (CheckBox)view.findViewById(R.id.settings_facebook_opt_out);
 
         btn_save   = (Button)view.findViewById(R.id.settings_save);
         btn_cancel = (Button)view.findViewById(R.id.settings_cancel);

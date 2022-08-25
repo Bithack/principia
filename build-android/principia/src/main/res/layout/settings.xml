@@ -435,12 +435,6 @@
                     android:layout_height="wrap_content"
                     android:text="@string/graph" />
             </RadioGroup>
-
-            <CheckBox
-                android:id="@+id/settings_facebook_opt_out"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/facebook_opt_out" />
         </LinearLayout>
 
     </ScrollView>

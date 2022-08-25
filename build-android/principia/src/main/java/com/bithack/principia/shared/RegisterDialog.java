@@ -79,7 +79,7 @@ public class RegisterDialog
                             }
 
                             progressbar.setVisibility(View.VISIBLE);
-			    PrincipiaBackend.register(username, email, password, "", "");
+                            PrincipiaBackend.register(username, email, password);
                         }
                     });
                 }
