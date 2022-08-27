@@ -45,3 +45,6 @@ sha1_test
 build-windows/release/
 # mesa software rendering dll
 opengl32.dll
+
+# nix build result
+result
