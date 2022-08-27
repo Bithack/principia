@@ -42,3 +42,6 @@ principia.state
 sha1_test
 .DS_Store
 *.iml
+build-windows/release/
+# mesa software rendering dll
+opengl32.dll

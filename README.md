@@ -57,6 +57,13 @@ And start the building process:
 
 Principia will launch if everything was successful. Note that the compilation might take up to 10 minutes depending on your system.
 
+### Building the Windows installer
+The Windows installer uses NSIS, which must be installed first before building:
+
+	$ pacman -S mingw-w64-x86_64-nsis
+
+For making Windows release builds you would run the `make_release.sh` script, which builds the game in release mode, copies over necessary DLL files, and builds the installer.
+
 ## Building on Linux
 
 Install dependencies. For Debian-based distros:

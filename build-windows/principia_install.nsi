@@ -19,17 +19,36 @@ InstallDirRegKey HKCU "Software\Bithack\Principia" ""
 
 !define REG_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\Principia"
 
+BrandingText "Principia ${VERSION}"
+
 RequestExecutionLevel admin
 
-!define MUI_ABORTWARNING
+; Required because otherwise start menu and desktop shortcuts will be installed for only
+; the main administrator, even if a regular user escalating to admin installs it.
+Function .onInit
+SetShellVarContext All
+FunctionEnd
 
+!define MUI_ABORTWARNING
+!define MUI_UNABORTWARNING
+
+!define MUI_WELCOMEFINISHPAGE_BITMAP "welcome.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "unwelcome.bmp"
+
+!define MUI_FINISHPAGE_RUN "$INSTDIR/principia.exe"
+!define MUI_FINISHPAGE_RUN_TEXT "Run Principia"
+
+!insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "..\LICENSE.md"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_PAGE_FINISH
 
+!insertmacro MUI_UNPAGE_WELCOME
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_UNPAGE_FINISH
  
 !insertmacro MUI_LANGUAGE "English"
 
@@ -76,6 +95,12 @@ Section "Start Menu entry" SecSM
 
 SectionEnd
 
+Section "Desktop shortcut" SecDesktop
+
+  CreateShortCut $DESKTOP\Principia.lnk $INSTDIR\principia.exe
+
+SectionEnd
+
 Section -post
 
   WriteRegStr HKCR "principia" "" "URL:Principia"
@@ -97,13 +122,14 @@ Section -post
   WriteUninstaller "$INSTDIR\uninst-principia.exe"
 SectionEnd
 
-; TODO: Add a section after installation is complete, to ask if the user wants to run the game
-
 LangString DESC_SecCore ${LANG_ENGLISH} "Contains the core files required to run Principia."
 LangString DESC_SecSM ${LANG_ENGLISH} "Create a Start Menu entry for Principia."
+LangString DESC_SecDesktop ${LANG_ENGLISH} "Create a shortcut to Principia on your desktop."
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
 !insertmacro MUI_DESCRIPTION_TEXT ${SecCore} $(DESC_SecCore)
+!insertmacro MUI_DESCRIPTION_TEXT ${SecSM} $(DESC_SecSM)
+!insertmacro MUI_DESCRIPTION_TEXT ${SecDesktop} $(DESC_SecDesktop)
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Section "Uninstall"
