@@ -58,8 +58,7 @@ public class PrincipiaBackend
     public static native String getSandboxTip();
     public static native void setNextAction(int action_id);
     public static native void login(String username, String password);
-    public static native void register(String username, String email, String password, String signature, String userdata);
-    public static native void linkAccount(String username, String password, String signature, String userdata);
+    public static native void register(String username, String email, String password);
 
     public static native void resetLevelFlags();
     public static native void setLevelFlag(long flag);

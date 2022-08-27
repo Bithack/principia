@@ -766,16 +766,6 @@ void ui::emit_signal(int signal_id, void *data/*=0*/)
             tms_infof("Register failed!!!!!!!!!");
             break;
 
-        case SIGNAL_ACCOUNT_LINK_SUCCESS:
-            ui::open_dialog(CLOSE_ACCOUNT_LINK_DIALOG);
-            tms_infof("account link success!!!!!!!!!");
-            break;
-
-        case SIGNAL_ACCOUNT_LINK_FAILED:
-            ui::open_dialog(DISABLE_ACCOUNT_LINK_LOADER);
-            tms_infof("account link failed!!!!!!!!!");
-            break;
-
         case SIGNAL_REFRESH_BORDERS:
             /* XXX */
             break;
@@ -1446,53 +1436,23 @@ Java_org_libsdl_app_PrincipiaBackend_login(JNIEnv *env, jclass _jcls,
 
 extern "C" void
 Java_org_libsdl_app_PrincipiaBackend_register(JNIEnv *env, jclass _jcls,
-        jstring username, jstring email, jstring password, jstring signature, jstring userdata)
+        jstring username, jstring email, jstring password)
 {
     const char *tmp_username = env->GetStringUTFChars(username, 0);
     const char *tmp_email = env->GetStringUTFChars(email, 0);
     const char *tmp_password = env->GetStringUTFChars(password, 0);
-    const char *tmp_signature = env->GetStringUTFChars(signature, 0);
-    const char *tmp_userdata = env->GetStringUTFChars(userdata, 0);
     struct register_data *data = (struct register_data*)malloc(sizeof(struct register_data));
 
     strcpy(data->username, tmp_username);
     strcpy(data->email,    tmp_email);
     strcpy(data->password, tmp_password);
     data->platform = PLATFORM_ANDROID;
-    strcpy(data->signature, tmp_signature);
-    strcpy(data->userdata, tmp_userdata);
 
     env->ReleaseStringUTFChars(username, tmp_username);
     env->ReleaseStringUTFChars(email, tmp_email);
     env->ReleaseStringUTFChars(password, tmp_password);
-    env->ReleaseStringUTFChars(signature, tmp_signature);
-    env->ReleaseStringUTFChars(userdata, tmp_userdata);
 
     P.add_action(ACTION_REGISTER, (void*)data);
-}
-
-extern "C" void
-Java_org_libsdl_app_PrincipiaBackend_linkAccount(JNIEnv *env, jclass _jcls,
-        jstring username, jstring password, jstring signature, jstring userdata)
-{
-    const char *tmp_username = env->GetStringUTFChars(username, 0);
-    const char *tmp_password = env->GetStringUTFChars(password, 0);
-    const char *tmp_signature = env->GetStringUTFChars(signature, 0);
-    const char *tmp_userdata = env->GetStringUTFChars(userdata, 0);
-    struct account_link_data *data = (struct account_link_data*)malloc(sizeof(struct account_link_data));
-
-    strcpy(data->username, tmp_username);
-    strcpy(data->password, tmp_password);
-    data->platform = PLATFORM_ANDROID;
-    strcpy(data->signature, tmp_signature);
-    strcpy(data->userdata, tmp_userdata);
-
-    env->ReleaseStringUTFChars(username, tmp_username);
-    env->ReleaseStringUTFChars(password, tmp_password);
-    env->ReleaseStringUTFChars(signature, tmp_signature);
-    env->ReleaseStringUTFChars(userdata, tmp_userdata);
-
-    P.add_action(ACTION_LINK_ACCOUNT, (void*)data);
 }
 
 extern "C" void

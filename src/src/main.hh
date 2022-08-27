@@ -165,21 +165,12 @@ enum {
 #define REGISTER_INVALID_EMAIL      115
 #define REGISTER_EMAIL_BUSY         116
 #define REGISTER_EMAIL_BANNED       117
-#define REGISTER_KEY_BUSY           118
-
-#define ACCOUNT_LINK_SUCCESS            130
-#define ACCOUNT_LINK_ERROR              131
-#define ACCOUNT_LINK_BAD_DATA           132
-#define ACCOUNT_LINK_KEY_BUSY           133
-#define ACCOUNT_LINK_ATTEMPTS           134
-#define ACCOUNT_LINK_ALREADY_HAS_KEY    135
 
 #define COMMUNITY_SECRET        "apZodIaL1"
 #define UPLOAD_FILE_STR         "xFxIax"
 #define UPLOAD_POST_STR         "xFxlax"
 #define LOGIN_POST_STR          "cPa1Ozi"
 #define REGISTER_ANDROID_FILE   "bppfoal2_"
-#define LINK_ACCOUNT_FILE       "cppfoal3_"
 
 #define PLATFORM_LINUX      1
 #define PLATFORM_WINDOWS    2
@@ -205,16 +196,6 @@ struct register_data {
     char email[256];
     char password[256];
     int platform;
-    char signature[512];
-    char userdata[256];
-};
-
-struct account_link_data {
-    char username[256];
-    char password[256];
-    int platform;
-    char signature[512];
-    char userdata[256];
 };
 
 /*

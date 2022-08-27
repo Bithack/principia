@@ -78,21 +78,6 @@
     <string name="color4_summary">color set with HEX code in xml</string>
     <string name="community">Community</string>
 
-    <!-- License checking status messages -->
-    <string name="check_license">Check license</string>
-    <string name="checking_license">Checking license&#8230;</string>
-    <string name="dont_allow">Don\'t allow the user access</string>
-    <string name="allow">Allow the user access</string>
-    <string name="application_error">Application error: %1$s</string>
-
-    <!-- Unlicensed dialog messages -->
-    <string name="unlicensed_dialog_title">Application not licensed</string>
-    <string name="unlicensed_dialog_body">This application is not licensed. Please purchase it from Android Market.</string>
-    <string name="unlicensed_dialog_retry_body">Unable to validate license. Check to see if a network connection is available.</string>
-    <string name="buy_button">Buy app</string>
-    <string name="retry_button">Retry</string>
-    <string name="quit_button">Exit</string>
-
     <string name="initial_dir">Initial Direction</string>
     <string name="dir_right">Right</string>
     <string name="random">Random</string>
@@ -218,10 +203,8 @@
     <string name="confirm_password">Confirm password</string>
     <string name="password_limits">Your password must contain a minimum of 6 characters.</string>
     <string name="email">Email address</string>
-    <string name="link_account_description">Link your already existing Bithack Forum account to your purchase of Principia.</string>
-    <string name="link_account">Link account</string>
     <string name="register_account">Register new account</string>
-    <string name="register_account_description">Register a new Bithack account to access the community site.</string>
+    <string name="register_account_description">Register a new account to access the community site.</string>
     <string name="uiscale">UI Scale</string>
     <string name="uiscale_description">This option requires a full restart to take effect.</string>
     <string name="button_1">Button #1</string>
@@ -275,8 +258,6 @@
     <string name="enable_border_scroll">Enable border scrolling</string>
     <string name="border_scroll_speed">Border scroll speed</string>
     <string name="app_id">119988168195668</string>
-    <string name="lite_app_id">1502221383335469</string>
-    <string name="facebook_opt_out">Limit how events sent to Facebook will be used</string>
     <string name="code">insert_code_here();</string>
     <string name="save">Save</string>
     <string name="quickadd">Object name (will add to center of screen)</string>

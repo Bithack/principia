@@ -141,9 +141,6 @@ int _login(void *p);
 /** --Register **/
 int _register(void *p);
 
-/** --Link account **/
-int _link_account(void *p);
-
 static Uint32 time_start;
 
 struct MemoryStruct {
@@ -1141,12 +1138,6 @@ tproject_step(void)
                 case ACTION_REGISTER:
                     {
                         create_thread(_register, "_register", data);
-                    }
-                    break;
-
-                case ACTION_LINK_ACCOUNT:
-                    {
-                        create_thread(_link_account, "_link_account", data);
                     }
                     break;
 
@@ -3506,16 +3497,6 @@ _register(void *p)
                CURLFORM_COPYCONTENTS, data->password,
                CURLFORM_END);
 
-    curl_formadd(&formpost, &lastptr,
-               CURLFORM_COPYNAME, "signature",
-               CURLFORM_COPYCONTENTS, data->signature,
-               CURLFORM_END);
-
-    curl_formadd(&formpost, &lastptr,
-               CURLFORM_COPYNAME, "userdata",
-               CURLFORM_COPYCONTENTS, data->userdata,
-               CURLFORM_END);
-
     lock_curl("register");
     do {
         num_tries ++;
@@ -3579,11 +3560,6 @@ _register(void *p)
                         ui::emit_signal(SIGNAL_REGISTER_FAILED);
                         break;
 
-                    case REGISTER_KEY_BUSY:
-                        ui::message("You have already registered an account with this key. If you have lost your login details, please send an email to support@bithack.se.");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-
                     default:
                         ui::message("Unknown error message.");
                         ui::emit_signal(SIGNAL_REGISTER_FAILED);
@@ -3609,126 +3585,6 @@ _register(void *p)
     if (res != T_OK) {
         ui::emit_signal(SIGNAL_REGISTER_FAILED);
     }
-
-    curl_formfree(formpost);
-    free(data);
-
-    return res;
-}
-
-/** --Link account **/
-int
-_link_account(void *p)
-{
-    struct account_link_data *data = static_cast<struct account_link_data*>(p);
-    int res = T_OK;
-    int num_tries = 0;
-
-    CURLcode r;
-
-    struct curl_httppost *formpost   = NULL;
-    struct curl_httppost *lastptr    = NULL;
-
-    struct MemoryStruct chunk;
-    chunk.memory = (char*)malloc(1);
-    chunk.size = 0;
-
-    curl_formadd(&formpost, &lastptr,
-               CURLFORM_COPYNAME, "username",
-               CURLFORM_COPYCONTENTS, data->username,
-               CURLFORM_END);
-
-    curl_formadd(&formpost, &lastptr,
-               CURLFORM_COPYNAME, "password",
-               CURLFORM_COPYCONTENTS, data->password,
-               CURLFORM_END);
-
-    curl_formadd(&formpost, &lastptr,
-               CURLFORM_COPYNAME, "signature",
-               CURLFORM_COPYCONTENTS, data->signature,
-               CURLFORM_END);
-
-    curl_formadd(&formpost, &lastptr,
-               CURLFORM_COPYNAME, "userdata",
-               CURLFORM_COPYCONTENTS, data->userdata,
-               CURLFORM_END);
-
-    lock_curl("link_account");
-
-    do {
-        num_tries ++;
-        res = T_OK;
-
-        tms_debugf("account_link, attempt %d", num_tries);
-
-        if (P.curl) {
-            init_curl_defaults(P.curl);
-
-            char url[1024];
-            snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/" LINK_ACCOUNT_FILE ".php", P.community_host);
-            curl_easy_setopt(P.curl, CURLOPT_URL, url);
-
-            curl_easy_setopt(P.curl, CURLOPT_HTTPPOST, formpost);
-
-            curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
-            curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
-            curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
-
-            if ((r = curl_easy_perform(P.curl)) == CURLE_OK && chunk.size > 0) {
-                int notify_id = atoi(chunk.memory);
-
-                switch (notify_id) {
-                    case ACCOUNT_LINK_SUCCESS:
-                        ui::message("You have successfully linked this purchase to your Bithack account");
-                        ui::emit_signal(SIGNAL_ACCOUNT_LINK_SUCCESS);
-                        break;
-
-                    case ACCOUNT_LINK_ERROR:
-                        ui::message("An error occured when trying to link the account.");
-                        ui::emit_signal(SIGNAL_ACCOUNT_LINK_FAILED);
-                        break;
-
-                    case ACCOUNT_LINK_BAD_DATA:
-                        ui::message("Invalid username or password.");
-                        ui::emit_signal(SIGNAL_ACCOUNT_LINK_FAILED);
-                        break;
-
-                    case ACCOUNT_LINK_KEY_BUSY:
-                        ui::message("You have already registered an account with this key. If you have lost your login details, please send an email to support@bithack.se.");
-                        ui::emit_signal(SIGNAL_ACCOUNT_LINK_FAILED);
-                        break;
-
-                    case ACCOUNT_LINK_ATTEMPTS:
-                        ui::message("Too many failed login attempts have been made. Try again in 30 minutes.");
-                        ui::emit_signal(SIGNAL_ACCOUNT_LINK_FAILED);
-                        break;
-
-                    case ACCOUNT_LINK_ALREADY_HAS_KEY:
-                        ui::message("This account already has a key for this game.");
-                        ui::emit_signal(SIGNAL_ACCOUNT_LINK_FAILED);
-                        break;
-
-                    default:
-                        ui::message("An unknown error occured.");
-                        ui::emit_signal(SIGNAL_ACCOUNT_LINK_FAILED);
-                        break;
-                }
-            } else {
-                if (r != CURLE_OK) {
-                    tms_errorf("curl_easy_perform failed: %s", curl_easy_strerror(r));
-                } else {
-                    tms_errorf("No data received.");
-                }
-                res = T_ERR;
-            }
-        } else {
-            tms_errorf("CURL handle not initialized.");
-            res = T_ERR;
-            num_tries = 5;
-        }
-    } while (res != T_OK && num_tries < 5);
-
-    unlock_curl("link_account");
 
     curl_formfree(formpost);
     free(data);

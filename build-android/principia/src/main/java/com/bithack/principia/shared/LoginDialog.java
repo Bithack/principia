@@ -24,7 +24,6 @@ public class LoginDialog
     static EditText et_password;
 
     static Button btn_register_account;
-    static Button btn_link_account;
 
     /* TODO */
     //static CheckBox cb_remember_username;
@@ -71,19 +70,11 @@ public class LoginDialog
             et_username = (EditText)view.findViewById(R.id.login_username);
             et_password = (EditText)view.findViewById(R.id.login_password);
             btn_register_account = (Button)view.findViewById(R.id.btn_register_account);
-            btn_link_account = (Button)view.findViewById(R.id.btn_link_account);
 
             btn_register_account.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     SDLActivity.open_dialog(SDLActivity.DIALOG_REGISTER);
-                    _dialog.dismiss();
-                }
-            });
-            btn_link_account.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    SDLActivity.open_dialog(SDLActivity.DIALOG_LINK_ACCOUNT);
                     _dialog.dismiss();
                 }
             });

@@ -24,7 +24,6 @@ import com.bithack.principia.shared.ImportDialog;
 import com.bithack.principia.shared.JumperDialog;
 import com.bithack.principia.shared.Level;
 import com.bithack.principia.shared.LevelDialog;
-import com.bithack.principia.shared.LinkAccountDialog;
 import com.bithack.principia.shared.LoginDialog;
 import com.bithack.principia.shared.MainMenuPkgDialog;
 import com.bithack.principia.shared.NewLevelDialog;
@@ -1034,14 +1033,11 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
     public static final int DIALOG_LOGIN            = 301;
     public static final int DIALOG_SANDBOX_TIPS     = 302;
     public static final int DIALOG_REGISTER         = 303;
-    public static final int DIALOG_LINK_ACCOUNT     = 304;
 
     public static final int CLOSE_ALL_DIALOGS            = 200;
     public static final int CLOSE_ABSOLUTELY_ALL_DIALOGS = 201;
     public static final int CLOSE_REGISTER_DIALOG        = 202;
     public static final int DISABLE_REGISTER_LOADER      = 203;
-    public static final int CLOSE_ACCOUNT_LINK_DIALOG    = 204;
-    public static final int DISABLE_ACCOUNT_LINK_LOADER  = 205;
 
     public static final int SIGNAL_LONG_PRESS    = 1000;
 
@@ -1291,7 +1287,6 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
         case DIALOG_LOGIN:              d = LoginDialog.get_dialog(); break;
         case DIALOG_SANDBOX_TIPS:       d = (new SandboxTipsDialog()).get_dialog(); break;
         case DIALOG_REGISTER:           d = RegisterDialog.get_dialog(); break;
-        case DIALOG_LINK_ACCOUNT:       d = LinkAccountDialog.get_dialog(); break;
 
         case CLOSE_ALL_DIALOGS:         break; /* do nothing */
         case CLOSE_ABSOLUTELY_ALL_DIALOGS:
@@ -1320,22 +1315,6 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
             SDLActivity.mSingleton.runOnUiThread(new Runnable(){
                 public void run() {
                     RegisterDialog.progressbar.setVisibility(View.GONE);
-                }
-            });
-            break;
-
-        case CLOSE_ACCOUNT_LINK_DIALOG:
-            SDLActivity.mSingleton.runOnUiThread(new Runnable(){
-                public void run() {
-                    LinkAccountDialog.get_dialog().dismiss();
-                }
-            });
-            break;
-
-        case DISABLE_ACCOUNT_LINK_LOADER:
-            SDLActivity.mSingleton.runOnUiThread(new Runnable(){
-                public void run() {
-                    LinkAccountDialog.progressbar.setVisibility(View.GONE);
                 }
             });
             break;
@@ -1499,7 +1478,6 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
             case DIALOG_LOGIN:
             case DIALOG_SANDBOX_TIPS:
             case DIALOG_REGISTER:
-            case DIALOG_LINK_ACCOUNT:
             case DIALOG_PROMPT_SETTINGS:
             case DIALOG_OPEN:
             case DIALOG_OPEN_STATE:
