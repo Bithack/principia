@@ -423,7 +423,7 @@ static entity* (*c_creator[])(void) = {
     &new_sqrtgate,
     &new_sparsifier, /* 50 */
     &new_besserwisser,
-    &new_epsilon, 
+    &new_epsilon,
     &new_clamp,
     &new_toggler,
     &new_fifo, /* 55 */
@@ -505,7 +505,7 @@ static entity* (*c_creator[])(void) = {
     &new_pkgwarp,
     &new_pkgstatus,
     &new_camtargeter,
-    &new_condenser, 
+    &new_condenser,
     &new_fxemitter,  /* 135 */
     &new_emul,
     &new_xsmallpanel,
@@ -612,7 +612,6 @@ static const char *categories[] = {
  "Tools/effects",
  "Interaction",
  "Game",
- "Testing",
 };
 
 static const char *category_hints[] = {
@@ -626,113 +625,113 @@ static const char *category_hints[] = {
  "t/fx",
  "i",
  "game",
- "test",
 };
 
 /* Basic */
 static int c0_ids[] = {
-    0,   /* Plank */
-    1,   /* Thick Plank */
-    2,   /* Wood ball */
-    93,  /* Wood box */
-    70,  /* Corner */
-    3,   /* Cylinder */
-    4,   /* Sublayer plank */
-    5,   /* Platform */
-    6,   /* Metal ball */
-    68,  /* Rubber Beam */
-    92,  /* Plastic Beam */
-    194,  /* Plastic Box */
+    O_PLANK,
+    O_THICK_PLANK,
+    O_BALL,
+    O_WOODBOX,
+    O_CORNER,
+    O_CYLINDER,
+    O_SUBLAYER_PLANK,
+    O_PLATFORM,
+    O_METAL_BALL,
+    O_RUBBER_BEAM,
+    O_PLASTIC_BEAM,
+    O_PBOX,  /* Plastic Box */
     O_PLASTIC_POLYGON,
-    /* O_SEPARATOR, */
-    /* O_ROOM, */
-    122,  /* Pixel */
-    O_TPIXEL,   /* Textured pixel */
-    62,  /* Dummy */
-    114, /* Spikes */
-    60,  /* Sticky note */
-    61,  /* Plastic Cup */
-    63,  /* Breadboard */
-    7,   /* Rail */
-    8,   /* Rail (up) */
-    9,   /* Rail (down) */
-    10,  /* Rail (turn) */
-    17,  /* Ball Pipeline */
+    //O_SEPARATOR,
+    //O_ROOM,
+    O_PIXEL,
+    O_TPIXEL,
+    O_DUMMY,
+    O_SPIKES,
+    O_STICKY_NOTE,
+    O_CUP,
+    O_BREADBOARD,
+    O_RAIL_STRAIGHT,   /* Rail */
+    O_RAIL_SKEWED_1,   /* Rail (up) */
+    O_RAIL_SKEWED_2,   /* Rail (down) */
+    O_RAIL45DEG,  /* Rail (turn) */
+    O_BALL_PIPELINE,
 };
 
 /* Mechanics */
 static int c1_ids[] = {
-    11,  /* Trampoline */
-    12,  /* Rope */
-    95,  /* Rubber band */
-    13,  /* Wheel */
-    15,  /* Seesaw base */
-    16,  /* Open Pivot */
-    19,  /* Damper */
-    30,  /* Wall pivot */
-    73,  /* Thruster */
-    74,  /* Rocket */
-    90,  /* Conveyor */
-    126, /* Fan */
-    41,  /* Button */
-    78,  /* Toggle Button */
-    163, /* Weight */
-    85,  /* Bomb */
-    84,  /* Land mine */
-    //18,  /* Gearbox */
-    //97,  /* Angular Damper */
-    //120, /* Gear */ /* XXX */
-    //14,  /* Magnet */ /* XXX */
-    //91,  /* Electromagnet */ /* XXX */
+    O_TRAMPOLINE,
+    O_ROPE,
+    O_RUBBERBAND,
+    O_WHEEL,
+    O_SEESAW,
+    O_OPEN_PIVOT,
+    O_DAMPER,
+    O_WALL_PIVOT,
+    O_THRUSTER,
+    O_ROCKET,
+    O_CONVEYOR,
+    O_FAN,
+    O_BUTTON,
+    O_TOGGLEBUTTON,
+    O_WEIGHT,
+    O_BOMB,
+    O_LANDMINE,
+    //O_GEARBOX,
+    O_ANGULARDAMPER,
+    O_GEAR,
+    O_MAGNET,
+    O_ELECTROMAGNET,
+    // put here because of lack of space in Basic categ
+    O_SEPARATOR
 };
 
 /* Electronics */
 static int c2_ids[] = {
-    31,  /* Battery */
-    32,  /* Power Supply */
-    149,  /* Simple Motor */
-    33,  /* Power Cable */
-    34,  /* Signal Cable */
-    35,  /* Interface Cable */
-    107, /* Jumper */
-    36,  /* Magnetic Plug */
-    37,  /* Magnetic Socket */
-    39,  /* Interface Clip */
-    117, /* Signal Clip */
-    94,  /* EC Resistor */
-    123, /* Receiver */
-    124, /* Transmitter */
-    125, /* Broadcaster */
-    139, /* Mini Transmitter */
+    O_BATTERY,
+    O_POWER_SUPPLY,
+    O_SIMPLE_MOTOR,
+    O_POWER_CABLE,
+    O_SIGNAL_CABLE,
+    O_INTERFACE_CABLE,
+    O_JUMPER,
+    O_MAGNETIC_PLUG,
+    O_MAGNETIC_SOCKET,
+    O_INTERFACE_CLIP,
+    O_SIGNALCLIP,
+    O_RESISTOR,
+    O_RECEIVER,
+    O_TRANSMITTER,
+    O_BROADCASTER,
+    O_MINI_TRANSMITTER,
 };
 
 /* Robotics */
 static int c3_ids[] = {
-    20,  /* DC Motor */
-    21,  /* Servo motor */
-    22,  /* Linear motor */
-    23,  /* Linear Servo */
-    24,  /* CT Mini */
-    25,  /* CT Servo */
-    26,  /* CT Feedback */
-    137, /* RC Micro */
-    27,  /* RC Basic */
-    28,  /* RC IO-3 */
-    29,  /* RC MONSTRO */
-    71,  /* Laser */
-    151, /* Mirror */
-    152, /* Laser sensor */
-    75,  /* Proximity sensor */
-    99,  /* Pressure sensor */
-    144, /* Impact sensor */
-    //147, /* Old Laser */
-    150, /* Angular vel. meter */
-    153, /* Velocity meter */
-    72,  /* Tiltmeter */
-    40,  /* Gyroscope */
-    98,  /* Object finder */
-    80,  /* ID field */
-    115, /* Object field */
+    O_DC_MOTOR,
+    O_SERVO_MOTOR,
+    O_LINEAR_MOTOR,
+    O_LINEAR_SERVO_MOTOR,
+    O_CT_MINI,
+    O_CT_SERVO,
+    O_CT_FEEDBACK,
+    O_XSMALLPANEL, /* RC Micro */
+    O_RC_BASIC,
+    O_RC_IO3,
+    O_RC_MONSTRO,
+    O_LASER,
+    O_MIRROR,
+    O_LASERSENSOR,
+    O_PROXIMITYSENSOR,
+    O_PRESSURE_SENSOR,
+    O_IMPACT_SENSOR,
+    O_ANGULARVELMETER,
+    O_VELMETER,
+    O_TILTMETER,
+    O_GYROSCOPE,
+    O_OBJECT_FINDER,
+    O_ID_FIELD,
+    O_OBJECT_FIELD,
     O_TARGET_SETTER,
 };
 
@@ -891,16 +890,6 @@ static int c9_ids[] = {
     O_DECORATION,
 };
 
-static int c10_ids[] = {
-	14,
-	91,
-	97,
-	120,
-	203,
-	204,
-	147,
-};
-
 static const int num_objects[of::num_categories] = {
     (sizeof(c0_ids)/sizeof(int)),
     (sizeof(c1_ids)/sizeof(int)),
@@ -912,11 +901,10 @@ static const int num_objects[of::num_categories] = {
     (sizeof(c7_ids)/sizeof(int)),
     (sizeof(c8_ids)/sizeof(int)),
     (sizeof(c9_ids)/sizeof(int)),
-    (sizeof(c10_ids)/sizeof(int)),
 };
 
 static int *ids[] = {
-    c0_ids, c1_ids, c2_ids, c3_ids, c4_ids, c5_ids, c6_ids,c7_ids,c8_ids,c9_ids,c10_ids
+    c0_ids, c1_ids, c2_ids, c3_ids, c4_ids, c5_ids, c6_ids,c7_ids,c8_ids,c9_ids
 };
 
 static char *o_descr_buf = 0;
@@ -1171,7 +1159,7 @@ of::read(lvlbuf *lb, uint8_t version, uint32_t id_modifier, b2Vec2 displacement,
         e->_pos.x = lb->r_float();
         e->_pos.y = lb->r_float();
 
-        /* if we're grouped, the pos is local within the group, do not add displacement 
+        /* if we're grouped, the pos is local within the group, do not add displacement
          * since displacement has already been added to the group itself */
         if (e->gr == 0) {
             e->_pos.x += displacement.x;
@@ -1505,7 +1493,7 @@ of::write(lvlbuf *lb, uint8_t version, entity *e, uint32_t id_modifier, b2Vec2 d
                 break;
         }
     }
-    
+
     e->write_size = lb->size - e->write_ptr;
 }
 
