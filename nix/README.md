@@ -1,6 +1,24 @@
 # Building using Nix/NixOS
 
-Only tested on x64 systems.
+Currently tested only on x64 systems.
+
+## Building 
+
+Clone this repository, Then navigate to the root of the repository. To build Principia, run the following command.
+
+```sh
+$ nix build ".#principia"
+```
+
+The executable will be available in `result/bin/principia`.
+
+To enter the the development shell, run the following command
+
+```sh
+$ nix develop ".#principia"
+```
+
+## Installing
 
 ## With flakes
 

@@ -105,14 +105,19 @@ stdenv.mkDerivation {
     install -Dm644 principia.desktop principia-url-handler.desktop $out/share/applications/
     install -Dm644 principia.png $out/share/pixmaps/
 
-    ln -sf ../share/principia/principia $out/bin/principia
+    cat > $out/bin/principia << EOF
+#!/bin/bash
+    
+cd $out/share/principia && ./apparatus2 \$1
+EOF
+    chmod 755 $out/bin/principia
+    patchShebangs $out/bin/principia
   '';
 
   meta = with lib; {
     description = "Physics-based sandbox building game";
     license = licenses.bsd3;
     homepage = "https://github.com/Bithack/principia";
-    maintainers = [ ];
     platforms = platforms.linux;
   };
 
