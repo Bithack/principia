@@ -161,6 +161,7 @@ struct worth
 #define ENTITY_CAN_BE_GRABBED           (1ULL << 51) // can be grabbed using Builder
 #define ENTITY_CAN_BE_COMPRESSED        (1ULL << 52) // can be compressed using Compressor
 #define ENTITY_IS_ZAPPABLE              (1ULL << 53) // can be zapped using the Zapper
+#define ENTITY_IS_DEV                   (1ULL << 54) // object is a development/unused object (displays with a DEV label)
 
 #define MATERIAL_PLASTIC 0
 

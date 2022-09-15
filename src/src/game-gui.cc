@@ -100,6 +100,7 @@ static bool dragging[MAX_P];
 float menu_xdim, menu_ydim;
 
 static tms_sprite *betasprite;
+static tms_sprite *devsprite;
 tms_sprite *catsprites[of::num_categories+1];
 tms_sprite *catsprite_hints[of::num_categories];
 tms_sprite *filterlabel;
@@ -1590,6 +1591,7 @@ game::init_gui(void)
     tms_progressf(".");
 
     betasprite = this->text_small->add_to_atlas(this->texts, "(BETA)");
+    devsprite = this->text_small->add_to_atlas(this->texts, "(DEV)");
     filterlabel = this->text_small->add_to_atlas(this->texts, "Categories:");
     factionlabel = this->text_small->add_to_atlas(this->texts, "Faction:");
     catsprites[n] = this->text_small->add_to_atlas(this->texts, "Recent");
@@ -3569,7 +3571,19 @@ game::render_sandbox_menu()
             tms_ddraw_set_color(this->get_surface()->ddraw, 1.f*menu_tint, 1.f*menu_tint, 1.0f*menu_tint, 1.f);
         }
 
-        tms_ddraw_sprite(this->get_surface()->ddraw, 
+        if (o.e->flag_active(ENTITY_IS_DEV)) {
+            // render dev label
+            tms_ddraw_set_color(this->get_surface()->ddraw, 1.f*menu_tint, 0.2f*menu_tint, 0.2f*menu_tint, 1.f);
+            tms_ddraw_sprite(this->get_surface()->ddraw,
+                devsprite,
+                x1 + a_x +btn_outer_x/2.f,
+                cy+pp - devsprite->height/2.f,
+                //roundf(p.x), roundf(p.y-30),
+                devsprite->width*.8, devsprite->height*.8);
+            tms_ddraw_set_color(this->get_surface()->ddraw, 1.f*menu_tint, 1.f*menu_tint, 1.0f*menu_tint, 1.f);
+        }
+
+        tms_ddraw_sprite(this->get_surface()->ddraw,
             o.name,
             x1 + a_x +btn_outer_x/2.f,
             cy+pp - _tms.yppcm/2.5f, 

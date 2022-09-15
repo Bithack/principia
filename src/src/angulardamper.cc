@@ -7,6 +7,7 @@
 
 angulardamper::angulardamper()
 {
+    this->set_flag(ENTITY_IS_DEV, true);
     this->set_flag(ENTITY_DO_STEP, true);
 
     this->width = .5f;

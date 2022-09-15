@@ -15,6 +15,7 @@ magnet::magnet(int type)
 
     this->width = 1.0f;
     this->height = .5f;
+    this->set_flag(ENTITY_IS_DEV, true);
     this->set_flag(ENTITY_DO_STEP, true);
     this->strength = 400.f;
 

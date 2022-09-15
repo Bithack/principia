@@ -9,6 +9,7 @@ gear::gear()
 {
     this->width = 1.f;
     this->type = ENTITY_GEAR;
+    this->set_flag(ENTITY_IS_DEV, true);
     this->set_flag(ENTITY_DO_STEP, true);
     this->set_flag(ENTITY_DO_TICK, true);
     this->pending = 0;
