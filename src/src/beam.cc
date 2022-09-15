@@ -146,8 +146,8 @@ beam::beam(int btype)
     }
 
     if (this->btype == BEAM_SEP) {
-        this->dialog_id = DIALOG_IGNORE;
         this->set_flag(ENTITY_IS_DEV, true);
+        this->dialog_id = DIALOG_BEAM_COLOR;
         this->set_property(0, (uint32_t)1);
         this->num_sliders = 0;
         this->set_mesh(mesh_factory::get_mesh(MODEL_SEPARATOR));
