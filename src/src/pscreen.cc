@@ -15,6 +15,7 @@
 p_text *pscreen::text_username;
 game_message *pscreen::message;
 game_graph pscreen::fps_graph("FPS");
+int ping_cooldown = 0;
 
 pending_text::pending_text(uint8_t index, p_text *t)
     : pending_tog(index, ST_TEXT)
@@ -243,7 +244,12 @@ pscreen::handle_input(tms::event *ev, int action)
                 && !prompt_is_open
 #endif
            ) {
-            P.add_action(ACTION_VERSION_CHECK, 0);
+            if (ping_cooldown == 25) {
+                P.add_action(ACTION_VERSION_CHECK, 0);
+                ping_cooldown = 0;
+            } else {
+                ping_cooldown++;
+            }
         }
 #endif
     }

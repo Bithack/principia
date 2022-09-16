@@ -146,7 +146,8 @@ beam::beam(int btype)
     }
 
     if (this->btype == BEAM_SEP) {
-        this->dialog_id = DIALOG_IGNORE;
+        this->set_flag(ENTITY_IS_DEV, true);
+        this->dialog_id = DIALOG_BEAM_COLOR;
         this->set_property(0, (uint32_t)1);
         this->num_sliders = 0;
         this->set_mesh(mesh_factory::get_mesh(MODEL_SEPARATOR));
@@ -337,6 +338,7 @@ beam::find_pairs()
 
 room::room()
 {
+    this->set_flag(ENTITY_IS_DEV, true);
     this->set_flag(ENTITY_ALLOW_CONNECTIONS, true);
     this->set_flag(ENTITY_IS_LOW_PRIO, true);
     this->layer_mask = 1;
@@ -389,4 +391,3 @@ room::create_sensor()
     d.groupIndex = 1+this->get_layer();
     this->fx->SetFilterData(d);
 }
-

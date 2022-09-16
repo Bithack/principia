@@ -9604,8 +9604,9 @@ int _gtk_loop(void *p)
     /** --Open object **/
     {
         object_window = new_window_defaults("Import object", &on_object_show, &on_object_keypress);
-        gtk_window_set_default_size(GTK_WINDOW(object_window), 400, 400);
-        gtk_widget_set_size_request(GTK_WIDGET(object_window), 400, 400);
+        gtk_window_set_default_size(GTK_WINDOW(object_window), 600, 600);
+        gtk_widget_set_size_request(GTK_WIDGET(object_window), 600, 600);
+        gtk_window_set_resizable(GTK_WINDOW(object_window), true);
 
         GtkBox *content = GTK_BOX(gtk_vbox_new(0, 5));
 
@@ -9657,8 +9658,9 @@ int _gtk_loop(void *p)
     /** --Open state **/
     {
         open_state_window = new_window_defaults("Load saved game", &on_open_state_show, &on_open_state_keypress);
-        gtk_window_set_default_size(GTK_WINDOW(open_state_window), 400, 400);
-        gtk_widget_set_size_request(GTK_WIDGET(open_state_window), 400, 400);
+        gtk_window_set_default_size(GTK_WINDOW(open_state_window), 600, 600);
+        gtk_widget_set_size_request(GTK_WIDGET(open_state_window), 600, 600);
+        gtk_window_set_resizable(GTK_WINDOW(open_state_window), true);
 
         GtkBox *content = GTK_BOX(gtk_vbox_new(0, 5));
 
@@ -9709,8 +9711,9 @@ int _gtk_loop(void *p)
     /** --Open level **/
     {
         open_window = new_window_defaults("Open level", &on_open_show, &on_open_keypress);
-        gtk_window_set_default_size(GTK_WINDOW(open_window), 400, 400);
-        gtk_widget_set_size_request(GTK_WIDGET(open_window), 400, 400);
+        gtk_window_set_default_size(GTK_WINDOW(open_window), 600, 600);
+        gtk_widget_set_size_request(GTK_WIDGET(open_window), 600, 600);
+        gtk_window_set_resizable(GTK_WINDOW(open_window), true);
 
         open_menu = GTK_MENU(gtk_menu_new());
 
