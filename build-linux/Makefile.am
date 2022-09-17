@@ -12,7 +12,11 @@ GLOBAL_FLAGS := -DGL_GLEXT_PROTOTYPES \
 
 GLOBAL_FLAGS += -I../src/tms/backends/linux/ \
 				-I../src/src/ -I../src/ -I/usr/include/ \
-				-I/usr/include/SDL2/ \
+				${SDL2_CFLAGS} \
+				${SDL2_TTF_CFLAGS} \
+				${SDL2_GFX_CFLAGS} \
+				${SDL2_IMAGE_CFLAGS} \
+				${SDL2_MIXER_CFLAGS} \
 				-I../src/include/ \
 				-I../src/gtk-undo \
 				-DGLEW_STATIC \
@@ -24,7 +28,7 @@ apparatus2_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99 -DFT2_BUILD_LIBRARY\
 	-DLOAD_PCX -DLOAD_PNM -DLOAD_TGA -DLOAD_XCF -DLOAD_XPM \
 	-DLOAD_XV
 apparatus2_CXXFLAGS = ${GLOBAL_FLAGS}
-apparatus2_LDADD = -lz -ldl -lGL -lpthread -lX11 -lXi -lrt ${GTK_LIBS} -lcurl -ljpeg -lpng -lfreetype -lSDL2 -lSDL2_ttf -lSDL2_mixer -lSDL2_image -lSDL2_gfx
+apparatus2_LDADD = -lz -ldl -lGL -lpthread -lX11 -lXi -lrt ${GTK_LIBS} -lcurl -ljpeg -lpng -lfreetype ${SDL2_LIBS} ${SDL2_TTF_LIBS} ${SDL2_GFX_LIBS} ${SDL2_IMAGE_LIBS} ${SDL2_MIXER_LIBS}
 apparatus2_LDFLAGS = 
 
 apparatus2_SOURCES = \
