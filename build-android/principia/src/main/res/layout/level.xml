@@ -6,7 +6,8 @@
     android:divider="@drawable/div"
     android:focusableInTouchMode="true"
     android:orientation="vertical"
-    android:showDividers="middle" >
+    android:showDividers="middle"
+    android:padding="8dp" >
 
     <LinearLayout
         android:id="@+id/ll_tb"
