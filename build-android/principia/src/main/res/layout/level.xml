@@ -217,7 +217,7 @@
                     android:id="@+id/level_bg_color_row"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
+                    android:layout_marginBottom="6dp"
                     android:layout_marginTop="4dp" >
 
                     <TextView
@@ -233,8 +233,7 @@
                         android:layout_marginBottom="4dp"
                         android:layout_marginTop="4dp"
                         android:layout_weight="3"
-                        android:background="@drawable/button_w_border"
-                        android:text="@string/color" />
+                        android:background="@drawable/button_w_border" />
 
                 </TableRow>
 
@@ -243,7 +242,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:visibility="gone"
-                    >
+                    android:layout_marginBottom="6dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -266,7 +265,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:visibility="gone"
-                    >
+                    android:layout_marginBottom="6dp">
 
                     <TextView
                         android:layout_width="wrap_content"

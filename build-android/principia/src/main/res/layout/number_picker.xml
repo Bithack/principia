@@ -27,7 +27,6 @@
 
         <EditText
             android:id="@+id/timepicker_input"
-            style="?android:attr/textAppearanceLargeInverse"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/timepicker_input"
