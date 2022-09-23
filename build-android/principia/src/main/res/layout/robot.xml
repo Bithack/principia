@@ -87,7 +87,8 @@
             <RelativeLayout
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp" >
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -134,7 +135,8 @@
             <RelativeLayout
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp" >
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -179,7 +181,8 @@
             <RelativeLayout
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp" >
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -239,7 +242,7 @@
         android:layout_above="@+id/robot_ll_buttons"
         android:layout_below="@id/robot_ll_tabs"
         android:layout_gravity="top"
-        android:paddingLeft="5dp"
+        android:paddingLeft="20dp"
         android:paddingRight="5dp"
         android:paddingTop="3dp"
         android:visibility="gone" >
@@ -252,7 +255,9 @@
                 android:id="@+id/ll_robot_head_equipment"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="20dp" >
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -269,7 +274,8 @@
                 android:id="@+id/ll_robot_head"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp" >
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -286,7 +292,8 @@
                 android:id="@+id/ll_robot_back_equipment"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp" >
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -303,7 +310,8 @@
                 android:id="@+id/ll_robot_front_equipment"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp" >
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -320,7 +328,8 @@
                 android:id="@+id/ll_robot_feet"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp" >
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -337,7 +346,8 @@
                 android:id="@+id/ll_robot_bolt_set"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp" >
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -354,7 +364,8 @@
                 android:id="@+id/ll_robot_weapons"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp" >
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -371,7 +382,8 @@
                 android:id="@+id/ll_robot_tools"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp" >
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -388,7 +400,8 @@
                 android:id="@+id/ll_robot_circuits"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp" >
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

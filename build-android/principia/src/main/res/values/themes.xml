@@ -1,16 +1,16 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <style name="PrincipiaTheme" parent="@android:style/Theme.Holo.NoActionBar.Fullscreen">
+    <style name="PrincipiaTheme" parent="@style/Theme.AppCompat">
     <item name="android:windowNoTitle">true</item>
     <item name="android:windowFullscreen">true</item>
     </style>
 
     <style name="ScrollViewBody" parent="@android:style/Widget.ScrollView">
-        <item name="android:layout_margin">8dp</item>
+        <item name="android:padding">8dp</item>
     </style>
     <style name="RelativeLayoutBody">
-        <item name="android:layout_margin">8dp</item>
+        <item name="android:padding">8dp</item>
     </style>
-    <style name="TinyDialog" parent="android:Theme.Holo.Dialog">
+    <style name="TinyDialog" parent="@style/Theme.AppCompat.Dialog">
         <!-- Fill the screen -->
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">fill_parent</item>
@@ -18,18 +18,18 @@
         <!-- No backgrounds, titles or window float -->
         <item name="android:windowBackground">@null</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowIsFloating">false</item>      
+        <item name="android:windowIsFloating">false</item>
     </style>
-    <style name="FullDialog" parent="android:Theme.Holo.Dialog">
+    <style name="FullDialog" parent="@style/Theme.AppCompat.Dialog">
         <!-- Fill the screen -->
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">fill_parent</item>
 
         <!-- No titles or window float -->
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowIsFloating">false</item>      
+        <item name="android:windowIsFloating">false</item>
     </style>
-    <style name="WebDialog" parent="android:Theme.Holo.Dialog">
+    <style name="WebDialog" parent="@style/Theme.AppCompat.Dialog">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowContentOverlay">@null</item>
@@ -38,7 +38,7 @@
 
         <item name="android:windowNoTitle">true</item>
     </style>
-    <style name="CodeDialog" parent="android:Theme.Holo.Dialog">
+    <style name="CodeDialog" parent="@style/Theme.AppCompat.Dialog">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowContentOverlay">@null</item>

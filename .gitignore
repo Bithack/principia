@@ -48,3 +48,10 @@ opengl32.dll
 
 # nix build result
 result
+
+.gradle
+build-android/deps/
+configure~
+*.patch
+*.apk
+*.idsig
