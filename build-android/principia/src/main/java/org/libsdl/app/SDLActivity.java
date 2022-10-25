@@ -1205,9 +1205,9 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
                             case 5: showDialog(DIALOG_PUBLISH); break;
                             case 6: showDialog(DIALOG_SETTINGS); break;
                             case 7: showDialog(DIALOG_LOGIN); break;
-                            case 8: SDLActivity.open_url("https://principiagame.com/gettingstarted.php"); break;
-                            case 9: SDLActivity.open_url("https://wiki.principiagame.com/wiki/Main_Page"); break;
-                            case 10: SDLActivity.open_url("https://principiagame.com/"); break;
+                            case 8: SDLActivity.open_url("https://principia-web.se/wiki/Getting_Started"); break;
+                            case 9: SDLActivity.open_url("https://principia-web.se/wiki/Main_Page"); break;
+                            case 10: SDLActivity.open_url("https://principia-web.se/"); break;
                             case 11: PrincipiaBackend.addActionAsInt(ACTION_GOTO_MAINMENU, 0); break;
                             case 12: SDLActivity.cleanQuit(); break;
                         }

@@ -9061,13 +9061,13 @@ on_login_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
 void
 activate_principiawiki(GtkMenuItem *i, gpointer unused)
 {
-    ui::open_url("https://wiki.principiagame.com/");
+    ui::open_url("https://principia-web.se/wiki/");
 }
 
 void
 activate_gettingstarted(GtkMenuItem *i, gpointer unused)
 {
-    ui::open_url("https://principiagame.com/help");
+    ui::open_url("https://principia-web.se/wiki/Getting_Started");
 }
 
 void
@@ -13460,7 +13460,7 @@ _open_tips_dialog(gpointer unused)
         }
 
         if (result == GTK_RESPONSE_YES)
-            ui::open_url("https://wiki.principiagame.com/");
+            ui::open_url("https://principia-web.se/wiki/");
 
         break;
     } while (true);
