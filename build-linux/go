@@ -23,8 +23,10 @@ DEBUGFLAGS_CC="$DEBUG_SHARED  $EXTRA_DEBUGFLAGS $EXTRA_DEBUGFLAGS_CC"
 DEBUGFLAGS_CXX="$DEBUG_SHARED $EXTRA_DEBUGFLAGS $EXTRA_DEBUGFLAGS_CXX"
 DEBUGFLAGS_LD="-rdynamic $EXTRA_DEBUGFLAGS_LD"
 
-RELEASEFLAGS_CC="-Os -ffast-math -DNDEBUG=1 -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections $EXTRA_RELEASEFLAGS_CC"
-RELEASEFLAGS_CXX="$RELEASEFLAGS_CC -fvisibility-inlines-hidden -fno-rtti $EXTRA_RELEASEFLAGS_CXX"
+RELEASE_SHARED="-ffast-math -DNDEBUG=1 -s -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections"
+
+RELEASEFLAGS_CC="$RELEASE_SHARED $EXTRA_RELEASEFLAGS_CC"
+RELEASEFLAGS_CXX="$RELEASE_SHARED -O2 -fvisibility-inlines-hidden -fno-rtti $EXTRA_RELEASEFLAGS_CXX"
 RELEASEFLAGS_LD="-Wl,-O,-s,--gc-sections $EXTRA_RELEASEFLAGS_LD"
 
 if [ "$CC" = "gcc" ]; then
