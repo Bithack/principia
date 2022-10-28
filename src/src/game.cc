@@ -6382,11 +6382,7 @@ game::handle_input_playing(tms::event *ev, int action)
 
         if (this->get_mode() == GAME_MODE_DEFAULT && W->is_adventure() && adventure::player) {
 
-#ifdef TMS_BACKEND_PC
-#define REPAIR_STATION_HELP_URL "http://wiki.principiagame.com/wiki/Repair_Station"
-#else
-#define REPAIR_STATION_HELP_URL "http://wiki.principiagame.com/wiki/Repair_Station?printable=yes"
-#endif
+#define REPAIR_STATION_HELP_URL "https://principia-web.se/wiki/Repair_Station"
 
             /* Detect clicks on help icons! */
             if (!(settings["tutorial"]->v.u32 & TUTORIAL_REPAIR_STATION)) {

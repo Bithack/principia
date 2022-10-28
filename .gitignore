@@ -55,3 +55,4 @@ configure~
 *.patch
 *.apk
 *.idsig
+build-android/principia/deps

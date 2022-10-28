@@ -1,12 +1,43 @@
 
 ROOT := $(call my-dir)
-include $(CLEAR_VARS)
 
 LOCAL_PATH = $(ROOT)
+DEPROOT := ../build-android/deps/$(TARGET_ARCH_ABI)
+include $(CLEAR_VARS)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libcurl
-LOCAL_SRC_FILES := ../build-android/static/$(TARGET_ARCH_ABI)/libcurl.a
+LOCAL_SRC_FILES := $(DEPROOT)/curl/libcurl.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libmbedcrypto
+LOCAL_SRC_FILES := $(DEPROOT)/curl/libmbedcrypto.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libmbedtls
+LOCAL_SRC_FILES := $(DEPROOT)/curl/libmbedtls.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libmbedx509
+LOCAL_SRC_FILES := $(DEPROOT)/curl/libmbedx509.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := freetype
+LOCAL_SRC_FILES := $(DEPROOT)/freetype/libfreetype.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libjpeg
+LOCAL_SRC_FILES := $(DEPROOT)/libjpeg/libjpeg.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libpng
+LOCAL_SRC_FILES := $(DEPROOT)/libpng/libpng.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -19,9 +50,19 @@ $(warning $(ROOT))
 
 LOCAL_CPP_EXTENSION := .cc
 
-LOCAL_C_INCLUDES += $(SDL_PATH)/include $(ROOT)/curl-7.60.0-ssl/ $(TMS_PATH)/backends/android/ \
-					$(ROOT)/SDL-mobile/ $(ROOT)/SDL_ttf/ $(ROOT)/SDL_image/ $(ROOT)/SDL_mixer/ $(ROOT)/freetype/builds $(ROOT)/freetype/include \
-					$(ROOT)/src/ $(ROOT)/jpeg/ $(ROOT)/png/ $(ROOT)/lua/src/
+LOCAL_C_INCLUDES += \
+	$(SDL_PATH)/include \
+	$(TMS_PATH)/backends/android/ \
+	$(ROOT)/SDL-mobile/ \
+	$(ROOT)/SDL_ttf/ \
+	$(ROOT)/SDL_image/ \
+	$(ROOT)/SDL_mixer/ \
+	$(ROOT)/src/ $(ROOT)/lua/src/ \
+	../deps/$(TARGET_ARCH_ABI)/curl/include/ \
+	../deps/$(TARGET_ARCH_ABI)/freetype/include/freetype2/ \
+	../deps/$(TARGET_ARCH_ABI)/freetype/include/ \
+	../deps/$(TARGET_ARCH_ABI)/libjpeg/include/ \
+	../deps/$(TARGET_ARCH_ABI)/libpng/include/
 
 GLOBAL_FLAGS := -DGL_GLEXT_PROTOTYPES \
 				-DANDROID \
@@ -52,7 +93,9 @@ endif
 LOCAL_CONLYFLAGS := -std=gnu99
 LOCAL_CFLAGS += $(GLOBAL_FLAGS) -DFT2_BUILD_LIBRARY -D__STDC_FORMAT_MACROS=1
 LOCAL_CPPFLAGS += $(GLOBAL_FLAGS)
-LOCAL_STATIC_LIBRARIES := libcurl
+LOCAL_STATIC_LIBRARIES := \
+	freetype libjpeg libpng \
+	libcurl libmbedtls libmbedx509 libmbedcrypto
 LOCAL_LDLIBS := -lz -ldl -lGLESv1_CM -lGLESv2 -llog
 
 # for SDL_image
@@ -60,9 +103,6 @@ LOCAL_CFLAGS += -DLOAD_JPG -DLOAD_PNG -DLOAD_BMP -DLOAD_GIF -DLOAD_LBM \
 	-DLOAD_PCX -DLOAD_PNM -DLOAD_TGA -DLOAD_XCF -DLOAD_XPM \
 	-DLOAD_XV
 
-include $(ROOT)/jpeg/Android.mk
-include $(ROOT)/png/Android.mk
-include $(ROOT)/freetype/Android.mk
 include $(ROOT)/lua/Android.mk
 include $(ROOT)/SDL_image/Android.mk
 include $(ROOT)/SDL_ttf/Android.mk

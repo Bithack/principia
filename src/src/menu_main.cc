@@ -25,7 +25,7 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
     switch (button_id) {
         case BTN_SHITTY:
             {
-                ui::open_url("http://wiki.principiagame.com/wiki/Bad_Graphics");
+                ui::open_url("https://principia-web.se/wiki/Bad_Graphics");
             }
             break;
 

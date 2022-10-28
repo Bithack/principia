@@ -34,7 +34,7 @@ public class SandboxTipsDialog
                 .setTitle("Tips & tricks")
                 .setPositiveButton("OK", new OnClickListener(){public void onClick(DialogInterface dialog, int which) {}})
                 .setNeutralButton("Next", null)
-                .setNegativeButton("More tips & tricks", new OnClickListener(){public void onClick(DialogInterface dialog, int which){SDLActivity.open_url("http://principiagame.com/gettingstarted.php");}})
+                .setNegativeButton("More tips & tricks", new OnClickListener(){public void onClick(DialogInterface dialog, int which){SDLActivity.open_url("https://principia-web.se/wiki/Getting_Started");}})
                 .create();
 
         _dialog.setOnShowListener(new OnShowListener() {
