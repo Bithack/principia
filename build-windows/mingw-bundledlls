@@ -33,7 +33,8 @@ import shutil
 DEFAULT_PATH_PREFIXES = [
     "", "/usr/bin", "/usr/i686-w64-mingw32/sys-root/mingw/bin", "/mingw64/bin",
     "/usr/i686-w64-mingw32/sys-root/mingw/lib",
-    "C:\\msys64\\mingw64\\bin"
+    "C:\\msys64\\mingw64\\bin",
+    "D:\\a\\_temp\\msys64\\mingw64\\bin\\" # Github workflow's MSYS2 install
 ]
 
 env_path_prefixes = os.environ.get('MINGW_BUNDLEDLLS_SEARCH_PATH', None)
@@ -53,7 +54,7 @@ blacklist = [
     "usp10.dll", "comctl32.dll", "wsock32.dll", "netapi32.dll", "userenv.dll",
     "avicap32.dll", "avrt.dll", "psapi.dll", "mswsock.dll", "glu32.dll",
     "bcrypt.dll", "rpcrt4.dll", "hid.dll",
-    # directx 3d 11 
+    # directx 3d 11
     "d3d11.dll", "dxgi.dll"
 ]
 
