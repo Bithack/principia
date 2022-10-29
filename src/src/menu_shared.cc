@@ -9,7 +9,6 @@
 
 tms::texture *menu_shared::tex_bg;
 tms::texture *menu_shared::tex_vignette;
-tms::texture *menu_shared::tex_logo;
 tms::texture *menu_shared::tex_menu_bottom;
 tms::texture *menu_shared::tex_principia;
 tms::texture *menu_shared::tex_vert_line;
@@ -65,19 +64,6 @@ menu_shared::init()
         tex->upload();
 
         menu_shared::tex_vignette = tex;
-    }
-
-    {
-        tms::texture *tex = new tms::texture();
-
-        tex->gamma_correction = 0;
-        tex->colors = GL_RGBA;
-
-        tex->load("data-shared/textures/menu/main_menu.png");
-
-        tex->upload();
-
-        menu_shared::tex_logo = tex;
     }
 
     {
