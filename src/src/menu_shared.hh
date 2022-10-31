@@ -30,7 +30,6 @@ class menu_shared
   public:
     static tms::texture *tex_bg;
     static tms::texture *tex_vignette;
-    static tms::texture *tex_logo;
     static tms::texture *tex_menu_bottom;
     static tms::texture *tex_principia;
     static tms::texture *tex_vert_line;

@@ -9439,9 +9439,10 @@ int _gtk_loop(void *p)
 
     gtk_init(0,0);
 
-    // Release versions of Linux will use the user's default GTK theme just fine,
-    // debug versions not so much... For whatever reason.
-#if !defined(TMS_BACKEND_LINUX) || defined(DEBUG)
+    // Only use custom theme in release versions of Windows. Linux should use
+    // the user-provided GTK theme, and debug versions of Windows break spectacularily
+    // with custom theme.
+#if defined(TMS_BACKEND_WINDOWS) && !defined(DEBUG)
     gtk_rc_parse_string(
 "style \"test\" {\n"
 

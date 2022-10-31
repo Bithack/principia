@@ -10,8 +10,8 @@ android {
         applicationId "com.bithack.principia"
         minSdk 14
         targetSdk 32
-        versionCode 35
-        versionName "1.5.2"
+        versionCode 34
+        versionName "1.5.2 Beta"
 
         externalNativeBuild {
             ndkBuild {

@@ -1,0 +1,96 @@
+name: build
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'build-*/**'
+      - '.github/workflows/**.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'build-*/**'
+      - '.github/workflows/**.yml'
+
+jobs:
+  linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk2.0-dev libgl-dev libxss-dev libxxf86vm-dev libasound2-dev libudev-dev valgrind libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-gfx-dev
+      - name: Build
+        run: |
+          cd build-linux/
+          ./autogen.sh
+          ./configure
+          ./go --silent --release
+
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            base-devel
+            mingw-w64-x86_64-toolchain
+            autotools
+            mingw-w64-x86_64-curl
+            mingw-w64-x86_64-gtk2
+            mingw-w64-x86_64-libpng
+            mingw-w64-x86_64-libjpeg-turbo
+            mingw-w64-x86_64-freetype
+            mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-SDL2_gfx
+            mingw-w64-x86_64-SDL2_image
+            mingw-w64-x86_64-SDL2_mixer
+            mingw-w64-x86_64-SDL2_ttf
+            mingw-w64-x86_64-nsis
+      - name: Build
+        run: |
+          cd build-windows/
+          ./autogen.sh
+          ./configure
+          ./go --silent --release
+
+      - name: Bundle together
+        run: |
+          cd build-windows/
+          mkdir release
+          cp principia.exe release/
+          ./mingw-bundledlls release/principia.exe --copy
+          makensis principia_install
+
+      - name: Upload output as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: principia-setup.exe
+          path: build-windows/principia-setup.exe
+
+  android:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends openjdk-11-jdk-headless
+      - name: Build with gradle
+        run: |
+          cd build-android
+          ./gradlew assemblerelease
+      - name: Save apk artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: principia-release-unsigned.apk
+          path: build-android/principia/build/outputs/apk/release/principia-release-unsigned.apk
+

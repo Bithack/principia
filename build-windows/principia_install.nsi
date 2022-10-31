@@ -2,12 +2,12 @@
 
 !define MUI_ICON "icon.ico"
 !define /ifndef VER_MAJOR 1
-!define /ifndef VER_MINOR 6
-!define /ifndef VER_BUILD 0
+!define /ifndef VER_MINOR 5
+!define /ifndef VER_BUILD 2
 
-!define /ifndef VER_REVISION 1600
+!define /ifndef VER_REVISION 1520
 
-!define /ifndef VERSION 'beta-windows'
+!define /ifndef VERSION '1.5.2 Beta'
 
 Name "Principia"
 OutFile "principia-setup.exe"
@@ -65,7 +65,7 @@ Section "Core Files (required)" SecCore
   SetOverwrite on
 
   SetOutPath "$INSTDIR"
-  
+
   File "release\principia.exe"
   File "release\*.dll"
 
@@ -74,15 +74,16 @@ Section "Core Files (required)" SecCore
   File /r /x *.sw* "..\data-pc\sfx"
   File /r /x *.sw* "..\data-pc\textures"
   SetOutPath "$INSTDIR\data-shared"
+  File /r /x *.sw* "..\data-shared\bg"
   File /r /x *.sw* "..\data-shared\fonts"
   File /r /x *.sw* "..\data-shared\icons"
   File /r /x *.sw* "..\data-shared\lang"
-  File /r /x *.sw* "..\data-shared\bg"
   File /r /x *.sw* "..\data-shared\lvl"
   File /r /x *.sw* "..\data-shared\models"
   File /r /x *.sw* "..\data-shared\pkg"
-  File /r /x *.sw* "..\data-shared\textures"
   File /r /x *.sw* "..\data-shared\shaders"
+  File /r /x *.sw* "..\data-shared\textures"
+  File /r /x *.sw* "..\data-shared\tiles"
 
 SectionEnd
 

@@ -71,15 +71,15 @@ menu_play::menu_play()
     this->wdg_back->priority = 500;
     this->wdg_back->add();
 
-    this->wdg_play_adventure = this->wm->create_widget(
+    this->wdg_puzzles = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
-            BTN_PLAY_ADVENTURE, AREA_MENU_CENTER);
-    this->wdg_play_adventure->set_label("Start a new adventure", font::large);
-    this->wdg_play_adventure->priority = 1000;
-    this->wdg_play_adventure->render_background = true;
-    this->wdg_play_adventure->add();
+            BTN_PUZZLES, AREA_MENU_CENTER);
+    this->wdg_puzzles->set_label("Learn with puzzles", font::large);
+    this->wdg_puzzles->priority = 1000;
+    this->wdg_puzzles->render_background = true;
+    this->wdg_puzzles->add();
 
-    this->wdg_play_adventure->resize_percentage(
+    this->wdg_puzzles->resize_percentage(
             _tms.window_width,  0.45,
             _tms.window_height, 0.20);
 
@@ -91,7 +91,7 @@ menu_play::menu_play()
     this->wdg_open_latest_state->render_background = true;
     this->wdg_open_latest_state->add();
 
-    this->wdg_open_latest_state->label->set_scale(this->wdg_play_adventure->label->get_scale());
+    this->wdg_open_latest_state->label->set_scale(this->wdg_puzzles->label->get_scale());
 
     this->wdg_open = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
@@ -101,17 +101,17 @@ menu_play::menu_play()
     this->wdg_open->render_background = true;
     this->wdg_open->add();
 
-    this->wdg_open->label->set_scale(this->wdg_play_adventure->label->get_scale());
+    this->wdg_open->label->set_scale(this->wdg_puzzles->label->get_scale());
 
-    this->wdg_puzzles = this->wm->create_widget(
+    this->wdg_play_adventure = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
-            BTN_PUZZLES, AREA_MENU_CENTER);
-    this->wdg_puzzles->set_label("Learn with puzzles", font::xmedium);
-    this->wdg_puzzles->render_background = true;
-    this->wdg_puzzles->priority = 850;
-    this->wdg_puzzles->add();
+            BTN_PLAY_ADVENTURE, AREA_MENU_CENTER);
+    this->wdg_play_adventure->set_label("Adventure exploration mode", font::xmedium);
+    this->wdg_play_adventure->render_background = true;
+    this->wdg_play_adventure->priority = 850;
+    this->wdg_play_adventure->add();
 
-    this->wdg_puzzles->label->set_scale(this->wdg_play_adventure->label->get_scale());
+    this->wdg_play_adventure->label->set_scale(this->wdg_puzzles->label->get_scale());
 
     for (int n=0; n<MAX_STATES; ++n) {
         this->wdg_state[n] = this->wm->create_widget(

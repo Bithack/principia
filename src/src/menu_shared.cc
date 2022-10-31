@@ -9,7 +9,6 @@
 
 tms::texture *menu_shared::tex_bg;
 tms::texture *menu_shared::tex_vignette;
-tms::texture *menu_shared::tex_logo;
 tms::texture *menu_shared::tex_menu_bottom;
 tms::texture *menu_shared::tex_principia;
 tms::texture *menu_shared::tex_vert_line;
@@ -73,19 +72,6 @@ menu_shared::init()
         tex->gamma_correction = 0;
         tex->colors = GL_RGBA;
 
-        tex->load("data-shared/textures/menu/main_menu.png");
-
-        tex->upload();
-
-        menu_shared::tex_logo = tex;
-    }
-
-    {
-        tms::texture *tex = new tms::texture();
-
-        tex->gamma_correction = 0;
-        tex->colors = GL_RGBA;
-
         tex->load("data-shared/textures/menu/menu_bottom.png");
 
         tex->upload();
@@ -138,8 +124,8 @@ menu_shared::init()
         menu_shared::contest_entries[x].sprite = 0;
     }
 
-    menu_shared::text_version = new p_text(font::xmedium, ALIGN_CENTER, ALIGN_CENTER);
-    menu_shared::text_version->set_text("");//PRINCIPIA_VERSION_STRING);
+    menu_shared::text_version = new p_text(font::medium, ALIGN_CENTER, ALIGN_CENTER);
+    menu_shared::text_version->set_text(PRINCIPIA_VERSION_STRING);
 
     float h = (gui_spritesheet::get_sprite(S_CONFIG)->height / 64.f) * 0.5f * _tms.yppcm * .7f;
 
