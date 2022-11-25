@@ -56,3 +56,5 @@ configure~
 *.apk
 *.idsig
 build-android/principia/deps
+build-android/deps__
+__pycache__

@@ -8,3 +8,5 @@ test
 compile
 install-sh
 missing
+COPYING
+INSTALL

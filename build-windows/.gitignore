@@ -2,3 +2,5 @@ Makefile
 autom4te.cache*
 *.stackdump
 missing
+COPYING
+INSTALL
