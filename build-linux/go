@@ -9,7 +9,7 @@ debug="0"
 nodebug="0"
 release="0"
 run="1"
-cores="7"
+cores="6"
 do_test="0"
 static_analysis="0"
 

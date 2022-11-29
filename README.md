@@ -72,7 +72,7 @@ Install dependencies. For Debian-based distros:
 
 For Arch-based distros:
 
-	$ sudo pacman -S gtk2 curl freetype libpng libjpeg sdl2 sdl2_gfx sdl2_image sdl2_mixer sdl2_ttf
+	$ sudo pacman -S gtk2 curl freetype2 libpng libjpeg sdl2 sdl2_gfx sdl2_image sdl2_mixer sdl2_ttf
 
 For NixOS, Follow the instructions [here](./nix/README.md).
 
