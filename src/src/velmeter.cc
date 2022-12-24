@@ -18,8 +18,6 @@ velmeter::velmeter()
 
     this->s_out[0].tag = SOCK_TAG_ANGLE;
     //this->s_out[1].tag = SOCK_TAG_SPEED;
-    this->s_out[0].set_description("Angle");
-    this->s_out[1].set_description("Velocity");
 
     this->set_num_properties(1);
     this->properties[0].type = P_FLT;

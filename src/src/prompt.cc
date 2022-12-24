@@ -17,11 +17,6 @@ prompt::prompt()
 
     this->menu_scale = 1.5f;
 
-    this->s_in[0].set_description("Activate prompt");
-    this->s_out[0].set_description("First button pressed");
-    this->s_out[1].set_description("Second button pressed");
-    this->s_out[2].set_description("Third button pressed");
-
     this->set_num_properties(4);
 
     this->properties[0].type = P_STR; /* Button #1 */

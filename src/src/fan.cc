@@ -32,8 +32,6 @@ fan::fan()
     this->s_in[0].ctype = CABLE_BLACK;
     this->s_in[0].lpos = b2Vec2(.0f, .10f);
 
-    this->s_in[0].set_description("Voltage");
-
     this->handler = new fan::cb_handler(this);
 
     this->set_as_rect(FAN_WIDTH/2.f, .25f);

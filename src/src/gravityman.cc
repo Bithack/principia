@@ -30,9 +30,6 @@ gravityman::gravityman(int _type)
             this->s_in[0].lpos = b2Vec2(-.225f, 0.f); /* Angle */
             this->s_in[1].lpos = b2Vec2(0.f,  -0.000001f); /* Force */
             this->s_in[2].lpos = b2Vec2(.25f, .0f);  /* Active (+ modifier) */
-            this->s_in[0].set_description("Angle");
-            this->s_in[1].set_description("Force");
-            this->s_in[2].set_description("Active (+ modifier)");
             this->s_in[0].tag = SOCK_TAG_ANGLE;
             this->s_in[1].tag = SOCK_TAG_FORCE;
             this->s_in[2].tag = SOCK_TAG_MULTIPLIER;
@@ -53,7 +50,6 @@ gravityman::gravityman(int _type)
             this->num_s_in = 1;
 
             this->s_in[0].lpos = b2Vec2(0.f, -.125f); /* Active */
-            this->s_in[0].set_description("Multiplier");
             this->s_in[0].tag = SOCK_TAG_MULTIPLIER;
 
             this->set_as_rect(.125f, .25f);

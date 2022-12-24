@@ -33,36 +33,22 @@ gameman::gameman()
 
     this->s_in[12].lpos = b2Vec2(-.6f + .6f, .3f);
 
-    this->s_in[0].set_description("Player wins the game");
     this->s_in[0].tag = SOCK_TAG_WIN;
-    this->s_in[1].set_description("Player loses the game");
     this->s_in[1].tag = SOCK_TAG_LOSE;
-    this->s_in[2].set_description("Score +1");
     this->s_in[2].tag = SOCK_TAG_ADD_1;
-    this->s_in[3].set_description("Score +50");
     this->s_in[3].tag = SOCK_TAG_ADD_50;
-    this->s_in[4].set_description("Score +100");
     this->s_in[4].tag = SOCK_TAG_ADD_100;
-    this->s_in[5].set_description("Score +250");
     this->s_in[5].tag = SOCK_TAG_ADD_250;
-    this->s_in[6].set_description("Score +500");
     this->s_in[6].tag = SOCK_TAG_ADD_500;
-    this->s_in[7].set_description("Score -1");
     this->s_in[7].tag = SOCK_TAG_SUB_1;
-    this->s_in[8].set_description("Score -50");
     this->s_in[8].tag = SOCK_TAG_SUB_50;
-    this->s_in[9].set_description("Score -100");
     this->s_in[9].tag = SOCK_TAG_SUB_100;
-    this->s_in[10].set_description("Score -250");
     this->s_in[10].tag = SOCK_TAG_SUB_250;
-    this->s_in[11].set_description("Score -500");
     this->s_in[11].tag = SOCK_TAG_SUB_500;
 
     this->s_out[0].lpos = b2Vec2(.6f, .3f);
     this->s_out[0].ctype = CABLE_RED;
     this->s_out[0].angle = M_PI/2.f;
-
-    this->s_out[0].set_description("Outputs current score as a fraction <monospace>current_score/max_score</monospace>. If there is no max score, 0 is always output.");
 
     this->set_as_rect(1.6f/2.f, .950f/2.f);
 }
