@@ -9431,11 +9431,13 @@ int _gtk_loop(void *p)
 #if defined(TMS_BACKEND_LINUX) && defined(DEBUG) && defined(VALGRIND_NO_UI)
     if (RUNNING_ON_VALGRIND) return T_OK;
 #endif
-
+    
 #if !GLIB_CHECK_VERSION(2, 31, 0)
     g_thread_init(0);
 #endif
-    gdk_threads_init();
+    // This causes Principia to freeze on Windows when opening dialogs. Removing it
+    // fixes it, though I don't know how good of an idea that is. (No side effects at least)
+    //gdk_threads_init();
 
     gtk_init(0,0);
 
