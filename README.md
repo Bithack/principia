@@ -76,8 +76,7 @@ For Arch-based distros:
 
 For Fedora:
 
-	$ sudo dnf groupinstall "Development Tools"
-	$ sudo dnf install automake freetype-devel libpng-devel libjpeg-turbo-devel gtk2-devel ncurses-devel SDL2-devel SDL2_image-devel SDL2_gfx-devel SDL2_ttf-devel SDL2_mixer-devel valgrind-devel libXxf86vm-devel alsa-lib-devel systemd-devel gprof2dot
+	$ sudo dnf install @development-tools automake gcc-c++ freetype-devel libpng-devel libjpeg-turbo-devel gtk2-devel SDL2-devel SDL2_image-devel SDL2_gfx-devel SDL2_ttf-devel SDL2_mixer-devel valgrind-devel libXxf86vm-devel alsa-lib-devel systemd-devel gprof2dot
 
 For NixOS, Follow the instructions [here](./nix/README.md).
 
