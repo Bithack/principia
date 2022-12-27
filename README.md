@@ -74,8 +74,8 @@ For Arch-based distros:
 
 	$ sudo pacman -S gtk2 curl freetype libpng libjpeg sdl2 sdl2_gfx sdl2_image-devel sdl2_mixer sdl2_ttf
 
-For Redhat-based distros (Fedora):
-
+For Fedora:
+	$ sudo dnf groupinstall "Development Tools"
 	$ sudo dnf install automake freetype-devel libpng-devel libjpeg-turbo-devel gtk2-devel ncurses-devel SDL2-devel SDL2_image-devel SDL2_gfx-devel SDL2_ttf-devel SDL2_mixer-devel valgrind-devel libXxf86vm-devel
 
 For NixOS, Follow the instructions [here](./nix/README.md).
