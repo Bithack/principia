@@ -92,7 +92,7 @@ If everything goes well, Principia will start by default unless `--silent` is pa
 ### Packaging for Linux
 When building Principia for packaging, you would want to use the following command to replace the above. It will clean the source tree, build a release version and not automatically run Principia.
 
-	./go --clean --release --silent
+	$ ./go --clean --release --silent
 
 Right now Principia needs to be installed with its executable next to the data directories. Putting all of that in `/opt/principia/` and symlinking `/usr/bin/principia` => `/opt/principia/principia` should do for now.
 
@@ -107,9 +107,9 @@ https://developer.android.com/studio
 
 Untar the archive (your version number might differ from the example below) and run studio.sh:
 
-$ tar xzf android-studio-2021.2.1.16-linux.tar.gz
+	$ tar xzf android-studio-2021.2.1.16-linux.tar.gz
 
-$ cd bin; ./studio.sh
+	$ cd bin; ./studio.sh
 
 Choose Custom in the Installer, click Next a bunch of times. Android Studio will download components for a while. Once finished, in the "Welcome to Android Studio" dialog, choose "Customize" in the left menu and then click "All Settings..." at the bottom center. Open Appearance -> System Settings -> Android SDK. Click the SDK Tools tab and check the following items:
 
@@ -120,17 +120,17 @@ Click Apply and wait for the components to download. Close Android Studio foreve
 
 Open a terminal and run the build scripts:
 
-$ cd build-android;
+	$ cd build-android;
 
-$ export ANDROID_HOME=/home/EXAMPLE/Android/Sdk
+	$ export ANDROID_HOME=/home/EXAMPLE/Android/Sdk
 
-$ ./gradlew build
+	$ ./gradlew build
 
 ANDROID_HOME should be set to the location where Android Studio installed the SDK (which you chose during setup). You might want to put that export line in your .bashrc file.
 
 Finally, to install the game on your device:
 
-$ ./gradew install
+	$ ./gradew install
 
 
 License
