@@ -55,7 +55,7 @@ blacklist = [
     "avicap32.dll", "avrt.dll", "psapi.dll", "mswsock.dll", "glu32.dll",
     "bcrypt.dll", "rpcrt4.dll", "hid.dll",
     # directx 3d 11
-    "d3d11.dll", "dxgi.dll"
+    "d3d11.dll", "dxgi.dll", "dwrite.dll"
 ]
 
 

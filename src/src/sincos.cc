@@ -11,12 +11,7 @@
  **/
 esincos::esincos()
 {
-    this->s_in[0].set_description("Angle");
 
-    this->s_out[0].set_description("Positive Y");
-    this->s_out[1].set_description("Positive X");
-    this->s_out[2].set_description("Negative Y");
-    this->s_out[3].set_description("Negative X");
 }
 
 edevice*

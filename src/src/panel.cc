@@ -411,13 +411,6 @@ panel::init_mpanel()
         this->s_in[3+x].tag = SOCK_TAG_SET_VALUE;
         this->s_in[6+x].ctype = CABLE_RED;
         this->s_in[6+x].tag = SOCK_TAG_SET_ENABLE;
-
-        this->s_in[x].set_description("Feedback/report current value");
-        this->s_in[3+x].set_description("Override value");
-        this->s_in[6+x].set_description("Override enabled/disabled");
-
-        this->s_out[x].set_description("Raw signal");
-        this->s_out[3+x].set_description("Focus signal (0 or 1)");
     }
 }
 
@@ -439,8 +432,6 @@ panel::init_xsmallpanel()
     this->s_out[0].lpos = b2Vec2(0.f, 0.f);
     this->s_out[0].ctype = CABLE_RED;
     this->s_out[0].tag = SOCK_TAG_VALUE;
-
-    this->s_out[0].set_description("Raw signal");
 }
 
 void
@@ -462,7 +453,6 @@ panel::init_smallpanel()
         this->s_out[x].lpos = b2Vec2(-.45f + .3f * x, -.05f);
         this->s_out[x].ctype = CABLE_RED;
         this->s_out[x].tag = SOCK_TAG_VALUE;
-        this->s_out[x].set_description("Raw signal");
     }
 }
 
@@ -508,13 +498,6 @@ panel::init_bigpanel()
         this->s_in[8+x].tag = SOCK_TAG_SET_VALUE;
         this->s_in[16+x].ctype = CABLE_RED;
         this->s_in[16+x].tag = SOCK_TAG_SET_ENABLE;
-
-        this->s_in[x].set_description("Feedback/report current value");
-        this->s_in[8+x].set_description("Override value");
-        this->s_in[16+x].set_description("Override enabled/disabled");
-
-        this->s_out[x].set_description("Raw signal");
-        this->s_out[8+x].set_description("Focus signal (0 or 1)");
     }
 }
 

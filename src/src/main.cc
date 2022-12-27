@@ -1331,7 +1331,6 @@ tproject_step(void)
                     break;
 
                 case ACTION_EDIT:
-                    ui::message("Playing community levels is disabled for the Lite version.\nPlease upgrade to the Full version to enable this feature.", true);
                     G->resume_action = GAME_RESUME_OPEN;
                     G->screen_back = 0;
 
@@ -1675,15 +1674,17 @@ tproject_init(void)
     P.message = 0;
     P.new_version_available = false;
     P.curl = 0;
-#if defined(TMS_BACKEND_ANDROID_X86) 
-    tms_debugf("ARCH: x86!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-#elif defined(TMS_BACKEND_ANDROID_ARMEABI)
-    tms_debugf("ARCH: aremeabi");
+
+#if defined(TMS_BACKEND_ANDROID_X86_64)
+    tms_debugf("ARCH: x86_64");
+#elif defined(TMS_BACKEND_ANDROID_X86)
+    tms_debugf("ARCH: x86");
+#elif defined(TMS_BACKEND_ANDROID_ARM64_V8A)
+    tms_debugf("ARCH: arm64-v8a");
 #elif defined(TMS_BACKEND_ANDROID_ARMEABI_V7A)
-    tms_debugf("ARCH: armeabi v7");
-#else
-    tms_debugf("ARCH: unknown");
+    tms_debugf("ARCH: armeabi-v7");
 #endif
+
     tms_infof("tproject_init called");
     srand((unsigned)time(0));
 

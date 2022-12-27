@@ -30,13 +30,11 @@ generator::generator()
         this->s_out[x].lpos = b2Vec2(sx,sy);
         this->s_out[x].angle = M_PI/2.f;
         this->s_out[x].ctype = CABLE_BLACK;
-        this->s_out[x].set_description("Voltage");
     }
 
     this->s_in[0].lpos = b2Vec2(-.6f,-.3f);
     this->s_in[0].angle = -M_PI/2.f;
     this->s_in[0].ctype = CABLE_RED;
-    this->s_in[0].set_description("Voltage multiplier");
     this->scaleselect = true;
 
     this->num_sliders = 1;

@@ -3899,7 +3899,7 @@ GtkEntry        *login_password;
 GtkLabel        *login_status;
 GtkButton       *login_btn_log_in;
 GtkButton       *login_btn_cancel;
-GtkButton       *login_btn_forgot_password;
+GtkButton       *login_btn_register;
 
 /** --Settings **/
 GtkDialog       *settings_dialog;
@@ -9033,9 +9033,9 @@ on_login_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
         } else {
             gtk_label_set_text(login_status, "Enter data into both fields.");
         }
-    } else if (btn_pressed(w, login_btn_forgot_password, user_data)) {
+    } else if (btn_pressed(w, login_btn_register, user_data)) {
         char url[1024];
-        snprintf(url, 1023, "https://%s/forgot_password.php", P.community_host);
+        snprintf(url, 1023, "https://%s/register", P.community_host);
         ui::open_url(url);
     }
 
@@ -9431,11 +9431,13 @@ int _gtk_loop(void *p)
 #if defined(TMS_BACKEND_LINUX) && defined(DEBUG) && defined(VALGRIND_NO_UI)
     if (RUNNING_ON_VALGRIND) return T_OK;
 #endif
-
+    
 #if !GLIB_CHECK_VERSION(2, 31, 0)
     g_thread_init(0);
 #endif
-    gdk_threads_init();
+    // This causes Principia to freeze on Windows when opening dialogs. Removing it
+    // fixes it, though I don't know how good of an idea that is. (No side effects at least)
+    //gdk_threads_init();
 
     gtk_init(0,0);
 
@@ -11907,14 +11909,14 @@ int _gtk_loop(void *p)
         g_signal_connect(login_btn_cancel, "button-release-event",
                 G_CALLBACK(on_login_btn_click), 0);
 
-        /* Forgot password button */
-        login_btn_forgot_password = GTK_BUTTON(gtk_button_new_with_label("Forgot password"));
-        g_signal_connect(login_btn_forgot_password, "button-release-event",
+        /* Register button */
+        login_btn_register = GTK_BUTTON(gtk_button_new_with_label("Register"));
+        g_signal_connect(login_btn_register, "button-release-event",
                 G_CALLBACK(on_login_btn_click), 0);
 
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(login_btn_log_in));
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(login_btn_cancel));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(login_btn_forgot_password));
+        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(login_btn_register));
 
         /* Status label */
         login_status = GTK_LABEL(gtk_label_new(0));

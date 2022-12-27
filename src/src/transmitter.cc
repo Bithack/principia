@@ -60,8 +60,6 @@ transmitter::transmitter(int _is_broadcaster)
     this->s_in[1].lpos = b2Vec2(.125f, -.25f);
 
     this->s_in[0].tag = SOCK_TAG_VALUE;
-    this->s_in[0].set_description("The signal to transmit");
-    this->s_in[1].set_description("Frequency shift");
 
     this->set_as_rect(.25f, .375f);
 

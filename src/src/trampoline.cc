@@ -55,10 +55,6 @@ trampoline::trampoline()
     this->s_out[0].ctype = CABLE_RED;
     this->s_out[0].lpos = b2Vec2(.25f, 0.f);
 
-    this->s_in[0].set_description("Voltage");
-    this->s_in[1].set_description("On/off control (if voltage connected)");
-    this->s_out[0].set_description("Displacement feedback");
-
     tmat4_load_identity(this->M);
     tmat3_load_identity(this->N);
 }

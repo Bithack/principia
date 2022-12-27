@@ -72,9 +72,10 @@ Install dependencies. For Debian-based distros:
 
 For Arch-based distros:
 
-	$ sudo pacman -S gtk2 curl freetype libpng libjpeg sdl2 sdl2_gfx sdl2_image-devel sdl2_mixer sdl2_ttf
+	$ sudo pacman -S gtk2 curl freetype2 libpng libjpeg sdl2 sdl2_gfx sdl2_image sdl2_mixer sdl2_ttf
 
 For Fedora:
+
 	$ sudo dnf groupinstall "Development Tools"
 	$ sudo dnf install automake freetype-devel libpng-devel libjpeg-turbo-devel gtk2-devel ncurses-devel SDL2-devel SDL2_image-devel SDL2_gfx-devel SDL2_ttf-devel SDL2_mixer-devel valgrind-devel libXxf86vm-devel alsa-lib-devel systemd-devel gprof2dot
 

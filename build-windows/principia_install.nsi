@@ -32,8 +32,8 @@ FunctionEnd
 !define MUI_ABORTWARNING
 !define MUI_UNABORTWARNING
 
-!define MUI_WELCOMEFINISHPAGE_BITMAP "welcome.bmp"
-!define MUI_UNWELCOMEFINISHPAGE_BITMAP "unwelcome.bmp"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "installer\welcome.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "installer\unwelcome.bmp"
 
 !define MUI_FINISHPAGE_RUN "$INSTDIR/principia.exe"
 !define MUI_FINISHPAGE_RUN_TEXT "Run Principia"

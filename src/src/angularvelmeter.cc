@@ -16,8 +16,6 @@ angularvelmeter::angularvelmeter()
 {
     this->s_out[0].tag = SOCK_TAG_NONE;
     this->s_out[1].tag = SOCK_TAG_NONE;
-    this->s_out[0].set_description("CCW Velocity");
-    this->s_out[1].set_description("CW Velocity");
 }
 
 edevice*

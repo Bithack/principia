@@ -9,7 +9,6 @@ resistor::resistor()
     this->s_in[0].ctype = CABLE_BLACK;
     this->s_out[0].ctype = CABLE_BLACK;
 
-    this->s_in[1].set_description("Resistance");
     this->s_in[1].tag = SOCK_TAG_MULTIPLIER;
 
     if (W->level.version < LEVEL_VERSION_1_2_3) {

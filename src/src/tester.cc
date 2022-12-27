@@ -17,8 +17,6 @@ tester::tester()
     this->s_in[0].lpos = b2Vec2(-.125f, -.35f);
     this->s_out[0].lpos = b2Vec2(.125f, -.35f);
 
-    this->s_out[0].set_description("Unmodified value of IN0");
-
     this->set_num_properties(1);
     this->properties[0].type = P_INT;
     this->properties[0].v.i  = 1;
