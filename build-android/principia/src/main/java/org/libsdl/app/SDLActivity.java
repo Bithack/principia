@@ -213,13 +213,16 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
 
     public void enableImmersiveMode()
     {
+        /// XXX: Immersive/fullscreen mode makes it difficult to use the sandbox menu drawer and causes some graphical
+        /// glitches, comment this out for now (should probably be a toggle)
+        /*
         WindowCompat.setDecorFitsSystemWindows(mSingleton.getWindow(), true);
         WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(mSingleton.getWindow(), mSingleton.getWindow().getDecorView());
 
         if (controller != null) {
             controller.hide(WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.navigationBars());
             controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-        }
+        }*/
     }
 
     @Override
@@ -1069,7 +1072,7 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
         SDLActivity.mSingleton.runOnUiThread(new Runnable(){
             public void run() {
                 /* hack to prevent killing of immersive mode */
-                mSingleton.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+                //mSingleton.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
 
                 new AlertDialog.Builder(mSingleton.getContext())
                     .setMessage(text)
@@ -1081,8 +1084,8 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
                     .setIcon(android.R.drawable.ic_dialog_info)
                     .show();
 
-                mSingleton.getWindow().getDecorView().setSystemUiVisibility(mSingleton.getWindow().getDecorView().getSystemUiVisibility());
-                mSingleton.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+                //mSingleton.getWindow().getDecorView().setSystemUiVisibility(mSingleton.getWindow().getDecorView().getSystemUiVisibility());
+                //mSingleton.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
             }
         });
     }
