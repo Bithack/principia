@@ -311,7 +311,7 @@ void P_focus(int focus);
 #ifdef __cplusplus
 extern "C" {
 #endif
-void P_get_cookie_data(char **u, char **k, char **sid, char **l);
+void P_get_cookie_data(char **token);
 #ifdef __cplusplus
 }
 #endif

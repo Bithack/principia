@@ -940,13 +940,10 @@ Java_org_libsdl_app_PrincipiaBackend_getCommunityHost(JNIEnv *env, jclass jcls)
 extern "C" jstring
 Java_org_libsdl_app_PrincipiaBackend_getCookies(JNIEnv *env, jclass jcls)
 {
-    char *u, *k, *sid, *l;
-    P_get_cookie_data(&u, &k, &sid, &l);
+    char *token;
+    P_get_cookie_data(&token);
 
-    char data[512];
-    snprintf(data, 511, "%s/%s/%s", u ? u : "1", k ? k : "", sid ? sid : "");
-
-    return env->NewStringUTF(data);
+    return env->NewStringUTF(token);
 }
 
 extern "C" void
