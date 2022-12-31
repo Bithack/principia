@@ -4184,13 +4184,14 @@ principia::get_light_normal()
 #undef LIGHT_NORMAL_Z
 }
 
+/**
+ * Get the community site login token from cURL, intended for the user to be automatically
+ * logged into the Android webview.
+*/
 extern "C" void
-P_get_cookie_data(char **u, char **k, char **sid, char **l)
+P_get_cookie_data(char **token)
 {
-    *u = 0;
-    *k = 0;
-    *sid = 0;
-    *l = 0;
+    *token = 0;
 
     if (quitting) {
         return;
@@ -4212,32 +4213,16 @@ P_get_cookie_data(char **u, char **k, char **sid, char **l)
 
             while (cookies) {
                 int nt = 0;
-                int found_u = 0;
-                int found_k = 0;
-                int found_sid = 0;
-                int found_l = 0;
+                int found_token = 0;
                 char *d = cookies->data;
                 tms_debugf("cookie: %s", d);
                 while (*d != '\0') {
                     if (nt == 5) {
-                        if (strncmp(d, "phpbb_ziao2_u", 13) == 0) {
-                            found_u = 1;
-                        }
-                        if (strncmp(d, "phpbb_ziao2_k", 13) == 0) {
-                            found_k = 1;
-                        }
-                        if (strncmp(d, "phpbb_ziao2_sid", 15) == 0) {
-                            found_sid = 1;
-                        }
-                        if (strncmp(d, "z2lia7e", 7) == 0) {
-                            found_l = 1;
-                        }
+                        if (strncmp(d, "_PRINCSECURITY", 14) == 0)
+                            found_token = 1;
                     }
                     if (nt == 6) {
-                        if (found_u) *u = d;
-                        if (found_sid) *sid = d;
-                        if (found_k) *k = d;
-                        if (found_l) *l = d;
+                        if (found_token) *token = d;
                         break;
                     }
                     if (*d == '\t') nt++;

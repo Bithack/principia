@@ -709,37 +709,11 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
             public void run() {
                 String community_host = PrincipiaBackend.getCommunityHost();
                 if (SDLActivity.wv_cm != null) {
-                    String cookie_data = SDLActivity.wv_cm.getCookie("."+community_host);
-                    if (cookie_data != null) {
-                        String[] prev_cookies = cookie_data.split("; ");
-                        int uid = 1;
-                        for (String pc : prev_cookies) {
-                            String[] data = pc.split("=");
-                            if (data[0].startsWith("phpbb_") && data[0].endsWith("_u")) {
-                                try {
-                                    uid = Integer.parseInt(data[1]);
-                                } catch (Exception e) { }
-                            }
-                        }
+                    String curl_token = PrincipiaBackend.getCookies();
 
-                        // not logged in with webview already, fetch cookies from curl!
-                        if (uid <= 1) {
-                            String[] cd = PrincipiaBackend.getCookies().split("/");
-                            int u = 1;
-                            String k = null, sid = null;
-                            try {
-                                u = Integer.parseInt(cd[0]);
-                                k = cd[1];
-                                sid = cd[2];
-                            } catch (Exception e) { }
-
-                            if (u != 1 && u != 0 && k != null && sid != null) {
-                                // we got relevant cookies from curl!
-                                SDLActivity.wv_cm.setCookie("."+community_host, "phpbb_ziao2_u="+u);
-                                SDLActivity.wv_cm.setCookie("."+community_host, "phpbb_ziao2_k="+k);
-                                SDLActivity.wv_cm.setCookie("."+community_host, "phpbb_ziao2_sid="+sid);
-                            }
-                        }
+                    if (curl_token != null) {
+                        // we got relevant cookies from curl!
+                        SDLActivity.wv_cm.setCookie("."+community_host, "_PRINCSECURITY="+curl_token);
                     }
                 }
 
