@@ -1864,11 +1864,17 @@ _parse_headers(void *buffer, size_t size, size_t nmemb, void *data)
             }
         }
 
-        if (strcmp(buf, "x-principia-user-id") == 0) {
+        // Both lower case and title case, former is for HTTP/2, latter is
+        // for HTTP/1.1, which Android currently uses as cURL isn't built
+        // with nghttp2 (gah, TODO!)
+        if (strcmp(buf, "x-principia-user-id") == 0
+         || strcmp(buf, "x-Principia-User-Id") == 0) {
             P.user_id = atoi(v);
-        } else if (strcmp(buf, "x-principia-user-name") == 0) {
+        } else if (strcmp(buf, "x-principia-user-name") == 0
+                || strcmp(buf, "X-Principia-User-Name") == 0) {
             P.username = strdup(v);
-        } else if (strcmp(buf, "x-principia-unread") == 0) {
+        } else if (strcmp(buf, "x-principia-unread") == 0
+                || strcmp(buf, "X-Principia-Unread") == 0) {
             P.num_unread_messages = atoi(v);
         }
     }
