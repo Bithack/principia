@@ -31,9 +31,15 @@
 
         <CheckBox
             android:id="@+id/sfx_global"
-            android:layout_width="134dp"
-            android:layout_height="51dp"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
             android:text="@string/global_sound" />
+
+        <CheckBox
+            android:id="@+id/sfx_loop"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/loop" />
 
     </LinearLayout>
 

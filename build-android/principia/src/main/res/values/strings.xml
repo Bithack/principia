@@ -348,4 +348,5 @@
     <string name="dec_zero">0.0</string>
     <string name="amount">Amount</string>
     <string name="vendor">Vendor</string>
+    <string name="loop">Loop</string>
 </resources>

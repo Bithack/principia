@@ -45,6 +45,7 @@ import com.bithack.principia.shared.SaveAsDialog;
 import com.bithack.principia.shared.ScriptDialog;
 import com.bithack.principia.shared.SequencerDialog;
 import com.bithack.principia.shared.SettingsDialog;
+import com.bithack.principia.shared.Sfx2Dialog;
 import com.bithack.principia.shared.SfxDialog;
 import com.bithack.principia.shared.ShapeExtruderDialog;
 import com.bithack.principia.shared.PolygonDialog;
@@ -996,6 +997,7 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
     public static final int DIALOG_EMITTER          = 159;
     public static final int DIALOG_TREASURE_CHEST   = 160;
     public static final int DIALOG_DECORATION       = 161;
+    public static final int DIALOG_SFX_EMITTER_2    = 162; // New SFX Emitter dialog (1.5.1+)
 
     public static final int DIALOG_PUBLISH          = 300;
     public static final int DIALOG_LOGIN            = 301;
@@ -1225,6 +1227,7 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
         case DIALOG_PROMPT_SETTINGS:    d = PromptSettingsDialog.get_dialog(); break;
         case DIALOG_PROMPT:             d = (new PromptDialog()).get_dialog(); break;
         case DIALOG_SFX_EMITTER:        d = SfxDialog.get_dialog(); break;
+        case DIALOG_SFX_EMITTER_2:      d = Sfx2Dialog.get_dialog(); break;
         case DIALOG_VARIABLE:           d = VariableDialog.get_dialog(); break;
         case DIALOG_SYNTHESIZER:        d = SynthesizerDialog.get_dialog(); break;
         case DIALOG_SEQUENCER:          d = SequencerDialog.get_dialog(); break;
@@ -1413,6 +1416,7 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
             case DIALOG_TIMER:              TimerDialog.prepare(dialog); break;
             case DIALOG_PROMPT_SETTINGS:    PromptSettingsDialog.prepare(dialog); break;
             case DIALOG_SFX_EMITTER:        SfxDialog.prepare(dialog); break;
+            case DIALOG_SFX_EMITTER_2:      Sfx2Dialog.prepare(dialog); break;
             case DIALOG_VARIABLE:           VariableDialog.prepare(dialog); break;
             case DIALOG_SYNTHESIZER:        SynthesizerDialog.prepare(dialog); break;
             case DIALOG_SEQUENCER:          SequencerDialog.prepare(dialog); break;
