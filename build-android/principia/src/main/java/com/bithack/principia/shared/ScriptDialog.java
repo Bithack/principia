@@ -46,7 +46,7 @@ public class ScriptDialog {
             items.add("Listen on input");
 
             view = LayoutInflater.from(PrincipiaActivity.mSingleton).inflate(R.layout.script, null);
-            _dialog = new Dialog(PrincipiaActivity.getContext(), R.style.CodeDialog) {
+            _dialog = new Dialog(PrincipiaActivity.getContext(), android.R.style.Theme_NoTitleBar_Fullscreen) {
                 @Override
                 protected void onCreate(Bundle saved_instance) {
                     super.onCreate(saved_instance);
