@@ -174,8 +174,7 @@ enum {
 #define PLATFORM_ANDROID    4
 #define PLATFORM_IOS        5
 
-#define ERROR_ACTION_LOG_IN                 1
-#define ERROR_ACTION_OUT_OF_DOWNLOAD_TOKENS 2
+#define ERROR_ACTION_LOG_IN 1
 
 struct action {
     int id;

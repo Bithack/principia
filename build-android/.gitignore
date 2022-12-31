@@ -6,3 +6,4 @@ obj/
 BuildConfig.java
 bin
 debug
+.idea
