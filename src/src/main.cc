@@ -2205,10 +2205,6 @@ _download_level(void *p)
                     case ERROR_ACTION_LOG_IN:
                         require_login = true;
                         break;
-
-                    case ERROR_ACTION_OUT_OF_DOWNLOAD_TOKENS:
-                        ui::open_dialog(DIALOG_OUT_OF_TOKENS);
-                        break;
                 }
 
                 _play_downloading_error = 1;

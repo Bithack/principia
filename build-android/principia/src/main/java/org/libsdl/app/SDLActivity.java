@@ -913,9 +913,6 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
     public static final int ACTION_SET_MODE = 39;
     public static final int ACTION_MAIN_MENU_PKG = 40;
     public static final int ACTION_WORLD_PAUSE = 41;
-    public static final int ACTION_VERSION_CHECK = 42;
-    public static final int ACTION_LICENSE_CHECK = 43;
-    public static final int ACTION_LICENSE_CHECK_OFFLINE = 44;
     public static final int ACTION_CONSTRUCT_ITEM = 45;
     public static final int ACTION_SUBMIT_SCORE = 46;
     public static final int ACTION_MULTI_DELETE = 47;
@@ -982,9 +979,6 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
     public static final int DIALOG_RUBBER           = 144;
 
     public static final int DIALOG_MAIN_MENU_PKG    = 145;
-
-    public static final int DIALOG_INVALID_LICENSE  = 146;
-    public static final int DIALOG_OUT_OF_TOKENS    = 147;
 
     public static final int DIALOG_SOUNDMAN         = 148;
 
