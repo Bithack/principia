@@ -215,25 +215,31 @@ pscreen::handle_input(tms::event *ev, int action)
                             ui::message("FPS Display mode: Real FPS graph");
                             break;
                     }
-
+                } else {
+                    if (settings["render_gui"]->is_true()) {
+                        ui::message("GUI: Hidden");
+                        settings["render_gui"]->set(false);
+                    } else {
+                        ui::message("GUI: Shown");
+                        settings["render_gui"]->set(true);
+                    }
+                    this->refresh_widgets();
                 }
                 break;
 
             case TMS_KEY_F3:
-                {
-                    if (ev->data.key.mod & TMS_MOD_SHIFT) {
-                        static int snd_counter = 0;
+                if (ev->data.key.mod & TMS_MOD_SHIFT) {
+                    static int snd_counter = 0;
 
-                        int snd_id = snd_counter % SND__NUM;
+                    int snd_id = snd_counter % SND__NUM;
 
-                        sm_sound *snd = sm::get_sound_by_id(snd_id);
+                    sm_sound *snd = sm::get_sound_by_id(snd_id);
 
-                        sm::play(snd, 0, 0, rand(), 1.f, false, 0, true);
+                    sm::play(snd, 0, 0, rand(), 1.f, false, 0, true);
 
-                        ui::messagef("Played sound: %s", snd->name);
+                    ui::messagef("Played sound: %s", snd->name);
 
-                        ++ snd_counter;
-                    }
+                    ++ snd_counter;
                 }
                 break;
         }
