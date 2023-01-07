@@ -4,9 +4,11 @@ configure
 autom4te.cache
 depcomp
 Makefile
+principia_ss
 principia
 ss-*.png
 principia.error
 config.sh
 COPYING
 INSTALL
+compile

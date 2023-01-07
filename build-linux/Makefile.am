@@ -1,4 +1,4 @@
-bin_PROGRAMS = apparatus2
+bin_PROGRAMS = principia
 
 GLOBAL_FLAGS := -DGL_GLEXT_PROTOTYPES \
 				-DTMS_BACKEND_LINUX \
@@ -23,15 +23,15 @@ GLOBAL_FLAGS += -I../src/tms/backends/linux/ \
 				${GTK_CFLAGS} \
 				-I../src/lua/src/
 
-apparatus2_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99 -DFT2_BUILD_LIBRARY\
+principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99 -DFT2_BUILD_LIBRARY\
 	-DLOAD_JPG -DLOAD_PNG -DLOAD_BMP -DLOAD_GIF -DLOAD_LBM \
 	-DLOAD_PCX -DLOAD_PNM -DLOAD_TGA -DLOAD_XCF -DLOAD_XPM \
 	-DLOAD_XV
-apparatus2_CXXFLAGS = ${GLOBAL_FLAGS}
-apparatus2_LDADD = -lz -ldl -lGL -lpthread -lX11 -lXi -lrt ${GTK_LIBS} -lcurl -ljpeg -lpng -lfreetype ${SDL2_LIBS} ${SDL2_TTF_LIBS} ${SDL2_GFX_LIBS} ${SDL2_IMAGE_LIBS} ${SDL2_MIXER_LIBS}
-apparatus2_LDFLAGS = 
+principia_CXXFLAGS = ${GLOBAL_FLAGS}
+principia_LDADD = -lz -ldl -lGL -lpthread -lX11 -lXi -lrt ${GTK_LIBS} -lcurl -ljpeg -lpng -lfreetype ${SDL2_LIBS} ${SDL2_TTF_LIBS} ${SDL2_GFX_LIBS} ${SDL2_IMAGE_LIBS} ${SDL2_MIXER_LIBS}
+principia_LDFLAGS = 
 
-apparatus2_SOURCES = \
+principia_SOURCES = \
 ../src/tms/core/atlas.c \
 ../src/tms/core/backend.c \
 ../src/tms/core/batch3d.c \
@@ -359,5 +359,3 @@ apparatus2_SOURCES = \
 ../src/src/Box2D/Dynamics/Joints/b2RopeJoint.cc \
 ../src/src/Box2D/Dynamics/Joints/b2WeldJoint.cc \
 ../src/src/Box2D/Dynamics/Joints/b2WheelJoint.cc
-
-

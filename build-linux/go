@@ -143,15 +143,15 @@ if [ "$run" -eq "1" ]; then
 
     if [ "$debug" -eq "3" ]; then # -c
         rm callgrind.* &> /dev/null
-        valgrind --tool=callgrind -v --dump-every-bb=10000000 ./apparatus2
+        valgrind --tool=callgrind -v --dump-every-bb=10000000 ./principia
     elif [ "$debug" -eq "2" ]; then # -v
-        valgrind --suppressions=./valgrind.supp --tool=memcheck --leak-check=no --show-reachable=yes --num-callers=20 --track-fds=yes --track-origins=yes ./apparatus2
-        #valgrind --gen-suppressions=all --leak-check=no --show-possibly-lost=no --leak-resolution=low --smc-check=none --track-origins=yes ./apparatus2
+        valgrind --suppressions=./valgrind.supp --tool=memcheck --leak-check=no --show-reachable=yes --num-callers=20 --track-fds=yes --track-origins=yes ./principia
+        #valgrind --gen-suppressions=all --leak-check=no --show-possibly-lost=no --leak-resolution=low --smc-check=none --track-origins=yes ./principia
     elif [ "$debug" -eq "4" ]; then # --leak
-        valgrind --suppressions=./valgrind.supp --tool=memcheck --leak-check=full --show-possibly-lost=yes --track-origins=yes ./apparatus2
+        valgrind --suppressions=./valgrind.supp --tool=memcheck --leak-check=full --show-possibly-lost=yes --track-origins=yes ./principia
     elif [ "$debug" -eq "1" ]; then
-        gdb -ex run -ex quit ./apparatus2
+        gdb -ex run -ex quit ./principia
     else
-        ./apparatus2
+        ./principia
     fi
 fi
