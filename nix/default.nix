@@ -71,10 +71,6 @@ stdenv.mkDerivation {
     xorg.libXdmcp
   ];
 
-  patches = [
-    ./shell-script.patch 
-  ];
-
   preConfigure = ''
     for p in $SDL2_PATH; do
       NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -isystem $p"
