@@ -25,7 +25,7 @@ DEBUGFLAGS_LD="-rdynamic $EXTRA_DEBUGFLAGS_LD"
 
 RELEASE_SHARED="-ffast-math -DNDEBUG=1 -s -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections"
 
-RELEASEFLAGS_CC="$RELEASE_SHARED $EXTRA_RELEASEFLAGS_CC"
+RELEASEFLAGS_CC="$RELEASE_SHARED -O1 $EXTRA_RELEASEFLAGS_CC"
 RELEASEFLAGS_CXX="$RELEASE_SHARED -O2 -fvisibility-inlines-hidden -fno-rtti $EXTRA_RELEASEFLAGS_CXX"
 RELEASEFLAGS_LD="-Wl,-O,-s,--gc-sections $EXTRA_RELEASEFLAGS_LD"
 
