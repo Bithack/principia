@@ -8058,9 +8058,7 @@ game::handle_input_paused(tms::event *ev, int action)
 
                     ui::open_dialog(DIALOG_NEW_LEVEL);
                 } else {
-                    if (this->selection.e) {
-                        this->selection.e->set_scale(this->selection.e->get_scale() + 0.1f);
-                    }
+                    G->toggle_entity_lock(G->selection.e);
                 }
                 break;
 
