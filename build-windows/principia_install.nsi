@@ -77,7 +77,6 @@ Section "Core Files (required)" SecCore
   File /r /x *.sw* "..\data-shared\bg"
   File /r /x *.sw* "..\data-shared\fonts"
   File /r /x *.sw* "..\data-shared\icons"
-  File /r /x *.sw* "..\data-shared\lang"
   File /r /x *.sw* "..\data-shared\lvl"
   File /r /x *.sw* "..\data-shared\models"
   File /r /x *.sw* "..\data-shared\pkg"
