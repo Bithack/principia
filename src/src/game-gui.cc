@@ -521,9 +521,16 @@ game::info_btn_pressed(entity *e)
     e = e->get_property_entity();
 
     tms_debugf("Opening help dialog for %d:%s", e->g_id, e->get_name());
-    ui::open_help_dialog(of::get_object_name(e),
-            of::get_object_description(e)
-        );
+
+    char wikiurl[256];
+
+    if (e->is_item()) {
+        item *i = static_cast<item*>(e);
+        snprintf(wikiurl, 255, "https://principia-web.se/wiki/Special:GotoItem?id=%d", i->get_item_type());
+    } else
+        snprintf(wikiurl, 255, "https://principia-web.se/wiki/Special:GotoObject?id=%d", e->g_id);
+
+    ui::open_url(wikiurl);
 }
 
 void
@@ -1465,9 +1472,9 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                 robot_parts::tool *t = adventure::player->get_tool();
 
                 if (t) {
-                    ui::open_help_dialog(of::get_item_name(t->get_item_id()),
-                            of::get_item_description(t->get_item_id())
-                            );
+                    char wikiurl[256];
+                    snprintf(wikiurl, 255, "https://principia-web.se/wiki/Special:GotoItem?id=%d", t->get_item_id());
+                    ui::open_url(wikiurl);
                 }
             }
             return true;
