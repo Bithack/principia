@@ -858,15 +858,11 @@ gui_spritesheet::init()
     t_player_death = new p_text(font::xlarge);
     t_submit_score = new p_text(font::large);
 
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
     t_test_playing_back->set_text("Test-playing level. Press B to return to sandbox.");
-#else
-    t_test_playing_back->set_text("Test-playing level. Press Back to return to sandbox.");
-#endif
-
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
     t_get_ready->set_text("CLICK TO BEGIN");
 #else
+    t_test_playing_back->set_text("Test-playing level. Press Back to return to sandbox.");
     t_get_ready->set_text("TOUCH TO BEGIN");
 #endif
 

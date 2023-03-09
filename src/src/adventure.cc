@@ -683,7 +683,7 @@ adventure::step()
             }
         }
 
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
         if (settings["control_type"]->v.u8 == 1) {
             tvec3 o;
             W->get_layer_point(G->cam, adventure::last_mouse_x, adventure::last_mouse_y, 0, &o);

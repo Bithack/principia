@@ -54,15 +54,15 @@
 #define MAX_GRAVITY 75.f
 
 static const char *tips[] = {
-#if defined TMS_BACKEND_ANDROID || defined TMS_BACKEND_IOS
-"Double-tap"
-#else
+#ifdef TMS_BACKEND_PC
 "Double-click"
+#else
+"Double-tap"
 #endif
 " and drag from an electronic object to another electronic object to"
 " automatically create and add an appropriate cable between them.",
 
-#if defined TMS_BACKEND_LINUX || defined TMS_BACKEND_WINDOWS
+#ifdef TMS_BACKEND_PC
 "Press space to quickadd objects by typing parts of their name. For example, press space, type 'cy' and press Enter to add a cylinder. Double-press space to add the last added object.",
 #else
 //"Use the quickadd button to quickly add your most commonly used objects and search for objects by name",

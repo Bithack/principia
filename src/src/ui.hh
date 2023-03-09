@@ -286,7 +286,7 @@ extern "C" {
 }
 #endif
 
-#if (defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)) && !defined(NO_UI)
+#if defined(TMS_BACKEND_PC) && !defined(NO_UI)
 extern int prompt_is_open;
 #endif
 

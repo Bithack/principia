@@ -1251,7 +1251,7 @@ game::init_framebuffers()
         this->bloom_fb = 0;
     }
 
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
     if (settings["postprocess"]->v.b) {
         //this->main_fb = tms_fb_alloc(_tms.window_width/2., _tms.window_height/2., 0);
         tms_progressf("+");
@@ -1467,7 +1467,7 @@ game::pause()
     sm::stop_all();
     ui::open_dialog(CLOSE_ABSOLUTELY_ALL_DIALOGS);
 
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
     SDL_SetWindowGrab((SDL_Window*)_tms._window, SDL_FALSE);
 #endif
 
@@ -3045,7 +3045,7 @@ game::render()
             tms_fb_swap_blur3x3(tms_pipeline_get_framebuffer(3));
         }
     }
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
     if (settings["postprocess"]->v.b) {
         //tms_assertf(glGetError() == 0, "error before main fb bind");
         tms_fb_bind(this->main_fb);
@@ -3197,7 +3197,7 @@ game::render()
     tms_ddraw_set_matrices(this->dd, this->cam->view, this->cam->projection);
     //tms_ddraw_line3d(this->dd, 0, 0, 0, this->light.x*2.f, this->light.y*2.f, this->light.z*2.f);
 
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
     if (settings["postprocess"]->v.b) {
         tms_fb_unbind(this->main_fb);
         glDisable(GL_DEPTH_TEST);
@@ -6135,7 +6135,7 @@ game::handle_input_playing(tms::event *ev, int action)
                 }
 
                 this->state.waiting = false;
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
                 if (settings["jail_cursor"]->v.b == true) {
                     SDL_SetWindowGrab((SDL_Window*)_tms._window, SDL_TRUE);
                 } else {
@@ -6412,7 +6412,7 @@ game::handle_input_playing(tms::event *ev, int action)
         if (e && e->handle_event(ev->type, pid, tvec2f(ev->data.motion.x, ev->data.motion.y)) == EVENT_DONE)
             return EVENT_DONE;
 
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
         if (pid == 0) {
             this->update_last_cursor_pos(ev->data.motion.x, ev->data.motion.y);
             W->events[WORLD_EVENT_CLICK_DOWN] ++;
@@ -6446,7 +6446,7 @@ game::handle_input_playing(tms::event *ev, int action)
         if (W->level.type == LCAT_ADVENTURE && adventure::player && adventure::is_player_alive()) {
             robot_parts::tool *t = adventure::player->get_tool();
             if (t
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
                     && pid == 0
 #endif
                ) {
@@ -6505,7 +6505,7 @@ game::handle_input_playing(tms::event *ev, int action)
         if (W->level.type == LCAT_ADVENTURE && adventure::player && adventure::is_player_alive()) {
             robot_parts::tool *t = adventure::player->get_tool();
             if (t
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
                     && pid == 0
 #endif
                ) {
@@ -6772,7 +6772,7 @@ game::handle_input_playing(tms::event *ev, int action)
                 return EVENT_DONE;
         }
 
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
         if (pid == 0) {
             this->update_last_cursor_pos(ev->data.motion.x, ev->data.motion.y);
             W->events[WORLD_EVENT_CLICK_UP] ++;
@@ -6793,7 +6793,7 @@ game::handle_input_playing(tms::event *ev, int action)
         if (W->level.type == LCAT_ADVENTURE && adventure::player && adventure::is_player_alive()) {
             robot_parts::tool *t = adventure::player->get_tool();
             if (t
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
                     && pid == 0
 #endif
                ) {
@@ -8611,7 +8611,7 @@ game::handle_input_paused(tms::event *ev, int action)
 #endif
                     && (_tms.last_time - touch_time[pid] > DRAG_TIME_EPS
                         || td_mag > DRAG_DIST_EPS)
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
                     && pid == 0
 #endif
                     ) {
@@ -8654,7 +8654,7 @@ game::handle_input_paused(tms::event *ev, int action)
             }
 
             if (dragging[pid]
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
                     || pid == 2 /* middle mouse button */
 #endif
                     ) {
@@ -9165,7 +9165,7 @@ game::handle_input_paused(tms::event *ev, int action)
             }
         }
 
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
         if (pid == 1) {
             ui::open_dialog(DIALOG_SANDBOX_MENU);
             return T_OK;
@@ -10609,7 +10609,7 @@ game::editor_construct_entity(uint32_t g_id, int pid/*=0*/, bool force_on_pid/*=
     }
 
     tvec3 pos;
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
     int mx, my;
     SDL_GetMouseState(&mx, &my);
     W->get_layer_point(this->cam, mx, _tms.window_height-my, 0.f, &pos);
@@ -10742,7 +10742,7 @@ game::editor_construct_item(uint32_t item_id)
         return 0;
 
     tvec3 pos;
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
     int mx, my;
     SDL_GetMouseState(&mx, &my);
     W->get_layer_point(this->cam, mx, _tms.window_height-my, 0.f, &pos);
@@ -10799,7 +10799,7 @@ game::editor_construct_decoration(uint32_t decoration_id)
         return 0;
 
     tvec3 pos;
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
     int mx, my;
     SDL_GetMouseState(&mx, &my);
     W->get_layer_point(this->cam, mx, _tms.window_height-my, 0.f, &pos);
@@ -10852,7 +10852,7 @@ game::update_last_cursor_pos(int x, int y)
 void
 game::refresh_last_cursor_pos()
 {
-#if defined TMS_BACKEND_WINDOWS || defined TMS_BACKEND_LINUX
+#ifdef TMS_BACKEND_PC
     SDL_GetMouseState(&this->last_cursor_pos_x, &this->last_cursor_pos_y);
     this->last_cursor_pos_y = _tms.window_height - this->last_cursor_pos_y;
 #endif

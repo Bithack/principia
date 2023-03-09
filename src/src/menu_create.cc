@@ -247,7 +247,7 @@ clicked_within(float x, float y, float x1, float y1, float x2, float y2)
 int
 menu_create::handle_input(tms::event *ev, int action)
 {
-#if (defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)) && !defined(NO_UI)
+#if defined(TMS_BACKEND_PC) && !defined(NO_UI)
     if (ev->type == TMS_EV_POINTER_DOWN) {
         if (!P.focused) {
             if (prompt_is_open) return T_OK;
