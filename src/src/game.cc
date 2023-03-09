@@ -6113,7 +6113,7 @@ game::handle_input_playing(tms::event *ev, int action)
                         case SDL_SCANCODE_AC_BACK:
 #endif
                         case TMS_KEY_B:
-                            this->back();
+                            // this->back();
                             return EVENT_DONE;
                     }
                 }
@@ -8065,7 +8065,9 @@ game::handle_input_paused(tms::event *ev, int action)
 #if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
             case SDL_SCANCODE_AC_BACK:
 #endif
-            case TMS_KEY_B: this->back(); break;
+            case TMS_KEY_B:
+                // this->back();
+                break;
 
             case TMS_KEY_DELETE:
                 if (this->get_mode() == GAME_MODE_MULTISEL) {
