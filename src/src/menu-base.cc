@@ -9,6 +9,7 @@
 #include "main.hh"
 #include "game.hh"
 #include "soundmanager.hh"
+#include "version.hh"
 
 extern struct tms_program *menu_bg_program;
 extern GLuint              menu_bg_color_loc;
@@ -21,8 +22,7 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
 
     switch (button_id) {
         case BTN_VERSION:
-            /* XXX: Add some sort of cooldown to this button? */
-            P.add_action(ACTION_VERSION_CHECK, 0);
+            ui::message("You're running Principia " PRINCIPIA_VERSION_STRING ", built at " __DATE__ " " __TIME__ "!");
             break;
 
         case BTN_USERNAME:
