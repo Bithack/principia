@@ -1681,7 +1681,7 @@ game::init_gui(void)
             GW_PLAYPAUSE, AREA_TOP_LEFT,
             gui_spritesheet::get_sprite(S_PLAY), 0);
     this->wdg_playpause->priority = 1000;
-    this->wdg_playpause->set_tooltip("Play or pause the simulation!");
+    this->wdg_playpause->set_tooltip("Play or pause the simulation! (key binding: P)");
 
     this->wdg_orthographic = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
@@ -1746,7 +1746,7 @@ game::init_gui(void)
             GW_REMOVE, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_CLOSE), 0);
     this->wdg_remove->priority = 900;
-    this->wdg_remove->set_tooltip("Remove object");
+    this->wdg_remove->set_tooltip("Remove object (key binding: Del)");
     this->wdg_remove->marker = true;
     this->wdg_remove->marker_color.r = 1.5f;
 
@@ -1832,7 +1832,7 @@ game::init_gui(void)
             GW_INFO, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_INFO), 0);
     this->wdg_info->priority = 2000;
-    this->wdg_info->set_tooltip("Object help");
+    this->wdg_info->set_tooltip("Object help (key binding: I)");
     this->wdg_info->marker = true;
     this->wdg_info->marker_color.g = 1.5f;
 
@@ -1841,7 +1841,7 @@ game::init_gui(void)
             GW_LAYER_DOWN_CYCLE, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_LAYER0), 0);
     this->wdg_layer->priority = 1800;
-    this->wdg_layer->set_tooltip("Change object layer");
+    this->wdg_layer->set_tooltip("Change object layer (key binding: Z/X)");
 
     this->wdg_layer_down = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
@@ -1862,7 +1862,7 @@ game::init_gui(void)
             GW_TOGGLE_LOCK, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_BTN_LOCK), 0);
     this->wdg_lock->priority = 1700;
-    this->wdg_lock->set_tooltip("Toggle lock");
+    this->wdg_lock->set_tooltip("Toggle lock (key binding: N)");
 
     this->wdg_detach = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
@@ -1903,7 +1903,7 @@ game::init_gui(void)
             GW_CONFIG, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_CONFIG), 0);
     this->wdg_config->priority = 1200;
-    this->wdg_config->set_tooltip("Configure object");
+    this->wdg_config->set_tooltip("Configure object (key binding: Y)");
 
     this->wdg_tracker = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
