@@ -1746,7 +1746,11 @@ game::init_gui(void)
             GW_REMOVE, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_CLOSE), 0);
     this->wdg_remove->priority = 900;
+#ifdef TMS_BACKEND_PC
+    this->wdg_remove->set_tooltip("Remove object (key binding: Delete)");
+#else
     this->wdg_remove->set_tooltip("Remove object");
+#endif
     this->wdg_remove->marker = true;
     this->wdg_remove->marker_color.r = 1.5f;
 
@@ -1841,28 +1845,44 @@ game::init_gui(void)
             GW_LAYER_DOWN_CYCLE, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_LAYER0), 0);
     this->wdg_layer->priority = 1800;
+#ifdef TMS_BACKEND_PC
+    this->wdg_layer->set_tooltip("Change object layer (key binding: Z/X)");
+#else
     this->wdg_layer->set_tooltip("Change object layer");
+#endif
 
     this->wdg_layer_down = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             GW_LAYER_DOWN, AREA_TOP_CENTER,
             gui_spritesheet::get_sprite(S_MINUS), 0);
     this->wdg_layer_down->priority = 1800;
+#ifdef TMS_BACKEND_PC
+    this->wdg_layer_down->set_tooltip("Layer down (key binding: Z)");
+#else
     this->wdg_layer_down->set_tooltip("Layer down");
+#endif
 
     this->wdg_layer_up = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             GW_LAYER_UP, AREA_TOP_CENTER,
             gui_spritesheet::get_sprite(S_PLUS), 0);
     this->wdg_layer_up->priority = 1700;
+#ifdef TMS_BACKEND_PC
+    this->wdg_layer_up->set_tooltip("Layer up (key binding: X)");
+#else
     this->wdg_layer_up->set_tooltip("Layer up");
+#endif
 
     this->wdg_lock = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             GW_TOGGLE_LOCK, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_BTN_LOCK), 0);
     this->wdg_lock->priority = 1700;
+#ifdef TMS_BACKEND_PC
+    this->wdg_lock->set_tooltip("Toggle lock (key binding: N)");
+#else
     this->wdg_lock->set_tooltip("Toggle lock");
+#endif
 
     this->wdg_detach = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
@@ -1903,7 +1923,11 @@ game::init_gui(void)
             GW_CONFIG, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_CONFIG), 0);
     this->wdg_config->priority = 1200;
+#ifdef TMS_BACKEND_PC
+    this->wdg_config->set_tooltip("Configure object (key binding: Y)");
+#else
     this->wdg_config->set_tooltip("Configure object");
+#endif
 
     this->wdg_tracker = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,

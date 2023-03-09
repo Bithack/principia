@@ -220,13 +220,13 @@ menu_main::handle_input(tms::event *ev, int action)
                 this->refresh_widgets();
                 return T_OK;
 
+            case TMS_KEY_V:
+                ui::messagef("Community host: %s", P.community_host);
+                return T_OK;
+
 #ifdef DEBUG
             case TMS_KEY_S:
                 G->create_sandbox_menu();
-                return T_OK;
-
-            case TMS_KEY_V:
-                tms_debugf("Community host: %s. Update URL: %s", P.community_host, UPDATE_URL);
                 return T_OK;
 
             case TMS_KEY_O:

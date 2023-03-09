@@ -6189,6 +6189,7 @@ game::handle_input_playing(tms::event *ev, int action)
                     e->disconnect_all();
 
                     this->post_interact_select(e);
+                    this->refresh_widgets();
                 }
                 break;
 
@@ -7765,7 +7766,12 @@ game::handle_input_paused(tms::event *ev, int action)
                 this->cam->_position.y += (this->shift_down() ? CAM_BIG_JUMP : CAM_NORMAL_JUMP);
                 break;
             case TMS_KEY_S:
-                this->cam->_position.y -= (this->shift_down() ? CAM_BIG_JUMP : CAM_NORMAL_JUMP);
+                if (ev->data.key.mod & TMS_MOD_CTRL) {
+                    // Prevent camera from moving when saving with Ctrl+S
+                } else {
+                    this->cam->_position.y -= (this->shift_down() ? CAM_BIG_JUMP : CAM_NORMAL_JUMP);
+                }
+
                 break;
             case TMS_KEY_V:
 #if defined DEBUG
@@ -7778,18 +7784,12 @@ game::handle_input_paused(tms::event *ev, int action)
 
             case TMS_KEY_MINUS: this->cam->_position.z += 1.f; break;
             case TMS_KEY_EQUALS:this->cam->_position.z -= 1.f; break;
+
             case TMS_KEY_DELETE:
                 if (this->get_mode() == GAME_MODE_DEFAULT) {
                     if (this->selection.e && !this->selection.e->requires_delete_confirmation()) {
                         this->delete_selected_entity();
                     }
-                }
-                break;
-
-            case TMS_KEY_F7:
-                if (ev->data.key.mod & TMS_MOD_CTRL) {
-                    disable_menu = true;
-                    this->select_random_entity();
                 }
                 break;
         }
@@ -7888,12 +7888,6 @@ game::handle_input_paused(tms::event *ev, int action)
                 break;
 #endif
 
-            /* F5: Restore camera postion? */
-            case TMS_KEY_F5:
-                this->cam_rel_pos.x = 0.f;
-                this->cam_rel_pos.y = 0.f;
-                break;
-
             /* I: Show help about selected object */
             case TMS_KEY_I:
                 if (this->selection.e) {
@@ -7947,6 +7941,7 @@ game::handle_input_paused(tms::event *ev, int action)
                     this->selection.e->set_position(old_pos.x, old_pos.y);
                 }
                 break;
+
             case TMS_KEY_RIGHT:
                 if (this->selection.e) {
                     b2Vec2 old_pos = this->selection.e->get_position();
@@ -7996,15 +7991,6 @@ game::handle_input_paused(tms::event *ev, int action)
                 }
                 break;
 
-            /* WASD: Move camera */
-            /* CTRL+S: Save level */
-            /* CTRL+N: Open New Level-dialog */
-            case TMS_KEY_A:     this->cam->_position.x -= 1.f; break;
-            case TMS_KEY_D:     this->cam->_position.x += 1.f; break;
-            case TMS_KEY_W:     this->cam->_position.y += 1.f; break;
-            case TMS_KEY_MINUS: this->cam->_position.z += 1.f; break;
-            case TMS_KEY_EQUALS:this->cam->_position.z -= 1.f; break;
-
             /* Toggle multiselect */
             case TMS_KEY_M:
                 if (this->get_mode() == GAME_MODE_MULTISEL) {
@@ -8018,6 +8004,7 @@ game::handle_input_paused(tms::event *ev, int action)
             case TMS_KEY_T:
                 if (this->selection.e) {
                     this->selection.e->disconnect_all();
+                    this->refresh_widgets();
                 }
 #if 0
                 if (this->state.sandbox && this->selection.e && this->selection.e->flag_active(ENTITY_IS_EDEVICE)) {
@@ -8037,19 +8024,12 @@ game::handle_input_paused(tms::event *ev, int action)
                 if (ev->data.key.mod & TMS_MOD_CTRL) {
                     disable_menu = true;
 
-                    bool ask_for_new_name = false;
+                    bool ask_for_new_name = (W->level.name_len == 0);
 
-                    if (W->level.name_len == 0) {
-                        ask_for_new_name = true;
-                    }
-
-                    if (ask_for_new_name) {
+                    if (ask_for_new_name)
                         ui::open_dialog(DIALOG_SAVE);
-                    } else {
+                    else
                         P.add_action(ACTION_SAVE, 0);
-                    }
-                } else {
-                    this->cam->_position.y -= 1.f;
                 }
                 break;
             case TMS_KEY_N:
@@ -8059,6 +8039,7 @@ game::handle_input_paused(tms::event *ev, int action)
                     ui::open_dialog(DIALOG_NEW_LEVEL);
                 } else {
                     G->toggle_entity_lock(G->selection.e);
+                    this->refresh_widgets();
                 }
                 break;
 
@@ -8079,9 +8060,8 @@ game::handle_input_paused(tms::event *ev, int action)
                         ui::confirm("Are you sure you want to delete this object?",
                                 "Yes",  ACTION_DELETE_SELECTION,
                                 "No",   ACTION_IGNORE);
-                    } else {
+                    } else
                         this->delete_selected_entity();
-                    }
                 }
                 break;
 
@@ -8127,7 +8107,6 @@ game::handle_input_paused(tms::event *ev, int action)
                     this->apply_pending_connection(key);
                 }
                 break;
-
 
             case TMS_KEY_PAGEDOWN:
             case TMS_KEY_X:
