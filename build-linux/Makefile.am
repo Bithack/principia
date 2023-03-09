@@ -1,7 +1,7 @@
 bin_PROGRAMS = principia
 
 GLOBAL_FLAGS := -DGL_GLEXT_PROTOTYPES \
-				-DTMS_BACKEND_LINUX \
+			-DTMS_BACKEND_LINUX \
 				-DTMS_BACKEND_PC \
 				-DTMS_FAST_MATH \
 				-DLUA_COMPAT_MODULE \
@@ -19,16 +19,12 @@ GLOBAL_FLAGS += -I../src/tms/backends/linux/ \
 				${SDL2_MIXER_CFLAGS} \
 				-I../src/include/ \
 				-I../src/gtk-undo \
-				-DGLEW_STATIC \
 				${GTK_CFLAGS} \
 				-I../src/lua/src/
 
-principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99 -DFT2_BUILD_LIBRARY\
-	-DLOAD_JPG -DLOAD_PNG -DLOAD_BMP -DLOAD_GIF -DLOAD_LBM \
-	-DLOAD_PCX -DLOAD_PNM -DLOAD_TGA -DLOAD_XCF -DLOAD_XPM \
-	-DLOAD_XV
+principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
 principia_CXXFLAGS = ${GLOBAL_FLAGS}
-principia_LDADD = -lz -ldl -lGL -lpthread -lX11 -lXi -lrt ${GTK_LIBS} -lcurl -ljpeg -lpng -lfreetype ${SDL2_LIBS} ${SDL2_TTF_LIBS} ${SDL2_GFX_LIBS} ${SDL2_IMAGE_LIBS} ${SDL2_MIXER_LIBS}
+principia_LDADD = -lz -ldl -lGL -lGLEW -lpthread -lX11 -lXi -lrt ${GTK_LIBS} -lcurl -ljpeg -lpng -lfreetype ${SDL2_LIBS} ${SDL2_TTF_LIBS} ${SDL2_GFX_LIBS} ${SDL2_IMAGE_LIBS} ${SDL2_MIXER_LIBS}
 principia_LDFLAGS = 
 
 principia_SOURCES = \
@@ -67,7 +63,6 @@ principia_SOURCES = \
 ../src/tms/util/list.c \
 \
 ../src/tms/backends/linux/main.cc \
-../src/GLEW/glew.c \
 ../src/tms/bindings/cpp/cpp.cc \
 ../src/tms/modules/3ds/3ds.c \
 \

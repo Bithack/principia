@@ -67,15 +67,15 @@ For making Windows release builds you would run the `make_release.sh` script, wh
 
 Install dependencies. For Debian-based distros:
 
-	$ sudo apt-get install automake libgtk2.0-dev libgl-dev libxss-dev libxxf86vm-dev libasound2-dev libudev-dev valgrind libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-gfx-dev
+	$ sudo apt-get install automake libgtk2.0-dev libgl-dev libglew-dev libxss-dev libxxf86vm-dev libasound2-dev libudev-dev valgrind libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-gfx-dev
 
 For Arch-based distros:
 
-	$ sudo pacman -S gtk2 curl freetype2 libpng libjpeg sdl2 sdl2_gfx sdl2_image sdl2_mixer sdl2_ttf
+	$ sudo pacman -S glew gtk2 curl freetype2 libpng libjpeg sdl2 sdl2_gfx sdl2_image sdl2_mixer sdl2_ttf
 
 For Fedora:
 
-	$ sudo dnf install @development-tools automake gcc-c++ freetype-devel libcurl-devel libpng-devel libjpeg-turbo-devel gtk2-devel SDL2-devel SDL2_image-devel SDL2_gfx-devel SDL2_ttf-devel SDL2_mixer-devel valgrind-devel libXxf86vm-devel alsa-lib-devel systemd-devel gprof2dot
+	$ sudo dnf install @development-tools automake gcc-c++ freetype-devel libcurl-devel libpng-devel libjpeg-turbo-devel gtk2-devel SDL2-devel SDL2_image-devel SDL2_gfx-devel SDL2_ttf-devel SDL2_mixer-devel valgrind-devel libXxf86vm-devel alsa-lib-devel systemd-devel
 
 For NixOS, Follow the instructions [here](./nix/README.md).
 

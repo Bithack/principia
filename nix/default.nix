@@ -6,6 +6,7 @@
 , curl
 , fribidi
 , freetype
+, glew
 , gtk2
 , libdatrie
 , libGL
@@ -47,6 +48,7 @@ stdenv.mkDerivation {
     alsa-lib
     curl
     fribidi
+    glew
     gtk2
     libdatrie
     libGL

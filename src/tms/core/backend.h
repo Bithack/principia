@@ -1,7 +1,7 @@
 #ifndef _BACKEND__H_
 #define _BACKEND__H_
 
-#if !defined TMS_BACKEND_LINUX && !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_WINDOWS && !defined TMS_BACKEND_IOS
+#if !defined TMS_BACKEND_LINUX && !defined TMS_BACKEND_LINUX_SS && !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_WINDOWS && !defined TMS_BACKEND_IOS
 #error undefined backend, modify your makefile
 #endif
 

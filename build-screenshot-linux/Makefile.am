@@ -1,12 +1,10 @@
 bin_PROGRAMS = principia_ss
 
 GLOBAL_FLAGS := -DGL_GLEXT_PROTOTYPES \
-				-DTMS_BACKEND_LINUX \
 				-DTMS_BACKEND_LINUX_SS \
 				-DTMS_BACKEND_PC \
 				-DTMS_FAST_MATH \
 				-DLUA_COMPAT_MODULE \
-				-DLUASOCKET_INET_PTON \
 				-D__STDC_FORMAT_MACROS=1 \
 				-DSDL_NO_COMPAT \
 				-DUNICODE \
@@ -16,13 +14,9 @@ GLOBAL_FLAGS += -I../src/tms/backends/screenshot-linux/ \
                 -I../src/src/ -I../src/ -I/usr/include/ \
 				-I/usr/include/SDL2/ -I/usr/include/freetype2/ \
 				`curl-config --cflags --libs` \
-				-I../src/lua/src \
-				-I../src/include
+				-I../src/lua/src
 
-principia_ss_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99 -DFT2_BUILD_LIBRARY\
-    -DLOAD_JPG -DLOAD_PNG -DLOAD_BMP -DLOAD_GIF -DLOAD_LBM \
-    -DLOAD_PCX -DLOAD_PNM -DLOAD_TGA -DLOAD_XCF -DLOAD_XPM \
-    -DLOAD_XV
+principia_ss_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
 principia_ss_CXXFLAGS = ${GLOBAL_FLAGS}
 principia_ss_LDFLAGS = -rdynamic
 principia_ss_LDADD = -lz -ldl -lGL -lpthread -lX11 -lXi -ljpeg -lpng -lfreetype -lSDL2 -lSDL2_ttf -lSDL2_mixer -lSDL2_image -lSDL2_gfx
@@ -61,21 +55,6 @@ principia_ss_SOURCES = \
 ../src/lua/src/lvm.c \
 ../src/lua/src/lzio.c \
 ../src/lua/src/eris.c \
-\
-../src/luasocket/src/auxiliar.c \
-../src/luasocket/src/buffer.c \
-../src/luasocket/src/except.c \
-../src/luasocket/src/inet.c \
-../src/luasocket/src/io.c \
-../src/luasocket/src/luasocket.c \
-../src/luasocket/src/mime.c \
-../src/luasocket/src/options.c \
-../src/luasocket/src/select.c \
-../src/luasocket/src/tcp.c \
-../src/luasocket/src/timeout.c \
-../src/luasocket/src/udp.c \
-../src/luasocket/src/usocket.c \
-../src/luasocket/src/unix.c \
 \
 ../src/tms/core/atlas.c \
 ../src/tms/core/backend.c \

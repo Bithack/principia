@@ -39,10 +39,7 @@ GLOBAL_FLAGS += -I../src/tms/backends/windows/ \
 	-I../src/lua/src -I../src/include/
 
 
-principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99 -DFT2_BUILD_LIBRARY\
-    -DLOAD_JPG -DLOAD_PNG -DLOAD_BMP -DLOAD_GIF -DLOAD_LBM \
-    -DLOAD_PCX -DLOAD_PNM -DLOAD_TGA -DLOAD_XCF -DLOAD_XPM \
-    -DLOAD_XV
+principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
 
 principia_CXXFLAGS = ${GLOBAL_FLAGS}
 principia_CPPFLAGS = -static-libgcc -static-libstdc++
