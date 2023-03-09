@@ -13,7 +13,8 @@
 #include <tms/core/event.h>
 #include <tms/core/tms.h>
 
-#include "opengl.h"
+#include <tms/backend/opengl.h>
+
 #include "settings.hh"
 //#include "ui.hh"
 #include "game.hh"
