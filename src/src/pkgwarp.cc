@@ -53,10 +53,6 @@ pkgstatus::pkgstatus()
     this->scaleselect = true;
     this->scalemodifier = 6.5f;
 
-    this->s_out[0].set_description("Percent completed. 1.0 if the level has been completed, otherwise top_score/final_score or 0.0");
-    this->s_out[1].set_description("Unlock status. Returns 1.0 if the level is unlocked according to the package unlock count.");
-    this->s_out[2].set_description("1.0 if this level was the last played level before the current one.");
-
     this->set_num_properties(1);
     this->properties[0].type = P_INT8;
     this->properties[0].v.i8 = 1;

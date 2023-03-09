@@ -9,7 +9,7 @@ debug="0"
 nodebug="0"
 release="0"
 run="1"
-cores="7"
+cores="6"
 do_test="0"
 static_analysis="0"
 
@@ -25,7 +25,7 @@ DEBUGFLAGS_LD="-rdynamic $EXTRA_DEBUGFLAGS_LD"
 
 RELEASE_SHARED="-ffast-math -DNDEBUG=1 -s -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections"
 
-RELEASEFLAGS_CC="$RELEASE_SHARED $EXTRA_RELEASEFLAGS_CC"
+RELEASEFLAGS_CC="$RELEASE_SHARED -O1 $EXTRA_RELEASEFLAGS_CC"
 RELEASEFLAGS_CXX="$RELEASE_SHARED -O2 -fvisibility-inlines-hidden -fno-rtti $EXTRA_RELEASEFLAGS_CXX"
 RELEASEFLAGS_LD="-Wl,-O,-s,--gc-sections $EXTRA_RELEASEFLAGS_LD"
 
@@ -143,15 +143,15 @@ if [ "$run" -eq "1" ]; then
 
     if [ "$debug" -eq "3" ]; then # -c
         rm callgrind.* &> /dev/null
-        valgrind --tool=callgrind -v --dump-every-bb=10000000 ./apparatus2
+        valgrind --tool=callgrind -v --dump-every-bb=10000000 ./principia
     elif [ "$debug" -eq "2" ]; then # -v
-        valgrind --suppressions=./valgrind.supp --tool=memcheck --leak-check=no --show-reachable=yes --num-callers=20 --track-fds=yes --track-origins=yes ./apparatus2
-        #valgrind --gen-suppressions=all --leak-check=no --show-possibly-lost=no --leak-resolution=low --smc-check=none --track-origins=yes ./apparatus2
+        valgrind --suppressions=./valgrind.supp --tool=memcheck --leak-check=no --show-reachable=yes --num-callers=20 --track-fds=yes --track-origins=yes ./principia
+        #valgrind --gen-suppressions=all --leak-check=no --show-possibly-lost=no --leak-resolution=low --smc-check=none --track-origins=yes ./principia
     elif [ "$debug" -eq "4" ]; then # --leak
-        valgrind --suppressions=./valgrind.supp --tool=memcheck --leak-check=full --show-possibly-lost=yes --track-origins=yes ./apparatus2
+        valgrind --suppressions=./valgrind.supp --tool=memcheck --leak-check=full --show-possibly-lost=yes --track-origins=yes ./principia
     elif [ "$debug" -eq "1" ]; then
-        gdb -ex run -ex quit ./apparatus2
+        gdb -ex run -ex quit ./principia
     else
-        ./apparatus2
+        ./principia
     fi
 fi

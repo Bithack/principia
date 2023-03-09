@@ -22,7 +22,6 @@ pointer::pointer()
 
     this->s_in[0].lpos = b2Vec2(.35f, .35f);
     this->s_in[0].ctype = CABLE_RED;
-    this->s_in[0].set_description("Angle");
 
     this->set_uniform("~color", .3f, 0.3f, 0.3f, 1.f);
 

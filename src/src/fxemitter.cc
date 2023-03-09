@@ -22,9 +22,6 @@ fxemitter::fxemitter()
 
     this->menu_scale = 1.0f;
 
-    this->s_in[0].set_description("Activate");
-    this->s_out[0].set_description("Outputs 1 for one tick after its effects have been completed after being activated.");
-
     if (W->level.version < LEVEL_VERSION_1_1_6) {
         this->set_as_rect(.15f, .375f);
     }

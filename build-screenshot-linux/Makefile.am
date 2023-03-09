@@ -1,4 +1,4 @@
-bin_PROGRAMS = principia
+bin_PROGRAMS = principia_ss
 
 GLOBAL_FLAGS := -DGL_GLEXT_PROTOTYPES \
 				-DTMS_BACKEND_LINUX \
@@ -19,15 +19,15 @@ GLOBAL_FLAGS += -I../src/tms/backends/screenshot-linux/ \
 				-I../src/lua/src \
 				-I../src/include
 
-principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99 -DFT2_BUILD_LIBRARY\
+principia_ss_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99 -DFT2_BUILD_LIBRARY\
     -DLOAD_JPG -DLOAD_PNG -DLOAD_BMP -DLOAD_GIF -DLOAD_LBM \
     -DLOAD_PCX -DLOAD_PNM -DLOAD_TGA -DLOAD_XCF -DLOAD_XPM \
     -DLOAD_XV
-principia_CXXFLAGS = ${GLOBAL_FLAGS}
-principia_LDFLAGS = -rdynamic
-principia_LDADD = -lz -ldl -lGL -lpthread -lX11 -lXi -ljpeg -lpng -lfreetype -lSDL2 -lSDL2_ttf -lSDL2_mixer -lSDL2_image -lSDL2_gfx
+principia_ss_CXXFLAGS = ${GLOBAL_FLAGS}
+principia_ss_LDFLAGS = -rdynamic
+principia_ss_LDADD = -lz -ldl -lGL -lpthread -lX11 -lXi -ljpeg -lpng -lfreetype -lSDL2 -lSDL2_ttf -lSDL2_mixer -lSDL2_image -lSDL2_gfx
 
-principia_SOURCES = \
+principia_ss_SOURCES = \
 ../src/lua/src/lapi.c \
 ../src/lua/src/lauxlib.c \
 ../src/lua/src/lbaselib.c \

@@ -3886,7 +3886,7 @@ game::add_error(entity *e, uint8_t error_type/*=ERROR_NONE*/, const char *messag
     if (message) error->message = strdup(message);
     this->errors.insert(error);
 
-    if (!this->wdg_error->surface) {
+    if (!this->wdg_error->surface && settings["render_gui"]->is_true()) {
         this->wdg_error->add();
 
         this->wm->rearrange();
@@ -8058,9 +8058,7 @@ game::handle_input_paused(tms::event *ev, int action)
 
                     ui::open_dialog(DIALOG_NEW_LEVEL);
                 } else {
-                    if (this->selection.e) {
-                        this->selection.e->set_scale(this->selection.e->get_scale() + 0.1f);
-                    }
+                    G->toggle_entity_lock(G->selection.e);
                 }
                 break;
 

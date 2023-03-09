@@ -57,9 +57,6 @@
 
 #define DIALOG_MAIN_MENU_PKG    145
 
-#define DIALOG_INVALID_LICENSE  146
-#define DIALOG_OUT_OF_TOKENS    147
-
 #define DIALOG_SOUNDMAN         148
 #define DIALOG_FACTORY          149
 

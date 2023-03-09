@@ -45,7 +45,6 @@ rocket::rocket(int size)
         this->s_in[0].lpos = b2Vec2(0.f,0.6f);
 
     this->s_in[0].ctype = CABLE_RED;
-    this->s_in[0].set_description("Thrust multiplier");
 
     this->layer_mask = 14; /* sublayer 2, 3, 4 */
 

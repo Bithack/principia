@@ -81,10 +81,34 @@ static const int num_tips = sizeof(tips)/sizeof(char*);
 static int ctip = -1;
 int ui::next_action = ACTION_IGNORE;
 
+void
+ui::message(const char *msg, bool long_duration)
+{
+#ifndef NO_UI
+    pscreen::message->show(msg, long_duration ? 5.0 : 2.5);
+#endif
+}
+
+/* always assume short duration */
+void
+ui::messagef(const char *format, ...)
+{
+    va_list vl;
+    va_start(vl, format);
+
+    char short_msg[256];
+    const size_t sz = vsnprintf(short_msg, sizeof short_msg, format, vl) + 1;
+    if (sz <= sizeof short_msg) {
+        ui::message(short_msg, false);
+    } else {
+        char *long_msg = (char*)malloc(sz);
+        vsnprintf(long_msg, sz, format, vl);
+        ui::message(long_msg, false);
+    }
+}
+
 #if defined(NO_UI)
 int prompt_is_open = 0;
-void ui::message(const char *msg, bool long_duration){};
-void ui::messagef(const char *format, ...){};
 void ui::init(){};
 void ui::open_dialog(int num, void *data/*=0*/){}
 void ui::open_sandbox_tips(){};
@@ -405,18 +429,18 @@ void ui_cb_menu_item_selected(int n)
         case 7: G->back(); break;
     }
 }
-    
+
 void ui_cb_set_robot_dir(int dir)
 {
     robot_base *r = (robot_base*)G->selection.e;
-    
+
     switch (dir) {
         case 0:ui_set_property_uint8(4, 1);r->set_i_dir(DIR_LEFT);break;
         case 1:ui_set_property_uint8(4, 0);r->set_i_dir(0.f);break;
         case 2:ui_set_property_uint8(4, 2);r->set_i_dir(DIR_RIGHT);break;
     }
 }
-    
+
 void ui_cb_reset_variable(const char *var)
 {
     std::map<std::string, float>::size_type num_deleted = W->level_variables.erase(var);
@@ -697,41 +721,8 @@ void ui::open_error_dialog(const char *error_msg){
 
 #include "SDL/src/core/android/SDL_android.h"
 #include <sstream>
-char       msg_str[512];
-#define MSG(x, ...) do{sprintf(msg_str, x, ##__VA_ARGS__); ui::message(msg_str, false);}while(0)
 
 void ui::init(){};
-
-void
-ui::message(const char *msg, bool long_duration){
-    JNIEnv *env = Android_JNI_GetEnv();
-    jclass cls = Android_JNI_GetActivityClass();
-
-    jmethodID mid = env->GetStaticMethodID(cls, "message", "(Ljava/lang/String;I)V");
-
-    if (mid) {
-        jstring str = env->NewStringUTF(msg);
-        env->CallStaticVoidMethod(cls, mid, (jvalue*)str, (jvalue*)(jint)(long_duration?1:0));
-        env->DeleteLocalRef(str);
-    }
-}
-
-void
-ui::messagef(const char *format, ...)
-{
-    va_list vl;
-    va_start(vl, format);
-
-    char short_msg[256];
-    const size_t sz = vsnprintf(short_msg, sizeof short_msg, format, vl) + 1;
-    if (sz <= sizeof short_msg) {
-        ui::message(short_msg, false);
-    } else {
-        char *long_msg = (char*)malloc(sz);
-        vsnprintf(long_msg, sz, format, vl);
-        ui::message(long_msg, false);
-    }
-}
 
 void
 ui::set_next_action(int action_id)
@@ -940,13 +931,10 @@ Java_org_libsdl_app_PrincipiaBackend_getCommunityHost(JNIEnv *env, jclass jcls)
 extern "C" jstring
 Java_org_libsdl_app_PrincipiaBackend_getCookies(JNIEnv *env, jclass jcls)
 {
-    char *u, *k, *sid, *l;
-    P_get_cookie_data(&u, &k, &sid, &l);
+    char *token;
+    P_get_cookie_data(&token);
 
-    char data[512];
-    snprintf(data, 511, "%s/%s/%s", u ? u : "1", k ? k : "", sid ? sid : "");
-
-    return env->NewStringUTF(data);
+    return env->NewStringUTF(token);
 }
 
 extern "C" void
@@ -2358,7 +2346,7 @@ Java_org_libsdl_app_PrincipiaBackend_setFrequency(
 
         G->selection.e->properties[0].v.i = (uint32_t)f;
 
-        MSG("Frequency set to %u", G->selection.e->properties[0].v.i);
+        ui::messagef("Frequency set to %u", G->selection.e->properties[0].v.i);
 
         P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
         P.add_action(ACTION_RESELECT, 0);
@@ -2381,7 +2369,7 @@ Java_org_libsdl_app_PrincipiaBackend_setFrequencyRange(
         G->selection.e->properties[0].v.i = (uint32_t)f;
         G->selection.e->properties[1].v.i = (uint32_t)r;
 
-        MSG("Frequency set to %u (+%u)", G->selection.e->properties[0].v.i, G->selection.e->properties[1].v.i);
+        ui::messagef("Frequency set to %u (+%u)", G->selection.e->properties[0].v.i, G->selection.e->properties[1].v.i);
 
         P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
         P.add_action(ACTION_RESELECT, 0);
@@ -3067,10 +3055,6 @@ Java_org_libsdl_app_PrincipiaBackend_triggerCreateLevel(
 #include <shellapi.h>
 #endif
 
-#define UI_MESSAGE_OVERRIDE
-
-#define MSG(x, ...) do{sprintf(msg_str, x, ##__VA_ARGS__); _msg(0);}while(0)
-static gboolean _msg(gpointer unused);
 static gboolean _close_all_dialogs(gpointer unused);
 
 SDL_bool   ui_ready = SDL_FALSE;
@@ -3811,15 +3795,6 @@ GtkEntry        *camtargeter_y_offset_entry;
 GtkButton       *camtargeter_save;
 GtkButton       *camtargeter_cancel;
 
-/** --Message **/
-#define MSG_MAX_OPACITY .7
-GtkWindow *msg_window;
-GtkLabel  *msg_label;
-char       msg_str[512];
-bool       msg_long_duration = false;
-gint       msg_timeout_tag = -1;
-double     msg_opacity = 1.5f;
-
 /** --Quickadd **/
 GtkWindow *quickadd_window;
 GtkEntry  *quickadd_entry;
@@ -3899,7 +3874,7 @@ GtkEntry        *login_password;
 GtkLabel        *login_status;
 GtkButton       *login_btn_log_in;
 GtkButton       *login_btn_cancel;
-GtkButton       *login_btn_forgot_password;
+GtkButton       *login_btn_register;
 
 /** --Settings **/
 GtkDialog       *settings_dialog;
@@ -4754,9 +4729,9 @@ press_add_current_level(GtkButton *w, gpointer unused)
     GValue            val = {0, };
 
     if (W->level.local_id == 0) {
-        MSG("Please save the current level before adding it.");
+        ui::message("Please save the current level before adding it.");
     } else if (!G->state.sandbox) {
-        MSG("You must be in edit mode of the level when adding it.");
+        ui::message("You must be in edit mode of the level when adding it.");
     } else {
         sel = gtk_tree_view_get_selection(pk_pkg_treeview);
         if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
@@ -4772,14 +4747,13 @@ press_add_current_level(GtkButton *w, gpointer unused)
             p.open(LEVEL_LOCAL, pkg_id);
 
             if (!p.add_level(W->level.local_id))
-                MSG("Level already added to package.");
+                ui::message("Level already added to package.");
             else
                 p.save();
 
             pk_reload_level_list();
-        } else {
-            MSG("No package selected!");
-        }
+        } else
+            ui::message("No package selected!");
     }
 }
 
@@ -4873,9 +4847,9 @@ press_create_pkg(GtkButton *w, gpointer unused)
         strncpy(p.name, nm, 255);
 
         if (!p.save())
-            MSG("Could not create package!");
+            ui::message("Could not create package!");
         else
-            MSG("Package created successfully!");
+            ui::message("Package created successfully!");
 
         pk_reload_pkg_list();
     }
@@ -4970,9 +4944,8 @@ editor_menu_activate(GtkMenuItem *i, gpointer unused)
                 down += 6-(uint16_t)w;
             }
 
-            if (resized) {
-                MSG("Your level size was increased to the minimum allowed.");
-            }
+            if (resized)
+                ui::message("Your level size was increased to the minimum allowed.");
 
             W->level.size_x[0] = left;
             W->level.size_x[1] = right;
@@ -5300,7 +5273,7 @@ on_freq_range_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
             e->set_property(0, (uint32_t)gtk_spin_button_get_value(freq_range_value));
             e->set_property(1, (uint32_t)gtk_spin_button_get_value(freq_range_offset));
 
-            MSG("Frequency set to %u (+%u)", e->properties[0].v.i, e->properties[1].v.i);
+            ui::messagef("Frequency set to %u (+%u)", e->properties[0].v.i, e->properties[1].v.i);
 
             P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
             P.add_action(ACTION_RESELECT, 0);
@@ -6154,7 +6127,7 @@ on_prompt_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
             const char *b3 = gtk_entry_get_text(prompt_b3);
 
             if (!strlen(b1) && !strlen(b2) && !strlen(b3)) {
-                MSG("You must use at least one button.");
+                ui::message("You must use at least one button.");
                 return false;
             }
 
@@ -6165,7 +6138,7 @@ on_prompt_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
             const char *message = gtk_text_buffer_get_text(tb, &start, &end, FALSE);
 
             if (!strlen(message)) {
-                MSG("You must enter a message");
+                ui::message("You must enter a message.");
                 return false;
             }
 
@@ -6176,7 +6149,7 @@ on_prompt_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
 
             gtk_widget_hide(GTK_WIDGET(prompt_settings_dialog));
 
-            MSG("Prompt properties saved!");
+            ui::message("Prompt properties saved!");
 
             P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
             P.add_action(ACTION_RESELECT, 0);
@@ -6211,33 +6184,30 @@ on_variable_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
 
                 if (strlen(var_name)) {
                     e->set_property(0, var_name);
-                    MSG("Variable name '%s' saved.", var_name);
+                    ui::messagef("Variable name '%s' saved.", var_name);
                     P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
                     P.add_action(ACTION_RESELECT, 0);
                     gtk_widget_hide(GTK_WIDGET(variable_dialog));
-                } else {
-                    MSG("The variable name must contain at least one 'a-z0-9-_'-character.");
-                }
-            } else {
-                MSG("The variable name must contain at least one 'a-z0-9-_'-character.");
-            }
+                } else
+                    ui::message("The variable name must contain at least one 'a-z0-9-_'-character.");
+            } else
+                ui::message("The variable name must contain at least one 'a-z0-9-_'-character.");
         }
     } else if (btn_pressed(w, variable_reset_this, user_data)) {
         const char *vn = gtk_entry_get_text(variable_name);
         std::map<std::string, float>::size_type num_deleted = W->level_variables.erase(vn);
         if (num_deleted != 0) {
             W->save_cache(W->level_id_type, W->level.local_id);
-            MSG("Successfully deleted data for variable '%s'", vn);
-        } else {
-            MSG("No data found for variable '%s'", vn);
-        }
+            ui::messagef("Successfully deleted data for variable '%s'", vn);
+        } else
+            ui::messagef("No data found for variable '%s'", vn);
+
     } else if (btn_pressed(w, variable_reset_all, user_data)) {
         W->level_variables.clear();
-        if (W->save_cache(W->level_id_type, W->level.local_id)) {
-            MSG("All level-specific variables cleared.");
-        } else {
-            MSG("Unable to delete level-specific variables.");
-        }
+        if (W->save_cache(W->level_id_type, W->level.local_id))
+            ui::message("All level-specific variables cleared.");
+        else
+            ui::message("Unable to delete level-specific variables.");
     }
 
     return false;
@@ -7746,7 +7716,7 @@ on_robot_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
 
             e->set_property(ROBOT_PROPERTY_EQUIPMENT, ss.str().c_str());
 
-            MSG("Robot properties saved!");
+            ui::message("Robot properties saved!");
             P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
             P.add_action(ACTION_RESELECT, 0);
 
@@ -8272,7 +8242,7 @@ on_save_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
             const char *name = gtk_entry_get_text(save_entry);
             int name_len = strlen(name);
             if (name_len == 0) {
-                MSG("Your level must have a name");
+                ui::message("Your level must have a name.");
                 return false;
             }
             W->level.name_len = name_len;
@@ -8707,15 +8677,6 @@ on_frequency_show(GtkWidget *wdg, void *unused)
     gtk_widget_grab_focus(GTK_WIDGET(frequency_value));
 }
 
-gboolean
-on_msg_click(GtkWidget *w, GdkEventMotion *event)
-{
-    tms_debugf("msg click");
-    gtk_widget_hide_all(w);
-
-    return true;
-}
-
 void
 activate_open_state(GtkMenuItem *i, gpointer unused)
 {
@@ -8819,7 +8780,7 @@ activate_publish(GtkMenuItem *i, gpointer unused)
                 const char *name = gtk_entry_get_text(publish_name);
                 int name_len = strlen(name);
                 if (name_len == 0) {
-                    MSG("You cannot publish a level without a name.");
+                    ui::message("You cannot publish a level without a name.");
                     activate_publish(0,0);
                     return;
                 }
@@ -9033,9 +8994,9 @@ on_login_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
         } else {
             gtk_label_set_text(login_status, "Enter data into both fields.");
         }
-    } else if (btn_pressed(w, login_btn_forgot_password, user_data)) {
+    } else if (btn_pressed(w, login_btn_register, user_data)) {
         char url[1024];
-        snprintf(url, 1023, "https://%s/forgot_password.php", P.community_host);
+        snprintf(url, 1023, "https://%s/register", P.community_host);
         ui::open_url(url);
     }
 
@@ -9393,7 +9354,7 @@ on_frequency_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
             gtk_spin_button_update(frequency_value);
 
             e->set_property(0, (uint32_t)gtk_spin_button_get_value(frequency_value));
-            MSG("Frequency set to %u", e->properties[0].v.i);
+            ui::messagef("Frequency set to %u", e->properties[0].v.i);
 
             P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
             P.add_action(ACTION_RESELECT, 0);
@@ -9431,11 +9392,13 @@ int _gtk_loop(void *p)
 #if defined(TMS_BACKEND_LINUX) && defined(DEBUG) && defined(VALGRIND_NO_UI)
     if (RUNNING_ON_VALGRIND) return T_OK;
 #endif
-
+    
 #if !GLIB_CHECK_VERSION(2, 31, 0)
     g_thread_init(0);
 #endif
-    gdk_threads_init();
+    // This causes Principia to freeze on Windows when opening dialogs. Removing it
+    // fixes it, though I don't know how good of an idea that is. (No side effects at least)
+    //gdk_threads_init();
 
     gtk_init(0,0);
 
@@ -9479,12 +9442,6 @@ int _gtk_loop(void *p)
             );
 #endif
 
-    /*
-    gtk_rc_parse_string(
-"gtk-color-scheme = \"base_color:#ffffff\nfg_color:#4c4c4c\ntooltip_fg_color:#ffffff\nselected_bg_color:#f07746\nselected_fg_color:#FFFFFF\ntext_color:#3C3C3C\nbg_color:#F2F1F0\ntooltip_bg_color:#000000\nlink_color:#DD4814\"\n\ngtk-icon-sizes = \"panel-menu=22,22:gtk-button=16,16\"\n\ngtk-auto-mnemonics = 1\ngtk-alternative-sort-arrows = 1\n\nstyle \"default\" {\n	xthickness = 1\n	ythickness = 1\n\n	#######################\n	# Style Properties\n	#######################\n	GtkButton::child-displacement-x = 1\n	GtkButton::child-displacement-y = 1\n	GtkButton::default-border = { 0, 0, 0, 0 }\n\n	GtkCheckButton::indicator-size = 16\n\n	GtkPaned::handle-size = 6\n\n	GtkRange::trough-border = 0\n	GtkRange::slider-width = 14\n	GtkRange::stepper-size = 13\n	GtkRange::trough-under-steppers = 1\n\n	GtkScale::trough-border = 0\n	GtkScale::slider-width = 23\n	GtkScale::slider-length = 14\n	GtkScale::trough-side-details = 1\n\n	GtkScrollbar::activate-slider = 1\n	GtkScrollbar::trough-border = 0\n	GtkScrollbar::slider-width = 13\n	GtkScrollbar::min-slider-length = 31\n\n	GtkMenuBar::internal-padding = 0\n	GtkMenuBar::shadow-type = GTK_SHADOW_NONE\n	GtkExpander::expander-size = 11\n	GtkToolbar::internal-padding = 1\n	GtkToolbar::shadow-type = GTK_SHADOW_NONE\n	GtkTreeView::expander-size = 7\n	GtkTreeView::vertical-separator = 0\n#	GtkTreeView::odd-row-color = shade (0.96, @base_color)\n	GtkNotebook::tab-overlap = -1\n\n	GtkMenu::horizontal-padding = 0\n	GtkMenu::vertical-padding = 3\n\n	WnckTasklist::fade-overlay-rect = 0\n	# The following line hints to gecko (and possibly other appliations)\n	# that the entry should be drawn transparently on the canvas.\n	# Without this, gecko will fill in the background of the entry.\n	GtkEntry::honors-transparent-bg-hint = 1\n	GtkEntry::state-hint = 0\n\n	GtkEntry::progress-border = { 2, 2, 2, 2 }\n\n	GtkProgressBar::min-horizontal-bar-height = 14\n	GtkProgressBar::min-vertical-bar-width = 14\n	\n	GtkImage::x-ayatana-indicator-dynamic = 1\n	GtkMenuBar::window-dragging = 1\n\n	GtkWidget::link-color = @link_color\n	GtkWidget::visited-link-color = @text_color\n\n	####################\n	# Color Definitions\n	####################\n	bg[NORMAL]        = @bg_color\n	bg[PRELIGHT]      = shade (1.02, @bg_color)\n	bg[SELECTED]      = @selected_bg_color\n	bg[INSENSITIVE]   = shade (0.95, @bg_color)\n	bg[ACTIVE]        = shade (0.9, @bg_color)\n\n	fg[NORMAL]        = @fg_color\n	fg[PRELIGHT]      = @fg_color\n	fg[SELECTED]      = @selected_fg_color\n	fg[INSENSITIVE]   = darker (@bg_color)\n	fg[ACTIVE]        = @fg_color\n\n	text[NORMAL]      = @text_color\n	text[PRELIGHT]    = @text_color\n	text[SELECTED]    = @selected_fg_color\n	text[INSENSITIVE] = shade (0.8, @bg_color)\n	text[ACTIVE]      = darker (@text_color)\n\n	base[NORMAL]      = @base_color\n	base[PRELIGHT]    = shade (0.98, @bg_color)\n	base[SELECTED]    = @selected_bg_color\n	base[INSENSITIVE] = shade (0.97, @bg_color)\n	base[ACTIVE]      = shade (0.94, @bg_color)\n\n	engine \"murrine\" {\n		contrast = 0.6\n		arrowstyle = 2\n		reliefstyle = 3\n		highlight_shade = 1.0\n		glazestyle = 0\n		default_button_color = shade (1.1, @selected_bg_color)\n		gradient_shades = {1.1, 1.0, 1.0, 0.9}\n		roundness = 4\n		lightborder_shade = 1.26\n		lightborderstyle = 1\n		listviewstyle = 2\n		progressbarstyle = 0\n		colorize_scrollbar = FALSE\n		menubaritemstyle = 1\n		menubarstyle = 1\n		menustyle = 0\n		focusstyle = 3\n		handlestyle = 1\n		sliderstyle = 3\n		scrollbarstyle = 2\n		stepperstyle = 3\n#		rgba = TRUE\n	}\n}\n\nstyle \"dark\"\n{\n	color[\"bg_color_dark\"] 	= \"#3c3b37\"\n	color[\"fg_color_dark\"] 	= \"#dfdbd2\"\n	color[\"selected_fg_color_dark\"] = \"#ffffff\"\n\n	fg[NORMAL]        = @fg_color_dark\n	fg[PRELIGHT]	  = shade (1.15, @fg_color_dark)\n	fg[ACTIVE]	  = @fg_color_dark\n	fg[SELECTED]	  = @selected_fg_color_dark\n	fg[INSENSITIVE]	  = shade (0.5, @fg_color_dark)\n  \n	bg[NORMAL]        = @bg_color_dark\n	bg[ACTIVE]	  = shade (0.8, @bg_color_dark)\n	bg[SELECTED]      = @selected_bg_color\n	bg[PRELIGHT]      = shade (1.0, \"#4D4C48\")\n	bg[INSENSITIVE]   = shade (0.85, @bg_color_dark)\n  	\n	text[NORMAL]      = @fg_color_dark\n	text[PRELIGHT]	  = shade (1.15, @fg_color_dark)\n	text[SELECTED]	  = @selected_fg_color_dark\n	text[ACTIVE]      = @fg_color_dark\n	text[INSENSITIVE] = mix (0.5, @bg_color, @bg_color_dark)\n}\n\nstyle \"wide\" {\n	xthickness = 2\n	ythickness = 2\n}\n\nstyle \"wider\" {\n	xthickness = 3\n	ythickness = 3\n}\n\nstyle \"entry\" {\n	xthickness = 3\n	ythickness = 3\n\n	engine \"murrine\" {\n	}\n}\n\nstyle \"vscale\" {\n}\n\nstyle \"hscale\" {\n}\n\n#style \"button\" {\n#	xthickness = 3\n#	ythickness = 3\n#\n#	bg[NORMAL] = shade (1.07, \"#cdcdcd\")\n#	bg[PRELIGHT] = shade (1.09, \"#cdcdcd\")\n#	bg[ACTIVE] = shade (1.0, \"#cdcdcd\")\n#	bg[INSENSITIVE] = mix (0.25, @bg_color, \"#e2e1e1\")\n#	fg[INSENSITIVE] = \"#9c9c9c\"\n#\n#	engine \"murrine\" {\n#		#contrast = 1.0\n#		border_shades = {1.04, 0.82}\n#		reliefstyle = 5\n#		shadow_shades = {1.02, 1.1}\n#		textstyle = 1\n#		glowstyle = 5\n#		glow_shade = 1.1\n#		#text_shade = 1.04\n#	}\n#}\n\nstyle \"button\" {\n\n	xthickness = 3\n	ythickness = 3\n\n	bg[NORMAL] = shade (1.03, @bg_color)\n	bg[PRELIGHT] = shade (1.06, @bg_color)\n	bg[ACTIVE] = shade (0.96, @bg_color)\n	bg[INSENSITIVE] = @bg_color\n	fg[INSENSITIVE] = \"#9c9c9c\"\n\n	engine \"murrine\" {\n		#contrast = 1.0\n		textstyle = 1\n		border_shades = {1.01, 0.8}\n		reliefstyle = 0\n		shadow_shades = {1.0, 1.1}\n		glowstyle = 5\n		glow_shade = 1.02\n		lightborder_shade = 1.32\n#		lightborderstyle = 0\n		#text_shade = 1.04\n	}\n}\n\nstyle \"notebook_button\" = \"button\" {\n}\n\nstyle \"spinbutton\" = \"notebook_button\" {\n	xthickness = 4\n\n	engine \"murrine\" {\n	}\n}\n\nstyle \"scrollbar\" = \"button\" {\n	xthickness = 2\n	ythickness = 2\n\n	bg[NORMAL] = @bg_color\n	bg[PRELIGHT] = shade (1.04, @bg_color)\n	\n	bg[ACTIVE] = shade (0.96, @bg_color)\n\n	engine \"murrine\"\n	{\n		border_shades = {0.95, 0.90}\n		roundness = 20\n		contrast = 1.0\n		trough_shades = {0.92, 0.98}\n		lightborder_shade = 1.3\n		glowstyle = 5\n		glow_shade = 1.02\n		gradient_shades = {1.2, 1.0, 1.0, 0.86}\n		trough_border_shades = {0.9, 0.98}\n	}\n}\n\nstyle \"hscrollbar\" {\n}\n\nstyle \"vscrollbar\" {\n}\n\nstyle \"overlay_scrollbar\"\n{\n	bg[SELECTED] = shade (1.0, @selected_bg_color)\n	bg[INSENSITIVE] = shade (0.85, @bg_color)\n	bg[ACTIVE] = shade (0.6, @bg_color)\n}\n\nstyle \"scale\" = \"button\" {\n	bg[NORMAL] = @bg_color\n	bg[PRELIGHT] = shade (1.06, @bg_color)\n	bg[ACTIVE] = shade (0.94, @bg_color)\n\n	engine \"murrine\" {\n		contrast = 0.6\n		border_shades = {0.9, 0.8}\n		roundness = 5\n		lightborder_shade = 1.32\n		gradient_shades = {1.1, 1.0, 1.0, 0.8}\n		handlestyle = 2\n		trough_border_shades = {0.9, 1.4}\n		glow_shade = 1.0\n#		reliefstyle = 2\n#		shadow_shades = { 1.0, 0.9 }\n	}\n}\n\nstyle \"notebook_bg\" {\n	bg[NORMAL] = shade (1.02, @bg_color)\n	bg[ACTIVE] = shade (0.97, @bg_color)\n	fg[ACTIVE] = mix (0.8, @fg_color, shade (0.97, @bg_color))\n}\n\n# The color is changed by the notebook_bg style, this style\n# changes the x/ythickness\nstyle \"notebook\" {\n	xthickness = 2\n	ythickness = 2\n	\n	engine \"murrine\" {\n		roundness = 3\n		contrast = 0.8\n		focusstyle = 2\n		lightborder_shade = 1.16\n		gradient_shades = {1.1, 1.0, 1.0, 0.68}\n	}\n}\n\nstyle \"statusbar\" {\n	engine \"murrine\" {\n		contrast = 1.2\n	}\n}\n\nstyle \"comboboxentry\" = \"notebook_button\" {\n	xthickness = 3\n	ythickness = 3\n	\n	engine \"murrine\" {\n		textstyle = 1\n		glowstyle = 5\n		glow_shade = 1.02\n	}\n}\n\nstyle \"menubar\" = \"dark\" {\n	engine \"murrine\" {\n		textstyle = 2\n		text_shade = 0.33\n		gradient_shades = {1.0, 1.0, 1.0, 1.0}\n		lightborder_shade = 1.0\n	}\n}\n\nstyle \"toolbar\" {\n	engine \"murrine\" {\n		textstyle = 1\n		text_shade = 1.32\n		lightborder_shade = 1.0\n	}\n}\n\nstyle \"toolbar-button\" = \"notebook_button\" {\n	engine \"murrine\" {\n	}\n}\n\nstyle \"menu\" = \"dark\" {\n	xthickness = 0\n	ythickness = 0\n\n	bg[NORMAL] = \"#43423f\"\n	bg[INSENSITIVE] = \"#43423f\"\n	fg[INSENSITIVE]   = shade (0.54, \"#43423f\")\n\n	engine \"murrine\"\n	{\n		roundness = 0\n	}\n}\n\nstyle \"menu_item\" = \"menu\" {\n	xthickness = 2\n	ythickness = 3\n\n	fg[PRELIGHT] = @selected_fg_color\n\n	engine \"murrine\"\n	{\n		glowstyle = 5\n		glow_shade = 1.1\n		border_shades = {0.95, 0.85}\n	}\n}\n\nstyle \"menu_item\" = \"menu\" {\n	xthickness = 2\n	ythickness = 3\n\n	fg[PRELIGHT] = @selected_fg_color\n\n	engine \"murrine\"\n	{\n		glowstyle = 5\n		glow_shade = 1.1\n		border_shades = {0.95, 0.85}\n	}\n}\n\nstyle \"menubar_item\" = \"menu\" {\n	xthickness = 2\n	ythickness = 3\n\n	engine \"murrine\" {\n		gradient_shades = {1.1, 1.0, 1.0, 0.88}\n		glowstyle = 5\n		glow_shade = 1.0\n		border_shades = {1.0, 0.9}\n		lightborderstyle = 3\n		lightborder_shade = 1.26\n	}\n}\n\nstyle \"scale_menu_item\" = \"scale\" {\n	GtkScale::slider-width = 21\n	GtkScale::slider-length = 13\n\n	bg[ACTIVE] = shade(0.98, \"#4D4D4D\")\n	bg[INSENSITIVE] = shade (0.9, @bg_color)\n\n	engine \"murrine\" {\n		roundness = 20\n		border_shades = {1.4, 1.4}\n		reliefstyle = 0\n		lightborder_shade = 1.36\n	}\n}\n\n# This style is there to modify the separator menu items. The goals are:\n# 1. Get a specific height.\n# 2. The line should go to the edges (ie. no border at the left/right)\nstyle \"separator_menu_item\" {\n	xthickness = 1\n	ythickness = 0\n\n	GtkSeparatorMenuItem::horizontal-padding = 0\n	GtkWidget::wide-separators = 1\n	GtkWidget::separator-width = 1\n	GtkWidget::separator-height = 7\n	\n	engine \"murrine\" {\n		contrast = 0.6\n		separatorstyle = 0\n	}\n}\n\nstyle \"separator_tool_item\" {\n	xthickness = 0\n	ythickness = 1\n\n	GtkVSeparator::vertical-padding = 0\n	GtkWidget::wide-separators = 1\n	GtkWidget::separator-width = 7\n	GtkWidget::separator-height = 1\n\n	engine \"murrine\" {\n		contrast = 0.6\n		separatorstyle = 0\n	}\n}\n\nstyle \"frame_title\" {\n	fg[NORMAL] = lighter (@fg_color)\n}\n\nstyle \"treeview\" {\n	engine \"murrine\"\n	{\n		roundness = 2\n		lightborder_shade = 1.1\n		gradient_shades = {1.04, 1.0, 1.0, 0.96}\n	}\n}\n\nstyle \"progressbar\" {\n	xthickness = 1\n	ythickness = 1\n\n	bg[ACTIVE] = shade (0.94, @bg_color)\n	fg[PRELIGHT] = @selected_fg_color\n	#bg[SELECTED] = \"#cdcdcd\"\n\n	engine \"murrine\" {\n		#trough_shades = {0.98, 1.02}\n		roundness = 8\n		lightborderstyle = 1\n		lightborder_shade = 1.26\n		border_shades = {0.95, 0.85}\n		gradient_shades = {1.1, 1.0, 1.0, 0.9}\n		trough_border_shades = {0.9, 1.4}\n	}\n}\n\nstyle \"progressbar_menu_item\" = \"progressbar\" {\n	bg[ACTIVE] = shade(0.98, \"#4D4D4D\")\n\n	engine \"murrine\" {\n		roundness = 0\n	}\n}\n\n# This style is based on the default style, so that the colors from the button\n# style are overriden again.\nstyle \"treeview_header\" = \"notebook_button\" {\n	xthickness = 2\n	ythickness = 1\n\n	engine \"murrine\" {\n		glazestyle = 1\n		contrast = 0.8\n		lightborder_shade = 1.16\n		textstyle = 1\n		glow_shade = 1.0\n	}\n}\n\nstyle \"treeview_header_scrolled\" = \"treeview_header\" {\n}\n\nstyle \"scrolledwindow\" {\n	engine \"murrine\" {\n		contrast = 0.6\n	}\n}\n\nstyle \"radiocheck\"  = \"button\" {\n	text[NORMAL] = shade (0.535, @selected_bg_color)\n	text[PRELIGHT] = shade(1.06, shade (0.535, @selected_bg_color))\n	bg[NORMAL]   = shade (0.92, @bg_color)\n	bg[PRELIGHT] = mix (0.2, @selected_bg_color, shade(1.1, @bg_color))\n	fg[INSENSITIVE] = darker (@bg_color)\n	fg[ACTIVE] = @fg_color\n\n	engine \"murrine\" {\n		reliefstyle = 3\n		gradient_shades = {1.2, 1.0, 1.0, 0.9}\n		shadow_shades = {0.6, 0.5}\n		textstyle = 0\n	}\n}\n\nstyle \"tooltips\" {\n	xthickness = 4\n	ythickness = 4\n\n	bg[NORMAL]        = @tooltip_bg_color\n	fg[NORMAL]        = @tooltip_fg_color\n	bg[SELECTED]      = \"#000000\"\n\n	engine \"murrine\" {\n		rgba = TRUE\n	}\n}\n\nstyle \"infobar\" {\n	engine \"murrine\" {\n	}\n}\n\nstyle \"nautilus_location\" {\n	bg[NORMAL]  = mix (0.60, shade (1.05, @bg_color), @selected_bg_color)\n}\n\nstyle \"calendar\" {\n	xthickness = 0\n	ythickness = 0\n\n	engine \"murrine\" {\n		roundness = 0\n	}\n}\n\nstyle \"calendar_menu_item\" = \"calendar\" {\n	base[NORMAL] = \"#605E58\"\n	base[ACTIVE] = \"#4b4944\"\n}\n\nstyle \"iconview\" {\n	engine \"murrine\" {\n		roundness = 6\n		border_shades = {1.16, 1.0}\n		glow_shade = 1.1\n		glowstyle = 5\n	}\n}\n\nstyle \"soundfix\"\n{\n}\n\n# Wrokaround style for places where the text color is used instead of the fg color.\nstyle \"text_is_fg_color_workaround\" {\n	text[NORMAL]      = @fg_color\n	text[PRELIGHT]    = @fg_color\n	text[SELECTED]    = @selected_fg_color\n	text[ACTIVE]      = @fg_color\n	text[INSENSITIVE] = darker (@bg_color)\n}\n\n# Workaround style for menus where the text color is used instead of the fg color.\nstyle \"menuitem_text_is_fg_color_workaround\" {\n	text[NORMAL]        = @fg_color\n	text[PRELIGHT]      = @selected_fg_color\n	text[SELECTED]      = @selected_fg_color\n	text[ACTIVE]        = @fg_color\n	text[INSENSITIVE]   = \"#99958b\"\n}\n\n# Workaround style for places where the fg color is used instead of the text color.\nstyle \"fg_is_text_color_workaround\" {\n	fg[NORMAL]        = @text_color\n	fg[PRELIGHT]      = @text_color\n	fg[SELECTED]      = @selected_fg_color\n	fg[ACTIVE]        = @selected_fg_color\n	fg[INSENSITIVE]   = darker (@bg_color)\n}\n\n# Style to set the toolbar to use a flat style. This is because the \"New\" button in\n# Evolution is not drawn transparent. So if there is a gradient in the background it will\n# look really wrong.\n# See https://bugzilla.gnome.org/show_bug.cgi?id=446953.\nstyle \"evo_new_button_workaround\" {\n}\n\n###############################################################################\n# The following part of the gtkrc applies the different styles to the widgets.\n###############################################################################\n\n# The default style is applied to every widget\nclass \"GtkWidget\" style \"default\"\n\nclass \"GtkSeparator\" style \"wide\"\nclass \"GtkFrame\" style \"wide\"\nclass \"GtkCalendar\" style \"wide\"\nclass \"GtkEntry\" style \"entry\"\n\nclass \"GtkSpinButton\" style \"spinbutton\"\nclass \"GtkScale\" style \"scale\"\nclass \"GtkVScale\" style \"vscale\"\nclass \"GtkHScale\" style \"hscale\"\nclass \"GtkScrollbar\" style \"scrollbar\"\nclass \"GtkHScrollbar\" style \"hscrollbar\"\nclass \"GtkVScrollbar\" style \"vscrollbar\"\nclass \"GtkCalendar\" style \"calendar\"\nclass \"GtkInfoBar\" style \"infobar\"\nclass \"GtkIconView\" style \"iconview\"\n\n# General matching follows. The order is choosen so that the right styles override\n# each other. EG. progressbar needs to be more important than the menu match.\nwidget_class \"*<GtkNotebook>\" style \"notebook_bg\"\n# This is not perfect, it could be done better.\n# (That is modify *every* widget in the notebook, and change those back that\n# we really don't want changed)\nwidget_class \"*<GtkNotebook>*<GtkEventBox>\" style \"notebook_bg\"\nwidget_class \"*<GtkNotebook>*<GtkDrawingArea>\" style \"notebook_bg\"\nwidget_class \"*<GtkNotebook>*<GtkLayout>\" style \"notebook_bg\"\nwidget_class \"*<GtkNotebook>*<GtkLabel>\" style \"notebook_bg\"\n\nwidget_class \"*<GtkToolbar>*\" style \"toolbar\"\nwidget_class \"*<GtkScrolledWindow>*\" style \"scrolledwindow\"\n\nwidget_class \"*<GtkButton>\" style \"button\"\nwidget_class \"*<GtkButton>*<GtkLabel>\" style \"button\"\nwidget_class \"*<GtkToolbar>.*.<GtkButton>*\" style \"notebook_button\"\nwidget_class \"*<GtkNotebook>\" style \"notebook\"\nwidget_class \"*<GtkStatusbar>\" style \"statusbar\"\nwidget_class \"*<GtkSpinButton>*\" style \"spinbutton\"\nwidget_class \"*<GtkNotebook>*<GtkButton>\" style \"notebook_button\"\nwidget_class \"*<GtkNotebook>*<GtkButton>*<GtkLabel>\" style \"notebook_button\"\nwidget_class \"*<GtkRadioButton>*\" style \"radiocheck\"\nwidget_class \"*<GtkCheckButton>*\" style \"radiocheck\"\n\nwidget_class \"*<GtkComboBoxEntry>*\" style \"comboboxentry\"\nwidget_class \"*<GtkCombo>*\" style \"comboboxentry\"\n\nwidget_class \"*<GtkMenuBar>*\" style \"menubar\"\nwidget_class \"*<GtkMenu>*\" style \"menu\"\nwidget_class \"*<GtkMenuItem>*\" style \"menu_item\"\nwidget_class \"*<GtkSeparatorMenuItem>*\" style \"separator_menu_item\"\nwidget_class \"*<GtkSeparatorToolItem>*\" style \"separator_tool_item\"\nwidget_class \"*<GtkMenuBar>*<GtkMenuItem>*\" style \"menubar_item\"\n\nwidget_class \"*.<GtkFrame>.<GtkLabel>\" style \"frame_title\"\nwidget_class \"*.<GtkTreeView>*\" style \"treeview\"\n\nwidget_class \"*<GtkProgress>\" style \"progressbar\"\nwidget_class \"*<GtkMenuItem>.*.<GtkProgressBar>\" style \"progressbar_menu_item\"\nwidget_class \"*<GtkMenuItem>.*.<GtkScale>\" style \"scale_menu_item\"\nwidget_class \"*<GtkMenuItem>.*.<GtkCalendar>\" style \"calendar_menu_item\"\n\n# Treeview headers (and similar stock GTK+ widgets)\nwidget_class \"*.<GtkScrolledWindow>*<GtkTreeView>*\" style \"treeview_header_scrolled\"\nwidget_class \"*.<GtkTreeView>.<GtkButton>\" style \"treeview_header\"\nwidget_class \"*.<GtkCTree>.<GtkButton>\" style \"treeview_header\"\nwidget_class \"*.<GtkList>.<GtkButton>\" style \"treeview_header\"\nwidget_class \"*.<GtkCList>.<GtkButton>\" style \"treeview_header\"\nwidget_class \"*.<GtkTreeView>.<GtkButton>.*<GtkLabel>\" style \"treeview_header\"\nwidget_class \"*.<GtkCTree>.<GtkButton>.*<GtkLabel>\" style \"treeview_header\"\nwidget_class \"*.<GtkList>.<GtkButton>.*<GtkLabel>\" style \"treeview_header\"\nwidget_class \"*.<GtkCList>.<GtkButton>.*<GtkLabel>\" style \"treeview_header\"\n\n# Overlay scrollbar\nwidget_class \"*<OsScrollbar>\" style \"overlay_scrollbar\"\nwidget_class \"*<OsThumb>\" style \"overlay_scrollbar\"\n\n# The window of the tooltip is called \"gtk-tooltip\"\n##################################################################\n# FIXME:\n# This will not work if one embeds eg. a button into the tooltip.\n# As far as I can tell right now we will need to rework the theme\n# quite a bit to get this working correctly.\n# (It will involve setting different priorities, etc.)\n##################################################################\nwidget \"gtk-tooltip*\" style \"tooltips\"\n\n##########################################################################\n# Following are special cases and workarounds for issues in applications.\n##########################################################################\n\n# Workaround for the evolution ETable (bug #527532)\nwidget_class \"*.ETable.ECanvas\" style \"treeview_header\"\n# Workaround for the evolution ETree\nwidget_class \"*.ETree.ECanvas\" style \"treeview_header\"\n\n# Special case the nautilus-extra-view-widget\n# ToDo: A more generic approach for all applications that have a widget like this.\nwidget \"*.nautilus-extra-view-widget\" style : highest \"nautilus_location\"\n\n# Work around for https://bugzilla.gnome.org/show_bug.cgi?id=382646\n# Note that this work around assumes that the combobox is _not_ in appears-as-list mode.\nwidget_class \"*.<GtkComboBox>.<GtkCellView>\" style \"text_is_fg_color_workaround\"\n# This is the part of the workaround that fixes the menus\nwidget \"*.gtk-combobox-popup-menu.*\" style \"menuitem_text_is_fg_color_workaround\"\n\n# Work around the usage of GtkLabel inside GtkListItems to display text.\n# This breaks because the label is shown on a background that is based on the base color.\nwidget_class \"*<GtkListItem>*\" style \"fg_is_text_color_workaround\"\n# GtkCList also uses the fg color to draw text on top of the base colors.\nwidget_class \"*<GtkCList>\" style \"fg_is_text_color_workaround\"\n# Nautilus when renaming files, and maybe other places.\nwidget_class \"*<EelEditableLabel>\" style \"fg_is_text_color_workaround\"\n# Work around for ubuntu's lucid sound indicator\nwidget \"ido-offscreen-scale\" style \"soundfix\"\n# Thickness for indicator menu items\nwidget \"*IdoEntryMenuItem*\" style \"wide\"\n\n# See the documentation of the style.\nwidget_class \"EShellWindow.GtkVBox.BonoboDock.BonoboDockBand.BonoboDockItem*\" style \"evo_new_button_workaround\"\n\n# Includes\n#include \"apps/banshee.rc\"\ninclude \"apps/chromium.rc\"\ninclude \"apps/ff.rc\"\ninclude \"apps/gnome-terminal.rc\"\ninclude \"apps/nautilus.rc\"\ninclude \"apps/gnome-panel.rc\"\n"
-            );
-            */
-    //SDL_Delay(500000);
 
     GtkSettings *gtkset = gtk_settings_get_default();
     gtk_settings_set_long_property(gtkset, "gtk-tooltip-timeout", 100, NULL);
@@ -11272,35 +11229,6 @@ int _gtk_loop(void *p)
         camtargeter_dialog = dialog;
     }
 
-    /** --Message **/
-    {
-        msg_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_POPUP));
-        gtk_container_set_border_width(GTK_CONTAINER(msg_window), 14);
-        gtk_window_set_resizable(GTK_WINDOW(msg_window), false);
-        gtk_widget_set_can_focus(GTK_WIDGET(msg_window), false);
-        /*
-        gtk_window_set_policy(GTK_WINDOW(msg_window),
-                      FALSE,
-                      FALSE, FALSE);
-                      */
-
-        msg_label = GTK_LABEL(gtk_label_new("Test"));
-        gtk_widget_set_can_focus(GTK_WIDGET(msg_label), false);
-
-        GdkColor bgcol,fgcol;
-        gdk_color_parse("#232323", &bgcol);
-        gdk_color_parse("#cccccc", &fgcol);
-        gtk_widget_modify_bg(GTK_WIDGET(msg_window), GTK_STATE_NORMAL, &bgcol);
-        gtk_widget_modify_fg(GTK_WIDGET(msg_label), GTK_STATE_NORMAL, &fgcol);
-
-        gtk_widget_add_events(GTK_WIDGET(msg_window), GDK_BUTTON_PRESS_MASK);
-        g_signal_connect(GTK_WIDGET(msg_window), "button-press-event", G_CALLBACK(on_msg_click), 0);
-
-        gtk_container_add(GTK_CONTAINER(msg_window), GTK_WIDGET(msg_label));
-
-        g_signal_connect(msg_window, "delete-event", G_CALLBACK(on_window_close), 0);
-    }
-
     /** --Quickadd **/
     {
 #ifdef TMS_BACKEND_WINDOWS
@@ -11907,14 +11835,14 @@ int _gtk_loop(void *p)
         g_signal_connect(login_btn_cancel, "button-release-event",
                 G_CALLBACK(on_login_btn_click), 0);
 
-        /* Forgot password button */
-        login_btn_forgot_password = GTK_BUTTON(gtk_button_new_with_label("Forgot password"));
-        g_signal_connect(login_btn_forgot_password, "button-release-event",
+        /* Register button */
+        login_btn_register = GTK_BUTTON(gtk_button_new_with_label("Register"));
+        g_signal_connect(login_btn_register, "button-release-event",
                 G_CALLBACK(on_login_btn_click), 0);
 
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(login_btn_log_in));
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(login_btn_cancel));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(login_btn_forgot_password));
+        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(login_btn_register));
 
         /* Status label */
         login_status = GTK_LABEL(gtk_label_new(0));
@@ -13103,43 +13031,6 @@ _open_sandbox_menu(gpointer unused)
     return false;
 }
 
-gint
-msg_timeout(gpointer *unused)
-{
-    gtk_window_set_opacity(GTK_WINDOW(msg_window), std::min(msg_opacity, MSG_MAX_OPACITY));
-
-    if (msg_opacity <= 0.) {
-        gtk_widget_hide(GTK_WIDGET(msg_window));
-        msg_timeout_tag = -1;
-        return 0;
-    }
-
-    msg_opacity -= .025;
-
-    return 1;
-}
-
-static gboolean
-_msg(gpointer unused)
-{
-#ifdef UI_MESSAGE_OVERRIDE
-    ui::message(msg_str);
-#else
-    gtk_window_set_position(msg_window, GTK_WIN_POS_CENTER);
-    gtk_window_set_opacity(GTK_WINDOW(msg_window), MSG_MAX_OPACITY);
-    msg_opacity = msg_long_duration ? 7.f : 1.5f;
-    gtk_label_set_markup(msg_label, msg_str);
-
-    if (msg_timeout_tag == -1) {
-        msg_timeout_tag = gtk_timeout_add(25, (GtkFunction)(msg_timeout), 0);
-    }
-
-    gtk_widget_show_all(GTK_WIDGET(msg_window));
-
-#endif
-    return false;
-}
-
 static gboolean
 _open_quickadd(gpointer unused)
 {
@@ -13444,8 +13335,6 @@ _open_autosave(gpointer unused)
 static gboolean
 _open_tips_dialog(gpointer unused)
 {
-    msg_opacity = 0.f;
-
     do {
          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tips_hide), settings["hide_tips"]->v.b);
 
@@ -13472,7 +13361,6 @@ _open_tips_dialog(gpointer unused)
 static gboolean
 _open_info_dialog(gpointer unused)
 {
-    msg_opacity = 0.f;
     gtk_widget_show_all(GTK_WIDGET(info_dialog));
     /*
     gtk_widget_hide(GTK_WIDGET(info_dialog));
@@ -13488,7 +13376,6 @@ _open_info_dialog(gpointer unused)
 static gboolean
 _open_error_dialog(gpointer unused)
 {
-    msg_opacity = 0.f;
     gtk_widget_hide(GTK_WIDGET(error_dialog));
     gtk_dialog_run(error_dialog);
     gtk_widget_hide(GTK_WIDGET(error_dialog));
@@ -13500,7 +13387,6 @@ _open_error_dialog(gpointer unused)
 static gboolean
 _open_confirm_dialog(gpointer unused)
 {
-    msg_opacity = 0.f;
     gtk_widget_hide(GTK_WIDGET(confirm_dialog));
     P.focused = false;
     int r = gtk_dialog_run(confirm_dialog);
@@ -13561,7 +13447,7 @@ _open_emitter_dialog(gpointer unused)
                 if (e && (e->g_id == O_EMITTER || e->g_id == O_MINI_EMITTER)) {
                     e->properties[6].v.f = gtk_range_get_value(GTK_RANGE(emitter_auto_absorb));
 
-                    MSG("Emitter properties saved!");
+                    ui::message("Emitter properties saved!");
 
                     P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
                     P.add_action(ACTION_RESELECT, 0);
@@ -13579,7 +13465,6 @@ _open_emitter_dialog(gpointer unused)
 static gboolean
 _open_alert_dialog(gpointer unused)
 {
-    msg_opacity = 0.f;
     gtk_widget_hide(GTK_WIDGET(alert_dialog));
     P.focused = false;
     int r = gtk_dialog_run(GTK_DIALOG(alert_dialog));
@@ -13913,7 +13798,7 @@ _open_timer(gpointer unused)
                     e->properties[1].v.i8 = num_ticks;
                     e->properties[2].v.i = (uint32_t)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(timer_use_system_time));
 
-                    MSG("Timer properties saved!");
+                    ui::message("Timer properties saved!");
                     P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
                     P.add_action(ACTION_RESELECT, 0);
                 }
@@ -13997,7 +13882,7 @@ _open_command_pad_window(gpointer unused)
                         tms_infof("unknown command: %s", tmp);
                     }
 
-                    MSG("Command pad properties saved!");
+                    ui::message("Command pad properties saved!");
                     P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
                     P.add_action(ACTION_RESELECT, 0);
                 }
@@ -14942,53 +14827,6 @@ ui::set_next_action(int action_id)
 {
     tms_infof("set_next_Actino: %d", action_id);
     ui::next_action = action_id;
-}
-
-void
-ui::message(const char *msg, bool long_duration)
-{
-#ifdef UI_MESSAGE_OVERRIDE
-    pscreen::message->show(msg, long_duration ? 5.0 : 2.5);
-#else
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG) && defined(VALGRIND_NO_UI)
-    if (RUNNING_ON_VALGRIND) return;
-#endif
-
-    wait_ui_ready();
-
-    gdk_threads_enter();
-
-    /* XXX no bounds checking on destination */
-    msg_long_duration = long_duration;
-    sprintf(msg_str, "<b>%s</b>", msg);
-
-    gdk_threads_add_idle(_msg, 0);
-
-    gdk_flush();
-    gdk_threads_leave();
-#endif
-}
-
-/* always assume short duration */
-void
-ui::messagef(const char *format, ...)
-{
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG) && defined(VALGRIND_NO_UI)
-    if (RUNNING_ON_VALGRIND) return;
-#endif
-
-    va_list vl;
-    va_start(vl, format);
-
-    char short_msg[256];
-    const size_t sz = vsnprintf(short_msg, sizeof short_msg, format, vl) + 1;
-    if (sz <= sizeof short_msg) {
-        ui::message(short_msg, false);
-    } else {
-        char *long_msg = (char*)malloc(sz);
-        vsnprintf(long_msg, sz, format, vl);
-        ui::message(long_msg, false);
-    }
 }
 
 void

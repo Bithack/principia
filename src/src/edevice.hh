@@ -75,23 +75,14 @@ class isocket
     float abias;
     float angle;
     int tag;
-    char *description;
 
     isocket()
     {
-        description = 0;
         tag = SOCK_TAG_NONE;
         ctype = CABLE_RED;
         p = 0;
         angle = M_PI/2.f;
         abias = 0.f;
-    }
-
-    ~isocket()
-    {
-        if (this->description) {
-            free(this->description);
-        }
     }
 
     inline void unplug(void)
@@ -101,15 +92,6 @@ class isocket
         } else {
             tms_infof("No plug to disconnect.");
         }
-    }
-
-    inline void set_description(const char *v)
-    {
-        if (this->description) {
-            free(this->description);
-        }
-
-        this->description = strdup(v);
     }
 };
 

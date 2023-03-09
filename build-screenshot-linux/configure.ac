@@ -1,5 +1,5 @@
 AC_PREREQ(2.59)
-AC_INIT([principia], 1, [sdac@bithack.se])
+AC_INIT([principia_ss], 1, [sdac@bithack.se])
 AM_INIT_AUTOMAKE([subdir-objects])
 AM_SILENT_RULES([yes])
     

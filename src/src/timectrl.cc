@@ -7,7 +7,7 @@
 timectrl::timectrl()
     : last_set(-1.f)
 {
-    this->s_in[0].set_description("Time modifier");
+
 }
 
 edevice*

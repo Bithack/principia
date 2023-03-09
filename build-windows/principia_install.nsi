@@ -32,8 +32,8 @@ FunctionEnd
 !define MUI_ABORTWARNING
 !define MUI_UNABORTWARNING
 
-!define MUI_WELCOMEFINISHPAGE_BITMAP "welcome.bmp"
-!define MUI_UNWELCOMEFINISHPAGE_BITMAP "unwelcome.bmp"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "installer\welcome.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "installer\unwelcome.bmp"
 
 !define MUI_FINISHPAGE_RUN "$INSTDIR/principia.exe"
 !define MUI_FINISHPAGE_RUN_TEXT "Run Principia"
@@ -77,7 +77,6 @@ Section "Core Files (required)" SecCore
   File /r /x *.sw* "..\data-shared\bg"
   File /r /x *.sw* "..\data-shared\fonts"
   File /r /x *.sw* "..\data-shared\icons"
-  File /r /x *.sw* "..\data-shared\lang"
   File /r /x *.sw* "..\data-shared\lvl"
   File /r /x *.sw* "..\data-shared\models"
   File /r /x *.sw* "..\data-shared\pkg"

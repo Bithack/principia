@@ -39,12 +39,6 @@ timer::timer()
     this->s_out[0].tag = SOCK_TAG_TICK;
     this->s_out[1].tag = SOCK_TAG_STATUS;
 
-    this->s_in[0].set_description("Start");
-    this->s_in[1].set_description("Stop");
-
-    this->s_out[0].set_description("Tick");
-    this->s_out[1].set_description("Timer status");
-
     this->set_num_properties(3);
     this->properties[0].type = P_INT;
     this->properties[0].v.i = 2500;

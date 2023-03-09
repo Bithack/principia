@@ -37,10 +37,6 @@ switcher::switcher()
     this->s_in[2].angle = 0;
     this->s_in[2].tag = SOCK_TAG_LEFT;
 
-    this->s_in[0].set_description("The value sent to any of the 5 outputs. Initially, the signal is sent to OUT0");
-    this->s_in[1].set_description("Switch output up");
-    this->s_in[2].set_description("Switch output down");
-
     this->set_material(&m_edev);
     this->set_mesh(mesh_factory::get_mesh(MODEL_SWITCHER));
 

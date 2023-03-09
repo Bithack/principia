@@ -521,9 +521,16 @@ game::info_btn_pressed(entity *e)
     e = e->get_property_entity();
 
     tms_debugf("Opening help dialog for %d:%s", e->g_id, e->get_name());
-    ui::open_help_dialog(of::get_object_name(e),
-            of::get_object_description(e)
-        );
+
+    char wikiurl[256];
+
+    if (e->is_item()) {
+        item *i = static_cast<item*>(e);
+        snprintf(wikiurl, 255, "https://principia-web.se/wiki/Special:GotoItem?id=%d", i->get_item_type());
+    } else
+        snprintf(wikiurl, 255, "https://principia-web.se/wiki/Special:GotoObject?id=%d", e->g_id);
+
+    ui::open_url(wikiurl);
 }
 
 void
@@ -1465,9 +1472,9 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                 robot_parts::tool *t = adventure::player->get_tool();
 
                 if (t) {
-                    ui::open_help_dialog(of::get_item_name(t->get_item_id()),
-                            of::get_item_description(t->get_item_id())
-                            );
+                    char wikiurl[256];
+                    snprintf(wikiurl, 255, "https://principia-web.se/wiki/Special:GotoItem?id=%d", t->get_item_id());
+                    ui::open_url(wikiurl);
                 }
             }
             return true;
@@ -1596,12 +1603,6 @@ game::init_gui(void)
     factionlabel = this->text_small->add_to_atlas(this->texts, "Faction:");
     catsprites[n] = this->text_small->add_to_atlas(this->texts, "Recent");
 
-#if defined(DEBUG) && (defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX))
-    char path[512];
-    sprintf(path, "%s/obj", tbackend_get_storage_path());
-    FILE *obj_fh = fopen(path, "w+");
-#endif
-
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 3", ierr);
     int num_objects = 0;
     tms_progressf("*");
@@ -1610,51 +1611,7 @@ game::init_gui(void)
         for (int x=0; x<of::get_num_objects(y); x++) {
             int gid = of::get_gid(y, x);
             entity *e = of::create(gid);
-#if defined(DEBUG) && (defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX))
-            /* Output object data */
-            /* g_id:name:description:category_name:flag_active(ENTITY_IS_EDEVICE) */
-            if (!(y == 0 && x == 0)) {
-                fprintf(obj_fh, "=====");
-            }
 
-            const char *descr = of::get_object_description(e);
-
-            if (strcmp(descr, "No description added for this object yet, sorry!") == 0) {
-                tms_infof("%s LACKS A DESCRIPTION", e->get_name());
-            }
-
-            fprintf(obj_fh, "%d:::::", e->g_id);
-            fprintf(obj_fh, "%s:::::", e->get_name());
-            fprintf(obj_fh, "%s:::::", descr);
-            fprintf(obj_fh, "%s:::::", of::get_category_name(y));
-            fprintf(obj_fh, "%d:::::", e->get_layer());
-            fprintf(obj_fh, "%d:::::", e->layer_mask);
-            fprintf(obj_fh, "%d", e->flag_active(ENTITY_IS_EDEVICE) ? 1 : 0);
-            if (e->flag_active(ENTITY_IS_EDEVICE)) {
-                edevice *ed = e->get_edevice();
-                if (ed->num_s_in) {
-                    for (int i=0; i<ed->num_s_in; ++i) {
-                        if (i != 0) fprintf(obj_fh, ":");
-                        fprintf(obj_fh, "%d;;", i); /* Socket index */
-                        fprintf(obj_fh, "%d;;", ed->s_in[i].ctype); /* Cable type */
-                        fprintf(obj_fh, "%d;;", ed->s_in[i].tag); /* Socket tag */
-                        fprintf(obj_fh, "%s", ed->s_in[i].description ? ed->s_in[i].description : "0"); /* Socket description */
-                    }
-                }
-
-                fprintf(obj_fh, "|");
-
-                if (ed->num_s_out) {
-                    for (int i=0; i<ed->num_s_out; ++i) {
-                        if (i != 0) fprintf(obj_fh, ":");
-                        fprintf(obj_fh, "%d;;", i); /* Socket index */
-                        fprintf(obj_fh, "%d;;", ed->s_out[i].ctype); /* Cable type */
-                        fprintf(obj_fh, "%d;;", ed->s_out[i].tag); /* Socket tag */
-                        fprintf(obj_fh, "%s", ed->s_out[i].description ? ed->s_out[i].description : "0"); /* Socket description */
-                    }
-                }
-            }
-#endif
             //tms_infof("%d:'%s'", gid, e->get_name());
             if (!e) {
                 tms_errorf("Error creating %d", gid);
@@ -1668,10 +1625,6 @@ game::init_gui(void)
     }
 
     item::_init();
-
-#if defined(DEBUG) && (defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX))
-    fclose(obj_fh);
-#endif
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 4", ierr);
 

@@ -90,9 +90,6 @@ conveyor::conveyor()
     this->s_in[0].lpos = b2Vec2(-.15f, .0f); /* speed multiplier */
     this->s_in[1].lpos = b2Vec2( .15f, .0f);  /* invert direction */
 
-    this->s_in[0].set_description("Speed multiplier");
-    this->s_in[1].set_description("Invert direction");
-
     this->set_num_properties(3);
     this->properties[0].type = P_INT;
     this->properties[1].type = P_FLT;

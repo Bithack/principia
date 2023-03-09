@@ -78,7 +78,6 @@ scanner::scanner()
     this->handler = new scanner::cb_handler(this);
     this->s_in[0].ctype = CABLE_RED;
     this->s_in[0].lpos = b2Vec2(0.f, .2f);
-    this->s_in[0].set_description("Activate");
 
     this->set_num_properties(1);
     this->properties[0].type = P_FLT; /* Wavelength */

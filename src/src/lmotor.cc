@@ -207,7 +207,6 @@ lmotor::init_socks()
         this->s_in[0].lpos = b2Vec2(0.f,-.085f);
         this->s_in[0].ctype = CABLE_BLUE;
         this->s_in[0].angle = M_PI/2.f;
-        this->s_in[0].set_description("Interface");
 
         /*
         this->s_in[1].lpos = b2Vec2(.0f,.35f);
@@ -222,7 +221,6 @@ lmotor::init_socks()
         this->s_in[0].lpos = b2Vec2(0.f,-.185f);
         this->s_in[0].ctype = CABLE_BLUE;
         this->s_in[0].angle = -M_PI/2.f;
-        this->s_in[0].set_description("Interface");
 
         /*
         this->s_in[1].lpos = b2Vec2(.0f,-.35f);

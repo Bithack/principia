@@ -45,6 +45,7 @@ import com.bithack.principia.shared.SaveAsDialog;
 import com.bithack.principia.shared.ScriptDialog;
 import com.bithack.principia.shared.SequencerDialog;
 import com.bithack.principia.shared.SettingsDialog;
+import com.bithack.principia.shared.Sfx2Dialog;
 import com.bithack.principia.shared.SfxDialog;
 import com.bithack.principia.shared.ShapeExtruderDialog;
 import com.bithack.principia.shared.PolygonDialog;
@@ -212,13 +213,16 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
 
     public void enableImmersiveMode()
     {
+        /// XXX: Immersive/fullscreen mode makes it difficult to use the sandbox menu drawer and causes some graphical
+        /// glitches, comment this out for now (should probably be a toggle)
+        /*
         WindowCompat.setDecorFitsSystemWindows(mSingleton.getWindow(), true);
         WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(mSingleton.getWindow(), mSingleton.getWindow().getDecorView());
 
         if (controller != null) {
             controller.hide(WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.navigationBars());
             controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-        }
+        }*/
     }
 
     @Override
@@ -709,37 +713,11 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
             public void run() {
                 String community_host = PrincipiaBackend.getCommunityHost();
                 if (SDLActivity.wv_cm != null) {
-                    String cookie_data = SDLActivity.wv_cm.getCookie("."+community_host);
-                    if (cookie_data != null) {
-                        String[] prev_cookies = cookie_data.split("; ");
-                        int uid = 1;
-                        for (String pc : prev_cookies) {
-                            String[] data = pc.split("=");
-                            if (data[0].startsWith("phpbb_") && data[0].endsWith("_u")) {
-                                try {
-                                    uid = Integer.parseInt(data[1]);
-                                } catch (Exception e) { }
-                            }
-                        }
+                    String curl_token = PrincipiaBackend.getCookies();
 
-                        // not logged in with webview already, fetch cookies from curl!
-                        if (uid <= 1) {
-                            String[] cd = PrincipiaBackend.getCookies().split("/");
-                            int u = 1;
-                            String k = null, sid = null;
-                            try {
-                                u = Integer.parseInt(cd[0]);
-                                k = cd[1];
-                                sid = cd[2];
-                            } catch (Exception e) { }
-
-                            if (u != 1 && u != 0 && k != null && sid != null) {
-                                // we got relevant cookies from curl!
-                                SDLActivity.wv_cm.setCookie("."+community_host, "phpbb_ziao2_u="+u);
-                                SDLActivity.wv_cm.setCookie("."+community_host, "phpbb_ziao2_k="+k);
-                                SDLActivity.wv_cm.setCookie("."+community_host, "phpbb_ziao2_sid="+sid);
-                            }
-                        }
+                    if (curl_token != null) {
+                        // we got relevant cookies from curl!
+                        SDLActivity.wv_cm.setCookie("."+community_host, "_PRINCSECURITY="+curl_token);
                     }
                 }
 
@@ -939,9 +917,6 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
     public static final int ACTION_SET_MODE = 39;
     public static final int ACTION_MAIN_MENU_PKG = 40;
     public static final int ACTION_WORLD_PAUSE = 41;
-    public static final int ACTION_VERSION_CHECK = 42;
-    public static final int ACTION_LICENSE_CHECK = 43;
-    public static final int ACTION_LICENSE_CHECK_OFFLINE = 44;
     public static final int ACTION_CONSTRUCT_ITEM = 45;
     public static final int ACTION_SUBMIT_SCORE = 46;
     public static final int ACTION_MULTI_DELETE = 47;
@@ -1009,9 +984,6 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
 
     public static final int DIALOG_MAIN_MENU_PKG    = 145;
 
-    public static final int DIALOG_INVALID_LICENSE  = 146;
-    public static final int DIALOG_OUT_OF_TOKENS    = 147;
-
     public static final int DIALOG_SOUNDMAN         = 148;
 
     public static final int DIALOG_FACTORY          = 149;
@@ -1028,6 +1000,7 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
     public static final int DIALOG_EMITTER          = 159;
     public static final int DIALOG_TREASURE_CHEST   = 160;
     public static final int DIALOG_DECORATION       = 161;
+    public static final int DIALOG_SFX_EMITTER_2    = 162; // New SFX Emitter dialog (1.5.1+)
 
     public static final int DIALOG_PUBLISH          = 300;
     public static final int DIALOG_LOGIN            = 301;
@@ -1099,7 +1072,7 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
         SDLActivity.mSingleton.runOnUiThread(new Runnable(){
             public void run() {
                 /* hack to prevent killing of immersive mode */
-                mSingleton.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+                //mSingleton.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
 
                 new AlertDialog.Builder(mSingleton.getContext())
                     .setMessage(text)
@@ -1111,8 +1084,8 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
                     .setIcon(android.R.drawable.ic_dialog_info)
                     .show();
 
-                mSingleton.getWindow().getDecorView().setSystemUiVisibility(mSingleton.getWindow().getDecorView().getSystemUiVisibility());
-                mSingleton.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+                //mSingleton.getWindow().getDecorView().setSystemUiVisibility(mSingleton.getWindow().getDecorView().getSystemUiVisibility());
+                //mSingleton.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
             }
         });
     }
@@ -1257,6 +1230,7 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
         case DIALOG_PROMPT_SETTINGS:    d = PromptSettingsDialog.get_dialog(); break;
         case DIALOG_PROMPT:             d = (new PromptDialog()).get_dialog(); break;
         case DIALOG_SFX_EMITTER:        d = SfxDialog.get_dialog(); break;
+        case DIALOG_SFX_EMITTER_2:      d = Sfx2Dialog.get_dialog(); break;
         case DIALOG_VARIABLE:           d = VariableDialog.get_dialog(); break;
         case DIALOG_SYNTHESIZER:        d = SynthesizerDialog.get_dialog(); break;
         case DIALOG_SEQUENCER:          d = SequencerDialog.get_dialog(); break;
@@ -1445,6 +1419,7 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
             case DIALOG_TIMER:              TimerDialog.prepare(dialog); break;
             case DIALOG_PROMPT_SETTINGS:    PromptSettingsDialog.prepare(dialog); break;
             case DIALOG_SFX_EMITTER:        SfxDialog.prepare(dialog); break;
+            case DIALOG_SFX_EMITTER_2:      Sfx2Dialog.prepare(dialog); break;
             case DIALOG_VARIABLE:           VariableDialog.prepare(dialog); break;
             case DIALOG_SYNTHESIZER:        SynthesizerDialog.prepare(dialog); break;
             case DIALOG_SEQUENCER:          SequencerDialog.prepare(dialog); break;

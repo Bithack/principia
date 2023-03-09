@@ -297,6 +297,8 @@ float tmath_atan2(float y, float x)
 
 float tmath_sqrt(float x)
 {
+	if (x == 0.0f) return 0.0f;
+
 	float b, c;
 	int m;
 	union {

@@ -907,130 +907,10 @@ static int *ids[] = {
     c0_ids, c1_ids, c2_ids, c3_ids, c4_ids, c5_ids, c6_ids,c7_ids,c8_ids,c9_ids
 };
 
-static char *o_descr_buf = 0;
-static long o_descr_len = 0;
-static char *o_descriptions[sizeof(c_creator)/sizeof(void*)];
-static char *o_names[sizeof(c_creator)/sizeof(void*)];
-
-static char *i_descr_buf = 0;
-static long i_descr_len = 0;
-static char *i_descriptions[NUM_ITEMS];
-static char *i_names[NUM_ITEMS];
-
 void
 of::init(void)
 {
-    {
-        memset(o_descriptions, 0, sizeof(o_descriptions));
-        memset(o_names, 0, sizeof(o_names));
-        if (o_descr_buf) {
-            free(o_descr_buf);
-            o_descr_buf = 0;
-        }
 
-        SDL_RWops *fp = SDL_RWFromFile("data-shared/lang/en/object_help.txt", "rb");
-
-        if (fp) {
-            SDL_RWseek(fp, 0, SEEK_END);
-            o_descr_len = SDL_RWtell(fp);
-            SDL_RWseek(fp, 0, SEEK_SET);
-
-            o_descr_buf = (char*)malloc(o_descr_len+1);
-
-            if (!o_descr_buf)
-                tms_fatalf("Ran out of memory when attempting to allocate memory for o_descr_buf.");
-
-            SDL_RWread(fp, o_descr_buf, 1, o_descr_len);
-            SDL_RWclose(fp);
-
-            o_descr_buf[o_descr_len] = '\0';
-
-            char *s = o_descr_buf;
-            long l = o_descr_len;
-            int ss;
-            for (long x=0; x<l; x++) {
-                while (x<l && isspace(s[x])) x++;
-                ss = x;
-                while (x<l && isdigit(s[x])) x++;
-                if (x - ss <= 0) break;
-                int id = atoi(s+ss);
-                do {x++;} while (x<l && isspace(s[x]));
-                ss = x;
-                while (x<l && s[x] != '\n') x++;
-                if (x - ss <= 0) break;
-                s[x] = '\0';
-                if (id < num_creators) o_names[id] = s+ss;
-                x++;
-                if (x>=l) break;
-
-                while (x<l && isspace(s[x])) x++;
-
-                char* t = strstr(s+x, "-----");
-                if (!t) {t = s+l;}
-                if (t - (s+x) > 0) {
-                    *t = '\0';
-                    if (id < num_creators) o_descriptions[id] = s+x;
-                }
-                x = t-s + 5;
-            }
-        }
-    }
-
-    {
-        memset(i_descriptions, 0, sizeof(i_descriptions));
-        memset(i_names, 0, sizeof(i_names));
-        if (i_descr_buf) {
-            free(i_descr_buf);
-            i_descr_buf = 0;
-        }
-
-        SDL_RWops *fp = SDL_RWFromFile("data-shared/lang/en/item_help.txt", "rb");
-
-        if (fp) {
-            SDL_RWseek(fp, 0, SEEK_END);
-            i_descr_len = SDL_RWtell(fp);
-            SDL_RWseek(fp, 0, SEEK_SET);
-
-            i_descr_buf = (char*)malloc(i_descr_len+1);
-
-            if (!i_descr_buf)
-                tms_fatalf("Ran out of memory when attempting to allocate memory for i_descr_buf.");
-
-            SDL_RWread(fp, i_descr_buf, 1, i_descr_len);
-            SDL_RWclose(fp);
-
-            i_descr_buf[i_descr_len] = '\0';
-
-            char *s = i_descr_buf;
-            long l = i_descr_len;
-            int ss;
-            for (long x=0; x<l; x++) {
-                while (x<l && isspace(s[x])) x++;
-                ss = x;
-                while (x<l && isdigit(s[x])) x++;
-                if (x - ss <= 0) break;
-                int id = atoi(s+ss);
-                do {x++;} while (x<l && isspace(s[x]));
-                ss = x;
-                while (x<l && s[x] != '\n') x++;
-                if (x - ss <= 0) break;
-                s[x] = '\0';
-                if (id < num_creators) i_names[id] = s+ss;
-                x++;
-                if (x>=l) break;
-
-                while (x<l && isspace(s[x])) x++;
-
-                char* t = strstr(s+x, "-----");
-                if (!t) {t = s+l;}
-                if (t - (s+x) > 0) {
-                    *t = '\0';
-                    if (id < num_creators) i_descriptions[id] = s+x;
-                }
-                x = t-s + 5;
-            }
-        }
-    }
 }
 
 int of::get_gid(int category, int child)
@@ -1504,104 +1384,18 @@ of::get_next_id(void)
 }
 
 const char *
-of::get_item_description(uint32_t item_id)
-{
-    if (!i_descriptions[item_id]) {
-        return "No description added for this object yet, sorry!";
-    }
-
-    return i_descriptions[item_id];
-}
-
-const char *
-of::get_object_description(entity *e)
-{
-    uint16_t id = 0;
-
-    if (e->g_id == O_ITEM) {
-        item *i = static_cast<item*>(e);
-
-        return of::get_item_description(i->get_item_type());
-    }
-
-    if (!(e = e->get_property_entity()))
-        goto no_descr;
-
-    if (e->g_id == 0 && !e->flag_active(ENTITY_IS_BEAM))
-        goto no_descr;
-
-    if (e->flag_active(ENTITY_IS_OWNED)) e = (entity*)e->parent;
-    if (e->type == ENTITY_CABLE) {
-        cable *c = static_cast<cable*>(e);
-        switch (c->ctype) {
-            case CABLE_BLACK: id = 33; break; /* Power Cable */
-            case CABLE_RED:   id = 34; break; /* Signal Cable */
-            case CABLE_BLUE:  id = 35; break; /* Interface Cable */
-        }
-    } else {
-        id = e->g_id;
-    }
-
-    //tms_infof("Get object description for id %d", id);
-    if (o_descriptions[id]) {
-        return o_descriptions[id];
-    }
-
-no_descr:
-    return "No description added for this object yet, sorry!";
-}
-
-const char *
-of::get_item_name(uint32_t item_id)
-{
-    if (!i_names[item_id]) {
-        return "Item";
-    }
-
-    return i_names[item_id];
-}
-
-const char *
-of::get_object_name(entity *e)
-{
-    uint16_t id = 0;
-
-    if (e->g_id == O_ITEM) {
-        item *i = static_cast<item*>(e);
-
-        return of::get_item_name(i->get_item_type());
-    }
-
-    if (!(e = e->get_property_entity()))
-        goto no_name;
-
-    if (e->g_id == 0 && !e->flag_active(ENTITY_IS_BEAM))
-        goto no_name;
-
-    if (e->flag_active(ENTITY_IS_OWNED)) e = (entity*)e->parent;
-    if (e->type == ENTITY_CABLE) {
-        cable *c = static_cast<cable*>(e);
-        switch (c->ctype) {
-            case CABLE_BLACK: id = 33; break; /* Power Cable */
-            case CABLE_RED:   id = 34; break; /* Signal Cable */
-            case CABLE_BLUE:  id = 35; break; /* Interface Cable */
-        }
-    } else {
-        id = e->g_id;
-    }
-
-    //tms_infof("Get object name for id %d", id);
-    if (o_names[id]) return o_names[id];
-
-no_name:
-    return "Object";
-}
-
-const char *
 of::get_object_name_by_gid(uint32_t gid)
 {
-    if (gid <sizeof(c_creator)/sizeof(void*) && o_names[gid]) return o_names[gid];
-    return "Object";
-
+    // ~~oh dear I think this is hacky~~
+    // The old implementation would read from object help text data, but since that
+    // is gone now, this was the best I could come up with. This method is basically
+    // only used for factory objects and debugging stuff.
+    entity *obj = _create(gid);
+    if (obj) {
+        const char* obj_name = obj->get_name();
+        delete obj;
+        return obj_name;
+    } else {
+        return "Nonexistant object";
+    }
 }
-

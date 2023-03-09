@@ -120,9 +120,6 @@ emitter::emitter(int size)
     this->s_out[0].lpos = b2Vec2(-.125f, +this->emitter_h+this->frame_h-0.025f);
     this->s_in[0].lpos  = b2Vec2( .125f, +this->emitter_h+this->frame_h-0.025f);
 
-    this->s_in[0].set_description("Active");
-    this->s_out[0].set_description("1.0 when an object was emitted");
-
     this->scaleselect = true;
     this->menu_scale = .5f;
 

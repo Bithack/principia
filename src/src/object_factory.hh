@@ -250,12 +250,7 @@ class of
 
     static const int num_categories = 10;
 
-    static const char *get_object_description(entity *e);
-    static const char *get_object_name(entity *e);
     static const char *get_object_name_by_gid(uint32_t gid);
-
-    static const char *get_item_name(uint32_t item_id);
-    static const char *get_item_description(uint32_t item_id);
 
     static int get_num_objects(int cat);
     static const char *get_category_name(int x);

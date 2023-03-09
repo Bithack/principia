@@ -1478,7 +1478,7 @@ adventure::render()
 #if defined(NO_UI)
     return;
 #endif
-    if (!adventure::player) return;
+    if (!adventure::player || settings["render_gui"]->is_false()) return;
 
     glBindTexture(GL_TEXTURE_2D, G->get_item_texture()->gl_texture);
 

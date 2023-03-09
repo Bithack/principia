@@ -49,9 +49,6 @@ motor::motor(int mtype)
         this->s_in[1].ctype = CABLE_RED;
         this->s_in[1].angle = M_PI/2.f;
         this->s_in[1].tag = SOCK_TAG_SPEED;
-
-        this->s_in[0].set_description("Voltage");
-        this->s_in[1].set_description("Speed");
     } else {
         this->set_flag(ENTITY_ALLOW_AXIS_ROT, true);
         this->do_solve_electronics = false;

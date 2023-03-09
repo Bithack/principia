@@ -1331,7 +1331,6 @@ tproject_step(void)
                     break;
 
                 case ACTION_EDIT:
-                    ui::message("Playing community levels is disabled for the Lite version.\nPlease upgrade to the Full version to enable this feature.", true);
                     G->resume_action = GAME_RESUME_OPEN;
                     G->screen_back = 0;
 
@@ -1675,15 +1674,17 @@ tproject_init(void)
     P.message = 0;
     P.new_version_available = false;
     P.curl = 0;
-#if defined(TMS_BACKEND_ANDROID_X86) 
-    tms_debugf("ARCH: x86!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-#elif defined(TMS_BACKEND_ANDROID_ARMEABI)
-    tms_debugf("ARCH: aremeabi");
+
+#if defined(TMS_BACKEND_ANDROID_X86_64)
+    tms_debugf("ARCH: x86_64");
+#elif defined(TMS_BACKEND_ANDROID_X86)
+    tms_debugf("ARCH: x86");
+#elif defined(TMS_BACKEND_ANDROID_ARM64_V8A)
+    tms_debugf("ARCH: arm64-v8a");
 #elif defined(TMS_BACKEND_ANDROID_ARMEABI_V7A)
-    tms_debugf("ARCH: armeabi v7");
-#else
-    tms_debugf("ARCH: unknown");
+    tms_debugf("ARCH: armeabi-v7");
 #endif
+
     tms_infof("tproject_init called");
     srand((unsigned)time(0));
 
@@ -1863,11 +1864,17 @@ _parse_headers(void *buffer, size_t size, size_t nmemb, void *data)
             }
         }
 
-        if (strcmp(buf, "x-principia-user-id") == 0) {
+        // Both lower case and title case, former is for HTTP/2, latter is
+        // for HTTP/1.1, which Android currently uses as cURL isn't built
+        // with nghttp2 (gah, TODO!)
+        if (strcmp(buf, "x-principia-user-id") == 0
+         || strcmp(buf, "x-Principia-User-Id") == 0) {
             P.user_id = atoi(v);
-        } else if (strcmp(buf, "x-principia-user-name") == 0) {
+        } else if (strcmp(buf, "x-principia-user-name") == 0
+                || strcmp(buf, "X-Principia-User-Name") == 0) {
             P.username = strdup(v);
-        } else if (strcmp(buf, "x-principia-unread") == 0) {
+        } else if (strcmp(buf, "x-principia-unread") == 0
+                || strcmp(buf, "X-Principia-Unread") == 0) {
             P.num_unread_messages = atoi(v);
         }
     }
@@ -2197,10 +2204,6 @@ _download_level(void *p)
                 switch (_play_header_data.error_action) {
                     case ERROR_ACTION_LOG_IN:
                         require_login = true;
-                        break;
-
-                    case ERROR_ACTION_OUT_OF_DOWNLOAD_TOKENS:
-                        ui::open_dialog(DIALOG_OUT_OF_TOKENS);
                         break;
                 }
 
@@ -4177,13 +4180,14 @@ principia::get_light_normal()
 #undef LIGHT_NORMAL_Z
 }
 
+/**
+ * Get the community site login token from cURL, intended for the user to be automatically
+ * logged into the Android webview.
+*/
 extern "C" void
-P_get_cookie_data(char **u, char **k, char **sid, char **l)
+P_get_cookie_data(char **token)
 {
-    *u = 0;
-    *k = 0;
-    *sid = 0;
-    *l = 0;
+    *token = 0;
 
     if (quitting) {
         return;
@@ -4205,32 +4209,16 @@ P_get_cookie_data(char **u, char **k, char **sid, char **l)
 
             while (cookies) {
                 int nt = 0;
-                int found_u = 0;
-                int found_k = 0;
-                int found_sid = 0;
-                int found_l = 0;
+                int found_token = 0;
                 char *d = cookies->data;
                 tms_debugf("cookie: %s", d);
                 while (*d != '\0') {
                     if (nt == 5) {
-                        if (strncmp(d, "phpbb_ziao2_u", 13) == 0) {
-                            found_u = 1;
-                        }
-                        if (strncmp(d, "phpbb_ziao2_k", 13) == 0) {
-                            found_k = 1;
-                        }
-                        if (strncmp(d, "phpbb_ziao2_sid", 15) == 0) {
-                            found_sid = 1;
-                        }
-                        if (strncmp(d, "z2lia7e", 7) == 0) {
-                            found_l = 1;
-                        }
+                        if (strncmp(d, "_PRINCSECURITY", 14) == 0)
+                            found_token = 1;
                     }
                     if (nt == 6) {
-                        if (found_u) *u = d;
-                        if (found_sid) *sid = d;
-                        if (found_k) *k = d;
-                        if (found_l) *l = d;
+                        if (found_token) *token = d;
                         break;
                     }
                     if (*d == '\t') nt++;

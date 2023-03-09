@@ -29,7 +29,6 @@ magnet::magnet(int type)
             this->num_s_in = 1;
             this->s_in[0].lpos = b2Vec2(-.5f, .25f);
             this->s_in[0].ctype = CABLE_BLACK;
-            this->s_in[0].set_description("Voltage");
             break;
     }
 }

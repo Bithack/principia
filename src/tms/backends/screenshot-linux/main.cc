@@ -435,7 +435,7 @@ tbackend_init_surface()
     _tms.yppcm = 107.f/2.54f * 1.5f;
 
     tms_progressf("Creating window... ");
-    _window = SDL_CreateWindow("Super Slime Blab", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _tms.window_width, _tms.window_height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    _window = SDL_CreateWindow("Principia Screenshotter", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _tms.window_width, _tms.window_height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (_window == NULL) {
         tms_progressf("ERROR: %s\n", SDL_GetError());
         exit(1);

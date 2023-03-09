@@ -53,14 +53,14 @@ done
 $makecmd CFLAGS="$RELEASEFLAGS" CXXFLAGS="$RELEASEFLAGS" -j $num_jobs &&
 if [ "$run" -eq "1" ]; then
     if [ "$debug" -eq "2" ]; then
-        valgrind ./principia 50000
+        valgrind ./principia_ss 50000
     elif [ "$debug" -eq "1" ]; then
-        gdb --args ./principia 50000
+        gdb --args ./principia_ss 50000
     elif [ "$debug" -eq "3" ]; then
         rm callgrind.* &> /dev/null
-        valgrind --tool=callgrind -v --dump-every-bb=10000000 ./principia
-        gdb --args ./principia 50000
+        valgrind --tool=callgrind -v --dump-every-bb=10000000 ./principia_ss
+        gdb --args ./principia_ss 50000
     else
-        ./principia 50000
+        ./principia_ss 50000
     fi
 fi

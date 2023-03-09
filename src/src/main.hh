@@ -34,12 +34,8 @@ class pkginfo;
 #elif defined(TMS_BACKEND_LINUX)
 #define OS_STRING "Linux"
 #elif defined(TMS_BACKEND_ANDROID)
-# if defined(TMS_BACKEND_ANDROID_X86)
+# if defined(TMS_BACKEND_ANDROID_X86) || defined(TMS_BACKEND_ANDROID_X86_64)
 #  define OS_STRING "Android x86"
-# elif defined(TMS_BACKEND_ANDROID_ARMEABI)
-#  define OS_STRING "Android"
-# elif defined(TMS_BACKEND_ANDROID_ARMEABI_V7A)
-#  define OS_STRING "Android"
 # else
 #  define OS_STRING "Android"
 # endif
@@ -178,8 +174,7 @@ enum {
 #define PLATFORM_ANDROID    4
 #define PLATFORM_IOS        5
 
-#define ERROR_ACTION_LOG_IN                 1
-#define ERROR_ACTION_OUT_OF_DOWNLOAD_TOKENS 2
+#define ERROR_ACTION_LOG_IN 1
 
 struct action {
     int id;
@@ -315,7 +310,7 @@ void P_focus(int focus);
 #ifdef __cplusplus
 extern "C" {
 #endif
-void P_get_cookie_data(char **u, char **k, char **sid, char **l);
+void P_get_cookie_data(char **token);
 #ifdef __cplusplus
 }
 #endif

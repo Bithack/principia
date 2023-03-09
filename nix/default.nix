@@ -71,10 +71,6 @@ stdenv.mkDerivation {
     xorg.libXdmcp
   ];
 
-  patches = [
-    ./shell-script.patch 
-  ];
-
   preConfigure = ''
     for p in $SDL2_PATH; do
       NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -isystem $p"
@@ -101,17 +97,12 @@ stdenv.mkDerivation {
     mkdir -p $out/bin
 
     cp -r --dereference data-pc data-shared $out/share/principia/
-    install -Dm755 principia apparatus2 $out/share/principia/
+    install -Dm755 principia $out/share/principia/
     install -Dm644 principia.desktop principia-url-handler.desktop $out/share/applications/
     install -Dm644 principia.png $out/share/pixmaps/
 
-    cat > $out/bin/principia << EOF
-#!/bin/bash
-    
-cd $out/share/principia && ./apparatus2 \$1
-EOF
+    ln -s $out/share/principia/principia "$out/bin/principia"
     chmod 755 $out/bin/principia
-    patchShebangs $out/bin/principia
   '';
 
   meta = with lib; {
