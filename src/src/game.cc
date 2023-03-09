@@ -8018,6 +8018,7 @@ game::handle_input_paused(tms::event *ev, int action)
             case TMS_KEY_T:
                 if (this->selection.e) {
                     this->selection.e->disconnect_all();
+                    this->refresh_widgets();
                 }
 #if 0
                 if (this->state.sandbox && this->selection.e && this->selection.e->flag_active(ENTITY_IS_EDEVICE)) {
