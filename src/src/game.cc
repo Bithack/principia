@@ -8059,6 +8059,7 @@ game::handle_input_paused(tms::event *ev, int action)
                     ui::open_dialog(DIALOG_NEW_LEVEL);
                 } else {
                     G->toggle_entity_lock(G->selection.e);
+                    this->refresh_widgets();
                 }
                 break;
 
