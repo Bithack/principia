@@ -8193,7 +8193,12 @@ game::handle_input_paused(tms::event *ev, int action)
                     this->refresh_widgets();
                 }
                 break;
-
+            case TMS_KEY_C:
+                if (this->selection.e) {
+                    this->toggle_entity_lock(this->selection.e);
+                    this->refresh_widgets();
+                }
+                break;
             case TMS_KEY_O:
                 if (ev->data.key.mod & TMS_MOD_CTRL) {
                     disable_menu = true;
