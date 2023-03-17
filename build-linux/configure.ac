@@ -1,6 +1,6 @@
 AC_PREREQ(2.59)
 AC_INIT([principia], 1, [sdac@bithack.se])
-AM_INIT_AUTOMAKE([subdir-objects])
+AM_INIT_AUTOMAKE([subdir-objects foreign])
 AM_SILENT_RULES([yes])
 
 AC_PROG_CC
