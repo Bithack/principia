@@ -8,9 +8,6 @@
 #include <set>
 
 /* escript flags */
-#define ESCRIPT_INCLUDE_STRING          (1ULL << 0)
-#define ESCRIPT_INCLUDE_TABLE           (1ULL << 1)
-#define ESCRIPT_LISTEN_ON_INPUT         (1ULL << 2)
 #define ESCRIPT_USE_EXTERNAL_EDITOR     (1ULL << 3)
 
 #define ESCRIPT_WORLD   0

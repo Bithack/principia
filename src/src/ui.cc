@@ -4000,9 +4000,6 @@ GtkRange        *cursorfield_down;
 GtkWindow       *escript_window;
 GtkUndoView     *escript_code;
 GtkTextBuffer   *escript_buffer;
-GtkCheckButton  *escript_include_string;
-GtkCheckButton  *escript_include_table;
-GtkCheckButton  *escript_listen_on_input;
 GtkCheckButton  *escript_use_external_editor;
 GtkBox          *escript_external_box;
 GtkLabel        *escript_external_file_path;
@@ -5573,9 +5570,6 @@ on_escript_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
             bool use_external_editor = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(escript_use_external_editor));
 
             e->properties[1].v.i = 0;
-            e->properties[1].v.i |= ((int)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(escript_include_string)) * ESCRIPT_INCLUDE_STRING);
-            e->properties[1].v.i |= ((int)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(escript_include_table)) * ESCRIPT_INCLUDE_TABLE);
-            e->properties[1].v.i |= ((int)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(escript_listen_on_input)) * ESCRIPT_LISTEN_ON_INPUT);
             e->properties[1].v.i |= ((int)use_external_editor * ESCRIPT_USE_EXTERNAL_EDITOR);
 
             bool wrote_to_external_file = false;
@@ -5653,9 +5647,6 @@ on_escript_show(GtkWidget *wdg, void *unused)
             gtk_text_buffer_set_text(text_buffer, code, -1);
         }
 
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(escript_include_string), e->properties[1].v.i & ESCRIPT_INCLUDE_STRING);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(escript_include_table), e->properties[1].v.i & ESCRIPT_INCLUDE_TABLE);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(escript_listen_on_input), e->properties[1].v.i & ESCRIPT_LISTEN_ON_INPUT);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(escript_use_external_editor), e->properties[1].v.i & ESCRIPT_USE_EXTERNAL_EDITOR);
 
         bool external_editor_active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(escript_use_external_editor));
@@ -12391,21 +12382,6 @@ int _gtk_loop(void *p)
         GtkWidget *cb;
 
         {
-            cb = gtk_check_button_new_with_label("String");
-            gtk_widget_set_tooltip_text(cb, "Include the Lua String library");
-            escript_include_string = GTK_CHECK_BUTTON(cb);
-        }
-        {
-            cb = gtk_check_button_new_with_label("Table");
-            gtk_widget_set_tooltip_text(cb, "Include the Lua Table library");
-            escript_include_table = GTK_CHECK_BUTTON(cb);
-        }
-        {
-            cb = gtk_check_button_new_with_label("Listen on input");
-            gtk_widget_set_tooltip_text(cb, "Listen to user input during runtime (calls on_input(type, data))");
-            escript_listen_on_input = GTK_CHECK_BUTTON(cb);
-        }
-        {
             cb = gtk_check_button_new_with_label("Use external editor");
             g_signal_connect(cb, "toggled", G_CALLBACK(on_escript_external_editor_toggled), 0);
             gtk_widget_set_tooltip_text(cb, "Check this file if you want to edit the Lua from an external editor");
@@ -12444,9 +12420,6 @@ int _gtk_loop(void *p)
 
         GtkHBox *hbox = GTK_HBOX(gtk_hbox_new(0,0));
         gtk_box_pack_start(GTK_BOX(hbox), new_lbl("<b>Flags:</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(escript_include_string), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(escript_include_table), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(escript_listen_on_input), false, false, 0);
         gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(escript_use_external_editor), false, false, 0);
 
         GtkWidget *ew = gtk_scrolled_window_new(0,0);

@@ -3925,31 +3925,27 @@ escript::init()
     for (int x=0; x<WORLD_EVENT__NUM; x++) {
         this->events[x] = 0;
     }
-
-    this->listen_on_input = false;
+	
+	this->listen_on_input = true;
+	
     this->lines.clear();
 
     this->L = luaL_newstate();
 
     this->L->userdata = (void*)this;
+	
+	//Open lua libraries
     luaopen_base(this->L);
     lua_pop(this->L, 1);
+	
     luaL_requiref(this->L, "math", luaopen_math, 1);
     lua_pop(this->L, 1);
 
-    if (this->properties[1].v.i & ESCRIPT_INCLUDE_STRING) {
-        luaL_requiref(this->L, "string", luaopen_string, 1);
-        lua_pop(this->L, 1);
-    }
+    luaL_requiref(this->L, "string", luaopen_string, 1);
+    lua_pop(this->L, 1);
 
-    if (this->properties[1].v.i & ESCRIPT_INCLUDE_TABLE) {
-        luaL_requiref(this->L, "table", luaopen_table, 1);
-        lua_pop(this->L, 1);
-    }
-
-    if (this->properties[1].v.i & ESCRIPT_LISTEN_ON_INPUT) {
-        this->listen_on_input = true;
-    }
+    luaL_requiref(this->L, "table", luaopen_table, 1);
+    lua_pop(this->L, 1);
 
     register_world(this->L);
 
