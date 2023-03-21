@@ -57,7 +57,7 @@ LOCAL_C_INCLUDES += \
 	$(ROOT)/SDL_ttf/ \
 	$(ROOT)/SDL_image/ \
 	$(ROOT)/SDL_mixer/ \
-	$(ROOT)/src/ $(ROOT)/lua/src/ \
+	$(ROOT)/src/ $(ROOT)/lua/ \
 	../deps/$(TARGET_ARCH_ABI)/curl/include/ \
 	../deps/$(TARGET_ARCH_ABI)/freetype/include/freetype2/ \
 	../deps/$(TARGET_ARCH_ABI)/freetype/include/ \

@@ -1,6 +1,0 @@
-local socket = require("socket")
-try = socket.newtry(function()
-    print("finalized!!!")
-end)
-try = socket.protect(try)
-print(try(nil, "it works"))

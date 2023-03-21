@@ -14,7 +14,7 @@ GLOBAL_FLAGS += -I../src/tms/backends/screenshot-linux/ \
                 -I../src/src/ -I../src/ -I/usr/include/ \
 				-I/usr/include/SDL2/ -I/usr/include/freetype2/ \
 				`curl-config --cflags --libs` \
-				-I../src/lua/src
+				-I../src/lua
 
 principia_ss_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
 principia_ss_CXXFLAGS = ${GLOBAL_FLAGS}
@@ -22,39 +22,39 @@ principia_ss_LDFLAGS = -rdynamic
 principia_ss_LDADD = -lz -ldl -lGL -lpthread -lX11 -lXi -ljpeg -lpng -lfreetype -lSDL2 -lSDL2_ttf -lSDL2_mixer -lSDL2_image -lSDL2_gfx
 
 principia_ss_SOURCES = \
-../src/lua/src/lapi.c \
-../src/lua/src/lauxlib.c \
-../src/lua/src/lbaselib.c \
-../src/lua/src/lbitlib.c \
-../src/lua/src/lcode.c \
-../src/lua/src/lcorolib.c \
-../src/lua/src/lctype.c \
-../src/lua/src/ldblib.c \
-../src/lua/src/ldebug.c \
-../src/lua/src/ldo.c \
-../src/lua/src/ldump.c \
-../src/lua/src/lfunc.c \
-../src/lua/src/lgc.c \
-../src/lua/src/linit.c \
-../src/lua/src/liolib.c \
-../src/lua/src/llex.c \
-../src/lua/src/lmathlib.c \
-../src/lua/src/lmem.c \
-../src/lua/src/loadlib.c \
-../src/lua/src/lobject.c \
-../src/lua/src/lopcodes.c \
-../src/lua/src/loslib.c \
-../src/lua/src/lparser.c \
-../src/lua/src/lstate.c \
-../src/lua/src/lstring.c \
-../src/lua/src/lstrlib.c \
-../src/lua/src/ltable.c \
-../src/lua/src/ltablib.c \
-../src/lua/src/ltm.c \
-../src/lua/src/lundump.c \
-../src/lua/src/lvm.c \
-../src/lua/src/lzio.c \
-../src/lua/src/eris.c \
+../src/lua/lapi.c \
+../src/lua/lauxlib.c \
+../src/lua/lbaselib.c \
+../src/lua/lbitlib.c \
+../src/lua/lcode.c \
+../src/lua/lcorolib.c \
+../src/lua/lctype.c \
+../src/lua/ldblib.c \
+../src/lua/ldebug.c \
+../src/lua/ldo.c \
+../src/lua/ldump.c \
+../src/lua/lfunc.c \
+../src/lua/lgc.c \
+../src/lua/linit.c \
+../src/lua/liolib.c \
+../src/lua/llex.c \
+../src/lua/lmathlib.c \
+../src/lua/lmem.c \
+../src/lua/loadlib.c \
+../src/lua/lobject.c \
+../src/lua/lopcodes.c \
+../src/lua/loslib.c \
+../src/lua/lparser.c \
+../src/lua/lstate.c \
+../src/lua/lstring.c \
+../src/lua/lstrlib.c \
+../src/lua/ltable.c \
+../src/lua/ltablib.c \
+../src/lua/ltm.c \
+../src/lua/lundump.c \
+../src/lua/lvm.c \
+../src/lua/lzio.c \
+../src/lua/eris.c \
 \
 ../src/tms/core/atlas.c \
 ../src/tms/core/backend.c \

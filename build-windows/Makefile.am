@@ -35,8 +35,7 @@ GLOBAL_FLAGS += -I../src/tms/backends/windows/ \
     -I/mingw64/include/harfbuzz \
     -I/mingw64/include/pango-1.0 \
     -I../src/gtk-undo \
-    -I../src/curl-win32/include \
-	-I../src/lua/src -I../src/include/
+	-I../src/lua/ -I../src/include/
 
 
 principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
@@ -51,53 +50,53 @@ principia_LDADD = -L`pwd` -lopengl32 -lz \
 
 principia_SOURCES = \
 principia.rc \
-../src/lua/src/lapi.c \
-../src/lua/src/lauxlib.c \
-../src/lua/src/lbaselib.c \
-../src/lua/src/lbitlib.c \
-../src/lua/src/lcode.c \
-../src/lua/src/lcorolib.c \
-../src/lua/src/lctype.c \
-../src/lua/src/ldblib.c \
-../src/lua/src/ldebug.c \
-../src/lua/src/ldo.c \
-../src/lua/src/ldump.c \
-../src/lua/src/lfunc.c \
-../src/lua/src/lgc.c \
-../src/lua/src/linit.c \
-../src/lua/src/liolib.c \
-../src/lua/src/llex.c \
-../src/lua/src/lmathlib.c \
-../src/lua/src/lmem.c \
-../src/lua/src/loadlib.c \
-../src/lua/src/lobject.c \
-../src/lua/src/lopcodes.c \
-../src/lua/src/loslib.c \
-../src/lua/src/lparser.c \
-../src/lua/src/lstate.c \
-../src/lua/src/lstring.c \
-../src/lua/src/lstrlib.c \
-../src/lua/src/ltable.c \
-../src/lua/src/ltablib.c \
-../src/lua/src/ltm.c \
-../src/lua/src/lundump.c \
-../src/lua/src/lvm.c \
-../src/lua/src/lzio.c \
-../src/lua/src/eris.c \
+../src/lua/lapi.c \
+../src/lua/lauxlib.c \
+../src/lua/lbaselib.c \
+../src/lua/lbitlib.c \
+../src/lua/lcode.c \
+../src/lua/lcorolib.c \
+../src/lua/lctype.c \
+../src/lua/ldblib.c \
+../src/lua/ldebug.c \
+../src/lua/ldo.c \
+../src/lua/ldump.c \
+../src/lua/lfunc.c \
+../src/lua/lgc.c \
+../src/lua/linit.c \
+../src/lua/liolib.c \
+../src/lua/llex.c \
+../src/lua/lmathlib.c \
+../src/lua/lmem.c \
+../src/lua/loadlib.c \
+../src/lua/lobject.c \
+../src/lua/lopcodes.c \
+../src/lua/loslib.c \
+../src/lua/lparser.c \
+../src/lua/lstate.c \
+../src/lua/lstring.c \
+../src/lua/lstrlib.c \
+../src/lua/ltable.c \
+../src/lua/ltablib.c \
+../src/lua/ltm.c \
+../src/lua/lundump.c \
+../src/lua/lvm.c \
+../src/lua/lzio.c \
+../src/lua/eris.c \
 \
-../src/luasocket/src/auxiliar.c \
-../src/luasocket/src/buffer.c \
-../src/luasocket/src/except.c \
-../src/luasocket/src/inet.c \
-../src/luasocket/src/io.c \
-../src/luasocket/src/luasocket.c \
-../src/luasocket/src/mime.c \
-../src/luasocket/src/options.c \
-../src/luasocket/src/select.c \
-../src/luasocket/src/tcp.c \
-../src/luasocket/src/timeout.c \
-../src/luasocket/src/udp.c \
-../src/luasocket/src/wsocket.c \
+../src/luasocket/auxiliar.c \
+../src/luasocket/buffer.c \
+../src/luasocket/except.c \
+../src/luasocket/inet.c \
+../src/luasocket/io.c \
+../src/luasocket/luasocket.c \
+../src/luasocket/mime.c \
+../src/luasocket/options.c \
+../src/luasocket/select.c \
+../src/luasocket/tcp.c \
+../src/luasocket/timeout.c \
+../src/luasocket/udp.c \
+../src/luasocket/wsocket.c \
 \
 ../src/tms/core/atlas.c \
 ../src/tms/core/backend.c \
