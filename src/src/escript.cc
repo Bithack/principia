@@ -3926,7 +3926,7 @@ escript::init()
         this->events[x] = 0;
     }
 	
-	this->listen_on_input = true;
+    this->listen_on_input = true;
 	
     this->lines.clear();
 
@@ -3934,7 +3934,8 @@ escript::init()
 
     this->L->userdata = (void*)this;
 	
-	//Open lua libraries
+    //Open lua libraries
+    
     luaopen_base(this->L);
     lua_pop(this->L, 1);
 	
