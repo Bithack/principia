@@ -111,13 +111,11 @@ done
 if [ "$release" -eq "1" ]; then
     CFLAGS="$RELEASEFLAGS_CC"
     CXXFLAGS="$RELEASEFLAGS_CXX"
-    CPPFLAGS="$RELEASEFLAGS_CXX"
     LDFLAGS="$RELEASEFLAGS_LD"
 else
     CFLAGS="$DEBUGFLAGS_CC"
     LDFLAGS="$DEBUGFLAGS_LD"
     CXXFLAGS="$DEBUGFLAGS_CXX"
-    CPPFLAGS="$DEBUGFLAGS_CXX"
 fi
 
 if [ "$do_test" -eq "1" ]; then
