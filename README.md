@@ -63,7 +63,7 @@ The Windows installer uses NSIS, which must be installed first before building:
 For making Windows release builds you would run the `make_release.sh` script, which builds the game in release mode, copies over necessary DLL files, and builds the installer.
 
 ### Linux
-(If you're on an Arch or Debian-based system and just want to play Principia you might be interested by `principia-git` in the [AUR](https://aur.archlinux.org/packages/principia-git) or [MPR](https://mpr.makedeb.org/packages/principia-git) respectively which build and package Principia automatically. See the [principia-web downloads page](https://principia-web.se/download) for more info.)
+(If you're on an Arch, Debian, or Nix-based system and just want to play Principia you might be interested by `principia-git` in the [AUR](https://aur.archlinux.org/packages/principia-git), `principia-git` in the [MPR](https://mpr.makedeb.org/packages/principia-git), or `principia` in [nixpkgs](https://search.nixos.org/packages?channel=unstable&show=principia&type=packages&query=principia) respectively which build and package Principia automatically. See the [principia-web downloads page](https://principia-web.se/download) for more info.)
 
 Install dependencies. For Debian-based distros:
 
