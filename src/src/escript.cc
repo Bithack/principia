@@ -933,6 +933,25 @@ extern "C" {
     }
 
     /** 
+     * Added in 1.5.2
+     * world:set_gravity(x, y)
+     **/
+    static int l_world_set_gravity(lua_State *L)
+    {
+        //TODO: change this to LEVEL_VERSION_1_5_2 / "1.5.2" after release
+        if (W->level.version < LEVEL_VERSION_1_5_1) {
+            ESCRIPT_VERSION_ERROR(L, "world:get_gravity", "1.5.1");
+            return 0;
+        }
+
+        float x = luaL_checknumber(L, 2);
+        float y = luaL_checknumber(L, 3);
+        W->set_gravity(x, y);
+
+        return 0;
+    }
+
+    /** 
      * Added in 1.5
      * id = world:get_adventure_id()
      *
@@ -4202,6 +4221,7 @@ static const luaL_Reg world_methods[] = {
     {"raycast",                 l_world_raycast},           // 1.4
     {"query",                   l_world_query},             // 1.4
     {"get_gravity",             l_world_get_gravity},       // 1.4
+    {"set_gravity",             l_world_set_gravity},       // 1.5.2 (oss)
 
     {"get_adventure_id",        l_world_get_adventure_id},  // 1.5
     {"get_borders",             l_world_get_borders},       // 1.5
