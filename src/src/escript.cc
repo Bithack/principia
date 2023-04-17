@@ -4396,7 +4396,7 @@ static const luaL_Reg entity_methods[] = {
     {"set_color",               l_entity_set_color},            // 1.5
     {"get_color",               l_entity_get_color},            // 1.5
     {"disconnect_all",          l_entity_disconnect_all},       // 1.5
-    //TODO: l_entity_disconnect_all: disconnect specified entity only
+    //TODO: l_entity_disconnect: disconnect specified entity only
     {"set_target_id",           l_entity_set_target_id},        // 1.5
 
     /* we pretend this is creature stuff */
