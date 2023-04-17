@@ -1758,8 +1758,15 @@ extern "C" {
         return 1;
     }
 	
-    /* added in 1.5.2 */
-
+    /** 
+     * added in 1.5.2
+     * entity:set_angle()
+     *
+     * Example usage:
+     * entity:set_angle(angle)
+     *
+     * Set the angle of the entity
+     **/
     static int l_entity_set_angle(lua_State *L)
     {
         //TODO: change this to LEVEL_VERSION_1_5_2 / "1.5.2" after release
@@ -4389,11 +4396,12 @@ static const luaL_Reg entity_methods[] = {
     {"set_color",               l_entity_set_color},            // 1.5
     {"get_color",               l_entity_get_color},            // 1.5
     {"disconnect_all",          l_entity_disconnect_all},       // 1.5
+    //TODO: l_entity_disconnect_all: disconnect specified entity only
     {"set_target_id",           l_entity_set_target_id},        // 1.5
 
     /* we pretend this is creature stuff */
     {"get_hp",                  l_creature_get_hp},             // 1.5
-    //TODO: l_creature_set_hp
+    //TODO: l_creature_set_hp: sets the hp of entity
     {"get_armor",               l_creature_get_armor},          // 1.5
     {"get_aim",                 l_creature_get_aim},            // 1.5
     {"set_aim",                 l_creature_set_aim},            // 1.5
