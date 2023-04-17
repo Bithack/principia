@@ -1718,12 +1718,48 @@ extern "C" {
         G->add_highlight(e, false, 1.f);
         return 0;
     }
-
+    
+    /** 
+     * entity:get_angle()
+     *
+     * Example usage:
+     * angle = entity:get_angle()
+     *
+     * Returns:
+     * The angle of the entity
+     **/
     static int l_entity_get_angle(lua_State *L)
     {
+        if (W->level.version < LEVEL_VERSION_1_4) {
+            ESCRIPT_VERSION_ERROR(L, "entity:local_to_world", "1.4");
+            return 0;
+        }
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
         lua_pushnumber(L, e->get_angle());
         return 1;
+    }
+	
+    /* added in 1.5.2 */
+
+    static int l_entity_set_angle(lua_State *L)
+    {
+        //TODO: change this to LEVEL_VERSION_1_5_2 / "1.5.2" after release
+        if (W->level.version < LEVEL_VERSION_1_5_1) {
+            ESCRIPT_VERSION_ERROR(L, "entity:set_angle", "1.5.1");
+            return 0;
+        }
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+        float angle = luaL_checknumber(L, 2);
+        if (!e->conn_ll) {
+            e->set_angle(angle);
+            for (uint32_t x = 0; x < e->get_num_bodies(); ++x) {
+                b2Body *b = e->get_body(x);
+                if (b) {
+                    b->SetAwake(true);
+                }
+            }
+        }
+        return 0;
     }
 
     /* added in 1.4 */
@@ -1780,7 +1816,7 @@ extern "C" {
      * entity:velocity()
      *
      * Example usage:
-     * vel_x, vel_y = entity:velocity()
+     * vel_x, vel_y = entity:get_velocity()
      *
      * Returns:
      * 0: the velocity of the entity in the X-axis
@@ -1800,6 +1836,15 @@ extern "C" {
         return 2;
     }
 
+    /** 
+     * entity:velocity()
+     *
+     * Example usage:
+     * vel_a = entity:get_angular_velocity()
+     *
+     * Returns:
+     * The angular velocity of the entity
+     **/
     static int l_entity_get_angular_velocity(lua_State *L)
     {
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
@@ -1976,6 +2021,46 @@ extern "C" {
 
                 if (b) {
                     b->SetLinearVelocity(vel);
+                    b->SetAwake(true);
+                }
+            }
+        }
+
+        delete loop;
+
+        return 0;
+    }
+
+    /** 
+     * Added in 1.5.2
+     * entity:set_angular_velocity(v)
+     *
+     * Sets the angular velocity of the given entity.
+     **/
+    static int l_entity_set_angular_velocity(lua_State *L)
+    {
+        //TODO: change this to LEVEL_VERSION_1_5_2 / "1.5.2" after release
+        if (W->level.version < LEVEL_VERSION_1_5_1) {
+            ESCRIPT_VERSION_ERROR(L, "entity:set_angular_velocity", "1.5.1");
+            return 0;
+        }
+
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+        float vel = luaL_checknumber(L, 2);
+
+        std::set<entity*> *loop = new std::set<entity*>();
+
+        e->gather_connected_entities(loop, false, true);
+
+        for (std::set<entity*>::iterator it = loop->begin(); it != loop->end(); ++it) {
+            entity *ie = static_cast<entity*>(*it);
+
+            for (uint32_t x = 0; x < ie->get_num_bodies(); ++x) {
+                b2Body *b = ie->get_body(x);
+
+                if (b) {
+                    b->SetAngularVelocity(vel);
+                    b->SetAwake(true);
                 }
             }
         }
@@ -2073,6 +2158,25 @@ extern "C" {
         }
 
         return 0;
+    }
+
+    /** 
+     * Added in 1.5.2
+     * entity:is_hidden()
+     **/
+    static int l_entity_is_hidden(lua_State *L)
+    {
+        //TODO: change this to LEVEL_VERSION_1_5_2 / "1.5.2" after release
+        if (W->level.version < LEVEL_VERSION_1_5_1) {
+            ESCRIPT_VERSION_ERROR(L, "entity:is_hidden", "1.5.1");
+            return 0;
+        }
+
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+
+        lua_pushboolean(L, e->flag_active(ENTITY_WAS_HIDDEN));
+
+        return 1;
     }
 
     /** 
@@ -4235,6 +4339,7 @@ static const luaL_Reg entity_methods[] = {
     {"get_g_id",                l_entity_get_g_id},
     {"get_position",            l_entity_get_position},
     {"get_angle",               l_entity_get_angle},
+    {"set_angle",               l_entity_set_angle},			      // 1.5.2 (oss)
     {"get_velocity",            l_entity_get_velocity},
     {"get_angular_velocity",    l_entity_get_angular_velocity},
     {"get_bbox",                l_entity_get_bbox},
@@ -4248,9 +4353,11 @@ static const luaL_Reg entity_methods[] = {
     {"absorb",                  l_entity_absorb},               // 1.5
     {"apply_torque",            l_entity_apply_torque},         // 1.5
     {"set_velocity",            l_entity_set_velocity},         // 1.5
+    {"set_angular_velocity",    l_entity_set_angular_velocity}, // 1.5.2 (oss)
     {"warp",                    l_entity_warp},                 // 1.5
     {"show",                    l_entity_show},                 // 1.5
     {"hide",                    l_entity_hide},                 // 1.5
+    {"is_hidden",               l_entity_is_hidden},            // 1.5.2 (oss)
     {"get_name",                l_entity_get_name},             // 1.5
     {"is_creature",             l_entity_is_creature},          // 1.5
     {"is_robot",                l_entity_is_robot},             // 1.5
@@ -4266,6 +4373,7 @@ static const luaL_Reg entity_methods[] = {
 
     /* we pretend this is creature stuff */
     {"get_hp",                  l_creature_get_hp},             // 1.5
+    //TODO: l_creature_set_hp
     {"get_armor",               l_creature_get_armor},          // 1.5
     {"get_aim",                 l_creature_get_aim},            // 1.5
     {"set_aim",                 l_creature_set_aim},            // 1.5
