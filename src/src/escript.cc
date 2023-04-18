@@ -940,7 +940,7 @@ extern "C" {
     {
         //TODO: change this to LEVEL_VERSION_1_5_2 / "1.5.2" after release
         if (W->level.version < LEVEL_VERSION_1_5_1) {
-            ESCRIPT_VERSION_ERROR(L, "world:get_gravity", "1.5.1");
+            ESCRIPT_VERSION_ERROR(L, "world:set_gravity", "1.5.1");
             return 0;
         }
 
@@ -2132,6 +2132,46 @@ extern "C" {
         return 0;
     }
 
+    /** 
+     * Added in 1.5.2
+     * entity:apply_force(x, y, [point_x, point_y])
+     * 
+     **/
+    static int l_entity_apply_force(lua_State *L)
+    {   
+        //TODO: change this to LEVEL_VERSION_1_5_2 / "1.5.2" after release
+        if (W->level.version < LEVEL_VERSION_1_5_1) {
+            ESCRIPT_VERSION_ERROR(L, "entity:apply_force", "1.5.1");
+            return 0;
+        }
+
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+        float x = luaL_checknumber(L, 2);
+        float y = luaL_checknumber(L, 3);
+        float px, py;
+        if (lua_gettop(L) > 3) {
+            px = luaL_checknumber(L, 4);
+            py = luaL_checknumber(L, 5);
+        }
+
+        b2Vec2 force(x, y);
+        b2Vec2 point(x, y);
+
+        for (uint32_t x = 0; x < e->get_num_bodies(); ++x) {
+            b2Body *b = e->get_body(x);
+
+            if (b) {
+                if (lua_gettop(L) > 3) {
+                    b->ApplyForce(force, point);
+                } else {
+                    b->ApplyForceToCenter(force);
+                }
+            }
+        }
+
+        return 0;
+    }
+    
     /** 
      * Added in 1.5
      * entity:set_velocity(x, y)
@@ -4486,7 +4526,7 @@ static const luaL_Reg entity_methods[] = {
     {"set_fixed_rotation",      l_entity_set_fixed_rotation},	// 1.5.2 (oss) 
     {"is_fixed_rotation",       l_entity_is_fixed_rotation},	// 1.5.2 (oss) 
     {"set_gravity_scale",       l_entity_set_gravity_scale},	// 1.5.2 (oss) 
-    {"get_gravity_scale",       l_entity_get_gravity_scale},	// 1.5.2 (oss) 
+    {"get_gravity_scale",       l_entity_get_gravity_scale},	// 1.5.2 (oss)
     {"get_velocity",            l_entity_get_velocity},
     {"get_angular_velocity",    l_entity_get_angular_velocity},
     {"get_bbox",                l_entity_get_bbox},
@@ -4501,6 +4541,8 @@ static const luaL_Reg entity_methods[] = {
     {"apply_torque",            l_entity_apply_torque},         // 1.5
     {"set_velocity",            l_entity_set_velocity},         // 1.5
     {"set_angular_velocity",    l_entity_set_angular_velocity}, // 1.5.2 (oss)
+    {"apply_force",             l_entity_apply_force},          // 1.5.2 (oss)
+    //TODO: apply_impulse, apply_angular_impulse
     {"warp",                    l_entity_warp},                 // 1.5
     {"show",                    l_entity_show},                 // 1.5
     {"hide",                    l_entity_hide},                 // 1.5
