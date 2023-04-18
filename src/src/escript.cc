@@ -1791,7 +1791,7 @@ extern "C" {
      * Example usage:
      * entity:set_fixed_rotation(true)
      *
-     * EXPERIMENTAL: Prevents entity from rotating
+     * EXPERIMENTAL: Prevents entity from rotating.
      **/
     static int l_entity_set_fixed_rotation(lua_State *L)
     {
@@ -1806,11 +1806,40 @@ extern "C" {
         //TODO: check if argument exists? (default to true?)
         bool is_fixed = lua_toboolean(L, 2); 
 
-        b2Body *b = e->get_body(0);
+        b2Body *b = e->get_body(0); //XXX: enable for all bodies? (e.g. like in a ragdoll)
 
         if (b) {
           //XXX: SetFixedRotation resets mass???
           b->SetFixedRotation(is_fixed); 
+        }
+
+        return 0;
+    }
+
+    /** 
+     * added in 1.5.2
+     * entity:is_fixed_rotation()
+     *
+     * Example usage:
+     * x = entity:is_fixed_rotation()
+     *
+     * EXPERIMENTAL: Returns true if the given socket has fixed rotation enabled.
+     **/
+    static int l_entity_is_fixed_rotation(lua_State *L)
+    {
+        //TODO: change this to LEVEL_VERSION_1_5_2 / "1.5.2" after release
+        if (W->level.version < LEVEL_VERSION_1_5_1) {
+            ESCRIPT_VERSION_ERROR(L, "entity:is_fixed_rotation", "1.5.1");
+            return 0;
+        }
+
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+
+        b2Body *b = e->get_body(0);
+
+        if (b) {
+          lua_pushboolean(L, b->IsFixedRotation());
+          return 1;
         }
 
         return 0;
@@ -4396,7 +4425,7 @@ static const luaL_Reg entity_methods[] = {
     {"get_angle",               l_entity_get_angle},
     {"set_angle",               l_entity_set_angle},			      // 1.5.2 (oss)
     {"set_fixed_rotation",      l_entity_set_fixed_rotation},		// 1.5.2 (oss) 
-    //TODO get_fixed_rotation
+    {"is_fixed_rotation",       l_entity_is_fixed_rotation},		// 1.5.2 (oss) 
     {"get_velocity",            l_entity_get_velocity},
     {"get_angular_velocity",    l_entity_get_angular_velocity},
     {"get_bbox",                l_entity_get_bbox},
