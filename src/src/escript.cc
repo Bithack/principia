@@ -41,6 +41,9 @@ extern "C" {
 #endif
 }
 
+// Blacklist of global namespace functions that are not allowed to be called for security reasons.
+static const char* blacklist[] = {"load", "loadfile", "dofile", NULL};
+
 enum {
     FUNC_GLOBAL_INIT,
     FUNC_INIT,
@@ -3957,6 +3960,12 @@ escript::init()
     luaopen_socket_core(this->L);
     lua_pop(this->L, 1);
 #endif
+
+    //apply blacklist
+    for (const char** p = blacklist; *p != NULL; p++) {
+        lua_pushnil(L);
+        lua_setglobal(L, *p);
+    }
 
     start_tick = SDL_GetTicks();
     func_start_tick = SDL_GetTicks();
