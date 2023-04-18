@@ -8,6 +8,7 @@
 #include <set>
 
 /* escript flags */
+// INCLUDE_{STRING,TABLE} and LISTEN_ON_INPUT are unused now but need to be kept for backwards compatibility
 #define ESCRIPT_INCLUDE_STRING          (1ULL << 0)
 #define ESCRIPT_INCLUDE_TABLE           (1ULL << 1)
 #define ESCRIPT_LISTEN_ON_INPUT         (1ULL << 2)

@@ -56,10 +56,6 @@
         <item>Magic</item>
         <item>Break</item>
     </string-array>
-    <string-array name="script_libraries">
-        <item>string</item>
-        <item>table</item>
-    </string-array>
 
     <string name="community">Community</string>
 

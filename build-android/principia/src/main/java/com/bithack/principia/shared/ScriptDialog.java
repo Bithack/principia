@@ -23,8 +23,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 public class ScriptDialog {
-    public static final int NUM_LIBRARIES = 3;
-
     static Dialog _dialog;
 
     static View view;
@@ -33,18 +31,11 @@ public class ScriptDialog {
     static Button cancel;
     static CustomLinearLayout ll_code;
     static LinearLayout ll_end;
-    static MultiSpinner sp_libraries;
     static int current_keyboard_state = CustomLinearLayout.KEYBOARD_HIDDEN;
-    static List<String> items;
 
     public static Dialog get_dialog()
     {
         if (_dialog == null) {
-            items = new ArrayList<String>();
-            items.add("Include string library");
-            items.add("Include table library");
-            items.add("Listen on input");
-
             view = LayoutInflater.from(PrincipiaActivity.mSingleton).inflate(R.layout.script, null);
             _dialog = new Dialog(PrincipiaActivity.getContext(), android.R.style.Theme_NoTitleBar_Fullscreen) {
                 @Override
@@ -78,11 +69,6 @@ public class ScriptDialog {
             }
             cancel = (Button)view.findViewById(R.id.script_cancel);
 
-            sp_libraries = (MultiSpinner)view.findViewById(R.id.script_libraries);
-            sp_libraries.setItems(items, PrincipiaActivity.mSingleton.getString(R.string.flags), new MultiSpinnerListener() {
-                @Override public void onItemsSelected(boolean[] selected) { }
-            });
-
             save.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -113,21 +99,14 @@ public class ScriptDialog {
     public static void prepare(DialogInterface di)
     {
         code.setText(PrincipiaBackend.getPropertyString(0));
-        long included_libraries = PrincipiaBackend.getPropertyInt(1);
-        for (int x=0; x<ScriptDialog.NUM_LIBRARIES; ++x) {
-            if ((included_libraries & (1 << x)) == 0) {
-                sp_libraries.selected[x] = false;
-            } else {
-                sp_libraries.selected[x] = true;
-            }
-        }
     }
 
     public static void save()
     {
         long included_libraries = 0;
-        for (int x=0; x<ScriptDialog.NUM_LIBRARIES; ++x) {
-            included_libraries |= (sp_libraries.selected[x] ? 1 : 0) * (1 << x);
+
+        for (int x=0; x<3; ++x) {
+            included_libraries |= 1 * (1 << x+2);
         }
 
         PrincipiaBackend.setPropertyString(0, code.getText().toString());
