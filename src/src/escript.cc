@@ -262,6 +262,13 @@ const char *before_code =
 "local KEY_LEFT = 80;"
 "local KEY_DOWN = 81;"
 "local KEY_UP = 82;"
+""
+"do;" // Patchy workaround for error(nil) crashing the game
+    "local _error = error;"
+    "function error(e);"
+        "return _error(tostring(e));"
+    "end;"
+"end;"
 ;
 const char *after_code = "";
 const char *default_code =
