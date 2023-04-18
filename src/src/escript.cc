@@ -1852,7 +1852,7 @@ extern "C" {
      * Example usage:
      * entity:set_gravity_scale(0.5)
      * 
-     * EXPERIMENTAL: Set the gravity scale of the given object
+     * Set the gravity scale of the given object
      **/
     static int l_entity_set_gravity_scale(lua_State *L)
     {
@@ -1882,7 +1882,7 @@ extern "C" {
      * Example usage:
      * x = entity:get_gravity_scale()
      * 
-     * EXPERIMENTAL: Get the gravity scale of the given object
+     * Get the gravity scale of the given object
      **/
     static int l_entity_get_gravity_scale(lua_State *L)
     {
