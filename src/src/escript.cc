@@ -1110,6 +1110,55 @@ extern "C" {
     }
 
     /** 
+     * Added in 1.5.2
+     * world:emit(g_id, [id])
+     * 
+     * EXPERIMENTAL:
+     * 
+     * Returns:
+     * Newly created entity in case of success
+     **/
+    static int l_world_emit(lua_State *L)
+    {
+        //TODO: change this to LEVEL_VERSION_1_5_2 / "1.5.2" after release
+        if (W->level.version < LEVEL_VERSION_1_5_1) {
+            ESCRIPT_VERSION_ERROR(L, "world:emit", "1.5.1");
+            return 0;
+        }
+
+        p_gid g_id = luaL_checkinteger(L, 2);
+        
+        entity* ent;
+
+        //Create entity
+        if (lua_gettop(L) > 2) {
+            p_id id = luaL_checkinteger(L, 3);
+            //Check if ID is already used
+            if (W->get_entity_by_id(id)) {
+                return 0;
+            }
+            ent = of::create_with_id(g_id, id);
+        } else {
+            ent = of::create(g_id);
+        }
+
+        //Check for null entity
+        if (ent == 0) {
+            return 0;
+        }
+
+        //Emit entity
+        G->emit(ent);
+        W->emit_all();
+
+        //Return entity
+        entity **ee = static_cast<entity**>(lua_newuserdata(L, sizeof(entity*)));
+        *(ee) = ent;
+        luaL_setmetatable(L, "EntityMT");
+        return 1;
+    }
+
+    /** 
      * Added in 1.3
      * Modified in 1.3.0.3, can now take one more argument.
      * game:show_numfeed(number, num_decimals)
@@ -4395,8 +4444,10 @@ static const luaL_Reg world_methods[] = {
     {"set_ambient_light",       l_world_set_ambient_light}, // 1.5
     {"set_diffuse_light",       l_world_set_diffuse_light}, // 1.5
 
+    {"emit",                    l_world_emit},      // 1.5.2 (oss)
+
     // private! ;-)
-    {"___persist_entity",       l_world_unpersist_entity},    // 1.5
+    {"___persist_entity",       l_world_unpersist_entity},  // 1.5
 
     { NULL, NULL }
 };
