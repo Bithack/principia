@@ -1806,7 +1806,7 @@ extern "C" {
         //TODO: check if argument exists? (default to true?)
         bool is_fixed = lua_toboolean(L, 2); 
 
-        b2Body *b = e->get_body(0); //XXX: enable for all bodies? (e.g. like in a ragdoll)
+        b2Body *b = e->get_body(0);
 
         if (b) {
           //XXX: SetFixedRotation resets mass???
@@ -1839,6 +1839,65 @@ extern "C" {
 
         if (b) {
             lua_pushboolean(L, b->IsFixedRotation());
+            return 1;
+        }
+
+        return 0;
+    }
+
+    /** 
+     * added in 1.5.2
+     * entity:set_gravity_scale(number)
+     *
+     * Example usage:
+     * entity:set_gravity_scale(0.5)
+     * 
+     * EXPERIMENTAL: Set the gravity scale of the given object
+     **/
+    static int l_entity_set_gravity_scale(lua_State *L)
+    {
+        //TODO: change this to LEVEL_VERSION_1_5_2 / "1.5.2" after release
+        if (W->level.version < LEVEL_VERSION_1_5_1) {
+            ESCRIPT_VERSION_ERROR(L, "entity:set_gravity_scale", "1.5.1");
+            return 0;
+        }
+
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+
+        float new_gravity_scale = luaL_checknumber(L, 2);
+
+        b2Body *b = e->get_body(0);
+
+        if (b) {
+          b->SetGravityScale(new_gravity_scale);
+        }
+
+        return 0;
+    }
+
+    /** 
+     * added in 1.5.2
+     * entity:get_gravity_scale()
+     *
+     * Example usage:
+     * x = entity:get_gravity_scale()
+     * 
+     * EXPERIMENTAL: Get the gravity scale of the given object
+     **/
+    static int l_entity_get_gravity_scale(lua_State *L)
+    {
+        //TODO: change this to LEVEL_VERSION_1_5_2 / "1.5.2" after release
+        if (W->level.version < LEVEL_VERSION_1_5_1) {
+            ESCRIPT_VERSION_ERROR(L, "entity:get_gravity_scale", "1.5.1");
+            return 0;
+        }
+
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+
+        b2Body *b = e->get_body(0);
+
+        if (b) {
+            lua_pushnumber(L, b->GetGravityScale());
             return 1;
         }
 
@@ -4426,6 +4485,8 @@ static const luaL_Reg entity_methods[] = {
     {"set_angle",               l_entity_set_angle},			// 1.5.2 (oss)
     {"set_fixed_rotation",      l_entity_set_fixed_rotation},	// 1.5.2 (oss) 
     {"is_fixed_rotation",       l_entity_is_fixed_rotation},	// 1.5.2 (oss) 
+    {"set_gravity_scale",       l_entity_set_gravity_scale},	// 1.5.2 (oss) 
+    {"get_gravity_scale",       l_entity_get_gravity_scale},	// 1.5.2 (oss) 
     {"get_velocity",            l_entity_get_velocity},
     {"get_angular_velocity",    l_entity_get_angular_velocity},
     {"get_bbox",                l_entity_get_bbox},
