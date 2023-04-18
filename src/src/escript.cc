@@ -4482,7 +4482,7 @@ static const luaL_Reg entity_methods[] = {
     {"get_g_id",                l_entity_get_g_id},
     {"get_position",            l_entity_get_position},
     {"get_angle",               l_entity_get_angle},
-    {"set_angle",               l_entity_set_angle},			// 1.5.2 (oss)
+    {"set_angle",               l_entity_set_angle},            // 1.5.2 (oss)
     {"set_fixed_rotation",      l_entity_set_fixed_rotation},	// 1.5.2 (oss) 
     {"is_fixed_rotation",       l_entity_is_fixed_rotation},	// 1.5.2 (oss) 
     {"set_gravity_scale",       l_entity_set_gravity_scale},	// 1.5.2 (oss) 
