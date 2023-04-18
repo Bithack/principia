@@ -10424,7 +10424,6 @@ int _gtk_loop(void *p)
                 "Empty Adventure", RESPONSE_EMPTY_ADVENTURE,
                 "Adventure", RESPONSE_ADVENTURE,
                 "Custom", RESPONSE_CUSTOM,
-                "Puzzle", RESPONSE_PUZZLE,
                 NULL));
 
         apply_defaults(new_level_dialog);
