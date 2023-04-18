@@ -979,9 +979,11 @@ entity*
 of::create_with_id(p_gid g_id, p_id id)
 {
     entity *e = _create(g_id);
-
-    e->id = id;
-
+    
+    if (e) {
+        e->id = id;
+    }
+    
     return e;
 }
 
