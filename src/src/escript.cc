@@ -2136,6 +2136,7 @@ extern "C" {
      * Added in 1.5.2
      * entity:apply_force(x, y, [point_x, point_y])
      * 
+     * Apply force x,y at point point_x, point_y (optional)
      **/
     static int l_entity_apply_force(lua_State *L)
     {   
