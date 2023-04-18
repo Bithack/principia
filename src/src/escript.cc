@@ -1749,10 +1749,6 @@ extern "C" {
      **/
     static int l_entity_get_angle(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_4) {
-            ESCRIPT_VERSION_ERROR(L, "entity:local_to_world", "1.4");
-            return 0;
-        }
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
         lua_pushnumber(L, e->get_angle());
         return 1;
