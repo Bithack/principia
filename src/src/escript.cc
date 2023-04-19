@@ -1922,6 +1922,20 @@ extern "C" {
         return 0;
     }
 
+    /* entity:is_hidden()
+     * Added in 1.5.2
+     */
+    static int l_entity_is_hidden(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "entity:is_hidden", "1.5.1", LEVEL_VERSION_1_5_1);
+
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+
+        lua_pushboolean(L, e->flag_active(ENTITY_WAS_HIDDEN));
+
+        return 1;
+    }
+
     /* entity:get_name()
      * Added in 1.5
      */
@@ -3851,6 +3865,7 @@ static const luaL_Reg entity_methods[] = {
     {"warp",                    l_entity_warp},                 // 1.5
     {"show",                    l_entity_show},                 // 1.5
     {"hide",                    l_entity_hide},                 // 1.5
+    {"is_hidden",               l_entity_is_hidden},            // 1.5.2
     {"get_name",                l_entity_get_name},             // 1.5
     {"is_creature",             l_entity_is_creature},          // 1.5
     {"is_robot",                l_entity_is_robot},             // 1.5
