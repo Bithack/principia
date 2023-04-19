@@ -19,8 +19,20 @@
 #define lua_pushint32(L, n) (lua_pushinteger(L, static_cast<int32_t>(n)))
 #define lua_pushuint32(L, n) (lua_pushinteger(L, static_cast<uint32_t>(n)))
 
-#define ESCRIPT_VERSION_ERROR(L, function_name, version_str) do { lua_pushstring(L, function_name " requires a level created with version " version_str " or above."); lua_error(L); } while(0)
-#define ESCRIPT_FUNCTION_DEPRECATED(L, function_name, version_str) do { lua_pushstring(L, function_name " has been deprecated in " version_str " and should no longer be used."); lua_error(L); } while(0)
+#define ESCRIPT_VERSION_ERROR(L, function_name, version_str, version_num) \
+    if (W->level.version < version_num) { \
+        lua_pushstring(L, function_name " requires a level created with version " version_str " or above."); \
+        lua_error(L); \
+        return 0; \
+    }
+
+#define ESCRIPT_FUNCTION_DEPRECATED(L, function_name, version_str, version_num) \
+    if (W->level.version > version_num) { \
+        lua_pushstring(L, function_name " has been deprecated in " version_str " and should no longer be used."); \
+        lua_error(L); \
+        return 0; \
+    }
+
 #define MAX_SPRITES 512
 #define TIMELIMIT 50
 #define FIRST_RUN_TIMELIMIT   3000
@@ -70,7 +82,7 @@ struct function_info function_info[] = {
 
 static const int LUA_FOREACH_MAX_DEPTH = 35;
 
-/**
+/*
  * plua_foreach(...)
  * [-0, +0, -]
  *
@@ -78,10 +90,10 @@ static const int LUA_FOREACH_MAX_DEPTH = 35;
  * recursively iterate any other tables we find.
  * ignore any keys for the first iteration in in the "ignore"-list.
  * any value found that is not a table will be called with the given `cb'
- **/
+ */
 static void plua_foreach(lua_State *L, const int index, void (*cb)(lua_State*, int, void*), void *userdata, bool can_ignore=true);
 
-/**
+/*
  * invalidate_entity(...)
  * [-0, +0, -]
  *
@@ -89,10 +101,10 @@ static void plua_foreach(lua_State *L, const int index, void (*cb)(lua_State*, i
  * If that entity pointer matches `userdata', we invalidate the entity pointer.
  *
  * `index' must be the index of a value in a table.
- **/
+ */
 static void invalidate_entity(lua_State *L, const int index, void *userdata);
 
-/**
+/*
  * subscribe_to_entity(...)
  * [-0, +0, -]
  *
@@ -101,10 +113,10 @@ static void invalidate_entity(lua_State *L, const int index, void *userdata);
  * The LuaScript object will subscribe to the given entity pointer.
  *
  * `index' must be the index of a value in a table.
- **/
+ */
 static void subscribe_to_entity(lua_State *L, const int index, void *userdata);
 
-/**
+/*
  * Add one object to the table of objects that should not
  * be touched. Returns true if the object was non nil and
  * therefore stored, false otherwise.
@@ -649,11 +661,11 @@ upper_power_of_two(uint32_t v)
     return v;
 }
 
-/** 
+/*
  * Recursive function to push stuff!
  * Can currently handle:
  * Numbers, booleans, strings, nil, tables
- **/
+ */
 static bool
 lua_push_stuff(lua_State *Lsrc, lua_State *Ldst, int pos)
 {
@@ -708,12 +720,15 @@ lua_push_stuff(lua_State *Lsrc, lua_State *Ldst, int pos)
 }
 
 extern "C" {
-    /** 
-     * world:get_entity_by_id(entity_id)
+    // For more detailed documentation about the Lua API's functions,
+    // see the Principia wiki: https://principia-web.se/wiki/LuaScript
+
+    /* WORLD */
+
+    /* world:get_entity_by_id(entity_id)
+     *
      * Fetches an entity from the world via its id.
-     * The entity ID can be found by looking in the bottom-left corner of your screen while selecting an object.
-     * The ID should be visible in a format similar to this: "123 Plank" where 123 is the ID
-     **/
+     */
     static int l_world_get_entity_by_id(lua_State *L)
     {
         uint32_t id = luaL_checkunsigned(L, 2);
@@ -734,125 +749,12 @@ extern "C" {
         return 1; /* We push one value to the lua stack */
     }
 
-    /** 
-     * This is a secret function!
-     **/
-    static int l_world_unpersist_entity(lua_State *L)
-    {
-        uint32_t id = lua_tounsigned(L, lua_upvalueindex(1));
-
-        tms_debugf("Attempting to entity userdata with id %" PRIu32, id);
-        entity *e = W->get_entity_by_id(id);
-
-        entity **ee = static_cast<entity**>(lua_newuserdata(L, sizeof(entity*)));
-        *(ee) = e;
-
-        luaL_setmetatable(L, "EntityMT");
-
-        /* If get_entity_by_id returns 0, the entity userdata will be "invalid".
-         * This might be something we should check for in all
-         * functions that use a raw pointer. */
-
-        return 1;
-    }
-
-    /** 
+    /* entity, ptx, pty, norx, nory = world:raycast(startx, starty, endx, endy, layer)
      * Added in 1.4
-     * world:query(min_x, min_y, max_x, max_y, layer, sublayers)
-     **/
-    static int l_world_query(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_4) {
-            ESCRIPT_VERSION_ERROR(L, "world:query", "1.4");
-            return 0;
-        }
-        float x1 = luaL_checknumber(L, 2);
-        float y1 = luaL_checknumber(L, 3);
-        float x2 = luaL_checknumber(L, 4);
-        float y2 = luaL_checknumber(L, 5);
-        int layer = 1;
-        int sublayer_mask = 15;
-
-        if (lua_gettop(L) > 5) {
-            layer = luaL_checkinteger(L, 6);
-
-            if (lua_gettop(L) == 7) {
-                sublayer_mask = luaL_checkinteger(L, 7);
-            }
-        }
-
-        sublayer_mask &= 15;
-        if (layer < 1) layer = 1;
-        else if (layer > 3) layer = 3;
-
-        layer --;
-
-        class callback : public b2QueryCallback {
-          public:
-            int mask;
-            std::set<entity*> results;
-
-            callback(int layer, int sublayer_mask)
-            {
-                this->mask = (sublayer_mask << (layer*4));
-            }
-
-            bool ReportFixture(b2Fixture *f)
-            {
-                entity *r = static_cast<entity*>(f->GetUserData());
-
-                if (f->IsSensor()) return true;
-
-                if (r) {
-                    if (f->GetFilterData().categoryBits & this->mask) {
-                        this->results.insert(r);
-                    }
-                }
-
-                return true;
-            }
-        } cb(layer, sublayer_mask);
-
-        b2AABB aabb;
-        aabb.lowerBound.Set(x1, y1);
-        aabb.upperBound.Set(x2, y2);
-        W->b2->QueryAABB(&cb, aabb);
-
-        lua_newtable(L);
-        int x = 1;
-        for (std::set<entity*>::iterator i = cb.results.begin(); i != cb.results.end(); i ++, x++) {
-            lua_pushnumber(L, x);
-            entity **ee = static_cast<entity**>(lua_newuserdata(L, sizeof(entity*)));
-            *(ee) = (*i);
-            luaL_setmetatable(L, "EntityMT");
-            lua_settable(L, -3);
-        }
-        return 1;
-    }
-
-    /** 
-     * Added in 1.4
-     *
-     * Example usage:
-     * entity, ptx, pty, norx, nory = world:raycast(startx, starty, endx, endy, layer)
-     *
-     * layer = optional argument
-     *
-     * Returns:
-     * 0: the entity hit by raycast
-     * 1: ptx
-     * 2: pty
-     * 3: norx
-     * 4: nory
-     *
-     * or simply nil if nothing was hit
-     **/
+     */
     static int l_world_raycast(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_4) {
-            ESCRIPT_VERSION_ERROR(L, "world:raycast", "1.4");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "world:raycast", "1.4", LEVEL_VERSION_1_4);
         float x1 = luaL_checknumber(L, 2);
         float y1 = luaL_checknumber(L, 3);
         float x2 = luaL_checknumber(L, 4);
@@ -925,16 +827,82 @@ extern "C" {
         }
     }
 
-    /** 
+    /* world:query(min_x, min_y, max_x, max_y, layer, sublayers)
      * Added in 1.4
-     * x, y = world:get_gravity()
-     **/
+     */
+    static int l_world_query(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "world:query", "1.4", LEVEL_VERSION_1_4);
+        float x1 = luaL_checknumber(L, 2);
+        float y1 = luaL_checknumber(L, 3);
+        float x2 = luaL_checknumber(L, 4);
+        float y2 = luaL_checknumber(L, 5);
+        int layer = 1;
+        int sublayer_mask = 15;
+
+        if (lua_gettop(L) > 5) {
+            layer = luaL_checkinteger(L, 6);
+
+            if (lua_gettop(L) == 7) {
+                sublayer_mask = luaL_checkinteger(L, 7);
+            }
+        }
+
+        sublayer_mask &= 15;
+        if (layer < 1) layer = 1;
+        else if (layer > 3) layer = 3;
+
+        layer --;
+
+        class callback : public b2QueryCallback {
+          public:
+            int mask;
+            std::set<entity*> results;
+
+            callback(int layer, int sublayer_mask)
+            {
+                this->mask = (sublayer_mask << (layer*4));
+            }
+
+            bool ReportFixture(b2Fixture *f)
+            {
+                entity *r = static_cast<entity*>(f->GetUserData());
+
+                if (f->IsSensor()) return true;
+
+                if (r) {
+                    if (f->GetFilterData().categoryBits & this->mask) {
+                        this->results.insert(r);
+                    }
+                }
+
+                return true;
+            }
+        } cb(layer, sublayer_mask);
+
+        b2AABB aabb;
+        aabb.lowerBound.Set(x1, y1);
+        aabb.upperBound.Set(x2, y2);
+        W->b2->QueryAABB(&cb, aabb);
+
+        lua_newtable(L);
+        int x = 1;
+        for (std::set<entity*>::iterator i = cb.results.begin(); i != cb.results.end(); i ++, x++) {
+            lua_pushnumber(L, x);
+            entity **ee = static_cast<entity**>(lua_newuserdata(L, sizeof(entity*)));
+            *(ee) = (*i);
+            luaL_setmetatable(L, "EntityMT");
+            lua_settable(L, -3);
+        }
+        return 1;
+    }
+
+    /* x, y = world:get_gravity()
+     * Added in 1.4
+     */
     static int l_world_get_gravity(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_4) {
-            ESCRIPT_VERSION_ERROR(L, "world:get_gravity", "1.4");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "world:get_gravity", "1.4", LEVEL_VERSION_1_4);
 
         b2Vec2 g = W->get_gravity();
         lua_pushnumber(L, g.x);
@@ -942,35 +910,27 @@ extern "C" {
         return 2;
     }
 
-    /** 
+    /* id = world:get_adventure_id()
      * Added in 1.5
-     * id = world:get_adventure_id()
      *
      * Returns the ID that belongs to the Adventure robot
-     **/
+     */
     static int l_world_get_adventure_id(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "world:get_adventure_id", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "world:get_adventure_id", "1.5", LEVEL_VERSION_1_5);
 
         lua_pushnumber(L, W->level.get_adventure_id());
         return 1;
     }
 
-    /** 
+    /* bup, bdown, bleft, bright = world:get_borders()
      * Added in 1.5
-     * bup, bdown, bleft, bright = world:get_borders()
      *
      * Returns the border sizes of the world
-     **/
+     */
     static int l_world_get_borders(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "world:get_borders", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "world:get_borders", "1.5", LEVEL_VERSION_1_5);
 
         lua_pushnumber(L, W->level.size_y[1]);
         lua_pushnumber(L, W->level.size_y[0]);
@@ -979,18 +939,14 @@ extern "C" {
         return 4;
     }
 
-    /** 
+    /* x, y = world:get_world_point(x, y)
      * Added in 1.5
-     * x, y = world:get_world_point(x, y)
      *
      * Converts a global screen point to a world point
-     **/
+     */
     static int l_world_get_world_point(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "world:get_world_point", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "world:get_world_point", "1.5", LEVEL_VERSION_1_5);
 
         float x = luaL_checknumber(L, 2);
         float y = luaL_checknumber(L, 3);
@@ -1014,18 +970,14 @@ extern "C" {
         return 2;
     }
 
-    /** 
+    /* x, y = world:get_screen_point(x, y)
      * Added in 1.5
-     * x, y = world:get_screen_point(x, y)
      *
      * Converts a global screen point to a local point
-     **/
+     */
     static int l_world_get_screen_point(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "world:get_screen_point", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "world:get_screen_point", "1.5", LEVEL_VERSION_1_5);
 
         float x = luaL_checknumber(L, 2);
         float y = luaL_checknumber(L, 3);
@@ -1035,19 +987,14 @@ extern "C" {
         return 2;
     }
 
-    /** 
+    /* world:set_bg_color(r, g, b)
      * Added in 1.5
-     * world:set_bg_color(r, g, b)
      *
-     * Sets the BG color to the given values.
-     * Only works if you're using a colored background in the first place.
-     **/
+     * Sets the BG color to the given values
+     */
     static int l_world_set_bg_color(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "world:set_bg_color", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "world:set_bg_color", "1.5", LEVEL_VERSION_1_5);
 
         float r = luaL_checknumber(L, 2);
         float g = luaL_checknumber(L, 3);
@@ -1064,16 +1011,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* world:set_ambient_light(intensity)
      * Added in 1.5
-     * world:set_ambient_light(intensity)
-     **/
+     */
     static int l_world_set_ambient_light(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "world:set_ambient_light", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "world:set_ambient_light", "1.5", LEVEL_VERSION_1_5);
 
         float i = luaL_checknumber(L, 2);
 
@@ -1082,16 +1025,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* world:set_diffuse_light(intensity)
      * Added in 1.5
-     * world:set_diffuse_light(intensity)
-     **/
+     */
     static int l_world_set_diffuse_light(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "world:set_diffuse_light", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "world:set_diffuse_light", "1.5", LEVEL_VERSION_1_5);
 
         float i = luaL_checknumber(L, 2);
 
@@ -1100,13 +1039,35 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    // This is a secret function!
+    static int l_world_unpersist_entity(lua_State *L)
+    {
+        uint32_t id = lua_tounsigned(L, lua_upvalueindex(1));
+
+        tms_debugf("Attempting to entity userdata with id %" PRIu32, id);
+        entity *e = W->get_entity_by_id(id);
+
+        entity **ee = static_cast<entity**>(lua_newuserdata(L, sizeof(entity*)));
+        *(ee) = e;
+
+        luaL_setmetatable(L, "EntityMT");
+
+        /* If get_entity_by_id returns 0, the entity userdata will be "invalid".
+         * This might be something we should check for in all
+         * functions that use a raw pointer. */
+
+        return 1;
+    }
+
+
+    /* GAME */
+
+    /* game:show_numfeed(number, num_decimals)
      * Added in 1.3
      * Modified in 1.3.0.3, can now take one more argument.
-     * game:show_numfeed(number, num_decimals)
      *
      * Displays the specified number in the top-center of the screen
-     **/
+     */
     static int l_game_show_numfeed(lua_State *L)
     {
         int num_decimals = 2;
@@ -1121,107 +1082,85 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* game:finish(win)
      * Added in 1.3.0.2
-     * game:finish(win)
      *
      * Finishes the game with the desired state. 1 = win, 0 = lose
-     **/
+     */
     static int l_game_finish(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_3_0_2) {
-            ESCRIPT_VERSION_ERROR(L, "game:finish", "1.3.0.2");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "game:finish", "1.3.0.2", LEVEL_VERSION_1_3_0_2);
         bool win = (luaL_checkint(L, 2) == 1);
         G->finish(win);
 
         return 0;
     }
 
-    /** 
+    /* game:add_score(score)
      * Added in 1.3.0.2
-     * game:add_score(score)
      *
      * Modifies the current score. Use a negitive number to decrease the score.
-     **/
+     */
     static int l_game_add_score(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_3_0_2) {
-            ESCRIPT_VERSION_ERROR(L, "game:add_score", "1.3.0.2");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "game:add_score", "1.3.0.2", LEVEL_VERSION_1_3_0_2);
         int score = luaL_checkint(L, 2);
         G->add_score(score);
 
         return 0;
     }
 
-    /** 
+    /* game:set_score(new_score)
      * Added in 1.3.0.2
-     * game:set_score(new_score)
      *
      * Modifies the current score.
-     **/
+     */
     static int l_game_set_score(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_3_0_2) {
-            ESCRIPT_VERSION_ERROR(L, "game:set_score", "1.3.0.2");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "game:set_score", "1.3.0.2", LEVEL_VERSION_1_3_0_2);
+
         int new_score = luaL_checkint(L, 2);
         G->set_score(new_score);
 
         return 0;
     }
 
-    /** 
+    /* game:get_score()
      * Added in 1.3.0.2
-     * game:get_score()
      *
      * Returns the current score.
-     **/
+     */
     static int l_game_get_score(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_3_0_2) {
-            ESCRIPT_VERSION_ERROR(L, "game:get_score", "1.3.0.2");
-            return 0;
-        }
-        lua_pushnumber(L, G->get_real_score());
+        ESCRIPT_VERSION_ERROR(L, "game:get_score", "1.3.0.2", LEVEL_VERSION_1_3_0_2);
 
+        lua_pushnumber(L, G->get_real_score());
         return 1;
     }
 
-    /** 
+    /* game:activate_rc(entity)
      * Added in 1.3.0.2
-     * game:activate_rc(entity)
      *
      * Activates RC control over an entity.
-     **/
+     */
     static int l_game_activate_rc(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_3_0_2) {
-            ESCRIPT_VERSION_ERROR(L, "game:activate_rc", "1.3.0.2");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "game:activate_rc", "1.3.0.2", LEVEL_VERSION_1_3_0_2);
+
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 2, "EntityMT")));
         G->set_control_panel(e);
-
         return 0;
     }
 
-    /** 
+    /* game:activate_rc_by_id(entity_id)
      * Added in 1.3.0.2
-     * game:activate_rc_by_id(entity_id)
      *
      * Activates RC control over an entity.
-     **/
+     */
     static int l_game_activate_rc_by_id(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_3_0_2) {
-            ESCRIPT_VERSION_ERROR(L, "game:activate_rc_by_id", "1.3.0.2");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "game:activate_rc_by_id", "1.3.0.2", LEVEL_VERSION_1_3_0_2);
+
         long entity_id = luaL_checklong(L, 2);
         entity *e = W->get_entity_by_id(entity_id);
         if (e) {
@@ -1231,16 +1170,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* game:message(msg, duration)
      * Added in 1.4
-     * game:message(msg, duration)
-     **/
+     */
     static int l_game_message(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_4) {
-            ESCRIPT_VERSION_ERROR(L, "game:message", "1.4");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "game:message", "1.4", LEVEL_VERSION_1_4);
 
         bool long_duration = false;
         if (lua_gettop(L) == 3) {
@@ -1252,18 +1187,14 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* local x, y = game:get_cursor(layer)
      * Added in 1.4
-     * local x, y = game:get_cursor(layer)
      *
      * get the cursor position in the given layer
-     **/
+     */
     static int l_game_get_cursor(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_4) {
-            ESCRIPT_VERSION_ERROR(L, "game:get_cursor", "1.4");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "game:get_cursor", "1.4", LEVEL_VERSION_1_4);
 
         int layer = 1;
 
@@ -1283,18 +1214,33 @@ extern "C" {
         return 2;
     }
 
-    /** 
+    /* game:poll_event(event_id)
+     * Added in 1.4
+     */
+    static int l_game_poll_event(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "game:poll_event", "1.4", LEVEL_VERSION_1_4);
+
+        int ev = luaL_checkinteger(L, 2);
+
+        if (ev < 0) {
+            ev = 0;
+        } else if (ev >= WORLD_EVENT__NUM) {
+            ev = WORLD_EVENT__NUM-1;
+        }
+
+        lua_pushboolean(L, current_escript->events[ev] > 0);
+        return 1;
+    }
+
+    /* local x, y = game:get_screen_cursor()
      * Added in 1.5
-     * local x, y = game:get_screen_cursor()
      *
      * get the cursor position on the screen
-     **/
+     */
     static int l_game_get_screen_cursor(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "game:get_screen_cursor", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "game:get_screen_cursor", "1.5", LEVEL_VERSION_1_5);
 
         G->refresh_last_cursor_pos();
 
@@ -1304,61 +1250,43 @@ extern "C" {
         return 2;
     }
 
-    /** 
+    /* game:restart()
      * Added in 1.5
-     * game:restart()
-     *
-     * get the cursor position on the screen
-     **/
+     */
     static int l_game_restart(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "game:restart", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "game:restart", "1.5", LEVEL_VERSION_1_5);
 
         G->restart_level();
 
         return 0;
     }
 
-    /** 
+    /* game:submit_score()
      * Added in 1.5
-     * game:submit_score()
      *
      * Submits the players current score
-     * NOTE: If the score is submitted before the level has been completed or
-     * game over has been called, the score will not yet have been saved.
-     **/
+     */
     static int l_game_submit_score(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "game:submit_score", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "game:submit_score", "1.5", LEVEL_VERSION_1_5);
 
-        if (W->level_id_type == LEVEL_DB) {
+        if (W->level_id_type == LEVEL_DB)
             G->submit_score();
-        } else {
+        else
             ui::message("Can't submit score when playing a local level.");
-        }
 
         return 0;
     }
 
-    /** 
+    /* game:set_variable(varname, value)
      * Added in 1.5
-     * game:set_variable(varname, value)
-     *
-     * Sets the value of a variable
-     * Note: Variables from Lua can contain values outside the normal 0.0-1.0 scope.
-     **/
+
+     * Sets the value of a Principia variable
+     */
     static int l_game_set_variable(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "game:set_variable", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "game:set_variable", "1.5", LEVEL_VERSION_1_5);
 
         const char *name = luaL_checkstring(L, 2);
         double value = luaL_checknumber(L, 3);
@@ -1373,19 +1301,14 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* value = game:get_variable(varname)
      * Added in 1.5
-     * value = game:get_variable(varname)
      *
-     * Gets the value of a variable.
-     * Note: Variables from Lua can contain values outside the normal 0.0-1.0 scope.
-     **/
+     * Gets the value of a Principia variable.
+     */
     static int l_game_get_variable(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "game:get_variable", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "game:get_variable", "1.5", LEVEL_VERSION_1_5);
 
         const char *name = luaL_checkstring(L, 2);
 
@@ -1401,36 +1324,28 @@ extern "C" {
         return 1;
     }
 
-    /** 
+    /* fps = game:get_fps()
      * Added in 1.5
-     * fps = game:get_fps()
      *
      * Returns the mean fps
-     **/
+     */
     static int l_game_get_fps(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "game:get_fps", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "game:get_fps", "1.5", LEVEL_VERSION_1_5);
 
         lua_pushnumber(L, _tms.fps_mean);
 
         return 1;
     }
 
-    /** 
+    /* prompt_id = game:prompt(message, btn1, btn2, btn3)
      * Added in 1.5.1
-     * prompt_id = game:prompt(message, btn1, btn2, btn3)
      *
      * Opens a prompt in a similar fashion to the Prompt object.
-     **/
+     */
     static int l_game_prompt(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5_1) {
-            ESCRIPT_VERSION_ERROR(L, "game:prompt", "1.5.1");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "game:prompt", "1.5.1", LEVEL_VERSION_1_5_1);
 
         escript *self = static_cast<escript*>(L->userdata);
 
@@ -1503,37 +1418,13 @@ extern "C" {
         return 1;
     }
 
-    /** 
-     * Added in 1.4
-     * game:poll_event(event_id)
-     **/
-    static int l_game_poll_event(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_4) {
-            ESCRIPT_VERSION_ERROR(L, "game:poll_event", "1.4");
-            return 0;
-        }
 
-        int ev = luaL_checkinteger(L, 2);
+    /* CAM */
 
-        if (ev < 0) {
-            ev = 0;
-        } else if (ev >= WORLD_EVENT__NUM) {
-            ev = WORLD_EVENT__NUM-1;
-        }
-
-        lua_pushboolean(L, current_escript->events[ev] > 0);
-        return 1;
-    }
-
-    /** 
-     * cam:get_position()
+    /* cam:get_position()
      *
-     * Returns
-     * 0: Camera position in the X-axis
-     * 1: Camera position in the Y-axis
-     * 2: Camera position in the Z-axis
-     **/
+     * Returns camera position in X, Y and Z-axis
+     */
     static int l_cam_get_position(lua_State *L)
     {
         lua_pushnumber(L, G->cam->_position.x);
@@ -1542,14 +1433,10 @@ extern "C" {
         return 3;
     }
 
-    /** 
-     * cam:get_velocity()
+    /* cam:get_velocity()
      *
-     * Returns
-     * 0: Camera velocity in the X-axis
-     * 1: Camera velocity in the Y-axis
-     * 2: Camera velocity in the Z-axis
-     **/
+     * Returns camera velocity in X, Y and Z-axis
+     */
     static int l_cam_get_velocity(lua_State *L)
     {
         lua_pushnumber(L, G->cam_vel.x);
@@ -1558,13 +1445,12 @@ extern "C" {
         return 3;
     }
 
-    /** 
-     * cam:set_position(x, y, z)
+    /* cam:set_position(x, y, z)
+     *
      * Sets the position of the camera
-     **/
+     */
     static int l_cam_set_position(lua_State *L)
     {
-
         double x = luaL_checknumber(L, 2);
         double y = luaL_checknumber(L, 3);
         double z = luaL_checknumber(L, 4);
@@ -1588,14 +1474,13 @@ extern "C" {
         return 0;
     }
 
-    /** 
-     * cam:set_velocity(x, y, z)
-     * Sets the velocity of the camera
+    /* cam:set_velocity(x, y, z)
      *
-     * TODO: This probably needs to fiddle with the numbers whether the player has smooth cam enabled or not
-     **/
+     * Sets the velocity of the camera
+     */
     static int l_cam_set_velocity(lua_State *L)
     {
+        // TODO: This probably needs to fiddle with the numbers whether the player has smooth cam enabled or not
         double x = luaL_checknumber(L, 2);
         double y = luaL_checknumber(L, 3);
         double z = luaL_checknumber(L, 4);
@@ -1606,10 +1491,10 @@ extern "C" {
         return 0;
     }
 
-    /** 
-     * cam:follow_entity(entity, snap, preserve_position)
+    /* cam:follow_entity(entity, snap, preserve_position)
+     *
      * The game now automatically follows the selected entity
-     **/
+     */
     static int l_cam_follow_entity(lua_State *L)
     {
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 2, "EntityMT")));
@@ -1621,10 +1506,10 @@ extern "C" {
         return 0;
     }
 
-    /** 
-     * cam:follow_entity_by_id(entity_id, snap, preserve_position)
+    /* cam:follow_entity_by_id(entity_id, snap, preserve_position)
+     *
      * The game now automatically follows the selected entity
-     **/
+     */
     static int l_cam_follow_entity_by_id(lua_State *L)
     {
         long entity_id = luaL_checklong(L, 2);
@@ -1639,10 +1524,9 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* cam:get_zoom_ratio()
      * Added in 1.5
-     * cam:get_zoom_ratio()
-     **/
+     */
     static int l_cam_get_zoom_ratio(lua_State *L)
     {
         float cur_z = G->cam->_position.z;
@@ -1657,6 +1541,9 @@ extern "C" {
 
         return 1;
     }
+
+
+    /* ENTITY */
 
     static int create_entity(lua_State *L)
     {
@@ -1678,12 +1565,10 @@ extern "C" {
         return 1;
     }
 
-    /** 
-     * entity:id()
+    /* entity:get_id()
      *
-     * Returns:
-     * The entity ID (the one we used to fetch the entity via world:get_entity_by_id)
-     **/
+     * Returns the entity ID (the one we used to fetch the entity via world:get_entity)
+     */
     static int l_entity_get_id(lua_State *L)
     {
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT"))); // We turn that address into an entity pointer
@@ -1698,16 +1583,10 @@ extern "C" {
         return 1;
     }
 
-    /** 
-     * entity:position()
+    /* x, y = entity:position()
      *
-     * Example usage:
-     * x, y = entity:position()
-     *
-     * Returns:
-     * 0: the position of the entity in the X-axis
-     * 1: the position of the entity in the Y-axis
-     **/
+     * Returns the position in the X and Y-axis
+     */
     static int l_entity_get_position(lua_State *L)
     {
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
@@ -1717,18 +1596,6 @@ extern "C" {
         return 2; // We return two values with this function
     }
 
-    /* added in 1.4 */
-    static int l_entity_highlight(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_4) {
-            ESCRIPT_VERSION_ERROR(L, "entity:highlight", "1.4");
-            return 0;
-        }
-        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
-        G->add_highlight(e, false, 1.f);
-        return 0;
-    }
-
     static int l_entity_get_angle(lua_State *L)
     {
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
@@ -1736,66 +1603,10 @@ extern "C" {
         return 1;
     }
 
-    /* added in 1.4 */
-    static int l_entity_local_to_world(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_4) {
-            ESCRIPT_VERSION_ERROR(L, "entity:local_to_world", "1.4");
-            return 0;
-        }
-        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
-
-        float x = luaL_checknumber(L, 2);
-        float y = luaL_checknumber(L, 3);
-
-        b2Vec2 r = e->local_to_world(b2Vec2(x,y), 0);
-
-        lua_pushnumber(L, r.x);
-        lua_pushnumber(L, r.y);
-        return 2;
-    }
-
-    /* added in 1.4 */
-    static int l_entity_world_to_local(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_4) {
-            ESCRIPT_VERSION_ERROR(L, "entity:world_to_local", "1.4");
-            return 0;
-        }
-        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
-
-        float x = luaL_checknumber(L, 2);
-        float y = luaL_checknumber(L, 3);
-
-        b2Vec2 r = e->world_to_local(b2Vec2(x,y), 0);
-
-        lua_pushnumber(L, r.x);
-        lua_pushnumber(L, r.y);
-        return 2;
-    }
-
-    /* added in 1.4 */
-    static int l_entity_get_layer(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_4) {
-            ESCRIPT_VERSION_ERROR(L, "entity:get_layer", "1.4");
-            return 0;
-        }
-        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
-        lua_pushinteger(L, e->get_layer()+1);
-        return 1;
-    }
-
-    /** 
-     * entity:velocity()
+    /* vel_x, vel_y = entity:velocity()
      *
-     * Example usage:
-     * vel_x, vel_y = entity:velocity()
-     *
-     * Returns:
-     * 0: the velocity of the entity in the X-axis
-     * 1: the velocity of the entity in the Y-axis
-     **/
+     * Returns the velocity in the X and Y-axis
+     */
     static int l_entity_get_velocity(lua_State *L)
     {
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
@@ -1823,16 +1634,10 @@ extern "C" {
         return 1;
     }
 
-    /** 
-     * entity:bbox()
+    /* bbox_width, bbox_height = entity:bbox()
      *
-     * Example usage:
-     * bbox_width, bbox_height = entity:bbox()
-     *
-     * Returns:
-     * 0: the velocity of the entity in the X-axis
-     * 1: the velocity of the entity in the Y-axis
-     **/
+     * Returns the velocity of the entity in X and Y-axis
+     */
     static int l_entity_get_bbox(lua_State *L)
     {
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
@@ -1843,18 +1648,64 @@ extern "C" {
         return 2;
     }
 
-    /** 
+    /* added in 1.4 */
+    static int l_entity_get_layer(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "entity:get_layer", "1.4", LEVEL_VERSION_1_4);
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+        lua_pushinteger(L, e->get_layer()+1);
+        return 1;
+    }
+
+    /* added in 1.4 */
+    static int l_entity_local_to_world(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "entity:local_to_world", "1.4", LEVEL_VERSION_1_4);
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+
+        float x = luaL_checknumber(L, 2);
+        float y = luaL_checknumber(L, 3);
+
+        b2Vec2 r = e->local_to_world(b2Vec2(x,y), 0);
+
+        lua_pushnumber(L, r.x);
+        lua_pushnumber(L, r.y);
+        return 2;
+    }
+
+    /* added in 1.4 */
+    static int l_entity_world_to_local(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "entity:world_to_local", "1.4", LEVEL_VERSION_1_4);
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+
+        float x = luaL_checknumber(L, 2);
+        float y = luaL_checknumber(L, 3);
+
+        b2Vec2 r = e->world_to_local(b2Vec2(x,y), 0);
+
+        lua_pushnumber(L, r.x);
+        lua_pushnumber(L, r.y);
+        return 2;
+    }
+
+    /* added in 1.4 */
+    static int l_entity_highlight(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "entity:highlight", "1.4", LEVEL_VERSION_1_4);
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+        G->add_highlight(e, false, 1.f);
+        return 0;
+    }
+
+    /* entity:damage(amount)
      * Added in 1.5
-     * entity:damage(amount)
      *
      * Only works on robots or interactive robots (if Interactive Destruction is enabled).
-     **/
+     */
     static int l_entity_damage(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:damage", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:damage", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
         float damage = luaL_checknumber(L, 2);
@@ -1871,18 +1722,14 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* entity:is_static()
      * Added in 1.5
-     * entity:is_static()
      *
      * Returns true if the entity is static (unable to move)
-     **/
+     */
     static int l_entity_is_static(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:is_static", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:is_static", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -1896,18 +1743,14 @@ extern "C" {
         return 1;
     }
 
-    /** 
+    /* result = entity:absorb(follow_connections)
      * Added in 1.5
-     * result = entity:absorb(follow_connections)
      *
      * Returns true if the entity was successfully absorbed, otherwise return false
-     **/
+     */
     static int l_entity_absorb(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:absorb", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:absorb", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -1930,16 +1773,12 @@ extern "C" {
         return 1;
     }
 
-    /** 
+    /* entity:apply_torque(torque)
      * Added in 1.5
-     * entity:apply_torque(torque)
-     **/
+     */
     static int l_entity_apply_torque(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:apply_torque", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:apply_torque", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
         float torque = luaL_checknumber(L, 2);
@@ -1955,18 +1794,14 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* entity:set_velocity(x, y)
      * Added in 1.5
-     * entity:set_velocity(x, y)
      *
      * Sets the linear velocity of the given entity.
-     **/
+     */
     static int l_entity_set_velocity(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:set_velocity", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:set_velocity", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
         float x = luaL_checknumber(L, 2);
@@ -1995,16 +1830,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* entity:warp(x, y, layer)
      * Added in 1.5
-     * entity:warp(x, y, layer)
-     **/
+     */
     static int l_entity_warp(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:warp", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:warp", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
         float x = luaL_checknumber(L, 2);
@@ -2043,16 +1874,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* entity:show()
      * Added in 1.5
-     * entity:show()
-     **/
+     */
     static int l_entity_show(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:show", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:show", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2064,16 +1891,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* entity:hide()
      * Added in 1.5
-     * entity:hide()
-     **/
+     */
     static int l_entity_hide(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:hide", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:hide", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2085,16 +1908,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* entity:get_name()
      * Added in 1.5
-     * entity:get_name()
-     **/
+     */
     static int l_entity_get_name(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:get_name", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:get_name", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2103,16 +1922,12 @@ extern "C" {
         return 1;
     }
 
-    /** 
+    /* entity:is_creature()
      * Added in 1.5
-     * entity:is_creature()
-     **/
+     */
     static int l_entity_is_creature(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:is_creature", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:is_creature", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2121,16 +1936,12 @@ extern "C" {
         return 1;
     }
 
-    /** 
+    /* entity:is_robot()
      * Added in 1.5
-     * entity:is_robot()
-     **/
+     */
     static int l_entity_is_robot(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:is_robot", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:is_robot", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2139,16 +1950,12 @@ extern "C" {
         return 1;
     }
 
-    /** 
+    /* entity:is_player()
      * Added in 1.5
-     * entity:is_player()
-     **/
+     */
     static int l_entity_is_player(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:is_player", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:is_player", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2157,16 +1964,12 @@ extern "C" {
         return 1;
     }
 
-    /** 
+    /* entity:get_mass()
      * Added in 1.5
-     * entity:get_mass()
-     **/
+     */
     static int l_entity_get_mass(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:get_mass", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:get_mass", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2183,18 +1986,14 @@ extern "C" {
         return 1;
     }
 
-    /** 
+    /* entity:get_density()
      * Added in 1.5
-     * entity:get_density()
      *
      * Returns the average density of all fixtures of the given entity
-     **/
+     */
     static int l_entity_get_density(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:get_density", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:get_density", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2219,18 +2018,14 @@ extern "C" {
         return 1;
     }
 
-    /** 
+    /* entity:get_friction()
      * Added in 1.5
-     * entity:get_friction()
      *
      * Returns the average friction of all fixtures of the given entity
-     **/
+     */
     static int l_entity_get_friction(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:get_friction", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:get_friction", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2255,18 +2050,14 @@ extern "C" {
         return 1;
     }
 
-    /** 
+    /* entity:get_restitution()
      * Added in 1.5
-     * entity:get_restitution()
      *
      * Returns the average restitution of all fixtures of the given entity
-     **/
+     */
     static int l_entity_get_restitution(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:get_restitution", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:get_restitution", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2291,21 +2082,14 @@ extern "C" {
         return 1;
     }
 
-    /** 
+    /* entity:set_color(r, g, b)
      * Added in 1.5
-     * entity:set_color(r, g, b)
      *
-     * Sets the color of the entity.
-     * Does not work with all entities.
-     * This function should be called sparingly due to its performance use,
-     * especially when used with pixels.
-     **/
+     * Sets the color of the entity, if applicable
+     */
     static int l_entity_set_color(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:set_color", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:set_color", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2318,19 +2102,14 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* r, g, b, a = entity:get_color()
      * Added in 1.5
-     * r, g, b, a = entity:get_color()
      *
-     * Returns the color of the entity.
-     * If the entity is not capable of handling custom colors, all values returned are 0.
-     **/
+     * Returns the color of the entity
+     */
     static int l_entity_get_color(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:get_color", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:get_color", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2344,18 +2123,14 @@ extern "C" {
         return 4;
     }
 
-    /** 
+    /* entity:disconnect_all()
      * Added in 1.5
-     * entity:disconnect_all()
      *
      * Detach all connections from the entity
-     **/
+     */
     static int l_entity_disconnect_all(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:disconnect_all", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:disconnect_all", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2364,16 +2139,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* entity:set_target_id(id)
      * Added in 1.5
-     * entity:set_target_id(id)
-     **/
+     */
     static int l_entity_set_target_id(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "entity:set_target_id", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:set_target_id", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2413,16 +2184,15 @@ extern "C" {
         return 0;
     }
 
-    /** 
+
+    /* we pretend this is creature stuff */
+
+    /* hp, max_hp = creature:get_hp()
      * Added in 1.5
-     * hp, max_hp = creature:get_hp()
-     **/
+     */
     static int l_creature_get_hp(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "creature:get_hp", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "creature:get_hp", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2440,16 +2210,12 @@ extern "C" {
         return 2;
     }
 
-    /** 
+    /* armor, max_armor = creature:get_armor()
      * Added in 1.5
-     * armor, max_armor = creature:get_armor()
-     **/
+     */
     static int l_creature_get_armor(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "creature:get_armor", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "creature:get_armor", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2467,16 +2233,12 @@ extern "C" {
         return 2;
     }
 
-    /** 
+    /* aim = creature:get_aim()
      * Added in 1.5
-     * aim = creature:get_aim()
-     **/
+     */
     static int l_creature_get_aim(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "creature:get_aim", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "creature:get_aim", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2495,16 +2257,12 @@ extern "C" {
         return 1;
     }
 
-    /** 
+    /* creature:set_aim(new_aim)
      * Added in 1.5
-     * creature:set_aim(new_aim)
-     **/
+     */
     static int l_creature_set_aim(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "creature:set_aim", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "creature:set_aim", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2522,18 +2280,14 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* creature:stop(dir)
      * Added in 1.5
-     * creature:stop(dir)
      *
      * if no dir is specified, stop will be called for all dirs
-     **/
+     */
     static int l_creature_stop(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "creature:stop", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "creature:stop", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2562,16 +2316,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* creature:move(dir)
      * Added in 1.5
-     * creature:move(dir)
-     **/
+     */
     static int l_creature_move(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "creature:move", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "creature:move", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2595,16 +2345,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* creature:is_action_active()
      * Added in 1.5
-     * creature:is_action_active()
-     **/
+     */
     static int l_creature_is_action_active(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "creature:is_action_active", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "creature:is_action_active", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2621,16 +2367,12 @@ extern "C" {
         return 1;
     }
 
-    /** 
+    /* creature:action_on()
      * Added in 1.5
-     * creature:action_on()
-     **/
+     */
     static int l_creature_action_on(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "creature:action_on", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "creature:action_on", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2647,16 +2389,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* creature:action_off()
      * Added in 1.5
-     * creature:action_off()
-     **/
+     */
     static int l_creature_action_off(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "creature:action_off", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "creature:action_off", "1.5", LEVEL_VERSION_1_5);
 
         entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2673,16 +2411,15 @@ extern "C" {
         return 0;
     }
 
-    /** 
+
+    /* escript specific functions */
+
+    /* entity:call(functionname)
      * Added in 1.5
-     * escript:call(functionname)
-     **/
+     */
     static int l_escript_call(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "escript:call", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "entity:call", "1.5", LEVEL_VERSION_1_5);
 
         entity *ent = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
 
@@ -2736,136 +2473,194 @@ extern "C" {
         return 0;
     }
 
-    /** 
-     * Added in 1.3.0.2
-     * this:set_sprite_z(z)
+
+    /* THIS */
+
+    /* this:write(socket, value)
      *
-     * Set sprite z within the current layer
-     **/
-    static int l_this_set_sprite_z(lua_State *L)
+     * Writes the specified value to the out socket.
+     * Values will be clamped between 0.0 and 1.0.
+     * This should not be called more than once.
+     */
+    static int l_this_write(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_3_0_2) {
-            ESCRIPT_VERSION_ERROR(L, "this:set_sprite_z", "1.3.0.2");
-            return 0;
-        }
-
         escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-        e->draw_z = luaL_checknumber(L, 2);
+        int socket = luaL_checkint(L, 2);
+        double value = tclampf(luaL_checknumber(L, 3), 0.0, 1.0);
+        if (socket < 0) socket = 0;
+        if (socket > 3) socket = 3;
 
-        return 0;
-    }
-
-    /** 
-     * Added in 1.5
-     * this:set_draw_coordinates(int)
-     *
-     * Sets the camera mode
-     * 0 = World-based coordinates
-     * 1 = Screen-based coordinates
-     * 2 = Local-based coordinates (Local to Lua Script-object)
-     **/
-    static int l_this_set_draw_coordinates(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:set_draw_coordinates", "1.5");
-            return 0;
-        }
-
-        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-        int mode = luaL_checkint(L, 2);
-
-        if (mode < 0 || mode > 2) {
-            lua_pushstring(L, "Invalid camera mode.");
-            lua_error(L);
-        } else {
-            e->coordinate_mode = mode;
-
-            if (e->coordinate_mode == ESCRIPT_LOCAL && lua_gettop(L) == 3) {
-                e->local_id = luaL_checknumber(L, 3);
-            } else {
-                e->local_id = 0;
-            }
+        if (!e->s_out[socket].written()) {
+            e->s_out[socket].write(value);
         }
 
         return 0;
     }
 
-    /** 
-     * Added in 1.5
-     * width, height = this:get_resolution()
+    /* this:read(socket)
      *
-     * Gets the resolution Principia is currently running at.
-     **/
-    static int l_this_get_resolution(lua_State *L)
+     * Reads the value from the specified socket
+     */
+    static int l_this_read(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:get_resolution", "1.5");
-            return 0;
-        }
+        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
+        int socket = luaL_checkint(L, 2);
+        if (socket < 0) socket = 0;
+        if (socket > 3) socket = 3;
 
-        lua_pushnumber(L, _tms.window_width);
-        lua_pushnumber(L, _tms.window_height);
-
-        return 2;
-    }
-
-    /** 
-     * Added in 1.5
-     * ratio = this:get_ratio()
-     *
-     * Gets the current screen ratio.
-     **/
-    static int l_this_get_ratio(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:get_ratio", "1.5");
-            return 0;
-        }
-
-        lua_pushnumber(L, (float)_tms.window_width/_tms.window_height);
+        lua_pushnumber(L, e->val[socket]);
 
         return 1;
     }
 
-    /** 
-     * Added in 1.3.0.2
-     * this:set_sprite_tint(r,g,b,a)
+    /* this:has_plug(socket)
+     * Added in 1.5
      *
-     * Renamed to set_draw_tint in 1.4
-     *
-     * Set sprite color
-     **/
-    static int l_this_set_sprite_tint(lua_State *L)
+     * Returns true if the given socket has a plug connected
+     */
+    static int l_this_has_plug(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_3_0_2) {
-            ESCRIPT_VERSION_ERROR(L, "this:set_sprite_tint", "1.3.0.2");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "this:has_plug", "1.5", LEVEL_VERSION_1_5);
 
         escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-        e->draw_tint.r = luaL_checknumber(L, 2);
-        e->draw_tint.g = luaL_checknumber(L, 3);
-        e->draw_tint.b = luaL_checknumber(L, 4);
-        e->draw_tint.a = luaL_checknumber(L, 5);
+        int socket = luaL_checkint(L, 2);
+        if (socket < 0) socket = 0;
+        if (socket > 3) socket = 3;
+
+        lua_pushboolean(L, e->socket_active[socket]);
+
+        return 1;
+    }
+
+    /* this:write_frequency(frequency, value)
+     * Added in 1.3.0.2
+     *
+     * Writes the specified value to the given frequency
+     */
+    static int l_this_write_frequency(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "this:write_frequency", "1.3.0.2", LEVEL_VERSION_1_3_0_2);
+        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
+        uint32_t freq = (uint32_t)luaL_checklong(L, 2);
+        double value = tclampf(luaL_checknumber(L, 3), 0.0, 1.0);
+
+        std::pair<std::multimap<uint32_t, receiver_base*>::iterator, std::multimap<uint32_t, receiver_base*>::iterator> range = W->receivers.equal_range(freq);
+        for (std::multimap<uint32_t, receiver_base*>::iterator
+                i = range.first;
+                i != range.second && i != W->receivers.end();
+                i++) {
+            i->second->pending_value = value;
+            i->second->no_broadcast = true;
+        }
 
         return 0;
     }
 
-    /** 
+    /* this:listen_on_frequency(frequency)
+     * Added in 1.4
+     *
+     * Starts listening on the given frequency
+     */
+    static int l_this_listen_on_frequency(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "this:listen_on_frequency", "1.4", LEVEL_VERSION_1_4);
+        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
+        uint32_t freq = (uint32_t)luaL_checklong(L, 2);
+        if (e->first_run) {
+            receiver_base *rb = new receiver_base();
+            std::pair<std::map<uint32_t, receiver_base*>::iterator, bool> ret;
+            ret = e->receivers.insert(std::pair<uint32_t, receiver_base*>(freq, rb));
+            if (!ret.second) {
+                delete rb;
+            } else {
+                W->add_receiver(freq, rb);
+            }
+        } else {
+            lua_pushstring(L, "You can only start listening to frequency in init().");
+            lua_error(L);
+        }
+
+        return 0;
+    }
+
+    /* this:read_frequency(frequency)
+     * Added in 1.4
+     */
+    static int l_this_read_frequency(lua_State *L)
+    {
+        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
+        uint32_t freq = luaL_checklong(L, 2);
+
+        std::map<uint32_t, receiver_base*>::iterator ret;
+        ret = e->receivers.find(freq);
+        float v = 0.f;
+        if (ret != e->receivers.end()) {
+            v = ret->second->pending_value;
+        } else {
+            char err[512];
+            snprintf(err, 511, "You are not listening to frequency %u.\nUse this:listen_on_frequency() to begin.", freq);
+            lua_pushstring(L, err);
+            lua_error(L);
+        }
+
+        lua_pushnumber(L, v);
+
+        return 1;
+    }
+
+    /* this:first_run()
      * Added in 1.3.0.2
-     * this:set_sprite_blending(int)
+     * Deprecated in 1.5!
+     */
+    static int l_this_first_run(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "this:first_run", "1.3.0.2", LEVEL_VERSION_1_3_0_2);
+        ESCRIPT_FUNCTION_DEPRECATED(L, "this:first_run", "1.5", LEVEL_VERSION_1_5);
+
+        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
+        lua_pushboolean(L, e->first_run);
+
+        return 1;
+    }
+
+    /* x, y = this:get_position()
+     *
+     * Returns the position of the entity in X and Y-axis
+     */
+    static int l_this_get_position(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "this:get_position", "1.3.0.2", LEVEL_VERSION_1_3_0_2);
+
+        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
+        b2Vec2 pos = e->get_position();
+        lua_pushnumber(L, pos.x);
+        lua_pushnumber(L, pos.y);
+
+        return 2;
+    }
+
+    /* id = this:get_id()
+     * Added in 1.5
+     *
+     * Get the id of the Luascript entity
+     */
+    static int l_this_get_id(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "this:get_id", "1.5", LEVEL_VERSION_1_5);
+
+        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
+        lua_pushnumber(L, e->id);
+        return 1;
+    }
+
+    /* this:set_sprite_blending(int)
+     * Added in 1.3.0.2
      *
      * Set blending mode
-     * 0 = off
-     * 1 = mode 1
-     * 2 = mode 2
-     **/
+     */
     static int l_this_set_sprite_blending(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_3_0_2) {
-            ESCRIPT_VERSION_ERROR(L, "this:set_sprite_blending", "1.3.0.2");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "this:set_sprite_blending", "1.3.0.2", LEVEL_VERSION_1_3_0_2);
 
         escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
         e->blending_mode = luaL_checkint(L, 2);
@@ -2878,20 +2673,14 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* this:set_sprite_filtering(int)
      * Added in 1.3.0.2
-     * this:set_sprite_filtering(int)
      *
-     * Set filtering mode
-     * 0 = nearest filtering
-     * 1 = linear filtering
-     **/
+     * Set sprite filtering
+     */
     static int l_this_set_sprite_filtering(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_3_0_2) {
-            ESCRIPT_VERSION_ERROR(L, "this:set_sprite_filtering", "1.3.0.2");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "this:set_sprite_filtering", "1.3.0.2", LEVEL_VERSION_1_3_0_2);
 
         escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
         e->filtering = luaL_checkint(L, 2);
@@ -2904,21 +2693,54 @@ extern "C" {
         return 0;
     }
 
-    /** 
-     * Modified in 1.5
-     * It can now take an optional argument with the clear color
+    /* this:set_sprite_texel(x, y, r, g, b, a)
+     * Added in 1.3.0.2
      *
+     * Set a sprite texel
+     */
+    static int l_this_set_sprite_texel(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "this:set_sprite_texel", "1.3.0.2", LEVEL_VERSION_1_3_0_2);
+
+        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
+
+        int u = luaL_checkint(L, 2);
+        int v = luaL_checkint(L, 3);
+        float r = luaL_checknumber(L, 4);
+        float g = luaL_checknumber(L, 5);
+        float b = luaL_checknumber(L, 6);
+        float a = luaL_checknumber(L, 7);
+
+        if (!e->normal_draw) {
+            e->normal_draw = new draw_data(e);
+        }
+
+        draw_data *draw = e->normal_draw;
+
+        if (u < 0 || u >= draw->texture_width || v < 0 || v >= draw->texture_height) {
+            lua_pushfstring(L, "texel coordinate out of range (%d/%d)", u, v);
+            lua_error(L);
+        }
+
+        draw->texture->data[draw->texture_width*4*v + 4*u] = (unsigned char)tclampf(roundf(r*255.f), 0, 255.f);
+        draw->texture->data[draw->texture_width*4*v + 4*u+1] = (unsigned char)tclampf(roundf(g*255.f), 0, 255.f);
+        draw->texture->data[draw->texture_width*4*v + 4*u+2] = (unsigned char)tclampf(roundf(b*255.f), 0.f, 255.f);
+        draw->texture->data[draw->texture_width*4*v + 4*u+3] = (unsigned char)tclampf(roundf(a*255.f), 0.f, 255.f);
+
+        draw->texture_modified = true;
+
+        return 0;
+    }
+
+    /* this:clear_texels()
      * Added in 1.4
-     * this:clear_texels()
+     * Modified in 1.5: It can now take an optional argument with the clear color
      *
      * clear all texels
-     **/
+     */
     static int l_this_clear_texels(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_4) {
-            ESCRIPT_VERSION_ERROR(L, "this:clear_texels", "1.4");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "this:clear_texels", "1.4", LEVEL_VERSION_1_4);
 
         escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
 
@@ -2942,208 +2764,48 @@ extern "C" {
         return 0;
     }
 
-    /** 
-     * Added in 1.5
-     * this:clear_static_texels()
+    /* this:set_sprite_tint(r,g,b,a)
+     * Added in 1.3.0.2
+     * Renamed to set_draw_tint in 1.4
      *
-     * clear all static texels
-     **/
-    static int l_this_clear_static_texels(lua_State *L)
+     * Set sprite color
+     */
+    static int l_this_set_sprite_tint(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:clear_static_texels", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "this:set_sprite_tint", "1.3.0.2", LEVEL_VERSION_1_3_0_2);
 
         escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-
-        if (!e->static_draw) {
-            e->static_draw = new draw_data(e);
-        }
-
-        draw_data *draw = e->static_draw;
-
-        int numargs = lua_gettop(L);
-
-        if (numargs > 2) {
-            unsigned char colors[4] = {
-                127, 127, 127, 127
-            };
-
-            float v = luaL_checknumber(L, 2);
-            colors[0] = (unsigned char)tclampf(roundf(v*255.f), 0, 255.f);
-
-            if (numargs >= 3) {
-                float v = luaL_checknumber(L, 3);
-                colors[1] = (unsigned char)tclampf(roundf(v*255.f), 0, 255.f);
-            }
-            if (numargs >= 4) {
-                float v = luaL_checknumber(L, 4);
-                colors[2] = (unsigned char)tclampf(roundf(v*255.f), 0, 255.f);
-            }
-            if (numargs >= 5) {
-                float v = luaL_checknumber(L, 5);
-                colors[3] = (unsigned char)tclampf(roundf(v*255.f), 0, 255.f);
-            }
-
-            uint32_t buf_sz = draw->texture_width * draw->texture_height * draw->texture_num_channels;
-            for (uint32_t i=0; i<buf_sz; i += draw->texture_num_channels) {
-                for (uint8_t c=0; c<draw->texture_num_channels; ++c) {
-                    draw->texture->data[i+c] = colors[c];
-                }
-            }
-        } else {
-            unsigned char clear_value = 0;
-
-            if (numargs == 2) {
-                float clr = luaL_checknumber(L, 2);
-                clear_value = (unsigned char)tclampf(roundf(clr*255.f), 0, 255.f);
-            }
-
-            tms_texture_clear_buffer(draw->texture, clear_value);
-        }
-
-        draw->texture_modified = true;
+        e->draw_tint.r = luaL_checknumber(L, 2);
+        e->draw_tint.g = luaL_checknumber(L, 3);
+        e->draw_tint.b = luaL_checknumber(L, 4);
+        e->draw_tint.a = luaL_checknumber(L, 5);
 
         return 0;
     }
 
-    /** 
+    /* this:set_sprite_z(z)
      * Added in 1.3.0.2
-     * this:set_sprite_texel(x, y, r, g, b, a)
+     *
+     * Set sprite z within the current layer
+     */
+    static int l_this_set_sprite_z(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "this:set_sprite_z", "1.3.0.2", LEVEL_VERSION_1_3_0_2);
+
+        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
+        e->draw_z = luaL_checknumber(L, 2);
+
+        return 0;
+    }
+
+    /* this:draw_sprite(x, y, r, w, h, bx, by, tx, ty)
+     * Added in 1.3.0.2
      *
      * Set a sprite texel
-     **/
-    static int l_this_set_sprite_texel(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_3_0_2) {
-            ESCRIPT_VERSION_ERROR(L, "this:set_sprite_texel", "1.3.0.2");
-            return 0;
-        }
-
-        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-
-        int u = luaL_checkint(L, 2);
-        int v = luaL_checkint(L, 3);
-        float r = luaL_checknumber(L, 4);
-        float g = luaL_checknumber(L, 5);
-        float b = luaL_checknumber(L, 6);
-        float a = luaL_checknumber(L, 7);
-
-        if (!e->normal_draw) {
-            e->normal_draw = new draw_data(e);
-        }
-
-        draw_data *draw = e->normal_draw;
-
-        if (u < 0 || u >= draw->texture_width || v < 0 || v >= draw->texture_height) {
-            lua_pushfstring(L, "texel coordinate out of range (%d/%d)", u, v);
-            lua_error(L);
-        }
-
-        draw->texture->data[draw->texture_width*4*v + 4*u] = (unsigned char)tclampf(roundf(r*255.f), 0, 255.f);
-        draw->texture->data[draw->texture_width*4*v + 4*u+1] = (unsigned char)tclampf(roundf(g*255.f), 0, 255.f);
-        draw->texture->data[draw->texture_width*4*v + 4*u+2] = (unsigned char)tclampf(roundf(b*255.f), 0.f, 255.f);
-        draw->texture->data[draw->texture_width*4*v + 4*u+3] = (unsigned char)tclampf(roundf(a*255.f), 0.f, 255.f);
-
-        draw->texture_modified = true;
-
-        return 0;
-    }
-
-    /** 
-     * Added in 1.5
-     * this:set_static_sprite_texel(x, y, r, g, b, a)
-     *
-     * Set a static sprite texel
-     **/
-    static int l_this_set_static_sprite_texel(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:set_static_sprite_texel", "1.5");
-            return 0;
-        }
-
-        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-
-        int u = luaL_checkint(L, 2);
-        int v = luaL_checkint(L, 3);
-        float r = luaL_checknumber(L, 4);
-        float g = luaL_checknumber(L, 5);
-        float b = luaL_checknumber(L, 6);
-        float a = luaL_checknumber(L, 7);
-
-        if (!e->static_draw) {
-            e->static_draw = new draw_data(e);
-        }
-
-        draw_data *draw = e->static_draw;
-
-        if (u < 0 || u >= draw->texture_width || v < 0 || v >= draw->texture_height) {
-            lua_pushfstring(L, "texel coordinate out of range (%d/%d)", u, v);
-            lua_error(L);
-        }
-
-        draw->texture->data[draw->texture_width*4*v + 4*u] = (unsigned char)tclampf(roundf(r*255.f), 0, 255.f);
-        draw->texture->data[draw->texture_width*4*v + 4*u+1] = (unsigned char)tclampf(roundf(g*255.f), 0, 255.f);
-        draw->texture->data[draw->texture_width*4*v + 4*u+2] = (unsigned char)tclampf(roundf(b*255.f), 0.f, 255.f);
-        draw->texture->data[draw->texture_width*4*v + 4*u+3] = (unsigned char)tclampf(roundf(a*255.f), 0.f, 255.f);
-
-        draw->texture_modified = true;
-
-        return 0;
-    }
-
-    /** 
-     * Added in 1.4
-     * this:draw_line(x1, y1, x2, y2, w)
-     *
-     * draw a line
-     **/
-    static int l_this_draw_line(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_4) {
-            ESCRIPT_VERSION_ERROR(L, "this:draw_line", "1.4");
-            return 0;
-        }
-
-        escript_line line;
-
-        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-        line.x1 = luaL_checknumber(L, 2);
-        line.y1 = luaL_checknumber(L, 3);
-        line.x2 = luaL_checknumber(L, 4);
-        line.y2 = luaL_checknumber(L, 5);
-        line.w1 = luaL_checknumber(L, 6);
-        line.w2 = line.w1;
-        line.z1 = e->draw_z;
-        line.z2 = e->draw_z;
-        line.r1 = e->draw_tint.r;
-        line.g1 = e->draw_tint.g;
-        line.b1 = e->draw_tint.b;
-        line.a1 = e->draw_tint.a;
-        line.r2 = e->draw_tint.r;
-        line.g2 = e->draw_tint.g;
-        line.b2 = e->draw_tint.b;
-        line.a2 = e->draw_tint.a;
-
-        e->add_line(line);
-
-        return 0;
-    }
-
-    /** 
-     * Added in 1.3.0.2
-     * this:draw_sprite(x, y, r, w, h, bx, by, tx, ty)
-     *
-     * Set a sprite texel
-     **/
+     */
     static int l_this_draw_sprite(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_3_0_2) {
-            ESCRIPT_VERSION_ERROR(L, "this:draw_sprite", "1.3.0.2");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "this:draw_sprite", "1.3.0.2", LEVEL_VERSION_1_3_0_2);
 
         escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
 
@@ -3257,18 +2919,209 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* this:draw_line(x1, y1, x2, y2, w)
+     * Added in 1.4
+     *
+     * draw a line
+     */
+    static int l_this_draw_line(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "this:draw_line", "1.4", LEVEL_VERSION_1_4);
+
+        escript_line line;
+
+        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
+        line.x1 = luaL_checknumber(L, 2);
+        line.y1 = luaL_checknumber(L, 3);
+        line.x2 = luaL_checknumber(L, 4);
+        line.y2 = luaL_checknumber(L, 5);
+        line.w1 = luaL_checknumber(L, 6);
+        line.w2 = line.w1;
+        line.z1 = e->draw_z;
+        line.z2 = e->draw_z;
+        line.r1 = e->draw_tint.r;
+        line.g1 = e->draw_tint.g;
+        line.b1 = e->draw_tint.b;
+        line.a1 = e->draw_tint.a;
+        line.r2 = e->draw_tint.r;
+        line.g2 = e->draw_tint.g;
+        line.b2 = e->draw_tint.b;
+        line.a2 = e->draw_tint.a;
+
+        e->add_line(line);
+
+        return 0;
+    }
+
+    /* this:set_draw_coordinates(int)
      * Added in 1.5
-     * this:add_static_sprite(x, y, r, w, h, bx, by, tx, ty)
+     *
+     * Sets the camera mode
+     * 0 = World-based coordinates
+     * 1 = Screen-based coordinates
+     * 2 = Local-based coordinates (Local to Lua Script-object)
+     */
+    static int l_this_set_draw_coordinates(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "this:set_draw_coordinates", "1.5", LEVEL_VERSION_1_5);
+
+        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
+        int mode = luaL_checkint(L, 2);
+
+        if (mode < 0 || mode > 2) {
+            lua_pushstring(L, "Invalid camera mode.");
+            lua_error(L);
+        } else {
+            e->coordinate_mode = mode;
+
+            if (e->coordinate_mode == ESCRIPT_LOCAL && lua_gettop(L) == 3) {
+                e->local_id = luaL_checknumber(L, 3);
+            } else {
+                e->local_id = 0;
+            }
+        }
+
+        return 0;
+    }
+
+    /* width, height = this:get_resolution()
+     * Added in 1.5
+     *
+     * Gets the resolution Principia is currently running at.
+     */
+    static int l_this_get_resolution(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "this:get_resolution", "1.5", LEVEL_VERSION_1_5);
+
+        lua_pushnumber(L, _tms.window_width);
+        lua_pushnumber(L, _tms.window_height);
+
+        return 2;
+    }
+
+    /* ratio = this:get_ratio()
+     * Added in 1.5
+     *
+     * Gets the current ratio.
+     */
+    static int l_this_get_ratio(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "this:get_ratio", "1.5", LEVEL_VERSION_1_5);
+
+        lua_pushnumber(L, (float)_tms.window_width/_tms.window_height);
+
+        return 1;
+    }
+
+    /* this:set_static_sprite_texel(x, y, r, g, b, a)
+     * Added in 1.5
+     *
+     * Set a static sprite texel
+     */
+    static int l_this_set_static_sprite_texel(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "this:set_static_sprite_texel", "1.5", LEVEL_VERSION_1_5);
+
+        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
+
+        int u = luaL_checkint(L, 2);
+        int v = luaL_checkint(L, 3);
+        float r = luaL_checknumber(L, 4);
+        float g = luaL_checknumber(L, 5);
+        float b = luaL_checknumber(L, 6);
+        float a = luaL_checknumber(L, 7);
+
+        if (!e->static_draw) {
+            e->static_draw = new draw_data(e);
+        }
+
+        draw_data *draw = e->static_draw;
+
+        if (u < 0 || u >= draw->texture_width || v < 0 || v >= draw->texture_height) {
+            lua_pushfstring(L, "texel coordinate out of range (%d/%d)", u, v);
+            lua_error(L);
+        }
+
+        draw->texture->data[draw->texture_width*4*v + 4*u] = (unsigned char)tclampf(roundf(r*255.f), 0, 255.f);
+        draw->texture->data[draw->texture_width*4*v + 4*u+1] = (unsigned char)tclampf(roundf(g*255.f), 0, 255.f);
+        draw->texture->data[draw->texture_width*4*v + 4*u+2] = (unsigned char)tclampf(roundf(b*255.f), 0.f, 255.f);
+        draw->texture->data[draw->texture_width*4*v + 4*u+3] = (unsigned char)tclampf(roundf(a*255.f), 0.f, 255.f);
+
+        draw->texture_modified = true;
+
+        return 0;
+    }
+
+    /* this:clear_static_texels()
+     * Added in 1.5
+     *
+     * clear all static texels
+     */
+    static int l_this_clear_static_texels(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "this:clear_static_texels", "1.5", LEVEL_VERSION_1_5);
+
+        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
+
+        if (!e->static_draw) {
+            e->static_draw = new draw_data(e);
+        }
+
+        draw_data *draw = e->static_draw;
+
+        int numargs = lua_gettop(L);
+
+        if (numargs > 2) {
+            unsigned char colors[4] = {
+                127, 127, 127, 127
+            };
+
+            float v = luaL_checknumber(L, 2);
+            colors[0] = (unsigned char)tclampf(roundf(v*255.f), 0, 255.f);
+
+            if (numargs >= 3) {
+                float v = luaL_checknumber(L, 3);
+                colors[1] = (unsigned char)tclampf(roundf(v*255.f), 0, 255.f);
+            }
+            if (numargs >= 4) {
+                float v = luaL_checknumber(L, 4);
+                colors[2] = (unsigned char)tclampf(roundf(v*255.f), 0, 255.f);
+            }
+            if (numargs >= 5) {
+                float v = luaL_checknumber(L, 5);
+                colors[3] = (unsigned char)tclampf(roundf(v*255.f), 0, 255.f);
+            }
+
+            uint32_t buf_sz = draw->texture_width * draw->texture_height * draw->texture_num_channels;
+            for (uint32_t i=0; i<buf_sz; i += draw->texture_num_channels) {
+                for (uint8_t c=0; c<draw->texture_num_channels; ++c) {
+                    draw->texture->data[i+c] = colors[c];
+                }
+            }
+        } else {
+            unsigned char clear_value = 0;
+
+            if (numargs == 2) {
+                float clr = luaL_checknumber(L, 2);
+                clear_value = (unsigned char)tclampf(roundf(clr*255.f), 0, 255.f);
+            }
+
+            tms_texture_clear_buffer(draw->texture, clear_value);
+        }
+
+        draw->texture_modified = true;
+
+        return 0;
+    }
+
+    /* this:add_static_sprite(x, y, r, w, h, bx, by, tx, ty)
+     * Added in 1.5
      *
      * Ignores LOCAL coordinate mode
-     **/
+     */
     static int l_this_add_static_sprite(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:add_static_sprite", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "this:add_static_sprite", "1.5", LEVEL_VERSION_1_5);
 
         escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
 
@@ -3294,16 +3147,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* this:clear_static_sprites()
      * Added in 1.5
-     * this:clear_static_sprites()
-     **/
+     */
     static int l_this_clear_static_sprites(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:clear_static_sprites", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "this:clear_static_sprites", "1.5", LEVEL_VERSION_1_5);
 
         escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
 
@@ -3317,18 +3166,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* this:draw_line_3d(x1, y1, z1, x2, y2, z2, w)
      * Added in 1.5
-     * this:draw_line_3d(x1, y1, z1, x2, y2, z2, w)
-     *
-     * draw a line with more arguments
-     **/
+     */
     static int l_this_draw_line_3d(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:draw_line_3d", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "this:draw_line_3d", "1.5", LEVEL_VERSION_1_5);
 
         escript_line line;
 
@@ -3355,18 +3198,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* this:draw_gradient_line_3d(x1, y1, z1, x2, y2, z2, w, r, g, b, a)
      * Added in 1.5
-     * this:draw_gradient_line_3d(x1, y1, z1, x2, y2, z2, w, r, g, b, a)
-     *
-     * draw a line with more arguments
-     **/
+     */
     static int l_this_draw_gradient_line_3d(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:draw_gradient_line_3d", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "this:draw_gradient_line_3d", "1.5", LEVEL_VERSION_1_5);
 
         escript_line line;
 
@@ -3393,18 +3230,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* this:draw_gradient_line(x1, y1, x2, y2, w, r, g, b, a)
      * Added in 1.5
-     * this:draw_gradient_line(x1, y1, x2, y2, w, r, g, b, a)
-     *
-     * draw a line
-     **/
+     */
     static int l_this_draw_gradient_line(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:draw_gradient_line", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "this:draw_gradient_line", "1.5", LEVEL_VERSION_1_5);
 
         escript_line line;
 
@@ -3431,18 +3262,12 @@ extern "C" {
         return 0;
     }
 
-    /** 
+    /* r, g, b, a = this:get_sprite_texel(x, y)
      * Added in 1.5
-     * r, g, b, a = this:get_sprite_texel(x, y)
-     *
-     * Get a sprite texel
-     **/
+     */
     static int l_this_get_sprite_texel(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:get_sprite_texel", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "this:get_sprite_texel", "1.5", LEVEL_VERSION_1_5);
 
         escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
 
@@ -3473,22 +3298,18 @@ extern "C" {
         return 4;
     }
 
-    /** 
+    /* this:init_draw(width, height)
      * Added in 1.5
-     * this:init_draw(width, height)
      *
      * Initializes the drawing functionality for the given Lua Script object.
      * Minimum width or height: 1
      * Maximum width or height: 1024
      * Width and height MUST be power-of-two.
      * (i.e. 1, 2, 4, ..., 32, 64, 128, 256, 512, 1024)
-     **/
+     */
     static int l_this_init_draw(lua_State *L)
     {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:init_draw", "1.5");
-            return 0;
-        }
+        ESCRIPT_VERSION_ERROR(L, "this:init_draw", "1.5", LEVEL_VERSION_1_5);
 
         escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
 
@@ -3515,254 +3336,6 @@ extern "C" {
         return 0;
     }
 
-    /** 
-     * Added in 1.5
-     * this:test()
-     **/
-    static int l_this_test(lua_State *L) /* this */
-    {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:test", "1.5");
-            return 0;
-        }
-
-        //escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This"))); // S: this
-
-        tms_debugf("time_accum: %" PRIu64, _tms.time_accum);
-
-        return 0;
-    }
-
-    /** 
-     * Added in 1.5
-     * this:testman()
-     **/
-    static int l_this_testman(lua_State *L) /* this */
-    {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:testman", "1.5");
-            return 0;
-        }
-
-        //escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This"))); // S: this
-
-        return 0;
-    }
-
-    /** 
-     * this:write(socket, value)
-     * Writes the specified value to the out socket.
-     * Values will be clamped between 0.0 and 1.0.
-     * This should not be called more than once.
-     **/
-    static int l_this_write(lua_State *L)
-    {
-        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-        int socket = luaL_checkint(L, 2);
-        double value = tclampf(luaL_checknumber(L, 3), 0.0, 1.0);
-        if (socket < 0) socket = 0;
-        if (socket > 3) socket = 3;
-
-        if (!e->s_out[socket].written()) {
-            e->s_out[socket].write(value);
-        }
-
-        return 0;
-    }
-
-    /** 
-     * this:read(socket)
-     * Reads the value from the specified socket.
-     **/
-    static int l_this_read(lua_State *L)
-    {
-        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-        int socket = luaL_checkint(L, 2);
-        if (socket < 0) socket = 0;
-        if (socket > 3) socket = 3;
-
-        lua_pushnumber(L, e->val[socket]);
-
-        return 1;
-    }
-
-    /** 
-     * Added in 1.5
-     *
-     * this:has_plug(socket)
-     * Returns true if the given socket has a plug connected
-     **/
-    static int l_this_has_plug(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:has_plug", "1.5");
-            return 0;
-        }
-
-        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-        int socket = luaL_checkint(L, 2);
-        if (socket < 0) socket = 0;
-        if (socket > 3) socket = 3;
-
-        lua_pushboolean(L, e->socket_active[socket]);
-
-        return 1;
-    }
-
-    /** 
-     * Added in 1.3.0.2
-     * this:write_frequency(frequency, value)
-     * Writes the specified value to the given frequency
-     * This should not be called more than once.
-     **/
-    static int l_this_write_frequency(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_3_0_2) {
-            ESCRIPT_VERSION_ERROR(L, "this:write_frequency", "1.3.0.2");
-            return 0;
-        }
-        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-        uint32_t freq = (uint32_t)luaL_checklong(L, 2);
-        double value = tclampf(luaL_checknumber(L, 3), 0.0, 1.0);
-
-        std::pair<std::multimap<uint32_t, receiver_base*>::iterator, std::multimap<uint32_t, receiver_base*>::iterator> range = W->receivers.equal_range(freq);
-        for (std::multimap<uint32_t, receiver_base*>::iterator
-                i = range.first;
-                i != range.second && i != W->receivers.end();
-                i++) {
-            i->second->pending_value = value;
-            i->second->no_broadcast = true;
-        }
-
-        return 0;
-    }
-
-    /** 
-     * Added in 1.4
-     * this:listen_on_frequency(frequency)
-     * Starts listening on the given frequency.
-     * This can only be called on the first run
-     **/
-    static int l_this_listen_on_frequency(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_4) {
-            ESCRIPT_VERSION_ERROR(L, "this:listen_on_frequency", "1.4");
-            return 0;
-        }
-        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-        uint32_t freq = (uint32_t)luaL_checklong(L, 2);
-        if (e->first_run) {
-            receiver_base *rb = new receiver_base();
-            std::pair<std::map<uint32_t, receiver_base*>::iterator, bool> ret;
-            ret = e->receivers.insert(std::pair<uint32_t, receiver_base*>(freq, rb));
-            if (!ret.second) {
-                delete rb;
-            } else {
-                W->add_receiver(freq, rb);
-            }
-        } else {
-            lua_pushstring(L, "You can only start listening to frequency in init().");
-            lua_error(L);
-        }
-
-        return 0;
-    }
-
-    /** 
-     * Added in 1.4
-     * this:read_frequency(frequency)
-     * Reads the value from the given frequency.
-     * this:listen_on_frequency(frequency) must have been called first.
-     * You are not guaranteed to receive a value until the second tick.
-     **/
-    static int l_this_read_frequency(lua_State *L)
-    {
-        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-        uint32_t freq = luaL_checklong(L, 2);
-
-        std::map<uint32_t, receiver_base*>::iterator ret;
-        ret = e->receivers.find(freq);
-        float v = 0.f;
-        if (ret != e->receivers.end()) {
-            v = ret->second->pending_value;
-        } else {
-            char err[512];
-            snprintf(err, 511, "You are not listening to frequency %u.\nUse this:listen_on_frequency() to begin.", freq);
-            lua_pushstring(L, err);
-            lua_error(L);
-        }
-
-        lua_pushnumber(L, v);
-
-        return 1;
-    }
-
-    /** 
-     * Added in 1.3.0.2
-     * this:first_run()
-     *
-     * Returns true on the first run of the script, otherwise it returns false.
-     **/
-    static int l_this_first_run(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_3_0_2) {
-            ESCRIPT_VERSION_ERROR(L, "this:first_run", "1.3.0.2");
-            return 0;
-        } else if (W->level.version >= LEVEL_VERSION_1_5) {
-            ESCRIPT_FUNCTION_DEPRECATED(L, "this:first_run", "1.5");
-            return 0;
-        }
-        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-        lua_pushboolean(L, e->first_run);
-
-        return 1;
-    }
-
-    /** 
-     * this:get_position()
-     *
-     * Example usage:
-     * x, y = this:get_position()
-     *
-     * Returns:
-     * 0: the position of the entity in the X-axis
-     * 1: the position of the entity in the Y-axis
-     **/
-    static int l_this_get_position(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_3_0_2) {
-            ESCRIPT_VERSION_ERROR(L, "this:get_position", "1.3.0.2");
-            return 0;
-        }
-        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-        b2Vec2 pos = e->get_position();
-        lua_pushnumber(L, pos.x);
-        lua_pushnumber(L, pos.y);
-
-        return 2;
-    }
-
-    /** 
-     * Added in 1.5
-     * this:get_id()
-     *
-     * Example usage:
-     * id = this:get_id()
-     *
-     * Returns:
-     * 0: the id of the Luascript entity
-     **/
-    static int l_this_get_id(lua_State *L)
-    {
-        if (W->level.version < LEVEL_VERSION_1_5) {
-            ESCRIPT_VERSION_ERROR(L, "this:get_id", "1.5");
-            return 0;
-        }
-
-        escript *e = *(static_cast<escript**>(luaL_checkudata(L, 1, "This")));
-        lua_pushnumber(L, e->id);
-        return 1;
-    }
 }
 
 escript::escript()
@@ -4360,9 +3933,6 @@ static const luaL_Reg this_methods[] = {
 
     {"init_draw",               l_this_init_draw},              // 1.5
 
-    {"test",                    l_this_test},                   // 1.5
-    {"testman",                 l_this_testman},                // 1.5
-
     { NULL, NULL }
 };
 
@@ -4699,7 +4269,7 @@ escript::post_write()
     }
 }
 
-/**
+/*
  * State format:
  * #1               uint32  codelen
  * #codelen         buf     code
@@ -4733,7 +4303,7 @@ escript::post_write()
  *          #1      uint32  by
  *          #1      uint32  tx
  *          #1      uint32  ty
- **/
+ */
 void
 escript::write_state(lvlinfo *lvl, lvlbuf *lb)
 {
