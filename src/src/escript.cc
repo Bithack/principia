@@ -274,13 +274,6 @@ const char *before_code =
 "local KEY_LEFT = 80;"
 "local KEY_DOWN = 81;"
 "local KEY_UP = 82;"
-""
-"do;" // Patchy workaround for error(nil) crashing the game
-    "local _error = error;"
-    "function error(e);"
-        "return _error(tostring(e));"
-    "end;"
-"end;"
 ;
 const char *after_code = "";
 const char *default_code =
@@ -333,23 +326,24 @@ lua_table_len(lua_State *L, const int index)
 
 static char error_message[1024];
 
-static const char*
-lua_pop_error(lua_State *L, const char *prefix="Lua error: ")
+static const char* lua_pop_error(lua_State *L, const char *prefix="Lua error: ")
 {
-    tms_assertf(lua_gettop(L) >= 1, "No error found on the stack"); // S: ? ...
+    tms_assertf(lua_gettop(L) >= 1, "No error found on the stack");
 
-    int t = lua_type(L, -1);
-    if (t == LUA_TSTRING) { // S: errorstr
-        snprintf(error_message, 1023, "%s%s", prefix, lua_tostring(L, -1));
+    const char* err_string = luaL_tolstring(L, -1, NULL);
 
-        lua_pop(L, 1);
-
-        return error_message;
-    } else {
-        tms_errorf("Attempting to pop an error which isn't there! (real type: %d)", t);
+    if (err_string == 0) {
+        //XXX: luaL_tolstring shouldn't push anything in case of failure
+        lua_pop(L, 1); 
+        return "";
     }
 
-    return "";
+    snprintf(error_message, 1023, "%s%s", prefix, err_string);
+
+    // S: error string, error value
+    lua_pop(L, 2); 
+
+    return error_message;
 }
 
 static void
