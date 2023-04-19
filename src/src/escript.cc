@@ -1148,8 +1148,11 @@ extern "C" {
         }
 
         //Emit entity
-        G->emit(ent);
-        W->emit_all();
+        //XXX: Should post_emit be used here instead?
+        //XXX: do we actually need to commit all pending emits here? 
+        //XXX: Likely yes (scripts expect valid, spawned entities)
+        G->emit(ent); 
+        W->emit_all(); 
 
         //Return entity
         entity **ee = static_cast<entity**>(lua_newuserdata(L, sizeof(entity*)));
