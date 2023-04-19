@@ -60,6 +60,7 @@ class i4o1gate : public brcomp_multiconnect
 class ifselect : public i3o1gate
 {
   public:
+    ifselect();
     const char *get_name(){return "IF-select";}
     edevice *solve_electronics();
 };

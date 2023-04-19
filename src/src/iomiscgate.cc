@@ -201,6 +201,14 @@ i4o1gate::i4o1gate()
     this->set_as_rect(.375f, .375f);
 }
 
+ifselect::ifselect()
+: i3o1gate() {
+    this->s_in[0].lpos  = b2Vec2(-.25f, -.125f);
+    this->s_in[1].lpos  = b2Vec2(  0.f, -.125f);
+    this->s_in[2].lpos  = b2Vec2( .25f, -.125f);
+    this->s_out[0].lpos = b2Vec2(  0.f,  .125f);
+}
+
 edevice*
 ifselect::solve_electronics()
 {
