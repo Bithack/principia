@@ -315,6 +315,7 @@ lua_table_len(lua_State *L, const int index)
 static char error_message[1024];
 
 static const char* lua_pop_error(lua_State *L, const char *prefix="Lua error: ")
+{
     tms_assertf(lua_gettop(L) >= 1, "No error found on the stack");
 
     const char* err_string = luaL_tolstring(L, -1, NULL);
