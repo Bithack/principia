@@ -619,7 +619,7 @@ class nomad_hideout : public gentype
         /*
         if (this->variant < .2f) {
             {
-                entity *e = of::create(O_PBOX);
+                entity *e = of::create(O_PLASTIC_BOX);
                 e->set_layer(1);
                 e->_pos = b2Vec2(wx+13.f, wy-14.f);
                 e->_angle = 0.f;
@@ -637,7 +637,7 @@ class nomad_hideout : public gentype
             }
         } else {
             {
-                entity *e = of::create(O_PBOX);
+                entity *e = of::create(O_PLASTIC_BOX);
                 e->set_layer(1);
                 e->_pos = b2Vec2(wx, wy-12.f);
                 e->_angle = 0.f;

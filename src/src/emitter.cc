@@ -549,21 +549,21 @@ emitter::can_handle(entity *e) const
 {
     if (this->size == TYPE_MINI) { /* mini emitter */
         switch (e->g_id) {
-            case 2: /* wooden ball */
-            case 6: /* metal ball */
-            case 70: /* corner */
-            case 84: /* landmine */
-            case 85: /* bomb */
-            case 109: /* interactive ball */
+            case O_BALL:
+            case O_METAL_BALL:
+            case O_CORNER:
+            case O_LAND_MINE:
+            case O_BOMB:
+            case O_INTERACTIVE_BALL:
 
             /* special case for boxes and cylinders, we force their size to the smallest size */
-            case 108: /* interactive box */
-            case 93: /* wooden box */
+            case O_INTERACTIVE_BOX:
+            case O_BOX:
             case O_CYLINDER:
             case O_INTERACTIVE_CYLINDER:
                 return true;
 
-            case O_PBOX:
+            case O_PLASTIC_BOX:
                 return W->level.version >= LEVEL_VERSION_1_5;
 
             case O_RESOURCE:
@@ -571,26 +571,26 @@ emitter::can_handle(entity *e) const
         }
     } else { /* emitter */
         switch (e->g_id) {
-            case 2: /* wooden ball */
-            case 6: /* metal ball */
-            case O_CYLINDER: /* cylinder */
-            case 81: /* interactive cylinder */
-            case 108: /* interactive box */
-            case 109: /* interactive ball */
-            case O_ROBOT: /* robot */
+            case O_BALL:
+            case O_METAL_BALL:
+            case O_CYLINDER:
+            case O_INTERACTIVE_CYLINDER:
+            case O_INTERACTIVE_BOX:
+            case O_INTERACTIVE_BALL:
+            case O_ROBOT:
             case O_ANIMAL:
-            case 70: /* corner */
-            case O_DUMMY: /* dummy */
-            case 84: /* landmine */
-            case 85: /* bomb */
-            case 93: /* wooden box */
-            case 163: /* weight */
+            case O_CORNER:
+            case O_DUMMY:
+            case O_LAND_MINE:
+            case O_BOMB:
+            case O_BOX:
+            case O_WEIGHT:
                 return true;
 
             case O_LOBBER:
             case O_BOMBER:
             case O_SPIKEBOT:
-            case O_PBOX:
+            case O_PLASTIC_BOX:
                 return W->level.version >= LEVEL_VERSION_1_4;
 
             case O_ITEM:
@@ -640,7 +640,7 @@ emitter::copy_properties(entity *e)
 
         /* special case for boxes and mini emitter, accept boxes but force their size to 0 */
         if (this->size == TYPE_MINI && (e->g_id == 108 || e->g_id == 93 || e->g_id == O_CYLINDER || e->g_id == O_INTERACTIVE_CYLINDER
-                    || e->g_id == O_PBOX) && x == 0) {
+                    || e->g_id == O_PLASTIC_BOX) && x == 0) {
             uint32_t i_saved = e->properties[x].v.i;
             e->properties[x].v.i = 0;
             s = e->properties[x].stringify();

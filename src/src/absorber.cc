@@ -337,13 +337,13 @@ absorber::can_handle(entity *e)
             case O_BALL:
             case O_METAL_BALL:
             case O_CORNER:
-            case O_LANDMINE:
+            case O_LAND_MINE:
             case O_BOMB:
-            case O_IBALL:
+            case O_INTERACTIVE_BALL:
                 return true;
 
-            case O_IBOX:
-            case O_WOODBOX:
+            case O_INTERACTIVE_BOX:
+            case O_BOX:
             case O_CYLINDER:
             case O_INTERACTIVE_CYLINDER:
                 return e->properties[0].v.i == 0;
@@ -360,18 +360,18 @@ absorber::can_handle(entity *e)
             case O_ROBOT:
             case O_CORNER:
             case O_DUMMY:
-            case O_LANDMINE:
+            case O_LAND_MINE:
             case O_BOMB:
-            case O_WOODBOX:
-            case O_IBOX:
-            case O_IBALL:
+            case O_BOX:
+            case O_INTERACTIVE_BOX:
+            case O_INTERACTIVE_BALL:
             case O_WEIGHT:
                 return true;
 
             case O_LOBBER:
             case O_BOMBER:
             case O_SPIKEBOT:
-            case O_PBOX:
+            case O_PLASTIC_BOX:
                 return W->level.version >= LEVEL_VERSION_1_4;
 
             case O_ITEM:

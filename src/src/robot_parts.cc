@@ -787,7 +787,7 @@ robot_parts::railgun::step()
                 this->num_points ++;
 
                 if (e) {
-                    if (e->g_id == O_MIRROR) {
+                    if (e->g_id == O_LASER_BOUNCER) {
 
                         b2Vec2 reflection = dir - b2Dot(dir, result_nor)*2.f*result_nor;
 
@@ -803,7 +803,7 @@ robot_parts::railgun::step()
 
                         if (e->is_creature()) {
                             ((creature*)e)->damage(dmg, this->result_fx, DAMAGE_TYPE_PLASMA, DAMAGE_SOURCE_BULLET, this->c->id);
-                        } else if (e->g_id == O_LANDMINE || e->g_id == O_BOMB) {
+                        } else if (e->g_id == O_LAND_MINE || e->g_id == O_BOMB) {
                             ((explosive*)e)->damage(dmg);
                         }
                     }

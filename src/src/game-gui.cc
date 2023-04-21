@@ -3993,7 +3993,7 @@ game::begin_tracker(entity *e)
                 ui::message("Click an object to get some information about it.");
                 break;
 
-            case 159:  /* RC Activator */
+            case O_RC_ACTIVATOR:
                 ui::message("Select the RC to connect to.\nSelecting the RC activator object itself will make it deactivate RCs instead.");
                 break;
 
@@ -4001,15 +4001,15 @@ game::begin_tracker(entity *e)
                 ui::message("Select a creature.");
                 break;
 
-            case 133: /* Cam targeter */
+            case O_CAM_TARGETER:
                 ui::message("Select which object to target");
                 break;
 
-            case O_OBJECT_FIELD: /* Object field */
+            case O_OBJECT_FIELD:
                 ui::message("Select the object type which the Object field should detect.");
                 break;
 
-            case O_ID_FIELD:  /* ID field */
+            case O_ID_FIELD:
                 ui::message("Select the object which the ID field should detect.");
                 break;
 
@@ -4017,21 +4017,21 @@ game::begin_tracker(entity *e)
                 ui::message("Select which object the target setter should set.");
                 break;
 
-            case 88: /* Mini emitter */
-            case 83: /* Emitter */
+            case O_MINI_EMITTER:
+            case O_EMITTER:
                 ui::message("Click on an object to emit identical copies.");
                 break;
 
-            case 89: /* Mini absorber */
-            case 86: /* Absorver */
+            case O_MINI_ABSORBER:
+            case O_ABSORBER:
                 ui::message("Select which object type to absorb.");
                 break;
 
-            case 98: /* Object finder */
+            case O_OBJECT_FINDER:
                 ui::message("Click on an object to track it.");
                 break;
 
-            case 146: /* HP control */
+            case O_HP_CONTROL:
                 ui::message("Select which robot the HP controller should control.");
                 break;
 

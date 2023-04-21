@@ -1665,7 +1665,7 @@ entity::update_protection_status()
         /* First pass: Check if the group should be protected or not. */
         for (std::set<entity*>::iterator it = loop->begin(); it != loop->end(); ++it) {
             entity *e = *it;
-            if (e->g_id == O_AUTOPROTECTOR) {
+            if (e->g_id == O_AUTO_PROTECTOR) {
                 new_status |= ENTITY_PROT_AUTOPROTECTOR;
 
                 if (new_status & ENTITY_PROT_PLATFORM) {

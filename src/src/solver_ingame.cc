@@ -696,7 +696,7 @@ void solver_ingame::PostSolve(b2Contact *contact, const b2ContactImpulse *impuls
             //return;
         } else if (ea->g_id == O_DUMMY) {
             postsolve_ragdoll(contact, ea, eb, 1, impulse);
-        } else if ((ea->g_id == O_BUTTON || ea->g_id == O_TOGGLEBUTTON)) {
+        } else if ((ea->g_id == O_BUTTON || ea->g_id == O_TOGGLE_BUTTON)) {
             button *bt = static_cast<button*>(ea);
 
             if (bt->switch_fx == a || bt->body->GetLocalVector(wm.normal).y > 0.8f) {
@@ -722,7 +722,7 @@ void solver_ingame::PostSolve(b2Contact *contact, const b2ContactImpulse *impuls
                 is->add_impulse(impulse->normalImpulses[x]);
                 G->unlock();
             }
-        } else if (ea->g_id == O_LANDMINE) {
+        } else if (ea->g_id == O_LAND_MINE) {
             float i = 0.f;
             for (int x = 0; x < impulse->count; ++x)
                 i += impulse->normalImpulses[x];
@@ -738,7 +738,7 @@ void solver_ingame::PostSolve(b2Contact *contact, const b2ContactImpulse *impuls
             //return;
         } else if (eb->g_id == O_DUMMY) {
             postsolve_ragdoll(contact, ea, eb, 0, impulse);
-        } else if ((eb->g_id == O_BUTTON || eb->g_id == O_TOGGLEBUTTON)) {
+        } else if ((eb->g_id == O_BUTTON || eb->g_id == O_TOGGLE_BUTTON)) {
             button *bt = static_cast<button*>(eb);
 
             b2WorldManifold wm;
@@ -765,7 +765,7 @@ void solver_ingame::PostSolve(b2Contact *contact, const b2ContactImpulse *impuls
                 is->add_impulse(impulse->normalImpulses[x]);
                 G->unlock();
             }
-        } else if (eb->g_id == O_LANDMINE) {
+        } else if (eb->g_id == O_LAND_MINE) {
             float i = 0.f;
             for (int x = 0; x < impulse->count; ++x)
                 i += impulse->normalImpulses[x];

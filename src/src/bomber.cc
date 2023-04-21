@@ -110,7 +110,7 @@ bomber::attack(int add_cooldown)
 
     float a = atan2f(v.y, v.x);
 
-    explosive *expl = (explosive*)of::create(O_LANDMINE);
+    explosive *expl = (explosive*)of::create(O_LAND_MINE);
     expl->set_layer(this->get_layer());
     expl->_pos = this->local_to_world(b2Vec2(dir*.5f, 0.6f), 0);
     expl->_angle = a+M_PI/2.f;

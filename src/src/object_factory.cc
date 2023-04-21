@@ -632,7 +632,7 @@ static int c0_ids[] = {
     O_PLANK,
     O_THICK_PLANK,
     O_BALL,
-    O_WOODBOX,
+    O_BOX,
     O_CORNER,
     O_CYLINDER,
     O_SUBLAYER_PLANK,
@@ -640,7 +640,7 @@ static int c0_ids[] = {
     O_METAL_BALL,
     O_RUBBER_BEAM,
     O_PLASTIC_BEAM,
-    O_PBOX,  /* Plastic Box */
+    O_PLASTIC_BOX,
     O_PLASTIC_POLYGON,
     //O_SEPARATOR,
     //O_ROOM,
@@ -649,12 +649,12 @@ static int c0_ids[] = {
     O_DUMMY,
     O_SPIKES,
     O_STICKY_NOTE,
-    O_CUP,
+    O_PLASTIC_CUP,
     O_BREADBOARD,
-    O_RAIL_STRAIGHT,   /* Rail */
-    O_RAIL_SKEWED_1,   /* Rail (up) */
-    O_RAIL_SKEWED_2,   /* Rail (down) */
-    O_RAIL45DEG,  /* Rail (turn) */
+    O_RAIL_STRAIGHT,
+    O_RAIL_UP,
+    O_RAIL_DOWN,
+    O_RAIL_TURN,
     O_BALL_PIPELINE,
 };
 
@@ -673,12 +673,12 @@ static int c1_ids[] = {
     O_CONVEYOR,
     O_FAN,
     O_BUTTON,
-    O_TOGGLEBUTTON,
+    O_TOGGLE_BUTTON,
     O_WEIGHT,
     O_BOMB,
-    O_LANDMINE,
+    O_LAND_MINE,
     //O_GEARBOX,
-    O_ANGULARDAMPER,
+    O_ANGULAR_DAMPER,
     O_GEAR,
     O_MAGNET,
     O_ELECTROMAGNET,
@@ -699,7 +699,7 @@ static int c2_ids[] = {
     O_MAGNETIC_SOCKET,
     O_INTERFACE_CLIP,
     O_SIGNALCLIP,
-    O_RESISTOR,
+    O_EC_RESISTOR,
     O_RECEIVER,
     O_TRANSMITTER,
     O_BROADCASTER,
@@ -715,14 +715,14 @@ static int c3_ids[] = {
     O_CT_MINI,
     O_CT_SERVO,
     O_CT_FEEDBACK,
-    O_XSMALLPANEL, /* RC Micro */
+    O_RC_MICRO,
     O_RC_BASIC,
     O_RC_IO3,
     O_RC_MONSTRO,
     O_LASER,
-    O_MIRROR,
-    O_LASERSENSOR,
-    O_PROXIMITYSENSOR,
+    O_LASER_BOUNCER,
+    O_LASER_SENSOR,
+    O_PROXIMITY_SENSOR,
     O_PRESSURE_SENSOR,
     O_IMPACT_SENSOR,
     O_ANGULARVELMETER,
@@ -737,116 +737,116 @@ static int c3_ids[] = {
 
 /* Signal-i1o1 */
 static int c4_ids[] = {
-    46,  /* Inverter */
-    47,  /* Floor */
-    158, /* Ceil */
-    48,  /* Square */
-    49,  /* Sqrt */
-    50,  /* Sparsifier */
-    51,  /* Sparsifier+ */
-    52,  /* Epsilon */
-    54,  /* Toggler */
-    56,  /* Moving AVG */
-    57,  /* 0-reset Moving AVG */
-    55,  /* FIFO queue */
-    77,  /* Value shift */
-    53,  /* Clamp */
-    119, /* muladd */
-    138, /* sub */
+    O_INVERTER,
+    O_FLOOR,
+    O_CEIL,
+    O_SQUARE,
+    O_SQRT,
+    O_SPARSIFIER,
+    O_SPARSIFIERPLUS,
+    O_EPSILON,
+    O_TOGGLER,
+    O_MAVG,
+    O_ZERO_RESET_MAVG,
+    O_FIFO,
+    O_VALUE_SHIFT,
+    O_CLAMP,
+    O_MULADD,
+    O_ESUB,
     O_DECAY,
     O_LINEAR_DECAY,
     O_LIMIT,
-    178, /* Snap */
+    O_SNAP,
     O_BOUNDARY,
 };
 
 /* Signal-i2o1 */
 static int c5_ids[] = {
-    42,  /* XOR */
-    43,  /* OR */
-    44,  /* AND */
-    45,  /* NAND */
-    79,  /* IF */
-    171, /* cmp-e */
-    172, /* cmp-l */
-    173, /* cmp-le */
-    127, /* Min */
-    128, /* Max */
-    116, /* Sum */
-    136, /* Mul */
-    118, /* Avg */
-    134, /* Condenser */
-    169, /* Wrap condenser */
-    103, /* Memory */
-    154, /* Wrap add */
-    155, /* Wrap sub */
-    162, /* Wrap distance */
+    O_XORGATE,
+    O_ORGATE,
+    O_ANDGATE,
+    O_NANDGATE,
+    O_IFGATE,
+    O_CMPE,
+    O_CMPL,
+    O_CMPLE,
+    O_MIN,
+    O_MAX,
+    O_SUM,
+    O_MUL,
+    O_AVG,
+    O_CONDENSER,
+    O_WRAPCONDENSER,
+    O_MEMORY,
+    O_WRAPADD,
+    O_WRAPSUB,
+    O_WRAPDIST,
 };
 
 /* Signal-misc */
 static int c6_ids[] = {
-    O_YSPLITTER,  /* Y-splitter */
+    O_YSPLITTER,
     O_MEGASPLITTER,
-    170, /* IF-else */
+    O_IFELSE,
     O_IFSELECT,
-    110, /* Half unpack */
-    111, /* Half pack */
-    100, /* Sincos */
-    112, /* atan2 */
-    38,  /* Switch */
-    O_PASSIVE_DISPLAY, /* Passive display */
-    O_ACTIVE_DISPLAY, /* Active display */
-    58,  /* Debugger */
-    168,  /* Signal Graph */
-    113, /* Pointer */
+    O_HALFUNPACK,
+    O_HALFPACK,
+    O_SINCOS,
+    O_ATAN2,
+    O_SWITCH,
+    O_PASSIVE_DISPLAY,
+    O_ACTIVE_DISPLAY,
+    O_DEBUGGER,
+    O_GRAPH,
+    O_POINTER,
     O_CAMERA_ROTATOR,
-    101, /* Sinewave */
-    106, /* Sawtooth */
-    102, /* Random */
-    87,  /* Timer */
+    O_SINEWAVE,
+    O_SAWTOOTH,
+    O_RANDOM,
+    O_TIMER,
     O_EVENT_LISTENER,
     O_KEY_LISTENER,
-    146, /* HP Control */
+    O_HP_CONTROL,
     O_SEQUENCER,
-    176, /* Var getter */
-    177, /* Var setter */
+    O_VAR_GETTER,
+    O_VAR_SETTER,
 };
 
 /* Tools/effects */
 static int c7_ids[] = {
-    135, /* FX Emitter */
-    174, /* SFX Emitter */
-    175, /* Synthesizer */
-    166, /* Time Ctrl */
-    104, /* Gravity manager */
-    105, /* Gravity setter */
-    191, /* Local gravity */
-    130, /* Stabilizer */
-    184, /* Escript */
-    180, /* Shape Extruder */
-    83,  /* Emitter */
-    88,  /* Mini emitter */
-    86,  /* Absorber */
-    89,  /* Mini absorber */
-    148, /* Multi-emitter */
-    O_AUTOABSORBER, /* Auto Absorber */
-    O_AUTOPROTECTOR, /* Auto Protector */
-    O_FLUID /* fluid */
+    O_FX_EMITTER,
+    O_SFX_EMITTER,
+    O_SYNTHESIZER,
+    O_TIMECTRL,
+    O_GRAVITY_MANAGER,
+    O_GRAVITY_SETTER,
+    O_ARTIFICIAL_GRAVITY,
+    O_STABILIZER,
+    O_ESCRIPT,
+    O_SHAPE_EXTRUDER,
+    O_EMITTER,
+    O_MINI_EMITTER,
+    O_ABSORBER,
+    O_MINI_ABSORBER,
+    O_MULTI_EMITTER,
+    O_AUTO_ABSORBER,
+    O_AUTO_PROTECTOR,
+    O_FLUID
 };
 
 /* Interaction */
 static int c8_ids[] = {
-    183, /* Cursor field */
-    160, /* Cursor finder */
-    167, /* Prompt */
-    121, /* Cam marker */
-    133, /* Cam targeter */
-    165, /* Cam zoomer */
-    159, /* RC Activator */
+    O_CURSOR_FIELD,
+    O_CURSOR_FINDER,
+    O_PROMPT,
+    O_CAM_MARKER,
+    O_CAM_TARGETER,
+    O_CAM_ZOOMER,
+    O_RC_ACTIVATOR,
     O_PLAYER_ACTIVATOR,
-    81,  /* Interactive cylinder */
-    108, /* Interactive box */
-    109, /* Interactive ball */
+    O_INTERACTIVE_CYLINDER,
+    O_INTERACTIVE_BOX,
+    O_INTERACTIVE_BALL,
     O_DRAGFIELD,
     O_VENDOR,
     O_TREASURE_CHEST,

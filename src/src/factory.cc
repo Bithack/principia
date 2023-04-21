@@ -1317,13 +1317,13 @@ factory::init_recipes()
                                     .add(RESOURCE_WOOD, 1)
                     );
             generic_objects.push_back(
-                factory_object().g_id(O_WOODBOX)
+                factory_object().g_id(O_BOX)
                                 .prop0(0)
                                 .scale(.5f, .5f)
                                 .add(RESOURCE_WOOD, 1)
                     );
             generic_objects.push_back(
-                factory_object().g_id(O_WOODBOX)
+                factory_object().g_id(O_BOX)
                                 .prop0(1)
                                 .add(RESOURCE_WOOD, 2)
                     );
@@ -1415,7 +1415,7 @@ factory::init_recipes()
                                             .add(RESOURCE_EMERALD, 1)
                     );
             generic_objects.push_back(
-                factory_object().g_id(O_TOGGLEBUTTON)
+                factory_object().g_id(O_TOGGLE_BUTTON)
                                 .add(RESOURCE_IRON, 1)
                                             .add(RESOURCE_COPPER, 1)
                                             .add_oil(1.f)
@@ -1483,13 +1483,13 @@ factory::init_recipes()
                    .add_oil(3.f)
                     );
             generic_objects.push_back(
-                factory_object().g_id(O_LASERSENSOR)
+                factory_object().g_id(O_LASER_SENSOR)
                                 .add(RESOURCE_SAPPHIRE, 1)
                    .add(RESOURCE_COPPER, 1)
                    .add_oil(1.f)
                     );
             generic_objects.push_back(
-                factory_object().g_id(O_PROXIMITYSENSOR)
+                factory_object().g_id(O_PROXIMITY_SENSOR)
                                 .add(RESOURCE_SAPPHIRE, 4)
                    .add(RESOURCE_COPPER, 1)
                    .add(RESOURCE_IRON, 2)
@@ -1515,18 +1515,18 @@ factory::init_recipes()
                                 .add(RESOURCE_COPPER, 2)\
                 )
 
-        Q_I1O1(O_INVERTERGATE,1.f);
-        Q_I1O1(O_INTEGERGATE,1.f);
-        Q_I1O1(O_CEILGATE,1.f);
-        Q_I1O1(O_SQUAREGATE,1.f);
-        Q_I1O1(O_SQRTGATE,1.f);
+        Q_I1O1(O_INVERTER,1.f);
+        Q_I1O1(O_FLOOR,1.f);
+        Q_I1O1(O_CEIL,1.f);
+        Q_I1O1(O_SQUARE,1.f);
+        Q_I1O1(O_SQRT,1.f);
         Q_I1O1(O_SPARSIFIER,1.f);
-        Q_I1O1(O_BESSERWISSER,1.f);
+        Q_I1O1(O_SPARSIFIERPLUS,1.f);
         Q_I1O1(O_EPSILON,1.f);
         Q_I1O1(O_TOGGLER,2.f);
         Q_I1O1(O_MAVG,2.f);
         Q_I1O1(O_FIFO,2.f);
-        Q_I1O1(O_VALUESHIFT,2.f);
+        Q_I1O1(O_VALUE_SHIFT,2.f);
         Q_I1O1(O_CLAMP,2.f);
         Q_I1O1(O_MULADD,1.f);
         Q_I1O1(O_ESUB,1.f);
@@ -1553,7 +1553,7 @@ factory::init_recipes()
         Q_I2O1(O_MIN);
         Q_I2O1(O_MAX);
         Q_I2O1(O_SUM);
-        Q_I2O1(O_EMUL);
+        Q_I2O1(O_MUL);
         Q_I2O1(O_AVG);
         Q_I2O1(O_CONDENSER);
         Q_I2O1(O_WRAPCONDENSER);
@@ -1585,7 +1585,7 @@ factory::init_recipes()
         Q_I2O1(O_YSPLITTER);
         Q_I2O2(O_IFELSE);
         Q_S5(O_SINCOS);
-        Q_S5(O_EATAN2);
+        Q_S5(O_ATAN2);
         Q_SIG(O_SWITCH, 4.f, 8);
 
         generic_objects.push_back(
@@ -1624,7 +1624,7 @@ factory::init_recipes()
 
         Q_SIG(O_SINEWAVE, 1.f, 1);
         Q_SIG(O_SAWTOOTH, 1.f, 1);
-        Q_SIG(O_ERANDOM, 1.f, 1);
+        Q_SIG(O_RANDOM, 1.f, 1);
         Q_SIG(O_SEQUENCER, 1.f, 1);
 
         /* game */

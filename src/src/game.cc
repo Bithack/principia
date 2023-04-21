@@ -3497,7 +3497,7 @@ game::render()
 #endif
 
             switch (this->selection.e->g_id) {
-                case O_CURSORFIELD: /* cursorfield */
+                case O_CURSOR_FIELD:
                     {
                     cursorfield *g = static_cast<cursorfield*>(this->selection.e);
                     tms_ddraw_set_color(this->dd, 0.0f, 0.0f, 1.0f, 1.0f);
@@ -3518,7 +3518,7 @@ game::render()
                     }
                     }
                     break;
-                case 190: /* Fluid */
+                case O_FLUID:
                     {
                     fluid *g = static_cast<fluid*>(this->selection.e);
                     tms_ddraw_set_color(this->dd, 0.0f, 0.0f, 1.0f, 1.0f);
@@ -3537,7 +3537,7 @@ game::render()
                     }
                     break;
 
-                case 180: /* Shape modifier*/
+                case O_SHAPE_EXTRUDER:
                     {
                     ghost *g = static_cast<ghost*>(this->selection.e);
                     if (g->conn_ll) {
@@ -3566,7 +3566,7 @@ game::render()
                     }
                     }
                     break;
-                case 75: /* Proximity Sensor */
+                case O_PROXIMITY_SENSOR:
                     {
                     proximitysensor *sensor = static_cast<proximitysensor*>(this->selection.e);
                     static const int32 num_v = 4;
@@ -3608,7 +3608,7 @@ game::render()
                     }
                     break;
 
-                case O_DRAGFIELD: /* Dragfield */
+                case O_DRAGFIELD:
                     {
                     dragfield *df = static_cast<dragfield*>(this->selection.e);
 
@@ -3620,7 +3620,7 @@ game::render()
                     }
                     break;
 
-                case O_FAN: /* Fan */
+                case O_FAN:
                     {
                         fan *f = static_cast<fan*>(this->selection.e);
 
@@ -4010,7 +4010,7 @@ game::render_starred(void)
         if ((*i)->type == ENTITY_CABLE) {
             p = ((cable*)(*i))->p[0]->get_position() + ((cable*)(*i))->p[1]->get_position();
             p *= .5f;
-        } else if ((*i)->g_id == O_COMMAND_PAD) { /* command pad */
+        } else if ((*i)->g_id == O_COMMAND_PAD) {
             p.x += .25f;
         }
 
@@ -5953,7 +5953,7 @@ game::copy_properties(entity *destination, entity *source, bool hl/*=false*/)
 
         if (destination->g_id == O_PIXEL) {
             ((pixel*)destination)->update_appearance();
-        } else if (destination->g_id == O_WOODBOX) {
+        } else if (destination->g_id == O_BOX) {
             destination->on_load(false, false);
         }
 
@@ -6476,7 +6476,7 @@ game::handle_input_playing(tms::event *ev, int action)
                 }
             }
 
-            if (this->sel_p_ent->g_id == O_CURSORFIELD) {
+            if (this->sel_p_ent->g_id == O_CURSOR_FIELD) {
                 ((cursorfield*)this->sel_p_ent)->pressed ++;
                 ((cursorfield*)this->sel_p_ent)->dragged ++;
                 in_cursorfield[pid] = (cursorfield*)this->sel_p_ent;
@@ -6544,7 +6544,7 @@ game::handle_input_playing(tms::event *ev, int action)
                     if (drag_cursorfield[pid] != 0)
                         drag_cursorfield[pid]->dragged --;
 
-                    if (this->sel_p_ent != 0 && this->sel_p_ent->g_id == O_CURSORFIELD) {
+                    if (this->sel_p_ent != 0 && this->sel_p_ent->g_id == O_CURSOR_FIELD) {
                         drag_cursorfield[pid] = (cursorfield*)this->sel_p_ent;
                         drag_cursorfield[pid]->dragged ++;
                     } else
@@ -9379,7 +9379,7 @@ game::check_select_object(int x, int y, int pid)
                 }
                 break;
 
-            case 159:  /* RC Activator */
+            case O_RC_ACTIVATOR:
                 {
                     rcactivator *_of = static_cast<rcactivator*>(this->selection.e_saved);
 
@@ -9425,7 +9425,7 @@ game::check_select_object(int x, int y, int pid)
                 }
                 break;
 
-            case O_ID_FIELD:  /* ID field */
+            case O_ID_FIELD:
                 {
                     objectfield *_of = static_cast<objectfield*>(this->selection.e_saved);
 
@@ -9503,7 +9503,7 @@ game::check_select_object(int x, int y, int pid)
                 }
                 break;
 
-            case 133: /* Cam Targeter */
+            case O_CAM_TARGETER:
                 {
                     camtargeter *_of = static_cast<camtargeter*>(this->selection.e_saved);
 
@@ -9525,7 +9525,7 @@ game::check_select_object(int x, int y, int pid)
                 }
                 break;
 
-            case O_OBJECT_FIELD: /* Object field */
+            case O_OBJECT_FIELD:
                 {
                     objectfield *_of = static_cast<objectfield*>(this->selection.e_saved);
 
@@ -9546,8 +9546,8 @@ game::check_select_object(int x, int y, int pid)
                 }
                 break;
 
-            case 88: /* Mini emitter */
-            case 83: /* Emitter */
+            case O_MINI_EMITTER:
+            case O_EMITTER:
                 {
                     emitter *_e = static_cast<emitter*>(this->selection.e_saved);
 
@@ -9576,8 +9576,8 @@ game::check_select_object(int x, int y, int pid)
                 }
                 break;
 
-            case 89: /* Mini absorber */
-            case 86: /* Absorber */
+            case O_MINI_ABSORBER:
+            case O_ABSORBER:
                 {
                     absorber *_a = static_cast<absorber*>(this->selection.e_saved);
 
@@ -9604,7 +9604,7 @@ game::check_select_object(int x, int y, int pid)
                 }
                 break;
 
-            case 98: /* Object finder */
+            case O_OBJECT_FINDER:
                 {
                     object_finder *_e = static_cast<object_finder*>(this->selection.e_saved);
 
@@ -9625,13 +9625,13 @@ game::check_select_object(int x, int y, int pid)
                 }
                 break;
 
-            case 146: /* HP Control */
+            case O_HP_CONTROL:
                 {
                     hp_control *hc = static_cast<hp_control*>(this->selection.e_saved);
 
                     down[pid] = false;
                     if (this->sel_p_ent && this->sel_p_ent != hc && this->sel_p_ent->id != 0) {
-                        if (this->sel_p_ent->g_id == O_CHECKPOINT || this->sel_p_ent->id == W->level.get_adventure_id()) { /* Checkpoint or adventure robot */
+                        if (this->sel_p_ent->g_id == O_CHECKPOINT || this->sel_p_ent->id == W->level.get_adventure_id()) {
                             hc->properties[0].v.i = W->level.get_adventure_id();
                             ui::message("Controlling HP for the adventure robot!");
                         } else {
@@ -9657,7 +9657,7 @@ game::check_select_object(int x, int y, int pid)
 
                     down[pid] = false;
                     if (this->sel_p_ent && this->sel_p_ent != rm && this->sel_p_ent->id != 0) {
-                        if (this->sel_p_ent->flag_active(ENTITY_IS_ROBOT)) { /* Checkpoint or adventure robot */
+                        if (this->sel_p_ent->flag_active(ENTITY_IS_ROBOT)) {
                             ui::messagef("Managing robot with id %" PRIu32 ".", this->sel_p_ent->id);
                             rm->properties[0].v.i = this->sel_p_ent->id;
                         }

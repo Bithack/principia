@@ -121,7 +121,7 @@ scanner::step()
                 this->num_points ++;
 
                 if (e) {
-                    if (e->g_id == O_MIRROR) {
+                    if (e->g_id == O_LASER_BOUNCER) {
 
                         b2Vec2 reflected = dir - b2Dot(dir, result_nor)*2.f*result_nor;
 
@@ -134,7 +134,7 @@ scanner::step()
                     if (!W->is_paused()) {
                         float dmg = this->properties[0].v.f * G->get_time_mul();
 
-                        if (e->g_id == O_LASERSENSOR && (e->properties[1].v.i != 0 || e->world_to_local(result_pt, 0).y < -.1f)
+                        if (e->g_id == O_LASER_SENSOR && (e->properties[1].v.i != 0 || e->world_to_local(result_pt, 0).y < -.1f)
                             && e->properties[0].v.f == this->properties[0].v.f) {
                             ((laser_sensor*)e)->laserhit = true;
                         } else if (e->is_creature()) {
@@ -142,7 +142,7 @@ scanner::step()
                                 creature *c = static_cast<creature*>(e);
                                 c->damage(dmg, 0, DAMAGE_TYPE_PLASMA, DAMAGE_SOURCE_WORLD, 0);
                             }
-                        } else if (e->g_id == O_LANDMINE || e->g_id == O_BOMB) {
+                        } else if (e->g_id == O_LAND_MINE || e->g_id == O_BOMB) {
                             ((explosive*)e)->damage(dmg);
                         }
 

@@ -137,7 +137,7 @@ world::insert(entity *e)
         case O_EVENT_LISTENER: this->eventlisteners.insert((eventlistener*)e); break;
         case O_ESCRIPT:        this->escripts.insert((escript*)e); break;
         case O_KEY_LISTENER:   this->key_listeners.insert((key_listener*)e); break;
-        case O_LOCALGRAVITY:   this->localgravities.insert((localgravity*)e); break;
+        case O_ARTIFICIAL_GRAVITY:   this->localgravities.insert((localgravity*)e); break;
         case O_REPAIR_STATION: this->repair_stations.insert(e); break;
     }
 
@@ -202,7 +202,7 @@ world::erase(entity *e)
         case O_EVENT_LISTENER: this->eventlisteners.erase((eventlistener*)e); break;
         case O_ESCRIPT:        this->escripts.erase((escript*)e); break;
         case O_KEY_LISTENER:   this->key_listeners.erase((key_listener*)e); break;
-        case O_LOCALGRAVITY:   this->localgravities.erase((localgravity*)e); break;
+        case O_ARTIFICIAL_GRAVITY:   this->localgravities.erase((localgravity*)e); break;
         case O_REPAIR_STATION: this->repair_stations.erase(e); break;
     }
 
@@ -791,7 +791,7 @@ world::ReportFixture(b2Fixture *f)
             return true;
         }
 
-        if (!this->is_paused() && e && e->g_id == O_CURSORFIELD) {
+        if (!this->is_paused() && e && e->g_id == O_CURSOR_FIELD) {
             if (f->TestPoint(this->query_point)) {
                 this->query_exact = true;
                 this->query_nearest_b = f->GetBody();

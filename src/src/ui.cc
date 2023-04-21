@@ -186,14 +186,14 @@ void ui_cb_set_color(float r, float g, float b, float a)
             /* pixel */
             ui_set_property_uint8(4, (uint8_t)roundf(a * 255.f));
             ((pixel*)G->selection.e)->update_appearance();
-        } else if (ui_get_entity_gid() == O_PBOX) {
+        } else if (ui_get_entity_gid() == O_PLASTIC_BOX) {
             ((box*)G->selection.e)->update_appearance();
         } else if (ui_get_entity_gid() == O_PLASTIC_BEAM) {
             ((beam*)G->selection.e)->update_appearance();
         }
     }
 }
-    
+
 void ui_cb_update_rubber()
 {
     entity *e = G->selection.e;
@@ -203,26 +203,26 @@ void ui_cb_update_rubber()
     } else {
         ((wheel*)e)->do_update_fixture = true;
     }
-    
+
     P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
     P.add_action(ACTION_RESELECT, 0);
 }
-    
+
 void ui_cb_set_allow_derivatives(int v)
 {
     W->level.allow_derivatives = v;
 }
-    
+
 void ui_cb_set_locked(int v)
 {
     W->level.visibility = v ? LEVEL_LOCKED : LEVEL_VISIBLE;
 }
-    
+
 int ui_cb_get_allow_derivatives()
 {
     return W->level.allow_derivatives;
 }
-    
+
 int ui_cb_get_locked()
 {
     return W->level.visibility == LEVEL_LOCKED;
@@ -232,7 +232,7 @@ uint8_t ui_get_property_uint8(int index)
 {
     return G->selection.e->properties[index].v.u8;
 }
-    
+
 void ui_set_property_uint8(int index, uint8_t val)
 {
     G->selection.e->properties[index].v.u8 = val;
@@ -242,7 +242,7 @@ uint32_t ui_get_property_uint32(int index)
 {
     return G->selection.e->properties[index].v.i;
 }
-    
+
 void ui_set_property_uint32(int index, uint32_t val)
 {
     G->selection.e->properties[index].v.i = val;
@@ -5549,7 +5549,7 @@ on_cursorfield_show(GtkWidget *wdg, void *unused)
 {
     entity *e = G->selection.e;
 
-    if (e && e->g_id == O_CURSORFIELD) {
+    if (e && e->g_id == O_CURSOR_FIELD) {
         gtk_range_set_value(cursorfield_right, e->properties[0].v.f);
         gtk_range_set_value(cursorfield_up, e->properties[1].v.f);
         gtk_range_set_value(cursorfield_left, e->properties[2].v.f);
