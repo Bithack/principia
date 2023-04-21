@@ -1611,6 +1611,24 @@ extern "C" {
         return 1;
     }
 
+    /* entity:set_angle(angle)
+     * added in 1.5.2
+     *
+     * Set the angle of the entity
+     */
+    static int l_entity_set_angle(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "entity:set_angle", "1.5.1", LEVEL_VERSION_1_5_1);
+
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+
+        float angle = luaL_checknumber(L, 2);
+
+        e->set_angle(angle);
+
+        return 0;
+    }
+
     /* vel_x, vel_y = entity:velocity()
      *
      * Returns the velocity in the X and Y-axis
@@ -3843,6 +3861,7 @@ static const luaL_Reg entity_methods[] = {
     {"get_g_id",                l_entity_get_g_id},
     {"get_position",            l_entity_get_position},
     {"get_angle",               l_entity_get_angle},
+    {"set_angle",               l_entity_set_angle},            // 1.5.2
     {"get_velocity",            l_entity_get_velocity},
     {"get_angular_velocity",    l_entity_get_angular_velocity},
     {"get_bbox",                l_entity_get_bbox},
