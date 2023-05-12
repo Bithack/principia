@@ -122,7 +122,7 @@ typedef double float64;
 
 // Particle
 //
-#define b2_maxParticles             4096
+#define b2_maxParticles             65536
 
 /// A symbolic constant that stands for particle allocation error.
 #define b2_invalidParticleIndex		(-1)

@@ -26,9 +26,10 @@ fluidbuffer::get_entity()
 {
     if (e) return e;
 
-    e = new tms::entity();
     mesh = new tms::mesh(va, indices);
-
+    mesh->i32 = 1;
+    
+    e = new tms::entity();
     e->prio = 0;
     e->set_mesh(mesh);
     e->set_material(&m_fluidbuf);
@@ -38,7 +39,6 @@ fluidbuffer::get_entity()
 
     return e;
 }
-
 void fluidbuffer::_init()
 {
     tms_progressf("Initializing fluidbuffer... ");
@@ -46,17 +46,17 @@ void fluidbuffer::_init()
     verts = new tms::gbuffer(4*(FLUIDBUFFER_MAX)*sizeof(struct vert));
     verts->usage = TMS_GBUFFER_STREAM_DRAW;
 
-    indices = new tms::gbuffer(6*FLUIDBUFFER_MAX*sizeof(uint16_t));
+    indices = new tms::gbuffer(6*FLUIDBUFFER_MAX*sizeof(uint32_t));
     indices->usage = TMS_GBUFFER_STATIC_DRAW;
-
+    
     va = new tms::varray(2);
     va->map_attribute("position", 3, GL_FLOAT, verts);
     va->map_attribute("uv", 3, GL_FLOAT, verts);
 
-    uint16_t *i = (uint16_t*)indices->get_buffer();
-    for (int x=0; x<FLUIDBUFFER_MAX; x++) {
-        int o = x*6;
-        int vo = x*4;
+    uint32_t *i = (uint32_t*)indices->get_buffer();
+    for (uint32_t x=0; x<FLUIDBUFFER_MAX; x++) {
+        uint32_t o = x*6;
+        uint32_t vo = x*4;
 
         i[o+0] = vo;
         i[o+1] = vo+1;
@@ -137,4 +137,3 @@ void fluidbuffer::upload()
     }
     if (n) verts->upload_partial(n*4*sizeof(struct vert));
 }
-
