@@ -1,4 +1,5 @@
 #include "iomiscgate.hh"
+#include "game.hh"
 #include "model.hh"
 #include "material.hh"
 
@@ -203,6 +204,7 @@ i4o1gate::i4o1gate()
 
 ifselect::ifselect()
 : i3o1gate() {
+    if (W->level.version <= LEVEL_VERSION_1_5_1) return;
     this->s_in[0].lpos  = b2Vec2(-.25f, -.125f);
     this->s_in[1].lpos  = b2Vec2(  0.f, -.125f);
     this->s_in[2].lpos  = b2Vec2( .25f, -.125f);
