@@ -3,7 +3,8 @@
 
 #include "entity.hh"
 
-#define FLUIDBUFFER_MAX b2_maxParticles
+#define FLUIDBUFFER_MAX_1_5_1  4096            // Used in <= 1.5.1
+#define FLUIDBUFFER_MAX        b2_maxParticles // Used in >= 1.5.2
 
 class fluidbuffer
 {

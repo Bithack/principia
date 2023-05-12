@@ -3,6 +3,9 @@
 #include "model.hh"
 #include "world.hh"
 
+#define MAX_PARTICLES_1_5_1 4096
+#define MAX_PARTICLES       b2_maxParticles
+
 fluid::fluid()
 {
     this->set_flag(ENTITY_IS_BETA, true);
@@ -90,6 +93,7 @@ fluid::add_to_world()
         W->b2->SetParticleRadius(.2f);
         W->b2->SetParticleDamping(.35f);
         W->b2->SetParticleDensity(1.0f);
+        W->b2->SetParticleMaxCount((W->level.version <= LEVEL_VERSION_1_5_1) ? MAX_PARTICLES_1_5_1 : MAX_PARTICLES);
         pd.flags = ((2+4) << (16+4*this->get_layer()));
         //pd.flags = b2_waterParticle | (15 << (16+4*this->get_layer()));
         //pd.flags = b2_elasticParticle | (15 << (16+4*this->get_layer()));
@@ -107,4 +111,3 @@ fluid::add_to_world()
     this->width = this->get_width();
     this->height = this->get_width();
 }
-
