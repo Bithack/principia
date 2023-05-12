@@ -11803,10 +11803,13 @@ game::multiselect_perform(void (*cb)(entity*, void*), void *userdata)
 {
     if (this->state.sandbox && W->is_paused() && !this->state.test_playing) {
         if (this->get_mode() == GAME_MODE_MULTISEL && this->selection.m) {
-            for (std::set<entity*>::iterator i = this->selection.m->begin();
-                    i != this->selection.m->end(); i++) {
+            // We need to copy the entity list, because we're likely going to modify it.
+            std::set<entity*> cloned_ent(*this->selection.m);
+            std::set<entity*>::iterator i = cloned_ent.begin();
+            for (; i != cloned_ent.end(); i++) {
                 cb(*i, userdata);
             }
+            cloned_ent.clear();
         }
     }
 }
