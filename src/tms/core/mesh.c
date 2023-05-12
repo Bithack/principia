@@ -76,17 +76,20 @@ tms_mesh_draw(struct tms_mesh *m)
 
         //tms_infof("start %d, count %d", start, count);
 
-        if (count == -1)
+        if (count == -1) {
             count = m->indices->usize / (m->i32?sizeof(int):sizeof(short));
+        }
 
-        if (count)
-            glDrawElements(m->primitive_type,
-                    count,
-                    (m->i32?GL_UNSIGNED_INT:GL_UNSIGNED_SHORT), (char*)(start*2));
+        if (count) glDrawElements(
+            m->primitive_type,
+            count,
+            (m->i32?GL_UNSIGNED_INT:GL_UNSIGNED_SHORT), 
+            (char*)(start * (m->i32?sizeof(int):sizeof(short)))
+        );
+
         //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     } else
         glDrawArrays(m->primitive_type, 0, m->vertex_array->gbufs[0].gbuf->usize / m->vertex_array->gbufs[0].vsize);
 
     return T_OK;
 }
-
