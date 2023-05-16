@@ -106,7 +106,7 @@ class memory : public i2o1gate_empty
         this->num_sliders = 1;
         this->set_num_properties(1);
         this->properties[0].type = P_FLT;
-        this->properties[0].v.f = 0.f;
+        this->properties[0].v.f = store;
     }
     edevice* solve_electronics();
     const char* get_name(){return "Memory module";}
