@@ -17,9 +17,10 @@
 #define LEVEL_VERSION_1_4_0_2 27
 #define LEVEL_VERSION_1_5     28
 #define LEVEL_VERSION_1_5_1   29
+#define LEVEL_VERSION_1_5_2   30
 
 #define PKG_VERSION   3
-#define LEVEL_VERSION LEVEL_VERSION_1_5_1
+#define LEVEL_VERSION LEVEL_VERSION_1_5_2
 
 #define LEVEL_VISIBLE 0
 #define LEVEL_LOCKED  1
@@ -42,7 +43,7 @@ static const char *level_version_strings[] = {
     "1.4.0.2", // 27
     "1.5",     // 28
     "1.5.1",   // 29
-    0,         // 30
+    "1.5.2",   // 30
     0,         // 31
     0,         // 32
     0,         // 33
