@@ -3,6 +3,7 @@
 
 #include "edevice.hh"
 #include "model.hh"
+#include "game.hh"
 
 class robot_base;
 
@@ -101,9 +102,24 @@ class memory : public i2o1gate_empty
         this->s_in[0].tag = SOCK_TAG_SET_ENABLE;
         this->s_in[1].tag = SOCK_TAG_VALUE;
         this->s_out[0].tag = SOCK_TAG_VALUE;
+
+        this->num_sliders = 1;
+        this->set_num_properties(1);
+        this->properties[0].type = P_FLT;
+        this->properties[0].v.f = 0.f;
     }
     edevice* solve_electronics();
     const char* get_name(){return "Memory module";}
+
+    void setup() {this->store = this->properties[0].v.f;};
+
+    const char *get_slider_label(int s) { return "Initial value"; };
+    float get_slider_snap(int s) { return .05f; };
+    float get_slider_value(int s) { return this->properties[0].v.f; };
+    void on_slider_change(int s, float value) {
+      this->properties[0].v.f = value;
+      G->show_numfeed(value);
+    };
 
     void write_state(lvlinfo *lvl, lvlbuf *lb)
     {
