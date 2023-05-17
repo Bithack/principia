@@ -17,10 +17,14 @@ tms_texture sticky::texture;
 
 #define WIDTH 128
 #define HEIGHT 128
-
 #define PIXELSZ 1
 
-static bool slots[8];
+#define UV_RATIO ((1.0f * WIDTH)/(1.0f * (HEIGHT * NUM_SLOTS)))
+
+// TODO: Increase this to 32 for next level version increment
+#define NUM_SLOTS 7
+
+static bool slots[NUM_SLOTS];
 
 void
 sticky::_init(void)
@@ -41,7 +45,7 @@ sticky::_init(void)
     //texture = tms_texture_alloc();
     tms_texture_init(&sticky::texture);
     tms_texture_set_filtering(&sticky::texture, GL_LINEAR);
-    tms_texture_alloc_buffer(&sticky::texture, 128, 1024, PIXELSZ);
+    tms_texture_alloc_buffer(&sticky::texture, WIDTH, HEIGHT * NUM_SLOTS, PIXELSZ);
     tms_texture_clear_buffer(&sticky::texture, 0);
 
     initialized = true;
@@ -69,7 +73,7 @@ sticky::sticky()
     }
 
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
-    this->set_flag(ENTITY_DISABLE_LAYERS,       true);
+    this->set_flag(ENTITY_DISABLE_LAYERS,       false);
     this->set_flag(ENTITY_HAS_CONFIG,           true);
 
     this->dialog_id = DIALOG_STICKY;
@@ -89,7 +93,7 @@ sticky::sticky()
     this->width = .76f*2.f;
     this->height = .76f*2.f;
 
-    for (int x=0; x<8; x++) {
+    for (int x=0; x<NUM_SLOTS; x++) {
         if (slots[x] == false) {
             this->slot = x;
             slots[x] = true;
@@ -103,7 +107,7 @@ sticky::sticky()
         return;
     }
 
-    this->set_uniform("sprite_coords", .0f, (128.f/1024.f)*this->slot, 1.0f, (128.f/1024.f)*(this->slot+1));
+    this->set_uniform("sprite_coords", .0f, (UV_RATIO)*(this->slot), 1.0f, (UV_RATIO)*(this->slot+1));
 
     tmat4_load_identity(this->M);
     tmat3_load_identity(this->N);
@@ -123,7 +127,7 @@ sticky::sticky()
 
 sticky::~sticky()
 {
-    if (this->slot > 0 && this->slot < 8) {
+    if (this->slot > 0 && this->slot < NUM_SLOTS) {
         slots[this->slot] = false;
     }
 }
@@ -324,7 +328,7 @@ sticky::update(void)
         this->M[5] = t.q.c;
         this->M[12] = t.p.x;
         this->M[13] = t.p.y;
-        this->M[14] = -LAYER_DEPTH/2.1f;
+        this->M[14] = this->get_layer()*LAYER_DEPTH - LAYER_DEPTH/2.1f;
 
         tmat3_copy_mat4_sub3x3(this->N, this->M);
     } else {
