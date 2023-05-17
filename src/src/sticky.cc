@@ -21,7 +21,8 @@ tms_texture sticky::texture;
 
 #define UV_RATIO ((1.0f * WIDTH)/(1.0f * (HEIGHT * NUM_SLOTS)))
 
-#define NUM_SLOTS 32
+// TODO: Increase this to 32 for next level version increment
+#define NUM_SLOTS 7
 
 static bool slots[NUM_SLOTS];
 
