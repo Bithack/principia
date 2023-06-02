@@ -6,6 +6,8 @@
 
 #include "SDL_ttf.h"
 
+#include <cstddef>
+
 #define NUM_SIZES 4
 
 static bool initialized = false;
@@ -15,20 +17,24 @@ static int spacing[NUM_SIZES];
 
 tms_texture sticky::texture;
 
+#define TEX_WIDTH 1024
+#define TEX_HEIGHT 1024
+
 #define WIDTH 128
 #define HEIGHT 128
+
 #define PIXELSZ 1
 
-#define UV_RATIO ((1.0f * WIDTH)/(1.0f * (HEIGHT * NUM_SLOTS)))
+#define UV_X ((float)WIDTH / (float)TEX_WIDTH)
+#define UV_Y ((float)HEIGHT / (float)TEX_HEIGHT)
 
-// TODO: Increase this to 32 for next level version increment
-#define NUM_SLOTS 7
+#define NOTES_PER_LINE (TEX_WIDTH / WIDTH)
+
+#define NUM_SLOTS 64
 
 static bool slots[NUM_SLOTS];
 
-void
-sticky::_init(void)
-{
+void sticky::_init(void) {
     TTF_Init();
 
     int unused;
@@ -51,9 +57,7 @@ sticky::_init(void)
     initialized = true;
 }
 
-void
-sticky::_deinit(void)
-{
+void sticky::_deinit(void) {
     for (int x=0; x<NUM_SIZES; x++) {
         TTF_CloseFont(ttf_font[x]);
     }
@@ -61,8 +65,7 @@ sticky::_deinit(void)
     TTF_Quit();
 }
 
-sticky::sticky()
-{
+sticky::sticky() {
     if (!initialized) {
         _init();
     }
@@ -107,7 +110,13 @@ sticky::sticky()
         return;
     }
 
-    this->set_uniform("sprite_coords", .0f, (UV_RATIO)*(this->slot), 1.0f, (UV_RATIO)*(this->slot+1));
+    float nx = (float)(this->slot % NOTES_PER_LINE);
+    float ny = (float)(this->slot / NOTES_PER_LINE);
+    this->set_uniform(
+        "sprite_coords",
+        UV_X * nx, UV_Y * ny,
+        UV_X * (nx + 1), UV_Y * (ny + 1)
+    );
 
     tmat4_load_identity(this->M);
     tmat3_load_identity(this->N);
@@ -125,16 +134,13 @@ sticky::sticky()
     this->set_text("Hello!");
 }
 
-sticky::~sticky()
-{
+sticky::~sticky() {
     if (this->slot > 0 && this->slot < NUM_SLOTS) {
         slots[this->slot] = false;
     }
 }
 
-void
-sticky::add_word(const char *word, int len)
-{
+void sticky::add_word(const char *word, int len) {
     int w,h;
 
     if (this->currline >= STICKY_MAX_LINES)
@@ -187,19 +193,15 @@ sticky::add_word(const char *word, int len)
     }
 }
 
-void
-sticky::on_load(bool created, bool has_state)
-{
+void sticky::on_load(bool created, bool has_state) {
     this->update_text();
 }
 
-void sticky::next_line()
-{
-    this->currline ++;
+void sticky::next_line() {
+    this->currline++;
 }
 
-void sticky::draw_text(const char *txt)
-{
+void sticky::draw_text(const char *txt) {
     const char *s = txt;
     const char *w = s;
 
@@ -233,44 +235,52 @@ void sticky::draw_text(const char *txt)
     */
 
     unsigned char *buf = tms_texture_get_buffer(&sticky::texture);
-    buf += this->slot * WIDTH *PIXELSZ * HEIGHT;
-    int buf_offset = this->slot * WIDTH *PIXELSZ * HEIGHT;
-    //int by = this->slot * WIDTH * HEIGHT;
 
-    int lsz = TTF_FontLineSkip(ttf_font[this->properties[3].v.i8]);
+    int line_skip = TTF_FontLineSkip(ttf_font[this->properties[3].v.i8]);
 
-    for (int lx=0; lx<this->currline; lx++) {
+    for (int text_line=0; text_line<this->currline; text_line++) {
         /* Skip any lines that do not contain any content */
-        if (this->linelen[lx] == 0) continue;
+        if (this->linelen[text_line] == 0) continue;
 
-        SDL_Surface *srf = TTF_RenderUTF8_Shaded(ttf_font[this->properties[3].v.i8],
-                this->lines[lx],
-                (SDL_Color){255, 255, 255, 255},
-                (SDL_Color){0,0,0,0}
-            );
+        SDL_Surface *srf = TTF_RenderUTF8_Shaded(
+            ttf_font[this->properties[3].v.i8],
+            this->lines[text_line],
+            (SDL_Color){255, 255, 255, 255},
+            (SDL_Color){  0,   0,   0,   0}
+        );
 
         if (srf == NULL) {
             tms_errorf("Error creating SDL Surface:%s", TTF_GetError());
             continue;
         }
 
-        int sy = this->properties[2].v.i8 ? HEIGHT/2 + this->currline*lsz/2. : HEIGHT-1;
-        int sx = this->properties[1].v.i8 ? (WIDTH/2 - srf->w/2) * PIXELSZ : 0;
-
+        //Centering
+        //FIX: DISABLED: probably broken after the 2d canvas update
+        //int align_y = this->properties[2].v.i8 ? HEIGHT/2 + this->currline*line_skip/2. : HEIGHT-1;
+        //int align_x = this->properties[1].v.i8 ? (WIDTH/2 - srf->w/2) * PIXELSZ : 0;
+        int align_y = HEIGHT - 1;
+        int align_x = 0;
+        
         for (int y=0; y<srf->h; y++) {
             for (int x=0; x<srf->pitch; x++) {
                 for (int z=0; z<PIXELSZ; z++) {
-                    int offset = ((sy-lsz*lx)-y)*WIDTH*PIXELSZ + 0+sx+x*PIXELSZ+z;
+                    
+                    //Destination
+                    size_t offset = 
+                        (((align_y - line_skip * text_line) - y) * WIDTH * PIXELSZ) + 
+                        ((align_x + x) * PIXELSZ) + 
+                        z;
+
+                    //Source
                     int data_offset = ((y)*srf->pitch)+x;
 
-                    unsigned char data = ((unsigned char*)srf->pixels)[data_offset];
-
+                    unsigned char data = ((unsigned char*) srf->pixels)[data_offset];
+                    buf[offset] = data; 
+                    
                     /*
                     tms_debugf("buf_offset/slot/offset/data_offset/data %d/%d/%d/%d/%x - '%s'",
                             buf_offset, this->slot, offset, data_offset, data, this->lines[lx]);
                             */
-
-                    buf[offset] = data;
                 }
             }
         }
@@ -278,16 +288,15 @@ void sticky::draw_text(const char *txt)
     }
 }
 
-void sticky::set_text(const char *txt)
-{
+void sticky::set_text(const char *txt) {
     this->set_property(0, txt);
     this->update_text();
 }
 
-void sticky::update_text()
-{
-    for (int x=0; x<STICKY_MAX_LINES; x++)
+void sticky::update_text() {
+    for (int x=0; x<STICKY_MAX_LINES; x++) {
         this->linelen[x] = 0;
+    }
     this->currline = 0;
 
     /* clear the texture */
@@ -306,17 +315,13 @@ void sticky::update_text()
     tms_texture_upload(&sticky::texture);
 }
 
-void
-sticky::add_to_world()
-{
+void sticky::add_to_world() {
     b2Fixture *f;
     this->create_rect(b2_staticBody, .76f, .76f, this->get_material(), &f);
     this->body->GetFixtureList()[0].SetSensor(true);
 }
 
-void
-sticky::update(void)
-{
+void sticky::update(void) {
     if (this->body) {
         b2Transform t;
         t = this->body->GetTransform();
@@ -338,3 +343,4 @@ sticky::update(void)
         tmat3_copy_mat4_sub3x3(this->N, this->M);
     }
 }
+
