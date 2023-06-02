@@ -17,7 +17,7 @@ static int spacing[NUM_SIZES];
 
 tms_texture sticky::texture;
 
-#define TEX_WIDTH 1024
+#define TEX_WIDTH 128
 #define TEX_HEIGHT 1024
 
 #define WIDTH 128
@@ -28,9 +28,9 @@ tms_texture sticky::texture;
 #define UV_X ((float)WIDTH / (float)TEX_WIDTH)
 #define UV_Y ((float)HEIGHT / (float)TEX_HEIGHT)
 
-#define NOTES_PER_LINE (TEX_WIDTH / WIDTH)
+#define SLOTS_PER_TEX_LINE (TEX_WIDTH / WIDTH)
 
-#define NUM_SLOTS 64
+#define NUM_SLOTS 4
 
 static bool slots[NUM_SLOTS];
 
@@ -96,7 +96,7 @@ sticky::sticky() {
     this->width = .76f*2.f;
     this->height = .76f*2.f;
 
-    for (int x=0; x<NUM_SLOTS; x++) {
+    for (size_t x=0; x < NUM_SLOTS; x++) {
         if (slots[x] == false) {
             this->slot = x;
             slots[x] = true;
@@ -110,13 +110,17 @@ sticky::sticky() {
         return;
     }
 
-    float nx = (float)(this->slot % NOTES_PER_LINE);
-    float ny = (float)(this->slot / NOTES_PER_LINE);
+    int nx = this->slot % SLOTS_PER_TEX_LINE;
+    int ny = this->slot / SLOTS_PER_TEX_LINE;
     this->set_uniform(
         "sprite_coords",
         UV_X * nx, UV_Y * ny,
-        UV_X * (nx + 1), UV_Y * (ny + 1)
+        UV_X * (float)(nx + 1), UV_Y * (float)(ny + 1)
     );
+    // this->set_uniform(
+    //     "sprite_coords",
+    //     0., 0., 1., 1.
+    // );
 
     tmat4_load_identity(this->M);
     tmat3_load_identity(this->N);
@@ -238,15 +242,15 @@ void sticky::draw_text(const char *txt) {
 
     int line_skip = TTF_FontLineSkip(ttf_font[this->properties[3].v.i8]);
 
-    for (int text_line=0; text_line<this->currline; text_line++) {
+    for (size_t text_line = 0; text_line < this->currline; text_line++) {
         /* Skip any lines that do not contain any content */
         if (this->linelen[text_line] == 0) continue;
 
         SDL_Surface *srf = TTF_RenderUTF8_Shaded(
             ttf_font[this->properties[3].v.i8],
             this->lines[text_line],
-            (SDL_Color){255, 255, 255, 255},
-            (SDL_Color){  0,   0,   0,   0}
+            (SDL_Color){0xff, 0xff, 0xff, 0xff},
+            (SDL_Color){0x00, 0x00, 0x00, 0x00}
         );
 
         if (srf == NULL) {
@@ -255,32 +259,44 @@ void sticky::draw_text(const char *txt) {
         }
 
         //Centering
-        //FIX: DISABLED: probably broken after the 2d canvas update
-        //int align_y = this->properties[2].v.i8 ? HEIGHT/2 + this->currline*line_skip/2. : HEIGHT-1;
-        //int align_x = this->properties[1].v.i8 ? (WIDTH/2 - srf->w/2) * PIXELSZ : 0;
+        // int align_y = this->properties[2].v.i8 ? HEIGHT/2 + this->currline*line_skip/2. : HEIGHT-1;
+        // int align_x = this->properties[1].v.i8 ? (WIDTH/2 - srf->w/2) * PIXELSZ : 0;
         int align_y = HEIGHT - 1;
         int align_x = 0;
         
-        for (int y=0; y<srf->h; y++) {
-            for (int x=0; x<srf->pitch; x++) {
-                for (int z=0; z<PIXELSZ; z++) {
-                    
-                    //Destination
-                    size_t offset = 
-                        (((align_y - line_skip * text_line) - y) * WIDTH * PIXELSZ) + 
-                        ((align_x + x) * PIXELSZ) + 
-                        z;
+        for (int y = 0; y < srf->h; y++) {
+            for (int x = 0; x < srf->pitch; x++) {
+                for (int z = 0; z < PIXELSZ; z++) {
+                    size_t dest_y = ((align_y - line_skip * text_line) - y);
+                    size_t dest_x = align_x + x;
+                    size_t dest_z = z;
 
+                    //XXX: PIXELSZ might be handled incorrectly here, but it's == 1 by default
+                    //     so it shouldn't matter
+
+                    //Destination
+                    // size_t offset =
+                    //     ((((this->slot / SLOTS_PER_TEX_LINE) * HEIGHT * TEX_WIDTH) + dest_y) * PIXELSZ) +
+                    //     ((((this->slot % SLOTS_PER_TEX_LINE) * WIDTH) + dest_x) * PIXELSZ) +
+                    //     dest_z;
+
+                    size_t offset = (
+                        (((this->slot / SLOTS_PER_TEX_LINE) * HEIGHT + dest_y) * TEX_WIDTH) +
+                        ((this->slot % SLOTS_PER_TEX_LINE) * WIDTH) + dest_x
+                    ) * PIXELSZ + dest_z;
+                        
                     //Source
-                    int data_offset = ((y)*srf->pitch)+x;
+                    int data_offset = (y * srf->pitch) + x;
 
                     unsigned char data = ((unsigned char*) srf->pixels)[data_offset];
-                    buf[offset] = data; 
+                    //data = -1;
+                    buf[offset] = data;
                     
-                    /*
-                    tms_debugf("buf_offset/slot/offset/data_offset/data %d/%d/%d/%d/%x - '%s'",
-                            buf_offset, this->slot, offset, data_offset, data, this->lines[lx]);
-                            */
+                    // tms_debugf(
+                    //     "slot/offset/data_offset/data %d/%d/%d/%d/%x - '%s'",
+                    //     this->slot, offset, data_offset, data, this->lines[text_line]
+                    // );
+
                 }
             }
         }
@@ -343,4 +359,3 @@ void sticky::update(void) {
         tmat3_copy_mat4_sub3x3(this->N, this->M);
     }
 }
-
