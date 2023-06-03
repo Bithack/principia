@@ -16,13 +16,13 @@
 
 #define PIXELSZ 1
 
-#define TEX_WIDTH  (settings["sticky_note_quality"]->v.b ? 2048 : 1024)
-#define TEX_HEIGHT (settings["sticky_note_quality"]->v.b ? 2048 : 1024)
+#define TEX_WIDTH  (settings_quality ? 2048 : 1024)
+#define TEX_HEIGHT (settings_quality ? 2048 : 1024)
 
-#define WIDTH  (settings["sticky_note_quality"]->v.b ? 256 : 128)
-#define HEIGHT (settings["sticky_note_quality"]->v.b ? 256 : 128)
+#define WIDTH  (settings_quality ? 256 : 128)
+#define HEIGHT (settings_quality ? 256 : 128)
 
-#define FONT_SCALING_FACTOR (settings["sticky_note_quality"]->v.b ? 2.f : 1.f)
+#define FONT_SCALING_FACTOR (settings_quality ? 2.f : 1.f)
 
 //computed
 #define UV_X ((double) WIDTH / (double) TEX_WIDTH)
@@ -30,6 +30,7 @@
 #define SLOTS_PER_TEX_LINE (TEX_WIDTH / WIDTH)
 //
 
+static bool settings_quality;
 static bool slots[NUM_SLOTS];
 static bool initialized = false;
 static TTF_Font *ttf_font[NUM_SIZES];
@@ -40,9 +41,10 @@ tms_texture sticky::texture;
 void sticky::_init(void) {
     TTF_Init();
 
-    int unused;
+    settings_quality = settings["sticky_note_quality"]->v.b;
 
     for (int size_idx = 0; size_idx < NUM_SIZES; size_idx++) {
+        int unused;
         int font_size = FONT_SCALING_FACTOR * (double)(16 + 6 * size_idx);
         ttf_font[size_idx] = TTF_OpenFont(NOTE_FONT, font_size);
         TTF_SizeUTF8(ttf_font[size_idx], " ", &spacing[size_idx], &unused);
@@ -61,11 +63,22 @@ void sticky::_deinit(void) {
     for (int x=0; x<NUM_SIZES; x++) {
         TTF_CloseFont(ttf_font[x]);
     }
-
+    
     TTF_Quit();
+
+    //tms_texture_free(&sticky::texture);
+
+    initialized = false;
 }
 
 sticky::sticky() {
+    //Re-init if the settings changed
+    //XXX: this produces weird behaviour
+    // if (settings_quality != settings["sticky_note_quality"]->v.b) {
+    //     settings_quality = settings["sticky_note_quality"]->v.b;
+    //     if (initialized) _deinit();
+    // }
+
     if (!initialized) {
         _init();
     }
