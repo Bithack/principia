@@ -26,8 +26,6 @@ tms_texture sticky::texture;
 
 #define NOTE_FONT "data-shared/fonts/easyspeech.ttf"
 
-#define FONT_SCALING_FACTOR 1.
-
 #define NUM_SLOTS 64
 
 //computed
@@ -43,7 +41,7 @@ void sticky::_init(void) {
     int unused;
 
     for (int size_idx = 0; size_idx < NUM_SIZES; size_idx++) {
-        int font_size = FONT_SCALING_FACTOR * (double)(16 + 6 * size_idx);
+        int font_size = 16 + 6 * size_idx;
         ttf_font[size_idx] = TTF_OpenFont(NOTE_FONT, font_size);
         TTF_SizeUTF8(ttf_font[size_idx], " ", &spacing[size_idx], &unused);
     }
