@@ -19,18 +19,21 @@ tms_texture sticky::texture;
 
 #define TEX_WIDTH 1024
 #define TEX_HEIGHT 1024
+#define PIXELSZ 1
 
 #define WIDTH 128
 #define HEIGHT 128
 
-#define PIXELSZ 1
+#define NOTE_FONT "data-shared/fonts/easyspeech.ttf"
 
-#define UV_X ((double)WIDTH / (double)TEX_WIDTH)
-#define UV_Y ((double)HEIGHT / (double)TEX_HEIGHT)
-
-#define SLOTS_PER_TEX_LINE (TEX_WIDTH / WIDTH)
+#define FONT_SCALING_FACTOR 1.
 
 #define NUM_SLOTS 64
+
+//computed
+#define UV_X ((double) WIDTH / (double) TEX_WIDTH)
+#define UV_Y ((double) HEIGHT / (double) TEX_HEIGHT)
+#define SLOTS_PER_TEX_LINE (TEX_WIDTH / WIDTH)
 
 static bool slots[NUM_SLOTS];
 
@@ -39,13 +42,10 @@ void sticky::_init(void) {
 
     int unused;
 
-    for (int x=0; x<NUM_SIZES; x++) {
-        ttf_font[x] = TTF_OpenFont("data-shared/fonts/easyspeech.ttf", 16+6*x);
-        //ttf_font[x] = TTF_OpenFont("data/fonts/quivira.ttf", 16+6*x);
-        //ttf_font[x] = TTF_OpenFont("data/fonts/gulim.ttf", 16+6*x);
-        //ttf_font[x] = TTF_OpenFont("data/fonts/DejaVuSans.ttf", 16+6*x);
-        //ttf_font[x] = TTF_OpenFont("data/fonts/Ubuntu-R.ttf", 16+6*x);
-        TTF_SizeUTF8(ttf_font[x], " ", &spacing[x], &unused);
+    for (int size_idx = 0; size_idx < NUM_SIZES; size_idx++) {
+        int font_size = FONT_SCALING_FACTOR * (double)(16 + 6 * size_idx);
+        ttf_font[size_idx] = TTF_OpenFont(NOTE_FONT, font_size);
+        TTF_SizeUTF8(ttf_font[size_idx], " ", &spacing[size_idx], &unused);
     }
 
     //texture = tms_texture_alloc();
