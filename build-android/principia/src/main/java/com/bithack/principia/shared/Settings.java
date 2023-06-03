@@ -19,6 +19,7 @@ public class Settings
 
     public boolean enable_ao;
     public int texture_quality;
+    public boolean sticky_note_quality;
     public boolean display_object_ids;
     public boolean display_grapher_value;
     public boolean display_wireless_frequency;

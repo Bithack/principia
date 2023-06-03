@@ -1332,6 +1332,9 @@ Java_org_libsdl_app_PrincipiaBackend_getSettings(JNIEnv *env, jclass _jcls)
                 f = env->GetFieldID(cls, "texture_quality", "I");
                 env->SetIntField(ret, f, settings["texture_quality"]->v.i);
 
+                f = env->GetFieldID(cls, "sticky_note_quality", "Z");
+                env->SetBooleanField(ret, f, settings["sticky_note_quality"]->v.b);
+
                 f = env->GetFieldID(cls, "uiscale", "F");
                 env->SetFloatField(ret, f, settings["uiscale"]->v.f);
 
@@ -1485,7 +1488,8 @@ Java_org_libsdl_app_PrincipiaBackend_setSettings(JNIEnv *env, jclass _jcls,
         jboolean muted,
         jboolean hide_tips,
         jboolean sandbox_back_dna,
-        jint display_fps
+        jint display_fps,
+        jboolean sticky_note_quality
         )
 {
     bool do_reload_graphics = false;
@@ -1502,6 +1506,8 @@ Java_org_libsdl_app_PrincipiaBackend_setSettings(JNIEnv *env, jclass _jcls,
     } else if (settings["ao_map_res"]->v.i != (int)ao_map_res) {
         do_reload_graphics = true;
     } else if (settings["texture_quality"]->v.i != (int)texture_quality) {
+        do_reload_graphics = true;
+    } else if (settings["sticky_note_quality"]->v.b != (bool)sticky_note_quality) {
         do_reload_graphics = true;
     }
 
@@ -1523,6 +1529,7 @@ Java_org_libsdl_app_PrincipiaBackend_setSettings(JNIEnv *env, jclass _jcls,
     settings["shadow_map_resy"]->v.i = (int)shadow_map_resy;
     settings["ao_map_res"]->v.i = (int)ao_map_res;
     settings["texture_quality"]->v.i = (int)texture_quality;
+    settings["sticky_note_quality"]->v.b = (bool)sticky_note_quality;
 
     if (settings["uiscale"]->set((float)uiscale)) {
         ui::message("You need to restart Principia before the UI scale change takes effect.");

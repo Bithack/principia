@@ -163,6 +163,7 @@
     <string name="advanced">Advanced</string>
     <string name="ambient_occlusion">Ambient occlusion</string>
     <string name="enable_shadows">Enable shadows</string>
+    <string name="sticky_note_res">Increase sticky note resolution</string>
     <string name="NA">N/A</string>
     <string name="off">Off</string>
     <string name="on">On</string>

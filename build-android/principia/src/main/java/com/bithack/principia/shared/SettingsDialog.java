@@ -33,6 +33,7 @@ public class SettingsDialog implements OnSeekBarChangeListener, OnClickListener 
     final SeekBar settings_cam_speed;
     final SeekBar settings_zoom_speed;
     final CheckBox cb_enableshadows;
+    final CheckBox checkbox_sticky_note_res;
     final RadioGroup rg_ao;
     final RadioGroup rg_texture_quality;
     final RadioGroup rg_fps;
@@ -88,6 +89,7 @@ public class SettingsDialog implements OnSeekBarChangeListener, OnClickListener 
         sb_uiscale = (SeekBar)view.findViewById(R.id.settings_uiscale);
         rg_ao = (RadioGroup)view.findViewById(R.id.radiogroup_ao);
         rg_texture_quality = (RadioGroup)view.findViewById(R.id.tex_quality);
+        checkbox_sticky_note_res = (CheckBox)view.findViewById(R.id.checkbox_sticky_note_res);
         rg_fps = (RadioGroup)view.findViewById(R.id.rg_fps);
         cb_enableshadows = (CheckBox)view.findViewById(R.id.checkbox_enableshadows);
 
@@ -182,6 +184,8 @@ public class SettingsDialog implements OnSeekBarChangeListener, OnClickListener 
         float border_scroll_speed_base = (float)this.settings_border_scroll_speed.getProgress() / 10.f;
         float border_scroll_speed = border_scroll_speed_base + 0.5f;
 
+        boolean sticky_note_quality = checkbox_sticky_note_res.isChecked();
+
         switch (rg_ao.getCheckedRadioButtonId()) {
             case R.id.rg_values_off: enable_ao = false; break;
             case R.id.rg_values_low: ao_map_res = 128; break;
@@ -222,7 +226,7 @@ public class SettingsDialog implements OnSeekBarChangeListener, OnClickListener 
                                      display_object_ids, display_grapher_value, display_wireless_frequency,
                                      volume, muted,
                                      hide_tips, sandbox_back_dna,
-                                     display_fps);
+                                     display_fps, sticky_note_quality);
     }
 
     public void load()
@@ -276,6 +280,8 @@ public class SettingsDialog implements OnSeekBarChangeListener, OnClickListener 
         } else {
             rg_texture_quality.check(R.id.tex_low);
         }
+
+        checkbox_sticky_note_res.setChecked(s.sticky_note_quality);
 
         int uiscale_step = (int)Math.round((((double)s.uiscale - 0.5) * 10.0));
 

@@ -240,6 +240,12 @@
                     android:text="@string/high" />
             </RadioGroup>
 
+            <CheckBox
+                android:id="@+id/checkbox_sticky_note_res"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sticky_note_res" />
+            
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
