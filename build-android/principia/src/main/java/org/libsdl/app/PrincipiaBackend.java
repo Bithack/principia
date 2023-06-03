@@ -48,7 +48,8 @@ public class PrincipiaBackend
             boolean muted,
             boolean hide_tips,
             boolean sandbox_back_dna,
-            int display_fps
+            int display_fps,
+            boolean sticky_note_quality
                 );
     public static native Settings getSettings();
     public static native boolean getSettingBool(String setting_name);
