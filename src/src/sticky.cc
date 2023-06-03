@@ -257,16 +257,20 @@ void sticky::draw_text(const char *txt) {
         for (int y = 0; y < srf->h; y++) {
             for (int x = 0; x < srf->pitch; x++) {
                 for (int z = 0; z < PIXELSZ; z++) {
-                    size_t dest_y = ((align_y - line_skip * text_line) - y);
-                    size_t dest_x = align_x + x;
-                    size_t dest_z = z;
+                    int dest_y = ((align_y - line_skip * text_line) - y);
+                    int dest_x = align_x + x;
+                    
+                    //Prevent leaking to other notes
+                    if ((dest_x < 0) || (dest_x >= WIDTH)) continue;
+                    if ((dest_y < 0) || (dest_y >= HEIGHT)) continue;
 
                     //Destination
                     size_t offset = (
-                        (((this->slot / SLOTS_PER_TEX_LINE) * HEIGHT + dest_y) * TEX_WIDTH) +
-                        ((this->slot % SLOTS_PER_TEX_LINE) * WIDTH) + dest_x
-                    ) * PIXELSZ + dest_z;
+                        (((this->slot / SLOTS_PER_TEX_LINE) * HEIGHT + (size_t) dest_y) * TEX_WIDTH) +
+                        ((this->slot % SLOTS_PER_TEX_LINE) * WIDTH) + (size_t) dest_x
+                    ) * PIXELSZ + z;
                     
+                    //Prevent out-of-bounds access
                     if (offset >= TEX_HEIGHT * TEX_WIDTH) continue;
 
                     //Source
