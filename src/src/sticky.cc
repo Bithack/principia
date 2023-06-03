@@ -117,31 +117,31 @@ sticky::sticky() {
         ui::message("The maximum number of sticky notes has been reached.");
         return;
     }
+    tms_infof("NOTE SLOT is %d", this->slot);
 
+    //Set sprite coords
     int nx = this->slot % SLOTS_PER_TEX_LINE;
     int ny = this->slot / SLOTS_PER_TEX_LINE;
     this->set_uniform(
         "sprite_coords",
-        UV_X * nx, UV_Y * ny,
-        UV_X * (float)(nx + 1), UV_Y * (float)(ny + 1)
+        UV_X * nx,
+        UV_Y * ny,
+        UV_X * (float)(nx + 1),
+        UV_Y * (float)(ny + 1)
     );
-    // this->set_uniform(
-    //     "sprite_coords",
-    //     0., 0., 1., 1.
-    // );
 
     tmat4_load_identity(this->M);
     tmat3_load_identity(this->N);
 
     this->set_num_properties(4);
-    this->properties[0].type = P_STR;
-    this->properties[1].type = P_INT8; /* horizontal */
-    this->properties[2].type = P_INT8; /* vertical */
-    this->properties[3].type = P_INT8; /* size */
+    this->properties[0].type = P_STR;  // text
+    this->properties[1].type = P_INT8; // horizontal align
+    this->properties[2].type = P_INT8; // vertical align
+    this->properties[3].type = P_INT8; // font size
 
-    this->set_property(1, (uint8_t)1);
-    this->set_property(2, (uint8_t)1);
-    this->set_property(3, (uint8_t)3);
+    this->set_property(1, (uint8_t) 1);
+    this->set_property(2, (uint8_t) 1);
+    this->set_property(3, (uint8_t) 3);
 
     this->set_text("Hello!");
 }
@@ -216,35 +216,19 @@ void sticky::next_line() {
 void sticky::draw_text(const char *txt) {
     const char *s = txt;
     const char *w = s;
-
     for (;;s++) {
         if (*s == '\n') {
-            if (s-w > 0)
-                this->add_word(w, (int)(s-w));
+            if (s-w > 0) this->add_word(w, (int)(s-w));
             this->next_line();
             w = s+1;
-            /* it's not necessary for us to handle separately since we
-             * are not performing any wrapping */
-        /* } else if (*s == ' ') {
-            if (s-w > 0)
-                this->add_word(w, (int)(s-w));
-            w = s+1; */
         } else if (*s == 0) {
-            if (s-w > 0)
-                this->add_word(w, (int)(s-w));
+            if (s-w > 0) this->add_word(w, (int)(s-w));
             break;
         }
     }
 
-    this->currline ++;
+    this->currline++;
     if (this->currline > STICKY_MAX_LINES) this->currline = STICKY_MAX_LINES;
-
-    /*
-    tms_infof("drawed all lines:");
-    for (int x=0; x<currline; x++) {
-        tms_infof("line %d: '%s'", x, this->lines[x]);
-    }
-    */
 
     unsigned char *buf = tms_texture_get_buffer(&sticky::texture);
 
@@ -277,26 +261,13 @@ void sticky::draw_text(const char *txt) {
                     size_t dest_x = align_x + x;
                     size_t dest_z = z;
 
-                    //XXX: PIXELSZ might be handled incorrectly here, but it's == 1 by default
-                    //     so it shouldn't matter
-
                     //Destination
-                    // size_t offset =
-                    //     ((((this->slot / SLOTS_PER_TEX_LINE) * HEIGHT * TEX_WIDTH) + dest_y) * PIXELSZ) +
-                    //     ((((this->slot % SLOTS_PER_TEX_LINE) * WIDTH) + dest_x) * PIXELSZ) +
-                    //     dest_z;
-
                     size_t offset = (
                         (((this->slot / SLOTS_PER_TEX_LINE) * HEIGHT + dest_y) * TEX_WIDTH) +
                         ((this->slot % SLOTS_PER_TEX_LINE) * WIDTH) + dest_x
                     ) * PIXELSZ + dest_z;
                     
-                    #ifdef DEBUG
-                        if (offset >= TEX_HEIGHT * TEX_WIDTH) {
-                            tms_warnf("out of bounds access");
-                            continue;
-                        }
-                    #endif
+                    if (offset >= TEX_HEIGHT * TEX_WIDTH) continue;
 
                     //Source
                     int data_offset = (y * srf->pitch) + x;
@@ -353,7 +324,6 @@ void sticky::update(void) {
         b2Transform t;
         t = this->body->GetTransform();
 
-        //tmat4_load_identity(this->M);
         this->M[0] = t.q.c;
         this->M[1] = t.q.s;
         this->M[4] = -t.q.s;
