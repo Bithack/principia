@@ -313,7 +313,7 @@ void sticky::set_text(const char *txt) {
 }
 
 void sticky::update_text() {
-    for (int x=0; x<STICKY_MAX_LINES; x++) {
+    inline for (int x = 0; x < STICKY_MAX_LINES; x++) {
         this->linelen[x] = 0;
     }
     this->currline = 0;
@@ -351,7 +351,8 @@ void sticky::update(void) {
         this->M[5] = t.q.c;
         this->M[12] = t.p.x;
         this->M[13] = t.p.y;
-        this->M[14] = this->get_layer()*LAYER_DEPTH - LAYER_DEPTH/2.1f;
+        this->M[14] = LAYER_DEPTH / -2.1f;
+        //this->M[14] = this->get_layer()*LAYER_DEPTH - LAYER_DEPTH/2.1f;
 
         tmat3_copy_mat4_sub3x3(this->N, this->M);
     } else {
