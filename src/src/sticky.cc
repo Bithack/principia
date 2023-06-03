@@ -313,7 +313,7 @@ void sticky::set_text(const char *txt) {
 }
 
 void sticky::update_text() {
-    inline for (int x = 0; x < STICKY_MAX_LINES; x++) {
+    for (int x = 0; x < STICKY_MAX_LINES; x++) {
         this->linelen[x] = 0;
     }
     this->currline = 0;
