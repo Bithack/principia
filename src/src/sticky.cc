@@ -85,7 +85,6 @@ sticky::sticky() {
     this->menu_scale = .75f;
     this->set_mesh(mesh_factory::get_mesh(MODEL_STICKY));
     this->set_material(&m_sticky);
-    //this->set_uniform("~color", 233.f/255.f, 191.f/255.f, .2f, 1.f);
     this->set_uniform("~color", sqrtf(233.f/255.f), sqrtf(191.f/255.f), sqrtf(.2f), 1.f);
     this->body = 0;
     this->currline = 0;
@@ -284,12 +283,16 @@ void sticky::draw_text(const char *txt) {
                     ) * PIXELSZ + dest_z;
                     
                     #ifdef DEBUG
-                        tms_assertf(offset < TEX_HEIGHT * TEX_WIDTH, "out of bounds access");
+                        if (offset >= TEX_HEIGHT * TEX_WIDTH) {
+                            tms_warnf("out of bounds access");
+                            continue;
+                        }
                     #endif
 
                     //Source
                     int data_offset = (y * srf->pitch) + x;
 
+                    //Source -> Destination
                     unsigned char data = ((unsigned char*) srf->pixels)[data_offset];
                     buf[offset] = data;
                     
