@@ -17,7 +17,7 @@ static int spacing[NUM_SIZES];
 
 tms_texture sticky::texture;
 
-#define TEX_WIDTH 128
+#define TEX_WIDTH 1024
 #define TEX_HEIGHT 1024
 
 #define WIDTH 128
@@ -30,7 +30,7 @@ tms_texture sticky::texture;
 
 #define SLOTS_PER_TEX_LINE (TEX_WIDTH / WIDTH)
 
-#define NUM_SLOTS 4
+#define NUM_SLOTS 64
 
 static bool slots[NUM_SLOTS];
 
@@ -51,7 +51,7 @@ void sticky::_init(void) {
     //texture = tms_texture_alloc();
     tms_texture_init(&sticky::texture);
     tms_texture_set_filtering(&sticky::texture, GL_LINEAR);
-    tms_texture_alloc_buffer(&sticky::texture, WIDTH, HEIGHT * NUM_SLOTS, PIXELSZ);
+    tms_texture_alloc_buffer(&sticky::texture, TEX_WIDTH, TEX_HEIGHT, PIXELSZ);
     tms_texture_clear_buffer(&sticky::texture, 0);
 
     initialized = true;
@@ -284,7 +284,11 @@ void sticky::draw_text(const char *txt) {
                         (((this->slot / SLOTS_PER_TEX_LINE) * HEIGHT + dest_y) * TEX_WIDTH) +
                         ((this->slot % SLOTS_PER_TEX_LINE) * WIDTH) + dest_x
                     ) * PIXELSZ + dest_z;
-                        
+                    
+                    #ifdef DEBUG
+                        tms_assertf(offset < TEX_HEIGHT * TEX_WIDTH, "out of bounds access");
+                    #endif
+
                     //Source
                     int data_offset = (y * srf->pitch) + x;
 
