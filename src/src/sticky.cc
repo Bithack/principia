@@ -25,8 +25,8 @@ tms_texture sticky::texture;
 
 #define PIXELSZ 1
 
-#define UV_X ((float)WIDTH / (float)TEX_WIDTH)
-#define UV_Y ((float)HEIGHT / (float)TEX_HEIGHT)
+#define UV_X ((double)WIDTH / (double)TEX_WIDTH)
+#define UV_Y ((double)HEIGHT / (double)TEX_HEIGHT)
 
 #define SLOTS_PER_TEX_LINE (TEX_WIDTH / WIDTH)
 
@@ -76,7 +76,7 @@ sticky::sticky() {
     }
 
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
-    this->set_flag(ENTITY_DISABLE_LAYERS,       false);
+    this->set_flag(ENTITY_DISABLE_LAYERS,       true);
     this->set_flag(ENTITY_HAS_CONFIG,           true);
 
     this->dialog_id = DIALOG_STICKY;
@@ -258,11 +258,9 @@ void sticky::draw_text(const char *txt) {
             continue;
         }
 
-        //Centering
-        int align_y = this->properties[2].v.i8 ? HEIGHT/2 + this->currline*line_skip/2. : HEIGHT-1;
-        int align_x = this->properties[1].v.i8 ? (WIDTH/2 - srf->w/2) * PIXELSZ : 0;
-        // int align_y = HEIGHT - 1;
-        // int align_x = 0;
+        //Alignment/centering
+        int align_y = this->properties[2].v.i8 ? ((HEIGHT + this->currline * line_skip) / 2.) : HEIGHT-1;
+        int align_x = this->properties[1].v.i8 ? ((WIDTH - srf->w) / 2.) : 0;
         
         for (int y = 0; y < srf->h; y++) {
             for (int x = 0; x < srf->pitch; x++) {
