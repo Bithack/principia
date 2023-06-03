@@ -16,13 +16,13 @@
 
 #define PIXELSZ 1
 
-#define TEX_WIDTH  (settings["sticky_note_hd"]->v.b ? 2048 : 1024)
-#define TEX_HEIGHT (settings["sticky_note_hd"]->v.b ? 2048 : 1024)
+#define TEX_WIDTH  (settings["sticky_note_quality"]->v.b ? 2048 : 1024)
+#define TEX_HEIGHT (settings["sticky_note_quality"]->v.b ? 2048 : 1024)
 
-#define WIDTH  (settings["sticky_note_hd"]->v.b ? 256 : 128)
-#define HEIGHT (settings["sticky_note_hd"]->v.b ? 256 : 128)
+#define WIDTH  (settings["sticky_note_quality"]->v.b ? 256 : 128)
+#define HEIGHT (settings["sticky_note_quality"]->v.b ? 256 : 128)
 
-#define FONT_SCALING_FACTOR (settings["sticky_note_hd"]->v.b ? 2.f : 1.f)
+#define FONT_SCALING_FACTOR (settings["sticky_note_quality"]->v.b ? 2.f : 1.f)
 
 //computed
 #define UV_X ((double) WIDTH / (double) TEX_WIDTH)

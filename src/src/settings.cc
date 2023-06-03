@@ -110,9 +110,9 @@ _settings::init()
     this->add("render_edev_labels", S_BOOL,  true);
     
 #ifdef TMS_BACKEND_PC
-    this->add("sticky_note_hd", S_BOOL, !is_shitty);
+    this->add("sticky_note_quality", S_BOOL, !is_shitty);
 #else
-    this->add("sticky_note_hd", S_BOOL, false);
+    this->add("sticky_note_quality", S_BOOL, false);
 #endif
 
     this->add("fv",                 S_INT32,   1); /* settings file version */
