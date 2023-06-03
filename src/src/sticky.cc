@@ -3,6 +3,7 @@
 #include "material.hh"
 #include "world.hh"
 #include "ui.hh"
+#include "settings.hh"
 
 #include "SDL_ttf.h"
 
@@ -15,23 +16,13 @@
 
 #define PIXELSZ 1
 
-#ifdef TMS_BACKEND_PC
-    #define TEX_WIDTH 2048
-    #define TEX_HEIGHT 2048
+#define TEX_WIDTH  (settings["sticky_note_hd"]->v.b ? 2048 : 1024)
+#define TEX_HEIGHT (settings["sticky_note_hd"]->v.b ? 2048 : 1024)
 
-    #define WIDTH 256
-    #define HEIGHT 256
+#define WIDTH  (settings["sticky_note_hd"]->v.b ? 256 : 128)
+#define HEIGHT (settings["sticky_note_hd"]->v.b ? 256 : 128)
 
-    #define FONT_SCALING_FACTOR 2.
-#else
-    #define TEX_WIDTH 1024
-    #define TEX_HEIGHT 1024
-
-    #define WIDTH 128
-    #define HEIGHT 128
-
-    #define FONT_SCALING_FACTOR 1.
-#endif
+#define FONT_SCALING_FACTOR (settings["sticky_note_hd"]->v.b ? 2.f : 1.f)
 
 //computed
 #define UV_X ((double) WIDTH / (double) TEX_WIDTH)
