@@ -318,18 +318,17 @@ void sticky::update_text() {
     }
     this->currline = 0;
 
-    /* clear the texture */
-    int sy = HEIGHT-1;
-    int sx = 0;
+    // clear the texture
     unsigned char *buf = tms_texture_get_buffer(&sticky::texture);
-    buf += this->slot * WIDTH * HEIGHT;
-
-    for (int y=0; y<HEIGHT; y++) {
-        for (int x=0; x<WIDTH; x++) {
-            buf[((sy)-y)*WIDTH + 0+sx+x] = 0;
+    size_t ty = (this->slot / SLOTS_PER_TEX_LINE) * HEIGHT;
+    size_t tx = (this->slot % SLOTS_PER_TEX_LINE) * WIDTH;
+    for (size_t y = ty; y < (ty + HEIGHT); y++) {
+        for (size_t x = tx; x < (tx + WIDTH); x++) {
+            buf[x + y * TEX_WIDTH] = 0;
         }
     }
 
+    // inital render
     this->draw_text(this->properties[0].v.s.buf);
     tms_texture_upload(&sticky::texture);
 }
