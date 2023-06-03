@@ -8,32 +8,43 @@
 
 #include <cstddef>
 
-#define NUM_SIZES 4
-
-static bool initialized = false;
-static TTF_Font *ttf_font[NUM_SIZES];
-static SDL_Surface *surface;
-static int spacing[NUM_SIZES];
-
-tms_texture sticky::texture;
-
-#define TEX_WIDTH 1024
-#define TEX_HEIGHT 1024
-#define PIXELSZ 1
-
-#define WIDTH 128
-#define HEIGHT 128
+#define NUM_SLOTS 64
 
 #define NOTE_FONT "data-shared/fonts/easyspeech.ttf"
+#define NUM_SIZES 4
 
-#define NUM_SLOTS 64
+#define PIXELSZ 1
+
+#ifdef TMS_BACKEND_PC
+    #define TEX_WIDTH 2048
+    #define TEX_HEIGHT 2048
+
+    #define WIDTH 256
+    #define HEIGHT 256
+
+    #define FONT_SCALING_FACTOR 2.
+#else
+    #define TEX_WIDTH 1024
+    #define TEX_HEIGHT 1024
+
+    #define WIDTH 128
+    #define HEIGHT 128
+
+    #define FONT_SCALING_FACTOR 1.
+#endif
 
 //computed
 #define UV_X ((double) WIDTH / (double) TEX_WIDTH)
 #define UV_Y ((double) HEIGHT / (double) TEX_HEIGHT)
 #define SLOTS_PER_TEX_LINE (TEX_WIDTH / WIDTH)
+//
 
 static bool slots[NUM_SLOTS];
+static bool initialized = false;
+static TTF_Font *ttf_font[NUM_SIZES];
+static SDL_Surface *surface;
+static int spacing[NUM_SIZES];
+tms_texture sticky::texture;
 
 void sticky::_init(void) {
     TTF_Init();
