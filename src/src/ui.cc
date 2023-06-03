@@ -3404,7 +3404,7 @@ struct table_setting_row settings_graphic_rows[] = {
         "gamma_correct",
         setting_row_type::create_checkbox()
     }, {
-        "Sticky note quality",
+        "Sticky note resolution",
         "Enabled: 256x256\r\nDisabled 128x128\r\nRestart required",
         "sticky_note_quality",
         setting_row_type::create_checkbox()
