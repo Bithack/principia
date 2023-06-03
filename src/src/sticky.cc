@@ -42,6 +42,9 @@ void sticky::_init(void) {
     TTF_Init();
 
     settings_quality = settings["sticky_note_quality"]->v.b;
+    if (tbackend_is_shitty() || settings["is_very_shitty"]->v.b) {
+        settings_quality = false;
+    }
 
     for (int size_idx = 0; size_idx < NUM_SIZES; size_idx++) {
         int unused;
@@ -50,7 +53,6 @@ void sticky::_init(void) {
         TTF_SizeUTF8(ttf_font[size_idx], " ", &spacing[size_idx], &unused);
     }
 
-    //texture = tms_texture_alloc();
     tms_texture_init(&sticky::texture);
     tms_texture_set_filtering(&sticky::texture, GL_LINEAR);
     tms_texture_alloc_buffer(&sticky::texture, TEX_WIDTH, TEX_HEIGHT, PIXELSZ);
@@ -65,8 +67,6 @@ void sticky::_deinit(void) {
     }
     
     TTF_Quit();
-
-    //tms_texture_free(&sticky::texture);
 
     initialized = false;
 }
