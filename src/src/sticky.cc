@@ -259,10 +259,10 @@ void sticky::draw_text(const char *txt) {
         }
 
         //Centering
-        // int align_y = this->properties[2].v.i8 ? HEIGHT/2 + this->currline*line_skip/2. : HEIGHT-1;
-        // int align_x = this->properties[1].v.i8 ? (WIDTH/2 - srf->w/2) * PIXELSZ : 0;
-        int align_y = HEIGHT - 1;
-        int align_x = 0;
+        int align_y = this->properties[2].v.i8 ? HEIGHT/2 + this->currline*line_skip/2. : HEIGHT-1;
+        int align_x = this->properties[1].v.i8 ? (WIDTH/2 - srf->w/2) * PIXELSZ : 0;
+        // int align_y = HEIGHT - 1;
+        // int align_x = 0;
         
         for (int y = 0; y < srf->h; y++) {
             for (int x = 0; x < srf->pitch; x++) {
@@ -293,14 +293,12 @@ void sticky::draw_text(const char *txt) {
                     int data_offset = (y * srf->pitch) + x;
 
                     unsigned char data = ((unsigned char*) srf->pixels)[data_offset];
-                    //data = -1;
                     buf[offset] = data;
                     
                     // tms_debugf(
                     //     "slot/offset/data_offset/data %d/%d/%d/%d/%x - '%s'",
                     //     this->slot, offset, data_offset, data, this->lines[text_line]
                     // );
-
                 }
             }
         }
