@@ -35,7 +35,8 @@ GLOBAL_FLAGS += -I../src/tms/backends/windows/ \
     -I/mingw64/include/harfbuzz \
     -I/mingw64/include/pango-1.0 \
     -I../src/gtk-undo \
-	-I../src/lua/ -I../src/include/
+	-I../src/lua/ -I../src/include/ \
+    -DGTK_DISABLE_SINGLE_INCLUDES -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGSEAL_ENABLE
 
 
 principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
@@ -376,4 +377,3 @@ principia.rc \
 	windres $^ -o $@
 %.o : %.rc
 	windres $^ -o $@
-
