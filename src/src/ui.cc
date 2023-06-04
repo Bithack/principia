@@ -5291,7 +5291,7 @@ on_freq_range_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
             return false;
 
         case GDK_KEY_Return:
-            if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(freq_range_cancel)))
+            if (gtk_widget_has_focus(GTK_WIDGET(freq_range_cancel)))
                 on_freq_range_click(GTK_WIDGET(freq_range_cancel), NULL, GINT_TO_POINTER(1));
             else
                 on_freq_range_click(GTK_WIDGET(freq_range_ok), NULL, GINT_TO_POINTER(1));
@@ -5728,7 +5728,7 @@ on_jumper_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
             break;
 
         case GDK_KEY_Return:
-            if (!GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(jumper_cancel))) {
+            if (!gtk_widget_has_focus(GTK_WIDGET(jumper_cancel))) {
                 gtk_dialog_response(jumper_dialog, GTK_RESPONSE_ACCEPT);
             }
             break;
@@ -5755,7 +5755,7 @@ on_jumper_show(GtkWidget *wdg, void *unused)
 void
 jumper_value_changed(GtkRange *range, void *unused)
 {
-    if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(range))) {
+    if (gtk_widget_has_focus(GTK_WIDGET(range))) {
         char tmp[8];
         sprintf(tmp, "%.5f", gtk_range_get_value(range));
         gtk_entry_set_text(jumper_value_entry, tmp);
@@ -5765,7 +5765,7 @@ jumper_value_changed(GtkRange *range, void *unused)
 void
 jumper_value_entry_changed(GtkEditable *editable, void *unused)
 {
-    if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(editable))) {
+    if (gtk_widget_has_focus(GTK_WIDGET(editable))) {
         float v = atof(gtk_editable_get_chars(editable, 0, -1));
         if (v < 0.f) {
             v = 0.f;
@@ -6066,7 +6066,7 @@ on_sequencer_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
 
         case GDK_KEY_Return:
             {
-                if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(sequencer_cancel))) {
+                if (gtk_widget_has_focus(GTK_WIDGET(sequencer_cancel))) {
                     on_sequencer_click(GTK_WIDGET(sequencer_cancel), NULL, GINT_TO_POINTER(1));
                 } else {
                     on_sequencer_click(GTK_WIDGET(sequencer_save), NULL, GINT_TO_POINTER(1));
@@ -6214,7 +6214,7 @@ on_variable_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     if (key->keyval == GDK_KEY_Escape)
         gtk_widget_hide(w);
     else if (key->keyval == GDK_KEY_Return) {
-        if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(variable_cancel)))
+        if (gtk_widget_has_focus(GTK_WIDGET(variable_cancel)))
             on_variable_btn_click(GTK_WIDGET(variable_cancel), NULL, GINT_TO_POINTER(1));
         else
             on_variable_btn_click(GTK_WIDGET(variable_ok), NULL, GINT_TO_POINTER(1));
@@ -6436,7 +6436,7 @@ on_factory_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     if (key->keyval == GDK_KEY_Escape)
         gtk_widget_hide(w);
     else if (key->keyval == GDK_KEY_Return) {
-        if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(factory_cancel))) {
+        if (gtk_widget_has_focus(GTK_WIDGET(factory_cancel))) {
             gtk_dialog_response(factory_dialog, GTK_RESPONSE_CANCEL);
         } else {
             gtk_dialog_response(factory_dialog, GTK_RESPONSE_ACCEPT);
@@ -6650,7 +6650,7 @@ on_tchest_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     if (key->keyval == GDK_KEY_Escape)
         gtk_widget_hide(w);
     else if (key->keyval == GDK_KEY_Return) {
-        if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(tchest_cancel))) {
+        if (gtk_widget_has_focus(GTK_WIDGET(tchest_cancel))) {
             gtk_dialog_response(tchest_dialog, GTK_RESPONSE_CANCEL);
         } else {
             gtk_dialog_response(tchest_dialog, GTK_RESPONSE_ACCEPT);
@@ -6773,11 +6773,11 @@ camtargeter_entry_changed(GtkEditable *unused_editable, void *unused)
     GtkEntry *entry = 0;
     GtkRange *range = 0;
     GtkEditable *editable = 0;
-    if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(camtargeter_y_offset_entry))) {
+    if (gtk_widget_has_focus(GTK_WIDGET(camtargeter_y_offset_entry))) {
         range = camtargeter_y_offset;
         entry = camtargeter_y_offset_entry;
         editable = GTK_EDITABLE(entry);
-    } else if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(camtargeter_x_offset_entry))) {
+    } else if (gtk_widget_has_focus(GTK_WIDGET(camtargeter_x_offset_entry))) {
         range = camtargeter_x_offset;
         entry = camtargeter_x_offset_entry;
         editable = GTK_EDITABLE(entry);
@@ -6808,10 +6808,10 @@ camtargeter_value_changed(GtkRange *unused_range, void *unused)
 {
     GtkRange *range = 0;
     GtkEntry *entry = 0;
-    if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(camtargeter_x_offset))) {
+    if (gtk_widget_has_focus(GTK_WIDGET(camtargeter_x_offset))) {
         range = camtargeter_x_offset;
         entry = camtargeter_x_offset_entry;
-    } else if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(camtargeter_y_offset))) {
+    } else if (gtk_widget_has_focus(GTK_WIDGET(camtargeter_y_offset))) {
         range = camtargeter_y_offset;
         entry = camtargeter_y_offset_entry;
     }
@@ -6832,7 +6832,7 @@ on_camtargeter_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
             break;
 
         case GDK_KEY_Return:
-            if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(camtargeter_cancel))) {
+            if (gtk_widget_has_focus(GTK_WIDGET(camtargeter_cancel))) {
                 gtk_dialog_response(camtargeter_dialog, GTK_RESPONSE_CANCEL);
             } else {
                 gtk_dialog_response(camtargeter_dialog, GTK_RESPONSE_ACCEPT);
@@ -7730,7 +7730,7 @@ on_robot_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     if (key->keyval == GDK_KEY_Escape) {
         gtk_widget_hide(w);
     } else if (key->keyval == GDK_KEY_Return) {
-        if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(robot_btn_cancel))) {
+        if (gtk_widget_has_focus(GTK_WIDGET(robot_btn_cancel))) {
             on_robot_btn_click(GTK_WIDGET(robot_btn_cancel), NULL, GINT_TO_POINTER(1));
         } else {
             on_robot_btn_click(GTK_WIDGET(robot_btn_ok), NULL, GINT_TO_POINTER(1));
@@ -8264,7 +8264,7 @@ on_save_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     if (key->keyval == GDK_KEY_Escape)
         gtk_widget_hide(GTK_WIDGET(save_window));
     else if (key->keyval == GDK_KEY_Return) {
-        if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(save_cancel))) {
+        if (gtk_widget_has_focus(GTK_WIDGET(save_cancel))) {
             on_save_btn_click(GTK_WIDGET(save_cancel), NULL, GINT_TO_POINTER(1));
         } else {
             on_save_btn_click(GTK_WIDGET(save_ok), NULL, GINT_TO_POINTER(1));
@@ -8309,7 +8309,7 @@ on_export_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     if (key->keyval == GDK_KEY_Escape)
         gtk_widget_hide(GTK_WIDGET(export_window));
     else if (key->keyval == GDK_KEY_Return) {
-        if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(export_cancel))) {
+        if (gtk_widget_has_focus(GTK_WIDGET(export_cancel))) {
             on_export_btn_click(GTK_WIDGET(export_cancel), NULL, GINT_TO_POINTER(1));
         } else {
             on_export_btn_click(GTK_WIDGET(export_ok), NULL, GINT_TO_POINTER(1));
@@ -8393,7 +8393,7 @@ on_confirm_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
             break;
 
         case GDK_KEY_Return:
-            if (!GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(confirm_button2))) {
+            if (!gtk_widget_has_focus(GTK_WIDGET(confirm_button2))) {
                 gtk_dialog_response(confirm_dialog, 1);
             }
             break;
@@ -8467,9 +8467,9 @@ on_properties_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     if (key->keyval == GDK_KEY_Escape)
         gtk_widget_hide(w);
     else if (key->keyval == GDK_KEY_Return) {
-        if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(lvl_cancel))) {
+        if (gtk_widget_has_focus(GTK_WIDGET(lvl_cancel))) {
             gtk_button_clicked(lvl_cancel);
-        } else if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(lvl_descr))) {
+        } else if (gtk_widget_has_focus(GTK_WIDGET(lvl_descr))) {
             /* do nothing */
         } else {
             gtk_button_clicked(lvl_ok);
@@ -9004,7 +9004,7 @@ on_login_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     if (key->keyval == GDK_KEY_Escape)
         gtk_widget_hide(w);
     else if (key->keyval == GDK_KEY_Return) {
-        if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(login_btn_cancel))) {
+        if (gtk_widget_has_focus(GTK_WIDGET(login_btn_cancel))) {
             on_login_btn_click(GTK_WIDGET(login_btn_cancel), NULL, GINT_TO_POINTER(1));
         } else {
             on_login_btn_click(GTK_WIDGET(login_btn_log_in), NULL, GINT_TO_POINTER(1));
@@ -9370,7 +9370,7 @@ on_frequency_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
             return false;
 
         case GDK_KEY_Return:
-            if (GTK_WIDGET_HAS_FOCUS(GTK_WIDGET(frequency_cancel)))
+            if (gtk_widget_has_focus(GTK_WIDGET(frequency_cancel)))
                 on_frequency_click(GTK_WIDGET(frequency_cancel), NULL, GINT_TO_POINTER(1));
             else
                 on_frequency_click(GTK_WIDGET(frequency_ok), NULL, GINT_TO_POINTER(1));
