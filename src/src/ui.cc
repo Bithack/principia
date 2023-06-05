@@ -4165,8 +4165,8 @@ new_clbl(const char *text)
 {
     GtkWidget *r = gtk_label_new(0);
     gtk_label_set_markup(GTK_LABEL(r), text);
-    gtk_misc_set_alignment(GTK_MISC(r), 0.f, 0.5f);
-
+    gtk_label_set_xalign(GTK_LABEL(r), 0.0f);
+    gtk_label_set_yalign(GTK_LABEL(r), 0.5f);
     return r;
 }
 
@@ -9868,7 +9868,8 @@ int _gtk_loop(void *p)
 
         /* Status label */
         save_status = GTK_LABEL(gtk_label_new(0));
-        gtk_misc_set_alignment(GTK_MISC(save_status), 0.f, 0.5f);
+        gtk_label_set_xalign(GTK_LABEL(save_status), 0.0f);
+        gtk_label_set_yalign(GTK_LABEL(save_status), 0.5f);
 
         gtk_box_pack_start(bottom_content, GTK_WIDGET(save_status), 1, 1, 0);
         gtk_box_pack_start(bottom_content, GTK_WIDGET(button_box), 0, 0, 0);
@@ -9918,7 +9919,8 @@ int _gtk_loop(void *p)
 
         /* Status label */
         export_status = GTK_LABEL(gtk_label_new(0));
-        gtk_misc_set_alignment(GTK_MISC(export_status), 0.f, 0.5f);
+        gtk_label_set_xalign(GTK_LABEL(export_status), 0.0f);
+        gtk_label_set_yalign(GTK_LABEL(export_status), 0.5f);
 
         gtk_box_pack_start(bottom_content, GTK_WIDGET(export_status), 1, 1, 0);
         gtk_box_pack_start(bottom_content, GTK_WIDGET(button_box), 0, 0, 0);
@@ -10834,7 +10836,9 @@ int _gtk_loop(void *p)
 
         int x = 0;
 
-        l = gtk_label_new("Oil"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+        l = gtk_label_new("Oil");
+        gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
         factory_oil = GTK_SPIN_BUTTON(gtk_spin_button_new(
                     GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 65535, 1, 1, 0)),
                     1, 0));
@@ -10843,7 +10847,9 @@ int _gtk_loop(void *p)
         ++x;
 
         for (; x<NUM_RESOURCES+1; ++x) {
-            GtkWidget *l = gtk_label_new(resource_data[x-1].name); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            GtkWidget *l = gtk_label_new(resource_data[x-1].name);
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             factory_resources[x-1] = GTK_SPIN_BUTTON(gtk_spin_button_new(
                         GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 65535, 1, 1, 0)),
                         1, 0));
@@ -10851,7 +10857,9 @@ int _gtk_loop(void *p)
             gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(factory_resources[x-1]), 1, 3, x, x+1);
         }
 
-        l = gtk_label_new("Faction"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+        l = gtk_label_new("Faction");
+        gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
         factory_faction = GTK_SPIN_BUTTON(gtk_spin_button_new(
                     GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, NUM_FACTIONS-1, 1, 1, 0)),
                     1, 0));
@@ -11850,7 +11858,8 @@ int _gtk_loop(void *p)
 
         /* Status label */
         login_status = GTK_LABEL(gtk_label_new(0));
-        gtk_misc_set_alignment(GTK_MISC(login_status), 0.f, 0.5f);
+        gtk_label_set_xalign(GTK_LABEL(login_status), 0.0f);
+        gtk_label_set_yalign(GTK_LABEL(login_status), 0.5f);
 
         gtk_box_pack_start(bottom_content, GTK_WIDGET(login_status), 1, 1, 0);
         gtk_box_pack_start(bottom_content, GTK_WIDGET(button_box), 0, 0, 0);
@@ -12096,7 +12105,9 @@ int _gtk_loop(void *p)
         robot_dir_right = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
                     gtk_radio_button_get_group(robot_dir_left), "Right"));
 
-        l = gtk_label_new("Default state"); gtk_misc_set_alignment(GTK_MISC(l), 1.f, 0.5f);
+        l = gtk_label_new("Default state");
+        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
+        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
         gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
         gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_state_idle), 1, 3, y, y+1);
         y ++;
@@ -12105,13 +12116,17 @@ int _gtk_loop(void *p)
         gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_state_dead), 1, 3, y, y+1);
         y ++;
 
-        l = gtk_label_new("Roaming"); gtk_misc_set_alignment(GTK_MISC(l), 1.f, 0.5f);
+        l = gtk_label_new("Roaming");
+        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
+        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
         robot_roam = GTK_CHECK_BUTTON(gtk_check_button_new());
         gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
         gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_roam), 1, 3, y, y+1);
         y ++;
 
-        l = gtk_label_new("Initial direction"); gtk_misc_set_alignment(GTK_MISC(l), 1.f, 0.5f);
+        l = gtk_label_new("Initial direction");
+        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
+        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
         gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
         gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_dir_left), 1, 3, y, y+1);
         y ++;
@@ -12120,7 +12135,9 @@ int _gtk_loop(void *p)
         gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_dir_right), 1, 3, y, y+1);
         y ++;
 
-        l = gtk_label_new("Faction"); gtk_misc_set_alignment(GTK_MISC(l), 1.f, 0.5f);
+        l = gtk_label_new("Faction");
+        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
+        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
         gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
         for (int x=0; x<NUM_FACTIONS; ++x) {
             robot_faction[x] = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
@@ -12130,33 +12147,45 @@ int _gtk_loop(void *p)
             y ++;
         }
 
-        l = gtk_label_new("Head equipment"); gtk_misc_set_alignment(GTK_MISC(l), 1.f, 0.5f);
+        l = gtk_label_new("Head equipment");
+        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
+        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
         gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
         gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_head_equipment), 1, 3, y, y+1);
         y ++;
 
-        l = gtk_label_new("Head"); gtk_misc_set_alignment(GTK_MISC(l), 1.f, 0.5f);
+        l = gtk_label_new("Head");
+        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
+        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
         gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
         gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_head), 1, 3, y, y+1);
         y ++;
 
-        l = gtk_label_new("Back equipment"); gtk_misc_set_alignment(GTK_MISC(l), 1.f, 0.5f);
+        l = gtk_label_new("Back equipment");
+        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
+        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
         gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
         gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_back_equipment), 1, 3, y, y+1);
         y ++;
 
-        l = gtk_label_new("Front equipment"); gtk_misc_set_alignment(GTK_MISC(l), 1.f, 0.5f);
+        l = gtk_label_new("Front equipment");
+        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
+        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
         gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
         gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_front_equipment), 1, 3, y, y+1);
         y ++;
 
-        l = gtk_label_new("Feet"); gtk_misc_set_alignment(GTK_MISC(l), 1.f, 0.5f);
+        l = gtk_label_new("Feet");
+        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
+        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
         gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
         gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_feet), 1, 3, y, y+1);
 
         y ++;
 
-        l = gtk_label_new("Bolt set"); gtk_misc_set_alignment(GTK_MISC(l), 1.f, 0.5f);
+        l = gtk_label_new("Bolt set");
+        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
+        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
         gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
         gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_bolts), 1, 3, y, y+1);
 
@@ -12346,22 +12375,30 @@ int _gtk_loop(void *p)
             cursorfield_left = GTK_RANGE(gtk_hscale_new_with_range(-3, 3, .1));
             cursorfield_down = GTK_RANGE(gtk_hscale_new_with_range(-3, 3, .1));
 
-            l = gtk_label_new("Lower X"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Lower X");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(cursorfield_left), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Upper X"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Upper X");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(cursorfield_right), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Lower Y"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Lower Y");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(cursorfield_down), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Upper Y"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Upper Y");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(cursorfield_up), 1, 3, y, y+1);
 
@@ -12530,22 +12567,30 @@ int _gtk_loop(void *p)
             shapeextruder_left = GTK_RANGE(gtk_hscale_new_with_range(0, 2, .01));
             shapeextruder_down = GTK_RANGE(gtk_hscale_new_with_range(0, 2, .01));
 
-            l = gtk_label_new("Right"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Right");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(shapeextruder_right), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Up"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Up");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(shapeextruder_up), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Left"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Left");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(shapeextruder_left), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Down"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Down");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(shapeextruder_down), 1, 3, y, y+1);
         }
@@ -12569,12 +12614,16 @@ int _gtk_loop(void *p)
             polygon_sublayer_depth = GTK_RANGE(gtk_hscale_new_with_range(1, 4, 1));
             polygon_front_align = GTK_CHECK_BUTTON(gtk_check_button_new());
 
-            l = gtk_label_new("Sublayer depth"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Sublayer depth");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(polygon_sublayer_depth), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Front align"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Front align");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(polygon_front_align), 1, 3, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), ghw("Sublayer depth from front instead of back"), 3, 4, y, y+1);
@@ -12623,45 +12672,63 @@ int _gtk_loop(void *p)
                 gtk_combo_box_text_append_text(synth_waveform, speaker_options[x]);
             }
 
-            l = gtk_label_new("Base frequency"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Base frequency");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_hz_low), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Peak frequency"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Peak frequency");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_hz_high), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Waveform"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Waveform");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_waveform), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Pulse width"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Pulse width");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_pulse_width), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Bitcrushing"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Bitcrushing");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_bitcrushing), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Volume vibrato Hz"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Volume vibrato Hz");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_vol_vibrato_hz), 1, 3, y, y+1);
             y++;
-            l = gtk_label_new("Volume vibrato extent"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Volume vibrato extent");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_vol_vibrato_extent), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Freq vibrato Hz"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Freq vibrato Hz");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_freq_vibrato_hz), 1, 3, y, y+1);
             y++;
-            l = gtk_label_new("Freq vibrato extent"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Freq vibrato extent");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_freq_vibrato_extent), 1, 3, y, y+1);
         }
@@ -12724,32 +12791,44 @@ int _gtk_loop(void *p)
                         GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 255, 1, 1, 0)),
                         1, 0));
 
-            timer_time = GTK_LABEL(gtk_label_new("0.0s")); gtk_misc_set_alignment(GTK_MISC(timer_time), 0.f, 0.5f);
+            timer_time = GTK_LABEL(gtk_label_new("0.0s"));
+            gtk_label_set_xalign(GTK_LABEL(timer_time), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(timer_time), 0.5f);
 
             timer_use_system_time = GTK_CHECK_BUTTON(gtk_check_button_new());
 
-            l = gtk_label_new("Time between ticks"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Time between ticks");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(timer_time), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Seconds"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Seconds");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(timer_seconds), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Milliseconds"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Milliseconds");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(timer_milliseconds), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Number of ticks"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Number of ticks");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(timer_num_ticks), 1, 3, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), ghw("0 = Infinite ticks"), 3, 4, y, y+1);
 
             y++;
-            l = gtk_label_new("Use system time"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Use system time");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(timer_use_system_time), 1, 3, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), ghw("Use system time for ticks, instead of in-game time."), 3, 4, y, y+1);
@@ -12819,28 +12898,38 @@ int _gtk_loop(void *p)
 
             sequencer_wrap_around = GTK_CHECK_BUTTON(gtk_check_button_new());
 
-            sequencer_state = GTK_LABEL(gtk_label_new("0.0s")); gtk_misc_set_alignment(GTK_MISC(sequencer_state), 0.f, 0.5f);
+            sequencer_state = GTK_LABEL(gtk_label_new("0.0s"));
+            gtk_label_set_xalign(GTK_LABEL(sequencer_state), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(sequencer_state), 0.5f);
 
             gtk_table_attach_defaults(GTK_TABLE(table), GTK_WIDGET(sequencer_state), 0, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Sequence"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Sequence");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(table), l, 0, 1, y, y+1);
             y++;
             gtk_table_attach_defaults(GTK_TABLE(table), GTK_WIDGET(sequencer_sequence), 0, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Seconds"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Seconds");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(table), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(table), GTK_WIDGET(sequencer_seconds), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Milliseconds"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Milliseconds");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(table), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(table), GTK_WIDGET(sequencer_milliseconds), 1, 3, y, y+1);
 
             y++;
-            l = gtk_label_new("Wrap Around"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
+            l = gtk_label_new("Wrap Around");
+            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
+            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(table), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(table), GTK_WIDGET(sequencer_wrap_around), 1, 3, y, y+1);
         }
