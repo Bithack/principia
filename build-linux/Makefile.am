@@ -67,10 +67,6 @@ principia_SOURCES = \
 ../src/tms/bindings/cpp/cpp.cc \
 ../src/tms/modules/3ds/3ds.c \
 \
-\
-../src/gtk-undo/undo_manager.c \
-../src/gtk-undo/undo_view.c \
-\
 ../src/lua/eris.c \
 ../src/lua/lapi.c \
 ../src/lua/lauxlib.c \
