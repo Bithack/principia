@@ -9396,7 +9396,7 @@ int _gtk_loop(void *p)
     
     // This causes Principia to freeze on Windows when opening dialogs. Removing it
     // fixes it, though I don't know how good of an idea that is. (No side effects at least)
-    gdk_threads_init();
+    //gdk_threads_init();
 
     gtk_init(0,0);
 
@@ -12456,7 +12456,7 @@ int _gtk_loop(void *p)
             gtk_source_view_set_insert_spaces_instead_of_tabs(escript_code, TRUE);
             gtk_source_view_set_smart_backspace(escript_code, TRUE);
             gtk_source_view_set_smart_home_end(escript_code, GTK_SOURCE_SMART_HOME_END_BEFORE);
-            gtk_source_view_set_show_line_marks(escript_code, TRUE);
+            //gtk_source_view_set_show_line_marks(escript_code, TRUE);
             gtk_source_view_set_show_line_numbers(escript_code, TRUE);
 
             //Create and set font
