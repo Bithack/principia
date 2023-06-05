@@ -9398,12 +9398,12 @@ int _gtk_loop(void *p)
     // fixes it, though I don't know how good of an idea that is. (No side effects at least)
     //gdk_threads_init();
 
-    gtk_init(0,0);
+    gtk_init(NULL, NULL);
 
     // Only use custom theme in release versions of Windows. Linux should use
     // the user-provided GTK theme, and debug versions of Windows break spectacularily
     // with custom theme.
-    //TODO: PORT THEME TO GDK3
+    //TODO: PORT THEME TO GDK3 (if any changes are needed)
 // #if defined(TMS_BACKEND_WINDOWS) && !defined(DEBUG)
 //     gtk_rc_parse_string(
 // "style \"test\" {\n"
@@ -9589,11 +9589,11 @@ int _gtk_loop(void *p)
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
         /* Open button */
-        object_btn_open   = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_OPEN));
+        object_btn_open   = GTK_BUTTON(gtk_button_new_with_label("Open"));
         g_signal_connect(object_btn_open, "button-release-event",
                 G_CALLBACK(on_object_btn_click), 0);
 
-        object_btn_cancel = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_CANCEL));
+        object_btn_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
         g_signal_connect(object_btn_cancel, "button-release-event",
                 G_CALLBACK(on_object_btn_click), 0);
 
@@ -9643,11 +9643,11 @@ int _gtk_loop(void *p)
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
         /* Open button */
-        open_state_btn_open   = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_OPEN));
+        open_state_btn_open   = GTK_BUTTON(gtk_button_new_with_label("Open"));
         g_signal_connect(open_state_btn_open, "button-release-event",
                 G_CALLBACK(on_open_state_btn_click), 0);
 
-        open_state_btn_cancel = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_CANCEL));
+        open_state_btn_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
         g_signal_connect(open_state_btn_cancel, "button-release-event",
                 G_CALLBACK(on_open_state_btn_click), 0);
 
@@ -9701,11 +9701,11 @@ int _gtk_loop(void *p)
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
         /* Open button */
-        open_btn_open   = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_OPEN));
+        open_btn_open   = GTK_BUTTON(gtk_button_new_with_label("Open"));
         g_signal_connect(open_btn_open, "button-release-event",
                 G_CALLBACK(on_open_btn_click), 0);
 
-        open_btn_cancel = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_CANCEL));
+        open_btn_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
         g_signal_connect(open_btn_cancel, "button-release-event",
                 G_CALLBACK(on_open_btn_click), 0);
 
@@ -9806,10 +9806,10 @@ int _gtk_loop(void *p)
         variable_reset_all = GTK_BUTTON(gtk_button_new_with_label("Reset all"));
         g_signal_connect(variable_reset_all, "button-release-event", G_CALLBACK(on_variable_btn_click), 0);
         /* Ok */
-        variable_ok = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_SAVE));
+        variable_ok = GTK_BUTTON(gtk_button_new_with_label("Save"));
         g_signal_connect(variable_ok, "button-release-event", G_CALLBACK(on_variable_btn_click), 0);
         /* Cancel */
-        variable_cancel = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_CANCEL));
+        variable_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
         g_signal_connect(variable_cancel, "button-release-event", G_CALLBACK(on_variable_btn_click), 0);
 
         gtk_box_pack_start(hb, GTK_WIDGET(variable_reset_this), false, false, 0);
@@ -9854,12 +9854,12 @@ int _gtk_loop(void *p)
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
         /* OK button */
-        save_ok = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_SAVE));
+        save_ok = GTK_BUTTON(gtk_button_new_with_label("Save"));
         g_signal_connect(save_ok, "button-release-event",
                 G_CALLBACK(on_save_btn_click), 0);
 
         /* Cancel button */
-        save_cancel = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_CANCEL));
+        save_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
         g_signal_connect(save_cancel, "button-release-event",
                 G_CALLBACK(on_save_btn_click), 0);
 
@@ -9904,12 +9904,12 @@ int _gtk_loop(void *p)
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
         /* OK button */
-        export_ok = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_SAVE));
+        export_ok = GTK_BUTTON(gtk_button_new_with_label("Save"));
         g_signal_connect(export_ok, "button-release-event",
                 G_CALLBACK(on_export_btn_click), 0);
 
         /* Cancel button */
-        export_cancel = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_CANCEL));
+        export_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
         g_signal_connect(export_cancel, "button-release-event",
                 G_CALLBACK(on_export_btn_click), 0);
 
@@ -11535,8 +11535,8 @@ int _gtk_loop(void *p)
         GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
-        frequency_ok = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_OK));
-        frequency_cancel = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_CANCEL));
+        frequency_ok = GTK_BUTTON(gtk_button_new_with_label("OK"));
+        frequency_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
         g_signal_connect(frequency_ok, "button-release-event",
                 G_CALLBACK(on_frequency_click), 0);
         g_signal_connect(frequency_cancel, "button-release-event",
@@ -11643,8 +11643,8 @@ int _gtk_loop(void *p)
         GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
-        freq_range_ok = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_OK));
-        freq_range_cancel = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_CANCEL));
+        freq_range_ok = GTK_BUTTON(gtk_button_new_with_label("OK"));
+        freq_range_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
         g_signal_connect(freq_range_ok, "button-release-event",
                 G_CALLBACK(on_freq_range_click), 0);
         g_signal_connect(freq_range_cancel, "button-release-event",
@@ -11698,12 +11698,12 @@ int _gtk_loop(void *p)
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
         /* Log in button */
-        multi_config_apply = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_APPLY));
+        multi_config_apply = GTK_BUTTON(gtk_button_new_with_label("Apply"));
         g_signal_connect(multi_config_apply, "button-release-event",
                 G_CALLBACK(on_multi_config_btn_click), 0);
 
         /* Cancel button */
-        multi_config_cancel = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_CANCEL));
+        multi_config_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
         g_signal_connect(multi_config_cancel, "button-release-event",
                 G_CALLBACK(on_multi_config_btn_click), 0);
 
@@ -11835,7 +11835,7 @@ int _gtk_loop(void *p)
                 G_CALLBACK(on_login_btn_click), 0);
 
         /* Cancel button */
-        login_btn_cancel = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_CANCEL));
+        login_btn_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
         g_signal_connect(login_btn_cancel, "button-release-event",
                 G_CALLBACK(on_login_btn_click), 0);
 
@@ -12201,11 +12201,11 @@ int _gtk_loop(void *p)
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
-        robot_btn_ok = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_OK));
+        robot_btn_ok = GTK_BUTTON(gtk_button_new_with_label("OK"));
         g_signal_connect(robot_btn_ok, "button-release-event",
                 G_CALLBACK(on_robot_btn_click), 0);
 
-        robot_btn_cancel = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_CANCEL));
+        robot_btn_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
         g_signal_connect(robot_btn_cancel, "button-release-event",
                 G_CALLBACK(on_robot_btn_click), 0);
 
@@ -12492,12 +12492,12 @@ int _gtk_loop(void *p)
         gtk_box_set_spacing(GTK_BOX(buttonbox), 5);
 
         /* Save */
-        escript_save = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_SAVE));
+        escript_save = GTK_BUTTON(gtk_button_new_with_label("Save"));
         g_signal_connect(escript_save, "button-release-event",
                 G_CALLBACK(on_escript_btn_click), 0);
 
         /* Cancel */
-        escript_cancel = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_CANCEL));
+        escript_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
         g_signal_connect(escript_cancel, "button-release-event",
                 G_CALLBACK(on_escript_btn_click), 0);
 
@@ -12787,11 +12787,11 @@ int _gtk_loop(void *p)
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
-        sequencer_save   = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_SAVE));
+        sequencer_save   = GTK_BUTTON(gtk_button_new_with_label("Save"));
         g_signal_connect(sequencer_save, "button-release-event",
                 G_CALLBACK(on_sequencer_click), 0);
 
-        sequencer_cancel = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_CANCEL));
+        sequencer_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
         g_signal_connect(sequencer_cancel, "button-release-event",
                 G_CALLBACK(on_sequencer_click), 0);
 
@@ -12909,12 +12909,12 @@ int _gtk_loop(void *p)
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
         /* Save */
-        prompt_save = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_SAVE));
+        prompt_save = GTK_BUTTON(gtk_button_new_with_label("Save"));
         g_signal_connect(prompt_save, "button-release-event",
                 G_CALLBACK(on_prompt_btn_click), 0);
 
         /* Cancel */
-        prompt_cancel = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_CANCEL));
+        prompt_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
         g_signal_connect(prompt_cancel, "button-release-event",
                 G_CALLBACK(on_prompt_btn_click), 0);
 
@@ -12929,9 +12929,9 @@ int _gtk_loop(void *p)
 
     gdk_threads_add_idle(_sig_ui_ready, 0);
 
-    gdk_threads_enter();
+    
     gtk_main();
-    gdk_threads_leave();
+    
 
     return T_OK;
 }
@@ -14706,7 +14706,7 @@ ui::open_dialog(int num, void *data/*=0*/)
 
     wait_ui_ready();
 
-    gdk_threads_enter();
+    
 
     switch (num) {
         case DIALOG_SANDBOX_MENU:
@@ -14805,8 +14805,8 @@ ui::open_dialog(int num, void *data/*=0*/)
             break;
     }
 
-    gdk_flush();
-    gdk_threads_leave();
+    gdk_dispay_flush();
+    
 }
 
 void ui::open_sandbox_tips()
@@ -14817,12 +14817,12 @@ void ui::open_sandbox_tips()
 
     wait_ui_ready();
 
-    gdk_threads_enter();
+    
 
     gdk_threads_add_idle(_open_tips_dialog, 0);
 
-    gdk_flush();
-    gdk_threads_leave();
+    gdk_dispay_flush();
+    
 }
 
 void
@@ -14834,7 +14834,7 @@ ui::open_help_dialog(const char *title, const char *description, bool enable_mar
 
     wait_ui_ready();
 
-    gdk_threads_enter();
+    
 
     /* title and description are constant static strings in 
      * object facotyr, should be safe to use directly
@@ -14844,8 +14844,8 @@ ui::open_help_dialog(const char *title, const char *description, bool enable_mar
     _pass_info_enable_markup = enable_markup;
     gdk_threads_add_idle(_open_info_dialog, 0);
 
-    gdk_flush();
-    gdk_threads_leave();
+    gdk_dispay_flush();
+    
 }
 
 void
@@ -14906,13 +14906,13 @@ ui::open_error_dialog(const char *error_msg)
 {
     wait_ui_ready();
 
-    gdk_threads_enter();
+    
 
     _pass_error_text = strdup(error_msg);
     gdk_threads_add_idle(_open_error_dialog, 0);
 
-    gdk_flush();
-    gdk_threads_leave();
+    gdk_dispay_flush();
+    
 }
 
 void
@@ -14932,7 +14932,7 @@ ui::confirm(const char *text,
 
     wait_ui_ready();
 
-    gdk_threads_enter();
+    
 
     _pass_confirm_text    = strdup(text);
     _pass_confirm_button1 = strdup(button1);
@@ -14955,8 +14955,8 @@ ui::confirm(const char *text,
 
     gdk_threads_add_idle(_open_confirm_dialog, 0);
 
-    gdk_flush();
-    gdk_threads_leave();
+    gdk_dispay_flush();
+    
 }
 
 void
@@ -14964,7 +14964,7 @@ ui::alert(const char *text, uint8_t alert_type/*=ALERT_INFORMATION*/)
 {
     wait_ui_ready();
 
-    gdk_threads_enter();
+    
 
     if (_alert_text) {
         free(_alert_text);
@@ -14975,8 +14975,8 @@ ui::alert(const char *text, uint8_t alert_type/*=ALERT_INFORMATION*/)
 
     gdk_threads_add_idle(_open_alert_dialog, 0);
 
-    gdk_flush();
-    gdk_threads_leave();
+    gdk_dispay_flush();
+    
 
 }
 
