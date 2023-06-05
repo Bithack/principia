@@ -3049,7 +3049,7 @@ Java_org_libsdl_app_PrincipiaBackend_triggerCreateLevel(
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #include <gdk/gdkkeysyms-compat.h>
-#include <gtksourceview/gtksourceview.h>
+#include <gtksourceview/gtksource.h>
 
 #if defined(TMS_BACKEND_WINDOWS)
 #include <windows.h>
