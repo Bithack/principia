@@ -1,3 +1,5 @@
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include "ui.hh"
 #include <SDL.h>
 
@@ -4001,7 +4003,7 @@ GtkRange        *cursorfield_down;
 
 /** --escript **/
 GtkWindow       *escript_window;
-GtkUndoView     *escript_code;
+GtkTextView     *escript_code;
 GtkTextBuffer   *escript_buffer;
 GtkCheckButton  *escript_use_external_editor;
 GtkBox          *escript_external_box;
@@ -12403,7 +12405,7 @@ int _gtk_loop(void *p)
         gtk_window_set_keep_above(GTK_WINDOW(escript_window), TRUE);
 
         escript_statusbar = GTK_STATUSBAR(gtk_statusbar_new());
-        gtk_statusbar_set_has_resize_grip(escript_statusbar, false);
+        gtk_window_set_has_resize_grip(GTK_WINDOW(escript_statusbar), false);
 
         g_signal_connect(escript_window, "show", G_CALLBACK(on_escript_show), 0);
         g_signal_connect(escript_window, "key-press-event", G_CALLBACK(on_escript_keypress), 0);
@@ -12430,7 +12432,7 @@ int _gtk_loop(void *p)
 
         g_signal_connect(escript_buffer, "mark-set", G_CALLBACK(on_escript_mark_set), 0);
 
-        escript_code = GTK_UNDO_VIEW(gtk_undo_view_new(escript_buffer));
+        escript_code = GTK_TEXT_VIEW(gtk_text_view_new_with_buffer(escript_buffer));
         gtk_widget_modify_font(GTK_WIDGET(escript_code), pango_font_description_from_string("monospace"));
         /*
         GtkTextBuffer *buffer = gtk_text_view_get_buffer(escript_code);
