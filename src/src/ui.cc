@@ -9397,54 +9397,52 @@ int _gtk_loop(void *p)
     if (RUNNING_ON_VALGRIND) return T_OK;
 #endif
     
-#if !GLIB_CHECK_VERSION(2, 31, 0)
-    g_thread_init(0);
-#endif
     // This causes Principia to freeze on Windows when opening dialogs. Removing it
     // fixes it, though I don't know how good of an idea that is. (No side effects at least)
-    //gdk_threads_init();
+    gdk_threads_init();
 
     gtk_init(0,0);
 
     // Only use custom theme in release versions of Windows. Linux should use
     // the user-provided GTK theme, and debug versions of Windows break spectacularily
     // with custom theme.
-#if defined(TMS_BACKEND_WINDOWS) && !defined(DEBUG)
-    gtk_rc_parse_string(
-"style \"test\" {\n"
+    //TODO: PORT THEME TO GDK3
+// #if defined(TMS_BACKEND_WINDOWS) && !defined(DEBUG)
+//     gtk_rc_parse_string(
+// "style \"test\" {\n"
 
-"color[\"fg_color\"] = \"#dcdcdc\"\n"
-"color[\"bg_color\"] = \"#686868\"\n"
-"color[\"bg_color_light\"] = \"#f2f0f1\"\n"
-"color[\"selected_fg_color\"] = \"#ffffff\"\n"
-"color[\"selected_bg_color\"] = \"#f07040\"\n"
+// "color[\"fg_color\"] = \"#dcdcdc\"\n"
+// "color[\"bg_color\"] = \"#686868\"\n"
+// "color[\"bg_color_light\"] = \"#f2f0f1\"\n"
+// "color[\"selected_fg_color\"] = \"#ffffff\"\n"
+// "color[\"selected_bg_color\"] = \"#f07040\"\n"
 
-"font_name = \"Arial\"\n"
+// "font_name = \"Arial\"\n"
 
-"fg[NORMAL] = @fg_color\n"
-"fg[PRELIGHT] = shade(1.15, @fg_color)\n"
-"fg[ACTIVE] = @fg_color\n"
-"fg[SELECTED] = @selected_fg_color\n"
-"fg[INSENSITIVE] = shade(0.5, @fg_color)\n"
+// "fg[NORMAL] = @fg_color\n"
+// "fg[PRELIGHT] = shade(1.15, @fg_color)\n"
+// "fg[ACTIVE] = @fg_color\n"
+// "fg[SELECTED] = @selected_fg_color\n"
+// "fg[INSENSITIVE] = shade(0.5, @fg_color)\n"
 
-"bg[NORMAL] = @bg_color\n"
-"bg[PRELIGHT] = shade(1.0, \"#4d4c48\")\n"
-"bg[ACTIVE] = shade(0.8, @bg_color)\n"
-"bg[SELECTED] = @selected_bg_color\n"
-"bg[INSENSITIVE] = shade(0.85, @bg_color)\n"
+// "bg[NORMAL] = @bg_color\n"
+// "bg[PRELIGHT] = shade(1.0, \"#4d4c48\")\n"
+// "bg[ACTIVE] = shade(0.8, @bg_color)\n"
+// "bg[SELECTED] = @selected_bg_color\n"
+// "bg[INSENSITIVE] = shade(0.85, @bg_color)\n"
 
-"base[NORMAL] = {0.21,0.21,0.21}\n"
+// "base[NORMAL] = {0.21,0.21,0.21}\n"
 
-"text[NORMAL] = @fg_color\n"
-"text[PRELIGHT] = shade(1.15, @fg_color)\n"
-"text[ACTIVE] = @fg_color\n"
-"text[SELECTED] = @selected_fg_color\n"
-"text[INSENSITIVE] = mix (0.5, @bg_color, @bg_color_light)\n"
+// "text[NORMAL] = @fg_color\n"
+// "text[PRELIGHT] = shade(1.15, @fg_color)\n"
+// "text[ACTIVE] = @fg_color\n"
+// "text[SELECTED] = @selected_fg_color\n"
+// "text[INSENSITIVE] = mix (0.5, @bg_color, @bg_color_light)\n"
 
-"}\n"
-"widget \"*\" style \"test\"\n"
-            );
-#endif
+// "}\n"
+// "widget \"*\" style \"test\"\n"
+//             );
+// #endif
 
 
     GtkSettings *gtkset = gtk_settings_get_default();
