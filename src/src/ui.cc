@@ -4091,14 +4091,15 @@ new_item_cb()
 
     store = gtk_list_store_new(1, G_TYPE_STRING);
 
-    cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_new_with_model(GTK_TREE_MODEL(store)));
+    //cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_new_with_model(GTK_TREE_MODEL(store)));
+    cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
     g_object_unref(store);
 
-    renderer = gtk_cell_renderer_text_new();
-    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(cb), renderer, TRUE);
-    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(cb), renderer,
-            "text", 0,
-            NULL);
+    // renderer = gtk_cell_renderer_text_new();
+    // gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(cb), renderer, TRUE);
+    // gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(cb), renderer,
+    //         "text", 0,
+    //         NULL);
 
     return cb;
 }
