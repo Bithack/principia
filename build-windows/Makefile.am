@@ -26,11 +26,11 @@ GLOBAL_FLAGS += -I../src/tms/backends/windows/ \
 	-I/mingw64/include/SDL2/ \
     -I/mingw64/include/glib-2.0 \
     -I/mingw64/lib/glib-2.0/include \
-    -I/mingw64/lib/gtk-2.0/include \
+    -I/mingw64/lib/gtk-3.0/include \
     -I/mingw64/include/glib-2.0/glib \
     -I/mingw64/include/gdk-pixbuf-2.0 \
     -I/mingw64/include/atk-1.0 \
-    -I/mingw64/include/gtk-2.0/ \
+    -I/mingw64/include/gtk-3.0/ \
     -I/mingw64/include/cairo \
     -I/mingw64/include/harfbuzz \
     -I/mingw64/include/pango-1.0 \

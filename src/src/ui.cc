@@ -3047,8 +3047,9 @@ Java_org_libsdl_app_PrincipiaBackend_triggerCreateLevel(
 #elif defined(TMS_BACKEND_LINUX) || defined(TMS_BACKEND_WINDOWS)
 
 #include <gtk/gtk.h>
-#include <gtk-undo/undo_view.h>
 #include <gdk/gdkkeysyms.h>
+#include <gdk/gdkkeysyms-compat.h>
+#include <gtk-undo/undo_view.h>
 
 #if defined(TMS_BACKEND_WINDOWS)
 #include <windows.h>
