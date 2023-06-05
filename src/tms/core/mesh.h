@@ -25,7 +25,7 @@ struct tms_mesh {
     int autofree_bufs;
     int i32;
     int cw;
-    int i_start; /* in sizeof(uint16_t) */
+    int i_start; /* in elements */
     int i_count;
     int v_base;
     int id; /* Unique identifier of mesh, optional */
