@@ -39,8 +39,7 @@ GLOBAL_FLAGS += -I../src/tms/backends/windows/ \
     -I/mingw64/include/webp \
     -I/mingw64/include/atk-1.0 \
 	-I../src/lua/ -I../src/include/ \
-    -DLIBDEFLATE_DLL \
-    -DGTK_DISABLE_SINGLE_INCLUDES -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGSEAL_ENABLE
+    -DLIBDEFLATE_DLL
 
 principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
 

@@ -20,8 +20,7 @@ GLOBAL_FLAGS += -I../src/tms/backends/linux/ \
 				-I../src/include/ \
 				-I../src/gtk-undo \
 				${GTK_CFLAGS} \
-				-I../src/lua/ \
-				-DGTK_DISABLE_SINGLE_INCLUDES -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGSEAL_ENABLE
+				-I../src/lua/
 
 principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
 principia_CXXFLAGS = ${GLOBAL_FLAGS}
