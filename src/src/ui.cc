@@ -12448,10 +12448,12 @@ int _gtk_loop(void *p)
             //Create GtkSourceLanguageManager and get lua GtkSourceLanguage
             GtkSourceLanguageManager *lm = gtk_source_language_manager_get_default();
             GtkSourceLanguage *l = gtk_source_language_manager_guess_language(lm, ".lua", NULL);
+            if (l == NULL) tms_warnf("ESCRIPT: no lang definition for lua");
 
             //Create GtkSourceStyleSchemeManager and get Adwaita GtkSourceStyleScheme
             GtkSourceStyleSchemeManager *sm = gtk_source_style_scheme_manager_get_default();
             GtkSourceStyleScheme *s = gtk_source_style_scheme_manager_get_scheme(sm, "classic");
+            if (s == NULL) tms_warnf("ESCRIPT: source theme not found");
 
             //Create new escript_buffer
             escript_buffer = GTK_SOURCE_BUFFER(gtk_source_buffer_new(NULL));
