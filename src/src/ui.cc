@@ -3309,7 +3309,7 @@ GtkRadioButton  *lvl_radio_adventure;
 GtkRadioButton  *lvl_radio_custom;
 GtkEntry        *lvl_title;
 GtkTextView     *lvl_descr;
-GtkComboBox     *lvl_bg;
+GtkComboBoxText *lvl_bg;
 GtkButton       *lvl_bg_color;
 uint32_t         new_bg_color;
 GtkColorSelectionDialog *lvl_bg_cd;
@@ -3673,11 +3673,11 @@ GtkComboBoxText *command_pad_cb;
 /** --Key Listener **/
 GtkDialog       *key_listener_dialog;
 GtkListStore    *key_listener_ls;
-GtkComboBox     *key_listener_cb;
+GtkComboBoxText *key_listener_cb;
 
 /** --Item **/
 GtkDialog       *item_dialog;
-GtkComboBox     *item_cb;
+GtkComboBoxText *item_cb;
 
 /** --Decoration **/
 GtkDialog       *decoration_dialog;
@@ -3722,7 +3722,7 @@ GtkHScale       *tchest_auto_absorb;
 GtkListStore    *tchest_liststore;
 GtkTreeView     *tchest_treeview;
 GtkComboBoxText *tchest_entity;
-GtkComboBox     *tchest_sub_entity;
+GtkComboBoxText *tchest_sub_entity;
 GtkSpinButton   *tchest_count;
 GtkButton       *tchest_add_entity;
 GtkButton       *tchest_remove_selected;
@@ -3788,8 +3788,8 @@ GtkComboBoxText *elistener_cb;
 
 /** --Cam targeter **/
 GtkDialog       *camtargeter_dialog;
-GtkComboBox     *camtargeter_mode;
-GtkComboBox     *camtargeter_offset_mode;
+GtkComboBoxText *camtargeter_mode;
+GtkComboBoxText *camtargeter_offset_mode;
 GtkRange        *camtargeter_x_offset;
 GtkEntry        *camtargeter_x_offset_entry;
 GtkRange        *camtargeter_y_offset;
@@ -3932,12 +3932,12 @@ enum
   ROBOT_COLUMN_ITEM,
   ROBOT_COLUMN_ITEM_ID,
 };
-GtkComboBox     *robot_head;
-GtkComboBox     *robot_feet;
-GtkComboBox     *robot_bolts;
-GtkComboBox     *robot_back_equipment;
-GtkComboBox     *robot_front_equipment;
-GtkComboBox     *robot_head_equipment;
+GtkComboBoxText *robot_head;
+GtkComboBoxText *robot_feet;
+GtkComboBoxText *robot_bolts;
+GtkComboBoxText *robot_back_equipment;
+GtkComboBoxText *robot_front_equipment;
+GtkComboBoxText *robot_head_equipment;
 
 /** --Puzzle play **/
 GtkDialog       *puzzle_play_dialog;
@@ -4025,7 +4025,7 @@ GtkRange       *synth_vol_vibrato_extent;
 
 GtkRange       *synth_pulse_width;
 
-GtkComboBox     *synth_waveform;
+GtkComboBoxText *synth_waveform;
 
 /** --Prompt Settings Dialog **/
 GtkWindow       *prompt_settings_dialog;
@@ -4084,16 +4084,16 @@ new_lbl(const char *text)
     return r;
 }
 
-static GtkComboBox*
+static GtkComboBoxText*
 new_item_cb()
 {
     GtkCellRenderer *renderer;
     GtkListStore *store;
-    GtkComboBox *cb;
+    GtkComboBoxText *cb;
 
     store = gtk_list_store_new(1, G_TYPE_STRING);
 
-    cb = GTK_COMBO_BOX(gtk_combo_box_new_with_model(GTK_TREE_MODEL(store)));
+    cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_new_with_model(GTK_TREE_MODEL(store)));
     g_object_unref(store);
 
     renderer = gtk_cell_renderer_text_new();
@@ -4106,22 +4106,22 @@ new_item_cb()
 }
 
 static void
-item_cb_append(GtkComboBox *cb, uint32_t item_id, bool first_is_none)
+item_cb_append(GtkComboBoxText *cb, uint32_t item_id, bool first_is_none)
 {
-    GtkTreeModel *model = gtk_combo_box_get_model(cb);
+    GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(cb));
     int num = gtk_tree_model_iter_n_children(model, 0);
 
     if (first_is_none && num == 0) {
-        gtk_combo_box_append_text(cb, "None");
+        gtk_combo_box_text_append_text(cb, "None");
     } else {
-        gtk_combo_box_append_text(cb, item::get_ui_name(item_id));
+        gtk_combo_box_text_append_text(cb, item::get_ui_name(item_id));
     }
 }
 
 static void
-clear_cb(GtkComboBox *cb)
+clear_cb(GtkComboBoxText *cb)
 {
-    GtkTreeModel *model = gtk_combo_box_get_model(cb);
+    GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(cb));
     gtk_list_store_clear(GTK_LIST_STORE(model));
 }
 
@@ -4376,9 +4376,9 @@ new_window_defaults(const char *title, GtkCallback on_show/*=0*/, gboolean (*on_
     gtk_container_set_border_width(GTK_CONTAINER(r), 10);
     gtk_window_set_title(GTK_WINDOW(r), title);
     gtk_window_set_resizable(GTK_WINDOW(r), false);
-    gtk_window_set_policy(GTK_WINDOW(r),
-            FALSE,
-            FALSE, FALSE);
+    // gtk_window_set_policy(GTK_WINDOW(r),
+    //         FALSE,
+    //         FALSE, FALSE);
 
     apply_defaults(r, on_show, on_keypress);
 
@@ -4445,12 +4445,12 @@ foreach_model_find_str(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter
 }
 
 const char*
-get_cb_val(GtkComboBox *cb)
+get_cb_val(GtkComboBoxText *cb)
 {
-    GtkTreeModel *model = gtk_combo_box_get_model(cb);
+    GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(cb));
     GtkTreeIter iter;
     gboolean r = false;
-    r = gtk_combo_box_get_active_iter(cb, &iter);
+    r = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(cb), &iter);
     if (r == false) {
         tms_errorf("unable to get cb value");
         return "";
@@ -4467,14 +4467,14 @@ get_cb_val(GtkComboBox *cb)
 }
 
 gint
-find_cb_val(GtkComboBox *cb, const char *str)
+find_cb_val(GtkComboBoxText *cb, const char *str)
 {
     gint ret = -1;
     struct cb_find_data *d = (struct cb_find_data*)malloc(sizeof(struct cb_find_data));
     d->index = -1;
     d->str = str;
 
-    GtkTreeModel *model = gtk_combo_box_get_model(cb);
+    GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(cb));
     gtk_tree_model_foreach(model, (GtkTreeModelForeachFunc)(foreach_model_find_str), &d);
     ret = d->index;
     free(d);
@@ -4991,7 +4991,7 @@ editor_menu_activate(GtkMenuItem *i, gpointer unused)
                 }
             }
 
-            W->level.bg = gtk_combo_box_get_active(lvl_bg);
+            W->level.bg = gtk_combo_box_get_active(GTK_COMBO_BOX(lvl_bg));
             W->level.bg_color = new_bg_color;
 
             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_radio_adventure))) {
@@ -5185,7 +5185,7 @@ on_command_pad_show(GtkWidget *wdg, void *ununused)
             default:                strcpy(tmp, "Stop"); break;
         }
 
-        gint index = find_cb_val(GTK_COMBO_BOX(command_pad_cb), tmp);
+        gint index = find_cb_val(command_pad_cb, tmp);
         if (index != -1) {
             gtk_combo_box_set_active(GTK_COMBO_BOX(command_pad_cb), index);
         } else {
@@ -6243,9 +6243,9 @@ on_sfx_show(GtkWidget *wdg, void *ununused)
 
 /** --SFX Emitter 2 **/
 static void
-on_sfx2_cb_changed(GtkComboBox *cb, gpointer user_data)
+on_sfx2_cb_changed(GtkComboBoxText *cb, gpointer user_data)
 {
-    int index = gtk_combo_box_get_active(cb);
+    int index = gtk_combo_box_get_active(GTK_COMBO_BOX(cb));
     if (index < 0) {
         return;
     }
@@ -6253,7 +6253,7 @@ on_sfx2_cb_changed(GtkComboBox *cb, gpointer user_data)
     GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(sfx2_sub_cb));
     int num = gtk_tree_model_iter_n_children(model, 0);
     for (int x=0; x<num; ++x) {
-        gtk_combo_box_remove_text(GTK_COMBO_BOX(sfx2_sub_cb), 0);
+        gtk_combo_box_text_remove(sfx2_sub_cb, 0);
     }
 
     const sm_sound *snd = sm::get_sound_by_id(index);
@@ -6304,7 +6304,7 @@ on_item_show(GtkWidget *wdg, void *ununused)
             item_cb_append(item_cb, x, false);
         }
 
-        gtk_combo_box_set_active(item_cb, e->properties[0].v.i);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(item_cb), e->properties[0].v.i);
     }
 }
 
@@ -6500,9 +6500,9 @@ on_factory_show(GtkWidget *wdg, void *ununused)
 
 /** --Treasure chest **/
 static void
-on_tchest_entity_changed(GtkComboBox *cb, gpointer user_data)
+on_tchest_entity_changed(GtkComboBoxText *cb, gpointer user_data)
 {
-    int index = gtk_combo_box_get_active(cb);
+    int index = gtk_combo_box_get_active(GTK_COMBO_BOX(cb));
     if (index < 0) {
         return;
     }
@@ -6525,7 +6525,7 @@ on_tchest_entity_changed(GtkComboBox *cb, gpointer user_data)
     int num = gtk_tree_model_iter_n_children(model, 0);
     for (int x=0; x<num; ++x) {
         //gtk_combo_box_text_remove(tchest_sub_entity, x);
-        gtk_combo_box_remove_text(GTK_COMBO_BOX(tchest_sub_entity), 0);
+        gtk_combo_box_text_remove(tchest_sub_entity, 0);
     }
 
     switch (g_id) {
@@ -6543,7 +6543,7 @@ on_tchest_entity_changed(GtkComboBox *cb, gpointer user_data)
 
         case O_RESOURCE:
             for (int x=0; x<NUM_RESOURCES; x++) {
-                gtk_combo_box_append_text(tchest_sub_entity, resource_data[x].name);
+                gtk_combo_box_text_append_text(tchest_sub_entity, resource_data[x].name);
             }
 
             gtk_combo_box_set_active(GTK_COMBO_BOX(tchest_sub_entity), rand()%NUM_RESOURCES);
@@ -6572,7 +6572,7 @@ on_tchest_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
 {
     if (btn_pressed(w, tchest_add_entity, user_data)) {
         char search[128];
-        strcpy(search, get_cb_val(GTK_COMBO_BOX(tchest_entity)));
+        strcpy(search, get_cb_val(tchest_entity));
         int len = strlen(search);
         int found_arg = -1;
         int found_score = -10000000;
@@ -7269,12 +7269,13 @@ on_autofit_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
 gboolean
 on_coolman_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
 {
+    GtkWidget *ok_button = gtk_dialog_get_widget_for_response(GTK_DIALOG(lvl_bg_cd), GTK_RESPONSE_OK);
     if (key->keyval == GDK_KEY_Escape)
         gtk_widget_hide(w);
     else if (key->keyval == GDK_KEY_Return
-            && (w == lvl_bg_cd->colorsel ||
-                w == lvl_bg_cd->ok_button)) {
-        gtk_button_clicked(GTK_BUTTON(lvl_bg_cd->ok_button));
+            && (w == gtk_color_selection_dialog_get_color_selection(lvl_bg_cd) ||
+                w == ok_button)) {
+        gtk_button_clicked(GTK_BUTTON(ok_button));
         return true;
     }
 
@@ -7474,42 +7475,42 @@ on_robot_show(GtkWidget *wdg, void *unused)
         clear_cb(robot_bolts);
 
         for (int x=0; x<NUM_HEAD_EQUIPMENT_TYPES; ++x) {
-            GtkComboBox *cb = robot_head_equipment;
+            GtkComboBoxText *cb = robot_head_equipment;
             uint32_t item_id = _head_equipment_to_item[x];
 
             item_cb_append(cb, item_id, true);
         }
 
         for (int x=0; x<NUM_HEAD_TYPES; ++x) {
-            GtkComboBox *cb = robot_head;
+            GtkComboBoxText *cb = robot_head;
             uint32_t item_id = _head_to_item[x];
 
             item_cb_append(cb, item_id, true);
         }
 
         for (int x=0; x<NUM_BACK_EQUIPMENT_TYPES; ++x) {
-            GtkComboBox *cb = robot_back_equipment;
+            GtkComboBoxText *cb = robot_back_equipment;
             uint32_t item_id = _back_to_item[x];
 
             item_cb_append(cb, item_id, true);
         }
 
         for (int x=0; x<NUM_FRONT_EQUIPMENT_TYPES; ++x) {
-            GtkComboBox *cb = robot_front_equipment;
+            GtkComboBoxText *cb = robot_front_equipment;
             uint32_t item_id = _front_to_item[x];
 
             item_cb_append(cb, item_id, true);
         }
 
         for (int x=0; x<NUM_FEET_TYPES; ++x) {
-            GtkComboBox *cb = robot_feet;
+            GtkComboBoxText *cb = robot_feet;
             uint32_t item_id = _feet_to_item[x];
 
             item_cb_append(cb, item_id, true);
         }
 
         for (int x=0; x<NUM_BOLT_SETS; ++x) {
-            GtkComboBox *cb = robot_bolts;
+            GtkComboBoxText *cb = robot_bolts;
             uint32_t item_id = _bolt_to_item[x];
 
             item_cb_append(cb, item_id, false);
@@ -7921,7 +7922,7 @@ on_color_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     if (key->keyval == GDK_KEY_Escape) {
         gtk_widget_hide(w);
     } else if (key->keyval == GDK_KEY_Return
-            && (w == beam_color_dialog->colorsel ||
+            && (w == gtk_color_selection_dialog_get_color_selection(beam_color_dialog) ||
                 w == beam_color_dialog->ok_button)) {
         gtk_button_clicked(GTK_BUTTON(beam_color_dialog->ok_button));
         return true;
@@ -8067,7 +8068,7 @@ save_settings()
 
     sm::load_settings();
 
-    strcpy(tmp, get_cb_val(GTK_COMBO_BOX(settings_shadow_res)));
+    strcpy(tmp, get_cb_val(settings_shadow_res));
     char *x = strchr(tmp, 'x');
     if (x == NULL) {
         //tms_infof("Setting shadow map to NATIVE '%d'x'%d'", _tms.window_width, _tms.window_height);
@@ -8090,7 +8091,7 @@ save_settings()
         free(res_y);
     }
 
-    strcpy(tmp, get_cb_val(GTK_COMBO_BOX(settings_ao_res)));
+    strcpy(tmp, get_cb_val(settings_ao_res));
     x = strchr(tmp, 'x');
     if (x != NULL) {
         char *res = (char*)malloc(64);
@@ -8161,13 +8162,13 @@ on_settings_show(GtkWidget *wdg, void *unused)
     if (settings["shadow_map_resx"]->v.i == _tms.window_width && settings["shadow_map_resy"]->v.i == _tms.window_height) {
         gtk_combo_box_set_active(GTK_COMBO_BOX(settings_shadow_res), 0);
     } else {
-        gint index = find_cb_val(GTK_COMBO_BOX(settings_shadow_res), tmp);
+        gint index = find_cb_val(settings_shadow_res, tmp);
         if (index != -1) {
             gtk_combo_box_set_active(GTK_COMBO_BOX(settings_shadow_res), index);
         } else {
             gtk_combo_box_text_append_text(settings_shadow_res, tmp);
 
-            index = find_cb_val(GTK_COMBO_BOX(settings_shadow_res), tmp);
+            index = find_cb_val(settings_shadow_res, tmp);
             if (index != -1) {
                 gtk_combo_box_set_active(GTK_COMBO_BOX(settings_shadow_res), index);
             } else {
@@ -8180,13 +8181,13 @@ on_settings_show(GtkWidget *wdg, void *unused)
     if (settings["ao_map_res"]->v.i == _tms.window_width && settings["ao_map_res"]->v.i == _tms.window_height) {
         gtk_combo_box_set_active(GTK_COMBO_BOX(settings_ao_res), 0);
     } else {
-        gint index = find_cb_val(GTK_COMBO_BOX(settings_ao_res), tmp);
+        gint index = find_cb_val(settings_ao_res, tmp);
         if (index != -1) {
             gtk_combo_box_set_active(GTK_COMBO_BOX(settings_ao_res), index);
         } else {
             gtk_combo_box_text_append_text(settings_ao_res, tmp);
 
-            index = find_cb_val(GTK_COMBO_BOX(settings_ao_res), tmp);
+            index = find_cb_val(settings_ao_res, tmp);
             if (index != -1) {
                 gtk_combo_box_set_active(GTK_COMBO_BOX(settings_ao_res), index);
             } else {
@@ -8204,13 +8205,13 @@ on_settings_show(GtkWidget *wdg, void *unused)
         strcpy(tmp, "Keyboard");
     }
 
-    gint index = find_cb_val(GTK_COMBO_BOX(settings_control_type), tmp);
+    gint index = find_cb_val(settings_control_type, tmp);
     if (index != -1) {
         gtk_combo_box_set_active(GTK_COMBO_BOX(settings_control_type), index);
     } else {
         gtk_combo_box_text_append_text(settings_control_type, tmp);
 
-        index = find_cb_val(GTK_COMBO_BOX(settings_control_type), tmp);
+        index = find_cb_val(settings_control_type, tmp);
         if (index != -1) {
             gtk_combo_box_set_active(GTK_COMBO_BOX(settings_control_type), index);
         } else {
@@ -8592,7 +8593,7 @@ on_properties_show(GtkWidget *wdg, void *unused)
     gtk_range_set_value(GTK_RANGE(lvl_angular_damping), W->level.angular_damping);
     gtk_range_set_value(GTK_RANGE(lvl_joint_friction), W->level.joint_friction);
 
-    gtk_combo_box_set_active(lvl_bg, W->level.bg);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(lvl_bg), W->level.bg);
     new_bg_color = W->level.bg_color;
 
     {
@@ -9772,9 +9773,9 @@ int _gtk_loop(void *p)
         gtk_widget_set_size_request(GTK_WIDGET(variable_dialog), 400, 400);
         gtk_window_set_title(GTK_WINDOW(variable_dialog), "Variable chooser");
         gtk_window_set_resizable(GTK_WINDOW(variable_dialog), false);
-        gtk_window_set_policy(GTK_WINDOW(variable_dialog),
-                      FALSE,
-                      FALSE, FALSE);
+        // gtk_window_set_policy(GTK_WINDOW(variable_dialog),
+        //               FALSE,
+        //               FALSE, FALSE);
         gtk_window_set_position(variable_dialog, GTK_WIN_POS_CENTER);
         gtk_window_set_keep_above(GTK_WINDOW(variable_dialog), TRUE);
 
@@ -9901,7 +9902,7 @@ int _gtk_loop(void *p)
         /* Buttons and button box */
         GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
-        gtk_set_spacing(GTK_BOX(button_box), 5);
+        gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
         /* OK button */
         export_ok = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_SAVE));
@@ -9937,9 +9938,9 @@ int _gtk_loop(void *p)
         gtk_widget_set_size_request(GTK_WIDGET(package_window), 400, 700);
         gtk_window_set_title(GTK_WINDOW(package_window), "Package Manager");
         gtk_window_set_resizable(GTK_WINDOW(package_window), false);
-        gtk_window_set_policy(GTK_WINDOW(package_window),
-                      FALSE,
-                      FALSE, FALSE);
+        // gtk_window_set_policy(GTK_WINDOW(package_window),
+        //               FALSE,
+        //               FALSE, FALSE);
         gtk_window_set_keep_above(GTK_WINDOW(package_window), true);
 
         g_signal_connect(package_window, "delete-event", G_CALLBACK(on_window_close), 0);
@@ -10127,10 +10128,10 @@ int _gtk_loop(void *p)
         {
             int y = 0;
 
-            lvl_bg = GTK_COMBO_BOX(gtk_combo_box_new_text());
+            lvl_bg = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
 
             for (int x=0; x<num_bgs; x++) {
-                gtk_combo_box_append_text(lvl_bg, available_bgs[x]);
+                gtk_combo_box_text_append_text(lvl_bg, available_bgs[x]);
             }
 
             lvl_bg_color = GTK_BUTTON(gtk_button_new());
@@ -10141,7 +10142,7 @@ int _gtk_loop(void *p)
 
             g_signal_connect(lvl_bg_cd, "delete-event", G_CALLBACK(on_window_close), 0);
 
-            g_signal_connect(lvl_bg_cd->colorsel,  "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
+            g_signal_connect(gtk_color_selection_dialog_get_color_selection(lvl_bg_cd),  "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
             g_signal_connect(lvl_bg_cd->ok_button, "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
             g_signal_connect(lvl_bg_cd,            "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
 
@@ -10507,7 +10508,7 @@ int _gtk_loop(void *p)
             }
         }
 
-        key_listener_cb = GTK_COMBO_BOX(gtk_combo_box_new_with_model(GTK_TREE_MODEL(key_listener_ls)));
+        key_listener_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_new_with_model(GTK_TREE_MODEL(key_listener_ls)));
 
         GtkCellRenderer *cell = gtk_cell_renderer_text_new();
         gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(key_listener_cb), cell, TRUE);
@@ -11158,15 +11159,15 @@ int _gtk_loop(void *p)
 
         GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
 
-        camtargeter_mode = GTK_COMBO_BOX(gtk_combo_box_new_text());
-        gtk_combo_box_append_text(camtargeter_mode, "Smooth follow");
-        gtk_combo_box_append_text(camtargeter_mode, "Snap to object");
-        gtk_combo_box_append_text(camtargeter_mode, "Relative follow");
-        gtk_combo_box_append_text(camtargeter_mode, "Linear follow");
+        camtargeter_mode = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
+        gtk_combo_box_text_append_text(camtargeter_mode, "Smooth follow");
+        gtk_combo_box_text_append_text(camtargeter_mode, "Snap to object");
+        gtk_combo_box_text_append_text(camtargeter_mode, "Relative follow");
+        gtk_combo_box_text_append_text(camtargeter_mode, "Linear follow");
 
-        camtargeter_offset_mode = GTK_COMBO_BOX(gtk_combo_box_new_text());
-        gtk_combo_box_append_text(camtargeter_offset_mode, "Global");
-        gtk_combo_box_append_text(camtargeter_offset_mode, "Relative");
+        camtargeter_offset_mode = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
+        gtk_combo_box_text_append_text(camtargeter_offset_mode, "Global");
+        gtk_combo_box_text_append_text(camtargeter_offset_mode, "Relative");
 
         gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Follow mode</b>"), false, false, 0);
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(camtargeter_mode), false, false, 10);
@@ -11246,9 +11247,9 @@ int _gtk_loop(void *p)
 #ifdef TMS_BACKEND_WINDOWS
         quickadd_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
         GTK_WIDGET_SET_FLAGS(quickadd_window, GTK_CAN_FOCUS);
-        GTK_WINDOW(quickadd_window)->type = GTK_WINDOW_TOPLEVEL;
+        //VX: GTK_WINDOW(quickadd_window)->type = GTK_WINDOW_TOPLEVEL;
         gtk_window_set_decorated(GTK_WINDOW(quickadd_window), FALSE);
-        gtk_window_set_has_frame(GTK_WINDOW(quickadd_window), FALSE);
+        //VX: gtk_window_set_has_frame(GTK_WINDOW(quickadd_window), FALSE);
         gtk_window_set_type_hint(GTK_WINDOW(quickadd_window), GDK_WINDOW_TYPE_HINT_POPUP_MENU);
 #else
         quickadd_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_POPUP));
@@ -11257,9 +11258,9 @@ int _gtk_loop(void *p)
         gtk_window_set_default_size(GTK_WINDOW(quickadd_window), 200, 20);
         gtk_widget_set_size_request(GTK_WIDGET(quickadd_window), 200, 20);
         gtk_window_set_resizable(GTK_WINDOW(quickadd_window), false);
-        gtk_window_set_policy(GTK_WINDOW(quickadd_window),
-                      FALSE,
-                      FALSE, FALSE);
+        // gtk_window_set_policy(GTK_WINDOW(quickadd_window),
+        //               FALSE,
+        //               FALSE, FALSE);
 
         quickadd_entry = GTK_ENTRY(gtk_entry_new());
 
@@ -11307,7 +11308,7 @@ int _gtk_loop(void *p)
 
         g_signal_connect(beam_color_dialog, "delete-event", G_CALLBACK(on_window_close), 0);
 
-        g_signal_connect(beam_color_dialog->colorsel,  "key-press-event", G_CALLBACK(on_color_keypress), 0);
+        g_signal_connect(gtk_color_selection_dialog_get_color_selection(beam_color_dialog),  "key-press-event", G_CALLBACK(on_color_keypress), 0);
         g_signal_connect(beam_color_dialog->ok_button, "key-press-event", G_CALLBACK(on_color_keypress), 0);
         g_signal_connect(beam_color_dialog,            "key-press-event", G_CALLBACK(on_color_keypress), 0);
     }
@@ -12385,9 +12386,9 @@ int _gtk_loop(void *p)
         gtk_window_set_title(escript_window, "Lua Script");
         gtk_widget_set_size_request(GTK_WIDGET(escript_window), 800, 560);
         gtk_window_set_resizable(escript_window, true);
-        gtk_window_set_policy(escript_window,
-                      FALSE,
-                      FALSE, FALSE);
+        // gtk_window_set_policy(escript_window,
+        //               FALSE,
+        //               FALSE, FALSE);
         gtk_window_set_position(GTK_WINDOW(escript_window), GTK_WIN_POS_CENTER);
         gtk_window_set_keep_above(GTK_WINDOW(escript_window), TRUE);
 
@@ -12578,10 +12579,10 @@ int _gtk_loop(void *p)
             synth_vol_vibrato_hz = GTK_RANGE(gtk_hscale_new_with_range(0, 32, 1));
             synth_vol_vibrato_extent = GTK_RANGE(gtk_hscale_new_with_range(0, 1, .01));
 
-            synth_waveform = GTK_COMBO_BOX(gtk_combo_box_new_text());
+            synth_waveform = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
 
             for (int x=0; x<NUM_WAVEFORMS; ++x) {
-                gtk_combo_box_append_text(synth_waveform, speaker_options[x]);
+                gtk_combo_box_text_append_text(synth_waveform, speaker_options[x]);
             }
 
             l = gtk_label_new("Base frequency"); gtk_misc_set_alignment(GTK_MISC(l), 0.f, 0.5f);
@@ -12730,9 +12731,9 @@ int _gtk_loop(void *p)
         gtk_widget_set_size_request(GTK_WIDGET(sequencer_window), 400, 400);
         gtk_window_set_title(GTK_WINDOW(sequencer_window), "Sequencer settings");
         gtk_window_set_resizable(GTK_WINDOW(sequencer_window), false);
-        gtk_window_set_policy(GTK_WINDOW(sequencer_window),
-                      FALSE,
-                      FALSE, FALSE);
+        // gtk_window_set_policy(GTK_WINDOW(sequencer_window),
+        //               FALSE,
+        //               FALSE, FALSE);
 
         g_signal_connect(sequencer_window, "show", G_CALLBACK(on_sequencer_show), 0);
         g_signal_connect(sequencer_window, "key-press-event", G_CALLBACK(on_sequencer_keypress), 0);
@@ -12820,9 +12821,9 @@ int _gtk_loop(void *p)
         gtk_widget_set_size_request(GTK_WIDGET(prompt_settings_dialog), 400, 400);
         gtk_window_set_title(GTK_WINDOW(prompt_settings_dialog), "Prompt settings");
         gtk_window_set_resizable(GTK_WINDOW(prompt_settings_dialog), false);
-        gtk_window_set_policy(GTK_WINDOW(prompt_settings_dialog),
-                      FALSE,
-                      FALSE, FALSE);
+        // gtk_window_set_policy(GTK_WINDOW(prompt_settings_dialog),
+        //               FALSE,
+        //               FALSE, FALSE);
         gtk_window_set_position(prompt_settings_dialog, GTK_WIN_POS_CENTER);
         gtk_window_set_keep_above(GTK_WINDOW(prompt_settings_dialog), TRUE);
 
@@ -13836,7 +13837,7 @@ _open_command_pad_window(gpointer unused)
                     command *pad = static_cast<command*>(e);
                     char tmp[64];
 
-                    strcpy(tmp, get_cb_val(GTK_COMBO_BOX(command_pad_cb)));
+                    strcpy(tmp, get_cb_val(command_pad_cb));
                     if (strcmp(tmp, "Stop") == 0) {
                         pad->set_command(COMMAND_STOP);
                     } else if (strcmp(tmp, "Start/Stop toggle") == 0) {
@@ -14128,7 +14129,7 @@ _open_key_listener(gpointer unused)
                 if (e && e->g_id == O_KEY_LISTENER) {
                     GtkTreeIter iter;
 
-                    if (gtk_combo_box_get_active_iter(key_listener_cb, &iter)) {
+                    if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(key_listener_cb), &iter)) {
                         GValue val = {0, };
                         gtk_tree_model_get_value(GTK_TREE_MODEL(key_listener_ls),
                                                  &iter,
@@ -14524,8 +14525,8 @@ _open_camtargeter_window(gpointer unused)
                 entity *e = G->selection.e;
 
                 if (e && e->g_id == O_CAM_TARGETER) {
-                    e->properties[1].v.i8 = gtk_combo_box_get_active(camtargeter_mode);
-                    e->properties[2].v.i8 = gtk_combo_box_get_active(camtargeter_offset_mode);
+                    e->properties[1].v.i8 = gtk_combo_box_get_active(GTK_COMBO_BOX(camtargeter_mode));
+                    e->properties[2].v.i8 = gtk_combo_box_get_active(GTK_COMBO_BOX(camtargeter_offset_mode));
 
                     float v = gtk_range_get_value(camtargeter_x_offset);
                     if (v < -150.f) v = -150.f;
