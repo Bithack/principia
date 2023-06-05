@@ -4004,8 +4004,8 @@ GtkRange        *cursorfield_down;
 
 /** --escript **/
 GtkWindow       *escript_window;
-GtkTextView     *escript_code;
-GtkTextBuffer   *escript_buffer;
+GtkSourceView   *escript_code;
+GtkSourceBuffer *escript_buffer;
 GtkCheckButton  *escript_use_external_editor;
 GtkBox          *escript_external_box;
 GtkLabel        *escript_external_file_path;
@@ -5588,7 +5588,7 @@ on_escript_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
             bool wrote_to_external_file = false;
 
             GtkTextIter start, end;
-            GtkTextBuffer *text_buffer = escript_buffer;
+            GtkTextBuffer *text_buffer = GTK_TEXT_BUFFER(escript_buffer);
             char *text;
             gtk_text_buffer_get_bounds(text_buffer, &start, &end);
             text = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
@@ -5645,7 +5645,7 @@ on_escript_show(GtkWidget *wdg, void *unused)
     entity *e = G->selection.e;
 
     if (e && e->g_id == O_ESCRIPT) {
-        GtkTextBuffer *text_buffer = escript_buffer;
+        GtkTextBuffer *text_buffer = GTK_TEXT_BUFFER(escript_buffer);
         GtkTextIter start, end;
 
         char *code = (char*)malloc(e->properties[0].v.s.len+1);
@@ -12423,23 +12423,66 @@ int _gtk_loop(void *p)
             escript_use_external_editor = GTK_CHECK_BUTTON(cb);
         }
 
-        GtkTextTagTable *tt = gtk_text_tag_table_new();
-        escript_buffer = gtk_text_buffer_new(tt);
+        // GtkTextTagTable *tt = gtk_text_tag_table_new();
+        // escript_buffer = gtk_source_buffer_new(tt);
 
-        escript_tt_function = gtk_text_buffer_create_tag(escript_buffer,
-                                                         "function",
-                                                         "foreground", "#ff00ff",
-                                                         NULL);
+        //escript_buffer = GTK_SOURCE_BUFFER(gtk_source_buffer_new(NULL));
 
-        g_signal_connect(escript_buffer, "mark-set", G_CALLBACK(on_escript_mark_set), 0);
+        
 
-        escript_code = GTK_TEXT_VIEW(gtk_text_view_new_with_buffer(escript_buffer));
-        gtk_widget_modify_font(GTK_WIDGET(escript_code), pango_font_description_from_string("monospace"));
+        // escript_tt_function = gtk_text_buffer_create_tag(GTK_TEXT_BUFFER(escript_buffer),
+        //                                                  "function",
+        //                                                  "foreground", "#ff00ff",
+        //                                                  NULL);
+
+        //g_signal_connect(escript_buffer, "mark-set", G_CALLBACK(on_escript_mark_set), 0);
+
+        //escript_code = GTK_SOURCE_VIEW(gtk_source_view_new_with_buffer(escript_buffer));
+        
+        //gtk_widget_modify_font(GTK_WIDGET(escript_code), pango_font_description_from_string("monospace"));
+
         /*
         GtkTextBuffer *buffer = gtk_text_view_get_buffer(escript_code);
         gtk_text_buffer_create_tag(buffer, "font")
         */
 
+        {
+            //Create GtkSourceLanguageManager and get lua GtkSourceLanguage
+            GtkSourceLanguageManager *lm = gtk_source_language_manager_get_default();
+            GtkSourceLanguage *l = gtk_source_language_manager_guess_language(lm, ".lua", NULL);
+
+            //Create GtkSourceStyleSchemeManager and get Adwaita GtkSourceStyleScheme
+            GtkSourceStyleSchemeManager *sm = gtk_source_style_scheme_manager_get_default();
+            GtkSourceStyleScheme *s = gtk_source_style_scheme_manager_get_scheme(sm, "Adwaita-dark");
+
+            //Create new escript_buffer
+            escript_buffer = GTK_SOURCE_BUFFER(gtk_source_buffer_new(NULL));
+            g_signal_connect(escript_buffer, "mark-set", G_CALLBACK(on_escript_mark_set), 0);
+
+            //Enable highlighting for the buffer
+            gtk_source_buffer_set_language(escript_buffer, l);
+            gtk_source_buffer_set_highlight_syntax(escript_buffer, TRUE);
+            gtk_source_buffer_set_style_scheme(escript_buffer, s);
+
+            //Create GtkSourceView
+            escript_code = GTK_SOURCE_VIEW(gtk_source_view_new_with_buffer(escript_buffer));
+
+            //Enable fancy-ass stuff
+            gtk_source_view_set_highlight_current_line(escript_code, TRUE);
+            gtk_source_view_set_auto_indent(escript_code, TRUE);
+            gtk_source_view_set_indent_on_tab(escript_code, TRUE);
+            gtk_source_view_set_tab_width(escript_code, 4);
+            gtk_source_view_set_indent_width(escript_code, -1);
+            gtk_source_view_set_insert_spaces_instead_of_tabs(escript_code, TRUE);
+            gtk_source_view_set_smart_backspace(escript_code, TRUE);
+            gtk_source_view_set_show_line_marks(escript_code, TRUE);
+
+            //Create and set font
+            // PangoFontDescription *font_desc = pango_font_description_from_string("mono 12");
+            // gtk_widget_modify_font(GTK_WIDGET(escript_code), font_desc);
+            // pango_font_description_free(font_desc);
+        }
+       
         escript_external_box = GTK_BOX(gtk_vbox_new(0,0));
         escript_external_file_path = GTK_LABEL(new_clbl("Placeholder"));
 
