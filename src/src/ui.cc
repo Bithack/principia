@@ -12434,7 +12434,7 @@ int _gtk_loop(void *p)
 
             //Create GtkSourceStyleSchemeManager and get Adwaita GtkSourceStyleScheme
             GtkSourceStyleSchemeManager *sm = gtk_source_style_scheme_manager_get_default();
-            GtkSourceStyleScheme *s = gtk_source_style_scheme_manager_get_scheme(sm, "Adwaita-dark");
+            GtkSourceStyleScheme *s = gtk_source_style_scheme_manager_get_scheme(sm, "classic");
 
             //Create new escript_buffer
             escript_buffer = GTK_SOURCE_BUFFER(gtk_source_buffer_new(NULL));
@@ -12456,12 +12456,14 @@ int _gtk_loop(void *p)
             gtk_source_view_set_indent_width(escript_code, -1);
             gtk_source_view_set_insert_spaces_instead_of_tabs(escript_code, TRUE);
             gtk_source_view_set_smart_backspace(escript_code, TRUE);
+            gtk_source_view_set_smart_home_end(escript_code, GTK_SOURCE_SMART_HOME_END_BEFORE);
             gtk_source_view_set_show_line_marks(escript_code, TRUE);
+            gtk_source_view_set_show_line_numbers(escript_code, TRUE);
 
             //Create and set font
-            // PangoFontDescription *font_desc = pango_font_description_from_string("mono 12");
-            // gtk_widget_modify_font(GTK_WIDGET(escript_code), font_desc);
-            // pango_font_description_free(font_desc);
+            PangoFontDescription *font_desc = pango_font_description_from_string("mono 10");
+            gtk_widget_modify_font(GTK_WIDGET(escript_code), font_desc);
+            pango_font_description_free(font_desc);
         }
        
         escript_external_box = GTK_BOX(gtk_vbox_new(0,0));
