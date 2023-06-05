@@ -21,8 +21,7 @@ tms_texture sticky::texture;
 
 #define UV_RATIO ((1.0f * WIDTH)/(1.0f * (HEIGHT * NUM_SLOTS)))
 
-// TODO: Increase this to 32 for next level version increment
-#define NUM_SLOTS 7
+#define NUM_SLOTS 32
 
 static bool slots[NUM_SLOTS];
 
@@ -73,7 +72,7 @@ sticky::sticky()
     }
 
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
-    this->set_flag(ENTITY_DISABLE_LAYERS,       false);
+    this->set_flag(ENTITY_DISABLE_LAYERS,       true);
     this->set_flag(ENTITY_HAS_CONFIG,           true);
 
     this->dialog_id = DIALOG_STICKY;
@@ -93,7 +92,13 @@ sticky::sticky()
     this->width = .76f*2.f;
     this->height = .76f*2.f;
 
-    for (int x=0; x<NUM_SLOTS; x++) {
+    int maxslots = NUM_SLOTS;
+    // Compatibility
+    if (W->level.version < LEVEL_VERSION_2023_06_05) {
+        maxslots = 8;
+    }
+
+    for (int x=0; x < maxslots; x++) {
         if (slots[x] == false) {
             this->slot = x;
             slots[x] = true;

@@ -3749,6 +3749,8 @@ GtkComboBoxText *faction_cb;
 GtkDialog       *sticky_dialog;
 GtkTextView     *sticky_text;
 GtkSpinButton   *sticky_font_size;
+GtkCheckButton  *sticky_center_x;
+GtkCheckButton  *sticky_center_y;
 
 /** --Digital Display **/
 GtkDialog       *digi_dialog;
@@ -5494,6 +5496,8 @@ on_sticky_show(GtkWidget *wdg, void *ununused)
         GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(sticky_text);
         gtk_text_buffer_set_text(text_buffer, e->properties[0].v.s.buf, -1);
         gtk_spin_button_set_value(sticky_font_size, e->properties[3].v.i8);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sticky_center_x), (bool) e->properties[1].v.i8);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sticky_center_y), (bool) e->properties[2].v.i8);
     }
 }
 
@@ -10629,11 +10633,24 @@ int _gtk_loop(void *p)
                     GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 3, 1, 1, 0)),
                     1, 0));
 
-        gtk_box_pack_start(GTK_BOX(spin), new_lbl("<b>Font size</b>"), false, false, 0);
+        GtkBox *align = GTK_BOX(gtk_hbox_new(0, 5));
+
+        GtkBox *params = GTK_BOX(gtk_hbox_new(0, 5));
+
+        sticky_center_x = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Center horizontally"));
+        sticky_center_y = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Center vertically"));
+
+        gtk_box_pack_start(GTK_BOX(spin), new_lbl("Font size"), false, false, 0);
         gtk_box_pack_start(GTK_BOX(spin), GTK_WIDGET(sticky_font_size), false, false, 0);
 
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(spin), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), new_clbl("<b>Sticky text</b>"), false, false, 0);
+        gtk_box_pack_start(GTK_BOX(align), GTK_WIDGET(sticky_center_x), false, false, 0);
+        gtk_box_pack_start(GTK_BOX(align), GTK_WIDGET(sticky_center_y), false, false, 0);
+
+        gtk_box_pack_start(GTK_BOX(params), GTK_WIDGET(spin), false, false, 0);
+        gtk_box_pack_start(GTK_BOX(params), GTK_WIDGET(align), false, false, 0);
+
+        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(params), false, false, 0);
+        gtk_box_pack_start(GTK_BOX(content), new_clbl("<b>Sticky text:</b>"), false, false, 0);
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(sticky_text), true, true, 0);
 
         gtk_widget_show_all(GTK_WIDGET(content));
@@ -14060,6 +14077,8 @@ _open_sticky_window(gpointer unused)
             {
                 entity *e = G->selection.e;
                 if (e && e->g_id == 60) {
+                    e->properties[1].v.i8 = (uint8_t) gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sticky_center_x));
+                    e->properties[2].v.i8 = (uint8_t) gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sticky_center_y));
                     e->properties[3].v.i8 = gtk_spin_button_get_value(sticky_font_size);
                 }
                 GtkTextIter start, end;

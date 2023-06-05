@@ -4234,6 +4234,10 @@ escript::solve_electronics()
 
 static unsigned char keys[5] = {0x41, 0xf3, 0x1a, 0x44, 0x14};
 
+#define IS_ENCRYPTED(ver) \
+        ver >= LEVEL_VERSION_1_5 \
+     && ver <  LEVEL_VERSION_2023_06_05
+
 void
 escript::on_load(bool created, bool has_state)
 {
@@ -4275,9 +4279,8 @@ escript::on_load(bool created, bool has_state)
     }
 
     if (!created) {
-        /* In level 1.5 and above, all Luascript-objects code will be encrypted.
-         * So on_load, we need to decrypt the string to make it usable! */
-        if (W->level.version >= LEVEL_VERSION_1_5) {
+        // For old level versions above 1.5+, LuaScript code is encrypted
+        if (IS_ENCRYPTED(W->level.version)) {
             for (uint32_t x=0; x<this->properties[0].v.s.len; ++x) {
                 this->properties[0].v.s.buf[x] ^= keys[x%5];
             }
@@ -4290,9 +4293,8 @@ escript::pre_write()
 {
     entity::pre_write();
 
-    /* In level 1.5 and above, we encrypt the code before writing it
-     * to the level file. */
-    if (W->level.version >= LEVEL_VERSION_1_5) {
+    // For old level versions above 1.5+, LuaScript code is encrypted
+    if (IS_ENCRYPTED(W->level.version)) {
         for (uint32_t x=0; x<this->properties[0].v.s.len; ++x) {
             this->properties[0].v.s.buf[x] ^= keys[x%5];
         }
@@ -4304,8 +4306,8 @@ escript::post_write()
 {
     entity::post_write();
 
-    /* Once the level has been written to a file, we can decrypt it again! */
-    if (W->level.version >= LEVEL_VERSION_1_5) {
+    // For old level versions above 1.5+, LuaScript code is encrypted
+    if (IS_ENCRYPTED(W->level.version)) {
         for (uint32_t x=0; x<this->properties[0].v.s.len; ++x) {
             this->properties[0].v.s.buf[x] ^= keys[x%5];
         }
