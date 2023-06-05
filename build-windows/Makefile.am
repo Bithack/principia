@@ -24,20 +24,23 @@ GLOBAL_FLAGS += -I../src/tms/backends/windows/ \
 	-I/mingw64/include/ \
 	-I/mingw64/include/freetype2 \
 	-I/mingw64/include/SDL2/ \
+    -I/mingw64/include/gtksourceview-4 \
+    -I/mingw64/include/gtk-3.0 \
+    -I/mingw64/include/pango-1.0 \
     -I/mingw64/include/glib-2.0 \
     -I/mingw64/lib/glib-2.0/include \
-    -I/mingw64/lib/gtk-3.0/include \
-    -I/mingw64/include/glib-2.0/glib \
-    -I/mingw64/include/gdk-pixbuf-2.0 \
-    -I/mingw64/include/atk-1.0 \
-    -I/mingw64/include/gtk-3.0/ \
-    -I/mingw64/include/cairo \
     -I/mingw64/include/harfbuzz \
-    -I/mingw64/include/pango-1.0 \
-    -I../src/gtk-undo \
+    -I/mingw64/include/freetype2 \
+    -I/mingw64/include/libpng1 \
+    -I/mingw64/include/fribidi \
+    -I/mingw64/include/cairo \
+    -I/mingw64/include/pixman-1 \
+    -I/mingw64/include/gdk-pixbuf-2.0 \
+    -I/mingw64/include/webp \
+    -I/mingw64/include/atk-1.0 \
 	-I../src/lua/ -I../src/include/ \
+    -DLIBDEFLATE_DLL \
     -DGTK_DISABLE_SINGLE_INCLUDES -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGSEAL_ENABLE
-
 
 principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
 
@@ -46,7 +49,7 @@ principia_CPPFLAGS = -static-libgcc -static-libstdc++
 principia_LDADD = -L`pwd` -lopengl32 -lz \
     -lmingw32 -lws2_32 -lwinmm -luuid -loleaut32 -limm32 -lversion \
     -lole32 -luser32 \
-    -lgtk-win32-2.0 -lgdk-win32-2.0 -latk-1.0 -lgio-2.0 -lpango-1.0 -lgdi32 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lcairo -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lglib-2.0 -lintl \
+    -lgtk-3 -lgdk-3 -lz -lgdi32 -limm32 -lshell32 -lole32 -luuid -lwinmm -ldwmapi -lsetupapi -lcfgmgr32 -lhid -lwinspool -lcomctl32 -lcomdlg32 -lpangowin32-1.0 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lintl \
     -lcurl -lShlwapi -lpng -ljpeg -lfreetype -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_gfx -lSDL2_ttf
 
 principia_SOURCES = \
