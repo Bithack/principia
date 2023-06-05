@@ -138,9 +138,6 @@ principia.rc \
 ../src/tms/bindings/cpp/cpp.cc \
 ../src/tms/modules/3ds/3ds.c \
 \
-../src/gtk-undo/undo_manager.c \
-../src/gtk-undo/undo_view.c \
-\
 ../src/src/fluid.cc \
 ../src/src/oilrig.cc \
 ../src/src/factory.cc \
