@@ -1,3 +1,5 @@
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include "ui.hh"
 #include <SDL.h>
 
@@ -3236,7 +3238,7 @@ enum {
 /* Joint strength */
 GtkHScale    *multi_config_joint_strength;
 /* Plastic color */
-GtkColorSelection *multi_config_plastic_color;
+GtkColorChooserWidget *multi_config_plastic_color;
 /* Plastic density */
 GtkHScale    *multi_config_plastic_density;
 /* Connection render type */
@@ -3313,7 +3315,7 @@ GtkTextView     *lvl_descr;
 GtkComboBoxText *lvl_bg;
 GtkButton       *lvl_bg_color;
 uint32_t         new_bg_color;
-GtkColorSelectionDialog *lvl_bg_cd;
+GtkColorChooserDialog *lvl_bg_cd;
 GtkEntry        *lvl_width_left;
 GtkEntry        *lvl_width_right;
 GtkEntry        *lvl_height_down;
@@ -3803,7 +3805,7 @@ GtkWindow *quickadd_window;
 GtkEntry  *quickadd_entry;
 
 /** --Color Chooser (for Plastic beam & Pixel) **/
-GtkColorSelectionDialog *beam_color_dialog;
+GtkColorChooserDialog *beam_color_dialog;
 
 /** --Info Dialog **/
 GtkWindow       *info_dialog;
@@ -7275,7 +7277,7 @@ on_coolman_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     if (key->keyval == GDK_KEY_Escape)
         gtk_widget_hide(w);
     else if (key->keyval == GDK_KEY_Return
-            && (w == gtk_color_selection_dialog_get_color_selection(lvl_bg_cd) ||
+            && (w == gtk_dialog_get_content_area(GTK_DIALOG(lvl_bg_cd)) || //TODO: verify that this works
                 w == ok_button)) {
         gtk_button_clicked(GTK_BUTTON(ok_button));
         return true;
@@ -7290,35 +7292,32 @@ on_lvl_bg_color_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
     if (btn_pressed(w, (GtkButton*)w, user_data)) {
         tms_debugf("bg color button CLICKED");
 
-        GdkColor color;
+        GdkRGBA color;
         float r, g, b, a;
 
         unpack_rgba(W->level.bg_color, &r, &g, &b, &a);
 
-        color.red   = r * 0xffff;
-        color.green = g * 0xffff;
-        color.blue  = b * 0xffff;
+        color.red   = r;
+        color.green = g;
+        color.blue  = b;
+        color.alpha = 1.;
 
-        GtkColorSelection *sel = GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(lvl_bg_cd));
+        GtkColorChooser *sel = GTK_COLOR_CHOOSER(lvl_bg_cd);
 
-        gtk_color_selection_set_has_opacity_control(sel, false);
-        gtk_color_selection_set_current_color(sel, &color);
+        gtk_color_chooser_set_use_alpha(sel, false);
+        gtk_color_chooser_set_rgba(sel, &color);
 
         if (gtk_dialog_run(GTK_DIALOG(lvl_bg_cd)) == GTK_RESPONSE_OK) {
-            GdkColor new_color;
+            GdkRGBA new_color;
 
-            gtk_color_selection_get_current_color(sel, &new_color);
+            gtk_color_chooser_get_rgba(sel, &new_color);
 
-            float new_r = (float)new_color.red   / 0xffff;
-            float new_g = (float)new_color.green / 0xffff;
-            float new_b = (float)new_color.blue  / 0xffff;
+            tms_debugf("new_r: %.2f", new_color.red);
+            tms_debugf("new_g: %.2f", new_color.green);
+            tms_debugf("new_b: %.2f", new_color.blue);
 
-            tms_debugf("new_r: %.2f", new_r);
-            tms_debugf("new_g: %.2f", new_g);
-            tms_debugf("new_b: %.2f", new_b);
-
-            new_bg_color = pack_rgba(new_r, new_g, new_b, 1.f);
-            gtk_widget_modify_bg(GTK_WIDGET(lvl_bg_color), GTK_STATE_NORMAL, &new_color);
+            new_bg_color = pack_rgba(new_color.red, new_color.green, new_color.blue, 1.f);
+            gtk_widget_override_background_color(GTK_WIDGET(lvl_bg_color), GTK_STATE_FLAG_NORMAL, &new_color);
         }
 
         gtk_widget_hide(GTK_WIDGET(lvl_bg_cd));
@@ -7926,7 +7925,7 @@ on_color_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     if (key->keyval == GDK_KEY_Escape) {
         gtk_widget_hide(w);
     } else if (key->keyval == GDK_KEY_Return
-            && (w == gtk_color_selection_dialog_get_color_selection(beam_color_dialog) ||
+            && (w == gtk_dialog_get_content_area(GTK_DIALOG(beam_color_dialog)) ||
                 w == ok_button)) {
         gtk_button_clicked(GTK_BUTTON(ok_button));
         return true;
@@ -8601,16 +8600,17 @@ on_properties_show(GtkWidget *wdg, void *unused)
     new_bg_color = W->level.bg_color;
 
     {
-        GdkColor bg_color;
+        GdkRGBA bg_color;
         float r, g, b, a;
 
         unpack_rgba(W->level.bg_color, &r, &g, &b, &a);
 
-        bg_color.red   = r * 0xffff;
-        bg_color.green = g * 0xffff;
-        bg_color.blue  = b * 0xffff;
+        bg_color.red   = r;
+        bg_color.green = g;
+        bg_color.blue  = b;
+        bg_color.alpha = 1.0;
 
-        gtk_widget_modify_bg(GTK_WIDGET(lvl_bg_color), GTK_STATE_NORMAL, &bg_color);
+        gtk_widget_override_background_color(GTK_WIDGET(lvl_bg_color), GTK_STATE_FLAG_NORMAL, &bg_color);
     }
 
     free(current_descr);
@@ -8893,13 +8893,13 @@ on_multi_config_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
 
             case TAB_PLASTIC_COLOR:
                 {
-                    GdkColor color;
-                    gtk_color_selection_get_current_color(multi_config_plastic_color, &color);
+                    GdkRGBA color;
+                    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(multi_config_plastic_color), &color);
 
                     tvec4 *vec = (tvec4*)malloc(sizeof(tvec4));
-                    vec->r = (float)color.red   / (float)0xffff;
-                    vec->g = (float)color.green / (float)0xffff;
-                    vec->b = (float)color.blue  / (float)0xffff;
+                    vec->r = color.red;
+                    vec->g = color.green;
+                    vec->b = color.blue;
                     vec->a = 1.0f;
 
                     P.add_action(ACTION_MULTI_PLASTIC_COLOR, (void*)vec);
@@ -10143,11 +10143,11 @@ int _gtk_loop(void *p)
             g_signal_connect(lvl_bg_color, "button-release-event",
                     G_CALLBACK(on_lvl_bg_color_click), 0);
 
-            lvl_bg_cd = GTK_COLOR_SELECTION_DIALOG(gtk_color_selection_dialog_new("Background color"));
+            lvl_bg_cd = GTK_COLOR_CHOOSER_DIALOG(gtk_color_chooser_dialog_new("Background color", NULL));
 
             g_signal_connect(lvl_bg_cd, "delete-event", G_CALLBACK(on_window_close), 0);
 
-            g_signal_connect(gtk_color_selection_dialog_get_color_selection(lvl_bg_cd),  "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
+            g_signal_connect(gtk_dialog_get_content_area(GTK_DIALOG(lvl_bg_cd)),  "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
             
             GtkWidget *ok_button_lvl_bg_cd = gtk_dialog_get_widget_for_response(GTK_DIALOG(lvl_bg_cd), GTK_RESPONSE_OK);
 
@@ -10563,13 +10563,13 @@ int _gtk_loop(void *p)
 
             for (int y=0; y<7; y++) {
                 for (int x=0; x<5; x++) {
-                    GdkColor black,green;
-                    gdk_color_parse("black", &black);
-                    gdk_color_parse("#aaffaa", &green);
+                    GdkRGBA black,green;
+                    gdk_rgba_parse(&black, "black");
+                    gdk_rgba_parse(&green, "#aaffaa");
 
                     digi_check[y][x] = GTK_TOGGLE_BUTTON(gtk_toggle_button_new_with_label(""));
-                    gtk_widget_modify_bg(GTK_WIDGET(digi_check[y][x]), GTK_STATE_NORMAL, &black);
-                    gtk_widget_modify_bg(GTK_WIDGET(digi_check[y][x]), GTK_STATE_ACTIVE, &green);
+                    gtk_widget_override_background_color(GTK_WIDGET(digi_check[y][x]), GTK_STATE_FLAG_NORMAL, &black);
+                    gtk_widget_override_background_color(GTK_WIDGET(digi_check[y][x]), GTK_STATE_FLAG_ACTIVE, &green);
                     gtk_table_attach_defaults(GTK_TABLE(tbl_symbol), GTK_WIDGET(digi_check[y][x]), x,x+1,y,y+1);
 
                     g_signal_connect(digi_check[y][x], "toggled", G_CALLBACK(on_digi_toggle), (void*)(uintptr_t)(y*5+x));
@@ -11312,19 +11312,19 @@ int _gtk_loop(void *p)
 
     /** --Color Chooser (for Plastic beam & Pixel) **/
     {
-        beam_color_dialog = GTK_COLOR_SELECTION_DIALOG(gtk_color_selection_dialog_new("Color"));
-        GtkColorSelection *sel = GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(beam_color_dialog));
+        beam_color_dialog = GTK_COLOR_CHOOSER_DIALOG(gtk_color_chooser_dialog_new("Color", NULL));
+        GtkColorChooser *sel = GTK_COLOR_CHOOSER(beam_color_dialog);
 
         gtk_window_set_position(GTK_WINDOW(beam_color_dialog), GTK_WIN_POS_CENTER);
         gtk_window_set_keep_above(GTK_WINDOW(beam_color_dialog), TRUE);
 
-        gtk_color_selection_set_has_opacity_control(sel, false);
+        gtk_color_chooser_set_use_alpha(sel, false);
 
         g_signal_connect(beam_color_dialog, "delete-event", G_CALLBACK(on_window_close), 0);
 
         GtkWidget *beam_color_dialog_ok_button = gtk_dialog_get_widget_for_response(GTK_DIALOG(beam_color_dialog), GTK_RESPONSE_OK);
 
-        g_signal_connect(gtk_color_selection_dialog_get_color_selection(beam_color_dialog),  "key-press-event", G_CALLBACK(on_color_keypress), 0);
+        g_signal_connect(gtk_dialog_get_content_area(GTK_DIALOG(beam_color_dialog)),  "key-press-event", G_CALLBACK(on_color_keypress), 0);
         g_signal_connect(beam_color_dialog_ok_button, "key-press-event", G_CALLBACK(on_color_keypress), 0);
         g_signal_connect(beam_color_dialog,           "key-press-event", G_CALLBACK(on_color_keypress), 0);
     }
@@ -11752,7 +11752,7 @@ int _gtk_loop(void *p)
             /* Plastic color */
             GtkBox *box = GTK_BOX(gtk_vbox_new(0, 5));
 
-            multi_config_plastic_color = GTK_COLOR_SELECTION(gtk_color_selection_new());
+            multi_config_plastic_color = GTK_COLOR_CHOOSER_WIDGET(gtk_color_chooser_widget_new());
 
             gtk_box_pack_start(box, GTK_WIDGET(multi_config_plastic_color), 0, 0, 0);
             gtk_box_pack_start(box, new_lbl("This will change the color of all plastic objects in your current selection."), 1, 1, 0);
@@ -13181,60 +13181,55 @@ _open_quickadd(gpointer unused)
 static gboolean
 _open_beam_color(gpointer unused)
 {
-    GtkColorSelection *sel = 0;
+    GtkColorChooser *sel = 0;
 
     /* set current chooser to beam/pixel current color */
-    sel = GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(beam_color_dialog));
+    sel = GTK_COLOR_CHOOSER(beam_color_dialog);
     entity *e = G->selection.e;
     if (e) {
-        GdkColor color;
+        GdkRGBA color;
         tvec4 c = e->get_color();
-        color.red   = c.r * 0xffff;
-        color.green = c.g * 0xffff;
-        color.blue  = c.b * 0xffff;
-
-        gtk_color_selection_set_current_color(sel, &color);
+        color.red   = c.r;
+        color.green = c.g;
+        color.blue  = c.b;
+        color.alpha = (double)(e->properties[4].v.i8) / 255.0;
+        //color.alpha = (double)((guint16) e->properties[4].v.i8 * 257) / 65535.;
+        
+        gtk_color_chooser_set_rgba(sel, &color);
 
         if (e->g_id == O_PIXEL) {
-            gtk_color_selection_set_current_alpha(sel, (guint16)(e->properties[4].v.i8 * 257));
-            gtk_color_selection_set_current_color(sel, &color);
-            gtk_color_selection_set_has_opacity_control(sel, true);
+            gtk_color_chooser_set_rgba(sel, &color);
+            gtk_color_chooser_set_use_alpha(sel, true);
         } else {
-            gtk_color_selection_set_has_opacity_control(sel, false);
+            gtk_color_chooser_set_use_alpha(sel, false);
         }
     } else if (W->is_adventure() && adventure::player && adventure::is_player_alive()) {
         robot_parts::tool *t = adventure::player->get_tool();
         if (t && t->get_arm_type() == TOOL_PAINTER) {
             /*
-            GdkColor color;
-            color.red   = t->properties[0].v.f * 0xffff;
-            color.green = t->properties[1].v.f * 0xffff;
-            color.blue  = t->properties[2].v.f * 0xffff;
-
-            gtk_color_selection_set_has_opacity_control(sel, false);
-            gtk_color_selection_set_current_color(sel, &color);
+            GdkRGBA color;
+            color.red   = t->properties[0].v.f;
+            color.green = t->properties[1].v.f;
+            color.blue  = t->properties[2].v.f;
+            color.alpha = 1.0;
+            
+            gtk_color_chooser_set_use_alpha(sel, false);
+            gtk_color_chooser_set_rgba(sel, &color);
             */
         }
     }
 
     if (gtk_dialog_run(GTK_DIALOG(beam_color_dialog)) == GTK_RESPONSE_OK) {
-        sel = GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(beam_color_dialog));
+        sel = GTK_COLOR_CHOOSER(beam_color_dialog);
         entity *e = G->selection.e;
 
-        GdkColor color;
-        gtk_color_selection_get_current_color(sel, &color);
-
-        float r = (float)color.red / (float)0xffff;
-        float g = (float)color.green / (float)0xffff;
-        float b = (float)color.blue / (float)0xffff;
+        GdkRGBA color;
+        gtk_color_chooser_get_rgba(sel, &color);
 
         if (e) {
-            e->set_color4(r, g, b);
-
+            e->set_color4(color.red, color.green, color.blue);
             if (e->g_id == O_PIXEL) {
-                guint16 alpha = gtk_color_selection_get_current_alpha(sel);
-                uint8_t frequency = (uint8_t)(alpha >> 8);
-                e->set_property(4, frequency);
+                e->set_property(4, (uint8_t)(color.alpha * 255.));
             }
         } else if (W->is_adventure() && adventure::player && adventure::is_player_alive()) {
             robot_parts::tool *t = adventure::player->get_tool();
@@ -13954,6 +13949,12 @@ _open_settings(gpointer unused)
 static gboolean
 _open_multi_config(gpointer unused)
 {
+    g_object_set(
+        G_OBJECT(multi_config_plastic_color),
+        "show-editor", FALSE,
+        NULL
+    );
+    
     gtk_widget_show_all(GTK_WIDGET(multi_config_window));
 
     return false;
