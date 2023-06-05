@@ -8,6 +8,7 @@
 , freetype
 , glew
 , gtk3
+, gtksourceview4
 , libdatrie
 , libGL
 , libjpeg
