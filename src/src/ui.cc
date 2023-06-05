@@ -7919,12 +7919,14 @@ on_open_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
 gboolean
 on_color_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
 {
+    GtkWidget *ok_button = gtk_dialog_get_widget_for_response(GTK_DIALOG(beam_color_dialog), GTK_RESPONSE_OK);
+
     if (key->keyval == GDK_KEY_Escape) {
         gtk_widget_hide(w);
     } else if (key->keyval == GDK_KEY_Return
             && (w == gtk_color_selection_dialog_get_color_selection(beam_color_dialog) ||
-                w == beam_color_dialog->ok_button)) {
-        gtk_button_clicked(GTK_BUTTON(beam_color_dialog->ok_button));
+                w == ok_button)) {
+        gtk_button_clicked(GTK_BUTTON(ok_button));
         return true;
     }
 
@@ -9047,7 +9049,8 @@ editor_menu_back_to_menu(GtkMenuItem *i, gpointer unused)
 
 static void show_grab_focus(GtkWidget *w, gpointer user_data)
 {
-    while (gdk_keyboard_grab(w->window, FALSE, GDK_CURRENT_TIME) != GDK_GRAB_SUCCESS) {
+    GdkWindow *w_window = gtk_widget_get_window(w);
+    while (gdk_keyboard_grab(w_window, FALSE, GDK_CURRENT_TIME) != GDK_GRAB_SUCCESS) {
         SDL_Delay(100);
     }
 }
@@ -10143,8 +10146,11 @@ int _gtk_loop(void *p)
             g_signal_connect(lvl_bg_cd, "delete-event", G_CALLBACK(on_window_close), 0);
 
             g_signal_connect(gtk_color_selection_dialog_get_color_selection(lvl_bg_cd),  "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
-            g_signal_connect(lvl_bg_cd->ok_button, "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
-            g_signal_connect(lvl_bg_cd,            "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
+            
+            GtkWidget *ok_button_lvl_bg_cd = gtk_dialog_get_widget_for_response(GTK_DIALOG(lvl_bg_cd), GTK_RESPONSE_OK);
+
+            g_signal_connect(ok_button_lvl_bg_cd, "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
+            g_signal_connect(lvl_bg_cd,           "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
 
             lvl_width_left = GTK_ENTRY(gtk_entry_new());
             lvl_width_right = GTK_ENTRY(gtk_entry_new());
@@ -11246,7 +11252,7 @@ int _gtk_loop(void *p)
     {
 #ifdef TMS_BACKEND_WINDOWS
         quickadd_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-        GTK_WIDGET_SET_FLAGS(quickadd_window, GTK_CAN_FOCUS);
+        //VX: GTK_WIDGET_SET_FLAGS(quickadd_window, GTK_CAN_FOCUS);
         //VX: GTK_WINDOW(quickadd_window)->type = GTK_WINDOW_TOPLEVEL;
         gtk_window_set_decorated(GTK_WINDOW(quickadd_window), FALSE);
         //VX: gtk_window_set_has_frame(GTK_WINDOW(quickadd_window), FALSE);
@@ -11308,9 +11314,11 @@ int _gtk_loop(void *p)
 
         g_signal_connect(beam_color_dialog, "delete-event", G_CALLBACK(on_window_close), 0);
 
+        GtkWidget *beam_color_dialog_ok_button = gtk_dialog_get_widget_for_response(GTK_DIALOG(beam_color_dialog), GTK_RESPONSE_OK);
+
         g_signal_connect(gtk_color_selection_dialog_get_color_selection(beam_color_dialog),  "key-press-event", G_CALLBACK(on_color_keypress), 0);
-        g_signal_connect(beam_color_dialog->ok_button, "key-press-event", G_CALLBACK(on_color_keypress), 0);
-        g_signal_connect(beam_color_dialog,            "key-press-event", G_CALLBACK(on_color_keypress), 0);
+        g_signal_connect(beam_color_dialog_ok_button, "key-press-event", G_CALLBACK(on_color_keypress), 0);
+        g_signal_connect(beam_color_dialog,           "key-press-event", G_CALLBACK(on_color_keypress), 0);
     }
 
     /** --Autosave Dialog **/
