@@ -49,6 +49,7 @@ principia_CPPFLAGS = -static-libgcc -static-libstdc++
 principia_LDADD = -L`pwd` -lopengl32 -lz \
     -lmingw32 -lws2_32 -lwinmm -luuid -loleaut32 -limm32 -lversion \
     -lole32 -luser32 \
+    -lgtksourceview-4 \
     -lgtk-3 -lgdk-3 -lz -lgdi32 -limm32 -lshell32 -lole32 -luuid -lwinmm -ldwmapi -lsetupapi -lcfgmgr32 -lhid -lwinspool -lcomctl32 -lcomdlg32 -lpangowin32-1.0 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lintl \
     -lcurl -lShlwapi -lpng -ljpeg -lfreetype -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_gfx -lSDL2_ttf
 
