@@ -14805,7 +14805,7 @@ ui::open_dialog(int num, void *data/*=0*/)
             break;
     }
 
-    gdk_display_flush();
+    gdk_display_flush(gdk_display_get_default());
     
 }
 
@@ -14821,7 +14821,7 @@ void ui::open_sandbox_tips()
 
     gdk_threads_add_idle(_open_tips_dialog, 0);
 
-    gdk_display_flush();
+    gdk_display_flush(gdk_display_get_default());
     
 }
 
@@ -14844,7 +14844,7 @@ ui::open_help_dialog(const char *title, const char *description, bool enable_mar
     _pass_info_enable_markup = enable_markup;
     gdk_threads_add_idle(_open_info_dialog, 0);
 
-    gdk_display_flush();
+    gdk_display_flush(gdk_display_get_default());
     
 }
 
@@ -14911,7 +14911,7 @@ ui::open_error_dialog(const char *error_msg)
     _pass_error_text = strdup(error_msg);
     gdk_threads_add_idle(_open_error_dialog, 0);
 
-    gdk_display_flush();
+    gdk_display_flush(gdk_display_get_default());
     
 }
 
@@ -14955,7 +14955,7 @@ ui::confirm(const char *text,
 
     gdk_threads_add_idle(_open_confirm_dialog, 0);
 
-    gdk_display_flush();
+    gdk_display_flush(gdk_display_get_default());
     
 }
 
@@ -14975,7 +14975,7 @@ ui::alert(const char *text, uint8_t alert_type/*=ALERT_INFORMATION*/)
 
     gdk_threads_add_idle(_open_alert_dialog, 0);
 
-    gdk_display_flush();
+    gdk_display_flush(gdk_display_get_default());
     
 
 }
