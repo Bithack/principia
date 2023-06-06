@@ -9573,7 +9573,7 @@ int _gtk_loop(void *p)
 
         GtkListStore *store;
 
-        store = gtk_list_store_new(OC_NUM_COLUMNS-1, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_STRING);
+        store = gtk_list_store_new(OC_NUM_COLUMNS, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
         object_treemodel = GTK_TREE_MODEL(store);
 
