@@ -12438,7 +12438,6 @@ int _gtk_loop(void *p)
         gtk_window_set_keep_above(GTK_WINDOW(escript_window), TRUE);
 
         escript_statusbar = GTK_STATUSBAR(gtk_statusbar_new());
-        gtk_window_set_has_resize_grip(GTK_WINDOW(escript_statusbar), false);
 
         g_signal_connect(escript_window, "show", G_CALLBACK(on_escript_show), 0);
         g_signal_connect(escript_window, "key-press-event", G_CALLBACK(on_escript_keypress), 0);
