@@ -9569,7 +9569,7 @@ int _gtk_loop(void *p)
         gtk_widget_set_size_request(GTK_WIDGET(object_window), 600, 600);
         gtk_window_set_resizable(GTK_WINDOW(object_window), true);
 
-        GtkBox *content = GTK_BOX(gtk_vbox_new(0, 5));
+        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
         GtkListStore *store;
 
@@ -9623,7 +9623,7 @@ int _gtk_loop(void *p)
         gtk_widget_set_size_request(GTK_WIDGET(open_state_window), 600, 600);
         gtk_window_set_resizable(GTK_WINDOW(open_state_window), true);
 
-        GtkBox *content = GTK_BOX(gtk_vbox_new(0, 5));
+        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
         GtkListStore *store;
 
@@ -9680,7 +9680,7 @@ int _gtk_loop(void *p)
 
         open_menu_information = add_menuitem_m(open_menu, "_Information", open_menu_item_activated);
 
-        GtkBox *content = GTK_BOX(gtk_vbox_new(0, 5));
+        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
         GtkListStore *store;
 
@@ -9740,7 +9740,7 @@ int _gtk_loop(void *p)
         pkg_name_ok = GTK_BUTTON(gtk_dialog_add_button(pkg_name_dialog, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT));
         gtk_dialog_add_button(pkg_name_dialog, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(pkg_name_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(pkg_name_dialog));
         pkg_name_entry = GTK_ENTRY(gtk_entry_new());
 
         gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Enter a name for this package</b>"), false, false, 0);
@@ -9755,9 +9755,9 @@ int _gtk_loop(void *p)
     {
         pkg_lvl_chooser = new_dialog_defaults("Set level ID", &on_pkg_lvl_chooser_show);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(pkg_lvl_chooser));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(pkg_lvl_chooser));
 
-        GtkBox *spin = GTK_BOX(gtk_hbox_new(0,5));
+        GtkBox *spin = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
         pkg_lvl_chooser_lvl_id = GTK_SPIN_BUTTON(gtk_spin_button_new(
                     GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 255, 1, 1, 0)),
                     1, 0));
@@ -9786,13 +9786,13 @@ int _gtk_loop(void *p)
         g_signal_connect(variable_dialog, "show", G_CALLBACK(on_variable_show), 0);
         g_signal_connect(variable_dialog, "delete-event", G_CALLBACK(on_window_close), 0);
 
-        GtkBox *content = GTK_BOX(gtk_vbox_new(0, 5));
-        GtkBox *inner_content = GTK_BOX(gtk_vbox_new(0, 5));
+        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
+        GtkBox *inner_content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
         GtkWidget *l;
         GtkBox *hb;
 
-        hb = GTK_BOX(gtk_hbox_new(0, 5));
+        hb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
         l = gtk_label_new("Variable:");
         variable_name = GTK_ENTRY(gtk_entry_new());
         gtk_entry_set_max_length(variable_name, 255);
@@ -9801,7 +9801,7 @@ int _gtk_loop(void *p)
         gtk_box_pack_start(hb, GTK_WIDGET(variable_name), false, false, 0);
         gtk_box_pack_start(inner_content, GTK_WIDGET(hb), false, false, 0);
 
-        hb = GTK_BOX(gtk_hbox_new(0, 5));
+        hb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
         /* Reset this */
         variable_reset_this = GTK_BUTTON(gtk_button_new_with_label("Reset this variable"));
@@ -9839,9 +9839,9 @@ int _gtk_loop(void *p)
         gtk_window_set_default_size(GTK_WINDOW(save_window), 400, 100);
         gtk_widget_set_size_request(GTK_WIDGET(save_window), 400, 100);
 
-        GtkBox *content = GTK_BOX(gtk_vbox_new(0, 5));
-        GtkBox *entries = GTK_BOX(gtk_vbox_new(0, 5));
-        GtkBox *bottom_content = GTK_BOX(gtk_hbox_new(0, 5));
+        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
+        GtkBox *entries = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
+        GtkBox *bottom_content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
         /* Name entry */
         save_entry = GTK_ENTRY(gtk_entry_new());
@@ -9890,9 +9890,9 @@ int _gtk_loop(void *p)
         gtk_window_set_default_size(GTK_WINDOW(export_window), 400, 100);
         gtk_widget_set_size_request(GTK_WIDGET(export_window), 400, 100);
 
-        GtkBox *content = GTK_BOX(gtk_vbox_new(0, 5));
-        GtkBox *entries = GTK_BOX(gtk_vbox_new(0, 5));
-        GtkBox *bottom_content = GTK_BOX(gtk_hbox_new(0, 5));
+        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
+        GtkBox *entries = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
+        GtkBox *bottom_content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
         /* Name entry */
         export_entry = GTK_ENTRY(gtk_entry_new());
@@ -9951,8 +9951,8 @@ int _gtk_loop(void *p)
         g_signal_connect(package_window, "delete-event", G_CALLBACK(on_window_close), 0);
         g_signal_connect(package_window, "show", G_CALLBACK(on_package_manager_show), 0);
 
-        //GtkVBox *layout = GTK_VBOX(gtk_dialog_get_content_area(package_dialog));
-        GtkVBox *layout = GTK_VBOX(gtk_vbox_new(0,0));
+        //GtkBox *layout = GTK_BOX(gtk_dialog_get_content_area(package_dialog));
+        GtkBox *layout = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 0));
         gtk_box_set_spacing(GTK_BOX(layout), 5);
         gtk_box_set_homogeneous(GTK_BOX(layout), false);
 
@@ -9988,7 +9988,7 @@ int _gtk_loop(void *p)
         }
 
         {
-            GtkBox *b = GTK_BOX(gtk_hbox_new(0, 5));
+            GtkBox *b = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
             //pk_pkg_delete = GTK_WIDGET(gtk_button_new_with_label("Delete"));
             pk_pkg_create = GTK_WIDGET(gtk_button_new_with_label("Create"));
@@ -10015,7 +10015,7 @@ int _gtk_loop(void *p)
         gtk_box_pack_start(GTK_BOX(layout), GTK_WIDGET(pk_pkg_return_on_finish), 0, 0, 0);
         gtk_box_pack_start(GTK_BOX(layout), GTK_WIDGET(pk_pkg_first_is_menu), 0, 0, 0);
 
-        GtkBox *spin = GTK_BOX(gtk_hbox_new(0,5));
+        GtkBox *spin = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
         pk_pkg_unlock_count = GTK_SPIN_BUTTON(gtk_spin_button_new(
                     GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 256, 1, 1, 0)),
                     1, 0));
@@ -10056,7 +10056,7 @@ int _gtk_loop(void *p)
         }
 
         {
-            GtkBox *b = GTK_BOX(gtk_hbox_new(0, 5));
+            GtkBox *b = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
             pk_lvl_add = GTK_WIDGET(gtk_button_new_with_label("Add current level"));
             g_signal_connect(pk_lvl_add, "pressed", G_CALLBACK(press_add_current_level), 0);
@@ -10089,7 +10089,7 @@ int _gtk_loop(void *p)
         g_signal_connect(properties_dialog, "show", G_CALLBACK(on_properties_show), 0);
         g_signal_connect(properties_dialog, "key-press-event", G_CALLBACK(on_properties_keypress), 0);
 
-        GtkVBox *layout = GTK_VBOX(gtk_dialog_get_content_area(properties_dialog));
+        GtkBox *layout = GTK_BOX(gtk_dialog_get_content_area(properties_dialog));
 
         GtkNotebook *nb = GTK_NOTEBOOK(gtk_notebook_new());
         gtk_widget_set_size_request(GTK_WIDGET(nb), 550, 550);
@@ -10348,7 +10348,7 @@ int _gtk_loop(void *p)
     {
         confirm_upgrade_dialog = new_dialog_defaults("Confirm Upgrade");
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(confirm_upgrade_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(confirm_upgrade_dialog));
 
         GtkWidget *t = gtk_label_new(0);
         gtk_label_set_markup(GTK_LABEL(t),
@@ -10379,20 +10379,20 @@ int _gtk_loop(void *p)
 
         apply_defaults(publish_dialog);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(publish_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(publish_dialog));
 
         publish_name = GTK_ENTRY(gtk_entry_new());
         publish_descr = GTK_TEXT_VIEW(gtk_text_view_new());
         gtk_widget_set_size_request(GTK_WIDGET(publish_descr), 400, 150);
         gtk_text_view_set_wrap_mode(publish_descr, GTK_WRAP_WORD);
 
-        GtkBox *box_allow_deriv = GTK_BOX(gtk_hbox_new(0, 5));
+        GtkBox *box_allow_deriv = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
         publish_allow_deriv = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Allow derivatives"));
 
         gtk_box_pack_start(box_allow_deriv, GTK_WIDGET(publish_allow_deriv), 1, 1, 0);
         gtk_box_pack_start(box_allow_deriv, ghw("Allow other players to download, edit your map and publish it as their own."), 0, 0, 0);
 
-        GtkBox *box_locked = GTK_BOX(gtk_hbox_new(0, 5));
+        GtkBox *box_locked = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
         publish_locked = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Locked"));
 
         gtk_box_pack_start(box_locked, GTK_WIDGET(publish_locked), 1, 1, 0);
@@ -10470,7 +10470,7 @@ int _gtk_loop(void *p)
     {
         command_pad_dialog = new_dialog_defaults("Set command", &on_command_pad_show);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(command_pad_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(command_pad_dialog));
 
         command_pad_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
         gtk_combo_box_text_append_text(command_pad_cb, "Stop");
@@ -10498,7 +10498,7 @@ int _gtk_loop(void *p)
     {
         dialog = new_dialog_defaults("Key Listener", &on_key_listener_show);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
         key_listener_ls = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_UINT);
 
@@ -10536,18 +10536,18 @@ int _gtk_loop(void *p)
 
         gtk_widget_set_size_request(GTK_WIDGET(digi_dialog), 200, 450);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(digi_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(digi_dialog));
         gtk_box_set_spacing(GTK_BOX(content), 7);
 
         {
-            GtkBox *spin = GTK_BOX(gtk_hbox_new(0,5));
+            GtkBox *spin = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
             digi_wrap = GTK_CHECK_BUTTON(gtk_check_button_new());
             gtk_box_pack_start(GTK_BOX(spin), new_lbl("<b>Wrap around</b>"), false, false, 0);
             gtk_box_pack_start(GTK_BOX(spin), GTK_WIDGET(digi_wrap), false, false, 0);
             gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(spin), false, false, 0);
         }
         {
-            GtkBox *spin = GTK_BOX(gtk_hbox_new(0,5));
+            GtkBox *spin = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
             digi_initial = GTK_SPIN_BUTTON(gtk_spin_button_new(
                     GTK_ADJUSTMENT(gtk_adjustment_new(1, 1, 40, 1, 1, 0)),
                     1, 0));
@@ -10581,7 +10581,7 @@ int _gtk_loop(void *p)
         }
 
         {
-            GtkBox *btns = GTK_BOX(gtk_hbox_new(0,5));
+            GtkBox *btns = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
 
             digi_prev = GTK_BUTTON(gtk_button_new_with_label("Previous"));
             gtk_box_pack_start(GTK_BOX(btns), GTK_WIDGET(digi_prev), false, false, 0);
@@ -10592,7 +10592,7 @@ int _gtk_loop(void *p)
             g_signal_connect(digi_next, "button-release-event", G_CALLBACK(on_digi_next_click), 0);
             gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(btns), false, false, 0);
 
-            btns = GTK_BOX(gtk_hbox_new(0,5));
+            btns = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
 
             digi_insert = GTK_BUTTON(gtk_button_new_with_label("Insert before"));
             gtk_box_pack_start(GTK_BOX(btns), GTK_WIDGET(digi_insert), false, false, 0);
@@ -10603,7 +10603,7 @@ int _gtk_loop(void *p)
             g_signal_connect(digi_append, "button-release-event", G_CALLBACK(on_digi_append_click), 0);
 
             gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(btns), false, false, 0);
-            btns = GTK_BOX(gtk_hbox_new(0,5));
+            btns = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
 
             digi_delete = GTK_BUTTON(gtk_button_new_with_label("Delete current symbol"));
             gtk_box_pack_start(GTK_BOX(btns), GTK_WIDGET(digi_delete), false, false, 0);
@@ -10621,21 +10621,21 @@ int _gtk_loop(void *p)
 
         gtk_widget_set_size_request(GTK_WIDGET(sticky_dialog), 450, 250);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(sticky_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(sticky_dialog));
         gtk_box_set_spacing(GTK_BOX(content), 7);
 
         sticky_text = GTK_TEXT_VIEW(gtk_text_view_new());
         GtkTextBuffer *tbuf = gtk_text_view_get_buffer(sticky_text);
         g_signal_connect(G_OBJECT(tbuf), "changed", G_CALLBACK(sticky_text_changed), 0);
 
-        GtkBox *spin = GTK_BOX(gtk_hbox_new(0,5));
+        GtkBox *spin = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
         sticky_font_size = GTK_SPIN_BUTTON(gtk_spin_button_new(
                     GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 3, 1, 1, 0)),
                     1, 0));
 
-        GtkBox *align = GTK_BOX(gtk_hbox_new(0, 5));
+        GtkBox *align = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
-        GtkBox *params = GTK_BOX(gtk_hbox_new(0, 5));
+        GtkBox *params = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
         sticky_center_x = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Center horizontally"));
         sticky_center_y = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Center vertically"));
@@ -10660,7 +10660,7 @@ int _gtk_loop(void *p)
     {
         dialog = new_dialog_defaults("Item", &on_item_show);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
         item_cb = new_item_cb();
         /* Items will be filled on show, to keep a refreshed list of unlocked items. */
@@ -10684,7 +10684,7 @@ int _gtk_loop(void *p)
         gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
         gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
         decoration_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
         for (int x=0; x<NUM_DECORATIONS; x++) {
@@ -10708,7 +10708,7 @@ int _gtk_loop(void *p)
     {
         dialog = new_dialog_defaults("Resource", &on_resource_show);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
         resource_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
         for (int x=0; x<NUM_RESOURCES; x++) {
@@ -10727,7 +10727,7 @@ int _gtk_loop(void *p)
     {
         dialog = new_dialog_defaults("Vendor", &on_vendor_show);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
         vendor_amount = GTK_SPIN_BUTTON(gtk_spin_button_new(
                     GTK_ADJUSTMENT(gtk_adjustment_new(1, 1, 65535u, 1, 1, 0)),
@@ -10745,7 +10745,7 @@ int _gtk_loop(void *p)
     {
         dialog = new_dialog_defaults("Animal", &on_animal_show);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
         animal_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
         for (int x=0; x<NUM_ANIMAL_TYPES; ++x) {
@@ -10764,7 +10764,7 @@ int _gtk_loop(void *p)
     {
         dialog = new_dialog_defaults("Sound Manager", &on_soundman_show);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
         soundman_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
         for (int x=0; x<SND__NUM; x++) {
@@ -10786,7 +10786,7 @@ int _gtk_loop(void *p)
     {
         dialog = new_dialog_defaults("SFX Emitter", &on_sfx2_show);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
         sfx2_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
         for (int x=0; x<SND__NUM; x++) {
@@ -10816,7 +10816,7 @@ int _gtk_loop(void *p)
     {
         dialog = new_dialog_defaults("Set Faction", &on_faction_show);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
         faction_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
         for (int x=0; x<NUM_FACTIONS; x++) {
@@ -10844,8 +10844,8 @@ int _gtk_loop(void *p)
 
         gtk_widget_set_size_request(GTK_WIDGET(dialog), 450, 300);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
-        GtkHBox *hbox = GTK_HBOX(gtk_hbox_new(0,5));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
         GtkWidget *l;
 
         GtkWidget *tbl = gtk_table_new(2,6,0);
@@ -10958,8 +10958,8 @@ int _gtk_loop(void *p)
 
         gtk_widget_set_size_request(GTK_WIDGET(dialog), 750, 300);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
-        GtkHBox *hbox = GTK_HBOX(gtk_hbox_new(0,5));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
         GtkWidget *l;
 
         GtkWidget *tbl = gtk_table_new(2,6,0);
@@ -11053,7 +11053,7 @@ int _gtk_loop(void *p)
     /** --Emitter **/
     {
         emitter_dialog = new_dialog_defaults("Emitter options", &on_emitter_show);
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(emitter_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(emitter_dialog));
 
         emitter_auto_absorb = GTK_HSCALE(gtk_hscale_new_with_range(0.0f, 60.f, 0.5f));
         g_signal_connect(emitter_auto_absorb, "format-value", G_CALLBACK(format_auto_absorb), 0);
@@ -11068,7 +11068,7 @@ int _gtk_loop(void *p)
     {
         sfx_dialog = new_dialog_defaults("SFX Emitter", &on_sfx_show);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(sfx_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(sfx_dialog));
 
         sfx_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
         for (int x=0; x<NUM_SFXEMITTER_OPTIONS; x++) {
@@ -11088,7 +11088,7 @@ int _gtk_loop(void *p)
     {
         elistener_dialog = new_dialog_defaults("Event listener", &on_elistener_show);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(elistener_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(elistener_dialog));
 
         elistener_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
         gtk_combo_box_text_append_text(elistener_cb, "Player die");
@@ -11111,7 +11111,7 @@ int _gtk_loop(void *p)
     {
         fxemitter_dialog = new_dialog_defaults("FX Emitter", &on_fxemitter_show);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(fxemitter_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(fxemitter_dialog));
 
         for (int x=0; x<4; x++) {
             fxemitter_cb[x] = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
@@ -11127,19 +11127,22 @@ int _gtk_loop(void *p)
             gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(fxemitter_cb[x]), false, false, 10);
         }
 
-        GtkHBox *slider_container = GTK_HBOX(gtk_hbox_new(1, 0));
+        GtkBox *slider_container = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0));
+        gtk_box_set_homogeneous(slider_container, true);
         fxemitter_radius = GTK_HSCALE(gtk_hscale_new_with_range(0.125, 5, 0.125));
         gtk_box_pack_start(GTK_BOX(slider_container), new_lbl("<b>Radius</b>"), false, false, 0);
         gtk_box_pack_start(GTK_BOX(slider_container), GTK_WIDGET(fxemitter_radius), true, true, 10);
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(slider_container), false, false, 10);
 
-        slider_container = GTK_HBOX(gtk_hbox_new(1, 0));
+        slider_container = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0));
+        gtk_box_set_homogeneous(slider_container, true);
         fxemitter_count = GTK_HSCALE(gtk_hscale_new_with_range(1, 20, 1));
         gtk_box_pack_start(GTK_BOX(slider_container), new_lbl("<b>Count</b>"), false, false, 0);
         gtk_box_pack_start(GTK_BOX(slider_container), GTK_WIDGET(fxemitter_count), true, true, 10);
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(slider_container), false, false, 10);
 
-        slider_container = GTK_HBOX(gtk_hbox_new(1, 0));
+        slider_container = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0));
+        gtk_box_set_homogeneous(slider_container, true);
         fxemitter_interval = GTK_HSCALE(gtk_hscale_new_with_range(0.05, 1, 0.05));
         gtk_box_pack_start(GTK_BOX(slider_container), new_lbl("<b>Interval</b>"), false, false, 0);
         gtk_box_pack_start(GTK_BOX(slider_container), GTK_WIDGET(fxemitter_interval), true, true, 10);
@@ -11171,7 +11174,7 @@ int _gtk_loop(void *p)
         g_signal_connect(dialog, "show", G_CALLBACK(on_camtargeter_show), 0);
         g_signal_connect(dialog, "key-press-event", G_CALLBACK(on_camtargeter_keypress), 0);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
         camtargeter_mode = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
         gtk_combo_box_text_append_text(camtargeter_mode, "Smooth follow");
@@ -11193,7 +11196,7 @@ int _gtk_loop(void *p)
         float max =  150.f;
 
         {
-            GtkHBox *hbox = GTK_HBOX(gtk_hbox_new(0, 5));
+            GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
             GtkRange *range = 0;
             GtkEntry *entry = 0;
             GtkWidget *l = 0;
@@ -11222,7 +11225,7 @@ int _gtk_loop(void *p)
         }
 
         {
-            GtkHBox *hbox = GTK_HBOX(gtk_hbox_new(0, 5));
+            GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
             GtkRange *range = 0;
             GtkEntry *entry = 0;
             GtkWidget *l = 0;
@@ -11340,7 +11343,7 @@ int _gtk_loop(void *p)
 
         apply_defaults(dialog);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
         GtkWidget *l = gtk_label_new("Autosave file detected. Open or remove?");
         gtk_box_pack_start(GTK_BOX(content), l, false, false, 0);
@@ -11366,7 +11369,7 @@ int _gtk_loop(void *p)
 
         tips_hide = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Don't show this dialog again"));
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(tips_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(tips_dialog));
         GtkHButtonBox *aarea = GTK_HBUTTON_BOX(gtk_dialog_get_action_area(tips_dialog));
 
         gtk_box_pack_start(GTK_BOX(aarea), GTK_WIDGET(tips_hide), 1, 0, 3);
@@ -11432,7 +11435,7 @@ int _gtk_loop(void *p)
 
         gtk_window_set_default_size(GTK_WINDOW(error_dialog), 425, 400);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(error_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(error_dialog));
 
         error_text = GTK_LABEL(gtk_label_new(0));
         gtk_label_set_selectable(error_text, 1);
@@ -11485,7 +11488,7 @@ int _gtk_loop(void *p)
 
         gtk_box_pack_end(aa, GTK_WIDGET(confirm_dna_sandbox_back), 1, 0, 3);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
         confirm_text = GTK_LABEL(gtk_label_new(0));
         gtk_label_set_selectable(confirm_text, 1);
@@ -11528,7 +11531,7 @@ int _gtk_loop(void *p)
         gtk_window_set_default_size(GTK_WINDOW(frequency_window), 325, 300);
         gtk_widget_set_size_request(GTK_WIDGET(frequency_window), 325, 300);
 
-        GtkBox *content = GTK_BOX(gtk_vbox_new(0, 5));
+        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
         frequency_value = GTK_SPIN_BUTTON(gtk_spin_button_new(
                     GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 0xFFFFFFFF, 1, 1, 0)),
@@ -11602,7 +11605,7 @@ int _gtk_loop(void *p)
         gtk_window_set_default_size(GTK_WINDOW(freq_range_window), 325, 300);
         gtk_widget_set_size_request(GTK_WIDGET(freq_range_window), 325, 300);
 
-        GtkBox *content = GTK_BOX(gtk_vbox_new(0, 5));
+        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
         GtkWidget *tbl_freq_range = gtk_table_new(1, 9, true);
         {
@@ -11710,8 +11713,8 @@ int _gtk_loop(void *p)
         gtk_window_set_default_size(GTK_WINDOW(multi_config_window), 600, 350);
         gtk_widget_set_size_request(GTK_WIDGET(multi_config_window), 600, 350);
 
-        GtkBox *content = GTK_BOX(gtk_vbox_new(0, 5));
-        GtkBox *entries = GTK_BOX(gtk_vbox_new(0, 5));
+        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
+        GtkBox *entries = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
         GtkNotebook *nb = GTK_NOTEBOOK(gtk_notebook_new());
         gtk_notebook_set_tab_pos(nb, GTK_POS_TOP);
@@ -11737,7 +11740,7 @@ int _gtk_loop(void *p)
 
         {
             /* Joint strength */
-            GtkBox *box = GTK_BOX(gtk_vbox_new(0, 5));
+            GtkBox *box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
             multi_config_joint_strength = GTK_HSCALE(gtk_hscale_new_with_range(0.0, 1.0, 0.05));
             g_signal_connect(multi_config_joint_strength, "format-value", G_CALLBACK(format_joint_strength), 0);
@@ -11750,7 +11753,7 @@ int _gtk_loop(void *p)
 
         {
             /* Plastic color */
-            GtkBox *box = GTK_BOX(gtk_vbox_new(0, 5));
+            GtkBox *box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
             multi_config_plastic_color = GTK_COLOR_CHOOSER_WIDGET(gtk_color_chooser_widget_new());
 
@@ -11762,7 +11765,7 @@ int _gtk_loop(void *p)
 
         {
             /* Plastic density */
-            GtkBox *box = GTK_BOX(gtk_vbox_new(0, 5));
+            GtkBox *box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
             multi_config_plastic_density = GTK_HSCALE(gtk_hscale_new_with_range(0.0, 1.0, 0.05));
 
@@ -11774,7 +11777,7 @@ int _gtk_loop(void *p)
 
         {
             /* Connection render type */
-            GtkBox *box = GTK_BOX(gtk_vbox_new(0, 5));
+            GtkBox *box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
             multi_config_render_type_normal = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
                         0, "Default"));
@@ -11793,13 +11796,13 @@ int _gtk_loop(void *p)
 
         {
             /* Miscellaneous */
-            GtkBox *box = GTK_BOX(gtk_vbox_new(0, 5));
+            GtkBox *box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
             multi_config_unlock_all = new_lbtn("Unlock all", &on_multi_config_btn_click);
             multi_config_disconnect_all = new_lbtn("Disconnect all", &on_multi_config_btn_click);
 
             {
-                GtkBox *hbox = GTK_BOX(gtk_hbox_new(0, 5));
+                GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
                 gtk_box_pack_start(hbox, GTK_WIDGET(multi_config_unlock_all), 1, 1, 0);
                 gtk_box_pack_start(hbox, ghw("Unlock any previously locked entities.\nOnly active if at least one of the selected entities is locked."), 0, 0, 0);
 
@@ -11827,9 +11830,9 @@ int _gtk_loop(void *p)
         gtk_window_set_default_size(GTK_WINDOW(login_window), 400, 150);
         gtk_widget_set_size_request(GTK_WIDGET(login_window), 400, 150);
 
-        GtkBox *content = GTK_BOX(gtk_vbox_new(0, 5));
-        GtkBox *entries = GTK_BOX(gtk_vbox_new(0, 5));
-        GtkBox *bottom_content = GTK_BOX(gtk_hbox_new(0, 5));
+        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
+        GtkBox *entries = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
+        GtkBox *bottom_content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
         /* Username entry */
         login_username = GTK_ENTRY(gtk_entry_new());
@@ -11894,7 +11897,7 @@ int _gtk_loop(void *p)
         settings_dialog = new_dialog_defaults("Settings", &on_settings_show);
         gtk_widget_set_size_request(GTK_WIDGET(settings_dialog), 550, -1);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(settings_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(settings_dialog));
 
         GtkNotebook *nb = GTK_NOTEBOOK(gtk_notebook_new());
         gtk_notebook_set_tab_pos(nb, GTK_POS_TOP);
@@ -11932,7 +11935,7 @@ int _gtk_loop(void *p)
 
             y++;
             gtk_table_attach_defaults(GTK_TABLE(tbl), new_clbl("Shadow quality"), 0, 1, y, y+1);
-            hbox = gtk_hbox_new(0, 8);
+            hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
             gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(settings_shadow_quality), 1, 1, 0);
             gtk_box_pack_start(GTK_BOX(hbox), ghw("Shadow quality 0: Sharp\nShadow quality 1: Smooth"), 0, 0, 2);
             gtk_table_attach_defaults(GTK_TABLE(tbl), hbox, 1, 3, y, y+1);
@@ -12078,7 +12081,7 @@ int _gtk_loop(void *p)
         confirm_btn_quit = GTK_BUTTON(gtk_dialog_add_button(confirm_quit_dialog, GTK_STOCK_QUIT, GTK_RESPONSE_ACCEPT));
         gtk_dialog_add_button(confirm_quit_dialog, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(confirm_quit_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(confirm_quit_dialog));
 
         gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Are you sure you want to quit?\nAny unsaved changes will be lost!</b>"), false, false, 0);
         gtk_widget_show_all(GTK_WIDGET(content));
@@ -12099,7 +12102,7 @@ int _gtk_loop(void *p)
         robot_feet = new_item_cb();
         robot_bolts = new_item_cb();
 
-        GtkBox *content = GTK_BOX(gtk_vbox_new(0, 5));
+        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
         GtkWidget *tbl = gtk_table_new(4, 3, false);
         gtk_table_set_homogeneous(GTK_TABLE(tbl), true);
@@ -12258,7 +12261,7 @@ int _gtk_loop(void *p)
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(robot_btn_ok));
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(robot_btn_cancel));
 
-        GtkHBox *hbox = GTK_HBOX(gtk_hbox_new(0, 5));
+        GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
         gtk_box_pack_start(GTK_BOX(hbox), tbl, true, true, 0);
         gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(robot_tv_equipment), true, true, 0);
@@ -12281,7 +12284,7 @@ int _gtk_loop(void *p)
 
         apply_defaults(puzzle_play_dialog);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(puzzle_play_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(puzzle_play_dialog));
 
         gtk_box_pack_start(GTK_BOX(content), new_lbl("Do you want to test-play the level, or just simulate it?"), false, false, 0);
         gtk_widget_show_all(GTK_WIDGET(content));
@@ -12298,7 +12301,7 @@ int _gtk_loop(void *p)
 
         apply_defaults(published_dialog);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(published_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(published_dialog));
 
         gtk_box_pack_start(GTK_BOX(content), new_lbl("Your level has been successfully published on the community website."), false, false, 0);
         gtk_box_pack_start(GTK_BOX(content), new_lbl("To view your level, or submit it to a running contest, please click the button below."), false, false, 0);
@@ -12317,7 +12320,7 @@ int _gtk_loop(void *p)
 
         apply_defaults(dialog);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
         gtk_box_pack_start(GTK_BOX(content), new_lbl("Do you want to return to the main menu?"), false, false, 0);
 
@@ -12350,9 +12353,9 @@ int _gtk_loop(void *p)
         g_signal_connect(jumper_dialog, "key-press-event", G_CALLBACK(on_jumper_keypress), 0);
 
         gtk_widget_set_size_request(GTK_WIDGET(jumper_dialog), 350, -1);
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(jumper_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(jumper_dialog));
 
-        GtkHBox *hbox = GTK_HBOX(gtk_hbox_new(0, 5));
+        GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
         jumper_value = GTK_RANGE(gtk_hscale_new(GTK_ADJUSTMENT(gtk_adjustment_new(0.0, 0.0, 1.0, 0.001, 0.1, 0.0))));
         gtk_scale_set_digits(GTK_SCALE(jumper_value), 4);
@@ -12379,7 +12382,7 @@ int _gtk_loop(void *p)
         cursorfield_dialog = new_dialog_defaults("cursorfield", &on_cursorfield_show);
 
         gtk_widget_set_size_request(GTK_WIDGET(cursorfield_dialog), 350, -1);
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(cursorfield_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(cursorfield_dialog));
 
         GtkWidget *tbl_settings = gtk_table_new(4, 5, 0);
         gtk_table_set_homogeneous(GTK_TABLE(tbl_settings), false);
@@ -12443,7 +12446,7 @@ int _gtk_loop(void *p)
         g_signal_connect(escript_window, "key-press-event", G_CALLBACK(on_escript_keypress), 0);
         g_signal_connect(escript_window, "delete-event", G_CALLBACK(on_window_close), 0);
 
-        GtkVBox *content = GTK_VBOX(gtk_vbox_new(0, 5));
+        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
         GtkWidget *cb;
 
@@ -12518,13 +12521,13 @@ int _gtk_loop(void *p)
             pango_font_description_free(font_desc);
         }
        
-        escript_external_box = GTK_BOX(gtk_vbox_new(0,0));
+        escript_external_box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL,0));
         escript_external_file_path = GTK_LABEL(new_clbl("Placeholder"));
 
         gtk_box_pack_start(escript_external_box, GTK_WIDGET(escript_external_file_path), false, false, 5);
         gtk_box_pack_start(escript_external_box, new_clbl("Open the file path above with your favourite code editor and edit the code there.\nBefore you press play in Principia, remember to save the external file!\nThe file will be created when you press the Save-button."), false, false, 5);
 
-        GtkHBox *hbox = GTK_HBOX(gtk_hbox_new(0,0));
+        GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0));
         gtk_box_pack_start(GTK_BOX(hbox), new_lbl("  "), false, false, 0);
         gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(escript_use_external_editor), false, false, 0);
 
@@ -12570,7 +12573,7 @@ int _gtk_loop(void *p)
         shapeextruder_dialog = new_dialog_defaults("Shape Extruder", &on_shapeextruder_show);
 
         gtk_widget_set_size_request(GTK_WIDGET(shapeextruder_dialog), 350, -1);
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(shapeextruder_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(shapeextruder_dialog));
 
         GtkWidget *tbl_settings = gtk_table_new(4, 5, 0);
         gtk_table_set_homogeneous(GTK_TABLE(tbl_settings), false);
@@ -12619,7 +12622,7 @@ int _gtk_loop(void *p)
     {
         dialog = new_dialog_defaults("Polygon", &on_polygon_show);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
         GtkWidget *tbl_settings = gtk_table_new(4, 5, 0);
         gtk_table_set_homogeneous(GTK_TABLE(tbl_settings), false);
@@ -12656,7 +12659,7 @@ int _gtk_loop(void *p)
         synth_dialog = new_dialog_defaults("Synthesizer", &on_synth_show, &on_synth_keypress);
 
         gtk_widget_set_size_request(GTK_WIDGET(synth_dialog), 350, -1);
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(synth_dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(synth_dialog));
 
         GtkWidget *tbl_settings = gtk_table_new(4, 5, 0);
         gtk_table_set_homogeneous(GTK_TABLE(tbl_settings), false);
@@ -12757,17 +12760,17 @@ int _gtk_loop(void *p)
     {
         dialog = new_dialog_defaults("Rubber properties", &on_rubber_show, &on_rubber_keypress);
 
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
         GtkWidget *l;
         GtkBox *vb;
 
-        l = gtk_label_new("Restitution"); vb = GTK_BOX(gtk_vbox_new(0, 5));
+        l = gtk_label_new("Restitution"); vb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
         rubber_restitution = GTK_HSCALE(gtk_hscale_new_with_range(0.0, 1.0, 0.1));
         gtk_box_pack_start(vb, l, false, false, 0);
         gtk_box_pack_start(vb, GTK_WIDGET(rubber_restitution), false, false, 0);
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(vb), false, false, 0);
 
-        l = gtk_label_new("Friction"); vb = GTK_BOX(gtk_vbox_new(0, 5));
+        l = gtk_label_new("Friction"); vb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
         rubber_friction = GTK_HSCALE(gtk_hscale_new_with_range(1.0, 10.0, 0.1));
         gtk_box_pack_start(vb, l, false, false, 0);
         gtk_box_pack_start(vb, GTK_WIDGET(rubber_friction), false, false, 0);
@@ -12785,7 +12788,7 @@ int _gtk_loop(void *p)
         gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
         gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);
         gtk_widget_set_size_request(GTK_WIDGET(dialog), 250, -1);
-        GtkVBox *content = GTK_VBOX(gtk_dialog_get_content_area(dialog));
+        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
         GtkWidget *tbl_settings = gtk_table_new(4, 5, 0);
         gtk_table_set_homogeneous(GTK_TABLE(tbl_settings), false);
@@ -12876,7 +12879,7 @@ int _gtk_loop(void *p)
         gtk_window_set_keep_above(GTK_WINDOW(sequencer_window), TRUE);
         gtk_widget_set_size_request(GTK_WIDGET(sequencer_window), 250, -1);
 
-        GtkBox *content = GTK_BOX(gtk_vbox_new(0, 5));
+        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
         GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
@@ -12974,8 +12977,8 @@ int _gtk_loop(void *p)
         g_signal_connect(prompt_settings_dialog, "show", G_CALLBACK(on_prompt_show), 0);
         g_signal_connect(prompt_settings_dialog, "delete-event", G_CALLBACK(on_window_close), 0);
 
-        GtkBox *content = GTK_BOX(gtk_vbox_new(0, 5));
-        GtkBox *inner_content = GTK_BOX(gtk_vbox_new(0, 5));
+        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
+        GtkBox *inner_content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
         GtkWidget *l;
         GtkBox *hb;
@@ -12988,21 +12991,21 @@ int _gtk_loop(void *p)
         l = gtk_label_new("Leave a button text empty if you don't want to use it.");
         gtk_box_pack_start(inner_content, l, false, false, 0);
 
-        hb = GTK_BOX(gtk_hbox_new(0, 5));
+        hb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
         l = gtk_label_new("Button 1:");
         prompt_b1 = GTK_ENTRY(gtk_entry_new());
         gtk_box_pack_start(hb, l, false, false, 0);
         gtk_box_pack_start(hb, GTK_WIDGET(prompt_b1), false, false, 0);
         gtk_box_pack_start(inner_content, GTK_WIDGET(hb), false, false, 0);
 
-        hb = GTK_BOX(gtk_hbox_new(0, 5));
+        hb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
         l = gtk_label_new("Button 2:");
         prompt_b2 = GTK_ENTRY(gtk_entry_new());
         gtk_box_pack_start(hb, l, false, false, 0);
         gtk_box_pack_start(hb, GTK_WIDGET(prompt_b2), false, false, 0);
         gtk_box_pack_start(inner_content, GTK_WIDGET(hb), false, false, 0);
 
-        hb = GTK_BOX(gtk_hbox_new(0, 5));
+        hb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
         l = gtk_label_new("Button 3:");
         prompt_b3 = GTK_ENTRY(gtk_entry_new());
         gtk_box_pack_start(hb, l, false, false, 0);
