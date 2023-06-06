@@ -9588,7 +9588,7 @@ int _gtk_loop(void *p)
                       GTK_POLICY_AUTOMATIC,
                       GTK_POLICY_AUTOMATIC);
 
-        GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
+        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
         gtk_box_set_spacing(GTK_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
@@ -9642,7 +9642,7 @@ int _gtk_loop(void *p)
                       GTK_POLICY_AUTOMATIC,
                       GTK_POLICY_AUTOMATIC);
 
-        GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
+        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
@@ -9700,7 +9700,7 @@ int _gtk_loop(void *p)
                       GTK_POLICY_AUTOMATIC,
                       GTK_POLICY_AUTOMATIC);
 
-        GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
+        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
@@ -9820,7 +9820,7 @@ int _gtk_loop(void *p)
         gtk_box_pack_start(hb, GTK_WIDGET(variable_reset_all), false, false, 0);
         gtk_box_pack_start(inner_content, GTK_WIDGET(hb), false, false, 0);
 
-        GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
+        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
@@ -9853,7 +9853,7 @@ int _gtk_loop(void *p)
         gtk_box_pack_start(GTK_BOX(entries), GTK_WIDGET(save_entry), false, false, 0);
 
         /* Buttons and button box */
-        GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
+        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
@@ -9904,7 +9904,7 @@ int _gtk_loop(void *p)
         gtk_box_pack_start(GTK_BOX(entries), GTK_WIDGET(export_entry), false, false, 0);
 
         /* Buttons and button box */
-        GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
+        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
@@ -11370,7 +11370,7 @@ int _gtk_loop(void *p)
         tips_hide = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Don't show this dialog again"));
 
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(tips_dialog));
-        GtkHButtonBox *aarea = GTK_HBUTTON_BOX(gtk_dialog_get_action_area(tips_dialog));
+        GtkButtonBox *aarea = GTK_BUTTON_BOX(gtk_dialog_get_action_area(tips_dialog));
 
         gtk_box_pack_start(GTK_BOX(aarea), GTK_WIDGET(tips_hide), 1, 0, 3);
 
@@ -11560,7 +11560,7 @@ int _gtk_loop(void *p)
                       GTK_POLICY_AUTOMATIC);
 
         /* Initialize Frequency buttons & button box */
-        GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
+        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
         frequency_ok = GTK_BUTTON(gtk_button_new_with_label("OK"));
@@ -11668,7 +11668,7 @@ int _gtk_loop(void *p)
                       GTK_POLICY_AUTOMATIC);
 
         /* Initialize Frequency buttons & button box */
-        GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
+        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
         freq_range_ok = GTK_BUTTON(gtk_button_new_with_label("OK"));
@@ -11721,7 +11721,7 @@ int _gtk_loop(void *p)
         g_signal_connect(nb, "switch-page", G_CALLBACK(on_multi_config_tab_changed), 0);
 
         /* Buttons and button box */
-        GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
+        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
@@ -11853,7 +11853,7 @@ int _gtk_loop(void *p)
         gtk_box_pack_start(entries, GTK_WIDGET(login_password), false, false, 0);
 
         /* Buttons and button box */
-        GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
+        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
@@ -12246,7 +12246,7 @@ int _gtk_loop(void *p)
             gtk_tree_view_append_column(robot_tv_equipment, column);
         }
 
-        GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
+        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
@@ -12543,7 +12543,7 @@ int _gtk_loop(void *p)
 
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(hbox), false, false, 5);
 
-        GtkHButtonBox *buttonbox = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
+        GtkButtonBox *buttonbox = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
         gtk_button_box_set_layout(GTK_BUTTON_BOX(buttonbox), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(buttonbox), 5);
 
@@ -12881,7 +12881,7 @@ int _gtk_loop(void *p)
 
         GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
-        GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
+        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
@@ -13012,7 +13012,7 @@ int _gtk_loop(void *p)
         gtk_box_pack_start(hb, GTK_WIDGET(prompt_b3), false, false, 0);
         gtk_box_pack_start(inner_content, GTK_WIDGET(hb), false, false, 0);
 
-        GtkHButtonBox *button_box = GTK_HBUTTON_BOX(gtk_hbutton_box_new());
+        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
         gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
