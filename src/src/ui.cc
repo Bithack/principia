@@ -3676,7 +3676,7 @@ GtkComboBoxText *command_pad_cb;
 /** --Key Listener **/
 GtkDialog       *key_listener_dialog;
 GtkListStore    *key_listener_ls;
-GtkComboBoxText *key_listener_cb;
+GtkComboBox     *key_listener_cb;
 
 /** --Item **/
 GtkDialog       *item_dialog;
@@ -10516,22 +10516,11 @@ int _gtk_loop(void *p)
             }
         }
 
-        // is model even needed here?
-        // gtk docs: You should not call gtk_combo_box_set_model() or attempt to pack more cells into this combo box via its GtkCellLayout interface.
-        // it was broken so I removed it
-
-        //gtk_combo_box_new_with_model(GTK_TREE_MODEL(key_listener_ls)));
+        key_listener_cb = GTK_COMBO_BOX(gtk_combo_box_new_with_model(GTK_TREE_MODEL(key_listener_ls)));
         
-        // gtk_combo_box_set_model(
-        //     GTK_COMBO_BOX(key_listener_cb),
-        //     GTK_TREE_MODEL(key_listener_ls)
-        // );
-
-        // GtkCellRenderer *cell = gtk_cell_renderer_text_new();
-        // gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(key_listener_cb), cell, TRUE);
-        // gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(key_listener_cb), cell, "text", 0, NULL);
-
-        key_listener_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
+        GtkCellRenderer *cell = gtk_cell_renderer_text_new();
+        gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(key_listener_cb), cell, TRUE);
+        gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(key_listener_cb), cell, "text", 0, NULL);
 
         gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Key</b>"), false, false, 0);
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(key_listener_cb), false, false, 10);
