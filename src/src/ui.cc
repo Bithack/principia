@@ -1,4 +1,4 @@
-//#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 #include "ui.hh"
 #include <SDL.h>
@@ -9348,11 +9348,11 @@ on_frequency_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     return false;
 }
 
-const gchar* css_global = R"
-    * {
-        background: red;
-    }
-";
+//TODO use R"" string from c++11
+const gchar* css_global =
+"* {                        "
+"   background: red;        "
+"}                          ";
 
 
 int _gtk_loop(void *p)
@@ -9373,7 +9373,7 @@ int _gtk_loop(void *p)
         );
         gtk_style_context_add_provider_for_screen(
             gdk_screen_get_default(),
-            css_provider,
+            GTK_STYLE_PROVIDER(css_provider),
             GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
         );
     }
