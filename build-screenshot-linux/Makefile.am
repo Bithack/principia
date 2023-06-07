@@ -17,7 +17,7 @@ GLOBAL_FLAGS += -I../src/tms/backends/screenshot-linux/ \
 				-I../src/lua
 
 principia_ss_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
-principia_ss_CXXFLAGS = ${GLOBAL_FLAGS}
+principia_ss_CXXFLAGS = ${GLOBAL_FLAGS} -std=c++14
 principia_ss_LDFLAGS = -rdynamic
 principia_ss_LDADD = -lz -ldl -lGL -lpthread -lX11 -lXi -ljpeg -lpng -lfreetype -lSDL2 -lSDL2_ttf -lSDL2_mixer -lSDL2_image -lSDL2_gfx
 

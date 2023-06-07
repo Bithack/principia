@@ -89,7 +89,7 @@ endif
 
 LOCAL_CONLYFLAGS := -std=gnu99
 LOCAL_CFLAGS += $(GLOBAL_FLAGS) -DFT2_BUILD_LIBRARY -D__STDC_FORMAT_MACROS=1
-LOCAL_CPPFLAGS += $(GLOBAL_FLAGS)
+LOCAL_CPPFLAGS += $(GLOBAL_FLAGS) -std=c++14
 LOCAL_STATIC_LIBRARIES := \
 	freetype libjpeg libpng \
 	libcurl libmbedtls libmbedx509 libmbedcrypto

@@ -23,7 +23,7 @@ GLOBAL_FLAGS += -I../src/tms/backends/linux/ \
 				-I../src/lua/
 
 principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
-principia_CXXFLAGS = ${GLOBAL_FLAGS}
+principia_CXXFLAGS = ${GLOBAL_FLAGS} -std=c++14
 principia_LDADD = -lz -ldl -lGL -lGLEW -lpthread -lX11 -lXi -lrt ${GTK_LIBS} -lcurl -ljpeg -lpng -lfreetype ${SDL2_LIBS} ${SDL2_TTF_LIBS} ${SDL2_GFX_LIBS} ${SDL2_IMAGE_LIBS} ${SDL2_MIXER_LIBS}
 principia_LDFLAGS = 
 

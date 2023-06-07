@@ -40,7 +40,7 @@ GLOBAL_FLAGS += -I../src/tms/backends/windows/ \
 
 principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
 
-principia_CXXFLAGS = ${GLOBAL_FLAGS}
+principia_CXXFLAGS = ${GLOBAL_FLAGS} -std=c++14
 principia_CPPFLAGS = -static-libgcc -static-libstdc++
 principia_LDADD = -L`pwd` -lopengl32 -lz \
     -lmingw32 -lws2_32 -lwinmm -luuid -loleaut32 -limm32 -lversion \
@@ -379,4 +379,3 @@ principia.rc \
 	windres $^ -o $@
 %.o : %.rc
 	windres $^ -o $@
-
