@@ -9348,22 +9348,40 @@ on_frequency_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     return false;
 }
 
+const gchar* css_global = R"
+    * {
+        background: red;
+    }
+";
+
+
 int _gtk_loop(void *p)
 {
 #if defined(TMS_BACKEND_LINUX) && defined(DEBUG) && defined(VALGRIND_NO_UI)
     if (RUNNING_ON_VALGRIND) return T_OK;
 #endif
-    
-    // This causes Principia to freeze on Windows when opening dialogs. Removing it
-    // fixes it, though I don't know how good of an idea that is. (No side effects at least)
-    //gdk_threads_init();
 
     gtk_init(NULL, NULL);
+
+    //Load CSS themes
+    {
+        GtkCssProvider* css_provider = gtk_css_provider_new();
+        gtk_css_provider_load_from_data(
+            css_provider,
+            css_global,
+            -1, NULL
+        );
+        gtk_style_context_add_provider_for_screen(
+            gdk_screen_get_default(),
+            css_provider,
+            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
+        );
+    }
 
     // Only use custom theme in release versions of Windows. Linux should use
     // the user-provided GTK theme, and debug versions of Windows break spectacularily
     // with custom theme.
-    //TODO: PORT THEME TO GDK3 (if any changes are needed)
+    //TODO: PORT THEME TO GDK3
 // #if defined(TMS_BACKEND_WINDOWS) && !defined(DEBUG)
 //     gtk_rc_parse_string(
 // "style \"test\" {\n"
