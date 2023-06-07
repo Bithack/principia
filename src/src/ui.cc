@@ -4230,6 +4230,12 @@ static GtkGrid* create_settings_table() {
     gtk_grid_set_column_homogeneous(tbl, false);
     gtk_grid_set_row_homogeneous(tbl, false);
 
+    g_object_set (
+        G_OBJECT(tbl),
+        "margin", 10,
+        NULL
+    );
+
     return tbl;
 }
 
@@ -11877,13 +11883,6 @@ int _gtk_loop(void *p)
             add_setting_row(
                 tbl, ++y,
                 "Enable shadows",
-                GTK_WIDGET(settings_enable_shadows),
-                NULL
-            );
-
-            add_setting_row(
-                tbl, ++y,
-                "Shadow quality",
                 GTK_WIDGET(settings_enable_shadows),
                 NULL
             );
