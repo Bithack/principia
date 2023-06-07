@@ -4054,9 +4054,7 @@ on_window_close(GtkWidget *w, void *unused)
 }
 
 /* Generate help widget with a tooltip */
-static GtkWidget*
-ghw(const char *text)
-{
+static GtkWidget* help_widget(const char *text) {
     //help-about
     //help-browser-symbolic
     //dialog-information-symbolic
@@ -4206,12 +4204,11 @@ notebook_append(GtkNotebook *nb, const char *title, GtkBox *base)
     gtk_notebook_append_page(nb, GTK_WIDGET(base), new_lbl(title));
 }
 
-static void
-apply_defaults(void *w,
-        GtkCallback on_show=0,
-        gboolean (*on_keypress)(GtkWidget*, GdkEventKey*, gpointer)=0
-        )
-{
+static void apply_defaults(
+    void *w,
+    GtkCallback on_show=0,
+    gboolean (*on_keypress)(GtkWidget*, GdkEventKey*, gpointer)=0
+) {
     gtk_window_set_position(GTK_WINDOW(w), GTK_WIN_POS_CENTER);
     gtk_window_set_keep_above(GTK_WINDOW(w), TRUE);
     g_signal_connect(w, "delete-event", G_CALLBACK(on_window_close), 0);
@@ -4224,116 +4221,47 @@ apply_defaults(void *w,
     }
 }
 
-static GtkWidget*
-create_settings_table(int num_rows)
-{
-    GtkWidget *tbl = gtk_table_new(num_rows, 3, 5);
-    gtk_table_set_homogeneous(GTK_TABLE(tbl), false);
-    gtk_table_set_row_spacings(GTK_TABLE(tbl), 3);
-    gtk_table_set_col_spacings(GTK_TABLE(tbl), 15);
+static GtkGrid* create_settings_table() {
+    GtkGrid *tbl = GTK_GRID(gtk_grid_new());
+    
+    gtk_grid_set_column_spacing(tbl, 15);
+    gtk_grid_set_row_spacing(tbl, 6);
 
+    gtk_grid_set_column_homogeneous(tbl, false);
+    gtk_grid_set_row_homogeneous(tbl, true);
+s
     return tbl;
 }
 
 static void
-add_row_to_table_d(GtkWidget *tbl, int y, const char *label, GtkWidget *wdg, const char *help_text=0)
+add_setting_row(GtkGrid *tbl, int y, const char *label, GtkWidget *wdg, const char *help_text=0)
 {
+    //set widget to hexpand
+    gtk_widget_set_hexpand(wdg, true);
+
     //label
-    gtk_table_attach(
-        GTK_TABLE(tbl), new_rlbl(label),
-        0, 1,
-        y, y+1,
-        (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-        (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-        0, 0
+    GtkWidget* label_widget = new_rlbl(label);
+    //gtk_widget_set_hexpand(label_widget, true);
+    gtk_grid_attach(
+        tbl, label_widget,
+        0, y,
+        1, 1
     );
 
     //control
-    gtk_table_attach(
-        GTK_TABLE(tbl), wdg,
-        1, 2,
-        y, y+1,
-        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-        (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-        0, 0
+    gtk_grid_attach(
+        tbl, wdg,
+        1, y,
+        1, 1
     );
 
     //help
     if (help_text) {
-        gtk_table_attach(
-            GTK_TABLE(tbl), ghw(help_text),
-            2, 3,
-            y, y+1,
-            (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-            (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-            5, 0
+        gtk_grid_attach(
+            tbl, help_widget(help_text),
+            2, y,
+            1, 1
         );
-    }
-
-    /*
-                gtk_table_attach(GTK_TABLE(tbl), new_lbl(r->label),
-                        0, 1,
-                        y, y+1,
-                        (GtkAttachOptions)(GTK_SHRINK),
-                        (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                        0, 0
-                        );
-
-                gtk_table_attach(GTK_TABLE(tbl), r->wdg,
-                        1, 2,
-                        y, y+1,
-                        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-                        (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                        0, 0
-                        );
-
-                if (r->help) {
-                    gtk_table_attach(GTK_TABLE(tbl), ghw(r->help),
-                            2, 3,
-                            y, y+1,
-                            (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                            (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                            5, 0
-                            );
-                }
-                */
-
-    /*
-    gtk_table_attach_defaults(GTK_TABLE(tbl), wdg,
-            1, 3,
-            y, y+1);
-            */
-
-    
-}
-
-static void
-add_row_to_table(GtkWidget *tbl, int y, const char *label, GtkWidget *wdg, const char *help_text=0)
-{
-    gtk_table_attach(GTK_TABLE(tbl), new_lbl(label),
-            0, 1,
-            y, y+1,
-            (GtkAttachOptions)(GTK_SHRINK),
-            (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-            0, 0
-            );
-
-    gtk_table_attach(GTK_TABLE(tbl), wdg,
-            1, 2,
-            y, y+1,
-            (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-            (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-            0, 0
-            );
-
-    if (help_text) {
-        gtk_table_attach(GTK_TABLE(tbl), ghw(help_text),
-                2, 3,
-                y, y+1,
-                (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                5, 0
-                );
     }
 }
 
@@ -10236,12 +10164,12 @@ int _gtk_loop(void *p)
 
             gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(gtk_label_new("Position iterations")), 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(lvl_pos_iter), 1, 2, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), ghw("The amount of position iterations primarily affects dynamic objects. Lower = better performance."), 2, 3, y, y+1);
+            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), help_widget("The amount of position iterations primarily affects dynamic objects. Lower = better performance."), 2, 3, y, y+1);
 
             y++;
             gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(gtk_label_new("Velocity iterations")), 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(lvl_vel_iter), 1, 2, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), ghw("Primarily affects motors and connection. Lower = better performance."), 2, 3, y, y+1);
+            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), help_widget("Primarily affects motors and connection. Lower = better performance."), 2, 3, y, y+1);
 
             y++;
             gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(gtk_label_new("Prismatic tolerance")), 0, 1, y, y+1);
@@ -10279,7 +10207,7 @@ int _gtk_loop(void *p)
 
             gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(gtk_label_new("Final score")), 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(lvl_score), 1, 2, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), ghw("What score the player has to reach to win the level."), 2, 3, y, y+1);
+            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), help_widget("What score the player has to reach to win the level."), 2, 3, y, y+1);
 
             y++;
             gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(gtk_label_new("Level VERSION")), 0, 1, y, y+1);
@@ -10288,21 +10216,21 @@ int _gtk_loop(void *p)
             y++;
             gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(gtk_label_new("Pause on WIN")), 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(lvl_pause_on_win = (GtkCheckButton*)gtk_check_button_new()), 1, 2, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), ghw("Pause the simulation once the win condition has been reached."), 2, 3, y, y+1);
+            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), help_widget("Pause the simulation once the win condition has been reached."), 2, 3, y, y+1);
 
             y++;
             gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(gtk_label_new("Display score")), 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(lvl_show_score = (GtkCheckButton*)gtk_check_button_new()), 1, 2, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), ghw("Display the score in the top-right corner."), 2, 3, y, y+1);
+            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), help_widget("Display the score in the top-right corner."), 2, 3, y, y+1);
 
             y++;
             gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), new_lbl("Creature absorb time"), 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(lvl_enemy_absorb_time), 1, 2, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), ghw("Time before dead creatures are absorbed"), 2, 3, y, y+1);
+            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), help_widget("Time before dead creatures are absorbed"), 2, 3, y, y+1);
             y++;
             gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), new_lbl("Player respawn time"), 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(lvl_player_respawn_time), 1, 2, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), ghw("Time after player death he can respawn."), 2, 3, y, y+1);
+            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), help_widget("Time after player death he can respawn."), 2, 3, y, y+1);
 
             for (int x=0; x<num_gtk_level_properties; ++x) {
                 struct gtk_level_property *prop = &gtk_level_properties[x];
@@ -10310,7 +10238,7 @@ int _gtk_loop(void *p)
                 gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), new_lbl(prop->label), 0, 1, y, y+1);
                 gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(prop->checkbutton = GTK_CHECK_BUTTON(gtk_check_button_new())), 1, 2, y, y+1);
 
-                gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), ghw(prop->help), 2, 3, y, y+1);
+                gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), help_widget(prop->help), 2, 3, y, y+1);
                 g_signal_connect(prop->checkbutton, "toggled", G_CALLBACK(on_level_flag_toggled), UINT_TO_VOID(prop->flag));
             }
 
@@ -10411,13 +10339,13 @@ int _gtk_loop(void *p)
         publish_allow_deriv = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Allow derivatives"));
 
         gtk_box_pack_start(box_allow_deriv, GTK_WIDGET(publish_allow_deriv), 1, 1, 0);
-        gtk_box_pack_start(box_allow_deriv, ghw("Allow other players to download, edit your map and publish it as their own."), 0, 0, 0);
+        gtk_box_pack_start(box_allow_deriv, help_widget("Allow other players to download, edit your map and publish it as their own."), 0, 0, 0);
 
         GtkBox *box_locked = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
         publish_locked = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Locked"));
 
         gtk_box_pack_start(box_locked, GTK_WIDGET(publish_locked), 1, 1, 0);
-        gtk_box_pack_start(box_locked, ghw("Disallow other players from seeing this level outside of packages."), 0, 0, 0);
+        gtk_box_pack_start(box_locked, help_widget("Disallow other players from seeing this level outside of packages."), 0, 0, 0);
 
         gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Level name:</b>"), false, false, 0);
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(publish_name), false, false, 0);
@@ -11825,7 +11753,7 @@ int _gtk_loop(void *p)
             {
                 GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
                 gtk_box_pack_start(hbox, GTK_WIDGET(multi_config_unlock_all), 1, 1, 0);
-                gtk_box_pack_start(hbox, ghw("Unlock any previously locked entities.\nOnly active if at least one of the selected entities is locked."), 0, 0, 0);
+                gtk_box_pack_start(hbox, help_widget("Unlock any previously locked entities.\nOnly active if at least one of the selected entities is locked."), 0, 0, 0);
 
                 gtk_box_pack_start(box, GTK_WIDGET(hbox), 0, 0, 0);
             }
@@ -11923,9 +11851,9 @@ int _gtk_loop(void *p)
         GtkNotebook *nb = GTK_NOTEBOOK(gtk_notebook_new());
         gtk_notebook_set_tab_pos(nb, GTK_POS_TOP);
 
-        GtkWidget *tbl_graphics;
+        GtkGrid *tbl_graphics;
         {
-            GtkWidget *tbl = create_settings_table(settings_num_graphic_rows + 7);
+            GtkGrid *tbl = create_settings_table();
 
             int y = 0;
             GtkWidget *l, *hbox;
@@ -11951,52 +11879,65 @@ int _gtk_loop(void *p)
 
             settings_enable_bloom = GTK_CHECK_BUTTON(gtk_check_button_new());
 
-            gtk_table_attach_defaults(GTK_TABLE(tbl), new_rlbl("Enable shadows"), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(settings_enable_shadows), 1, 3, y, y+1);
+            add_setting_row(
+                tbl, ++y,
+                "Enable shadows",
+                GTK_WIDGET(settings_enable_shadows),
+                NULL
+            );
 
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl), new_rlbl("Shadow quality"), 0, 1, y, y+1);
-            hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
-            gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(settings_shadow_quality), 1, 1, 0);
-            gtk_box_pack_start(GTK_BOX(hbox), ghw("Shadow quality 0: Sharp\nShadow quality 1: Smooth"), 0, 0, 2);
-            gtk_table_attach_defaults(GTK_TABLE(tbl), hbox, 1, 3, y, y+1);
+            add_setting_row(
+                tbl, ++y,
+                "Shadow quality",
+                GTK_WIDGET(settings_enable_shadows),
+                NULL
+            );
 
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl), new_rlbl("Shadow resolution"), 0, 1, y, y+1);
-            gtk_table_attach(GTK_TABLE(tbl), GTK_WIDGET(settings_shadow_res),
-                    1, 3, y, y+1,
-                    GTK_FILL, GTK_SHRINK,
-                    0, 3);
+            add_setting_row(
+                tbl, ++y,
+                "Shadow quality",
+                GTK_WIDGET(settings_shadow_quality),
+                "Shadow quality 0: Sharp\nShadow quality 1: Smooth"
+            );
 
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl), new_rlbl("Enable AO"), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(settings_enable_ao), 1, 3, y, y+1);
+            add_setting_row(
+                tbl, ++y,
+                "Shadow resolution",
+                GTK_WIDGET(settings_shadow_res),
+                NULL
+            );
 
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl), new_rlbl("AO map resolution"), 0, 1, y, y+1);
-            gtk_table_attach(GTK_TABLE(tbl), GTK_WIDGET(settings_ao_res),
-                    1, 3, y, y+1,
-                    GTK_FILL, GTK_SHRINK,
-                    0, 3);
+            add_setting_row(
+                tbl, ++y,
+                "Enable AO",
+                GTK_WIDGET(settings_enable_ao),
+                NULL
+            );
+
+            add_setting_row(
+                tbl, ++y,
+                "AO map resolution",
+                GTK_WIDGET(settings_ao_res),
+                NULL
+            );
 
             for (int x=0; x<settings_num_graphic_rows; ++x) {
                 struct table_setting_row *r = &settings_graphic_rows[x];
-
                 create_setting_row_widget(r);
-
-                add_row_to_table_d(tbl, ++y,
-                        r->label,
-                        r->wdg,
-                        r->help
-                        );
+                add_setting_row(
+                    tbl, ++y,
+                    r->label,
+                    r->wdg,
+                    r->help
+                );
             }
 
             tbl_graphics = tbl;
         }
 
-        GtkWidget *tbl_audio;
+        GtkGrid *tbl_audio;
         {
-            GtkWidget *tbl = create_settings_table(settings_num_audio_rows);
+            GtkGrid *tbl = create_settings_table();
             int y = 0;
 
             for (int x=0; x<settings_num_audio_rows; ++x) {
@@ -12004,19 +11945,20 @@ int _gtk_loop(void *p)
 
                 create_setting_row_widget(r);
 
-                add_row_to_table_d(tbl, ++y,
-                        r->label,
-                        r->wdg,
-                        r->help
-                        );
+                add_setting_row(
+                    tbl, ++y,
+                    r->label,
+                    r->wdg,
+                    r->help
+                );
             }
 
             tbl_audio = tbl;
         }
 
-        GtkWidget *tbl_controls;
+        GtkGrid *tbl_controls;
         {
-            GtkWidget *tbl = create_settings_table(settings_num_control_rows+1);
+            GtkGrid *tbl = create_settings_table();
 
             int y = 0;
             GtkWidget *l, *hbox;
@@ -12025,30 +11967,30 @@ int _gtk_loop(void *p)
             gtk_combo_box_text_append_text(settings_control_type, "Keyboard");
             gtk_combo_box_text_append_text(settings_control_type, "Keyboard+Mouse");
 
-            add_row_to_table_d(tbl, y,
-                    "Control type",
-                    GTK_WIDGET(settings_control_type),
-                    0
-                    );
+            add_setting_row(
+                tbl, y,
+                "Control type",
+                GTK_WIDGET(settings_control_type),
+                0
+            );
 
             for (int x=0; x<settings_num_control_rows; ++x) {
                 struct table_setting_row *r = &settings_control_rows[x];
-
                 create_setting_row_widget(r);
-
-                add_row_to_table_d(tbl, ++y,
-                        r->label,
-                        r->wdg,
-                        r->help
-                        );
+                add_setting_row(
+                    tbl, ++y,
+                    r->label,
+                    r->wdg,
+                    r->help
+                );
             }
 
             tbl_controls = tbl;
         }
 
-        GtkWidget *tbl_interface;
+        GtkGrid *tbl_interface;
         {
-            GtkWidget *tbl = create_settings_table(settings_num_interface_rows);
+            GtkGrid *tbl = create_settings_table();
 
             int y = 0;
 
@@ -12057,29 +11999,30 @@ int _gtk_loop(void *p)
 
                 create_setting_row_widget(r);
 
-                add_row_to_table_d(tbl, ++y,
-                        r->label,
-                        r->wdg,
-                        r->help
-                        );
+                add_setting_row(
+                    tbl, ++y,
+                    r->label,
+                    r->wdg,
+                    r->help
+                );
             }
 
             tbl_interface = tbl;
         }
 
-        GtkWidget *tbl_gameplay;
-        {
-            GtkWidget *tbl = gtk_table_new(2, 3, 5);
-            gtk_table_set_homogeneous(GTK_TABLE(tbl), false);
-            int y = 0;
+        // GtkWidget *tbl_gameplay;
+        // {
+        //     GtkWidget *tbl = gtk_table_new(2, 3, 5);
+        //     gtk_table_set_homogeneous(GTK_TABLE(tbl), false);
+        //     int y = 0;
 
-            tbl_gameplay = tbl;
-        }
+        //     tbl_gameplay = tbl;
+        // }
 
-        gtk_notebook_append_page(nb, tbl_graphics,  new_lbl("<b>Graphics</b>"));
-        gtk_notebook_append_page(nb, tbl_audio,     new_lbl("<b>Audio</b>"));
-        gtk_notebook_append_page(nb, tbl_controls,  new_lbl("<b>Controls</b>"));
-        gtk_notebook_append_page(nb, tbl_interface, new_lbl("<b>Interface</b>"));
+        gtk_notebook_append_page(nb, GTK_WIDGET(tbl_graphics),  new_lbl("<b>Graphics</b>"));
+        gtk_notebook_append_page(nb, GTK_WIDGET(tbl_audio),     new_lbl("<b>Audio</b>"));
+        gtk_notebook_append_page(nb, GTK_WIDGET(tbl_controls),  new_lbl("<b>Controls</b>"));
+        gtk_notebook_append_page(nb, GTK_WIDGET(tbl_interface), new_lbl("<b>Interface</b>"));
         //gtk_notebook_append_page(nb, tbl_gameplay,  new_lbl("<b>Gameplay</b>"));
 
         gtk_widget_show_all(GTK_WIDGET(nb));
@@ -12666,7 +12609,7 @@ int _gtk_loop(void *p)
             gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(polygon_front_align), 1, 3, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), ghw("Sublayer depth from front instead of back"), 3, 4, y, y+1);
+            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), help_widget("Sublayer depth from front instead of back"), 3, 4, y, y+1);
         }
 
         gtk_box_pack_start(GTK_BOX(content), tbl_settings, false, false, 0);
@@ -12863,7 +12806,7 @@ int _gtk_loop(void *p)
             gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(timer_num_ticks), 1, 3, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), ghw("0 = Infinite ticks"), 3, 4, y, y+1);
+            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), help_widget("0 = Infinite ticks"), 3, 4, y, y+1);
 
             y++;
             l = gtk_label_new("Use system time");
@@ -12871,7 +12814,7 @@ int _gtk_loop(void *p)
             gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(timer_use_system_time), 1, 3, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), ghw("Use system time for ticks, instead of in-game time."), 3, 4, y, y+1);
+            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), help_widget("Use system time for ticks, instead of in-game time."), 3, 4, y, y+1);
         }
 
         gtk_box_pack_start(GTK_BOX(content), tbl_settings, false, false, 0);
