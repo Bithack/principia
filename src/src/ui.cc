@@ -9349,7 +9349,7 @@ on_frequency_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
 }
 
 //TODO use R"" string from c++11
-const gchar* css_global = ""
+const gchar* css_global = "";
 
 int _gtk_loop(void *p)
 {
