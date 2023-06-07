@@ -3236,11 +3236,11 @@ enum {
     NUM_MULTI_CONFIG_TABS
 };
 /* Joint strength */
-GtkHScale    *multi_config_joint_strength;
+GtkScale    *multi_config_joint_strength;
 /* Plastic color */
 GtkColorChooserWidget *multi_config_plastic_color;
 /* Plastic density */
-GtkHScale    *multi_config_plastic_density;
+GtkScale    *multi_config_plastic_density;
 /* Connection render type */
 GtkRadioButton  *multi_config_render_type_normal;
 GtkRadioButton  *multi_config_render_type_small;
@@ -3323,15 +3323,15 @@ GtkEntry        *lvl_height_up;
 GtkButton       *lvl_autofit;
 GtkSpinButton   *lvl_gx;
 GtkSpinButton   *lvl_gy;
-GtkHScale       *lvl_pos_iter;
-GtkHScale       *lvl_vel_iter;
-GtkHScale       *lvl_prismatic_tol;
-GtkHScale       *lvl_pivot_tol;
-GtkHScale       *lvl_linear_damping;
-GtkHScale       *lvl_angular_damping;
-GtkHScale       *lvl_joint_friction;
-GtkHScale       *lvl_enemy_absorb_time;
-GtkHScale       *lvl_player_respawn_time;
+GtkScale       *lvl_pos_iter;
+GtkScale       *lvl_vel_iter;
+GtkScale       *lvl_prismatic_tol;
+GtkScale       *lvl_pivot_tol;
+GtkScale       *lvl_linear_damping;
+GtkScale       *lvl_angular_damping;
+GtkScale       *lvl_joint_friction;
+GtkScale       *lvl_enemy_absorb_time;
+GtkScale       *lvl_player_respawn_time;
 
 GtkEntry        *lvl_score;
 GtkCheckButton  *lvl_pause_on_win;
@@ -3721,7 +3721,7 @@ enum
 
 /** --Treasure chest **/
 GtkDialog       *tchest_dialog;
-GtkHScale       *tchest_auto_absorb;
+GtkScale       *tchest_auto_absorb;
 GtkListStore    *tchest_liststore;
 GtkTreeView     *tchest_treeview;
 GtkComboBoxText *tchest_entity;
@@ -3769,9 +3769,9 @@ GtkButton   *digi_delete;
 /** --FX Emitter **/
 GtkDialog       *fxemitter_dialog;
 GtkComboBoxText *fxemitter_cb[4];
-GtkHScale       *fxemitter_radius;
-GtkHScale       *fxemitter_count;
-GtkHScale       *fxemitter_interval;
+GtkScale       *fxemitter_radius;
+GtkScale       *fxemitter_count;
+GtkScale       *fxemitter_interval;
 
 /** --SFX Emitter **/
 GtkDialog       *sfx_dialog;
@@ -3822,7 +3822,7 @@ char            *_pass_error_text;
 
 /** --Emitter **/
 GtkDialog       *emitter_dialog;
-GtkHScale       *emitter_auto_absorb;
+GtkScale       *emitter_auto_absorb;
 
 /** --Confirm Dialog **/
 GtkDialog       *confirm_dialog;
@@ -3955,8 +3955,8 @@ GtkCheckButton  *timer_use_system_time;
 
 /** --Rubber **/
 GtkDialog       *rubber_dialog;
-GtkHScale       *rubber_restitution;
-GtkHScale       *rubber_friction;
+GtkScale       *rubber_restitution;
+GtkScale       *rubber_friction;
 
 /** --Published **/
 GtkDialog       *published_dialog;
@@ -4057,7 +4057,10 @@ on_window_close(GtkWidget *w, void *unused)
 static GtkWidget*
 ghw(const char *text)
 {
-    GtkWidget *r = gtk_image_new_from_stock(GTK_STOCK_HELP, GTK_ICON_SIZE_LARGE_TOOLBAR);
+    //help-about
+    //help-browser-symbolic
+    //dialog-information-symbolic
+    GtkWidget *r = gtk_image_new_from_icon_name("help-about", GTK_ICON_SIZE_MENU); //16px
     gtk_widget_set_tooltip_text(r, text);
 
     return r;
@@ -4129,10 +4132,10 @@ clear_cb(GtkComboBoxText *cb)
     gtk_list_store_clear(GTK_LIST_STORE(model));
 }
 
-static GtkHScale*
+static GtkScale*
 new_hscale_range(gdouble min, gdouble max, gdouble step)
 {
-    GtkHScale *ret = GTK_HSCALE(gtk_hscale_new_with_range(min, max, step));
+    GtkScale *ret = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, min, max, step));
     g_object_set(ret, "value-pos", GTK_POS_RIGHT, NULL);
 
     return ret;
@@ -4170,6 +4173,16 @@ new_clbl(const char *text)
     GtkWidget *r = gtk_label_new(0);
     gtk_label_set_markup(GTK_LABEL(r), text);
     gtk_label_set_xalign(GTK_LABEL(r), 0.0f);
+    gtk_label_set_yalign(GTK_LABEL(r), 0.5f);
+    return r;
+}
+
+static GtkWidget*
+new_rlbl(const char *text)
+{
+    GtkWidget *r = gtk_label_new(0);
+    gtk_label_set_markup(GTK_LABEL(r), text);
+    gtk_label_set_xalign(GTK_LABEL(r), 1.0f);
     gtk_label_set_yalign(GTK_LABEL(r), 0.5f);
     return r;
 }
@@ -4225,21 +4238,37 @@ create_settings_table(int num_rows)
 static void
 add_row_to_table_d(GtkWidget *tbl, int y, const char *label, GtkWidget *wdg, const char *help_text=0)
 {
-    gtk_table_attach(GTK_TABLE(tbl), new_lbl(label),
-            0, 1,
-            y, y+1,
-            (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-            (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-            0, 0
-            );
+    //label
+    gtk_table_attach(
+        GTK_TABLE(tbl), new_rlbl(label),
+        0, 1,
+        y, y+1,
+        (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
+        (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
+        0, 0
+    );
 
-    gtk_table_attach(GTK_TABLE(tbl), wdg,
-            1, 2,
+    //control
+    gtk_table_attach(
+        GTK_TABLE(tbl), wdg,
+        1, 2,
+        y, y+1,
+        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
+        (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
+        0, 0
+    );
+
+    //help
+    if (help_text) {
+        gtk_table_attach(
+            GTK_TABLE(tbl), ghw(help_text),
+            2, 3,
             y, y+1,
-            (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
             (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-            0, 0
-            );
+            (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
+            5, 0
+        );
+    }
 
     /*
                 gtk_table_attach(GTK_TABLE(tbl), new_lbl(r->label),
@@ -4275,15 +4304,7 @@ add_row_to_table_d(GtkWidget *tbl, int y, const char *label, GtkWidget *wdg, con
             y, y+1);
             */
 
-    if (help_text) {
-        gtk_table_attach(GTK_TABLE(tbl), ghw(help_text),
-                2, 3,
-                y, y+1,
-                (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                (GtkAttachOptions)(GTK_SHRINK | GTK_FILL),
-                5, 0
-                );
-    }
+    
 }
 
 static void
@@ -8009,15 +8030,15 @@ create_setting_row_widget(struct table_setting_row *r)
             break;
 
         case ROW_HSCALE:
-            r->wdg = gtk_hscale_new_with_range(row.min, row.max, row.step);
+            r->wdg = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, row.min, row.max, row.step);
             break;
 
         default:
-#ifdef DEBUG
-            tms_fatalf("Unknown row type: %d", row.type);
-#else
-            tms_errorf("Unknown row type: %d", row.type);
-#endif
+            #ifdef DEBUG
+                tms_fatalf("Unknown row type: %d", row.type);
+            #else
+                tms_errorf("Unknown row type: %d", row.type);
+            #endif
             break;
     }
 }
@@ -10203,15 +10224,15 @@ int _gtk_loop(void *p)
         {
             int y = 0;
 
-            lvl_pos_iter = GTK_HSCALE(gtk_hscale_new_with_range(10, 255, 5));
-            lvl_vel_iter = GTK_HSCALE(gtk_hscale_new_with_range(10, 255, 5));
+            lvl_pos_iter = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 10, 255, 5));
+            lvl_vel_iter = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 10, 255, 5));
 
-            lvl_prismatic_tol = GTK_HSCALE(gtk_hscale_new_with_range(0.f, .075f, 0.0125f/2.f));
-            lvl_pivot_tol = GTK_HSCALE(gtk_hscale_new_with_range(0.f, .075f, 0.0125f/2.f));
+            lvl_prismatic_tol = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, .075f, 0.0125f/2.f));
+            lvl_pivot_tol = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, .075f, 0.0125f/2.f));
 
-            lvl_linear_damping = GTK_HSCALE(gtk_hscale_new_with_range(0.f, 10.0f, 0.05f));
-            lvl_angular_damping = GTK_HSCALE(gtk_hscale_new_with_range(0.f, 10.0f, 0.05f));
-            lvl_joint_friction = GTK_HSCALE(gtk_hscale_new_with_range(0.f, 10.0f, 0.05f));
+            lvl_linear_damping = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 10.0f, 0.05f));
+            lvl_angular_damping = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 10.0f, 0.05f));
+            lvl_joint_friction = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 10.0f, 0.05f));
 
             gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(gtk_label_new("Position iterations")), 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(lvl_pos_iter), 1, 2, y, y+1);
@@ -10253,8 +10274,8 @@ int _gtk_loop(void *p)
 
             lvl_score = GTK_ENTRY(gtk_entry_new());
 
-            lvl_enemy_absorb_time = GTK_HSCALE(gtk_hscale_new_with_range(0.f, 60.f, 0.1f));
-            lvl_player_respawn_time = GTK_HSCALE(gtk_hscale_new_with_range(0.f, 10.f, 0.1f));
+            lvl_enemy_absorb_time = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 60.f, 0.1f));
+            lvl_player_respawn_time = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 10.f, 0.1f));
 
             gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(gtk_label_new("Final score")), 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(lvl_score), 1, 2, y, y+1);
@@ -11055,7 +11076,7 @@ int _gtk_loop(void *p)
         emitter_dialog = new_dialog_defaults("Emitter options", &on_emitter_show);
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(emitter_dialog));
 
-        emitter_auto_absorb = GTK_HSCALE(gtk_hscale_new_with_range(0.0f, 60.f, 0.5f));
+        emitter_auto_absorb = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.0f, 60.f, 0.5f));
         g_signal_connect(emitter_auto_absorb, "format-value", G_CALLBACK(format_auto_absorb), 0);
 
         gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Absorb entity after emitting</b>"), false, false, 0);
@@ -11129,21 +11150,21 @@ int _gtk_loop(void *p)
 
         GtkBox *slider_container = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0));
         gtk_box_set_homogeneous(slider_container, true);
-        fxemitter_radius = GTK_HSCALE(gtk_hscale_new_with_range(0.125, 5, 0.125));
+        fxemitter_radius = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.125, 5, 0.125));
         gtk_box_pack_start(GTK_BOX(slider_container), new_lbl("<b>Radius</b>"), false, false, 0);
         gtk_box_pack_start(GTK_BOX(slider_container), GTK_WIDGET(fxemitter_radius), true, true, 10);
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(slider_container), false, false, 10);
 
         slider_container = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0));
         gtk_box_set_homogeneous(slider_container, true);
-        fxemitter_count = GTK_HSCALE(gtk_hscale_new_with_range(1, 20, 1));
+        fxemitter_count = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 1, 20, 1));
         gtk_box_pack_start(GTK_BOX(slider_container), new_lbl("<b>Count</b>"), false, false, 0);
         gtk_box_pack_start(GTK_BOX(slider_container), GTK_WIDGET(fxemitter_count), true, true, 10);
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(slider_container), false, false, 10);
 
         slider_container = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0));
         gtk_box_set_homogeneous(slider_container, true);
-        fxemitter_interval = GTK_HSCALE(gtk_hscale_new_with_range(0.05, 1, 0.05));
+        fxemitter_interval = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.05, 1, 0.05));
         gtk_box_pack_start(GTK_BOX(slider_container), new_lbl("<b>Interval</b>"), false, false, 0);
         gtk_box_pack_start(GTK_BOX(slider_container), GTK_WIDGET(fxemitter_interval), true, true, 10);
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(slider_container), false, false, 10);
@@ -11742,7 +11763,7 @@ int _gtk_loop(void *p)
             /* Joint strength */
             GtkBox *box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
-            multi_config_joint_strength = GTK_HSCALE(gtk_hscale_new_with_range(0.0, 1.0, 0.05));
+            multi_config_joint_strength = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.0, 1.0, 0.05));
             g_signal_connect(multi_config_joint_strength, "format-value", G_CALLBACK(format_joint_strength), 0);
 
             gtk_box_pack_start(box, GTK_WIDGET(multi_config_joint_strength), 0, 0, 0);
@@ -11767,7 +11788,7 @@ int _gtk_loop(void *p)
             /* Plastic density */
             GtkBox *box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
-            multi_config_plastic_density = GTK_HSCALE(gtk_hscale_new_with_range(0.0, 1.0, 0.05));
+            multi_config_plastic_density = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.0, 1.0, 0.05));
 
             gtk_box_pack_start(box, GTK_WIDGET(multi_config_plastic_density), 0, 0, 0);
             gtk_box_pack_start(box, new_lbl("This will change the density of all plastic objects in your current selection."), 1, 1, 0);
@@ -11930,29 +11951,29 @@ int _gtk_loop(void *p)
 
             settings_enable_bloom = GTK_CHECK_BUTTON(gtk_check_button_new());
 
-            gtk_table_attach_defaults(GTK_TABLE(tbl), new_clbl("Enable shadows"), 0, 1, y, y+1);
+            gtk_table_attach_defaults(GTK_TABLE(tbl), new_rlbl("Enable shadows"), 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(settings_enable_shadows), 1, 3, y, y+1);
 
             y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl), new_clbl("Shadow quality"), 0, 1, y, y+1);
+            gtk_table_attach_defaults(GTK_TABLE(tbl), new_rlbl("Shadow quality"), 0, 1, y, y+1);
             hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
             gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(settings_shadow_quality), 1, 1, 0);
             gtk_box_pack_start(GTK_BOX(hbox), ghw("Shadow quality 0: Sharp\nShadow quality 1: Smooth"), 0, 0, 2);
             gtk_table_attach_defaults(GTK_TABLE(tbl), hbox, 1, 3, y, y+1);
 
             y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl), new_clbl("Shadow resolution"), 0, 1, y, y+1);
+            gtk_table_attach_defaults(GTK_TABLE(tbl), new_rlbl("Shadow resolution"), 0, 1, y, y+1);
             gtk_table_attach(GTK_TABLE(tbl), GTK_WIDGET(settings_shadow_res),
                     1, 3, y, y+1,
                     GTK_FILL, GTK_SHRINK,
                     0, 3);
 
             y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl), new_clbl("Enable AO"), 0, 1, y, y+1);
+            gtk_table_attach_defaults(GTK_TABLE(tbl), new_rlbl("Enable AO"), 0, 1, y, y+1);
             gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(settings_enable_ao), 1, 3, y, y+1);
 
             y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl), new_clbl("AO map resolution"), 0, 1, y, y+1);
+            gtk_table_attach_defaults(GTK_TABLE(tbl), new_rlbl("AO map resolution"), 0, 1, y, y+1);
             gtk_table_attach(GTK_TABLE(tbl), GTK_WIDGET(settings_ao_res),
                     1, 3, y, y+1,
                     GTK_FILL, GTK_SHRINK,
@@ -12390,10 +12411,10 @@ int _gtk_loop(void *p)
             GtkWidget *l;
             int y = 0;
 
-            cursorfield_right = GTK_RANGE(gtk_hscale_new_with_range(-3, 3, .1));
-            cursorfield_up = GTK_RANGE(gtk_hscale_new_with_range(-3, 3, .1));
-            cursorfield_left = GTK_RANGE(gtk_hscale_new_with_range(-3, 3, .1));
-            cursorfield_down = GTK_RANGE(gtk_hscale_new_with_range(-3, 3, .1));
+            cursorfield_right = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, -3, 3, .1));
+            cursorfield_up = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, -3, 3, .1));
+            cursorfield_left = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, -3, 3, .1));
+            cursorfield_down = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, -3, 3, .1));
 
             l = gtk_label_new("Lower X");
             gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
@@ -12581,10 +12602,10 @@ int _gtk_loop(void *p)
             GtkWidget *l;
             int y = 0;
 
-            shapeextruder_right = GTK_RANGE(gtk_hscale_new_with_range(0, 2, .01));
-            shapeextruder_up = GTK_RANGE(gtk_hscale_new_with_range(0, 2, .01));
-            shapeextruder_left = GTK_RANGE(gtk_hscale_new_with_range(0, 2, .01));
-            shapeextruder_down = GTK_RANGE(gtk_hscale_new_with_range(0, 2, .01));
+            shapeextruder_right = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 2, .01));
+            shapeextruder_up = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 2, .01));
+            shapeextruder_left = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 2, .01));
+            shapeextruder_down = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 2, .01));
 
             l = gtk_label_new("Right");
             gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
@@ -12630,7 +12651,7 @@ int _gtk_loop(void *p)
             GtkWidget *l;
             int y = 0;
 
-            polygon_sublayer_depth = GTK_RANGE(gtk_hscale_new_with_range(1, 4, 1));
+            polygon_sublayer_depth = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 1, 4, 1));
             polygon_front_align = GTK_CHECK_BUTTON(gtk_check_button_new());
 
             l = gtk_label_new("Sublayer depth");
@@ -12675,15 +12696,15 @@ int _gtk_loop(void *p)
                         GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 440*8, 20, .1, 0)),
                         50, 0));
 
-            synth_bitcrushing = GTK_RANGE(gtk_hscale_new_with_range(0, 64, 1));
+            synth_bitcrushing = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 64, 1));
 
-            synth_pulse_width = GTK_RANGE(gtk_hscale_new_with_range(0, 1., .01f));
+            synth_pulse_width = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 1., .01f));
 
-            synth_freq_vibrato_hz = GTK_RANGE(gtk_hscale_new_with_range(0, 32, 1));
-            synth_freq_vibrato_extent = GTK_RANGE(gtk_hscale_new_with_range(0, 1., .01));
+            synth_freq_vibrato_hz = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 32, 1));
+            synth_freq_vibrato_extent = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 1., .01));
 
-            synth_vol_vibrato_hz = GTK_RANGE(gtk_hscale_new_with_range(0, 32, 1));
-            synth_vol_vibrato_extent = GTK_RANGE(gtk_hscale_new_with_range(0, 1, .01));
+            synth_vol_vibrato_hz = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 32, 1));
+            synth_vol_vibrato_extent = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 1, .01));
 
             synth_waveform = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
 
@@ -12765,13 +12786,13 @@ int _gtk_loop(void *p)
         GtkBox *vb;
 
         l = gtk_label_new("Restitution"); vb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-        rubber_restitution = GTK_HSCALE(gtk_hscale_new_with_range(0.0, 1.0, 0.1));
+        rubber_restitution = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.0, 1.0, 0.1));
         gtk_box_pack_start(vb, l, false, false, 0);
         gtk_box_pack_start(vb, GTK_WIDGET(rubber_restitution), false, false, 0);
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(vb), false, false, 0);
 
         l = gtk_label_new("Friction"); vb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-        rubber_friction = GTK_HSCALE(gtk_hscale_new_with_range(1.0, 10.0, 0.1));
+        rubber_friction = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 1.0, 10.0, 0.1));
         gtk_box_pack_start(vb, l, false, false, 0);
         gtk_box_pack_start(vb, GTK_WIDGET(rubber_friction), false, false, 0);
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(vb), false, false, 0);
