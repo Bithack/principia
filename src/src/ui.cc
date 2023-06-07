@@ -4439,7 +4439,13 @@ find_cb_val(GtkComboBoxText *cb, const char *str)
 bool
 btn_pressed(GtkWidget *ref, GtkButton *btn, gpointer user_data)
 {
-    return (ref == GTK_WIDGET(btn) && (gtk_widget_get_state(ref) == GTK_STATE_ACTIVE || GPOINTER_TO_INT(user_data) == 1));
+    return (
+        ref == GTK_WIDGET(btn) &&
+        (
+            ((gtk_widget_get_state_flags(ref) & GTK_STATE_ACTIVE) != 0) ||
+            GPOINTER_TO_INT(user_data) == 1
+        )
+    );
 }
 
 void
