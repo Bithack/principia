@@ -4233,24 +4233,19 @@ static GtkGrid* create_settings_table() {
     return tbl;
 }
 
-static void
-add_setting_row(GtkGrid *tbl, int y, const char *label, GtkWidget *wdg, const char *help_text=0)
-{
-    //set widget to hexpand
-    gtk_widget_set_hexpand(wdg, true);
-
+static void add_setting_row(GtkGrid *tbl, int y, const char *label, GtkWidget *widget, const char *help_text=0) {
     //label
-    GtkWidget* label_widget = new_rlbl(label);
-    //gtk_widget_set_hexpand(label_widget, true);
     gtk_grid_attach(
-        tbl, label_widget,
+        tbl, new_rlbl(label),
         0, y,
         1, 1
     );
+    
 
-    //control
+    //widget
+    gtk_widget_set_hexpand(widget, true);
     gtk_grid_attach(
-        tbl, wdg,
+        tbl, widget,
         1, y,
         1, 1
     );
