@@ -4228,8 +4228,8 @@ static GtkGrid* create_settings_table() {
     gtk_grid_set_row_spacing(tbl, 6);
 
     gtk_grid_set_column_homogeneous(tbl, false);
-    gtk_grid_set_row_homogeneous(tbl, true);
-s
+    gtk_grid_set_row_homogeneous(tbl, false);
+
     return tbl;
 }
 
