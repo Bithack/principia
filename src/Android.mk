@@ -71,7 +71,8 @@ GLOBAL_FLAGS := -DGL_GLEXT_PROTOTYPES \
 				-DUNICODE \
 				-DTMS_BACKEND_ANDROID \
 				-DTMS_BACKEND_MOBILE \
-                -DHAVE_GCC_ATOMICS \
+        -DHAVE_GCC_ATOMICS \
+				-D_USE_MATH_DEFINES \
 				-Os -ffast-math
 
 ifeq ($(TARGET_ARCH_ABI),arm64-v8a)

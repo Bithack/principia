@@ -8,7 +8,8 @@ GLOBAL_FLAGS := -DGL_GLEXT_PROTOTYPES \
 				-D__STDC_FORMAT_MACROS=1 \
 				-DSDL_NO_COMPAT \
 				-DUNICODE \
-				-DNO_UI
+				-DNO_UI \
+				-D_USE_MATH_DEFINES
 
 GLOBAL_FLAGS += -I../src/tms/backends/screenshot-linux/ \
                 -I../src/src/ -I../src/ -I/usr/include/ \
