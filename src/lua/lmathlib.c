@@ -129,13 +129,6 @@ static int math_log (lua_State *L) {
   return 1;
 }
 
-#if defined(LUA_COMPAT_LOG10)
-static int math_log10 (lua_State *L) {
-  lua_pushnumber(L, l_mathop(log10)(luaL_checknumber(L, 1)));
-  return 1;
-}
-#endif
-
 static int math_exp (lua_State *L) {
   lua_pushnumber(L, l_mathop(exp)(luaL_checknumber(L, 1)));
   return 1;
@@ -245,9 +238,6 @@ static const luaL_Reg mathlib[] = {
   {"fmod",   math_fmod},
   {"frexp", math_frexp},
   {"ldexp", math_ldexp},
-#if defined(LUA_COMPAT_LOG10)
-  {"log10", math_log10},
-#endif
   {"log",   math_log},
   {"max",   math_max},
   {"min",   math_min},

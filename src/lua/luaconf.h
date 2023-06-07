@@ -1,5 +1,5 @@
 /*
-** $Id: luaconf.h,v 1.176.1.1 2013/04/12 18:48:47 roberto Exp $
+** $Id: luaconf.h,v 1.176.1.2 2013/11/21 17:26:16 roberto Exp $
 ** Configuration file for Lua
 ** See Copyright Notice in lua.h
 */
@@ -247,18 +247,6 @@
 #if defined(LUA_COMPAT_ALL)	/* { */
 
 /*
-@@ LUA_COMPAT_UNPACK controls the presence of global 'unpack'.
-** You can replace it with 'table.unpack'.
-*/
-#define LUA_COMPAT_UNPACK
-
-/*
-@@ LUA_COMPAT_LOADERS controls the presence of table 'package.loaders'.
-** You can replace it with 'package.searchers'.
-*/
-#define LUA_COMPAT_LOADERS
-
-/*
 @@ macro 'lua_cpcall' emulates deprecated function lua_cpcall.
 ** You can call your C function directly (with light C functions).
 */
@@ -266,24 +254,6 @@
 	(lua_pushcfunction(L, (f)), \
 	 lua_pushlightuserdata(L,(u)), \
 	 lua_pcall(L,1,0,0))
-
-
-/*
-@@ LUA_COMPAT_LOG10 defines the function 'log10' in the math library.
-** You can rewrite 'log10(x)' as 'log(x, 10)'.
-*/
-#define LUA_COMPAT_LOG10
-
-/*
-@@ LUA_COMPAT_LOADSTRING defines the function 'loadstring' in the base
-** library. You can rewrite 'loadstring(s)' as 'load(s)'.
-*/
-#define LUA_COMPAT_LOADSTRING
-
-/*
-@@ LUA_COMPAT_MAXN defines the function 'maxn' in the table library.
-*/
-#define LUA_COMPAT_MAXN
 
 /*
 @@ The following macros supply trivial compatibility for some
@@ -326,7 +296,7 @@
 
 
 /*
-@@ LUA_INT32 is an signed integer with exactly 32 bits.
+@@ LUA_INT32 is a signed integer with exactly 32 bits.
 @@ LUAI_UMEM is an unsigned integer big enough to count the total
 @* memory used by Lua.
 @@ LUAI_MEM is a signed integer big enough to count the total memory
@@ -350,7 +320,7 @@
 /*
 @@ LUAI_MAXSTACK limits the size of the Lua stack.
 ** CHANGE it if you need a different limit. This limit is arbitrary;
-** its only purpose is to stop Lua to consume unlimited stack
+** its only purpose is to stop Lua from consuming unlimited stack
 ** space (and to reserve some numbers for pseudo-indices).
 */
 #if LUAI_BITSINT >= 32

@@ -82,14 +82,11 @@ principia_SOURCES = \
 ../src/lua/lfunc.c \
 ../src/lua/lgc.c \
 ../src/lua/linit.c \
-../src/lua/liolib.c \
 ../src/lua/llex.c \
 ../src/lua/lmathlib.c \
 ../src/lua/lmem.c \
-../src/lua/loadlib.c \
 ../src/lua/lobject.c \
 ../src/lua/lopcodes.c \
-../src/lua/loslib.c \
 ../src/lua/lparser.c \
 ../src/lua/lstate.c \
 ../src/lua/lstring.c \
