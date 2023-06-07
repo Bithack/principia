@@ -9395,9 +9395,11 @@ int _gtk_loop(void *p)
 //             );
 // #endif
 
-
-    GtkSettings *gtkset = gtk_settings_get_default();
-    gtk_settings_set_long_property(gtkset, "gtk-tooltip-timeout", 100, NULL);
+    g_object_set(
+        G_OBJECT(gtk_settings_get_default()),
+        "gtk-tooltip-timeout", 100,
+        NULL
+    );
 
     GtkDialog *dialog;
     GtkWidget *lbl;
