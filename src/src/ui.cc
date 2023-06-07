@@ -9349,11 +9349,7 @@ on_frequency_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
 }
 
 //TODO use R"" string from c++11
-const gchar* css_global =
-"* {                        "
-"   background: red;        "
-"}                          ";
-
+const gchar* css_global = ""
 
 int _gtk_loop(void *p)
 {
@@ -9371,6 +9367,13 @@ int _gtk_loop(void *p)
             css_global,
             -1, NULL
         );
+#ifdef DEBUG
+        gtk_css_provider_load_from_path (
+            css_provider,
+            "debug.css",
+            NULL
+        );
+#endif
         gtk_style_context_add_provider_for_screen(
             gdk_screen_get_default(),
             GTK_STYLE_PROVIDER(css_provider),
@@ -10537,18 +10540,29 @@ int _gtk_loop(void *p)
 
             GtkWidget *tbl_symbol = gtk_table_new(7, 5, true);
 
-            for (int y=0; y<7; y++) {
-                for (int x=0; x<5; x++) {
-                    GdkRGBA black,green;
-                    gdk_rgba_parse(&black, "black");
-                    gdk_rgba_parse(&green, "#aaffaa");
+            for (int y=0; y < 7; y++) {
+                for (int x=0; x < 5; x++) {
+                    //Create ToggleButton
+                    GtkToggleButton* check = GTK_TOGGLE_BUTTON(gtk_toggle_button_new_with_label(""));
+                    digi_check[y][x] = check;
 
-                    digi_check[y][x] = GTK_TOGGLE_BUTTON(gtk_toggle_button_new_with_label(""));
-                    gtk_widget_override_background_color(GTK_WIDGET(digi_check[y][x]), GTK_STATE_FLAG_NORMAL, &black);
-                    gtk_widget_override_background_color(GTK_WIDGET(digi_check[y][x]), GTK_STATE_FLAG_ACTIVE, &green);
-                    gtk_table_attach_defaults(GTK_TABLE(tbl_symbol), GTK_WIDGET(digi_check[y][x]), x,x+1,y,y+1);
+                    //Add .display-cell class
+                    GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(check));
+                    gtk_style_context_add_class(context, "display-cell");
 
-                    g_signal_connect(digi_check[y][x], "toggled", G_CALLBACK(on_digi_toggle), (void*)(uintptr_t)(y*5+x));
+                    //Add to table
+                    gtk_table_attach_defaults(
+                        GTK_TABLE(tbl_symbol),
+                        GTK_WIDGET(check),
+                        x, x+1, y, y+1
+                    );
+
+                    //Connect toggled signal
+                    g_signal_connect(
+                        check, "toggled",
+                        G_CALLBACK(on_digi_toggle),
+                        (void*)(uintptr_t)((y * 5) + x)
+                    );
                 }
             }
 
