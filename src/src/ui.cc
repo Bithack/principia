@@ -9358,10 +9358,68 @@ const gchar* css_global = R"(
         border-radius: 0;
         background: #101010;
     }
+    
     .display-cell:checked {
         background: #5fbd5a;
     }
 )";
+
+#ifdef TMS_BACKEND_WINDOWS
+const gchar* css_theme = R"(
+    /* TODO */
+)";
+#endif
+
+void load_gtk_css() {
+    //Load global CSS
+    {
+        GtkCssProvider* css_provider = gtk_css_provider_new();
+        gtk_css_provider_load_from_data(
+            css_provider,
+            css_global,
+            -1, NULL
+        );
+        gtk_style_context_add_provider_for_screen(
+            gdk_screen_get_default(),
+            GTK_STYLE_PROVIDER(css_provider),
+            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
+        );
+    }
+
+    //Load our custom theme (windows only)
+    #ifdef TMS_BACKEND_WINDOWS
+    {
+        GtkCssProvider* css_provider = gtk_css_provider_new();
+        gtk_css_provider_load_from_data(
+            css_provider,
+            css_theme,
+            -1, NULL
+        );
+        gtk_style_context_add_provider_for_screen(
+            gdk_screen_get_default(),
+            GTK_STYLE_PROVIDER(css_provider),
+            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
+        );
+    }
+    #endif
+
+    //Try to load debug.css in debug builds
+    #ifdef DEBUG
+    {
+        GtkCssProvider* css_provider = gtk_css_provider_new();
+        gtk_css_provider_load_from_path (
+            css_provider,
+            "debug.css",
+            NULL
+        );
+        gtk_style_context_add_provider_for_screen(
+            gdk_screen_get_default(),
+            GTK_STYLE_PROVIDER(css_provider),
+            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
+        );
+    }
+    #endif
+}
 
 int _gtk_loop(void *p)
 {
@@ -9372,26 +9430,7 @@ int _gtk_loop(void *p)
     gtk_init(NULL, NULL);
 
     //Load CSS themes
-    {
-        GtkCssProvider* css_provider = gtk_css_provider_new();
-        gtk_css_provider_load_from_data(
-            css_provider,
-            css_global,
-            -1, NULL
-        );
-#ifdef DEBUG
-        gtk_css_provider_load_from_path (
-            css_provider,
-            "debug.css",
-            NULL
-        );
-#endif
-        gtk_style_context_add_provider_for_screen(
-            gdk_screen_get_default(),
-            GTK_STYLE_PROVIDER(css_provider),
-            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
-        );
-    }
+    load_gtk_css();
 
     // Only use custom theme in release versions of Windows. Linux should use
     // the user-provided GTK theme, and debug versions of Windows break spectacularily
