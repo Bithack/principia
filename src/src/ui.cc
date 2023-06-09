@@ -10105,11 +10105,7 @@ int _gtk_loop(void *p)
         gtk_widget_set_size_request(GTK_WIDGET(nb), 550, 550);
         gtk_notebook_set_tab_pos(nb, GTK_POS_TOP);
 
-        GtkGrid *tbl_info = GTK_GRID(gtk_grid_new());
-
-        gtk_grid_set_row_spacing(tbl_info, 3);
-        gtk_grid_set_column_spacing(tbl_info, 15);
-
+        GtkGrid *tbl_info = create_settings_table();
         {
             int y = -1;
             
@@ -10148,9 +10144,7 @@ int _gtk_loop(void *p)
             );
         }
 
-        GtkGrid *tbl_world = GTK_GRID(gtk_grid_new());
-        gtk_grid_set_row_spacing(tbl_world, 3);
-        gtk_grid_set_column_spacing(tbl_world, 15);
+        GtkGrid *tbl_world = create_settings_table();
         {
             int y = -1;
 
@@ -10246,9 +10240,7 @@ int _gtk_loop(void *p)
             );
         }
 
-        GtkGrid *tbl_physics = GTK_GRID(gtk_grid_new());
-        gtk_grid_set_row_spacing(tbl_physics, 3);
-        gtk_grid_set_column_spacing(tbl_physics, 15);
+        GtkGrid *tbl_physics = create_settings_table();
         {
             int y = -1;
 
@@ -10307,9 +10299,7 @@ int _gtk_loop(void *p)
             );
         }
 
-        GtkGrid *tbl_gameplay = GTK_GRID(gtk_grid_new());
-        gtk_grid_set_row_spacing(tbl_gameplay, 3);
-        gtk_grid_set_column_spacing(tbl_gameplay, 15);
+        GtkGrid *tbl_gameplay = create_settings_table();
         {
             int y = -1;
 
@@ -12074,7 +12064,7 @@ int _gtk_loop(void *p)
         GtkGrid *tbl_audio;
         {
             GtkGrid *tbl = create_settings_table();
-            int y = 0;
+            int y = -1;
 
             for (int x=0; x<settings_num_audio_rows; ++x) {
                 struct table_setting_row *r = &settings_audio_rows[x];
@@ -12096,7 +12086,7 @@ int _gtk_loop(void *p)
         {
             GtkGrid *tbl = create_settings_table();
 
-            int y = 0;
+            int y = -1;
             GtkWidget *l, *hbox;
 
             settings_control_type = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
@@ -12127,7 +12117,7 @@ int _gtk_loop(void *p)
         {
             GtkGrid *tbl = create_settings_table();
 
-            int y = 0;
+            int y = -1;
 
             for (int x=0; x<settings_num_interface_rows; ++x) {
                 struct table_setting_row *r = &settings_interface_rows[x];
