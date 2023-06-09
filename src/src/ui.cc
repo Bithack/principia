@@ -10107,9 +10107,6 @@ int _gtk_loop(void *p)
 
         GtkGrid *tbl_info = GTK_GRID(gtk_grid_new());
 
-        gtk_grid_set_row_homogeneous(tbl_info, false);
-        gtk_grid_set_column_homogeneous(tbl_info, false);
-
         gtk_grid_set_row_spacing(tbl_info, 3);
         gtk_grid_set_column_spacing(tbl_info, 15);
 
@@ -10151,11 +10148,16 @@ int _gtk_loop(void *p)
             );
         }
 
-        GtkWidget *tbl_world = gtk_table_new(2, 10, 0);
+        GtkGrid *tbl_world = GTK_GRID(gtk_grid_new());
+    
+        gtk_grid_set_row_spacing(tbl_world, 3);
+        gtk_grid_set_column_spacing(tbl_world, 15);
+
         {
-            int y = 0;
+            int y = -1;
 
             lvl_bg = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
+            gtk_widget_set_hexpand(GTK_WIDGET(lvl_bg), true);
             g_signal_connect(lvl_bg, "changed", G_CALLBACK(on_lvl_bg_changed), 0);
 
             for (int x=0; x<num_bgs; x++) {
@@ -10165,6 +10167,10 @@ int _gtk_loop(void *p)
             lvl_bg_color = GTK_COLOR_BUTTON(gtk_color_button_new());
             gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(lvl_bg_color), false);
             g_signal_connect(lvl_bg_color, "color-set", G_CALLBACK(on_lvl_bg_color_set), 0);
+
+            GtkBox* lvl_bg_box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
+            gtk_container_add(GTK_CONTAINER(lvl_bg_box), GTK_WIDGET(lvl_bg));
+            gtk_container_add(GTK_CONTAINER(lvl_bg_box), GTK_WIDGET(lvl_bg_color));
 
             // lvl_bg_cd = GTK_COLOR_CHOOSER_DIALOG(gtk_color_chooser_dialog_new("Background color", NULL));
 
@@ -10193,32 +10199,53 @@ int _gtk_loop(void *p)
                         GTK_ADJUSTMENT(gtk_adjustment_new(1, -MAX_GRAVITY, MAX_GRAVITY, 1, 1, 0)),
                         1, 0));
 
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(gtk_label_new("Background")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(lvl_bg), 1, 2, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(lvl_bg_color), 2, 3, y, y+1);
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(gtk_label_new("Left border")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(lvl_width_left), 1, 2, y, y+1);
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(gtk_label_new("Right border")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(lvl_width_right), 1, 2, y, y+1);
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(gtk_label_new("Bottom border")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(lvl_height_down), 1, 2, y, y+1);
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(gtk_label_new("Top border")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(lvl_height_up), 1, 2, y, y+1);
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(lvl_autofit), 1, 2, y, y+1);
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(gtk_label_new("Gravity X")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(lvl_gx), 1, 2, y, y+1);
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(gtk_label_new("Gravity Y")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(lvl_gy), 1, 2, y, y+1);
+            add_setting_row(
+                tbl_world, ++y,
+                "Background",
+                GTK_WIDGET(lvl_bg_box)
+            );
 
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_world), GTK_WIDGET(gtk_label_new(0)), 0, 2, y, y+4);
+            add_setting_row(
+                tbl_world, ++y,
+                "Left border",
+                GTK_WIDGET(lvl_width_left)
+            );
+
+            add_setting_row(
+                tbl_world, ++y,
+                "Right border",
+                GTK_WIDGET(lvl_width_right)
+            );
+
+            add_setting_row(
+                tbl_world, ++y,
+                "Bottom border",
+                GTK_WIDGET(lvl_height_down)
+            );
+
+            add_setting_row(
+                tbl_world, ++y,
+                "Top border",
+                GTK_WIDGET(lvl_height_up)
+            );
+
+            gtk_grid_attach(
+                tbl_world,
+                GTK_WIDGET(lvl_autofit),
+                0, ++y, 3, 1
+            );
+
+            add_setting_row(
+                tbl_world, ++y,
+                "Gravity X",
+                GTK_WIDGET(lvl_gx)
+            );
+            
+            add_setting_row(
+                tbl_world, ++y,
+                "Gravity Y",
+                GTK_WIDGET(lvl_gy)
+            );
         }
 
         GtkWidget *tbl_physics = gtk_table_new(2, 2, 0);
@@ -10339,7 +10366,7 @@ int _gtk_loop(void *p)
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (win_world),
                       GTK_POLICY_NEVER,
                       GTK_POLICY_AUTOMATIC);
-        gtk_container_add(GTK_CONTAINER(view_world), tbl_world);
+        gtk_container_add(GTK_CONTAINER(view_world), GTK_WIDGET(tbl_world));
         gtk_container_add(GTK_CONTAINER(win_world), view_world);
         gtk_notebook_append_page(nb, win_world, gtk_label_new("World"));
 
@@ -10348,7 +10375,7 @@ int _gtk_loop(void *p)
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (win_physics),
                       GTK_POLICY_NEVER,
                       GTK_POLICY_AUTOMATIC);
-        gtk_container_add(GTK_CONTAINER(view_physics), tbl_physics);
+        gtk_container_add(GTK_CONTAINER(view_physics), GTK_WIDGET(tbl_physics));
         gtk_container_add(GTK_CONTAINER(win_physics), view_physics);
         gtk_notebook_append_page(nb, win_physics, gtk_label_new("Physics"));
 
@@ -10357,7 +10384,7 @@ int _gtk_loop(void *p)
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (win_gameplay),
                       GTK_POLICY_NEVER,
                       GTK_POLICY_AUTOMATIC);
-        gtk_container_add(GTK_CONTAINER(view_gameplay), tbl_gameplay);
+        gtk_container_add(GTK_CONTAINER(view_gameplay), GTK_WIDGET(tbl_gameplay));
         gtk_container_add(GTK_CONTAINER(win_gameplay), view_gameplay);
         gtk_notebook_append_page(nb, win_gameplay, gtk_label_new("Gameplay"));
 
