@@ -10090,7 +10090,7 @@ int _gtk_loop(void *p)
     {
         properties_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
             "Level properties",
-            0, GTK_DIALOG_MODAL,
+            0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
             NULL
         ));
 
