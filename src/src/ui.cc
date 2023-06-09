@@ -7228,6 +7228,18 @@ on_autofit_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
 }
 
 gboolean
+on_lvl_bg_changed(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
+    for (const int *ptr = colored_bgs; ; ++ptr) {
+        if ((*ptr == -1) || (*ptr == gtk_combo_box_get_active(GTK_COMBO_BOX(lvl_bg)))) {
+            gtk_widget_set_visible(GTK_WIDGET(lvl_bg_color), *ptr != -1);
+            break;
+        }
+    }
+
+    return false;
+}
+
+gboolean
 on_lvl_bg_color_set(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
 {
     tms_debugf("bg color button COLOR SET");
@@ -8531,6 +8543,13 @@ on_properties_show(GtkWidget *wdg, void *unused)
         bg_color.alpha = 1.0;
 
         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(lvl_bg_color), &bg_color);
+    }
+
+    for (const int *ptr = colored_bgs; ; ++ptr) {
+        if (*ptr == -1 || *ptr == W->level.bg) {
+            gtk_widget_set_visible(GTK_WIDGET(lvl_bg_color), *ptr != -1);
+            break;
+        }
     }
 
     free(current_descr);
@@ -10137,6 +10156,7 @@ int _gtk_loop(void *p)
             int y = 0;
 
             lvl_bg = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
+            g_signal_connect(lvl_bg, "changed", G_CALLBACK(on_lvl_bg_changed), 0);
 
             for (int x=0; x<num_bgs; x++) {
                 gtk_combo_box_text_append_text(lvl_bg, available_bgs[x]);

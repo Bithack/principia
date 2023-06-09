@@ -244,6 +244,12 @@ const char *available_bgs[] = {
 };
 const int num_bgs = sizeof(available_bgs)/sizeof(void*);
 
+const int colored_bgs[] = {
+    6, /* Colored */
+    7, /* Colored space */
+    -1
+};
+
 static const char *menu_bgsources[] = {
     "attribute vec2 position;"
     "attribute vec2 texcoord;"

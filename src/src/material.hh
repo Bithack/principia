@@ -354,4 +354,6 @@ extern tms::shader *shader_pv_textured_ao;
 extern const char *available_bgs[];
 extern const int num_bgs;
 
+extern const int colored_bgs[];
+
 #endif
