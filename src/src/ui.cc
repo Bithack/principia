@@ -3050,7 +3050,6 @@ Java_org_libsdl_app_PrincipiaBackend_triggerCreateLevel(
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
-#include <gdk/gdkkeysyms-compat.h>
 #include <gtksourceview/gtksource.h>
 
 #if defined(TMS_BACKEND_WINDOWS)
@@ -5648,14 +5647,14 @@ gboolean
 on_escript_keypress(GtkWidget *w, GdkEventKey *event, gpointer unused)
 {
     switch (event->keyval) {
-        case GDK_s:
+        case GDK_KEY_s:
             if (event->state & GDK_CONTROL_MASK) {
                 on_escript_btn_click(GTK_WIDGET(escript_save), NULL, GINT_TO_POINTER(1));
                 return true;
             }
             break;
 
-        case GDK_c: // should we really use CTRL+C?
+        case GDK_KEY_c: // should we really use CTRL+C?
             if (event->state & GDK_CONTROL_MASK) {
                 /* TODO: implement compilation check here */
             }
