@@ -4310,8 +4310,8 @@ new_dialog_defaults(const char *title, GtkCallback on_show/*=0*/, gboolean (*on_
     GtkWidget *r = gtk_dialog_new_with_buttons(
             title,
             0, (GtkDialogFlags)(0),
-            GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-            GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+            "_OK", GTK_RESPONSE_ACCEPT,
+            "_Cancel", GTK_RESPONSE_REJECT,
             NULL);
 
     apply_defaults(r, on_show, on_keypress);
@@ -9727,8 +9727,8 @@ int _gtk_loop(void *p)
 
         apply_defaults(pkg_name_dialog);
 
-        pkg_name_ok = GTK_BUTTON(gtk_dialog_add_button(pkg_name_dialog, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT));
-        gtk_dialog_add_button(pkg_name_dialog, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT);
+        pkg_name_ok = GTK_BUTTON(gtk_dialog_add_button(pkg_name_dialog, "_Save", GTK_RESPONSE_ACCEPT));
+        gtk_dialog_add_button(pkg_name_dialog, "_Cancel", GTK_RESPONSE_REJECT);
 
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(pkg_name_dialog));
         pkg_name_entry = GTK_ENTRY(gtk_entry_new());
@@ -10300,8 +10300,8 @@ int _gtk_loop(void *p)
                     G_CALLBACK(on_upgrade_btn_click), 0);
         }
 
-        lvl_ok      = GTK_BUTTON(gtk_dialog_add_button(properties_dialog, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT));
-        lvl_cancel  = GTK_BUTTON(gtk_dialog_add_button(properties_dialog, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT));
+        lvl_ok      = GTK_BUTTON(gtk_dialog_add_button(properties_dialog, "_OK", GTK_RESPONSE_ACCEPT));
+        lvl_cancel  = GTK_BUTTON(gtk_dialog_add_button(properties_dialog, "_Cancel", GTK_RESPONSE_REJECT));
 
         GtkWidget *view_info = gtk_viewport_new(0,0);
         GtkWidget *win_info = gtk_scrolled_window_new(0,0);
@@ -10377,7 +10377,7 @@ int _gtk_loop(void *p)
                 "Publish",
                 0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
                 "Publish", GTK_RESPONSE_ACCEPT,
-                GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+                "_Cancel", GTK_RESPONSE_REJECT,
                 NULL));
 
         apply_defaults(publish_dialog);
@@ -10702,8 +10702,8 @@ int _gtk_loop(void *p)
         dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
                 "Decoration",
                 0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-                GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+                "_OK", GTK_RESPONSE_ACCEPT,
+                "_Cancel", GTK_RESPONSE_REJECT,
                 NULL));
         gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
         gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);
@@ -10860,9 +10860,9 @@ int _gtk_loop(void *p)
         dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
                 "Factory",
                 0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                "_OK", GTK_RESPONSE_ACCEPT,
                 NULL));
-        factory_cancel = GTK_BUTTON(gtk_dialog_add_button(dialog, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT));
+        factory_cancel = GTK_BUTTON(gtk_dialog_add_button(dialog, "_Cancel", GTK_RESPONSE_REJECT));
 
         apply_defaults(dialog);
 
@@ -10974,9 +10974,9 @@ int _gtk_loop(void *p)
         dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
                 "Treasure chest",
                 0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                "_OK", GTK_RESPONSE_ACCEPT,
                 NULL));
-        tchest_cancel = GTK_BUTTON(gtk_dialog_add_button(dialog, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT));
+        tchest_cancel = GTK_BUTTON(gtk_dialog_add_button(dialog, "_Cancel", GTK_RESPONSE_REJECT));
 
         apply_defaults(dialog);
 
@@ -11187,12 +11187,12 @@ int _gtk_loop(void *p)
         camtargeter_save = GTK_BUTTON(
                 gtk_dialog_add_button(
                     dialog,
-                    GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT)
+                    "_Save", GTK_RESPONSE_ACCEPT)
                 );
         camtargeter_cancel = GTK_BUTTON(
                 gtk_dialog_add_button(
                     dialog,
-                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL)
+                    "_Cancel", GTK_RESPONSE_CANCEL)
                 );
 
         g_signal_connect(dialog, "show", G_CALLBACK(on_camtargeter_show), 0);
@@ -12105,8 +12105,8 @@ int _gtk_loop(void *p)
 
         apply_defaults(confirm_quit_dialog);
 
-        confirm_btn_quit = GTK_BUTTON(gtk_dialog_add_button(confirm_quit_dialog, GTK_STOCK_QUIT, GTK_RESPONSE_ACCEPT));
-        gtk_dialog_add_button(confirm_quit_dialog, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT);
+        confirm_btn_quit = GTK_BUTTON(gtk_dialog_add_button(confirm_quit_dialog, "_Quit", GTK_RESPONSE_ACCEPT));
+        gtk_dialog_add_button(confirm_quit_dialog, "_Cancel", GTK_RESPONSE_REJECT);
 
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(confirm_quit_dialog));
 
@@ -12306,7 +12306,7 @@ int _gtk_loop(void *p)
                 0, (GtkDialogFlags)(0),/*GTK_MODAL*/
                 "Test play", PUZZLE_TEST_PLAY,
                 "Simulate", PUZZLE_SIMULATE,
-                GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                "_Cancel", GTK_RESPONSE_CANCEL,
                 NULL));
 
         apply_defaults(puzzle_play_dialog);
@@ -12323,7 +12323,7 @@ int _gtk_loop(void *p)
                 "Level published!",
                 0, (GtkDialogFlags)(0),/*GTK_MODAL*/
                 "Go to level page", GTK_RESPONSE_ACCEPT,
-                GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+                "_Cancel", GTK_RESPONSE_REJECT,
                 NULL));
 
         apply_defaults(published_dialog);
@@ -12368,12 +12368,12 @@ int _gtk_loop(void *p)
         jumper_save = GTK_BUTTON(
                 gtk_dialog_add_button(
                     jumper_dialog,
-                    GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT)
+                    "_Save", GTK_RESPONSE_ACCEPT)
                 );
         jumper_cancel = GTK_BUTTON(
                 gtk_dialog_add_button(
                     jumper_dialog,
-                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL)
+                    "_Cancel", GTK_RESPONSE_CANCEL)
                 );
 
         g_signal_connect(jumper_dialog, "show", G_CALLBACK(on_jumper_show), 0);
