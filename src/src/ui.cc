@@ -10551,7 +10551,8 @@ int _gtk_loop(void *p)
             for (int y=0; y < 7; y++) {
                 for (int x=0; x < 5; x++) {
                     //Create ToggleButton
-                    GtkToggleButton* check = GTK_TOGGLE_BUTTON(gtk_toggle_button_new_with_label(""));
+                    GtkToggleButton* check = GTK_TOGGLE_BUTTON(gtk_toggle_button_new());
+                    gtk_toggle_button_set_mode(check, false);
                     digi_check[y][x] = check;
 
                     //Add .display-cell class
