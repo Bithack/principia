@@ -5359,8 +5359,9 @@ void on_digi_toggle(GtkToggleButton *togglebutton,
 
     if (gtk_toggle_button_get_active(togglebutton)) {
         symbols[curr_digi_symbol] |= (1ull << which);
-    } else 
+    } else {
         symbols[curr_digi_symbol] &= ~(1ull << which);
+    }
 }
 
 gboolean
