@@ -10538,7 +10538,12 @@ int _gtk_loop(void *p)
         {
             digi_label = GTK_LABEL(new_clbl("<b>Symbol 1/36</b>"));
 
-            GtkWidget *tbl_symbol = gtk_table_new(7, 5, true);
+            GtkGrid *tbl_symbol = GTK_GRID(gtk_grid_new());
+
+            gtk_grid_set_row_homogeneous(tbl_symbol, true);
+            gtk_grid_set_column_homogeneous(tbl_symbol, true);
+            gtk_grid_set_row_spacing(tbl_symbol, 0);
+            gtk_grid_set_column_spacing(tbl_symbol, 0);
 
             for (int y=0; y < 7; y++) {
                 for (int x=0; x < 5; x++) {
@@ -10551,10 +10556,10 @@ int _gtk_loop(void *p)
                     gtk_style_context_add_class(context, "display-cell");
 
                     //Add to table
-                    gtk_table_attach_defaults(
-                        GTK_TABLE(tbl_symbol),
+                    gtk_grid_attach(
+                        tbl_symbol,
                         GTK_WIDGET(check),
-                        x, x+1, y, y+1
+                        x, y, 1, 1
                     );
 
                     //Connect toggled signal
