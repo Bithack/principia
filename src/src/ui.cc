@@ -5344,8 +5344,10 @@ void digi_refresh_symbol()
 
     for (int y=0; y<7; y++) {
         for (int x=0; x<5; x++) {
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(digi_check[y][x]),
-                    (symbols[curr_digi_symbol] & (1ull << ((uint64_t)y*5ull + (uint64_t)x)))?TRUE:FALSE);
+            gtk_toggle_button_set_active(
+                GTK_TOGGLE_BUTTON(digi_check[y][x]),
+                (symbols[curr_digi_symbol] & (1ull << ((uint64_t)y*5ull + (uint64_t)x))) ? true : false
+            );
         }
     }
 }
