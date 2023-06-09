@@ -3312,9 +3312,8 @@ GtkRadioButton  *lvl_radio_custom;
 GtkEntry        *lvl_title;
 GtkTextView     *lvl_descr;
 GtkComboBoxText *lvl_bg;
-GtkButton       *lvl_bg_color;
+GtkColorButton  *lvl_bg_color;
 uint32_t         new_bg_color;
-GtkColorChooserDialog *lvl_bg_cd;
 GtkEntry        *lvl_width_left;
 GtkEntry        *lvl_width_right;
 GtkEntry        *lvl_height_down;
@@ -7229,57 +7228,20 @@ on_autofit_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
 }
 
 gboolean
-on_coolman_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
+on_lvl_bg_color_set(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
 {
-    GtkWidget *ok_button = gtk_dialog_get_widget_for_response(GTK_DIALOG(lvl_bg_cd), GTK_RESPONSE_OK);
-    if (key->keyval == GDK_KEY_Escape)
-        gtk_widget_hide(w);
-    else if (key->keyval == GDK_KEY_Return
-            && (w == gtk_dialog_get_content_area(GTK_DIALOG(lvl_bg_cd)) || //TODO: verify that this works
-                w == ok_button)) {
-        gtk_button_clicked(GTK_BUTTON(ok_button));
-        return true;
-    }
+    tms_debugf("bg color button COLOR SET");
 
-    return false;
-}
+    GtkColorChooser *sel = GTK_COLOR_CHOOSER(lvl_bg_color);
 
-gboolean
-on_lvl_bg_color_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
-{
-    if (btn_pressed(w, (GtkButton*)w, user_data)) {
-        tms_debugf("bg color button CLICKED");
+    GdkRGBA new_color;
+    gtk_color_chooser_get_rgba(sel, &new_color);
 
-        GdkRGBA color;
-        float r, g, b, a;
+    tms_debugf("new_r: %.2f", new_color.red);
+    tms_debugf("new_g: %.2f", new_color.green);
+    tms_debugf("new_b: %.2f", new_color.blue);
 
-        unpack_rgba(W->level.bg_color, &r, &g, &b, &a);
-
-        color.red   = r;
-        color.green = g;
-        color.blue  = b;
-        color.alpha = 1.;
-
-        GtkColorChooser *sel = GTK_COLOR_CHOOSER(lvl_bg_cd);
-
-        gtk_color_chooser_set_use_alpha(sel, false);
-        gtk_color_chooser_set_rgba(sel, &color);
-
-        if (gtk_dialog_run(GTK_DIALOG(lvl_bg_cd)) == GTK_RESPONSE_OK) {
-            GdkRGBA new_color;
-
-            gtk_color_chooser_get_rgba(sel, &new_color);
-
-            tms_debugf("new_r: %.2f", new_color.red);
-            tms_debugf("new_g: %.2f", new_color.green);
-            tms_debugf("new_b: %.2f", new_color.blue);
-
-            new_bg_color = pack_rgba(new_color.red, new_color.green, new_color.blue, 1.f);
-            gtk_widget_override_background_color(GTK_WIDGET(lvl_bg_color), GTK_STATE_FLAG_NORMAL, &new_color);
-        }
-
-        gtk_widget_hide(GTK_WIDGET(lvl_bg_cd));
-    }
+    new_bg_color = pack_rgba(new_color.red, new_color.green, new_color.blue, 1.f);
 
     return false;
 }
@@ -8568,7 +8530,7 @@ on_properties_show(GtkWidget *wdg, void *unused)
         bg_color.blue  = b;
         bg_color.alpha = 1.0;
 
-        gtk_widget_override_background_color(GTK_WIDGET(lvl_bg_color), GTK_STATE_FLAG_NORMAL, &bg_color);
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(lvl_bg_color), &bg_color);
     }
 
     free(current_descr);
@@ -9419,7 +9381,6 @@ void load_gtk_css() {
     }
     #endif
 }
-
 int _gtk_loop(void *p)
 {
 #if defined(TMS_BACKEND_LINUX) && defined(DEBUG) && defined(VALGRIND_NO_UI)
@@ -10110,7 +10071,7 @@ int _gtk_loop(void *p)
     {
         properties_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
             "Level properties",
-            0, (GtkDialogFlags)(0),
+            0, GTK_DIALOG_MODAL,
             NULL
         ));
 
@@ -10181,20 +10142,20 @@ int _gtk_loop(void *p)
                 gtk_combo_box_text_append_text(lvl_bg, available_bgs[x]);
             }
 
-            lvl_bg_color = GTK_BUTTON(gtk_button_new());
-            g_signal_connect(lvl_bg_color, "button-release-event",
-                    G_CALLBACK(on_lvl_bg_color_click), 0);
+            lvl_bg_color = GTK_COLOR_BUTTON(gtk_color_button_new());
+            gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(lvl_bg_color), false);
+            g_signal_connect(lvl_bg_color, "color-set", G_CALLBACK(on_lvl_bg_color_set), 0);
 
-            lvl_bg_cd = GTK_COLOR_CHOOSER_DIALOG(gtk_color_chooser_dialog_new("Background color", NULL));
+            // lvl_bg_cd = GTK_COLOR_CHOOSER_DIALOG(gtk_color_chooser_dialog_new("Background color", NULL));
 
-            g_signal_connect(lvl_bg_cd, "delete-event", G_CALLBACK(on_window_close), 0);
+            // g_signal_connect(lvl_bg_cd, "delete-event", G_CALLBACK(on_window_close), 0);
 
-            g_signal_connect(gtk_dialog_get_content_area(GTK_DIALOG(lvl_bg_cd)),  "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
+            // g_signal_connect(gtk_dialog_get_content_area(GTK_DIALOG(lvl_bg_cd)),  "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
             
-            GtkWidget *ok_button_lvl_bg_cd = gtk_dialog_get_widget_for_response(GTK_DIALOG(lvl_bg_cd), GTK_RESPONSE_OK);
+            // GtkWidget *ok_button_lvl_bg_cd = gtk_dialog_get_widget_for_response(GTK_DIALOG(lvl_bg_cd), GTK_RESPONSE_OK);
 
-            g_signal_connect(ok_button_lvl_bg_cd, "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
-            g_signal_connect(lvl_bg_cd,           "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
+            // g_signal_connect(ok_button_lvl_bg_cd, "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
+            // g_signal_connect(lvl_bg_cd,           "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
 
             lvl_width_left = GTK_ENTRY(gtk_entry_new());
             lvl_width_right = GTK_ENTRY(gtk_entry_new());
