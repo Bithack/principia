@@ -10330,6 +10330,7 @@ int _gtk_loop(void *p)
                 "Level version",
                 GTK_WIDGET(lvl_upgrade = (GtkButton*) gtk_button_new())
             );
+            g_signal_connect(lvl_upgrade, "button-release-event", G_CALLBACK(on_upgrade_btn_click), 0);
 
             add_setting_row(
                 tbl_gameplay, ++y,
@@ -10369,9 +10370,6 @@ int _gtk_loop(void *p)
                 );
                 g_signal_connect(prop->checkbutton, "toggled", G_CALLBACK(on_level_flag_toggled), UINT_TO_VOID(prop->flag));
             }
-
-            g_signal_connect(lvl_upgrade, "button-release-event",
-                    G_CALLBACK(on_upgrade_btn_click), 0);
         }
 
         lvl_ok      = GTK_BUTTON(gtk_dialog_add_button(properties_dialog, "_OK", GTK_RESPONSE_ACCEPT));
