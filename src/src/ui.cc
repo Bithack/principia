@@ -4208,7 +4208,7 @@ static void apply_defaults(
     gboolean (*on_keypress)(GtkWidget*, GdkEventKey*, gpointer)=0
 ) {
     gtk_window_set_position(GTK_WINDOW(w), GTK_WIN_POS_CENTER);
-    gtk_window_set_keep_above(GTK_WINDOW(w), TRUE);
+    //gtk_window_set_keep_above(GTK_WINDOW(w), TRUE);
     g_signal_connect(w, "delete-event", G_CALLBACK(on_window_close), 0);
 
     if (on_show) {
