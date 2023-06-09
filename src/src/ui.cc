@@ -10570,13 +10570,17 @@ int _gtk_loop(void *p)
                     );
                 }
             }
-
+            
+            //Create aspect frame and put tbl_symbol into it, to ensure perfect aspect ratio
+            GtkAspectFrame* aspect_frame = GTK_ASPECT_FRAME(gtk_aspect_frame_new(NULL, .5f, .5f, 5.f / 7.f, false));
+            gtk_container_add(GTK_CONTAINER(aspect_frame), GTK_WIDGET(tbl_symbol));
+            
             gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(digi_label), false, false, 0);
-            gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(tbl_symbol), true, true, 0);
+            gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(aspect_frame), true, true, 0);
         }
 
         {
-            GtkBox *btns = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
+            GtkBox *btns = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
             digi_prev = GTK_BUTTON(gtk_button_new_with_label("Previous"));
             gtk_box_pack_start(GTK_BOX(btns), GTK_WIDGET(digi_prev), false, false, 0);
