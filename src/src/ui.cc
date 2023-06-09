@@ -9351,8 +9351,17 @@ on_frequency_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     return false;
 }
 
-//TODO use R"" string from c++11
-const gchar* css_global = "";
+const gchar* css_global = R"(
+    .display-cell {
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+        background: #101010;
+    }
+    .display-cell:checked {
+        background: #5fbd5a;
+    }
+)";
 
 int _gtk_loop(void *p)
 {
