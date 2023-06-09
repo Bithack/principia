@@ -10248,10 +10248,13 @@ int _gtk_loop(void *p)
             );
         }
 
-        GtkWidget *tbl_physics = gtk_table_new(2, 2, 0);
-        gtk_table_set_homogeneous(GTK_TABLE(tbl_physics), false);
+        GtkGrid *tbl_physics = GTK_GRID(gtk_grid_new());
+
+        gtk_grid_set_row_spacing(tbl_physics, 3);
+        gtk_grid_set_column_spacing(tbl_physics, 15);
+
         {
-            int y = 0;
+            int y = -1;
 
             lvl_pos_iter = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 10, 255, 5));
             lvl_vel_iter = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 10, 255, 5));
@@ -10262,38 +10265,50 @@ int _gtk_loop(void *p)
             lvl_linear_damping = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 10.0f, 0.05f));
             lvl_angular_damping = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 10.0f, 0.05f));
             lvl_joint_friction = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 10.0f, 0.05f));
+            
+            add_setting_row(
+                tbl_physics, ++y,
+                "Position iterations",
+                GTK_WIDGET(lvl_pos_iter),
+                "The amount of position iterations primarily affects dynamic objects. Lower = better performance."
+            );
 
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(gtk_label_new("Position iterations")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(lvl_pos_iter), 1, 2, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), help_widget("The amount of position iterations primarily affects dynamic objects. Lower = better performance."), 2, 3, y, y+1);
+            add_setting_row(
+                tbl_physics, ++y,
+                "Velocity iterations",
+                GTK_WIDGET(lvl_vel_iter),
+                "Primarily affects motors and connection. Lower = better performance."
+            );
 
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(gtk_label_new("Velocity iterations")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(lvl_vel_iter), 1, 2, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), help_widget("Primarily affects motors and connection. Lower = better performance."), 2, 3, y, y+1);
+            add_setting_row(
+                tbl_physics, ++y,
+                "Prismatic tolerance",
+                GTK_WIDGET(lvl_prismatic_tol)
+            );
 
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(gtk_label_new("Prismatic tolerance")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(lvl_prismatic_tol), 1, 2, y, y+1);
+            add_setting_row(
+                tbl_physics, ++y,
+                "Pivot tolerance",
+                GTK_WIDGET(lvl_pivot_tol)
+            );
 
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(gtk_label_new("Pivot tolerance")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(lvl_pivot_tol), 1, 2, y, y+1);
+            add_setting_row(
+                tbl_physics, ++y,
+                "Linear damping",
+                GTK_WIDGET(lvl_linear_damping)
+            );
 
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(gtk_label_new("Linear damping")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(lvl_linear_damping), 1, 2, y, y+1);
+            add_setting_row(
+                tbl_physics, ++y,
+                "Angular damping",
+                GTK_WIDGET(lvl_angular_damping)
+            );
 
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(gtk_label_new("Angular damping")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(lvl_angular_damping), 1, 2, y, y+1);
-
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(gtk_label_new("Joint friction")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(lvl_joint_friction), 1, 2, y, y+1);
-
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_physics), GTK_WIDGET(gtk_label_new(0)), 0, 2, y, y+8);
+            add_setting_row(
+                tbl_physics, ++y,
+                "Joint friction",
+                GTK_WIDGET(lvl_joint_friction)
+            );
         }
 
         GtkWidget *tbl_gameplay = gtk_table_new(3, 13, 0);
