@@ -1,4 +1,4 @@
-//#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 #include "ui.hh"
 #include <SDL.h>
@@ -4238,7 +4238,7 @@ static GtkGrid* create_settings_table() {
     return tbl;
 }
 
-static void add_setting_row(GtkGrid *tbl, int y, const char *label, GtkWidget *widget, const char *help_text=0) {
+static void add_setting_row(GtkGrid *tbl, int y, const char *label, GtkWidget *widget, const char *help_text = NULL) {
     //label
     gtk_grid_attach(
         tbl, new_rlbl(label),
@@ -10109,9 +10109,10 @@ int _gtk_loop(void *p)
     /** --Level properties **/
     {
         properties_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Level properties",
-                0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                NULL));
+            "Level properties",
+            0, (GtkDialogFlags)(0),
+            NULL
+        ));
 
         apply_defaults(properties_dialog);
 
@@ -10124,38 +10125,50 @@ int _gtk_loop(void *p)
         gtk_widget_set_size_request(GTK_WIDGET(nb), 550, 550);
         gtk_notebook_set_tab_pos(nb, GTK_POS_TOP);
 
-        GtkWidget *tbl_info = gtk_table_new(3, 4, 5);
-        gtk_table_set_homogeneous(GTK_TABLE(tbl_info), false);
-        gtk_table_set_row_spacings(GTK_TABLE(tbl_info), 3);
-        gtk_table_set_col_spacings(GTK_TABLE(tbl_info), 15);
+        GtkGrid *tbl_info = GTK_GRID(gtk_grid_new());
+
+        gtk_grid_set_row_homogeneous(tbl_info, false);
+        gtk_grid_set_column_homogeneous(tbl_info, false);
+
+        gtk_grid_set_row_spacing(tbl_info, 3);
+        gtk_grid_set_column_spacing(tbl_info, 15);
+
         {
+            int y = -1;
+            
             lvl_title = GTK_ENTRY(gtk_entry_new());
             lvl_descr = GTK_TEXT_VIEW(gtk_text_view_new());
 
-            lvl_radio_adventure = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
-                        NULL, "Adventure"));
+            GtkBox* lvl_type_box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
-            lvl_radio_custom = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
-                        gtk_radio_button_get_group(lvl_radio_adventure), "Custom"));
+            lvl_radio_adventure = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(NULL, "Adventure"));
+            lvl_radio_custom = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(gtk_radio_button_get_group(lvl_radio_adventure), "Custom"));
 
-            GtkWidget *ew = gtk_scrolled_window_new(0,0);
-            gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
-                          GTK_POLICY_AUTOMATIC,
-                          GTK_POLICY_AUTOMATIC);
+            gtk_container_add(GTK_CONTAINER(lvl_type_box), GTK_WIDGET(lvl_radio_adventure));
+            gtk_container_add(GTK_CONTAINER(lvl_type_box), GTK_WIDGET(lvl_radio_custom));
 
+            GtkScrolledWindow *ew = GTK_SCROLLED_WINDOW(gtk_scrolled_window_new(0, 0));
+            gtk_scrolled_window_set_min_content_height(ew, 64);
+            gtk_scrolled_window_set_policy(ew, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
             gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(lvl_descr));
 
-            gtk_table_attach_defaults(GTK_TABLE(tbl_info), new_clbl("<b>Name</b>"), 0, 1, 0, 1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_info), GTK_WIDGET(lvl_title), 1, 4, 0, 1);
+            GtkWidget *fr = gtk_frame_new(NULL);
+            gtk_container_add(GTK_CONTAINER(fr), GTK_WIDGET(ew));
 
-            gtk_table_attach_defaults(GTK_TABLE(tbl_info), new_clbl("<b>Description</b>"), 0, 1, 1, 4);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_info), GTK_WIDGET(ew), 1, 4, 1, 4);
+            add_setting_row(
+                tbl_info, ++y,
+                "Name", GTK_WIDGET(lvl_title)
+            );
 
-            gtk_table_attach_defaults(GTK_TABLE(tbl_info), new_clbl("<b>Type</b>"), 0, 1, 4, 5);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_info), GTK_WIDGET(lvl_radio_adventure), 1, 4, 4, 5);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_info), GTK_WIDGET(lvl_radio_custom),    1, 4, 5, 6);
+            add_setting_row(
+                tbl_info, ++y,
+                "Description", GTK_WIDGET(fr)
+            );
 
-            gtk_table_attach_defaults(GTK_TABLE(tbl_info), GTK_WIDGET(gtk_label_new(0)), 0, 4, 6, 9);
+            add_setting_row(
+                tbl_info, ++y,
+                "Type", GTK_WIDGET(lvl_type_box)
+            );
         }
 
         GtkWidget *tbl_world = gtk_table_new(2, 10, 0);
@@ -10334,10 +10347,10 @@ int _gtk_loop(void *p)
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (win_info),
                       GTK_POLICY_NEVER,
                       GTK_POLICY_AUTOMATIC);
-        gtk_container_add(GTK_CONTAINER(view_info), tbl_info);
+        gtk_container_add(GTK_CONTAINER(view_info), GTK_WIDGET(tbl_info));
         gtk_container_set_border_width(GTK_CONTAINER(tbl_info), 5);
         gtk_container_set_border_width(GTK_CONTAINER(view_info), 0);
-        gtk_container_add(GTK_CONTAINER(win_info), view_info);
+        gtk_container_add(GTK_CONTAINER(win_info), GTK_WIDGET(view_info));
         gtk_notebook_append_page(nb, win_info, gtk_label_new("Info"));
 
         GtkWidget *view_world = gtk_viewport_new(0,0);
@@ -11956,7 +11969,7 @@ int _gtk_loop(void *p)
         {
             GtkGrid *tbl = create_settings_table();
 
-            int y = 0;
+            int y = -1;
             GtkWidget *l, *hbox;
 
             settings_enable_shadows = GTK_CHECK_BUTTON(gtk_check_button_new());
@@ -11983,8 +11996,7 @@ int _gtk_loop(void *p)
             add_setting_row(
                 tbl, ++y,
                 "Enable shadows",
-                GTK_WIDGET(settings_enable_shadows),
-                NULL
+                GTK_WIDGET(settings_enable_shadows)
             );
 
             add_setting_row(
@@ -11997,22 +12009,19 @@ int _gtk_loop(void *p)
             add_setting_row(
                 tbl, ++y,
                 "Shadow resolution",
-                GTK_WIDGET(settings_shadow_res),
-                NULL
+                GTK_WIDGET(settings_shadow_res)
             );
 
             add_setting_row(
                 tbl, ++y,
                 "Enable AO",
-                GTK_WIDGET(settings_enable_ao),
-                NULL
+                GTK_WIDGET(settings_enable_ao)
             );
 
             add_setting_row(
                 tbl, ++y,
                 "AO map resolution",
-                GTK_WIDGET(settings_ao_res),
-                NULL
+                GTK_WIDGET(settings_ao_res)
             );
 
             for (int x=0; x<settings_num_graphic_rows; ++x) {
@@ -12064,8 +12073,7 @@ int _gtk_loop(void *p)
             add_setting_row(
                 tbl, y,
                 "Control type",
-                GTK_WIDGET(settings_control_type),
-                0
+                GTK_WIDGET(settings_control_type)
             );
 
             for (int x=0; x<settings_num_control_rows; ++x) {
