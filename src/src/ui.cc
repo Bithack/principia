@@ -10149,10 +10149,8 @@ int _gtk_loop(void *p)
         }
 
         GtkGrid *tbl_world = GTK_GRID(gtk_grid_new());
-    
         gtk_grid_set_row_spacing(tbl_world, 3);
         gtk_grid_set_column_spacing(tbl_world, 15);
-
         {
             int y = -1;
 
@@ -10249,10 +10247,8 @@ int _gtk_loop(void *p)
         }
 
         GtkGrid *tbl_physics = GTK_GRID(gtk_grid_new());
-
         gtk_grid_set_row_spacing(tbl_physics, 3);
         gtk_grid_set_column_spacing(tbl_physics, 15);
-
         {
             int y = -1;
 
@@ -10311,50 +10307,66 @@ int _gtk_loop(void *p)
             );
         }
 
-        GtkWidget *tbl_gameplay = gtk_table_new(3, 13, 0);
-        gtk_table_set_homogeneous(GTK_TABLE(tbl_gameplay), false);
+        GtkGrid *tbl_gameplay = GTK_GRID(gtk_grid_new());
+        gtk_grid_set_row_spacing(tbl_gameplay, 3);
+        gtk_grid_set_column_spacing(tbl_gameplay, 15);
         {
-            int y = 0;
+            int y = -1;
 
             lvl_score = GTK_ENTRY(gtk_entry_new());
 
             lvl_enemy_absorb_time = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 60.f, 0.1f));
             lvl_player_respawn_time = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 10.f, 0.1f));
 
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(gtk_label_new("Final score")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(lvl_score), 1, 2, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), help_widget("What score the player has to reach to win the level."), 2, 3, y, y+1);
+            add_setting_row(
+                tbl_gameplay, ++y,
+                "Final score",
+                GTK_WIDGET(lvl_score),
+                "What score the player has to reach to win the level."
+            );
 
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(gtk_label_new("Level VERSION")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(lvl_upgrade = (GtkButton*)gtk_button_new_with_label("")), 1, 2, y, y+1);
+            add_setting_row(
+                tbl_gameplay, ++y,
+                "Level version",
+                GTK_WIDGET(lvl_upgrade = (GtkButton*) gtk_button_new())
+            );
 
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(gtk_label_new("Pause on WIN")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(lvl_pause_on_win = (GtkCheckButton*)gtk_check_button_new()), 1, 2, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), help_widget("Pause the simulation once the win condition has been reached."), 2, 3, y, y+1);
+            add_setting_row(
+                tbl_gameplay, ++y,
+                "Pause on win",
+                GTK_WIDGET(lvl_pause_on_win = (GtkCheckButton*) gtk_check_button_new()),
+                "Pause the simulation once the win condition has been reached."
+            );
 
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(gtk_label_new("Display score")), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(lvl_show_score = (GtkCheckButton*)gtk_check_button_new()), 1, 2, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), help_widget("Display the score in the top-right corner."), 2, 3, y, y+1);
+            add_setting_row(
+                tbl_gameplay, ++y,
+                "Display score",
+                GTK_WIDGET(lvl_show_score = (GtkCheckButton*) gtk_check_button_new()),
+                "Display the score in the top-right corner."
+            );
 
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), new_lbl("Creature absorb time"), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(lvl_enemy_absorb_time), 1, 2, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), help_widget("Time before dead creatures are absorbed"), 2, 3, y, y+1);
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), new_lbl("Player respawn time"), 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(lvl_player_respawn_time), 1, 2, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), help_widget("Time after player death he can respawn."), 2, 3, y, y+1);
+            add_setting_row(
+                tbl_gameplay, ++y,
+                "Creature absorb time",
+                GTK_WIDGET(lvl_enemy_absorb_time),
+                "Time before dead creatures are absorbed"
+            );
+
+            add_setting_row(
+                tbl_gameplay, ++y,
+                "Player respawn time",
+                GTK_WIDGET(lvl_player_respawn_time),
+                "Delay between a player's death and their ability to respawn"
+            );
 
             for (int x=0; x<num_gtk_level_properties; ++x) {
                 struct gtk_level_property *prop = &gtk_level_properties[x];
-                y++;
-                gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), new_lbl(prop->label), 0, 1, y, y+1);
-                gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), GTK_WIDGET(prop->checkbutton = GTK_CHECK_BUTTON(gtk_check_button_new())), 1, 2, y, y+1);
-
-                gtk_table_attach_defaults(GTK_TABLE(tbl_gameplay), help_widget(prop->help), 2, 3, y, y+1);
+                add_setting_row(
+                    tbl_gameplay, ++y,
+                    prop->label,
+                    GTK_WIDGET(prop->checkbutton = GTK_CHECK_BUTTON(gtk_check_button_new())),
+                    prop->help
+                );
                 g_signal_connect(prop->checkbutton, "toggled", G_CALLBACK(on_level_flag_toggled), UINT_TO_VOID(prop->flag));
             }
 
