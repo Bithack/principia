@@ -10878,6 +10878,9 @@ int _gtk_loop(void *p)
 
         GtkGrid *tbl = GTK_GRID(gtk_grid_new());
 
+        gtk_grid_set_row_spacing(tbl, 5);
+        gtk_grid_set_column_spacing(tbl, 5);
+
         int x = 0;
 
         l = gtk_label_new("Oil");
