@@ -12624,10 +12624,8 @@ int _gtk_loop(void *p)
         gtk_widget_set_size_request(GTK_WIDGET(shapeextruder_dialog), 350, -1);
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(shapeextruder_dialog));
 
-        GtkWidget *tbl_settings = gtk_table_new(4, 5, 0);
-        gtk_table_set_homogeneous(GTK_TABLE(tbl_settings), false);
+        GtkGrid *tbl_settings = GTK_GRID(gtk_grid_new());
         {
-            GtkWidget *l;
             int y = 0;
 
             shapeextruder_right = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 2, .01));
@@ -12635,35 +12633,23 @@ int _gtk_loop(void *p)
             shapeextruder_left = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 2, .01));
             shapeextruder_down = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 2, .01));
 
-            l = gtk_label_new("Right");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(shapeextruder_right), 1, 3, y, y+1);
-
+            gtk_grid_attach(tbl_settings, new_rlbl("Right"), 0, y, 1, 1);
+            gtk_grid_attach(tbl_settings, GTK_WIDGET(shapeextruder_right), 1, y, 1, 1);
             y++;
-            l = gtk_label_new("Up");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(shapeextruder_up), 1, 3, y, y+1);
 
+            gtk_grid_attach(tbl_settings, new_rlbl("Up"), 0, y, 1, 1);
+            gtk_grid_attach(tbl_settings, GTK_WIDGET(shapeextruder_up), 1, y, 1, 1);
             y++;
-            l = gtk_label_new("Left");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(shapeextruder_left), 1, 3, y, y+1);
 
+            gtk_grid_attach(tbl_settings, new_rlbl("Left"), 0, y, 1, 1);
+            gtk_grid_attach(tbl_settings, GTK_WIDGET(shapeextruder_left), 1, y, 1, 1);
             y++;
-            l = gtk_label_new("Down");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(shapeextruder_down), 1, 3, y, y+1);
+
+            gtk_grid_attach(tbl_settings, new_rlbl("Down"), 0, y, 1, 1);
+            gtk_grid_attach(tbl_settings, GTK_WIDGET(shapeextruder_down), 1, y, 1, 1);
         }
 
-        gtk_box_pack_start(GTK_BOX(content), tbl_settings, false, false, 0);
+        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(tbl_settings), false, false, 0);
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
