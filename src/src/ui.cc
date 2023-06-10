@@ -12662,33 +12662,32 @@ int _gtk_loop(void *p)
     {
         dialog = new_dialog_defaults("Polygon", &on_polygon_show);
 
+        gtk_widget_set_size_request(GTK_WIDGET(dialog), 350, -1);
+
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
-        GtkWidget *tbl_settings = gtk_table_new(4, 5, 0);
-        gtk_table_set_homogeneous(GTK_TABLE(tbl_settings), false);
+        GtkGrid *tbl_settings = create_settings_table();
         {
-            GtkWidget *l;
-            int y = 0;
+            int y = -1;
 
             polygon_sublayer_depth = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 1, 4, 1));
             polygon_front_align = GTK_CHECK_BUTTON(gtk_check_button_new());
 
-            l = gtk_label_new("Sublayer depth");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(polygon_sublayer_depth), 1, 3, y, y+1);
+            add_setting_row(
+                tbl_settings, ++y,
+                "Sublayer depth",
+                GTK_WIDGET(polygon_sublayer_depth)
+            );
 
-            y++;
-            l = gtk_label_new("Front align");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(polygon_front_align), 1, 3, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), help_widget("Sublayer depth from front instead of back"), 3, 4, y, y+1);
+            add_setting_row(
+                tbl_settings, ++y,
+                "Front align",
+                GTK_WIDGET(polygon_front_align),
+                "Sublayer depth from front instead of back"
+            );
         }
 
-        gtk_box_pack_start(GTK_BOX(content), tbl_settings, false, false, 0);
+        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(tbl_settings), false, false, 0);
         gtk_widget_show_all(GTK_WIDGET(content));
 
         polygon_dialog = dialog;
