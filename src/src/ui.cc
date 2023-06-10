@@ -13118,7 +13118,7 @@ void ui::init()
 static gboolean
 _open_play_menu(gpointer unused)
 {
-    gtk_menu_popup(play_menu, 0, 0, 0, 0, 0, 0);
+    gtk_menu_popup(play_menu, 0, 0, 0, 0, 0, gtk_get_current_event_time());
     gtk_widget_show_all(GTK_WIDGET(play_menu));
 
     return false;
