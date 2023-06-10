@@ -12537,7 +12537,7 @@ int _gtk_loop(void *p)
 
             //Create GtkSourceStyleSchemeManager and get Adwaita GtkSourceStyleScheme
             GtkSourceStyleSchemeManager *sm = gtk_source_style_scheme_manager_get_default();
-            GtkSourceStyleScheme *s = gtk_source_style_scheme_manager_get_scheme(sm, "classic");
+            GtkSourceStyleScheme *s = gtk_source_style_scheme_manager_get_scheme(sm, "classic-dark");
             if (s == NULL) tms_warnf("ESCRIPT: source theme not found");
 
             //Create new escript_buffer
