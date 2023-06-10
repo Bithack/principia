@@ -11257,7 +11257,10 @@ int _gtk_loop(void *p)
             GtkEntry *entry = 0;
             GtkWidget *l = 0;
 
-            range = GTK_RANGE(gtk_hscale_new(GTK_ADJUSTMENT(gtk_adjustment_new(0.0, min, max, 0.001, 1.0, 0.0))));
+            range = GTK_RANGE(gtk_scale_new(
+                GTK_ORIENTATION_HORIZONTAL,
+                GTK_ADJUSTMENT(gtk_adjustment_new(0.0, min, max, 0.001, 1.0, 0.0))
+            ));
 
             g_signal_connect(range, "value-changed", G_CALLBACK(camtargeter_value_changed), 0);
 
@@ -11286,7 +11289,10 @@ int _gtk_loop(void *p)
             GtkEntry *entry = 0;
             GtkWidget *l = 0;
 
-            range = GTK_RANGE(gtk_hscale_new(GTK_ADJUSTMENT(gtk_adjustment_new(0.0, min, max, 0.001, 1.0, 0.0))));
+            range = GTK_RANGE(gtk_scale_new(
+                GTK_ORIENTATION_HORIZONTAL,
+                GTK_ADJUSTMENT(gtk_adjustment_new(0.0, min, max, 0.001, 1.0, 0.0))
+            ));
 
             g_signal_connect(range, "value-changed", G_CALLBACK(camtargeter_value_changed), 0);
 
@@ -12421,7 +12427,10 @@ int _gtk_loop(void *p)
 
         GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
-        jumper_value = GTK_RANGE(gtk_hscale_new(GTK_ADJUSTMENT(gtk_adjustment_new(0.0, 0.0, 1.0, 0.001, 0.1, 0.0))));
+        jumper_value = GTK_RANGE(gtk_scale_new(
+            GTK_ORIENTATION_HORIZONTAL,
+            GTK_ADJUSTMENT(gtk_adjustment_new(0.0, 0.0, 1.0, 0.001, 0.1, 0.0))
+        ));
         gtk_scale_set_digits(GTK_SCALE(jumper_value), 4);
 
         g_signal_connect(jumper_value, "value-changed", G_CALLBACK(jumper_value_changed), 0);
