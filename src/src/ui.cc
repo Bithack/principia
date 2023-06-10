@@ -12194,7 +12194,7 @@ int _gtk_loop(void *p)
         y++;
 
         gtk_grid_attach(tbl, new_rlbl("Faction"), 0, y, 1, 1);
-        for (int x=0; x<NUM_FACTIONS; ++x) {
+        for (int x = 0; x < NUM_FACTIONS; ++x) {
             robot_faction[x] = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
                 x==0 ? 0 : gtk_radio_button_get_group(robot_faction[0]), factions[x].name)
             );
