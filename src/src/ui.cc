@@ -12438,13 +12438,12 @@ int _gtk_loop(void *p)
 
     /** --cursorfield **/
     {
-        cursorfield_dialog = new_dialog_defaults("cursorfield", &on_cursorfield_show);
+        cursorfield_dialog = new_dialog_defaults("Cursor field", &on_cursorfield_show);
 
         gtk_widget_set_size_request(GTK_WIDGET(cursorfield_dialog), 350, -1);
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(cursorfield_dialog));
 
-        GtkWidget *tbl_settings = gtk_table_new(4, 5, 0);
-        gtk_table_set_homogeneous(GTK_TABLE(tbl_settings), false);
+        GtkGrid *tbl_settings = GTK_GRID(gtk_grid_new());
         {
             GtkWidget *l;
             int y = 0;
@@ -12454,36 +12453,24 @@ int _gtk_loop(void *p)
             cursorfield_left = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, -3, 3, .1));
             cursorfield_down = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, -3, 3, .1));
 
-            l = gtk_label_new("Lower X");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(cursorfield_left), 1, 3, y, y+1);
-
+            gtk_grid_attach(tbl_settings, new_rlbl("Lower X"), 0, y, 1, 1);
+            gtk_grid_attach(tbl_settings, GTK_WIDGET(cursorfield_left), 1, y, 1, 1);
             y++;
-            l = gtk_label_new("Upper X");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(cursorfield_right), 1, 3, y, y+1);
 
+            gtk_grid_attach(tbl_settings, new_rlbl("Upper X"), 0, y, 1, 1);
+            gtk_grid_attach(tbl_settings, GTK_WIDGET(cursorfield_right), 1, y, 1, 1);
             y++;
-            l = gtk_label_new("Lower Y");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(cursorfield_down), 1, 3, y, y+1);
 
+            gtk_grid_attach(tbl_settings, new_rlbl("Lower Y"), 0, y, 1, 1);
+            gtk_grid_attach(tbl_settings, GTK_WIDGET(cursorfield_down), 1, y, 1, 1);
             y++;
-            l = gtk_label_new("Upper Y");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(cursorfield_up), 1, 3, y, y+1);
 
+            gtk_grid_attach(tbl_settings, new_rlbl("Upper Y"), 0, y, 1, 1);
+            gtk_grid_attach(tbl_settings, GTK_WIDGET(cursorfield_up), 1, y, 1, 1);
+            y++;
         }
 
-        gtk_box_pack_start(GTK_BOX(content), tbl_settings, false, false, 0);
+        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(tbl_settings), false, false, 0);
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
