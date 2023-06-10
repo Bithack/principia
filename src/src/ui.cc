@@ -12885,7 +12885,7 @@ int _gtk_loop(void *p)
     /** --Sequencer **/
     {
         sequencer_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-        gtk_container_set_border_width(GTK_CONTAINER(sequencer_window), 10);
+        //gtk_container_set_border_width(GTK_CONTAINER(sequencer_window), 10);
         gtk_window_set_default_size(GTK_WINDOW(sequencer_window), 400, 400);
         gtk_widget_set_size_request(GTK_WIDGET(sequencer_window), 400, 400);
         gtk_window_set_title(GTK_WINDOW(sequencer_window), "Sequencer settings");
@@ -12919,14 +12919,14 @@ int _gtk_loop(void *p)
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(sequencer_save));
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(sequencer_cancel));
 
-        GtkWidget *table = gtk_table_new(4, 5, 0);
-        gtk_table_set_homogeneous(GTK_TABLE(table), false);
+        GtkGrid *table = create_settings_table();
         {
-            GtkWidget *l;
-            int y = 0;
+            int y = -1;
 
             sequencer_sequence = GTK_ENTRY(gtk_entry_new());
             g_signal_connect(sequencer_sequence, "focus-out-event", G_CALLBACK(sequencer_sequence_focus_out), 0);
+            //hack: update in realtime:
+            g_signal_connect(sequencer_sequence, "changed", G_CALLBACK(sequencer_sequence_focus_out), 0);
 
             sequencer_seconds = GTK_SPIN_BUTTON(gtk_spin_button_new(
                         GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 360, 1, 1, 0)),
@@ -12944,36 +12944,31 @@ int _gtk_loop(void *p)
             gtk_label_set_xalign(GTK_LABEL(sequencer_state), 0.0f);
             gtk_label_set_yalign(GTK_LABEL(sequencer_state), 0.5f);
 
-            gtk_table_attach_defaults(GTK_TABLE(table), GTK_WIDGET(sequencer_state), 0, 3, y, y+1);
+            gtk_grid_attach(table, GTK_WIDGET(sequencer_state), 0, ++y, 3, 1);
 
-            y++;
-            l = gtk_label_new("Sequence");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(table), l, 0, 1, y, y+1);
-            y++;
-            gtk_table_attach_defaults(GTK_TABLE(table), GTK_WIDGET(sequencer_sequence), 0, 3, y, y+1);
+            add_setting_row(
+                table, ++y,
+                "Sequence",
+                GTK_WIDGET(sequencer_sequence)
+            );
 
-            y++;
-            l = gtk_label_new("Seconds");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(table), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(table), GTK_WIDGET(sequencer_seconds), 1, 3, y, y+1);
+            add_setting_row(
+                table, ++y,
+                "Seconds",
+                GTK_WIDGET(sequencer_seconds)
+            );
 
-            y++;
-            l = gtk_label_new("Milliseconds");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(table), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(table), GTK_WIDGET(sequencer_milliseconds), 1, 3, y, y+1);
+            add_setting_row(
+                table, ++y,
+                "Milliseconds",
+                GTK_WIDGET(sequencer_milliseconds)
+            );
 
-            y++;
-            l = gtk_label_new("Wrap Around");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(table), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(table), GTK_WIDGET(sequencer_wrap_around), 1, 3, y, y+1);
+            add_setting_row(
+                table, ++y,
+                "Wrap Around",
+                GTK_WIDGET(sequencer_wrap_around)
+            );
         }
 
         gtk_box_pack_start(content, GTK_WIDGET(table), 1, 1, 0);
