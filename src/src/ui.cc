@@ -9342,6 +9342,12 @@ const gchar* css_global = R"(
     .display-cell:checked {
         background: #5fbd5a;
     }
+
+    .code-editor {
+        font-family: "Cascadia Mono Normal", "Cascadia Mono", "Ubuntu Mono Normal", "Ubuntu Mono", monospace, mono;
+        font-size: 1.25em;
+        font-feature-settings: "liga" 1, "dlig" 1;
+    }
 )";
 
 void load_gtk_css() {
@@ -12537,7 +12543,7 @@ int _gtk_loop(void *p)
 
             //Create GtkSourceStyleSchemeManager and get Adwaita GtkSourceStyleScheme
             GtkSourceStyleSchemeManager *sm = gtk_source_style_scheme_manager_get_default();
-            GtkSourceStyleScheme *s = gtk_source_style_scheme_manager_get_scheme(sm, "classic-dark");
+            GtkSourceStyleScheme *s = gtk_source_style_scheme_manager_get_scheme(sm, "cobalt");
             if (s == NULL) tms_warnf("ESCRIPT: source theme not found");
 
             //Create new escript_buffer
@@ -12561,13 +12567,11 @@ int _gtk_loop(void *p)
             gtk_source_view_set_insert_spaces_instead_of_tabs(escript_code, TRUE);
             gtk_source_view_set_smart_backspace(escript_code, TRUE);
             gtk_source_view_set_smart_home_end(escript_code, GTK_SOURCE_SMART_HOME_END_BEFORE);
-            //gtk_source_view_set_show_line_marks(escript_code, TRUE);
             gtk_source_view_set_show_line_numbers(escript_code, TRUE);
 
-            //Create and set font
-            PangoFontDescription *font_desc = pango_font_description_from_string("mono 10");
-            gtk_widget_modify_font(GTK_WIDGET(escript_code), font_desc);
-            pango_font_description_free(font_desc);
+            //Add .code-editor class
+            GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(escript_code));
+            gtk_style_context_add_class(context, "code-editor");
         }
        
         escript_external_box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL,0));
