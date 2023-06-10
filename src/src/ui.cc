@@ -12453,6 +12453,11 @@ int _gtk_loop(void *p)
             cursorfield_left = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, -3, 3, .1));
             cursorfield_down = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, -3, 3, .1));
 
+            gtk_widget_set_hexpand(GTK_WIDGET(cursorfield_right), true);
+            gtk_widget_set_hexpand(GTK_WIDGET(cursorfield_up), true);
+            gtk_widget_set_hexpand(GTK_WIDGET(cursorfield_left), true);
+            gtk_widget_set_hexpand(GTK_WIDGET(cursorfield_down), true);
+
             gtk_grid_attach(tbl_settings, new_rlbl("Lower X"), 0, y, 1, 1);
             gtk_grid_attach(tbl_settings, GTK_WIDGET(cursorfield_left), 1, y, 1, 1);
             y++;
