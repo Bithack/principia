@@ -11641,10 +11641,9 @@ int _gtk_loop(void *p)
 
         GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
-        GtkWidget *tbl_freq_range = gtk_table_new(1, 9, true);
+        GtkBox *tbl_freq_range = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
+        gtk_widget_set_halign(GTK_WIDGET(tbl_freq_range), GTK_ALIGN_CENTER);
         {
-            GtkWidget *l;
-
             freq_range_value = GTK_SPIN_BUTTON(gtk_spin_button_new(
                         GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 0xFFFFFFFF-255, 1, 1, 0)),
                         1, 0));
@@ -11653,13 +11652,27 @@ int _gtk_loop(void *p)
                         GTK_ADJUSTMENT(gtk_adjustment_new(1, 1, 255, 1, 1, 0)),
                         1, 0));
 
-            l = gtk_label_new("Begin:");
-            gtk_table_attach_defaults(GTK_TABLE(tbl_freq_range), l, 0, 2, 0, 1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_freq_range), GTK_WIDGET(freq_range_value), 2, 5, 0, 1);
+            gtk_box_pack_start(
+                tbl_freq_range,
+                gtk_label_new("Begin:"),
+                false, false, 0
+            );
+            gtk_box_pack_start(
+                tbl_freq_range,
+                GTK_WIDGET(freq_range_value),
+                false, false, 0
+            );
 
-            l = gtk_label_new("Range:");
-            gtk_table_attach_defaults(GTK_TABLE(tbl_freq_range), l, 5, 7, 0, 1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_freq_range), GTK_WIDGET(freq_range_offset), 7, 9, 0, 1);
+            gtk_box_pack_start(
+                tbl_freq_range,
+                gtk_label_new("Range:"),
+                false, false, 0
+            );
+            gtk_box_pack_start(
+                tbl_freq_range,
+                GTK_WIDGET(freq_range_offset),
+                false, false, 0
+            );
         }
 
         GValue val = {0};
@@ -11677,7 +11690,7 @@ int _gtk_loop(void *p)
         g_signal_connect(freq_range_offset, "value-changed", G_CALLBACK(freq_range_value_changed), 0);
         g_signal_connect(freq_range_offset, "changed", G_CALLBACK(freq_range_value_text_changed), 0);
 
-        gtk_box_pack_start(content, tbl_freq_range, false, false, 0);
+        gtk_box_pack_start(content, GTK_WIDGET(tbl_freq_range), false, false, 0);
 
         freq_range_info = GTK_LABEL(gtk_label_new("Frequencies: 1-100"));
         gtk_box_pack_start(content, GTK_WIDGET(freq_range_info), false, false, 0);
