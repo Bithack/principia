@@ -12240,23 +12240,29 @@ int _gtk_loop(void *p)
 
             renderer = gtk_cell_renderer_toggle_new();
             g_signal_connect(renderer, "toggled", G_CALLBACK(robot_item_toggled), model);
-            column = gtk_tree_view_column_new_with_attributes("Equipped",
-                    renderer,
-                    "active",
-                    ROBOT_COLUMN_EQUIPPED,
-                    NULL);
+            column = gtk_tree_view_column_new_with_attributes(
+                "Equipped",
+                renderer,
+                "active",
+                ROBOT_COLUMN_EQUIPPED,
+                NULL
+            );
 
-            gtk_tree_view_column_set_sizing(GTK_TREE_VIEW_COLUMN(column),
-                    GTK_TREE_VIEW_COLUMN_FIXED);
+            gtk_tree_view_column_set_sizing(
+                GTK_TREE_VIEW_COLUMN(column),
+                GTK_TREE_VIEW_COLUMN_FIXED
+            );
             gtk_tree_view_column_set_fixed_width(GTK_TREE_VIEW_COLUMN(column), 75);
             gtk_tree_view_append_column(robot_tv_equipment, column);
 
             renderer = gtk_cell_renderer_text_new();
-            column = gtk_tree_view_column_new_with_attributes("Item",
-                    renderer,
-                    "text",
-                    ROBOT_COLUMN_ITEM,
-                    NULL);
+            column = gtk_tree_view_column_new_with_attributes(
+                "Item",
+                renderer,
+                "text",
+                ROBOT_COLUMN_ITEM,
+                NULL
+            );
             gtk_tree_view_column_set_sort_column_id(column, 2);
             gtk_tree_view_append_column(robot_tv_equipment, column);
         }
@@ -12266,12 +12272,16 @@ int _gtk_loop(void *p)
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
         robot_btn_ok = GTK_BUTTON(gtk_button_new_with_label("OK"));
-        g_signal_connect(robot_btn_ok, "button-release-event",
-                G_CALLBACK(on_robot_btn_click), 0);
+        g_signal_connect(
+            robot_btn_ok, "button-release-event",
+            G_CALLBACK(on_robot_btn_click), NULL
+        );
 
         robot_btn_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(robot_btn_cancel, "button-release-event",
-                G_CALLBACK(on_robot_btn_click), 0);
+        g_signal_connect(
+            robot_btn_cancel, "button-release-event",
+            G_CALLBACK(on_robot_btn_click), NULL
+        );
 
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(robot_btn_ok));
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(robot_btn_cancel));
@@ -12290,12 +12300,13 @@ int _gtk_loop(void *p)
     /** --Puzzle play **/
     {
         puzzle_play_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Play method",
-                0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-                "Test play", PUZZLE_TEST_PLAY,
-                "Simulate", PUZZLE_SIMULATE,
-                "_Cancel", GTK_RESPONSE_CANCEL,
-                NULL));
+            "Play method",
+            0, (GtkDialogFlags)(0),/*GTK_MODAL*/
+            "Test play", PUZZLE_TEST_PLAY,
+            "Simulate", PUZZLE_SIMULATE,
+            "_Cancel", GTK_RESPONSE_CANCEL,
+            NULL
+        ));
 
         apply_dialog_defaults(puzzle_play_dialog);
 
@@ -12308,11 +12319,12 @@ int _gtk_loop(void *p)
     /** --Published **/
     {
         published_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Level published!",
-                0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-                "Go to level page", GTK_RESPONSE_ACCEPT,
-                "_Cancel", GTK_RESPONSE_REJECT,
-                NULL));
+            "Level published!",
+            0, (GtkDialogFlags)(0),/*GTK_MODAL*/
+            "Go to level page", GTK_RESPONSE_ACCEPT,
+            "_Cancel", GTK_RESPONSE_REJECT,
+            NULL
+        ));
 
         apply_dialog_defaults(published_dialog);
 
@@ -12327,11 +12339,12 @@ int _gtk_loop(void *p)
     /** --Community **/
     {
         dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Back to main menu?",
-                0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-                "Yes", GTK_RESPONSE_ACCEPT,
-                "No", GTK_RESPONSE_REJECT,
-                NULL));
+            "Back to main menu?",
+            0, (GtkDialogFlags)(0),/*GTK_MODAL*/
+            "Yes", GTK_RESPONSE_ACCEPT,
+            "No", GTK_RESPONSE_REJECT,
+            NULL
+        ));
 
         apply_dialog_defaults(dialog);
 
@@ -12347,22 +12360,21 @@ int _gtk_loop(void *p)
     /** --Jumper **/
     {
         jumper_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Jumper",
-                0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-                NULL));
+            "Jumper",
+            0, (GtkDialogFlags)(0),/*GTK_MODAL*/
+            NULL
+        ));
 
         apply_dialog_defaults(jumper_dialog);
 
-        jumper_save = GTK_BUTTON(
-                gtk_dialog_add_button(
-                    jumper_dialog,
-                    "_Save", GTK_RESPONSE_ACCEPT)
-                );
-        jumper_cancel = GTK_BUTTON(
-                gtk_dialog_add_button(
-                    jumper_dialog,
-                    "_Cancel", GTK_RESPONSE_CANCEL)
-                );
+        jumper_save = GTK_BUTTON(gtk_dialog_add_button(
+            jumper_dialog,
+            "_Save", GTK_RESPONSE_ACCEPT
+        ));
+        jumper_cancel = GTK_BUTTON(gtk_dialog_add_button(
+            jumper_dialog,
+            "_Cancel", GTK_RESPONSE_CANCEL
+        ));
 
         g_signal_connect(jumper_dialog, "show", G_CALLBACK(on_jumper_show), 0);
         g_signal_connect(jumper_dialog, "key-press-event", G_CALLBACK(on_jumper_keypress), 0);
