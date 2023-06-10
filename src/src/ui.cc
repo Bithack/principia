@@ -12445,7 +12445,6 @@ int _gtk_loop(void *p)
 
         GtkGrid *tbl_settings = GTK_GRID(gtk_grid_new());
         {
-            GtkWidget *l;
             int y = 0;
 
             cursorfield_right = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, -3, 3, .1));
@@ -12472,7 +12471,6 @@ int _gtk_loop(void *p)
 
             gtk_grid_attach(tbl_settings, new_rlbl("Upper Y"), 0, y, 1, 1);
             gtk_grid_attach(tbl_settings, GTK_WIDGET(cursorfield_up), 1, y, 1, 1);
-            y++;
         }
 
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(tbl_settings), false, false, 0);
