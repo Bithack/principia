@@ -11447,9 +11447,6 @@ int _gtk_loop(void *p)
         tips_hide = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Don't show this dialog again"));
 
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(tips_dialog));
-        GtkButtonBox *aarea = GTK_BUTTON_BOX(gtk_dialog_get_action_area(tips_dialog));
-
-        gtk_box_pack_start(GTK_BOX(aarea), GTK_WIDGET(tips_hide), 1, 0, 3);
 
         tips_text = GTK_LABEL(gtk_label_new(0));
         gtk_label_set_selectable(tips_text, 1);
@@ -11459,6 +11456,8 @@ int _gtk_loop(void *p)
                       GTK_POLICY_AUTOMATIC);
         gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(tips_text));
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(ew), 1, 1, 3);
+
+        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(tips_hide), 0, 0, 3);
 
         gtk_label_set_line_wrap(GTK_LABEL(tips_text), true);
 
@@ -11561,9 +11560,9 @@ int _gtk_loop(void *p)
         confirm_dna_sandbox_back = new_check_button("Do not show again");
         //gtk_window_set_default_size(GTK_WINDOW(dialog), 425, 400);
 
-        GtkBox *aa = GTK_BOX(gtk_dialog_get_action_area(dialog));
+        //GtkBox *aa = GTK_BOX(gtk_dialog_get_action_area(dialog));
 
-        gtk_box_pack_end(aa, GTK_WIDGET(confirm_dna_sandbox_back), 1, 0, 3);
+        //gtk_dialog_add_action_widget(dialog, GTK_WIDGET(confirm_dna_sandbox_back), -1);
 
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
@@ -11575,6 +11574,8 @@ int _gtk_loop(void *p)
                       GTK_POLICY_AUTOMATIC);
         gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(confirm_text));
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(ew), 1, 1, 3);
+
+        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(confirm_dna_sandbox_back), 0, 0, 3);
 
         gtk_label_set_line_wrap(GTK_LABEL(confirm_text), true);
 
