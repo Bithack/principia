@@ -12144,12 +12144,9 @@ int _gtk_loop(void *p)
 
         GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
-        GtkWidget *tbl = gtk_table_new(4, 3, false);
-        gtk_table_set_homogeneous(GTK_TABLE(tbl), true);
-        gtk_table_set_row_spacings(GTK_TABLE(tbl), 3);
-        gtk_table_set_col_spacings(GTK_TABLE(tbl), 15);
-
-        GtkWidget *l;
+        GtkGrid *tbl = GTK_GRID(gtk_grid_new());
+        gtk_grid_set_row_spacing(tbl, 3);
+        gtk_grid_set_column_spacing(tbl, 15);
 
         robot_state_idle = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
                     NULL, "Idle"));
@@ -12164,95 +12161,63 @@ int _gtk_loop(void *p)
                     gtk_radio_button_get_group(robot_dir_left), "Random"));
         robot_dir_right = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
                     gtk_radio_button_get_group(robot_dir_left), "Right"));
+        
+        gtk_grid_attach(tbl, new_rlbl("Default state"), 0, y, 1, 1);
+        gtk_grid_attach(tbl, GTK_WIDGET(robot_state_idle), 1, y, 1, 1);
+        y++;
+        gtk_grid_attach(tbl, GTK_WIDGET(robot_state_walk), 1, y, 1, 1);
+        y++;
+        gtk_grid_attach(tbl, GTK_WIDGET(robot_state_dead), 1, y, 1, 1);
+        y++;
 
-        l = gtk_label_new("Default state");
-        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
-        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_state_idle), 1, 3, y, y+1);
-        y ++;
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_state_walk), 1, 3, y, y+1);
-        y ++;
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_state_dead), 1, 3, y, y+1);
-        y ++;
-
-        l = gtk_label_new("Roaming");
-        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
-        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
         robot_roam = GTK_CHECK_BUTTON(gtk_check_button_new());
-        gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_roam), 1, 3, y, y+1);
-        y ++;
+        gtk_grid_attach(tbl, new_rlbl("Roaming"), 0, y, 1, 1);
+        gtk_grid_attach(tbl, GTK_WIDGET(robot_roam), 1, y, 1, 1);
+        y++;
 
-        l = gtk_label_new("Initial direction");
-        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
-        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_dir_left), 1, 3, y, y+1);
-        y ++;
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_dir_random), 1, 3, y, y+1);
-        y ++;
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_dir_right), 1, 3, y, y+1);
-        y ++;
+        gtk_grid_attach(tbl, new_rlbl("Initial direction"), 0, y, 1, 1);
+        gtk_grid_attach(tbl, GTK_WIDGET(robot_dir_left), 1, y, 1, 1);
+        y++;
+        gtk_grid_attach(tbl, GTK_WIDGET(robot_dir_random), 1, y, 1, 1);
+        y++;
+        gtk_grid_attach(tbl, GTK_WIDGET(robot_dir_right), 1, y, 1, 1);
+        y++;
 
-        l = gtk_label_new("Faction");
-        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
-        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
+        gtk_grid_attach(tbl, new_rlbl("Faction"), 0, y, 1, 1);
         for (int x=0; x<NUM_FACTIONS; ++x) {
             robot_faction[x] = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
-                        x==0?0:gtk_radio_button_get_group(robot_faction[0]), factions[x].name));
-
-            gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_faction[x]), 1, 3, y, y+1);
-            y ++;
+                x==0 ? 0 : gtk_radio_button_get_group(robot_faction[0]), factions[x].name)
+            );
+            gtk_grid_attach(tbl, GTK_WIDGET(robot_faction[x]), 1, y, 1, 1);
+            y++;
         }
 
-        l = gtk_label_new("Head equipment");
-        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
-        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_head_equipment), 1, 3, y, y+1);
-        y ++;
+        gtk_grid_attach(tbl, new_rlbl("Head equipment"), 0, y, 1, 1);
+        gtk_grid_attach(tbl, GTK_WIDGET(robot_head_equipment), 1, y, 1, 1);
+        y++;
 
-        l = gtk_label_new("Head");
-        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
-        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_head), 1, 3, y, y+1);
-        y ++;
+        gtk_grid_attach(tbl, new_rlbl("Head"), 0, y, 1, 1);
+        gtk_grid_attach(tbl, GTK_WIDGET(robot_head), 1, y, 1, 1);
+        y++;
 
-        l = gtk_label_new("Back equipment");
-        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
-        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_back_equipment), 1, 3, y, y+1);
-        y ++;
+        gtk_grid_attach(tbl, new_rlbl("Back equipment"), 0, y, 1, 1);
+        gtk_grid_attach(tbl, GTK_WIDGET(robot_back_equipment), 1, y, 1, 1);
+        y++;
 
-        l = gtk_label_new("Front equipment");
-        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
-        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_front_equipment), 1, 3, y, y+1);
-        y ++;
+        gtk_grid_attach(tbl, new_rlbl("Front equipment"), 0, y, 1, 1);
+        gtk_grid_attach(tbl, GTK_WIDGET(robot_front_equipment), 1, y, 1, 1);
+        y++;
 
-        l = gtk_label_new("Feet");
-        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
-        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_feet), 1, 3, y, y+1);
+        gtk_grid_attach(tbl, new_rlbl("Feet"), 0, y, 1, 1);
+        gtk_grid_attach(tbl, GTK_WIDGET(robot_feet), 1, y, 1, 1);
+        y++;
 
-        y ++;
-
-        l = gtk_label_new("Bolt set");
-        gtk_label_set_xalign(GTK_LABEL(l), 1.0f);
-        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, y, y+1);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(robot_bolts), 1, 3, y, y+1);
-
-        y ++;
+        gtk_grid_attach(tbl, new_rlbl("Bolt set"), 0, y, 1, 1);
+        gtk_grid_attach(tbl, GTK_WIDGET(robot_bolts), 1, y, 1, 1);
+        y++;
 
         {
-            /*                                         equipped        name        ID */
+            /*                                         equipped        name           ID */
             robot_ls_equipment = gtk_list_store_new(3, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_INT);
             GtkTreeModel *model = GTK_TREE_MODEL(robot_ls_equipment);
 
@@ -12303,7 +12268,7 @@ int _gtk_loop(void *p)
 
         GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
-        gtk_box_pack_start(GTK_BOX(hbox), tbl, true, true, 0);
+        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(tbl), true, true, 0);
         gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(robot_tv_equipment), true, true, 0);
 
         gtk_box_pack_start(content, GTK_WIDGET(hbox), true, true, 0);
