@@ -94,7 +94,13 @@ sticky::sticky() {
     this->width = .76f*2.f;
     this->height = .76f*2.f;
 
-    for (size_t x=0; x < NUM_SLOTS; x++) {
+    int maxslots = NUM_SLOTS;
+    // Compatibility
+    if (W->level.version < LEVEL_VERSION_2023_06_05) {
+        maxslots = 8;
+    }
+
+    for (int x=0; x < maxslots; x++) {
         if (slots[x] == false) {
             this->slot = x;
             slots[x] = true;

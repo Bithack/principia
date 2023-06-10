@@ -275,37 +275,18 @@ render_entities(struct tms_rstate *state,
 
         if (m->indices) {
             int start = m->i_start;
-            int c = m->i_count;
+            int count = m->i_count;
 
-            if (c == -1) {
-                c = m->indices->usize / (m->i32?sizeof(int):sizeof(short));
+            if (count == -1) {
+                count = m->indices->usize / (m->i32?sizeof(int):sizeof(short));
             }
 
-            if (c) {
-                int pr = m->primitive_type;
-                /*
-                if (pr == GL_PATCHES && state->p > 0 && state->p != 3)
-                    pr = GL_TRIANGLES;
-                    */
-
-             /*   if (m->v_base != 0) {
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
-                    glDrawElementsBaseVertex(pr,
-                            c,
-                            (m->i32?GL_UNSIGNED_INT:GL_UNSIGNED_SHORT), (char*)(start*2),
-                            m->v_base
-                            );
-#else
-                    tms_fatalf("base vertices not supported on android");
-#endif
-                } else {
-                */
-                    glDrawElements(pr,
-                            c,
-                            //(m->i32?GL_UNSIGNED_INT:GL_UNSIGNED_SHORT), (char*)(start*2));
-                            GL_UNSIGNED_SHORT, (char*)(start*2));
-                //}
-            }
+            if (count) glDrawElements(
+                m->primitive_type,
+                count,
+                (m->i32?GL_UNSIGNED_INT:GL_UNSIGNED_SHORT), 
+                (char*)(start * (m->i32?sizeof(int):sizeof(short)))
+            );
         } else {
             glDrawArrays(m->primitive_type, 0, m->vertex_array->gbufs[0].gbuf->usize / m->vertex_array->gbufs[0].vsize);
         }

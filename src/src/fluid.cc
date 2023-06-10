@@ -2,6 +2,7 @@
 #include "material.hh"
 #include "model.hh"
 #include "world.hh"
+#include "fluidbuffer.hh"
 
 fluid::fluid()
 {
@@ -90,6 +91,7 @@ fluid::add_to_world()
         W->b2->SetParticleRadius(.2f);
         W->b2->SetParticleDamping(.35f);
         W->b2->SetParticleDensity(1.0f);
+        W->b2->SetParticleMaxCount((W->level.version <= LEVEL_VERSION_1_5_1) ? FLUIDBUFFER_MAX_1_5_1 : FLUIDBUFFER_MAX);
         pd.flags = ((2+4) << (16+4*this->get_layer()));
         //pd.flags = b2_waterParticle | (15 << (16+4*this->get_layer()));
         //pd.flags = b2_elasticParticle | (15 << (16+4*this->get_layer()));
@@ -107,4 +109,3 @@ fluid::add_to_world()
     this->width = this->get_width();
     this->height = this->get_width();
 }
-
