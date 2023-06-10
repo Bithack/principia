@@ -9346,7 +9346,6 @@ const gchar* css_global = R"(
     .code-editor {
         font-family: "Cascadia Mono Normal", "Cascadia Mono", "Ubuntu Mono Normal", "Ubuntu Mono", monospace, mono;
         font-size: 1.25em;
-        font-feature-settings: "liga" 1, "dlig" 1;
     }
 )";
 
@@ -10918,7 +10917,7 @@ int _gtk_loop(void *p)
             GtkTreeModel *model = GTK_TREE_MODEL(factory_liststore);
 
             factory_treeview = GTK_TREE_VIEW(gtk_tree_view_new_with_model(model));
-            gtk_tree_view_set_rules_hint(factory_treeview, TRUE);
+            //gtk_tree_view_set_rules_hint(factory_treeview, TRUE);
 
             GtkCellRenderer *renderer;
             GtkTreeViewColumn *column;
