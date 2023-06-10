@@ -8991,8 +8991,19 @@ editor_menu_back_to_menu(GtkMenuItem *i, gpointer unused)
 static void show_grab_focus(GtkWidget *w, gpointer user_data)
 {
     GdkWindow *w_window = gtk_widget_get_window(w);
-    while (gdk_keyboard_grab(w_window, FALSE, GDK_CURRENT_TIME) != GDK_GRAB_SUCCESS) {
-        SDL_Delay(100);
+    GdkDisplay* display = gdk_display_get_default();
+    GdkSeat* seat = gdk_display_get_default_seat(display);
+    if ((gdk_seat_get_capabilities(seat) & GDK_SEAT_CAPABILITY_KEYBOARD) == 0) {
+        tms_warnf("seat has no keyboard capability");
+        return;
+    }
+    while (gdk_seat_grab(
+        seat, w_window,
+        GDK_SEAT_CAPABILITY_KEYBOARD,
+        FALSE,
+        NULL, NULL, NULL, NULL
+    ) != GDK_GRAB_SUCCESS) {
+        SDL_Delay(10);
     }
 }
 
