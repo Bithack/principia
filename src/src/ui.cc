@@ -4157,7 +4157,7 @@ static GtkButton*
 new_lbtn(const char *text, gboolean (*on_click)(GtkWidget*, GdkEventButton*, gpointer))
 {
     GtkButton *btn = GTK_BUTTON(gtk_button_new_with_label(text));
-    g_signal_connect(btn, "button-release-event",
+    g_signal_connect(btn, "clicked",
             G_CALLBACK(on_click), 0);
 
     return btn;
@@ -9540,11 +9540,11 @@ int _gtk_loop(void *p)
 
         /* Open button */
         object_btn_open   = GTK_BUTTON(gtk_button_new_with_label("Open"));
-        g_signal_connect(object_btn_open, "button-release-event",
+        g_signal_connect(object_btn_open, "clicked",
                 G_CALLBACK(on_object_btn_click), 0);
 
         object_btn_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(object_btn_cancel, "button-release-event",
+        g_signal_connect(object_btn_cancel, "clicked",
                 G_CALLBACK(on_object_btn_click), 0);
 
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(object_btn_open));
@@ -9594,11 +9594,11 @@ int _gtk_loop(void *p)
 
         /* Open button */
         open_state_btn_open   = GTK_BUTTON(gtk_button_new_with_label("Open"));
-        g_signal_connect(open_state_btn_open, "button-release-event",
+        g_signal_connect(open_state_btn_open, "clicked",
                 G_CALLBACK(on_open_state_btn_click), 0);
 
         open_state_btn_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(open_state_btn_cancel, "button-release-event",
+        g_signal_connect(open_state_btn_cancel, "clicked",
                 G_CALLBACK(on_open_state_btn_click), 0);
 
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(open_state_btn_open));
@@ -9652,11 +9652,11 @@ int _gtk_loop(void *p)
 
         /* Open button */
         open_btn_open   = GTK_BUTTON(gtk_button_new_with_label("Open"));
-        g_signal_connect(open_btn_open, "button-release-event",
+        g_signal_connect(open_btn_open, "clicked",
                 G_CALLBACK(on_open_btn_click), 0);
 
         open_btn_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(open_btn_cancel, "button-release-event",
+        g_signal_connect(open_btn_cancel, "clicked",
                 G_CALLBACK(on_open_btn_click), 0);
 
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(open_btn_open));
@@ -9751,16 +9751,16 @@ int _gtk_loop(void *p)
 
         /* Reset this */
         variable_reset_this = GTK_BUTTON(gtk_button_new_with_label("Reset this variable"));
-        g_signal_connect(variable_reset_this, "button-release-event", G_CALLBACK(on_variable_btn_click), 0);
+        g_signal_connect(variable_reset_this, "clicked", G_CALLBACK(on_variable_btn_click), 0);
         /* Reset all */
         variable_reset_all = GTK_BUTTON(gtk_button_new_with_label("Reset all"));
-        g_signal_connect(variable_reset_all, "button-release-event", G_CALLBACK(on_variable_btn_click), 0);
+        g_signal_connect(variable_reset_all, "clicked", G_CALLBACK(on_variable_btn_click), 0);
         /* Ok */
         variable_ok = GTK_BUTTON(gtk_button_new_with_label("Save"));
-        g_signal_connect(variable_ok, "button-release-event", G_CALLBACK(on_variable_btn_click), 0);
+        g_signal_connect(variable_ok, "clicked", G_CALLBACK(on_variable_btn_click), 0);
         /* Cancel */
         variable_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(variable_cancel, "button-release-event", G_CALLBACK(on_variable_btn_click), 0);
+        g_signal_connect(variable_cancel, "clicked", G_CALLBACK(on_variable_btn_click), 0);
 
         gtk_box_pack_start(hb, GTK_WIDGET(variable_reset_this), false, false, 0);
         gtk_box_pack_start(hb, GTK_WIDGET(variable_reset_all), false, false, 0);
@@ -9805,12 +9805,12 @@ int _gtk_loop(void *p)
 
         /* OK button */
         save_ok = GTK_BUTTON(gtk_button_new_with_label("Save"));
-        g_signal_connect(save_ok, "button-release-event",
+        g_signal_connect(save_ok, "clicked",
                 G_CALLBACK(on_save_btn_click), 0);
 
         /* Cancel button */
         save_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(save_cancel, "button-release-event",
+        g_signal_connect(save_cancel, "clicked",
                 G_CALLBACK(on_save_btn_click), 0);
 
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(save_ok));
@@ -9856,12 +9856,12 @@ int _gtk_loop(void *p)
 
         /* OK button */
         export_ok = GTK_BUTTON(gtk_button_new_with_label("Save"));
-        g_signal_connect(export_ok, "button-release-event",
+        g_signal_connect(export_ok, "clicked",
                 G_CALLBACK(on_export_btn_click), 0);
 
         /* Cancel button */
         export_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(export_cancel, "button-release-event",
+        g_signal_connect(export_cancel, "clicked",
                 G_CALLBACK(on_export_btn_click), 0);
 
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(export_ok));
@@ -10118,7 +10118,7 @@ int _gtk_loop(void *p)
             lvl_height_up = GTK_ENTRY(gtk_entry_new());
 
             lvl_autofit = (GtkButton*)gtk_button_new_with_label("Auto-fit borders");
-            g_signal_connect(lvl_autofit, "button-release-event",
+            g_signal_connect(lvl_autofit, "clicked",
                     G_CALLBACK(on_autofit_btn_click), 0);
 
             lvl_gx = GTK_SPIN_BUTTON(gtk_spin_button_new(
@@ -10257,7 +10257,7 @@ int _gtk_loop(void *p)
                 "Level version",
                 GTK_WIDGET(lvl_upgrade = (GtkButton*) gtk_button_new())
             );
-            g_signal_connect(lvl_upgrade, "button-release-event", G_CALLBACK(on_upgrade_btn_click), 0);
+            g_signal_connect(lvl_upgrade, "clicked", G_CALLBACK(on_upgrade_btn_click), 0);
 
             add_setting_row(
                 tbl_gameplay, ++y,
@@ -10608,29 +10608,29 @@ int _gtk_loop(void *p)
 
             digi_prev = GTK_BUTTON(gtk_button_new_with_label("Previous"));
             gtk_box_pack_start(GTK_BOX(btns), GTK_WIDGET(digi_prev), false, false, 0);
-            g_signal_connect(digi_prev, "button-release-event", G_CALLBACK(on_digi_prev_click), 0);
+            g_signal_connect(digi_prev, "clicked", G_CALLBACK(on_digi_prev_click), 0);
 
             digi_next = GTK_BUTTON(gtk_button_new_with_label("Next"));
             gtk_box_pack_start(GTK_BOX(btns), GTK_WIDGET(digi_next), false, false, 0);
-            g_signal_connect(digi_next, "button-release-event", G_CALLBACK(on_digi_next_click), 0);
+            g_signal_connect(digi_next, "clicked", G_CALLBACK(on_digi_next_click), 0);
             gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(btns), false, false, 0);
 
             btns = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
 
             digi_insert = GTK_BUTTON(gtk_button_new_with_label("Insert before"));
             gtk_box_pack_start(GTK_BOX(btns), GTK_WIDGET(digi_insert), false, false, 0);
-            g_signal_connect(digi_insert, "button-release-event", G_CALLBACK(on_digi_insert_click), 0);
+            g_signal_connect(digi_insert, "clicked", G_CALLBACK(on_digi_insert_click), 0);
 
             digi_append = GTK_BUTTON(gtk_button_new_with_label("Append"));
             gtk_box_pack_start(GTK_BOX(btns), GTK_WIDGET(digi_append), false, false, 0);
-            g_signal_connect(digi_append, "button-release-event", G_CALLBACK(on_digi_append_click), 0);
+            g_signal_connect(digi_append, "clicked", G_CALLBACK(on_digi_append_click), 0);
 
             gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(btns), false, false, 0);
             btns = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
 
             digi_delete = GTK_BUTTON(gtk_button_new_with_label("Delete current symbol"));
             gtk_box_pack_start(GTK_BOX(btns), GTK_WIDGET(digi_delete), false, false, 0);
-            g_signal_connect(digi_delete, "button-release-event", G_CALLBACK(on_digi_delete_click), 0);
+            g_signal_connect(digi_delete, "clicked", G_CALLBACK(on_digi_delete_click), 0);
 
             gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(btns), false, false, 0);
         }
@@ -11022,13 +11022,13 @@ int _gtk_loop(void *p)
 
         tchest_add_entity = GTK_BUTTON(gtk_button_new_with_label("Add entity"));
         g_signal_connect(
-            tchest_add_entity, "button-release-event",
+            tchest_add_entity, "clicked",
             G_CALLBACK(on_tchest_btn_click), 0
         );
 
         tchest_remove_selected = GTK_BUTTON(gtk_button_new_with_label("Remove selected"));
         g_signal_connect(
-            tchest_remove_selected, "button-release-event",
+            tchest_remove_selected, "clicked",
             G_CALLBACK(on_tchest_btn_click), 0
         );
 
@@ -11616,9 +11616,9 @@ int _gtk_loop(void *p)
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
         frequency_ok = GTK_BUTTON(gtk_button_new_with_label("OK"));
         frequency_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(frequency_ok, "button-release-event",
+        g_signal_connect(frequency_ok, "clicked",
                 G_CALLBACK(on_frequency_click), 0);
-        g_signal_connect(frequency_cancel, "button-release-event",
+        g_signal_connect(frequency_cancel, "clicked",
                 G_CALLBACK(on_frequency_click), 0);
 
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(frequency_ok));
@@ -11737,9 +11737,9 @@ int _gtk_loop(void *p)
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
         freq_range_ok = GTK_BUTTON(gtk_button_new_with_label("OK"));
         freq_range_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(freq_range_ok, "button-release-event",
+        g_signal_connect(freq_range_ok, "clicked",
                 G_CALLBACK(on_freq_range_click), 0);
-        g_signal_connect(freq_range_cancel, "button-release-event",
+        g_signal_connect(freq_range_cancel, "clicked",
                 G_CALLBACK(on_freq_range_click), 0);
 
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(freq_range_ok));
@@ -11791,12 +11791,12 @@ int _gtk_loop(void *p)
 
         /* Log in button */
         multi_config_apply = GTK_BUTTON(gtk_button_new_with_label("Apply"));
-        g_signal_connect(multi_config_apply, "button-release-event",
+        g_signal_connect(multi_config_apply, "clicked",
                 G_CALLBACK(on_multi_config_btn_click), 0);
 
         /* Cancel button */
         multi_config_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(multi_config_cancel, "button-release-event",
+        g_signal_connect(multi_config_cancel, "clicked",
                 G_CALLBACK(on_multi_config_btn_click), 0);
 
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(multi_config_apply));
@@ -11923,17 +11923,17 @@ int _gtk_loop(void *p)
 
         /* Log in button */
         login_btn_log_in = GTK_BUTTON(gtk_button_new_with_mnemonic("_Login"));
-        g_signal_connect(login_btn_log_in, "button-release-event",
+        g_signal_connect(login_btn_log_in, "clicked",
                 G_CALLBACK(on_login_btn_click), 0);
 
         /* Cancel button */
         login_btn_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(login_btn_cancel, "button-release-event",
+        g_signal_connect(login_btn_cancel, "clicked",
                 G_CALLBACK(on_login_btn_click), 0);
 
         /* Register button */
         login_btn_register = GTK_BUTTON(gtk_button_new_with_label("Register"));
-        g_signal_connect(login_btn_register, "button-release-event",
+        g_signal_connect(login_btn_register, "clicked",
                 G_CALLBACK(on_login_btn_click), 0);
 
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(login_btn_log_in));
@@ -12289,13 +12289,13 @@ int _gtk_loop(void *p)
 
         robot_btn_ok = GTK_BUTTON(gtk_button_new_with_label("OK"));
         g_signal_connect(
-            robot_btn_ok, "button-release-event",
+            robot_btn_ok, "clicked",
             G_CALLBACK(on_robot_btn_click), NULL
         );
 
         robot_btn_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
         g_signal_connect(
-            robot_btn_cancel, "button-release-event",
+            robot_btn_cancel, "clicked",
             G_CALLBACK(on_robot_btn_click), NULL
         );
 
@@ -12598,12 +12598,12 @@ int _gtk_loop(void *p)
 
         /* Save */
         escript_save = GTK_BUTTON(gtk_button_new_with_label("Save"));
-        g_signal_connect(escript_save, "button-release-event",
+        g_signal_connect(escript_save, "clicked",
                 G_CALLBACK(on_escript_btn_click), 0);
 
         /* Cancel */
         escript_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(escript_cancel, "button-release-event",
+        g_signal_connect(escript_cancel, "clicked",
                 G_CALLBACK(on_escript_btn_click), 0);
 
         gtk_container_add(GTK_CONTAINER(buttonbox), GTK_WIDGET(escript_save));
@@ -12909,11 +12909,11 @@ int _gtk_loop(void *p)
         gtk_box_set_spacing(GTK_BOX(button_box), 5);
 
         sequencer_save   = GTK_BUTTON(gtk_button_new_with_label("Save"));
-        g_signal_connect(sequencer_save, "button-release-event",
+        g_signal_connect(sequencer_save, "clicked",
                 G_CALLBACK(on_sequencer_click), 0);
 
         sequencer_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(sequencer_cancel, "button-release-event",
+        g_signal_connect(sequencer_cancel, "clicked",
                 G_CALLBACK(on_sequencer_click), 0);
 
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(sequencer_save));
@@ -13036,12 +13036,12 @@ int _gtk_loop(void *p)
 
         /* Save */
         prompt_save = GTK_BUTTON(gtk_button_new_with_label("Save"));
-        g_signal_connect(prompt_save, "button-release-event",
+        g_signal_connect(prompt_save, "clicked",
                 G_CALLBACK(on_prompt_btn_click), 0);
 
         /* Cancel */
         prompt_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(prompt_cancel, "button-release-event",
+        g_signal_connect(prompt_cancel, "clicked",
                 G_CALLBACK(on_prompt_btn_click), 0);
 
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(prompt_save));
