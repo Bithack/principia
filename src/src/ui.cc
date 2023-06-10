@@ -12816,16 +12816,12 @@ int _gtk_loop(void *p)
     {
         dialog = new_dialog_defaults("Timer", &on_timer_show, &on_timer_keypress);
 
-        gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
-        gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);
         gtk_widget_set_size_request(GTK_WIDGET(dialog), 250, -1);
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
-        GtkWidget *tbl_settings = gtk_table_new(4, 5, 0);
-        gtk_table_set_homogeneous(GTK_TABLE(tbl_settings), false);
+        GtkGrid *tbl_settings = create_settings_table();
         {
-            GtkWidget *l;
-            int y = 0;
+            int y = -1;
 
             timer_seconds = GTK_SPIN_BUTTON(gtk_spin_button_new(
                         GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 360, 1, 1, 0)),
@@ -12847,44 +12843,40 @@ int _gtk_loop(void *p)
 
             timer_use_system_time = GTK_CHECK_BUTTON(gtk_check_button_new());
 
-            l = gtk_label_new("Time between ticks");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(timer_time), 1, 3, y, y+1);
+            add_setting_row(
+                tbl_settings, ++y,
+                "Time between ticks",
+                GTK_WIDGET(timer_time)
+            );
 
-            y++;
-            l = gtk_label_new("Seconds");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(timer_seconds), 1, 3, y, y+1);
+            add_setting_row(
+                tbl_settings, ++y,
+                "Seconds",
+                GTK_WIDGET(timer_seconds)
+            );
 
-            y++;
-            l = gtk_label_new("Milliseconds");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(timer_milliseconds), 1, 3, y, y+1);
+            add_setting_row(
+                tbl_settings, ++y,
+                "Milliseconds",
+                GTK_WIDGET(timer_milliseconds)
+            );
 
-            y++;
-            l = gtk_label_new("Number of ticks");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(timer_num_ticks), 1, 3, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), help_widget("0 = Infinite ticks"), 3, 4, y, y+1);
+            add_setting_row(
+                tbl_settings, ++y,
+                "Number of ticks",
+                GTK_WIDGET(timer_num_ticks),
+                "0 = Infinite ticks"
+            );
 
-            y++;
-            l = gtk_label_new("Use system time");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(timer_use_system_time), 1, 3, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), help_widget("Use system time for ticks, instead of in-game time."), 3, 4, y, y+1);
+            add_setting_row(
+                tbl_settings, ++y,
+                "Use system time",
+                GTK_WIDGET(timer_use_system_time),
+                "Use system time for ticks, instead of in-game time."
+            );
         }
 
-        gtk_box_pack_start(GTK_BOX(content), tbl_settings, false, false, 0);
+        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(tbl_settings), false, false, 0);
         gtk_widget_show_all(GTK_WIDGET(content));
 
         timer_dialog = dialog;
