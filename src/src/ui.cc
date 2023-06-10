@@ -4202,7 +4202,7 @@ notebook_append(GtkNotebook *nb, const char *title, GtkBox *base)
     gtk_notebook_append_page(nb, GTK_WIDGET(base), new_lbl(title));
 }
 
-static void apply_defaults(
+static void apply_dialog_defaults(
     void *w,
     GtkCallback on_show=0,
     gboolean (*on_keypress)(GtkWidget*, GdkEventKey*, gpointer)=0
@@ -4314,7 +4314,7 @@ new_dialog_defaults(const char *title, GtkCallback on_show/*=0*/, gboolean (*on_
             "_Cancel", GTK_RESPONSE_REJECT,
             NULL);
 
-    apply_defaults(r, on_show, on_keypress);
+    apply_dialog_defaults(r, on_show, on_keypress);
 
     return GTK_DIALOG(r);
 }
@@ -4332,7 +4332,7 @@ new_window_defaults(const char *title, GtkCallback on_show/*=0*/, gboolean (*on_
     //         FALSE,
     //         FALSE, FALSE);
 
-    apply_defaults(r, on_show, on_keypress);
+    apply_dialog_defaults(r, on_show, on_keypress);
 
     return GTK_WINDOW(r);
 }
@@ -9681,7 +9681,7 @@ int _gtk_loop(void *p)
                 0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
                 NULL));
 
-        apply_defaults(pkg_name_dialog);
+        apply_dialog_defaults(pkg_name_dialog);
 
         pkg_name_ok = GTK_BUTTON(gtk_dialog_add_button(pkg_name_dialog, "_Save", GTK_RESPONSE_ACCEPT));
         gtk_dialog_add_button(pkg_name_dialog, "_Cancel", GTK_RESPONSE_REJECT);
@@ -10031,7 +10031,7 @@ int _gtk_loop(void *p)
             NULL
         ));
 
-        apply_defaults(properties_dialog);
+        apply_dialog_defaults(properties_dialog);
 
         g_signal_connect(properties_dialog, "show", G_CALLBACK(on_properties_show), 0);
         g_signal_connect(properties_dialog, "key-press-event", G_CALLBACK(on_properties_keypress), 0);
@@ -10379,7 +10379,7 @@ int _gtk_loop(void *p)
                 "_Cancel", GTK_RESPONSE_REJECT,
                 NULL));
 
-        apply_defaults(publish_dialog);
+        apply_dialog_defaults(publish_dialog);
 
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(publish_dialog));
 
@@ -10436,7 +10436,7 @@ int _gtk_loop(void *p)
                 "Custom", RESPONSE_CUSTOM,
                 NULL));
 
-        apply_defaults(new_level_dialog);
+        apply_dialog_defaults(new_level_dialog);
 
         /* XXX: Should we add some information about the various level types? */
     }
@@ -10450,7 +10450,7 @@ int _gtk_loop(void *p)
                 "Adventure Introduction", 1,
                 NULL));
 
-        apply_defaults(main_pkg_dialog);
+        apply_dialog_defaults(main_pkg_dialog);
     }
 
     /** --Sandbox mode**/
@@ -10463,7 +10463,7 @@ int _gtk_loop(void *p)
                 "Terrain Paint", RESPONSE_DRAW,
                 NULL));
 
-        apply_defaults(mode_dialog);
+        apply_dialog_defaults(mode_dialog);
 
         /* XXX: Should we add some informationa bout the varius modes? */
     }
@@ -10863,7 +10863,7 @@ int _gtk_loop(void *p)
                 NULL));
         factory_cancel = GTK_BUTTON(gtk_dialog_add_button(dialog, "_Cancel", GTK_RESPONSE_REJECT));
 
-        apply_defaults(dialog);
+        apply_dialog_defaults(dialog);
 
         gtk_widget_set_size_request(GTK_WIDGET(dialog), 450, 300);
 
@@ -10977,7 +10977,7 @@ int _gtk_loop(void *p)
                 NULL));
         tchest_cancel = GTK_BUTTON(gtk_dialog_add_button(dialog, "_Cancel", GTK_RESPONSE_REJECT));
 
-        apply_defaults(dialog);
+        apply_dialog_defaults(dialog);
 
         gtk_widget_set_size_request(GTK_WIDGET(dialog), 750, 300);
 
@@ -11181,7 +11181,7 @@ int _gtk_loop(void *p)
                 0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
                 NULL));
 
-        apply_defaults(dialog);
+        apply_dialog_defaults(dialog);
 
         camtargeter_save = GTK_BUTTON(
                 gtk_dialog_add_button(
@@ -11364,7 +11364,7 @@ int _gtk_loop(void *p)
                 "Remove", GTK_RESPONSE_NO,
                 NULL));
 
-        apply_defaults(dialog);
+        apply_dialog_defaults(dialog);
 
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
@@ -11386,7 +11386,7 @@ int _gtk_loop(void *p)
                 "More tips & tricks", GTK_RESPONSE_YES,
                 NULL));
 
-        apply_defaults(tips_dialog);
+        apply_dialog_defaults(tips_dialog);
 
         gtk_window_set_default_size(GTK_WINDOW(tips_dialog), 425, 400);
 
@@ -11454,7 +11454,7 @@ int _gtk_loop(void *p)
                 "OK", GTK_RESPONSE_ACCEPT,
                 NULL));
 
-        apply_defaults(error_dialog);
+        apply_dialog_defaults(error_dialog);
 
         gtk_window_set_default_size(GTK_WINDOW(error_dialog), 425, 400);
 
@@ -11485,7 +11485,7 @@ int _gtk_loop(void *p)
                 0, (GtkDialogFlags)(0),/*GTK_MODAL*/
                 NULL));
 
-        apply_defaults(dialog);
+        apply_dialog_defaults(dialog);
 
         confirm_button1 = GTK_BUTTON(
                 gtk_dialog_add_button(
@@ -11540,7 +11540,7 @@ int _gtk_loop(void *p)
                 GTK_BUTTONS_CLOSE,
                 "Alert"));
 
-        apply_defaults(dialog);
+        apply_dialog_defaults(dialog);
 
         g_signal_connect(dialog, "show", G_CALLBACK(on_alert_show), 0);
         g_signal_connect(dialog, "key-press-event", G_CALLBACK(on_alert_keypress), 0);
@@ -12102,7 +12102,7 @@ int _gtk_loop(void *p)
                 0, (GtkDialogFlags)(0),/*GTK_MODAL*/
                 NULL));
 
-        apply_defaults(confirm_quit_dialog);
+        apply_dialog_defaults(confirm_quit_dialog);
 
         confirm_btn_quit = GTK_BUTTON(gtk_dialog_add_button(confirm_quit_dialog, "_Quit", GTK_RESPONSE_ACCEPT));
         gtk_dialog_add_button(confirm_quit_dialog, "_Cancel", GTK_RESPONSE_REJECT);
@@ -12308,7 +12308,7 @@ int _gtk_loop(void *p)
                 "_Cancel", GTK_RESPONSE_CANCEL,
                 NULL));
 
-        apply_defaults(puzzle_play_dialog);
+        apply_dialog_defaults(puzzle_play_dialog);
 
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(puzzle_play_dialog));
 
@@ -12325,7 +12325,7 @@ int _gtk_loop(void *p)
                 "_Cancel", GTK_RESPONSE_REJECT,
                 NULL));
 
-        apply_defaults(published_dialog);
+        apply_dialog_defaults(published_dialog);
 
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(published_dialog));
 
@@ -12344,7 +12344,7 @@ int _gtk_loop(void *p)
                 "No", GTK_RESPONSE_REJECT,
                 NULL));
 
-        apply_defaults(dialog);
+        apply_dialog_defaults(dialog);
 
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
@@ -12362,7 +12362,7 @@ int _gtk_loop(void *p)
                 0, (GtkDialogFlags)(0),/*GTK_MODAL*/
                 NULL));
 
-        apply_defaults(jumper_dialog);
+        apply_dialog_defaults(jumper_dialog);
 
         jumper_save = GTK_BUTTON(
                 gtk_dialog_add_button(
