@@ -10926,32 +10926,35 @@ int _gtk_loop(void *p)
             renderer = gtk_cell_renderer_toggle_new();
             g_signal_connect(renderer, "toggled", G_CALLBACK(factory_enable_toggled), model);
 
-            column = gtk_tree_view_column_new_with_attributes("Enabled",
-                    renderer,
-                    "active", 0,
-                    NULL);
-
-            gtk_tree_view_column_set_sizing(GTK_TREE_VIEW_COLUMN(column),
-                    GTK_TREE_VIEW_COLUMN_FIXED);
-            gtk_tree_view_column_set_fixed_width(GTK_TREE_VIEW_COLUMN(column), 50);
+            column = gtk_tree_view_column_new_with_attributes(
+                "Enabled",
+                renderer,
+                "active", 0,
+                NULL
+            );
             gtk_tree_view_append_column(factory_treeview, column);
 
             renderer = gtk_cell_renderer_text_new();
-            column = gtk_tree_view_column_new_with_attributes("Index",
-                    renderer,
-                    "text",
-                    1,
-                    NULL);
+            column = gtk_tree_view_column_new_with_attributes(
+                "Index",
+                renderer,
+                "text",
+                1,
+                NULL
+            );
             gtk_tree_view_column_set_sort_column_id(column, 1);
             gtk_tree_view_append_column(factory_treeview, column);
 
             renderer = gtk_cell_renderer_text_new();
-            column = gtk_tree_view_column_new_with_attributes("Recipe",
-                    renderer,
-                    "text",
-                    2,
-                    NULL);
+            column = gtk_tree_view_column_new_with_attributes(
+                "Recipe",
+                renderer,
+                "text",
+                2,
+                NULL
+            );
             gtk_tree_view_column_set_sort_column_id(column, 2);
+            gtk_tree_view_column_set_expand(column, true);
             gtk_tree_view_append_column(factory_treeview, column);
         }
 
