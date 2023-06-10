@@ -12701,7 +12701,6 @@ int _gtk_loop(void *p)
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(synth_dialog));
 
         GtkGrid *tbl_settings = create_settings_table();
-        gtk_table_set_homogeneous(GTK_TABLE(tbl_settings), false);
         {
             int y = -1;
 
