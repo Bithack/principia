@@ -12112,9 +12112,10 @@ int _gtk_loop(void *p)
     /** --Confirm Quit Dialog **/
     {
         confirm_quit_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Confirm Quit",
-                0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-                NULL));
+            "Confirm Quit",
+            0, (GtkDialogFlags)(0),/*GTK_MODAL*/
+            NULL
+        ));
 
         apply_dialog_defaults(confirm_quit_dialog);
 
@@ -12247,12 +12248,7 @@ int _gtk_loop(void *p)
                 ROBOT_COLUMN_EQUIPPED,
                 NULL
             );
-
-            gtk_tree_view_column_set_sizing(
-                GTK_TREE_VIEW_COLUMN(column),
-                GTK_TREE_VIEW_COLUMN_FIXED
-            );
-            gtk_tree_view_column_set_fixed_width(GTK_TREE_VIEW_COLUMN(column), 75);
+            gtk_tree_view_column_set_sizing(GTK_TREE_VIEW_COLUMN(column), GTK_TREE_VIEW_COLUMN_FIXED);
             gtk_tree_view_append_column(robot_tv_equipment, column);
 
             renderer = gtk_cell_renderer_text_new();
@@ -12263,6 +12259,7 @@ int _gtk_loop(void *p)
                 ROBOT_COLUMN_ITEM,
                 NULL
             );
+            gtk_tree_view_column_set_expand(column, true);
             gtk_tree_view_column_set_sort_column_id(column, 2);
             gtk_tree_view_append_column(robot_tv_equipment, column);
         }
@@ -12287,9 +12284,25 @@ int _gtk_loop(void *p)
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(robot_btn_cancel));
 
         GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
+        
+        GtkScrolledWindow *robot_tv_equipment_scroll = GTK_SCROLLED_WINDOW(
+            gtk_scrolled_window_new(NULL, NULL)
+        );
+        gtk_container_add(
+            GTK_CONTAINER(robot_tv_equipment_scroll),
+            GTK_WIDGET(robot_tv_equipment)
+        );
+        gtk_scrolled_window_set_propagate_natural_width(
+            robot_tv_equipment_scroll, true
+        );
+        gtk_scrolled_window_set_policy(
+            robot_tv_equipment_scroll,
+            GTK_POLICY_NEVER,
+            GTK_POLICY_AUTOMATIC
+        );
 
         gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(tbl), true, true, 0);
-        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(robot_tv_equipment), true, true, 0);
+        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(robot_tv_equipment_scroll), true, true, 0);
 
         gtk_box_pack_start(content, GTK_WIDGET(hbox), true, true, 0);
         gtk_box_pack_start(content, GTK_WIDGET(button_box), 0, 0, 0);
