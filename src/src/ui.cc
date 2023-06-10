@@ -11108,7 +11108,7 @@ int _gtk_loop(void *p)
             GTK_POLICY_AUTOMATIC,
             GTK_POLICY_AUTOMATIC
         );
-        gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(sw), GTK_WIDGET(tchest_treeview));
+        gtk_container_add(GTK_CONTAINER(sw), GTK_WIDGET(tchest_treeview));
 
         gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(tbl), false, false, 0);
         gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(sw), true, true, 0);
@@ -11457,7 +11457,7 @@ int _gtk_loop(void *p)
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
                       GTK_POLICY_AUTOMATIC,
                       GTK_POLICY_AUTOMATIC);
-        gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(ew), GTK_WIDGET(tips_text));
+        gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(tips_text));
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(ew), 1, 1, 3);
 
         gtk_label_set_line_wrap(GTK_LABEL(tips_text), true);
@@ -11485,7 +11485,7 @@ int _gtk_loop(void *p)
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
                       GTK_POLICY_AUTOMATIC,
                       GTK_POLICY_AUTOMATIC);
-        gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(ew), GTK_WIDGET(info_text));
+        gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(info_text));
         //gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(info_name), 0, 0, 0);
         //gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(ew), 1, 1, 3);
         gtk_container_add(GTK_CONTAINER(info_dialog), GTK_WIDGET(ew));
@@ -11520,7 +11520,7 @@ int _gtk_loop(void *p)
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
                       GTK_POLICY_AUTOMATIC,
                       GTK_POLICY_AUTOMATIC);
-        gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(ew), GTK_WIDGET(error_text));
+        gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(error_text));
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(ew), 1, 1, 3);
 
         gtk_label_set_line_wrap(GTK_LABEL(error_text), true);
@@ -11573,7 +11573,7 @@ int _gtk_loop(void *p)
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
                       GTK_POLICY_AUTOMATIC,
                       GTK_POLICY_AUTOMATIC);
-        gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(ew), GTK_WIDGET(confirm_text));
+        gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(confirm_text));
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(ew), 1, 1, 3);
 
         gtk_label_set_line_wrap(GTK_LABEL(confirm_text), true);
