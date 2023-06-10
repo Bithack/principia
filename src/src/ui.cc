@@ -10970,10 +10970,11 @@ int _gtk_loop(void *p)
     /** --Treasure chest **/
     {
         dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Treasure chest",
-                0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                "_OK", GTK_RESPONSE_ACCEPT,
-                NULL));
+            "Treasure chest",
+            0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
+            "_OK", GTK_RESPONSE_ACCEPT,
+            NULL
+        ));
         tchest_cancel = GTK_BUTTON(gtk_dialog_add_button(dialog, "_Cancel", GTK_RESPONSE_REJECT));
 
         apply_dialog_defaults(dialog);
@@ -11004,8 +11005,9 @@ int _gtk_loop(void *p)
         ++x;
 
         tchest_count = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                    GTK_ADJUSTMENT(gtk_adjustment_new(1, 1, 65535, 1, 1, 0)),
-                    1, 0));
+            GTK_ADJUSTMENT(gtk_adjustment_new(1, 1, 65535, 1, 1, 0)),
+            1, 0
+        ));
         gtk_grid_attach(tbl, new_clbl("Amount"), 0, x, 1, 1);
         gtk_grid_attach(tbl, GTK_WIDGET(tchest_count), 1, x, 1, 1);
         ++x;
@@ -11016,16 +11018,25 @@ int _gtk_loop(void *p)
         gtk_grid_attach(tbl, GTK_WIDGET(spacer), 0, x, 2, 1);
         ++x;
 
+        //Button box (add/remove entity)
+
         tchest_add_entity = GTK_BUTTON(gtk_button_new_with_label("Add entity"));
-        g_signal_connect(tchest_add_entity, "button-release-event",
-                G_CALLBACK(on_tchest_btn_click), 0);
-        gtk_grid_attach(tbl, GTK_WIDGET(tchest_add_entity), 0, x, 2, 1);
-        ++x;
+        g_signal_connect(
+            tchest_add_entity, "button-release-event",
+            G_CALLBACK(on_tchest_btn_click), 0
+        );
 
         tchest_remove_selected = GTK_BUTTON(gtk_button_new_with_label("Remove selected"));
-        g_signal_connect(tchest_remove_selected, "button-release-event",
-                G_CALLBACK(on_tchest_btn_click), 0);
-        gtk_grid_attach(tbl, GTK_WIDGET(tchest_remove_selected), 0, x, 2, 1);
+        g_signal_connect(
+            tchest_remove_selected, "button-release-event",
+            G_CALLBACK(on_tchest_btn_click), 0
+        );
+
+        GtkButtonBox* button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
+        gtk_button_box_set_layout(button_box, GTK_BUTTONBOX_EXPAND);
+        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(tchest_add_entity));
+        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(tchest_remove_selected));
+        gtk_grid_attach(tbl, GTK_WIDGET(button_box), 0, x, 2, 1);
         ++x;
 
         {
@@ -11034,10 +11045,14 @@ int _gtk_loop(void *p)
             GtkTreeModel *model = GTK_TREE_MODEL(tchest_liststore);
 
             tchest_treeview = GTK_TREE_VIEW(gtk_tree_view_new_with_model(model));
-            g_signal_connect(tchest_treeview, "cursor-changed",
-                    G_CALLBACK(on_tchest_selection_changed), 0);
-            g_signal_connect(tchest_treeview, "columns-changed",
-                    G_CALLBACK(on_tchest_selection_changed), 0);
+            g_signal_connect(
+                tchest_treeview, "cursor-changed",
+                G_CALLBACK(on_tchest_selection_changed), 0
+            );
+            g_signal_connect(
+                tchest_treeview, "columns-changed",
+                G_CALLBACK(on_tchest_selection_changed), 0
+            );
             gtk_tree_view_set_rules_hint(tchest_treeview, TRUE);
 
             GtkCellRenderer *renderer;
@@ -11068,9 +11083,11 @@ int _gtk_loop(void *p)
         }
 
         GtkWidget *sw = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
-                GTK_POLICY_AUTOMATIC,
-                GTK_POLICY_AUTOMATIC);
+        gtk_scrolled_window_set_policy(
+            GTK_SCROLLED_WINDOW(sw),
+            GTK_POLICY_AUTOMATIC,
+            GTK_POLICY_AUTOMATIC
+        );
         gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(sw), GTK_WIDGET(tchest_treeview));
 
         gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(tbl), false, false, 0);
