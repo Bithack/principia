@@ -12149,18 +12149,28 @@ int _gtk_loop(void *p)
         gtk_grid_set_column_spacing(tbl, 5);
 
         robot_state_idle = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
-                    NULL, "Idle"));
+            NULL, "Idle"
+        ));
         robot_state_walk = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
-                    gtk_radio_button_get_group(robot_state_idle), "Walking"));
+            gtk_radio_button_get_group(robot_state_idle),
+            "Walking"
+        ));
         robot_state_dead = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
-                    gtk_radio_button_get_group(robot_state_idle), "Dead"));
+            gtk_radio_button_get_group(robot_state_idle),
+            "Dead"
+        ));
 
         robot_dir_left = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
-                    NULL, "Left"));
+            NULL, "Left"
+        ));
         robot_dir_random = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
-                    gtk_radio_button_get_group(robot_dir_left), "Random"));
+            gtk_radio_button_get_group(robot_dir_left),
+            "Random"
+        ));
         robot_dir_right = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
-                    gtk_radio_button_get_group(robot_dir_left), "Right"));
+            gtk_radio_button_get_group(robot_dir_left),
+            "Right"
+        ));
         
         gtk_grid_attach(tbl, new_rlbl("Default state"), 0, y, 1, 1);
         gtk_grid_attach(tbl, GTK_WIDGET(robot_state_idle), 1, y, 1, 1);
