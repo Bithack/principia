@@ -12700,11 +12700,10 @@ int _gtk_loop(void *p)
         gtk_widget_set_size_request(GTK_WIDGET(synth_dialog), 350, -1);
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(synth_dialog));
 
-        GtkWidget *tbl_settings = gtk_table_new(4, 5, 0);
+        GtkGrid *tbl_settings = create_settings_table();
         gtk_table_set_homogeneous(GTK_TABLE(tbl_settings), false);
         {
-            GtkWidget *l;
-            int y = 0;
+            int y = -1;
 
             synth_hz_low = GTK_SPIN_BUTTON(gtk_spin_button_new(
                         GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 440*8, 20, .1, 0)),
@@ -12730,68 +12729,62 @@ int _gtk_loop(void *p)
                 gtk_combo_box_text_append_text(synth_waveform, speaker_options[x]);
             }
 
-            l = gtk_label_new("Base frequency");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_hz_low), 1, 3, y, y+1);
+            add_setting_row(
+                tbl_settings, ++y,
+                "Base frequency",
+                GTK_WIDGET(synth_hz_low)
+            );
 
-            y++;
-            l = gtk_label_new("Peak frequency");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_hz_high), 1, 3, y, y+1);
+            add_setting_row(
+                tbl_settings, ++y,
+                "Peak frequency",
+                GTK_WIDGET(synth_hz_high)
+            );
 
-            y++;
-            l = gtk_label_new("Waveform");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_waveform), 1, 3, y, y+1);
+            add_setting_row(
+                tbl_settings, ++y,
+                "Waveform",
+                GTK_WIDGET(synth_waveform)
+            );
 
-            y++;
-            l = gtk_label_new("Pulse width");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_pulse_width), 1, 3, y, y+1);
+            add_setting_row(
+                tbl_settings, ++y,
+                "Pulse width",
+                GTK_WIDGET(synth_pulse_width)
+            );
 
-            y++;
-            l = gtk_label_new("Bitcrushing");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_bitcrushing), 1, 3, y, y+1);
+            add_setting_row(
+                tbl_settings, ++y,
+                "Bitcrushing",
+                GTK_WIDGET(synth_bitcrushing)
+            );
 
-            y++;
-            l = gtk_label_new("Volume vibrato Hz");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_vol_vibrato_hz), 1, 3, y, y+1);
-            y++;
-            l = gtk_label_new("Volume vibrato extent");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_vol_vibrato_extent), 1, 3, y, y+1);
+            add_setting_row(
+                tbl_settings, ++y,
+                "Volume vibrato Hz",
+                GTK_WIDGET(synth_vol_vibrato_hz)
+            );
 
-            y++;
-            l = gtk_label_new("Freq vibrato Hz");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_freq_vibrato_hz), 1, 3, y, y+1);
-            y++;
-            l = gtk_label_new("Freq vibrato extent");
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), l, 0, 1, y, y+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl_settings), GTK_WIDGET(synth_freq_vibrato_extent), 1, 3, y, y+1);
+            add_setting_row(
+                tbl_settings, ++y,
+                "Volume vibrato extent",
+                GTK_WIDGET(synth_vol_vibrato_extent)
+            );
+
+            add_setting_row(
+                tbl_settings, ++y,
+                "Freq vibrato Hz",
+                GTK_WIDGET(synth_freq_vibrato_hz)
+            );
+
+            add_setting_row(
+                tbl_settings, ++y,
+                "Freq vibrato extent",
+                GTK_WIDGET(synth_freq_vibrato_extent)
+            );
         }
 
-        gtk_box_pack_start(GTK_BOX(content), tbl_settings, false, false, 0);
+        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(tbl_settings), false, false, 0);
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
