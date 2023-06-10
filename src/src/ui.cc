@@ -10959,7 +10959,7 @@ int _gtk_loop(void *p)
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
                 GTK_POLICY_AUTOMATIC,
                 GTK_POLICY_AUTOMATIC);
-        gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(sw), GTK_WIDGET(factory_treeview));
+        gtk_container_add(GTK_CONTAINER(sw), GTK_WIDGET(factory_treeview));
 
         gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(tbl), false, false, 0);
         gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(sw), true, true, 0);
