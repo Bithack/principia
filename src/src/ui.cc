@@ -12096,20 +12096,10 @@ int _gtk_loop(void *p)
             tbl_interface = tbl;
         }
 
-        // GtkWidget *tbl_gameplay;
-        // {
-        //     GtkWidget *tbl = gtk_table_new(2, 3, 5);
-        //     gtk_table_set_homogeneous(GTK_TABLE(tbl), false);
-        //     int y = 0;
-
-        //     tbl_gameplay = tbl;
-        // }
-
         gtk_notebook_append_page(nb, GTK_WIDGET(tbl_graphics),  new_lbl("<b>Graphics</b>"));
         gtk_notebook_append_page(nb, GTK_WIDGET(tbl_audio),     new_lbl("<b>Audio</b>"));
         gtk_notebook_append_page(nb, GTK_WIDGET(tbl_controls),  new_lbl("<b>Controls</b>"));
         gtk_notebook_append_page(nb, GTK_WIDGET(tbl_interface), new_lbl("<b>Interface</b>"));
-        //gtk_notebook_append_page(nb, tbl_gameplay,  new_lbl("<b>Gameplay</b>"));
 
         gtk_widget_show_all(GTK_WIDGET(nb));
 
