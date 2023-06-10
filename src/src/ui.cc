@@ -12151,7 +12151,7 @@ int _gtk_loop(void *p)
     {
         robot_window = new_window_defaults("Robot settings", &on_robot_show, &on_robot_keypress);
 
-        int y=0;
+        int y = 0;
 
         robot_head_equipment = new_item_cb();
         robot_head = new_item_cb();
@@ -12199,12 +12199,18 @@ int _gtk_loop(void *p)
         gtk_grid_attach(tbl, GTK_WIDGET(robot_roam), 1, y, 1, 1);
         y++;
 
+        gtk_grid_attach(tbl, gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), 0, y, 2, 1);
+        y++;
+
         gtk_grid_attach(tbl, new_rlbl("Initial direction"), 0, y, 1, 1);
         gtk_grid_attach(tbl, GTK_WIDGET(robot_dir_left), 1, y, 1, 1);
         y++;
         gtk_grid_attach(tbl, GTK_WIDGET(robot_dir_random), 1, y, 1, 1);
         y++;
         gtk_grid_attach(tbl, GTK_WIDGET(robot_dir_right), 1, y, 1, 1);
+        y++;
+
+        gtk_grid_attach(tbl, gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), 0, y, 2, 1);
         y++;
 
         gtk_grid_attach(tbl, new_rlbl("Faction"), 0, y, 1, 1);
