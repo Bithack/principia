@@ -12146,7 +12146,7 @@ int _gtk_loop(void *p)
 
         GtkGrid *tbl = GTK_GRID(gtk_grid_new());
         gtk_grid_set_row_spacing(tbl, 3);
-        gtk_grid_set_column_spacing(tbl, 15);
+        gtk_grid_set_column_spacing(tbl, 5);
 
         robot_state_idle = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
                     NULL, "Idle"));
