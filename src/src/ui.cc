@@ -10931,7 +10931,6 @@ int _gtk_loop(void *p)
             GtkTreeModel *model = GTK_TREE_MODEL(factory_liststore);
 
             factory_treeview = GTK_TREE_VIEW(gtk_tree_view_new_with_model(model));
-            //gtk_tree_view_set_rules_hint(factory_treeview, TRUE);
 
             GtkCellRenderer *renderer;
             GtkTreeViewColumn *column;
@@ -11075,7 +11074,6 @@ int _gtk_loop(void *p)
                 tchest_treeview, "columns-changed",
                 G_CALLBACK(on_tchest_selection_changed), 0
             );
-            gtk_tree_view_set_rules_hint(tchest_treeview, TRUE);
 
             GtkCellRenderer *renderer;
             GtkTreeViewColumn *column;
@@ -12280,7 +12278,6 @@ int _gtk_loop(void *p)
             GtkTreeModel *model = GTK_TREE_MODEL(robot_ls_equipment);
 
             robot_tv_equipment = GTK_TREE_VIEW(gtk_tree_view_new_with_model(model));
-            gtk_tree_view_set_rules_hint(robot_tv_equipment, TRUE);
 
             GtkCellRenderer *renderer;
             GtkTreeViewColumn *column;
