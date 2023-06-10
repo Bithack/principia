@@ -7182,7 +7182,7 @@ open_row_button_press(GtkWidget *wdg, GdkEvent *event, gpointer userdata)
     if (event->type == GDK_BUTTON_PRESS) {
         GdkEventButton *bevent = (GdkEventButton*)event;
         if (bevent->button == 3) {
-            gtk_menu_popup(open_menu, 0, 0, 0, 0, 0, 0);
+            gtk_menu_popup(open_menu, 0, 0, 0, 0, 0, gtk_get_current_event_time());
             gtk_widget_show_all(GTK_WIDGET(open_menu));
             //return TRUE;
         }
@@ -13127,7 +13127,7 @@ _open_play_menu(gpointer unused)
 static gboolean
 _open_sandbox_menu(gpointer unused)
 {
-    gtk_menu_popup(editor_menu, 0, 0, 0, 0, 0, 0);
+    gtk_menu_popup(editor_menu, 0, 0, 0, 0, 0, gtk_get_current_event_time());
     gtk_widget_show_all(GTK_WIDGET(editor_menu));
 
     if (G->state.sandbox) {
