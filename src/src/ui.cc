@@ -10871,8 +10871,7 @@ int _gtk_loop(void *p)
         GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
         GtkWidget *l;
 
-        GtkWidget *tbl = gtk_table_new(2,6,0);
-        gtk_table_set_homogeneous(GTK_TABLE(tbl), false);
+        GtkGrid *tbl = GTK_GRID(gtk_grid_new());
 
         int x = 0;
 
@@ -10882,8 +10881,8 @@ int _gtk_loop(void *p)
         factory_oil = GTK_SPIN_BUTTON(gtk_spin_button_new(
                     GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 65535, 1, 1, 0)),
                     1, 0));
-        gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, x, x+1);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(factory_oil), 1, 3, x, x+1);
+        gtk_grid_attach(tbl, l, 0, x, 1, 1);
+        gtk_grid_attach(tbl, GTK_WIDGET(factory_oil), 1, x, 1, 1);
         ++x;
 
         for (; x<NUM_RESOURCES+1; ++x) {
@@ -10893,8 +10892,8 @@ int _gtk_loop(void *p)
             factory_resources[x-1] = GTK_SPIN_BUTTON(gtk_spin_button_new(
                         GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 65535, 1, 1, 0)),
                         1, 0));
-            gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, x, x+1);
-            gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(factory_resources[x-1]), 1, 3, x, x+1);
+            gtk_grid_attach(tbl, l, 0, x, 1, 1);
+            gtk_grid_attach(tbl, GTK_WIDGET(factory_resources[x-1]), 1, x, 1, 1);
         }
 
         l = gtk_label_new("Faction");
@@ -10903,8 +10902,8 @@ int _gtk_loop(void *p)
         factory_faction = GTK_SPIN_BUTTON(gtk_spin_button_new(
                     GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, NUM_FACTIONS-1, 1, 1, 0)),
                     1, 0));
-        gtk_table_attach_defaults(GTK_TABLE(tbl), l, 0, 1, x, x+1);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(factory_faction), 1, 3, x, x+1);
+        gtk_grid_attach(tbl, l, 0, x, 1, 1);
+        gtk_grid_attach(tbl, GTK_WIDGET(factory_faction), 1, x, 1, 1);
         ++x;
 
         {
@@ -10957,7 +10956,7 @@ int _gtk_loop(void *p)
                 GTK_POLICY_AUTOMATIC);
         gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(sw), GTK_WIDGET(factory_treeview));
 
-        gtk_box_pack_start(GTK_BOX(hbox), tbl, false, false, 0);
+        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(tbl), false, false, 0);
         gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(sw), true, true, 0);
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(hbox), true, true, 0);
         gtk_widget_show_all(GTK_WIDGET(content));
