@@ -9344,12 +9344,6 @@ const gchar* css_global = R"(
     }
 )";
 
-#ifdef TMS_BACKEND_WINDOWS
-const gchar* css_theme = R"(
-    /* TODO */
-)";
-#endif
-
 void load_gtk_css() {
     //Load global CSS
     {
@@ -9365,23 +9359,6 @@ void load_gtk_css() {
             GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
         );
     }
-
-    //Load our custom theme (windows only)
-    #ifdef TMS_BACKEND_WINDOWS
-    {
-        GtkCssProvider* css_provider = gtk_css_provider_new();
-        gtk_css_provider_load_from_data(
-            css_provider,
-            css_theme,
-            -1, NULL
-        );
-        gtk_style_context_add_provider_for_screen(
-            gdk_screen_get_default(),
-            GTK_STYLE_PROVIDER(css_provider),
-            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
-        );
-    }
-    #endif
 
     //Try to load debug.css in debug builds
     #ifdef DEBUG
@@ -9411,49 +9388,9 @@ int _gtk_loop(void *p)
     //Load CSS themes
     load_gtk_css();
 
-    // Only use custom theme in release versions of Windows. Linux should use
-    // the user-provided GTK theme, and debug versions of Windows break spectacularily
-    // with custom theme.
-    //TODO: PORT THEME TO GDK3
-// #if defined(TMS_BACKEND_WINDOWS) && !defined(DEBUG)
-//     gtk_rc_parse_string(
-// "style \"test\" {\n"
-
-// "color[\"fg_color\"] = \"#dcdcdc\"\n"
-// "color[\"bg_color\"] = \"#686868\"\n"
-// "color[\"bg_color_light\"] = \"#f2f0f1\"\n"
-// "color[\"selected_fg_color\"] = \"#ffffff\"\n"
-// "color[\"selected_bg_color\"] = \"#f07040\"\n"
-
-// "font_name = \"Arial\"\n"
-
-// "fg[NORMAL] = @fg_color\n"
-// "fg[PRELIGHT] = shade(1.15, @fg_color)\n"
-// "fg[ACTIVE] = @fg_color\n"
-// "fg[SELECTED] = @selected_fg_color\n"
-// "fg[INSENSITIVE] = shade(0.5, @fg_color)\n"
-
-// "bg[NORMAL] = @bg_color\n"
-// "bg[PRELIGHT] = shade(1.0, \"#4d4c48\")\n"
-// "bg[ACTIVE] = shade(0.8, @bg_color)\n"
-// "bg[SELECTED] = @selected_bg_color\n"
-// "bg[INSENSITIVE] = shade(0.85, @bg_color)\n"
-
-// "base[NORMAL] = {0.21,0.21,0.21}\n"
-
-// "text[NORMAL] = @fg_color\n"
-// "text[PRELIGHT] = shade(1.15, @fg_color)\n"
-// "text[ACTIVE] = @fg_color\n"
-// "text[SELECTED] = @selected_fg_color\n"
-// "text[INSENSITIVE] = mix (0.5, @bg_color, @bg_color_light)\n"
-
-// "}\n"
-// "widget \"*\" style \"test\"\n"
-//             );
-// #endif
-
     g_object_set(
-        G_OBJECT(gtk_settings_get_default()),
+        gtk_settings_get_default(),
+        "gtk-application-prefer-dark-theme", true,
         "gtk-tooltip-timeout", 100,
         NULL
     );
