@@ -10984,40 +10984,48 @@ int _gtk_loop(void *p)
         GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
         GtkWidget *l;
 
-        GtkWidget *tbl = gtk_table_new(2,6,0);
-        gtk_table_set_homogeneous(GTK_TABLE(tbl), false);
+        GtkGrid *tbl = GTK_GRID(gtk_grid_new());
+        //gtk_grid_set_row_homogeneous(tbl, true);
+        gtk_grid_set_row_spacing(tbl, 5);
+        gtk_grid_set_column_spacing(tbl, 5);
 
         int x = 0;
 
         tchest_entity = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-        gtk_table_attach_defaults(GTK_TABLE(tbl), new_clbl("Entity"), 0, 1, x, x+1);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(tchest_entity), 1, 3, x, x+1);
+        gtk_grid_attach(tbl, new_clbl("Entity"), 0, x, 1, 1);
+        gtk_grid_attach(tbl, GTK_WIDGET(tchest_entity), 1, x, 1, 1);
         ++x;
 
         g_signal_connect(tchest_entity, "changed", G_CALLBACK(on_tchest_entity_changed), 0);
 
         tchest_sub_entity = new_item_cb();
-        gtk_table_attach_defaults(GTK_TABLE(tbl), new_clbl("Sub-entity"), 0, 1, x, x+1);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(tchest_sub_entity), 1, 3, x, x+1);
+        gtk_grid_attach(tbl, new_clbl("Sub-entity"), 0, x, 1, 1);
+        gtk_grid_attach(tbl, GTK_WIDGET(tchest_sub_entity), 1, x, 1, 1);
         ++x;
 
         tchest_count = GTK_SPIN_BUTTON(gtk_spin_button_new(
                     GTK_ADJUSTMENT(gtk_adjustment_new(1, 1, 65535, 1, 1, 0)),
                     1, 0));
-        gtk_table_attach_defaults(GTK_TABLE(tbl), new_clbl("Count"), 0, 1, x, x+1);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(tchest_count), 1, 3, x, x+1);
+        gtk_grid_attach(tbl, new_clbl("Amount"), 0, x, 1, 1);
+        gtk_grid_attach(tbl, GTK_WIDGET(tchest_count), 1, x, 1, 1);
+        ++x;
+        
+        //spacing
+        GtkWidget* spacer = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+        gtk_widget_set_vexpand(spacer, true);
+        gtk_grid_attach(tbl, GTK_WIDGET(spacer), 0, x, 2, 1);
         ++x;
 
         tchest_add_entity = GTK_BUTTON(gtk_button_new_with_label("Add entity"));
         g_signal_connect(tchest_add_entity, "button-release-event",
                 G_CALLBACK(on_tchest_btn_click), 0);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(tchest_add_entity), 0, 3, x, x+1);
+        gtk_grid_attach(tbl, GTK_WIDGET(tchest_add_entity), 0, x, 2, 1);
         ++x;
 
         tchest_remove_selected = GTK_BUTTON(gtk_button_new_with_label("Remove selected"));
         g_signal_connect(tchest_remove_selected, "button-release-event",
                 G_CALLBACK(on_tchest_btn_click), 0);
-        gtk_table_attach_defaults(GTK_TABLE(tbl), GTK_WIDGET(tchest_remove_selected), 0, 3, x, x+1);
+        gtk_grid_attach(tbl, GTK_WIDGET(tchest_remove_selected), 0, x, 2, 1);
         ++x;
 
         {
@@ -11037,20 +11045,24 @@ int _gtk_loop(void *p)
             model = gtk_tree_view_get_model(tchest_treeview);
 
             renderer = gtk_cell_renderer_text_new();
-            column = gtk_tree_view_column_new_with_attributes("Name",
-                    renderer,
-                    "text",
-                    TCHEST_COLUMN_NAME,
-                    NULL);
+            column = gtk_tree_view_column_new_with_attributes(
+                "Name",
+                renderer,
+                "text",
+                TCHEST_COLUMN_NAME,
+                NULL
+            );
             gtk_tree_view_column_set_sort_column_id(column, TCHEST_COLUMN_NAME);
             gtk_tree_view_append_column(tchest_treeview, column);
 
             renderer = gtk_cell_renderer_text_new();
-            column = gtk_tree_view_column_new_with_attributes("Count",
-                    renderer,
-                    "text",
-                    TCHEST_COLUMN_COUNT,
-                    NULL);
+            column = gtk_tree_view_column_new_with_attributes(
+                "Amount",
+                renderer,
+                "text",
+                TCHEST_COLUMN_COUNT,
+                NULL
+            );
             gtk_tree_view_column_set_sort_column_id(column, TCHEST_COLUMN_COUNT);
             gtk_tree_view_append_column(tchest_treeview, column);
         }
@@ -11061,7 +11073,7 @@ int _gtk_loop(void *p)
                 GTK_POLICY_AUTOMATIC);
         gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(sw), GTK_WIDGET(tchest_treeview));
 
-        gtk_box_pack_start(GTK_BOX(hbox), tbl, false, false, 0);
+        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(tbl), false, false, 0);
         gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(sw), true, true, 0);
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(hbox), true, true, 0);
         gtk_widget_show_all(GTK_WIDGET(content));
