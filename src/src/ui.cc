@@ -9956,9 +9956,9 @@ int _gtk_loop(void *p)
             pk_pkg_play = GTK_WIDGET(gtk_button_new_with_label("Play"));
             pk_pkg_publish = GTK_WIDGET(gtk_button_new_with_label("Publish"));
 
-            g_signal_connect(pk_pkg_play, "pressed", G_CALLBACK(press_play_pkg), 0);
-            g_signal_connect(pk_pkg_create, "pressed", G_CALLBACK(press_create_pkg), 0);
-            g_signal_connect(pk_pkg_publish, "pressed", G_CALLBACK(press_publish_pkg), 0);
+            g_signal_connect(pk_pkg_play, "clicked", G_CALLBACK(press_play_pkg), 0);
+            g_signal_connect(pk_pkg_create, "clicked", G_CALLBACK(press_create_pkg), 0);
+            g_signal_connect(pk_pkg_publish, "clicked", G_CALLBACK(press_publish_pkg), 0);
 
             //gtk_box_pack_start(GTK_BOX(b), pk_pkg_delete, false, false, 0);
             gtk_box_pack_start(GTK_BOX(b), pk_pkg_create, false, false, 0);
@@ -10020,15 +10020,15 @@ int _gtk_loop(void *p)
             GtkBox *b = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
             pk_lvl_add = GTK_WIDGET(gtk_button_new_with_label("Add current level"));
-            g_signal_connect(pk_lvl_add, "pressed", G_CALLBACK(press_add_current_level), 0);
+            g_signal_connect(pk_lvl_add, "clicked", G_CALLBACK(press_add_current_level), 0);
             gtk_box_pack_start(GTK_BOX(b), pk_lvl_add, false, false, 0);
 
             pk_lvl_del = GTK_WIDGET(gtk_button_new_with_label("Remove selected"));
-            g_signal_connect(pk_lvl_del, "pressed", G_CALLBACK(press_del_selected), 0);
+            g_signal_connect(pk_lvl_del, "clicked", G_CALLBACK(press_del_selected), 0);
             gtk_box_pack_start(GTK_BOX(b), pk_lvl_del, false, false, 0);
 
             pk_lvl_play = GTK_WIDGET(gtk_button_new_with_label("Play selected"));
-            g_signal_connect(pk_lvl_play, "pressed", G_CALLBACK(press_play_selected), 0);
+            g_signal_connect(pk_lvl_play, "clicked", G_CALLBACK(press_play_selected), 0);
             gtk_box_pack_start(GTK_BOX(b), pk_lvl_play, false, false, 0);
 
             gtk_box_pack_start(GTK_BOX(layout), GTK_WIDGET(b), 0, 0, 0);
