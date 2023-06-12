@@ -7182,9 +7182,8 @@ open_row_button_press(GtkWidget *wdg, GdkEvent *event, gpointer userdata)
     if (event->type == GDK_BUTTON_PRESS) {
         GdkEventButton *bevent = (GdkEventButton*)event;
         if (bevent->button == 3) {
-            gtk_menu_popup(open_menu, 0, 0, 0, 0, 0, gtk_get_current_event_time());
             gtk_widget_show_all(GTK_WIDGET(open_menu));
-            //return TRUE;
+            gtk_menu_popup_at_pointer(open_menu, event);
         }
     }
     return FALSE;
