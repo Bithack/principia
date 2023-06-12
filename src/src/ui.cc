@@ -13117,8 +13117,8 @@ void ui::init()
 static gboolean
 _open_play_menu(gpointer unused)
 {
-    gtk_menu_popup(play_menu, 0, 0, 0, 0, 0, gtk_get_current_event_time());
     gtk_widget_show_all(GTK_WIDGET(play_menu));
+    gtk_menu_popup(play_menu, 0, 0, 0, 0, 0, gtk_get_current_event_time());
 
     return false;
 }
@@ -13126,8 +13126,8 @@ _open_play_menu(gpointer unused)
 static gboolean
 _open_sandbox_menu(gpointer unused)
 {
-    gtk_menu_popup(editor_menu, 0, 0, 0, 0, 0, gtk_get_current_event_time());
     gtk_widget_show_all(GTK_WIDGET(editor_menu));
+    gtk_menu_popup(editor_menu, 0, 0, 0, 0, 0, gtk_get_current_event_time());
 
     if (G->state.sandbox) {
         gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_save),      true);
