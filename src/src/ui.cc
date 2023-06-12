@@ -3256,6 +3256,7 @@ GtkButton    *open_btn_open;
 GtkButton    *open_btn_cancel;
 GtkMenu      *open_menu;
 GtkMenuItem  *open_menu_information;
+GtkMenuItem  *open_menu_delete;
 
 /** --Open object **/
 bool         object_window_multiemitter;
@@ -7173,6 +7174,75 @@ open_menu_item_activated(GtkMenuItem *i, gpointer userdata)
                     break;
             }
         }
+    } else if (i == open_menu_delete) {
+        GtkDialog* confirm = GTK_DIALOG(gtk_dialog_new_with_buttons(
+            "Delete level",
+            GTK_WINDOW(open_window),
+            (GtkDialogFlags)(0),
+            "_Confirm",
+            GTK_RESPONSE_ACCEPT,
+            "_Cancel",
+            GTK_RESPONSE_REJECT,
+            NULL
+        ));
+        gtk_container_add(
+            GTK_CONTAINER(gtk_dialog_get_content_area(confirm)),
+            gtk_label_new("Are you sure you want to delete this level")
+        );
+        int r = gtk_dialog_run(confirm);
+        switch (r) {
+            case GTK_RESPONSE_ACCEPT: {
+                tms_infof("deleting uwu");
+
+                //get level id
+                GtkTreeIter iter;
+                GtkTreeSelection *sel = gtk_tree_view_get_selection(open_treeview);
+                if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
+                    GValue val_id = {0, };
+                    gtk_tree_model_get_value(
+                        open_treemodel,
+                        &iter,
+                        OC_ID,
+                        &val_id
+                    );
+                    uint32_t level_id = g_value_get_uint(&val_id);
+                    tms_infof("will DELETE local level with id of %d RIGHT NOW!", level_id);
+
+                    //XXX: Levels in the "open" should always be local
+                    //XXX: Save id is only used for state saves (LEVEL_*_STATE), not levels
+                    if (G->delete_level(LEVEL_LOCAL, level_id, -1)) {
+                        //success
+                        tms_infof("deleted successfully :3");
+
+                        //remove from the list
+                        gtk_list_store_remove(GTK_LIST_STORE(open_treemodel), &iter);
+                    } else {
+                        //error
+                        tms_errorf("unlink failed");
+
+                        //show error dialog
+                        GtkDialog* error = GTK_DIALOG(gtk_message_dialog_new(
+                            GTK_WINDOW(open_window),
+                            GTK_DIALOG_DESTROY_WITH_PARENT,
+                            GTK_MESSAGE_ERROR,
+                            GTK_BUTTONS_CLOSE,
+                            "Failed to delete the level"
+                        ));
+                        g_signal_connect_swapped(
+                            G_OBJECT(error), "response",
+                            G_CALLBACK(gtk_widget_destroy),
+                            error
+                        );
+                        gtk_dialog_run(error);
+                    }
+                }
+                break;
+            }
+            default: {
+                gtk_widget_hide(GTK_WIDGET(confirm));
+            }
+        }
+        gtk_widget_destroy(GTK_WIDGET(confirm));
     }
 }
 
@@ -9640,6 +9710,7 @@ int _gtk_loop(void *p)
         open_menu = GTK_MENU(gtk_menu_new());
 
         open_menu_information = add_menuitem_m(open_menu, "_Information", open_menu_item_activated);
+        open_menu_delete = add_menuitem_m(open_menu, "_Delete", open_menu_item_activated);
 
         GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
