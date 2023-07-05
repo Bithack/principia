@@ -316,6 +316,8 @@ static ImGuiKey tms_key_to_imgui(int keycode)
     }
 }
 
+//XXX: AddMouseSourceEvent?
+
 /// Returns true if the event needs to be blocked
 bool ui::_imgui_event(tms_event* event) {
     ImGuiIO& io = ImGui::GetIO();
@@ -341,10 +343,13 @@ bool ui::_imgui_event(tms_event* event) {
         case TMS_EV_POINTER_DRAG:
         case TMS_EV_POINTER_MOVE: {
             // why the fuck is the tms y axis upside-down
-            ImVec2 mouse_pos(event->data.motion.x, io.DisplaySize.y - event->data.motion.y);
-            io.AddMousePosEvent(mouse_pos.x, mouse_pos.y);
-            //XXX: AddMouseSourceEvent?
+            io.AddMousePosEvent(event->data.motion.x, io.DisplaySize.y - event->data.motion.y);
+            
             //XXX: Should this be blocked?
+            return io.WantCaptureMouse;
+        }
+        case TMS_EV_POINTER_SCROLL: {
+            io.AddMouseWheelEvent(event->data.scroll.x, event->data.scroll.y);
             return io.WantCaptureMouse;
         }
     }
