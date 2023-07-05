@@ -135,7 +135,7 @@ void ui::alert(const char*, uint8_t/*=ALERT_INFORMATION*/) {};
 
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
-#include "imgui_impl_opengl2.h"
+#include "imgui_impl_opengl3.h"
 #include <stdio.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -148,15 +148,16 @@ void ui::init() {
     ImGui::CreateContext();
 
     //Set flags
-    // ImGuiIO& io = ImGui::GetIO();
+    // ImGuiIO& io = ImGui::GetIO(); (void)io;
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     ImGui::StyleColorsDark();
 
     //Init backend
-    // tms_assertf(_tms._window != NULL, "window does not exist yet");
-    // tms_assertf(SDL_GL_GetCurrentContext() != NULL, "no gl ctx");
-    // ImGui_ImplSDL2_InitForOpenGL((SDL_Window*) _tms._window, SDL_GL_GetCurrentContext());
-    // ImGui_ImplOpenGL2_Init();
+    tms_assertf(_tms._window != NULL, "window does not exist yet");
+    tms_assertf(SDL_GL_GetCurrentContext() != NULL, "no gl ctx");
+    ImGui_ImplSDL2_InitForOpenGL((SDL_Window*) _tms._window, SDL_GL_GetCurrentContext());
+    //TODO: actual glsl version here
+    ImGui_ImplOpenGL3_Init("#version 130");
 }
 
 void ui::open_dialog(int num, void *data/*=0*/) {
@@ -183,8 +184,8 @@ void ui::quit() {
     _tms.state = TMS_STATE_QUITTING;
 
     //Destroy ImGui context
-    // ImGui_ImplOpenGL2_Shutdown();
-    // ImGui_ImplSDL2_Shutdown();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
 }
 
@@ -220,8 +221,8 @@ bool ui::_imgui_event(SDL_Event* event) {
 //XXX: maybe render with tms apis?
 void ui::_imgui_render() {
     //Init
-    // ImGui_ImplOpenGL2_NewFrame();
-    // ImGui_ImplSDL2_NewFrame();
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
     //Layout
@@ -230,7 +231,10 @@ void ui::_imgui_render() {
 
     //Render
     ImGui::Render();
-    //ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
+    glClear(GL_COLOR_BUFFER_BIT);
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 #elif defined(TMS_BACKEND_IOS)

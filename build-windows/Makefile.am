@@ -102,7 +102,7 @@ principia.rc \
 ../src/imgui/imgui_tables.cpp \
 ../src/imgui/imgui_widgets.cpp \
 ../src/imgui/backends/imgui_impl_sdl2.cpp \
-../src/imgui/backends/imgui_impl_opengl2.cpp \
+../src/imgui/backends/imgui_impl_opengl3.cpp \
 \
 ../src/tms/core/atlas.c \
 ../src/tms/core/backend.c \

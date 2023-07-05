@@ -58,3 +58,6 @@ configure~
 build-android/principia/deps
 build-android/deps__
 __pycache__
+
+#imgui state
+imgui.ini
