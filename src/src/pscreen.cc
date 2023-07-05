@@ -367,6 +367,10 @@ pscreen::post_render()
 
     pscreen::message->render(this);
 
+    #if defined(PRINCIPIA_BACKEND_IMGUI) && !defined(NO_UI)
+        ui::_imgui_render();
+    #endif
+    
     return T_OK;
 }
 
