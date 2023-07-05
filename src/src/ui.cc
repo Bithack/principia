@@ -154,8 +154,7 @@ void ui::init() {
     //Init backend
     tms_assertf(_tms._window != NULL, "window does not exist yet");
     tms_assertf(SDL_GL_GetCurrentContext() != NULL, "no gl ctx");
-    //TODO: actual glsl version here
-    ImGui_ImplOpenGL3_Init("#version 130");
+    ImGui_ImplOpenGL3_Init();
 }
 
 void ui::open_dialog(int num, void *data/*=0*/) {
