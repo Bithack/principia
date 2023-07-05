@@ -160,6 +160,11 @@ class ui
             confirm_data cd=confirm_data(CONFIRM_TYPE_DEFAULT)
             );
     static void alert(const char *text, uint8_t alert_type=ALERT_INFORMATION);
+
+    #if defined(PRINCIPIA_BACKEND_IMGUI) && !defined(NO_UI)
+        static void _imgui_render();
+        static bool _imgui_event(SDL_Event* event);
+    #endif
 };
 extern "C" {
 #endif

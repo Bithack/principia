@@ -11,7 +11,8 @@ GLOBAL_FLAGS := -DGL_GLEXT_PROTOTYPES \
 				-DUNICODE \
 				-DTMS_FAST_MATH \
 				-DTMS_BACKEND_WINDOWS \
-				-DTMS_BACKEND_PC
+				-DTMS_BACKEND_PC \
+                -DPRINCIPIA_BACKEND_IMGUI
 
 TMS_PATH = ../src/tms
 ROOT = ../
@@ -35,8 +36,8 @@ GLOBAL_FLAGS += -I../src/tms/backends/windows/ \
     -I/mingw64/include/harfbuzz \
     -I/mingw64/include/pango-1.0 \
     -I../src/gtk-undo \
-	-I../src/lua/ -I../src/include/
-
+	-I../src/lua/ -I../src/include/ \
+    -I../src/imgui -I../src/imgui/backends
 
 principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
 
@@ -94,6 +95,14 @@ principia.rc \
 ../src/luasocket/timeout.c \
 ../src/luasocket/udp.c \
 ../src/luasocket/wsocket.c \
+\
+../src/imgui/imgui.cpp \
+../src/imgui/imgui_demo.cpp \
+../src/imgui/imgui_draw.cpp \
+../src/imgui/imgui_tables.cpp \
+../src/imgui/imgui_widgets.cpp \
+../src/imgui/backends/imgui_impl_sdl2.cpp \
+../src/imgui/backends/imgui_impl_opengl2.cpp \
 \
 ../src/tms/core/atlas.c \
 ../src/tms/core/backend.c \
@@ -376,4 +385,3 @@ principia.rc \
 	windres $^ -o $@
 %.o : %.rc
 	windres $^ -o $@
-

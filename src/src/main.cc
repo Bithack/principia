@@ -442,6 +442,10 @@ end(void)
     }
 #endif
 
+    // #if defined(PRINCIPIA_BACKEND_IMGUI) && !defined(NO_UI)
+    //     ui::_imgui_render();
+    // #endif
+
     Uint32 delta = SDL_GetTicks() - time_start;
     //tms_infof("MAIN render time: %u", delta);
 }
