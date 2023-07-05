@@ -3236,11 +3236,6 @@ game::render_gui(void)
                 knob_x, knob_y);
     }
 
-    //HACK: this function should only ever render principia ui widgets but imgui just works (tm) here
-    #if defined(PRINCIPIA_BACKEND_IMGUI) && !defined(NO_UI)
-        ui::_imgui_render();
-    #endif
-
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_BLEND);
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render_gui end", ierr);
