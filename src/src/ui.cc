@@ -140,6 +140,11 @@ void ui::alert(const char*, uint8_t/*=ALERT_INFORMATION*/) {};
 #include <SDL_opengl.h>
 #include <SDL_syswm.h>
 
+static bool show_demo_window = true;
+
+static bool tips_open = false;
+static bool tips_dontask = false;
+
 int prompt_is_open = 0;
 
 void ui::init() {
@@ -151,6 +156,8 @@ void ui::init() {
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
     io.ConfigInputTrickleEventQueue = false;
+    io.ConfigWindowsResizeFromEdges = true; //XXX: not active until custom cursors are implemented...
+    io.ConfigDragClickToInputText = true;
     ImGui::StyleColorsDark();
 
     //Setup PlatformHandleRaw
@@ -176,7 +183,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
 }
 
 void ui::open_sandbox_tips() {
-    //TODO
+    ctip = 0;
+    tips_open = true;
+    tips_dontask = false;
 }
 
 void ui::open_url(const char *url) {
@@ -192,11 +201,10 @@ void ui::emit_signal(int num, void *data/*=0*/) {
 }
 
 void ui::quit() {
-    _tms.state = TMS_STATE_QUITTING;
-
     //Destroy ImGui context
     ImGui_ImplOpenGL3_Shutdown();
     ImGui::DestroyContext();
+    _tms.state = TMS_STATE_QUITTING;
 }
 
 void ui::set_next_action(int action_id) {
@@ -222,10 +230,18 @@ void ui::alert(const char*, uint8_t/*=ALERT_INFORMATION*/) {
     //TODO
 }
 
-static ImGuiKey tms_key_to_imgui(int keycode)
-{
-    switch (keycode)
-    {
+static int tms_mouse_button_to_imgui(int btn) {
+    switch (btn) {
+        case 1: return 0;
+        case 2: return 2;
+        case 3: return 1;
+        //TODO: other btns
+        default: return -1;
+    }
+}
+
+static ImGuiKey tms_key_to_imgui(int keycode) {
+    switch (keycode) {
         case TMS_KEY_NONE: return ImGuiKey_None;
         case TMS_KEY_A: return ImGuiKey_A;
         case TMS_KEY_B: return ImGuiKey_B;
@@ -324,6 +340,7 @@ bool ui::_imgui_event(tms_event* event) {
     switch (event->type) {
         case TMS_EV_KEY_DOWN:
         case TMS_EV_KEY_UP: {
+            //TODO fix this:
             // io.AddKeyEvent(ImGuiMod_Shift, (event->data.key.mod & (TMS_MOD_LSHIFT | TMS_MOD_RSHIFT)) != 0);
             // io.AddKeyEvent(ImGuiMod_Ctrl, (event->data.key.mod & (TMS_MOD_LCTRL | TMS_MOD_RCTRL)) != 0);
             // io.AddKeyEvent(ImGuiMod_Alt, (event->data.key.mod & (TMS_MOD_LALT | TMS_MOD_RALT)) != 0);
@@ -335,17 +352,16 @@ bool ui::_imgui_event(tms_event* event) {
         }
         case TMS_EV_POINTER_DOWN:
         case TMS_EV_POINTER_UP: {
-            //XXX: Not sure if this is supposed to work directly?
-            int mouse_button = event->data.button.button - 1;
-            io.AddMouseButtonEvent(mouse_button, event->type == TMS_EV_POINTER_DOWN);
+            int mouse_button = tms_mouse_button_to_imgui(event->data.button.button);
+            if (mouse_button >= 0) {
+                io.AddMouseButtonEvent(mouse_button, event->type == TMS_EV_POINTER_DOWN);
+            }
             return io.WantCaptureMouse;
         }
         case TMS_EV_POINTER_DRAG:
         case TMS_EV_POINTER_MOVE: {
             // why the fuck is the tms y axis upside-down
             io.AddMousePosEvent(event->data.motion.x, io.DisplaySize.y - event->data.motion.y);
-            
-            //XXX: Should this be blocked?
             return io.WantCaptureMouse;
         }
         case TMS_EV_POINTER_SCROLL: {
@@ -355,6 +371,39 @@ bool ui::_imgui_event(tms_event* event) {
     }
     return false;
 }
+
+static void _ui() {
+    if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+    
+    //HACK just to make it work //TODO refactor this
+    if (tips_open) ImGui::OpenPopup("Tips and tricks");
+    ImGui::SetNextWindowSize(ImVec2(600., 0.));
+    if (ImGui::BeginPopupModal("Tips and tricks", &tips_open, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
+        ImGui::TextWrapped(tips[ctip]);
+
+        ImGui::Separator();
+
+        ImGui::Checkbox("Don't show again", &tips_dontask);
+        
+        if (ImGui::Button("OK")) {
+            tips_open = false;
+            //TODO handle tips_dontask
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Next")) {
+            ctip++;
+            //TODO wrap around
+        }
+        
+        ImGui::SameLine();
+        if (ImGui::Button("More tips & tricks")) {
+            //TODO open wiki
+        }
+
+        ImGui::EndPopup();
+    }
+}
+
 
 //XXX: maybe render with tms apis?
 void ui::_imgui_render() {
@@ -377,8 +426,7 @@ void ui::_imgui_render() {
     ImGui::NewFrame();
 
     //Layout
-    bool show_demo_window = true;
-    ImGui::ShowDemoWindow(&show_demo_window);
+    _ui();
 
     //Render
     ImGui::Render();
