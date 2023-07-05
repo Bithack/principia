@@ -219,7 +219,6 @@ bool ui::_imgui_event(tms_event* event) {
 void ui::_imgui_render() {
     //Init
     ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
     //Layout
