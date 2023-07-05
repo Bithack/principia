@@ -217,7 +217,20 @@ bool ui::_imgui_event(tms_event* event) {
 
 //XXX: maybe render with tms apis?
 void ui::_imgui_render() {
-    //Init
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    
+    //Update window size
+    int w, h, display_w, display_h;
+    SDL_GetWindowSize((SDL_Window*) _tms._window, &w, &h);
+    if ((w != 0) && (h != 0)) {
+        SDL_GL_GetDrawableSize((SDL_Window*) _tms._window, &display_w, &display_h);
+        io.DisplaySize = ImVec2((float) w, (float) h);
+        io.DisplayFramebufferScale = ImVec2((float) display_w / w, (float) display_h / h);
+    } else {
+        return;
+    }
+
+    //Start frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui::NewFrame();
 
@@ -227,8 +240,6 @@ void ui::_imgui_render() {
 
     //Render
     ImGui::Render();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
