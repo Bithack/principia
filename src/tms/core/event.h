@@ -134,6 +134,7 @@ enum {
     TMS_EV_POINTER_MOVE   = 1 << 7,
     TMS_EV_POINTER_SCROLL = 1 << 8,
     TMS_EV_KEY_REPEAT     = 1 << 9,
+    TMS_EV_TEXT_INPUT     = 1 << 10,
 };
 
 enum {
