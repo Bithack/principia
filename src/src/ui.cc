@@ -134,7 +134,6 @@ void ui::alert(const char*, uint8_t/*=ALERT_INFORMATION*/) {};
 #elif defined(PRINCIPIA_BACKEND_IMGUI)
 
 #include "imgui.h"
-#include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
 #include <SDL.h>
@@ -155,7 +154,6 @@ void ui::init() {
     //Init backend
     tms_assertf(_tms._window != NULL, "window does not exist yet");
     tms_assertf(SDL_GL_GetCurrentContext() != NULL, "no gl ctx");
-    ImGui_ImplSDL2_InitForOpenGL((SDL_Window*) _tms._window, SDL_GL_GetCurrentContext());
     //TODO: actual glsl version here
     ImGui_ImplOpenGL3_Init("#version 130");
 }
@@ -185,7 +183,6 @@ void ui::quit() {
 
     //Destroy ImGui context
     ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
 }
 
@@ -212,9 +209,10 @@ void ui::alert(const char*, uint8_t/*=ALERT_INFORMATION*/) {
     //TODO
 }
 
-bool ui::_imgui_event(SDL_Event* event) {
+/// Returns true if the event needs to be blocked
+bool ui::_imgui_event(tms_event* event) {
+    //TODO handle event
     //TODO handle WantCapture*
-    ImGui_ImplSDL2_ProcessEvent(event);
     return false;
 }
 

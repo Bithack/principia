@@ -163,7 +163,7 @@ class ui
 
     #if defined(PRINCIPIA_BACKEND_IMGUI) && !defined(NO_UI)
         static void _imgui_render();
-        static bool _imgui_event(SDL_Event* event);
+        static bool _imgui_event(tms_event* event);
     #endif
 };
 extern "C" {
