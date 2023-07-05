@@ -148,8 +148,9 @@ void ui::init() {
     ImGui::CreateContext();
 
     //Set flags
-    // ImGuiIO& io = ImGui::GetIO(); (void)io;
-    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+    io.ConfigInputTrickleEventQueue = false;
     ImGui::StyleColorsDark();
 
     //Setup PlatformHandleRaw
@@ -318,25 +319,27 @@ static ImGuiKey tms_key_to_imgui(int keycode)
 /// Returns true if the event needs to be blocked
 bool ui::_imgui_event(tms_event* event) {
     ImGuiIO& io = ImGui::GetIO();
-    bool event_is_down = (event->type | TMS_EV_MASK_DOWN) != 0;
     switch (event->type) {
         case TMS_EV_KEY_DOWN:
         case TMS_EV_KEY_UP: {
-            io.AddKeyEvent(ImGuiMod_Ctrl, (event->data.key.mod & (TMS_MOD_LCTRL | TMS_MOD_RCTRL)) != 0);
-            io.AddKeyEvent(ImGuiMod_Shift, (event->data.key.mod & (TMS_MOD_LSHIFT | TMS_MOD_RSHIFT)) != 0);
-            io.AddKeyEvent(ImGuiMod_Alt, (event->data.key.mod & (TMS_MOD_LALT | TMS_MOD_RALT)) != 0);
-            io.AddKeyEvent(ImGuiMod_Super, (event->data.key.mod & (TMS_MOD_LGUI | TMS_MOD_RGUI)) != 0);
+            // io.AddKeyEvent(ImGuiMod_Shift, (event->data.key.mod & (TMS_MOD_LSHIFT | TMS_MOD_RSHIFT)) != 0);
+            // io.AddKeyEvent(ImGuiMod_Ctrl, (event->data.key.mod & (TMS_MOD_LCTRL | TMS_MOD_RCTRL)) != 0);
+            // io.AddKeyEvent(ImGuiMod_Alt, (event->data.key.mod & (TMS_MOD_LALT | TMS_MOD_RALT)) != 0);
+            // io.AddKeyEvent(ImGuiMod_Super, (event->data.key.mod & (TMS_MOD_LGUI | TMS_MOD_RGUI)) != 0);
             ImGuiKey keycode = tms_key_to_imgui(event->data.key.keycode);
-            io.AddKeyEvent(keycode, event_is_down);
+            io.AddKeyEvent(keycode, event->type == TMS_EV_KEY_DOWN);
             //XXX: we won't bother supporting SetKeyEventNativeData, as it's only used by legacy user code
             return io.WantCaptureKeyboard;
         }
         case TMS_EV_POINTER_DOWN:
-        case TMS_EV_POINTER_UP:
-            //event->data.button.button;
+        case TMS_EV_POINTER_UP: {
+            //XXX: Not sure if this is supposed to work directly?
+            int mouse_button = event->data.button.button - 1;
+            io.AddMouseButtonEvent(mouse_button, event->type == TMS_EV_POINTER_DOWN);
             return io.WantCaptureMouse;
+        }
+        case TMS_EV_POINTER_DRAG:
         case TMS_EV_POINTER_MOVE: {
-            tms_infof("mouse move");
             // why the fuck is the tms y axis upside-down
             ImVec2 mouse_pos(event->data.motion.x, io.DisplaySize.y - event->data.motion.y);
             io.AddMousePosEvent(mouse_pos.x, mouse_pos.y);

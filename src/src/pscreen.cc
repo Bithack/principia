@@ -184,9 +184,13 @@ struct render_sorter
 int
 pscreen::handle_input(tms::event *ev, int action)
 {
-    if (ui::_imgui_event(ev)) {
-        return EVENT_DONE;
-    }
+    #if defined(PRINCIPIA_BACKEND_IMGUI) && !defined(NO_UI)
+        if (ui::_imgui_event(ev)) {
+            tms_infof("event done");
+            return EVENT_DONE;
+        }
+    #endif
+
     if (ev->type == TMS_EV_KEY_PRESS) {
         switch (ev->data.key.keycode) {
 #ifdef DEBUG
