@@ -175,7 +175,7 @@ static void _lvlman_load_levels(int level_type = LEVEL_LOCAL) {
         lvlman_level_list = next;
     }
     //Get a new list of levels
-    lvlman_level_list = pkgman::get_levels();
+    lvlman_level_list = pkgman::get_levels(level_type);
 }
 
 static void _open_ui_lvlman() {
