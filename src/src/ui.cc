@@ -134,7 +134,9 @@ void ui::alert(const char*, uint8_t/*=ALERT_INFORMATION*/) {};
 #elif defined(PRINCIPIA_BACKEND_IMGUI)
 
 #include "imgui.h"
+#include "imgui_stdlib.h"
 #include "imgui_impl_opengl3.h"
+#include <string>
 #include <stdio.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -148,7 +150,25 @@ static bool tips_dontask = false;
 static bool sb_menu_do_open = false;
 static b2Vec2 sb_position = b2Vec2_zero;
 
+static bool lvlman_do_open = false;
+static std::string lvlman_lvl_name{""};
+static std::string lvlman_search{""};
+static lvlfile *lvlman_level_list = nullptr;
+
 int prompt_is_open = 0;
+
+static void _open_ui_tips(int tip = 0) {
+    ctip = tip;
+    tips_dontask = false;
+    tips_do_open = true;
+}
+
+static void _open_ui_lvlman() {
+    lvlman_level_list = pkgman::get_levels(LEVEL_LOCAL);
+    lvlman_lvl_name = "";
+    lvlman_search = "";
+    lvlman_do_open = true;
+}
 
 void ui::init() {
     //Create context
@@ -191,9 +211,7 @@ void ui::open_dialog(int num, void *data/*=0*/) {
 }
 
 void ui::open_sandbox_tips() {
-    ctip = 0;
-    tips_do_open = true;
-    tips_dontask = false;
+    _open_ui_tips();
 }
 
 void ui::open_url(const char *url) {
@@ -349,14 +367,31 @@ bool ui::_imgui_event(tms_event* event) {
         case TMS_EV_KEY_DOWN:
         case TMS_EV_KEY_UP: {
             //TODO fix this:
-            // io.AddKeyEvent(ImGuiMod_Shift, (event->data.key.mod & (TMS_MOD_LSHIFT | TMS_MOD_RSHIFT)) != 0);
-            // io.AddKeyEvent(ImGuiMod_Ctrl, (event->data.key.mod & (TMS_MOD_LCTRL | TMS_MOD_RCTRL)) != 0);
-            // io.AddKeyEvent(ImGuiMod_Alt, (event->data.key.mod & (TMS_MOD_LALT | TMS_MOD_RALT)) != 0);
-            // io.AddKeyEvent(ImGuiMod_Super, (event->data.key.mod & (TMS_MOD_LGUI | TMS_MOD_RGUI)) != 0);
+            // io.AddKeyEvent(ImGuiMod_Shift, (event->data.key.mod & TMS_MOD_SHIFT) != 0);
+            // io.AddKeyEvent(ImGuiMod_Ctrl, (event->data.key.mod & TMS_MOD_CTRL) != 0);
+            // io.AddKeyEvent(ImGuiMod_Alt, (event->data.key.mod & TMS_MOD_ALT) != 0);
+            // io.AddKeyEvent(ImGuiMod_Super, (event->data.key.mod & TMS_MOD_GUI) != 0);
+
             ImGuiKey keycode = tms_key_to_imgui(event->data.key.keycode);
             io.AddKeyEvent(keycode, event->type == TMS_EV_KEY_DOWN);
+
+            //HACK: update modifiers based on key state, because tms data.key.mod appears to be broken
+            if ((keycode == ImGuiKey_RightShift) || (keycode == ImGuiKey_LeftShift)) {
+                io.AddKeyEvent(ImGuiMod_Shift, event->type == TMS_EV_KEY_DOWN);
+            }
+            if ((keycode == ImGuiKey_RightCtrl) || (keycode == ImGuiKey_LeftCtrl)) {
+                io.AddKeyEvent(ImGuiMod_Ctrl, event->type == TMS_EV_KEY_DOWN);
+            }
+            if ((keycode == ImGuiKey_RightAlt) || (keycode == ImGuiKey_LeftAlt)) {
+                io.AddKeyEvent(ImGuiMod_Alt, event->type == TMS_EV_KEY_DOWN);
+            }
+            if ((keycode == ImGuiKey_RightSuper) || (keycode == ImGuiKey_LeftSuper)) {
+                io.AddKeyEvent(ImGuiMod_Super, event->type == TMS_EV_KEY_DOWN);
+            }
             //XXX: we won't bother supporting SetKeyEventNativeData, as it's only used by legacy user code
+
             return io.WantCaptureKeyboard;
+        
         }
         case TMS_EV_POINTER_DOWN:
         case TMS_EV_POINTER_UP: {
@@ -380,8 +415,14 @@ bool ui::_imgui_event(tms_event* event) {
     return false;
 }
 
+static void ImGui_AlignNextWindow(float x = 0.5f, float y = 0.5f) {
+    ImGuiIO& io = ImGui::GetIO();
+    ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * x, io.DisplaySize.y * y), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+}
+
 static void _ui() {
     ImGuiIO& io = ImGui::GetIO();
+    bool p = true;
 
     // === DEMO WINDOW ===
     if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
@@ -392,8 +433,9 @@ static void _ui() {
         ImGui::OpenPopup("Tips and tricks");
     }
     ImGui::SetNextWindowSize(ImVec2(600., 0.));
-    ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
-    if (ImGui::BeginPopupModal("Tips and tricks", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
+    ImGui_AlignNextWindow();
+    p = true;
+    if (ImGui::BeginPopupModal("Tips and tricks", &p, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
         ImGui::TextWrapped(tips[ctip]);
 
         ImGui::Separator();
@@ -417,9 +459,6 @@ static void _ui() {
 
         ImGui::EndPopup();
     }
-    
-    // === SAVE LIST ===
-    //TODO
 
     // === SANDBOX MENU ===
     if (sb_menu_do_open) {
@@ -442,15 +481,22 @@ static void _ui() {
         }
         ImGui::SetItemTooltip("Upload your level to %s", P.community_host);
         
-        bool is_save_copy = io.KeyShift;
-        if (ImGui::MenuItem(is_save_copy ? "Save (copy)" : "Save")) {
-            //TODO
+        // bool is_save_copy = io.KeyShift;
+        // if (ImGui::MenuItem(is_save_copy ? "Save (copy)" : "Save")) {
+        //     //TODO
+        // }
+        // ImGui::SetItemTooltip(
+        //     is_save_copy ?
+        //     "Save your level locally as a copy" :
+        //     "Save your level locally\n(Hold Shift to save as a copy)"
+        // );
+        
+        if (ImGui::MenuItem("Open/Save")) {
+            _open_ui_lvlman();
         }
-        ImGui::SetItemTooltip("Save your level locally\nHold Shift to save as a copy");
-
-        ImGui::Separator();
 
         if (ImGui::BeginMenu("New level")) {
+            //TODO: level type description tooltips
             if (ImGui::MenuItem("Custom")) {
                 P.add_action(ACTION_NEW_LEVEL, LCAT_CUSTOM);
             }
@@ -470,6 +516,87 @@ static void _ui() {
             P.add_action(ACTION_GOTO_MAINMENU, 0);
         };
 
+        ImGui::EndPopup();
+    }
+
+    // === LEVEL MANAGER ===
+    if (lvlman_do_open) {
+        lvlman_do_open = false;
+        ImGui::OpenPopup("Level manager");
+    }
+    ImGui::SetNextWindowSize(ImVec2(0., 600.));
+    ImGui_AlignNextWindow();
+    p = true;
+    if (ImGui::BeginPopupModal("Level manager", &p, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
+        bool saving_forbidden = !G->state.sandbox;
+        ImGui::InputTextWithHint("##LvlmanSearch", "Search", &lvlman_search);
+        if (ImGui::BeginTable("save_list", 4)) {
+            ImGui::TableSetupColumn("ID");
+            ImGui::TableSetupColumn("Name");
+            ImGui::TableSetupColumn("Last modified");
+            ImGui::TableSetupColumn("Actions");
+            ImGui::TableHeadersRow();
+
+            ImGui::TableNextRow();
+            if (ImGui::TableNextColumn()) {
+                ImGui::Text("-");
+            };
+            if (ImGui::TableNextColumn()) {
+                ImGui::InputTextWithHint("##LvlmanLevelName", "Level name", &lvlman_lvl_name);
+            }
+            if (ImGui::TableNextColumn()) {
+                ImGui::Text("-");
+            }
+            if (ImGui::TableNextColumn()) {
+                ImGui::BeginDisabled(saving_forbidden);
+                ImGui::Button("Save");
+                ImGui::EndDisabled();
+            }
+
+            //TODO get_levels is probably pretty slow...
+            lvlfile *level = lvlman_level_list;
+            while (level) {
+                if (
+                    (lvlman_search.length() > 0) &&
+                    (std::string(level->name).find(lvlman_search) == std::string::npos)
+                ) {
+                    continue;
+                }
+                ImGui::TableNextRow();
+                if (ImGui::TableNextColumn()) {
+                    ImGui::Text("%d", level->id);
+                }
+                if (ImGui::TableNextColumn()) {
+                    ImGui::SetNextItemWidth(300.);
+                    ImGui::LabelText("", "%s", level->name);
+                }
+                if (ImGui::TableNextColumn()) {
+                    ImGui::Text("%s", level->modified_date);
+                }
+                if (ImGui::TableNextColumn()) {
+                    ImGui::Button("Delete");
+
+                    ImGui::SameLine();
+                    ImGui::BeginDisabled(saving_forbidden);
+                    ImGui::Button("Overwrite"); //TODO: "Update" for current level
+                    ImGui::EndDisabled();
+
+                    ImGui::SameLine();
+                    if (ImGui::Button("Play")) {
+                        G->open_play(level->id_type, level->id, NULL);
+                        ImGui::CloseCurrentPopup();
+                    }
+                    
+                    ImGui::SameLine();
+                    if (ImGui::Button("Edit")) {
+                        G->open_sandbox(level->id_type, level->id);
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+                level = level->next;
+            }
+            ImGui::EndTable();
+        }
         ImGui::EndPopup();
     }
 }

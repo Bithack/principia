@@ -37,7 +37,7 @@ GLOBAL_FLAGS += -I../src/tms/backends/windows/ \
     -I/mingw64/include/pango-1.0 \
     -I../src/gtk-undo \
 	-I../src/lua/ -I../src/include/ \
-    -I../src/imgui -I../src/imgui/backends
+    -I../src/imgui -I../src/imgui/backends -I../src/imgui/misc/cpp
 
 principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
 
@@ -102,6 +102,7 @@ principia.rc \
 ../src/imgui/imgui_tables.cpp \
 ../src/imgui/imgui_widgets.cpp \
 ../src/imgui/backends/imgui_impl_opengl3.cpp \
+../src/imgui/misc/cpp/imgui_stdlib.cpp \
 \
 ../src/tms/core/atlas.c \
 ../src/tms/core/backend.c \
