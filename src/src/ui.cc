@@ -550,7 +550,7 @@ static void _ui() {
 
         ImGui::SameLine();
         ImGui::BeginDisabled(saving_forbidden);
-        ImGui::Button("Save");
+        ImGui::Button("Save as...");
         ImGui::EndDisabled();
 
         ImGui::SameLine();
@@ -561,10 +561,11 @@ static void _ui() {
         
         ImGui::Separator();
 
-        if (ImGui::BeginTable("save_list", 4, ImGuiTableFlags_BordersInnerV)) {
+        if (ImGui::BeginTable("save_list", 5, ImGuiTableFlags_BordersInnerV)) {
             ImGui::TableSetupColumn("ID");
             ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);
             ImGui::TableSetupColumn("Last modified");
+            ImGui::TableSetupColumn("Version");
             ImGui::TableSetupColumn("Actions");
             ImGui::TableHeadersRow();
 
@@ -588,13 +589,24 @@ static void _ui() {
 
                 //Name
                 if (ImGui::TableNextColumn()) {
-                    //ImGui::SetNextItemWidth(300.);
+                    ImGui::SetNextItemWidth(999.);
                     ImGui::LabelText("", "%s", level->name);
                 }
 
                 //Modified date
                 if (ImGui::TableNextColumn()) {
                     ImGui::Text("%s", level->modified_date);
+                }
+
+                //Version
+                if (ImGui::TableNextColumn()) {
+                    const char* version_str = level_version_string(level->version);
+                    if (version_str == "unknown_version") {
+                        version_str = "unknown";
+                    } else if (version_str == "old_level") {
+                        version_str = "old";
+                    }
+                    ImGui::Text("%s (%d)", version_str, level->version);
                 }
 
                 //Actions
