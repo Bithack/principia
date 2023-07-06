@@ -530,18 +530,13 @@ static void _ui() {
         ImGui::OpenPopup("Level manager");
     }
     //TODO: set max height instead
-    ImGui::SetNextWindowSize(ImVec2(0., 600.));
+    ImGui::SetNextWindowSize(ImVec2(800., 600.));
     ImGui_AlignNextWindow();
     p = true;
     if (ImGui::BeginPopupModal("Level manager", &p, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
         bool saving_forbidden = !G->state.sandbox;
         bool any_level_found = false;
 
-        ImGui::PushItemWidth(200.);
-        ImGui::InputTextWithHint("##LvlmanSearch", "Search", &lvlman_search);
-        ImGui::PopItemWidth();
-
-        ImGui::SameLine();
         ImGui::PushItemWidth(200.);
         ImGui::InputTextWithHint("##LvlmanLevelName", "Level name", &lvlman_lvl_name);
         ImGui::PopItemWidth();
@@ -551,11 +546,17 @@ static void _ui() {
         ImGui::Button("Save");
         ImGui::EndDisabled();
 
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 203.);
+        ImGui::PushItemWidth(200.);
+        ImGui::InputTextWithHint("##LvlmanSearch", "Search", &lvlman_search);
+        ImGui::PopItemWidth();
+        
         ImGui::Separator();
 
-        if (ImGui::BeginTable("save_list", 4)) {
+        if (ImGui::BeginTable("save_list", 4, ImGuiTableFlags_BordersInnerV)) {
             ImGui::TableSetupColumn("ID");
-            ImGui::TableSetupColumn("Name");
+            ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);
             ImGui::TableSetupColumn("Last modified");
             ImGui::TableSetupColumn("Actions");
             ImGui::TableHeadersRow();
@@ -580,7 +581,7 @@ static void _ui() {
 
                 //Name
                 if (ImGui::TableNextColumn()) {
-                    ImGui::SetNextItemWidth(300.);
+                    //ImGui::SetNextItemWidth(300.);
                     ImGui::LabelText("", "%s", level->name);
                 }
 
