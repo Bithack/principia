@@ -569,6 +569,7 @@ static void _ui() {
             ImGui::TableHeadersRow();
 
             lvlfile *level = lvlman_level_list;
+            
             while (level) {
                 //Search
                 if ((lvlman_lvl_name.length() > 0) && !(
@@ -578,7 +579,9 @@ static void _ui() {
                     level = level->next;
                     continue;
                 }
-                
+
+                ImGui::PushID(level->id);
+
                 ImGui::TableNextRow();
 
                 //ID
@@ -610,21 +613,25 @@ static void _ui() {
 
                 //Actions
                 if (ImGui::TableNextColumn()) {
-                    ImGui::Button("Delete");
+                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, io.KeyShift ? 1. : .5);
+                    if (ImGui::Button("Delete##delete-sandbox-level")) {
+                        if (io.KeyShift) {
+                            if (G->delete_level(level->id_type, level->id, level->save_id)) {
+                                lvlman_level_list = pkgman::get_levels(LEVEL_LOCAL);
+                            };
+                        }
+                    };
+                    ImGui::PopStyleVar();
+                    if (!io.KeyShift) ImGui::SetItemTooltip("Hold Shift to enable");
 
-                    // ImGui::SameLine();
-                    // ImGui::BeginDisabled(saving_forbidden);
-                    // ImGui::Button("Overwrite"); //TODO: "Update" for current level
-                    // ImGui::EndDisabled();
-
-                    // ImGui::SameLine();
-                    // if (ImGui::Button("Play")) {
-                    //     G->open_play(level->id_type, level->id, NULL);
-                    //     ImGui::CloseCurrentPopup();
-                    // }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Play##play-sandbox-level")) {
+                        G->open_play(level->id_type, level->id, NULL);
+                        ImGui::CloseCurrentPopup();
+                    }
                     
                     ImGui::SameLine();
-                    if (ImGui::Button("Open")) {
+                    if (ImGui::Button("Open level")) {
                         tms_infof("editing level");
                         G->open_sandbox(level->id_type, level->id);
                         ImGui::CloseCurrentPopup();
@@ -633,6 +640,8 @@ static void _ui() {
 
                 level = level->next;
                 any_level_found = true;
+
+                ImGui::PopID();
             }
             ImGui::EndTable();
         }
