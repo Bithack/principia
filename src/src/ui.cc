@@ -550,7 +550,7 @@ static void _ui() {
         ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (200. + 75. + 30.));
         
         ImGui::PushItemWidth(200.);
-        ImGui::InputTextWithHint("##LvlmanLevelName", "Level name/Search", &lvlman_lvl_name);
+        ImGui::InputTextWithHint("##LvlmanLevelName", "Level name", &lvlman_lvl_name);
         ImGui::PopItemWidth();
 
         ImGui::SameLine();
