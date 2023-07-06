@@ -529,13 +529,29 @@ static void _ui() {
         lvlman_do_open = false;
         ImGui::OpenPopup("Level manager");
     }
+    //TODO: set max height instead
     ImGui::SetNextWindowSize(ImVec2(0., 600.));
     ImGui_AlignNextWindow();
     p = true;
     if (ImGui::BeginPopupModal("Level manager", &p, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
         bool saving_forbidden = !G->state.sandbox;
+        bool any_level_found = false;
 
+        ImGui::PushItemWidth(200.);
         ImGui::InputTextWithHint("##LvlmanSearch", "Search", &lvlman_search);
+        ImGui::PopItemWidth();
+
+        ImGui::SameLine();
+        ImGui::PushItemWidth(200.);
+        ImGui::InputTextWithHint("##LvlmanLevelName", "Level name", &lvlman_lvl_name);
+        ImGui::PopItemWidth();
+
+        ImGui::SameLine();
+        ImGui::BeginDisabled(saving_forbidden);
+        ImGui::Button("Save");
+        ImGui::EndDisabled();
+
+        ImGui::Separator();
 
         if (ImGui::BeginTable("save_list", 4)) {
             ImGui::TableSetupColumn("ID");
@@ -544,43 +560,36 @@ static void _ui() {
             ImGui::TableSetupColumn("Actions");
             ImGui::TableHeadersRow();
 
-            ImGui::TableNextRow();
-            if (ImGui::TableNextColumn()) {
-                ImGui::Text("-");
-            };
-            if (ImGui::TableNextColumn()) {
-                ImGui::InputTextWithHint("##LvlmanLevelName", "Level name", &lvlman_lvl_name);
-            }
-            if (ImGui::TableNextColumn()) {
-                ImGui::Text("-");
-            }
-            if (ImGui::TableNextColumn()) {
-                ImGui::BeginDisabled(saving_forbidden);
-                ImGui::Button("Save");
-                ImGui::EndDisabled();
-            }
-
-            //TODO get_levels is probably pretty slow...
             lvlfile *level = lvlman_level_list;
             while (level) {
-                if (
-                    (lvlman_search.length() > 0) &&
-                    (std::string(level->name).find(lvlman_search) == std::string::npos)
-                ) {
+                //Search
+                if ((lvlman_search.length() > 0) && !(
+                    (std::string(level->name).find(lvlman_search) != std::string::npos) ||
+                    (std::to_string(level->id).find(lvlman_search) != std::string::npos)
+                )) {
                     level = level->next;
                     continue;
                 }
+                
                 ImGui::TableNextRow();
+
+                //ID
                 if (ImGui::TableNextColumn()) {
                     ImGui::Text("%d", level->id);
                 }
+
+                //Name
                 if (ImGui::TableNextColumn()) {
                     ImGui::SetNextItemWidth(300.);
                     ImGui::LabelText("", "%s", level->name);
                 }
+
+                //Modified date
                 if (ImGui::TableNextColumn()) {
                     ImGui::Text("%s", level->modified_date);
                 }
+
+                //Actions
                 if (ImGui::TableNextColumn()) {
                     ImGui::Button("Delete");
 
@@ -601,9 +610,14 @@ static void _ui() {
                         ImGui::CloseCurrentPopup();
                     }
                 }
+
                 level = level->next;
+                any_level_found = true;
             }
             ImGui::EndTable();
+        }
+        if (!any_level_found) {
+            ImGui::Text("No levels found");
         }
         ImGui::EndPopup();
     }
