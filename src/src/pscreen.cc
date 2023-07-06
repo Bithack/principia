@@ -186,7 +186,6 @@ pscreen::handle_input(tms::event *ev, int action)
 {
     #if defined(PRINCIPIA_BACKEND_IMGUI) && !defined(NO_UI)
         if (ui::_imgui_event(ev)) {
-            tms_infof("event done");
             return EVENT_DONE;
         }
     #endif

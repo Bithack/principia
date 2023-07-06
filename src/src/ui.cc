@@ -625,6 +625,7 @@ static void _ui() {
                     
                     ImGui::SameLine();
                     if (ImGui::Button("Edit")) {
+                        tms_logf("editing level");
                         G->open_sandbox(level->id_type, level->id);
                         ImGui::CloseCurrentPopup();
                     }
