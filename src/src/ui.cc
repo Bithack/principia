@@ -534,7 +534,9 @@ static void _ui() {
     p = true;
     if (ImGui::BeginPopupModal("Level manager", &p, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
         bool saving_forbidden = !G->state.sandbox;
+
         ImGui::InputTextWithHint("##LvlmanSearch", "Search", &lvlman_search);
+
         if (ImGui::BeginTable("save_list", 4)) {
             ImGui::TableSetupColumn("ID");
             ImGui::TableSetupColumn("Name");
@@ -565,6 +567,7 @@ static void _ui() {
                     (lvlman_search.length() > 0) &&
                     (std::string(level->name).find(lvlman_search) == std::string::npos)
                 ) {
+                    level = level->next;
                     continue;
                 }
                 ImGui::TableNextRow();
