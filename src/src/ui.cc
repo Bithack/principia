@@ -638,8 +638,16 @@ static void _ui() {
                     
                     ImGui::SameLine();
                     if (ImGui::Button("Open level")) {
-                        //XXX: this only works for local levels
-                        P.add_action(ACTION_OPEN, level->id);
+                        if (level->id_type == LEVEL_LOCAL) {
+                            //Use ACTION_OPEN if possible
+                            P.add_action(ACTION_OPEN, level->id);
+                        } else {
+                            //Otherwise, load the level and switch the screen manually
+                            G->lock();
+                            G->open_sandbox(level->id_type, level->id);
+                            tms::set_screen(G);
+                            G->unlock();
+                        }
                         ImGui::CloseCurrentPopup();
                     }
                 }
