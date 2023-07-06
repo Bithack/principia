@@ -167,8 +167,19 @@ static void _open_ui_tips(int tip = 0) {
     tips_do_open = true;
 }
 
+static void _lvlman_load_levels(int level_type = LEVEL_LOCAL) {
+    //Recursively deallocate the linked list
+    while (lvlman_level_list) {
+        lvlfile* next = lvlman_level_list->next;
+        delete lvlman_level_list;
+        lvlman_level_list = next;
+    }
+    //Get a new list of levels
+    lvlman_level_list = pkgman::get_levels();
+}
+
 static void _open_ui_lvlman() {
-    lvlman_level_list = pkgman::get_levels(LEVEL_LOCAL);
+    _lvlman_load_levels();
     lvlman_lvl_name = "";
     lvlman_do_open = true;
 }
@@ -617,7 +628,7 @@ static void _ui() {
                     if (ImGui::Button("Delete##delete-sandbox-level")) {
                         if (io.KeyShift) {
                             if (G->delete_level(level->id_type, level->id, level->save_id)) {
-                                lvlman_level_list = pkgman::get_levels(LEVEL_LOCAL);
+                                _lvlman_load_levels();
                             };
                         }
                     };
