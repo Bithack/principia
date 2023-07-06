@@ -142,8 +142,11 @@ void ui::alert(const char*, uint8_t/*=ALERT_INFORMATION*/) {};
 
 static bool show_demo_window = true;
 
-static bool tips_open = false;
+static bool tips_do_open = false;
 static bool tips_dontask = false;
+
+static bool sb_menu_do_open = false;
+static b2Vec2 sb_position = b2Vec2_zero;
 
 int prompt_is_open = 0;
 
@@ -179,12 +182,17 @@ void ui::init() {
 }
 
 void ui::open_dialog(int num, void *data/*=0*/) {
-    //TODO
+    switch (num) {
+        case DIALOG_SANDBOX_MENU:
+            sb_menu_do_open = true;
+            sb_position = G->get_last_cursor_pos(0);
+            break;
+    }
 }
 
 void ui::open_sandbox_tips() {
     ctip = 0;
-    tips_open = true;
+    tips_do_open = true;
     tips_dontask = false;
 }
 
@@ -373,12 +381,19 @@ bool ui::_imgui_event(tms_event* event) {
 }
 
 static void _ui() {
+    ImGuiIO& io = ImGui::GetIO();
+
+    // === DEMO WINDOW ===
     if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
     
-    //HACK just to make it work //TODO refactor this
-    if (tips_open) ImGui::OpenPopup("Tips and tricks");
+    // === TIPS AND TRICKS ===
+    if (tips_do_open) {
+        tips_do_open = false;
+        ImGui::OpenPopup("Tips and tricks");
+    }
     ImGui::SetNextWindowSize(ImVec2(600., 0.));
-    if (ImGui::BeginPopupModal("Tips and tricks", &tips_open, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
+    ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
+    if (ImGui::BeginPopupModal("Tips and tricks", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
         ImGui::TextWrapped(tips[ctip]);
 
         ImGui::Separator();
@@ -386,19 +401,74 @@ static void _ui() {
         ImGui::Checkbox("Don't show again", &tips_dontask);
         
         if (ImGui::Button("OK")) {
-            tips_open = false;
+            ImGui::CloseCurrentPopup();
             //TODO handle tips_dontask
         }
         ImGui::SameLine();
         if (ImGui::Button("Next")) {
-            ctip++;
-            //TODO wrap around
+            ctip += 1;
+            ctip %= num_tips;
         }
         
         ImGui::SameLine();
         if (ImGui::Button("More tips & tricks")) {
             //TODO open wiki
         }
+
+        ImGui::EndPopup();
+    }
+    
+    // === SAVE LIST ===
+    //TODO
+
+    // === SANDBOX MENU ===
+    if (sb_menu_do_open) {
+        sb_menu_do_open = false;
+        ImGui::OpenPopup("sandbox_menu");
+    }
+    if (ImGui::BeginPopup("sandbox_menu", ImGuiWindowFlags_NoMove)) {
+        //ImGui::SeparatorText("Sandbox menu");
+
+        ImGui::Text("Position: (%.2f, %.2f)", sb_position.x, sb_position.y);
+
+        ImGui::Separator();
+
+        if (ImGui::MenuItem("Level properties")) {
+            //TODO
+        }
+
+        if (ImGui::MenuItem("Publish online")) {
+            //TODO
+        }
+        ImGui::SetItemTooltip("Upload your level to %s", P.community_host);
+        
+        bool is_save_copy = io.KeyShift;
+        if (ImGui::MenuItem(is_save_copy ? "Save (copy)" : "Save")) {
+            //TODO
+        }
+        ImGui::SetItemTooltip("Save your level locally\nHold Shift to save as a copy");
+
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("New level")) {
+            if (ImGui::MenuItem("Custom")) {
+                P.add_action(ACTION_NEW_LEVEL, LCAT_CUSTOM);
+            }
+            if (ImGui::MenuItem("Empty Adventure")) {
+                P.add_action(ACTION_NEW_LEVEL, LCAT_ADVENTURE);
+            }
+            if (ImGui::MenuItem("Adventure")) {
+                P.add_action(ACTION_NEW_GENERATED_LEVEL, LCAT_ADVENTURE);
+            }
+            if (ImGui::MenuItem("Puzzle")) {
+                P.add_action(ACTION_NEW_LEVEL, LCAT_PUZZLE);
+            }
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::MenuItem("Back to menu")) {
+            P.add_action(ACTION_GOTO_MAINMENU, 0);
+        };
 
         ImGui::EndPopup();
     }
