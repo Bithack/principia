@@ -612,16 +612,16 @@ static void _ui() {
                 if (ImGui::TableNextColumn()) {
                     ImGui::Button("Delete");
 
-                    ImGui::SameLine();
-                    ImGui::BeginDisabled(saving_forbidden);
-                    ImGui::Button("Overwrite"); //TODO: "Update" for current level
-                    ImGui::EndDisabled();
+                    // ImGui::SameLine();
+                    // ImGui::BeginDisabled(saving_forbidden);
+                    // ImGui::Button("Overwrite"); //TODO: "Update" for current level
+                    // ImGui::EndDisabled();
 
-                    ImGui::SameLine();
-                    if (ImGui::Button("Play")) {
-                        G->open_play(level->id_type, level->id, NULL);
-                        ImGui::CloseCurrentPopup();
-                    }
+                    // ImGui::SameLine();
+                    // if (ImGui::Button("Play")) {
+                    //     G->open_play(level->id_type, level->id, NULL);
+                    //     ImGui::CloseCurrentPopup();
+                    // }
                     
                     ImGui::SameLine();
                     if (ImGui::Button("Edit")) {
