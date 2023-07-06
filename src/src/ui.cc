@@ -408,8 +408,7 @@ bool ui::_imgui_event(tms_event* event) {
             }
             //XXX: we won't bother supporting SetKeyEventNativeData, as it's only used by legacy user code
 
-            return io.WantCaptureKeyboard;
-        
+            return io.WantTextInput || io.WantCaptureKeyboard;
         }
         case TMS_EV_POINTER_DOWN:
         case TMS_EV_POINTER_UP: {
@@ -431,7 +430,7 @@ bool ui::_imgui_event(tms_event* event) {
         }
         case TMS_EV_TEXT_INPUT: {
             io.AddInputCharactersUTF8(event->data.text.text);
-            return io.WantCaptureKeyboard;
+            return io.WantTextInput || io.WantCaptureKeyboard;
         }
     }
     return false;
