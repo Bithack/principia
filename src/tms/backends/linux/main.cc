@@ -248,6 +248,10 @@ main(int argc, char **argv)
                 //case SDL_INPUTMOTION:
                     T_intercept_input(ev);
                     break;
+
+                case SDL_TEXTINPUT:
+                    T_intercept_input(ev);
+                    break;
             }
         }
 
@@ -723,7 +727,7 @@ T_intercept_input(SDL_Event ev)
 
         case SDL_TEXTINPUT:
             spec.type = TMS_EV_TEXT_INPUT;
-            std::copy(spec.data.text.text, spec.data.text.text + 32, ev.text.text);
+            std::copy(ev.text.text, ev.text.text + 32, spec.data.text.text);
             break;
     }
 

@@ -365,7 +365,7 @@ bool ui::_imgui_event(tms_event* event) {
     ImGuiIO& io = ImGui::GetIO();
     switch (event->type) {
         //TODO handle touch events
-        
+
         case TMS_EV_KEY_DOWN:
         case TMS_EV_KEY_UP: {
             //TODO fix this:
@@ -412,6 +412,9 @@ bool ui::_imgui_event(tms_event* event) {
         case TMS_EV_POINTER_SCROLL: {
             io.AddMouseWheelEvent(event->data.scroll.x, event->data.scroll.y);
             return io.WantCaptureMouse;
+        }
+        case TMS_EV_TEXT_INPUT: {
+            io.AddInputCharactersUTF8(event->data.text.text);
         }
     }
     return false;

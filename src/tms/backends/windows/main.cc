@@ -458,6 +458,10 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
                     }
                     break;
 
+                case SDL_TEXTINPUT:
+                    T_intercept_input(ev);
+                    break;
+                
                 default:
                     tms_infof("Unhandled input: %d", ev.type);
                     break;
@@ -815,7 +819,7 @@ T_intercept_input(SDL_Event ev)
 
         case SDL_TEXTINPUT:
             spec.type = TMS_EV_TEXT_INPUT;
-            std::copy(spec.data.text.text, spec.data.text.text + 32, ev.text.text);
+            std::copy(ev.text.text, ev.text.text + 32, spec.data.text.text);
             break;
     }
 
