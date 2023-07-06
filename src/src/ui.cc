@@ -157,7 +157,7 @@ static lvlfile *lvlman_level_list = nullptr;
 
 int prompt_is_open = 0;
 
-static void _open_ui_sb_menu(int tip = 0) {
+static void _open_ui_sb_menu() {
     sb_menu_do_open = true;
     sb_position = G->get_last_cursor_pos(0);
 }
