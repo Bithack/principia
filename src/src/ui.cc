@@ -364,6 +364,8 @@ static ImGuiKey tms_key_to_imgui(int keycode) {
 bool ui::_imgui_event(tms_event* event) {
     ImGuiIO& io = ImGui::GetIO();
     switch (event->type) {
+        //TODO handle touch events
+        
         case TMS_EV_KEY_DOWN:
         case TMS_EV_KEY_UP: {
             //TODO fix this:

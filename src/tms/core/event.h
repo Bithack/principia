@@ -172,7 +172,7 @@ struct tms_key {
 };
 
 struct tms_text_input {
-    char[32] text;
+    char text[32];
 };
 
 struct tms_event {

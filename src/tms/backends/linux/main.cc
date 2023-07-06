@@ -723,7 +723,7 @@ T_intercept_input(SDL_Event ev)
 
         case SDL_TEXTINPUT:
             spec.type = TMS_EV_TEXT_INPUT;
-            spec.data.text.text = ev.text.text;
+            std::copy(spec.data.text.text, spec.data.text.text + 32, ev.text.text);
             break;
     }
 
