@@ -171,6 +171,10 @@ struct tms_key {
     uint16_t mod;
 };
 
+struct tms_text_input {
+    char[32] text;
+};
+
 struct tms_event {
     int  type;
     union {
@@ -178,6 +182,7 @@ struct tms_event {
         struct tms_pointer_button    button;
         struct tms_key               key;
         struct tms_pointer_scroll    scroll;
+        struct tms_text_input        text;
     } data;
 };
 
