@@ -382,33 +382,23 @@ bool ui::_imgui_event(tms_event* event) {
     switch (event->type) {
         //TODO handle touch events
 
+        //Principia-specific bullshit events. Just block them if needed.
         case TMS_EV_KEY_DOWN:
+        case TMS_EV_KEY_REPEAT: {
+            return io.WantCaptureKeyboard;
+        }
+        case TMS_EV_KEY_PRESS:
         case TMS_EV_KEY_UP: {
             //TODO fix this:
-            // io.AddKeyEvent(ImGuiMod_Shift, (event->data.key.mod & TMS_MOD_SHIFT) != 0);
-            // io.AddKeyEvent(ImGuiMod_Ctrl, (event->data.key.mod & TMS_MOD_CTRL) != 0);
-            // io.AddKeyEvent(ImGuiMod_Alt, (event->data.key.mod & TMS_MOD_ALT) != 0);
-            // io.AddKeyEvent(ImGuiMod_Super, (event->data.key.mod & TMS_MOD_GUI) != 0);
+            io.AddKeyEvent(ImGuiMod_Shift, (event->data.key.mod & TMS_MOD_SHIFT) != 0);
+            io.AddKeyEvent(ImGuiMod_Ctrl, (event->data.key.mod & TMS_MOD_CTRL) != 0);
+            io.AddKeyEvent(ImGuiMod_Alt, (event->data.key.mod & TMS_MOD_ALT) != 0);
+            io.AddKeyEvent(ImGuiMod_Super, (event->data.key.mod & TMS_MOD_GUI) != 0);
 
             ImGuiKey keycode = tms_key_to_imgui(event->data.key.keycode);
             io.AddKeyEvent(keycode, event->type == TMS_EV_KEY_DOWN);
-
-            //HACK: update modifiers based on key state, because tms data.key.mod appears to be broken
-            if ((keycode == ImGuiKey_RightShift) || (keycode == ImGuiKey_LeftShift)) {
-                io.AddKeyEvent(ImGuiMod_Shift, event->type == TMS_EV_KEY_DOWN);
-            }
-            if ((keycode == ImGuiKey_RightCtrl) || (keycode == ImGuiKey_LeftCtrl)) {
-                io.AddKeyEvent(ImGuiMod_Ctrl, event->type == TMS_EV_KEY_DOWN);
-            }
-            if ((keycode == ImGuiKey_RightAlt) || (keycode == ImGuiKey_LeftAlt)) {
-                io.AddKeyEvent(ImGuiMod_Alt, event->type == TMS_EV_KEY_DOWN);
-            }
-            if ((keycode == ImGuiKey_RightSuper) || (keycode == ImGuiKey_LeftSuper)) {
-                io.AddKeyEvent(ImGuiMod_Super, event->type == TMS_EV_KEY_DOWN);
-            }
             //XXX: we won't bother supporting SetKeyEventNativeData, as it's only used by legacy user code
-
-            return io.WantTextInput || io.WantCaptureKeyboard;
+            return io.WantCaptureKeyboard;
         }
         case TMS_EV_POINTER_DOWN:
         case TMS_EV_POINTER_UP: {
@@ -430,7 +420,7 @@ bool ui::_imgui_event(tms_event* event) {
         }
         case TMS_EV_TEXT_INPUT: {
             io.AddInputCharactersUTF8(event->data.text.text);
-            return io.WantTextInput || io.WantCaptureKeyboard;
+            return io.WantCaptureKeyboard;
         }
     }
     return false;
