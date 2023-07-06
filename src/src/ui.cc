@@ -157,6 +157,11 @@ static lvlfile *lvlman_level_list = nullptr;
 
 int prompt_is_open = 0;
 
+static void _open_ui_sb_menu(int tip = 0) {
+    sb_menu_do_open = true;
+    sb_position = G->get_last_cursor_pos(0);
+}
+
 static void _open_ui_tips(int tip = 0) {
     ctip = tip;
     tips_dontask = false;
@@ -204,8 +209,10 @@ void ui::init() {
 void ui::open_dialog(int num, void *data/*=0*/) {
     switch (num) {
         case DIALOG_SANDBOX_MENU:
-            sb_menu_do_open = true;
-            sb_position = G->get_last_cursor_pos(0);
+            _open_ui_sb_menu();
+            break;
+        case DIALOG_OPEN:
+            _open_ui_lvlman();
             break;
     }
 }
