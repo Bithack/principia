@@ -431,6 +431,7 @@ bool ui::_imgui_event(tms_event* event) {
         }
         case TMS_EV_TEXT_INPUT: {
             io.AddInputCharactersUTF8(event->data.text.text);
+            return io.WantCaptureKeyboard;
         }
     }
     return false;
