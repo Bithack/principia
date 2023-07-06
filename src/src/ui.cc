@@ -424,9 +424,16 @@ bool ui::_imgui_event(tms_event* event) {
     return false;
 }
 
+//Helper functions
 static void ImGui_AlignNextWindow(float x = 0.5f, float y = 0.5f) {
     ImGuiIO& io = ImGui::GetIO();
     ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * x, io.DisplaySize.y * y), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+}
+static bool cicompare(char lhs, char rhs) {
+    return std::tolower(lhs) == std::tolower(rhs);
+}
+static bool lax_search(const std::string& where, const std::string& what) {
+    return std::search(where.begin(), where.end(), what.begin(), what.end(), cicompare) != where.end();
 }
 
 static void _ui() {
@@ -572,7 +579,7 @@ static void _ui() {
             while (level) {
                 //Search
                 if ((lvlman_lvl_name.length() > 0) && !(
-                    (std::string(level->name).find(lvlman_lvl_name) != std::string::npos) ||
+                    lax_search(level->name, lvlman_lvl_name) ||
                     (std::to_string(level->id).find(lvlman_lvl_name) != std::string::npos)
                 )) {
                     level = level->next;
