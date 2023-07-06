@@ -152,7 +152,6 @@ static b2Vec2 sb_position = b2Vec2_zero;
 
 static bool lvlman_do_open = false;
 static std::string lvlman_lvl_name{""};
-static std::string lvlman_search{""};
 static lvlfile *lvlman_level_list = nullptr;
 
 int prompt_is_open = 0;
@@ -171,7 +170,6 @@ static void _open_ui_tips(int tip = 0) {
 static void _open_ui_lvlman() {
     lvlman_level_list = pkgman::get_levels(LEVEL_LOCAL);
     lvlman_lvl_name = "";
-    lvlman_search = "";
     lvlman_do_open = true;
 }
 
@@ -502,8 +500,12 @@ static void _ui() {
         //     "Save your level locally as a copy" :
         //     "Save your level locally\n(Hold Shift to save as a copy)"
         // );
-        
-        if (ImGui::MenuItem("Open/Save")) {
+
+        if (ImGui::MenuItem("Save")) {
+            //TODO
+        }
+
+        if (ImGui::MenuItem("Open/Save as...")) {
             _open_ui_lvlman();
         }
 
@@ -543,21 +545,18 @@ static void _ui() {
     if (ImGui::BeginPopupModal("Level manager", &p, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
         bool saving_forbidden = !G->state.sandbox;
         bool any_level_found = false;
-
+        
+        //lvlname width + save as width + padding
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (200. + 75. + 30.));
+        
         ImGui::PushItemWidth(200.);
-        ImGui::InputTextWithHint("##LvlmanLevelName", "Level name", &lvlman_lvl_name);
+        ImGui::InputTextWithHint("##LvlmanLevelName", "Level name/Search", &lvlman_lvl_name);
         ImGui::PopItemWidth();
 
         ImGui::SameLine();
         ImGui::BeginDisabled(saving_forbidden);
-        ImGui::Button("Save as...");
+        ImGui::Button("Save as...", ImVec2(75., 0.));
         ImGui::EndDisabled();
-
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 203.);
-        ImGui::PushItemWidth(200.);
-        ImGui::InputTextWithHint("##LvlmanSearch", "Search", &lvlman_search);
-        ImGui::PopItemWidth();
         
         ImGui::Separator();
 
@@ -572,9 +571,9 @@ static void _ui() {
             lvlfile *level = lvlman_level_list;
             while (level) {
                 //Search
-                if ((lvlman_search.length() > 0) && !(
-                    (std::string(level->name).find(lvlman_search) != std::string::npos) ||
-                    (std::to_string(level->id).find(lvlman_search) != std::string::npos)
+                if ((lvlman_lvl_name.length() > 0) && !(
+                    (std::string(level->name).find(lvlman_lvl_name) != std::string::npos) ||
+                    (std::to_string(level->id).find(lvlman_lvl_name) != std::string::npos)
                 )) {
                     level = level->next;
                     continue;
