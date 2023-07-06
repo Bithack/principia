@@ -624,16 +624,16 @@ static void _ui() {
                     ImGui::PopStyleVar();
                     if (!io.KeyShift) ImGui::SetItemTooltip("Hold Shift to enable");
 
-                    ImGui::SameLine();
-                    if (ImGui::Button("Play##play-sandbox-level")) {
-                        G->open_play(level->id_type, level->id, NULL);
-                        ImGui::CloseCurrentPopup();
-                    }
+                    // ImGui::SameLine();
+                    // if (ImGui::Button("Play##play-sandbox-level")) {
+                    //     //P.add_action(ACTION_OPEN_PLAY, level->id);
+                    //     //ImGui::CloseCurrentPopup();
+                    // }
                     
                     ImGui::SameLine();
                     if (ImGui::Button("Open level")) {
-                        tms_infof("editing level");
-                        G->open_sandbox(level->id_type, level->id);
+                        //XXX: this only works for local levels
+                        P.add_action(ACTION_OPEN, level->id);
                         ImGui::CloseCurrentPopup();
                     }
                 }
