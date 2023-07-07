@@ -160,6 +160,9 @@ static bool newlvl_do_open = false;
 static bool save_as_do_open = false;
 static std::string save_as_name{""};
 
+static bool error_do_open = false;
+static std::string error_message{""};
+
 int prompt_is_open = 0;
 
 static void ui_open_sb_menu() {
@@ -198,6 +201,11 @@ static void ui_open_newlvl() {
 static void ui_open_save_as() {
     save_as_do_open = true;
     save_as_name = std::string(W->level.name, W->level.name_len);
+}
+
+static void ui_open_error(const char* message) {
+    error_do_open = true;
+    error_message.assign(message);
 }
 
 void ui::init() {
@@ -261,7 +269,7 @@ void ui::open_url(const char *url) {
 }
 
 void ui::open_error_dialog(const char *error_msg) {
-    //TODO
+    ui_open_error(error_msg);
 }
 
 void ui::open_help_dialog(const char*, const char*, bool) {
@@ -673,7 +681,7 @@ static void _ui() {
 
                 //Modified date
                 if (ImGui::TableNextColumn()) {
-                    ImGui::Text("%s", level->modified_date);
+                    ImGui::TextUnformatted(level->modified_date);
                 }
 
                 //Version
@@ -740,7 +748,7 @@ static void _ui() {
             ImGui::EndTable();
         }
         if (!any_level_found) {
-            ImGui::Text("No levels found");
+            ImGui::TextUnformatted("No levels found");
         }
         ImGui::EndPopup();
     }
@@ -796,15 +804,15 @@ static void _ui() {
     ImGui_AlignNextWindow();
     p = true;
     if (ImGui::BeginPopupModal("Save level##saveas-dialog", &p, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
+        ImGui::TextUnformatted("Enter a name for this level");
         ImGui::InputTextWithHint("##saveas-name", "<no name>", &save_as_name);
-        ImGui::SameLine();
-        if (ImGui::Button("Save##saveas-btn")) {
+        if (ImGui::Button("Save level##saveas-btn")) {
             //Copy name if needed
-            if (save_as_name.length() && (std::string(W->level.name, W->level.name_len) != save_as_name)) {
-                std::copy(
-                    (char*) save_as_name.c_str(),
-                    (char*) save_as_name.c_str() + (size_t)(save_as_name.size() * sizeof(char)),
-                    (char*) &W->level.name
+            if ((save_as_name.length() > 0) && (std::string(W->level.name, W->level.name_len) != save_as_name)) {
+                //Copy up to 254 characters into the level name
+                save_as_name.copy(
+                    (char*) &W->level.name,
+                    std::min((size_t)254, (size_t)save_as_name.size())
                 );
                 W->level.name_len = save_as_name.length();
             }
@@ -813,7 +821,27 @@ static void _ui() {
             //Close popup
             ImGui::CloseCurrentPopup();
         }
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel##saveas-cancel")) {
+            ImGui::CloseCurrentPopup();
+        }
         ImGui::EndPopup();
+    }
+
+    // === ERROR DIALOG ===
+    if (error_do_open) {
+        error_do_open = false;
+        ImGui::OpenPopup("Error##oops-dialog");
+    }
+    ImGui::SetNextWindowSize(ImVec2(400., 0.));
+    ImGui_AlignNextWindow();
+    p = true;
+    if (ImGui::BeginPopupModal("Error##oops-dialog", &p, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
+        ImGui::TextWrapped("%s", error_message.c_str());
+        if (ImGui::Button("Copy message")) {
+            SDL_SetClipboardText(error_message.c_str());
+        }
+        ImGui::EndPopup();;
     }
 }
 
