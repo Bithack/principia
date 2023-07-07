@@ -709,10 +709,17 @@ static void _ui() {
                     // To prevent accidental level deletion,
                     // Shift must be held while clicking the button
                     bool allow_delete = io.KeyShift;
-                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, allow_delete ? 1. : .5);
+                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, allow_delete ? 1. : .6);
                     if (ImGui::Button("Delete##delete-sandbox-level")) {
                         if (allow_delete) {
                             if (G->delete_level(level->id_type, level->id, level->save_id)) {
+                                //If deleting current local level, remove it's local_id
+                                //This disables the "save" option
+                                if ((level->id_type == LEVEL_LOCAL) && (level->id == W->level.local_id)) {
+                                    W->level.local_id = 0;
+                                }
+                                //Reload the list of levels
+                                //XXX: maybe just remove the current level from the list instead?
                                 ui_lvlman_reload_levels();
                             };
                         }
