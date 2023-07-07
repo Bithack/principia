@@ -629,8 +629,7 @@ static void _ui() {
                 ui::open_url((std::string("https://") + P.community_host).c_str());
 
             //Align stuff to the right
-            //if can_save = true:  lvlname width + "save as" button width + padding
-            //if can_save = false: lvlname width + padding
+            //lvlname width + padding
             ImGui::SameLine();
             ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (200. + 22.));
             
