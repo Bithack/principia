@@ -247,6 +247,10 @@ void ui::open_sandbox_tips() {
 }
 
 void ui::open_url(const char *url) {
+    SDL_OpenURL(url);
+}
+
+void ui::open_error_dialog(const char *error_msg) {
     //TODO
 }
 
@@ -266,11 +270,7 @@ void ui::quit() {
 }
 
 void ui::set_next_action(int action_id) {
-    //TODO
-}
-
-void ui::open_error_dialog(const char *error_msg) {
-    //TODO
+    ui::next_action = action_id;
 }
 
 void ui::confirm(
@@ -486,7 +486,7 @@ static void _ui() {
         
         ImGui::SameLine();
         if (ImGui::Button("More tips & tricks")) {
-            //TODO open wiki
+            ui::open_url("https://principia-web.se/wiki/");
         }
 
         ImGui::EndPopup();
@@ -595,6 +595,11 @@ static void _ui() {
             if (ImGui::Combo("##id-lvltype", &lvlman_lvl_type, items, IM_ARRAYSIZE(items))) {
                 _lvlman_reload_levels();
             }
+
+            //"Get more levels" button
+            ImGui::SameLine();
+            if ((lvlman_lvl_type == LEVEL_DB) && ImGui::Button("Get more levels"))
+                ui::open_url((std::string("https://") + P.community_host).c_str());
 
             //Align stuff to the right
             //if can_save = true:  lvlname width + "save as" button width + padding
@@ -731,6 +736,8 @@ static void _ui() {
     //TODO
 
     // === NEW LEVEL (modal) ===
+    // Why is this even required?
+    // - to handle the open dialog request.
     if (newlvl_do_open) {
         newlvl_do_open = false;
         ImGui::OpenPopup("New level##newlvl-modal");
