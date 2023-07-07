@@ -136,11 +136,11 @@ void ui::alert(const char*, uint8_t/*=ALERT_INFORMATION*/) {};
 #include "imgui.h"
 #include "imgui_stdlib.h"
 #include "imgui_impl_opengl3.h"
-#include <string>
-#include <stdio.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <SDL_syswm.h>
+#include <string>
+#include <stdio.h>
 
 static bool show_demo_window = true;
 
@@ -153,6 +153,7 @@ static b2Vec2 sb_position = b2Vec2_zero;
 static bool lvlman_do_open = false;
 static std::string lvlman_lvl_name{""};
 static lvlfile *lvlman_level_list = nullptr;
+static int lvlman_lvl_type = LEVEL_LOCAL;
 
 int prompt_is_open = 0;
 
@@ -167,7 +168,7 @@ static void _open_ui_tips(int tip = 0) {
     tips_do_open = true;
 }
 
-static void _lvlman_load_levels(int level_type = LEVEL_LOCAL) {
+static void _lvlman_reload_levels() {
     //Recursively deallocate the linked list
     while (lvlman_level_list) {
         lvlfile* next = lvlman_level_list->next;
@@ -175,13 +176,14 @@ static void _lvlman_load_levels(int level_type = LEVEL_LOCAL) {
         lvlman_level_list = next;
     }
     //Get a new list of levels
-    lvlman_level_list = pkgman::get_levels(level_type);
+    lvlman_level_list = pkgman::get_levels(lvlman_lvl_type);
 }
 
 static void _open_ui_lvlman() {
-    _lvlman_load_levels();
-    lvlman_lvl_name = "";
     lvlman_do_open = true;
+    lvlman_lvl_name = "";
+    lvlman_lvl_type = LEVEL_LOCAL;
+    _lvlman_reload_levels();
 }
 
 void ui::init() {
@@ -549,24 +551,49 @@ static void _ui() {
     ImGui_AlignNextWindow();
     p = true;
     if (ImGui::BeginPopupModal("Level manager", &p, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
-        bool saving_forbidden = !G->state.sandbox;
+        //In order to save, three conditions must be met
+        // - current level type must be local
+        // - must be in a sandbox level
+        //   (can't save while playing online levels or puzzles)
+        // - must be in-game
+        bool can_save =
+            (lvlman_lvl_type == LEVEL_LOCAL) &&
+            G->state.sandbox &&
+            (_tms.screen == (struct tms_screen *)&G->super);
         bool any_level_found = false;
-        
-        //lvlname width + save as width + padding
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (200. + 75. + 30.));
-        
-        ImGui::PushItemWidth(200.);
-        ImGui::InputTextWithHint("##LvlmanLevelName", "Level name", &lvlman_lvl_name);
-        ImGui::PopItemWidth();
+         
+        //Top action bar
+        {
+            //Level type selector
+            //Allows switching between local and DB levels
+            const char* items[] = { "Local", "Downloaded" };
+            if (ImGui::Combo("##id-lvltype", &lvlman_lvl_type, items, IM_ARRAYSIZE(items))) {
+                _lvlman_reload_levels();
+            }
 
-        ImGui::SameLine();
-        ImGui::BeginDisabled(saving_forbidden);
-        ImGui::Button("Save as...", ImVec2(75., 0.));
-        ImGui::EndDisabled();
+            //Align stuff to the right
+            //if can_save = true:  lvlname width + "save as" button width + padding
+            //if can_save = false: lvlname width + padding
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (can_save ? (200. + 75. + 30.) : (200. + 22.)));
+            
+            //Actual level name field
+            ImGui::PushItemWidth(200.);
+            ImGui::InputTextWithHint("##LvlmanLevelName", "Level name", &lvlman_lvl_name);
+            ImGui::PopItemWidth();
+
+            //Save as button
+            if (can_save) {
+                ImGui::SameLine();
+                ImGui::Button("Save as...", ImVec2(75., 0.));
+            }
+        }
         
         ImGui::Separator();
 
+        //Actual level list
         if (ImGui::BeginTable("save_list", 5, ImGuiTableFlags_BordersInnerV)) {
+            //Setup table columns
             ImGui::TableSetupColumn("ID");
             ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);
             ImGui::TableSetupColumn("Last modified");
@@ -575,19 +602,21 @@ static void _ui() {
             ImGui::TableHeadersRow();
 
             lvlfile *level = lvlman_level_list;
-            
             while (level) {
-                //Search
+                //Search (lax_search is used to ignore case)
                 if ((lvlman_lvl_name.length() > 0) && !(
                     lax_search(level->name, lvlman_lvl_name) ||
                     (std::to_string(level->id).find(lvlman_lvl_name) != std::string::npos)
                 )) {
+                    //Just skip levels we don't like
                     level = level->next;
                     continue;
                 }
 
+                //This is required to prevent ID conflicts
                 ImGui::PushID(level->id);
 
+                //Start laying out the table row...
                 ImGui::TableNextRow();
 
                 //ID
@@ -619,16 +648,20 @@ static void _ui() {
 
                 //Actions
                 if (ImGui::TableNextColumn()) {
-                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, io.KeyShift ? 1. : .5);
+                    // Delete level ---
+                    // To prevent accidental level deletion,
+                    // Shift must be held while clicking the button
+                    bool allow_delete = io.KeyShift;
+                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, allow_delete ? 1. : .5);
                     if (ImGui::Button("Delete##delete-sandbox-level")) {
-                        if (io.KeyShift) {
+                        if (allow_delete) {
                             if (G->delete_level(level->id_type, level->id, level->save_id)) {
-                                _lvlman_load_levels();
+                                _lvlman_reload_levels();
                             };
                         }
                     };
                     ImGui::PopStyleVar();
-                    if (!io.KeyShift) ImGui::SetItemTooltip("Hold Shift to enable");
+                    if (!allow_delete) ImGui::SetItemTooltip("Hold Shift to unlock");
 
                     // ImGui::SameLine();
                     // if (ImGui::Button("Play##play-sandbox-level")) {
@@ -636,6 +669,10 @@ static void _ui() {
                     //     //ImGui::CloseCurrentPopup();
                     // }
                     
+                    // Open level ---
+                    // Principia's ACTION_OPEN signal only supports loading local levels,
+                    // so we have to lock the game and load the level manually...
+                    // this is completely fine unless the gui is multithreaded
                     ImGui::SameLine();
                     if (ImGui::Button("Open level")) {
                         if (level->id_type == LEVEL_LOCAL) {
@@ -664,6 +701,9 @@ static void _ui() {
         }
         ImGui::EndPopup();
     }
+
+    // === UPLOAD LEVEL ===
+
 }
 
 
