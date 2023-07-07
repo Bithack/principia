@@ -493,14 +493,27 @@ static void _ui() {
     }
 
     // === SANDBOX MENU ===
+    //TODO shortcuts
     if (sb_menu_do_open) {
         sb_menu_do_open = false;
         ImGui::OpenPopup("sandbox_menu");
     }
     if (ImGui::BeginPopup("sandbox_menu", ImGuiWindowFlags_NoMove)) {
-        //ImGui::SeparatorText("Sandbox menu");
-
-        ImGui::Text("Position: (%.2f, %.2f)", sb_position.x, sb_position.y);
+        //Info panel
+        if (G->selection.e) {
+            //If an object is selected, display it's info...
+            //XXX: some of this stuff does the same things as principia ui items...
+            //---- consider removal
+            entity* sent = G->selection.e;
+            ImGui::Text("%s (id: %d, g_id: %d)", sent->get_name(), sent->g_id, sent->id);
+            ImGui::Text("Position: (%.2f, %.2f)", sent->get_position().x, sent->get_position().y);
+            if ((sent->dialog_id > 0) && ImGui::MenuItem("Configure...")) {
+                ui::open_dialog(sent->dialog_id);
+            }
+        } else {
+            //Otherwise, show the cursor position instead
+            ImGui::Text("Position: (%.2f, %.2f)", sb_position.x, sb_position.y);
+        }
 
         ImGui::Separator();
 
@@ -567,17 +580,18 @@ static void _ui() {
     }
 
     // === LEVEL MANAGER ===
+    //XXX: SEPARATE "SAVE AS" MENU?...
     if (lvlman_do_open) {
         lvlman_do_open = false;
         ImGui::OpenPopup("Level manager");
     }
-    //TODO: set max height instead
+    //set max height instead?
     ImGui::SetNextWindowSize(ImVec2(800., 600.));
     ImGui_AlignNextWindow();
     p = true;
     if (ImGui::BeginPopupModal("Level manager", &p, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
         //In order to save, three conditions must be met
-        // - current level type must be local
+        // - current level type filter must be set to local
         // - must be in a sandbox level
         //   (can't save while playing online levels or puzzles)
         // - must be in-game
