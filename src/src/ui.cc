@@ -499,21 +499,25 @@ static void _ui() {
         }
         ImGui::SetItemTooltip("Upload your level to %s", P.community_host);
         
-        // bool is_save_copy = io.KeyShift;
-        // if (ImGui::MenuItem(is_save_copy ? "Save (copy)" : "Save")) {
-        //     //TODO
-        // }
-        // ImGui::SetItemTooltip(
-        //     is_save_copy ?
-        //     "Save your level locally as a copy" :
-        //     "Save your level locally\n(Hold Shift to save as a copy)"
-        // );
+        //True if current level can be saved as a copy
+        //Saves can only be created if current level state is sandbox
+        bool can_create_save = G->state.sandbox;
 
-        if (ImGui::MenuItem("Save")) {
-            //TODO
+        //True if already saved and the save can be updated
+        //Saves can only be updated if:
+        // - Current level state is sandbox
+        // - Level is local
+        // - Level is already saved
+        bool can_update_save =
+            G->state.sandbox &&
+            (W->level_id_type == LEVEL_LOCAL) &&
+            (W->level.local_id != 0) && W->level.name_len;
+
+        if (can_update_save && ImGui::MenuItem("Save")) {
+            P.add_action(ACTION_SAVE, 0);
         }
 
-        if (ImGui::MenuItem("Open/Save as...")) {
+        if (ImGui::MenuItem(can_create_save ? "Open/Save as..." : "Open...")) {
             _open_ui_lvlman();
         }
 
