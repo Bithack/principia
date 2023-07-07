@@ -157,20 +157,23 @@ static int lvlman_lvl_type = LEVEL_LOCAL;
 
 static bool newlvl_do_open = false;
 
+static bool save_as_do_open = false;
+static std::string save_as_name{""};
+
 int prompt_is_open = 0;
 
-static void _open_ui_sb_menu() {
+static void ui_open_sb_menu() {
     sb_menu_do_open = true;
     sb_position = G->get_last_cursor_pos(0);
 }
 
-static void _open_ui_tips(int tip = 0) {
+static void ui_open_tips(int tip = 0) {
     ctip = tip;
     tips_dontask = false;
     tips_do_open = true;
 }
 
-static void _lvlman_reload_levels() {
+static void ui_lvlman_reload_levels() {
     //Recursively deallocate the linked list
     while (lvlman_level_list) {
         lvlfile* next = lvlman_level_list->next;
@@ -181,15 +184,20 @@ static void _lvlman_reload_levels() {
     lvlman_level_list = pkgman::get_levels(lvlman_lvl_type);
 }
 
-static void _open_ui_lvlman() {
+static void ui_open_lvlman() {
     lvlman_do_open = true;
     lvlman_lvl_name = "";
     lvlman_lvl_type = LEVEL_LOCAL;
-    _lvlman_reload_levels();
+    ui_lvlman_reload_levels();
 }
 
-static void _open_ui_newlvl() {
+static void ui_open_newlvl() {
     newlvl_do_open = true;
+}
+
+static void ui_open_save_as() {
+    save_as_do_open = true;
+    save_as_name = std::string(W->level.name, W->level.name_len);
 }
 
 void ui::init() {
@@ -226,24 +234,26 @@ void ui::init() {
 void ui::open_dialog(int num, void *data/*=0*/) {
     switch (num) {
         case DIALOG_SANDBOX_MENU:
-            _open_ui_sb_menu();
+            ui_open_sb_menu();
             break;
         
-        //Level manager handles both saving and loading
         case DIALOG_SAVE:
         case DIALOG_SAVE_COPY:
+            ui_open_save_as();
+            break;
+        
         case DIALOG_OPEN:
-            _open_ui_lvlman();
+            ui_open_lvlman();
             break;
         
         case DIALOG_NEW_LEVEL:
-            _open_ui_newlvl();
+            ui_open_newlvl();
             break;
     }
 }
 
 void ui::open_sandbox_tips() {
-    _open_ui_tips();
+    ui_open_tips();
 }
 
 void ui::open_url(const char *url) {
@@ -545,15 +555,18 @@ static void _ui() {
         if (can_update_save && ImGui::MenuItem("Save")) {
             P.add_action(ACTION_SAVE, 0);
         }
-
-        //"Open/Save as...": open the Level Manager
-        if (ImGui::MenuItem(can_create_save ? "Open/Save as..." : "Open...")) {
-            _open_ui_lvlman();
+        //"Save as...": create a new save
+        if (can_create_save && ImGui::MenuItem("Save as..."))  {
+            ui_open_save_as();
+        }
+        //"Open...": open the Level Manager
+        if (ImGui::MenuItem("Open...")) {
+            ui_open_lvlman();
         }
 
         //Open dropdown, but open the modal dialog if clicked
         bool _menu = ImGui::BeginMenu("New level");
-        if (ImGui::IsItemClicked()) _open_ui_newlvl();
+        if (ImGui::IsItemClicked()) ui_open_newlvl();
         if (_menu) {
             //TODO: level type description tooltips
             if (ImGui::MenuItem("Custom")) {
@@ -581,7 +594,6 @@ static void _ui() {
     }
 
     // === LEVEL MANAGER ===
-    //XXX: SEPARATE "SAVE AS" MENU?...
     if (lvlman_do_open) {
         lvlman_do_open = false;
         ImGui::OpenPopup("Level manager");
@@ -596,10 +608,10 @@ static void _ui() {
         // - must be in a sandbox level
         //   (can't save while playing online levels or puzzles)
         // - must be in-game
-        bool can_save =
-            (lvlman_lvl_type == LEVEL_LOCAL) &&
-            G->state.sandbox &&
-            (_tms.screen == (struct tms_screen *)&G->super);
+        // bool can_save =
+        //     (lvlman_lvl_type == LEVEL_LOCAL) &&
+        //     G->state.sandbox &&
+        //     (_tms.screen == (struct tms_screen *)&G->super);
         bool any_level_found = false;
          
         //Top action bar
@@ -608,7 +620,7 @@ static void _ui() {
             //Allows switching between local and DB levels
             const char* items[] = { "Local", "Downloaded" };
             if (ImGui::Combo("##id-lvltype", &lvlman_lvl_type, items, IM_ARRAYSIZE(items))) {
-                _lvlman_reload_levels();
+                ui_lvlman_reload_levels();
             }
 
             //"Get more levels" button
@@ -620,18 +632,18 @@ static void _ui() {
             //if can_save = true:  lvlname width + "save as" button width + padding
             //if can_save = false: lvlname width + padding
             ImGui::SameLine();
-            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (can_save ? (200. + 75. + 30.) : (200. + 22.)));
+            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (200. + 22.));
             
             //Actual level name field
             ImGui::PushItemWidth(200.);
-            ImGui::InputTextWithHint("##LvlmanLevelName", "Level name", &lvlman_lvl_name);
+            ImGui::InputTextWithHint("##LvlmanLevelName", "Search", &lvlman_lvl_name);
             ImGui::PopItemWidth();
 
             //Save as button
-            if (can_save) {
-                ImGui::SameLine();
-                ImGui::Button("Save as...", ImVec2(75., 0.));
-            }
+            // if (can_save) {
+            //     ImGui::SameLine();
+            //     ImGui::Button("Save as...", ImVec2(75., 0.));
+            // }
         }
         
         ImGui::Separator();
@@ -701,7 +713,7 @@ static void _ui() {
                     if (ImGui::Button("Delete##delete-sandbox-level")) {
                         if (allow_delete) {
                             if (G->delete_level(level->id_type, level->id, level->save_id)) {
-                                _lvlman_reload_levels();
+                                ui_lvlman_reload_levels();
                             };
                         }
                     };
@@ -751,8 +763,8 @@ static void _ui() {
     //TODO
 
     // === NEW LEVEL (modal) ===
-    // Why is this even required?
-    // - to handle the open dialog request.
+    // even though we have a dropdown menu, ...
+    // this is required to properly handle the open dialog request.
     if (newlvl_do_open) {
         newlvl_do_open = false;
         ImGui::OpenPopup("New level##newlvl-modal");
@@ -788,6 +800,34 @@ static void _ui() {
 #endif
 
         ImGui::EndMenu();
+    }
+
+    // === SAVE AS ===
+    if (save_as_do_open) {
+        save_as_do_open = false;
+        ImGui::OpenPopup("Save level##saveas-dialog");
+    }
+    ImGui_AlignNextWindow();
+    p = true;
+    if (ImGui::BeginPopupModal("Save level##saveas-dialog", &p, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
+        ImGui::InputTextWithHint("##saveas-name", "<no name>", &save_as_name);
+        ImGui::SameLine();
+        if (ImGui::Button("Save##saveas-btn")) {
+            //Copy name if needed
+            if (save_as_name.length() && (std::string(W->level.name, W->level.name_len) != save_as_name)) {
+                std::copy(
+                    (char*) save_as_name.c_str(),
+                    (char*) save_as_name.c_str() + (size_t)(save_as_name.size() * sizeof(char)),
+                    (char*) &W->level.name
+                );
+                W->level.name_len = save_as_name.length();
+            }
+            //Create a new save file
+            P.add_action(ACTION_SAVE_COPY, 0);
+            //Close popup
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
     }
 }
 
