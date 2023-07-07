@@ -603,15 +603,6 @@ static void _ui() {
     ImGui_AlignNextWindow();
     p = true;
     if (ImGui::BeginPopupModal("Level manager", &p, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
-        //In order to save, three conditions must be met
-        // - current level type filter must be set to local
-        // - must be in a sandbox level
-        //   (can't save while playing online levels or puzzles)
-        // - must be in-game
-        // bool can_save =
-        //     (lvlman_lvl_type == LEVEL_LOCAL) &&
-        //     G->state.sandbox &&
-        //     (_tms.screen == (struct tms_screen *)&G->super);
         bool any_level_found = false;
          
         //Top action bar
@@ -637,12 +628,6 @@ static void _ui() {
             ImGui::PushItemWidth(200.);
             ImGui::InputTextWithHint("##LvlmanLevelName", "Search levels", &lvlman_lvl_name);
             ImGui::PopItemWidth();
-
-            //Save as button
-            // if (can_save) {
-            //     ImGui::SameLine();
-            //     ImGui::Button("Save as...", ImVec2(75., 0.));
-            // }
         }
         
         ImGui::Separator();
@@ -718,7 +703,6 @@ static void _ui() {
                                     W->level.local_id = 0;
                                 }
                                 //Reload the list of levels
-                                //XXX: maybe just remove the current level from the list instead?
                                 ui_lvlman_reload_levels();
                             };
                         }
@@ -726,12 +710,8 @@ static void _ui() {
                     ImGui::PopStyleVar();
                     if (!allow_delete) ImGui::SetItemTooltip("Hold Shift to unlock");
 
-                    // ImGui::SameLine();
-                    // if (ImGui::Button("Play##play-sandbox-level")) {
-                    //     //P.add_action(ACTION_OPEN_PLAY, level->id);
-                    //     //ImGui::CloseCurrentPopup();
-                    // }
-                    
+                    //TODO "Play" button
+
                     // Open level ---
                     // Principia's ACTION_OPEN signal only supports loading local levels,
                     // so we have to lock the game and load the level manually...
