@@ -735,6 +735,7 @@ static void _ui() {
         newlvl_do_open = false;
         ImGui::OpenPopup("New level##newlvl-modal");
     }
+    ImGui_AlignNextWindow();
     p = true;
     if (ImGui::BeginPopupModal("New level##newlvl-modal", &p, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
         //TODO: level type description tooltips
