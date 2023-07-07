@@ -636,7 +636,7 @@ static void _ui() {
             
             //Actual level name field
             ImGui::PushItemWidth(200.);
-            ImGui::InputTextWithHint("##LvlmanLevelName", "Search", &lvlman_lvl_name);
+            ImGui::InputTextWithHint("##LvlmanLevelName", "Search levels", &lvlman_lvl_name);
             ImGui::PopItemWidth();
 
             //Save as button
