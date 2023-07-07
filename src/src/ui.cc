@@ -155,6 +155,8 @@ static std::string lvlman_lvl_name{""};
 static lvlfile *lvlman_level_list = nullptr;
 static int lvlman_lvl_type = LEVEL_LOCAL;
 
+static bool newlvl_do_open = false;
+
 int prompt_is_open = 0;
 
 static void _open_ui_sb_menu() {
@@ -184,6 +186,10 @@ static void _open_ui_lvlman() {
     lvlman_lvl_name = "";
     lvlman_lvl_type = LEVEL_LOCAL;
     _lvlman_reload_levels();
+}
+
+static void _open_ui_newlvl() {
+    newlvl_do_open = true;
 }
 
 void ui::init() {
@@ -222,8 +228,16 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_SANDBOX_MENU:
             _open_ui_sb_menu();
             break;
+        
+        //Level manager handles both saving and loading
+        case DIALOG_SAVE:
+        case DIALOG_SAVE_COPY:
         case DIALOG_OPEN:
             _open_ui_lvlman();
+            break;
+        
+        case DIALOG_NEW_LEVEL:
+            _open_ui_newlvl();
             break;
     }
 }
@@ -523,7 +537,10 @@ static void _ui() {
             _open_ui_lvlman();
         }
 
-        if (ImGui::BeginMenu("New level")) {
+        //Open dropdown, but open the modal dialog if clicked
+        bool _menu = ImGui::BeginMenu("New level");
+        if (ImGui::IsItemClicked()) _open_ui_newlvl();
+        if (_menu) {
             //TODO: level type description tooltips
             if (ImGui::MenuItem("Custom")) {
                 P.add_action(ACTION_NEW_LEVEL, LCAT_CUSTOM);
@@ -534,9 +551,11 @@ static void _ui() {
             if (ImGui::MenuItem("Adventure")) {
                 P.add_action(ACTION_NEW_GENERATED_LEVEL, LCAT_ADVENTURE);
             }
-            if (ImGui::MenuItem("Puzzle")) {
+#ifdef DEBUG
+            if (ImGui::MenuItem("Puzzle (deprecated)")) {
                 P.add_action(ACTION_NEW_LEVEL, LCAT_PUZZLE);
             }
+#endif
             ImGui::EndMenu();
         }
 
@@ -709,7 +728,44 @@ static void _ui() {
     }
 
     // === UPLOAD LEVEL ===
+    //TODO
 
+    // === NEW LEVEL (modal) ===
+    if (newlvl_do_open) {
+        newlvl_do_open = false;
+        ImGui::OpenPopup("New level##newlvl-modal");
+    }
+    p = true;
+    if (ImGui::BeginPopupModal("New level##newlvl-modal", &p, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
+        //TODO: level type description tooltips
+
+        if (ImGui::Button("Custom")) {
+            P.add_action(ACTION_NEW_LEVEL, LCAT_CUSTOM);
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::SameLine();
+        if (ImGui::Button("Empty Adventure")) {
+            P.add_action(ACTION_NEW_LEVEL, LCAT_ADVENTURE);
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::SameLine();
+        if (ImGui::Button("Adventure")) {
+            P.add_action(ACTION_NEW_GENERATED_LEVEL, LCAT_ADVENTURE);
+            ImGui::CloseCurrentPopup();
+        }
+
+#ifdef DEBUG
+        ImGui::SameLine();
+        if (ImGui::Button("Puzzle (deprecated)")) {
+            P.add_action(ACTION_NEW_LEVEL, LCAT_PUZZLE);
+            ImGui::CloseCurrentPopup();
+        }
+#endif
+
+        ImGui::EndMenu();
+    }
 }
 
 
