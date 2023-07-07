@@ -506,17 +506,19 @@ static void _ui() {
         //True if already saved and the save can be updated
         //Saves can only be updated if:
         // - Current level state is sandbox
-        // - Level is local
+        // - Level is local (and not an auto-save)
         // - Level is already saved
         bool can_update_save =
             G->state.sandbox &&
             (W->level_id_type == LEVEL_LOCAL) &&
-            (W->level.local_id != 0) && W->level.name_len;
+            (W->level.local_id != 0); //&& W->level.name_len;
 
+        //"Save": update current save
         if (can_update_save && ImGui::MenuItem("Save")) {
             P.add_action(ACTION_SAVE, 0);
         }
 
+        //"Open/Save as...": open the Level Manager
         if (ImGui::MenuItem(can_create_save ? "Open/Save as..." : "Open...")) {
             _open_ui_lvlman();
         }
