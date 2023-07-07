@@ -8,7 +8,8 @@ GLOBAL_FLAGS := -DGL_GLEXT_PROTOTYPES \
 				-DLUASOCKET_INET_PTON \
 				-D__STDC_FORMAT_MACROS=1 \
 				-DSDL_NO_COMPAT \
-				-DUNICODE
+				-DUNICODE \
+				-DPRINCIPIA_BACKEND_IMGUI
 
 GLOBAL_FLAGS += -I../src/tms/backends/linux/ \
 				-I../src/src/ -I../src/ -I/usr/include/ \
@@ -20,7 +21,8 @@ GLOBAL_FLAGS += -I../src/tms/backends/linux/ \
 				-I../src/include/ \
 				-I../src/gtk-undo \
 				${GTK_CFLAGS} \
-				-I../src/lua/
+				-I../src/lua/ \
+				-I../src/imgui -I../src/imgui/backends -I../src/imgui/misc/cpp
 
 principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
 principia_CXXFLAGS = ${GLOBAL_FLAGS}
@@ -115,6 +117,14 @@ principia_SOURCES = \
 ../src/luasocket/udp.c \
 ../src/luasocket/usocket.c \
 ../src/luasocket/unix.c \
+\
+../src/imgui/imgui.cpp \
+../src/imgui/imgui_demo.cpp \
+../src/imgui/imgui_draw.cpp \
+../src/imgui/imgui_tables.cpp \
+../src/imgui/imgui_widgets.cpp \
+../src/imgui/backends/imgui_impl_opengl3.cpp \
+../src/imgui/misc/cpp/imgui_stdlib.cpp \
 \
 ../src/src/fluid.cc \
 ../src/src/oilrig.cc \
