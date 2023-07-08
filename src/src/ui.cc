@@ -154,6 +154,9 @@ static bool lvlman_do_open = false;
 static std::string lvlman_lvl_name{""};
 static lvlfile *lvlman_level_list = nullptr;
 static int lvlman_lvl_type = LEVEL_LOCAL;
+static lvlinfo lvlman_lvl_info;
+static uint32_t lvlman_lvl_info_id = 0;
+static int lvlman_lvl_info_type = -1;
 
 static bool newlvl_do_open = false;
 
@@ -174,6 +177,29 @@ static void ui_open_tips(int tip = 0) {
     ctip = tip;
     tips_dontask = false;
     tips_do_open = true;
+}
+
+static void ui_lvlman_update_level_metadata(int id_type, uint32_t id) {
+    //Check if data needs to be reloaded
+    if ((lvlman_lvl_info_id == id) && (lvlman_lvl_info_type == id_type)) return;
+
+    //Dealloc current data
+    lvlman_lvl_info.~lvlinfo();
+
+    //Update meta
+    lvlman_lvl_info_id = id;
+    lvlman_lvl_info_type = id_type;
+    
+    //Read level info
+    lvledit lvl;
+    if (lvl.open(id_type, id)) {
+        lvlman_lvl_info = lvl.lvl;
+        if (lvlman_lvl_info.descr_len && lvlman_lvl_info.descr) {
+            lvlman_lvl_info.descr = strdup(lvlman_lvl_info.descr);
+        }
+    } else {
+        lvlman_lvl_info_id = 0;
+    }
 }
 
 static void ui_lvlman_reload_levels() {
@@ -676,7 +702,20 @@ static void _ui() {
                 //Name
                 if (ImGui::TableNextColumn()) {
                     ImGui::SetNextItemWidth(999.);
-                    ImGui::LabelText("", "%s", level->name);
+                    ImGui::LabelText("##levelname", "%s", level->name);
+
+                    //Display description if hovered
+                    if (ImGui::BeginItemTooltip()) {
+                        ui_lvlman_update_level_metadata(level->id_type, level->id);
+                        if (!lvlman_lvl_info_id) {
+                            ImGui::TextColored(ImVec4(1.,.3,.3,1.), "Failed to load level metadata");
+                        } else if (lvlman_lvl_info.descr_len && lvlman_lvl_info.descr) {
+                            ImGui::TextUnformatted(lvlman_lvl_info.descr);
+                        } else {
+                            ImGui::TextColored(ImVec4(.6,.6,.6,1.), "<no description>");
+                        }
+                        ImGui::EndTooltip();
+                    }
                 }
 
                 //Modified date
@@ -733,7 +772,9 @@ static void _ui() {
                             //Otherwise, load the level and switch the screen manually
                             G->lock();
                             G->open_sandbox(level->id_type, level->id);
+                            G->resume_action = GAME_RESUME_OPEN;
                             tms::set_screen(G);
+                            P.s_loading_screen->set_next_screen(G);
                             G->unlock();
                         }
                         ImGui::CloseCurrentPopup();
