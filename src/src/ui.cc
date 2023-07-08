@@ -305,13 +305,13 @@ void ui::open_url(const char *url) {
     #if SDL_VERSION_ATLEAST(2,0,14)
         SDL_OpenURL(url);
     #elif defined(TMS_BACKEND_WINDOWS)
-        #pragma message("WARNING: Using SDL_OpenURL ShellExecute fallback");
+        #pragma message "WARNING: Using SDL_OpenURL ShellExecute fallback";
         ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
     #elif defined(TMS_BACKEND_LINUX)
-        #pragma message("WARNING: Using SDL_OpenURL execlp fallback");
+        #pragma message "WARNING: Using SDL_OpenURL execlp fallback";
         if (fork() == 0) {
             execlp("xdg-open", "xdg-open", url, NULL);
-            _exit(0);urlu
+            _exit(0);
         }
     #endif
 }
