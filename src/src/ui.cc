@@ -142,7 +142,7 @@ void ui::alert(const char*, uint8_t/*=ALERT_INFORMATION*/) {};
 #include <string>
 #include <stdio.h>
 
-static bool show_demo_window = true;
+static bool show_demo_window = false;
 
 static bool tips_do_open = false;
 static bool tips_dontask = false;
@@ -576,11 +576,15 @@ static void _ui() {
             //TODO
         }
 
+        ImGui::BeginDisabled(!P.user_id);
         if (ImGui::MenuItem("Publish online")) {
             //TODO
         }
+        ImGui::EndDisabled();
         ImGui::SetItemTooltip("Upload your level to %s", P.community_host);
         
+        ImGui::Separator();
+
         //True if current level can be saved as a copy
         //Saves can only be created if current level state is sandbox
         bool can_create_save = G->state.sandbox;
@@ -630,9 +634,47 @@ static void _ui() {
             ImGui::EndMenu();
         }
 
+        ImGui::Separator();
+        
+        if (ImGui::MenuItem("Settings")) {
+            //TODO
+        };
+
+        if (P.user_id && P.username) {
+            ImGui::PushID("##UserMenu");
+            if (ImGui::BeginMenu(P.username)) {
+                if (ImGui::MenuItem("Manage account")) {
+                    char tmp[1024];
+                    snprintf(tmp, 1023, "https://%s/user/%s", P.community_host, P.username);
+                    ui::open_url(tmp);
+                }
+                if (ImGui::MenuItem("Log out")) {
+                    //TODO actually log out
+                    P.user_id = 0;
+                    P.username = nullptr;
+                    P.add_action(ACTION_REFRESH_HEADER_DATA, 0);
+                }
+                ImGui::EndMenu();
+            };
+            ImGui::PopID();
+        } else {
+            if (ImGui::MenuItem("Log in")) {
+                //TODO
+            };
+        }
+        
         if (ImGui::MenuItem("Back to menu")) {
             P.add_action(ACTION_GOTO_MAINMENU, 0);
         };
+
+#ifdef DEBUG
+        ImGui::Separator();
+        if (ImGui::BeginMenu("/// DEBUG ///")) {
+            ImGui::Checkbox("show_demo_window", &show_demo_window);
+            ImGui::Checkbox("settings.debug", (bool*)(&settings["debug"]->v.b));
+            ImGui::EndMenu();
+        };
+#endif
 
         ImGui::EndPopup();
     }
