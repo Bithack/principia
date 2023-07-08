@@ -670,7 +670,9 @@ static void _ui() {
 #ifdef DEBUG
         ImGui::Separator();
         if (ImGui::BeginMenu("/// DEBUG ///")) {
+            ImGui::SeparatorText("ImGuiUiBackend");
             ImGui::Checkbox("show_demo_window", &show_demo_window);
+            ImGui::SeparatorText("GenericOptions");
             ImGui::Checkbox("settings.debug", (bool*)(&settings["debug"]->v.b));
             ImGui::EndMenu();
         };
