@@ -310,8 +310,8 @@ void ui::open_url(const char *url) {
     #elif defined(TMS_BACKEND_LINUX)
         #pragma message("WARNING: Using SDL_OpenURL execlp fallback");
         if (fork() == 0) {
-            execlp("xdg-open", "xdg-open", fullUrl.c_str(), NULL);
-            _exit(0);
+            execlp("xdg-open", "xdg-open", url, NULL);
+            _exit(0);urlu
         }
     #endif
 }
