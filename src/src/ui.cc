@@ -166,6 +166,8 @@ static std::string save_as_name{""};
 static bool error_do_open = false;
 static std::string error_message{""};
 
+static bool change_mode_do_open = false;
+
 int prompt_is_open = 0;
 
 static void ui_open_sb_menu() {
@@ -234,6 +236,10 @@ static void ui_open_error(const char* message) {
     error_message.assign(message);
 }
 
+static void ui_open_change_mode() {
+    change_mode_do_open = true;
+}
+
 void ui::init() {
     //Create context
     IMGUI_CHECKVERSION();
@@ -282,6 +288,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         
         case DIALOG_NEW_LEVEL:
             ui_open_newlvl();
+            break;
+        
+        case DIALOG_SANDBOX_MODE:
+            ui_open_change_mode();
             break;
     }
 }
@@ -741,6 +751,7 @@ static void _ui() {
                     bool allow_delete = io.KeyShift;
                     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, allow_delete ? 1. : .6);
                     if (ImGui::Button("Delete##delete-sandbox-level")) {
+                        G->lock();
                         if (allow_delete && G->delete_level(level->id_type, level->id, level->save_id)) {
                             //If deleting current local level, remove it's local_id
                             //This disables the "save" option
@@ -750,6 +761,7 @@ static void _ui() {
                             //Reload the list of levels
                             ui_lvlman_reload_levels();
                         }
+                        G->unlock();
                     }
                     ImGui::PopStyleVar();
                     if (!allow_delete) ImGui::SetItemTooltip("Hold Shift to unlock");
@@ -878,6 +890,31 @@ static void _ui() {
         ImGui::TextWrapped("%s", error_message.c_str());
         if (ImGui::Button("Copy message")) {
             SDL_SetClipboardText(error_message.c_str());
+        }
+        ImGui::EndPopup();
+    }
+
+    // === CHANGE MODE ===
+    if (change_mode_do_open) {
+        change_mode_do_open = false;
+        ImGui::OpenPopup("change_mode");
+    }
+    if (ImGui::BeginPopup("change_mode", ImGuiWindowFlags_NoMove)) {
+        ImGui::SeparatorText("Sandbox tools");
+        if (ImGui::MenuItem("Multi-select")) {
+            G->lock();
+            G->set_mode(GAME_MODE_MULTISEL);
+            G->unlock();
+        }
+        if (ImGui::MenuItem("Connection edit")) {
+            G->lock();
+            G->set_mode(GAME_MODE_CONN_EDIT);
+            G->unlock();
+        }
+        if (ImGui::MenuItem("Terrain paint")) {
+            G->lock();
+            G->set_mode(GAME_MODE_DRAW);
+            G->unlock();
         }
         ImGui::EndPopup();
     }
