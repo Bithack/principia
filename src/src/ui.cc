@@ -710,7 +710,9 @@ static void _ui() {
                         if (!lvlman_lvl_info_id) {
                             ImGui::TextColored(ImVec4(1.,.3,.3,1.), "Failed to load level metadata");
                         } else if (lvlman_lvl_info.descr_len && lvlman_lvl_info.descr) {
-                            ImGui::TextUnformatted(lvlman_lvl_info.descr);
+                            ImGui::PushTextWrapPos(400);
+                            ImGui::TextWrapped("%s", lvlman_lvl_info.descr);
+                            ImGui::PopTextWrapPos();
                         } else {
                             ImGui::TextColored(ImVec4(.6,.6,.6,1.), "<no description>");
                         }
@@ -726,11 +728,8 @@ static void _ui() {
                 //Version
                 if (ImGui::TableNextColumn()) {
                     const char* version_str = level_version_string(level->version);
-                    if (version_str == "unknown_version") {
-                        version_str = "unknown";
-                    } else if (version_str == "old_level") {
-                        version_str = "old";
-                    }
+                    if (version_str == "unknown_version") version_str = "unknown";
+                    if (version_str == "old_level") version_str = "old";
                     ImGui::Text("%s (%d)", version_str, level->version);
                 }
 
@@ -742,18 +741,16 @@ static void _ui() {
                     bool allow_delete = io.KeyShift;
                     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, allow_delete ? 1. : .6);
                     if (ImGui::Button("Delete##delete-sandbox-level")) {
-                        if (allow_delete) {
-                            if (G->delete_level(level->id_type, level->id, level->save_id)) {
-                                //If deleting current local level, remove it's local_id
-                                //This disables the "save" option
-                                if ((level->id_type == LEVEL_LOCAL) && (level->id == W->level.local_id)) {
-                                    W->level.local_id = 0;
-                                }
-                                //Reload the list of levels
-                                ui_lvlman_reload_levels();
-                            };
+                        if (allow_delete && G->delete_level(level->id_type, level->id, level->save_id)) {
+                            //If deleting current local level, remove it's local_id
+                            //This disables the "save" option
+                            if ((level->id_type == LEVEL_LOCAL) && (level->id == W->level.local_id)) {
+                                W->level.local_id = 0;
+                            }
+                            //Reload the list of levels
+                            ui_lvlman_reload_levels();
                         }
-                    };
+                    }
                     ImGui::PopStyleVar();
                     if (!allow_delete) ImGui::SetItemTooltip("Hold Shift to unlock");
 
@@ -882,7 +879,7 @@ static void _ui() {
         if (ImGui::Button("Copy message")) {
             SDL_SetClipboardText(error_message.c_str());
         }
-        ImGui::EndPopup();;
+        ImGui::EndPopup();
     }
 }
 
