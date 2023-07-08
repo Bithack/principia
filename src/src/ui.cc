@@ -687,7 +687,7 @@ static void _ui() {
         ImGui::OpenPopup("Level manager");
     }
     //set max height instead?
-    ImGui::SetNextWindowSize(ImVec2(800., 600.));
+    ImGui::SetNextWindowSize(ImVec2(800., 0.));
     ImGui_AlignNextWindow();
     p = true;
     if (ImGui::BeginPopupModal("Level manager", &p, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
@@ -710,7 +710,7 @@ static void _ui() {
             //Align stuff to the right
             //lvlname width + padding
             ImGui::SameLine();
-            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (200. + 22.));
+            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (200. + 10.));
             
             //Actual level name field
             ImGui::PushItemWidth(200.);
@@ -721,13 +721,14 @@ static void _ui() {
         ImGui::Separator();
 
         //Actual level list
-        if (ImGui::BeginTable("save_list", 5, ImGuiTableFlags_BordersInnerV)) {
+        ImGui::BeginChild("save_list_child", ImVec2(0., 500.), false);
+        if (ImGui::BeginTable("save_list", 5, ImGuiTableFlags_Borders)) {
             //Setup table columns
-            ImGui::TableSetupColumn("ID");
+            ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed);
             ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);
-            ImGui::TableSetupColumn("Last modified");
-            ImGui::TableSetupColumn("Version");
-            ImGui::TableSetupColumn("Actions");
+            ImGui::TableSetupColumn("Last modified", ImGuiTableColumnFlags_WidthFixed);
+            ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
+            ImGui::TableSetupColumn("Actions", ImGuiTableColumnFlags_WidthFixed);
             ImGui::TableHeadersRow();
 
             lvlfile *level = lvlman_level_list;
@@ -840,6 +841,7 @@ static void _ui() {
                 ImGui::PopID();
             }
             ImGui::EndTable();
+            ImGui::EndChild();
         }
         if (!any_level_found) {
             ImGui::TextUnformatted("No levels found");
