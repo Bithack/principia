@@ -891,6 +891,10 @@ static void _ui() {
         if (ImGui::Button("Copy message")) {
             SDL_SetClipboardText(error_message.c_str());
         }
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel##oops-cancel")) {
+            ImGui::CloseCurrentPopup();
+        }
         ImGui::EndPopup();
     }
 
