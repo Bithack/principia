@@ -141,6 +141,7 @@ void ui::alert(const char*, uint8_t/*=ALERT_INFORMATION*/) {};
 #include <SDL_syswm.h>
 #include <string>
 #include <stdio.h>
+#include <unistd.h>
 
 static bool show_demo_window = false;
 
@@ -301,7 +302,18 @@ void ui::open_sandbox_tips() {
 }
 
 void ui::open_url(const char *url) {
-    SDL_OpenURL(url);
+    #if SDL_VERSION_ATLEAST(2,0,14)
+        SDL_OpenURL(url);
+    #elif defined(TMS_BACKEND_WINDOWS)
+        #pragma message("Using SDL_OpenURL ShellExecute fallback");
+        ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
+    #elif defined(TMS_BACKEND_LINUX)
+        #pragma message("Using SDL_OpenURL execlp fallback");
+        if (fork() == 0) {
+            execlp("xdg-open", "xdg-open", fullUrl.c_str(), NULL);
+            _exit(0);
+        }
+    #endif
 }
 
 void ui::open_error_dialog(const char *error_msg) {
