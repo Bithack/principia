@@ -143,6 +143,8 @@ void ui::alert(const char*, uint8_t/*=ALERT_INFORMATION*/) {};
 #include <stdio.h>
 #include <unistd.h>
 
+int prompt_is_open = 0;
+
 static bool show_demo_window = false;
 
 static bool tips_do_open = false;
@@ -169,7 +171,10 @@ static std::string error_message{""};
 
 static bool change_mode_do_open = false;
 
-int prompt_is_open = 0;
+static bool escript_do_open = false;
+static std::string* escript_code = nullptr;
+static uint32_t escript_flags = 0;
+static uint32_t escript_resolvid = 0;
 
 static void ui_open_sb_menu() {
     sb_menu_do_open = true;
@@ -241,6 +246,17 @@ static void ui_open_change_mode() {
     change_mode_do_open = true;
 }
 
+static void ui_open_escript(std::string *code) {
+    if (escript_code) delete escript_code;
+    escript_do_open = true;
+    escript_code = code;
+}
+
+static void ui_open_escript_ent(const entity *e) {
+    std::string *escript_code = new std::string(e->properties[0].v.s.buf, e->properties[0].v.s.len);
+    ui_open_escript(escript_code);
+}
+
 void ui::init() {
     //Create context
     IMGUI_CHECKVERSION();
@@ -293,6 +309,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         
         case DIALOG_SANDBOX_MODE:
             ui_open_change_mode();
+            break;
+
+        case DIALOG_ESCRIPT:
+            ui_open_escript_ent(G->selection.e);
             break;
     }
 }
@@ -978,6 +998,22 @@ static void _ui() {
             G->set_mode(GAME_MODE_DRAW);
             G->unlock();
         }
+        ImGui::EndPopup();
+    }
+
+    //ESCRIPT
+    if (escript_do_open) {
+        escript_do_open = false;
+        ImGui::OpenPopup("Lua Script");
+    }
+    ImGui_AlignNextWindow();
+    p = true;
+    if (ImGui::BeginPopupModal("Lua Script", &p, ImGuiWindowFlags_NoCollapse)) {
+        ImGui::InputTextMultiline("##source", escript_code, ImVec2(
+            ImGui::GetContentRegionAvail().x,
+            std::max(300.f, ImGui::GetContentRegionAvail().y)
+        ), ImGuiInputTextFlags_AllowTabInput);
+        //TODO: Cancel/save buttons, various options...
         ImGui::EndPopup();
     }
 }
