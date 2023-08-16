@@ -31,13 +31,7 @@
 
 #include "SDL_mixer.h"
 #include "load_aiff.h"
-#include "load_voc.h"
 #include "load_ogg.h"
-#include "load_flac.h"
-#include "dynamic_flac.h"
-#include "dynamic_modplug.h"
-#include "dynamic_mod.h"
-#include "dynamic_mp3.h"
 #include "dynamic_ogg.h"
 
 #define __MIX_INTERNAL_EFFECT__
@@ -150,49 +144,19 @@ int Mix_Init(int flags)
     int result = 0;
 
     if (flags & MIX_INIT_FLUIDSYNTH) {
-#ifdef USE_FLUIDSYNTH_MIDI
-        if ((initialized & MIX_INIT_FLUIDSYNTH) || Mix_InitFluidSynth() == 0) {
-            result |= MIX_INIT_FLUIDSYNTH;
-        }
-#else
         Mix_SetError("Mixer not built with FluidSynth support");
-#endif
     }
     if (flags & MIX_INIT_FLAC) {
-#ifdef FLAC_MUSIC
-        if ((initialized & MIX_INIT_FLAC) || Mix_InitFLAC() == 0) {
-            result |= MIX_INIT_FLAC;
-        }
-#else
         Mix_SetError("Mixer not built with FLAC support");
-#endif
     }
     if (flags & MIX_INIT_MODPLUG) {
-#ifdef MODPLUG_MUSIC
-        if ((initialized & MIX_INIT_MODPLUG) || Mix_InitModPlug() == 0) {
-            result |= MIX_INIT_MODPLUG;
-        }
-#else
         Mix_SetError("Mixer not built with MOD modplug support");
-#endif
     }
     if (flags & MIX_INIT_MOD) {
-#ifdef MOD_MUSIC
-        if ((initialized & MIX_INIT_MOD) || Mix_InitMOD() == 0) {
-            result |= MIX_INIT_MOD;
-        }
-#else
         Mix_SetError("Mixer not built with MOD timidity support");
-#endif
     }
     if (flags & MIX_INIT_MP3) {
-#ifdef MP3_MUSIC
-        if ((initialized & MIX_INIT_MP3) || Mix_InitMP3() == 0) {
-            result |= MIX_INIT_MP3;
-        }
-#else
         Mix_SetError("Mixer not built with MP3 support");
-#endif
     }
     if (flags & MIX_INIT_OGG) {
 #ifdef OGG_MUSIC
@@ -210,40 +174,9 @@ int Mix_Init(int flags)
 
 void Mix_Quit()
 {
-#ifdef USE_FLUIDSYNTH_MIDI
-    if (initialized & MIX_INIT_FLUIDSYNTH) {
-        Mix_QuitFluidSynth();
-    }
-#endif
-#ifdef FLAC_MUSIC
-    if (initialized & MIX_INIT_FLAC) {
-        Mix_QuitFLAC();
-    }
-#endif
-#ifdef MODPLUG_MUSIC
-    if (initialized & MIX_INIT_MODPLUG) {
-        Mix_QuitModPlug();
-    }
-#endif
-#ifdef MOD_MUSIC
-    if (initialized & MIX_INIT_MOD) {
-        Mix_QuitMOD();
-    }
-#endif
-#ifdef MP3_MUSIC
-    if (initialized & MIX_INIT_MP3) {
-        Mix_QuitMP3();
-    }
-#endif
 #ifdef OGG_MUSIC
     if (initialized & MIX_INIT_OGG) {
         Mix_QuitOgg();
-    }
-#endif
-#ifdef MID_MUSIC
-    if (soundfont_paths) {
-        SDL_free(soundfont_paths);
-        soundfont_paths = NULL;
     }
 #endif
     initialized = 0;
@@ -486,12 +419,8 @@ int Mix_OpenAudio(int frequency, Uint16 format, int nchannels, int chunksize)
     /* This list is (currently) decided at build time. */
     add_chunk_decoder("WAVE");
     add_chunk_decoder("AIFF");
-    add_chunk_decoder("VOC");
 #ifdef OGG_MUSIC
     add_chunk_decoder("OGG");
-#endif
-#ifdef FLAC_MUSIC
-    add_chunk_decoder("FLAC");
 #endif
 
     audio_opened = 1;
@@ -618,16 +547,7 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
                     (Uint8 **)&chunk->abuf, &chunk->alen);
             break;
 #endif
-#ifdef FLAC_MUSIC
-        case FLAC:
-            loaded = Mix_LoadFLAC_RW(src, freesrc, &wavespec,
-                    (Uint8 **)&chunk->abuf, &chunk->alen);
-            break;
-#endif
-        case CREA:
-            loaded = Mix_LoadVOC_RW(src, freesrc, &wavespec,
-                    (Uint8 **)&chunk->abuf, &chunk->alen);
-            break;
+
         default:
             SDL_SetError("Unrecognized sound file type");
             if ( freesrc ) {

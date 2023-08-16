@@ -31,46 +31,12 @@
 
 #include "SDL_mixer.h"
 
-#ifdef CMD_MUSIC
-#include "music_cmd.h"
-#endif
 #ifdef WAV_MUSIC
 #include "wavestream.h"
-#endif
-#ifdef MODPLUG_MUSIC
-#include "music_modplug.h"
-#endif
-#ifdef MOD_MUSIC
-#include "music_mod.h"
-#endif
-#ifdef MID_MUSIC
-#  ifdef USE_TIMIDITY_MIDI
-#    include "timidity.h"
-#  endif
-#  ifdef USE_FLUIDSYNTH_MIDI
-#    include "fluidsynth.h"
-#  endif
-#  ifdef USE_NATIVE_MIDI
-#    include "native_midi.h"
-#  endif
 #endif
 #ifdef OGG_MUSIC
 #include "music_ogg.h"
 #endif
-#ifdef MP3_MUSIC
-#include "dynamic_mp3.h"
-#endif
-#ifdef MP3_MAD_MUSIC
-#include "music_mad.h"
-#endif
-#ifdef FLAC_MUSIC
-#include "music_flac.h"
-#endif
-
-#if defined(MP3_MUSIC) || defined(MP3_MAD_MUSIC)
-static SDL_AudioSpec used_mixer;
-#endif
-
 
 int volatile music_active = 1;
 static int volatile music_stopped = 0;
@@ -82,40 +48,11 @@ static int music_volume = MIX_MAX_VOLUME;
 struct _Mix_Music {
     Mix_MusicType type;
     union {
-#ifdef CMD_MUSIC
-        MusicCMD *cmd;
-#endif
 #ifdef WAV_MUSIC
         WAVStream *wave;
 #endif
-#ifdef MODPLUG_MUSIC
-        modplug_data *modplug;
-#endif
-#ifdef MOD_MUSIC
-        struct MODULE *module;
-#endif
-#ifdef MID_MUSIC
-#ifdef USE_TIMIDITY_MIDI
-        MidiSong *midi;
-#endif
-#ifdef USE_FLUIDSYNTH_MIDI
-        FluidSynthMidiSong *fluidsynthmidi;
-#endif
-#ifdef USE_NATIVE_MIDI
-        NativeMidiSong *nativemidi;
-#endif
-#endif
 #ifdef OGG_MUSIC
         OGG_music *ogg;
-#endif
-#ifdef MP3_MUSIC
-        SMPEG *mp3;
-#endif
-#ifdef MP3_MAD_MUSIC
-        mad_data *mp3_mad;
-#endif
-#ifdef FLAC_MUSIC
-        FLAC_music *flac;
 #endif
     } data;
     Mix_Fading fading;
@@ -123,18 +60,6 @@ struct _Mix_Music {
     int fade_steps;
     int error;
 };
-#ifdef MID_MUSIC
-#ifdef USE_TIMIDITY_MIDI
-static int timidity_ok;
-static int samplesize;
-#endif
-#ifdef USE_FLUIDSYNTH_MIDI
-static int fluidsynth_ok;
-#endif
-#ifdef USE_NATIVE_MIDI
-static int native_midi_ok;
-#endif
-#endif
 
 /* Used to calculate fading steps */
 static int ms_per_step;
@@ -143,10 +68,6 @@ static int ms_per_step;
 static const char **music_decoders = NULL;
 static int num_decoders = 0;
 
-/* Semicolon-separated SoundFont paths */
-#ifdef MID_MUSIC
-char* soundfont_paths = NULL;
-#endif
 
 int Mix_GetNumMusicDecoders(void)
 {
@@ -268,68 +189,14 @@ void music_mixer(void *udata, Uint8 *stream, int len)
             return;
 
         switch (music_playing->type) {
-#ifdef CMD_MUSIC
-            case MUS_CMD:
-                /* The playing is done externally */
-                break;
-#endif
 #ifdef WAV_MUSIC
             case MUS_WAV:
                 left = WAVStream_PlaySome(stream, len);
                 break;
 #endif
-#ifdef MODPLUG_MUSIC
-            case MUS_MODPLUG:
-                left = modplug_playAudio(music_playing->data.modplug, stream, len);
-                break;
-#endif
-#ifdef MOD_MUSIC
-            case MUS_MOD:
-                left = MOD_playAudio(music_playing->data.module, stream, len);
-                break;
-#endif
-#ifdef MID_MUSIC
-            case MUS_MID:
-#ifdef USE_NATIVE_MIDI
-                if ( native_midi_ok ) {
-                    /* Native midi is handled asynchronously */
-                    goto skip;
-                }
-#endif
-#ifdef USE_FLUIDSYNTH_MIDI
-                if ( fluidsynth_ok ) {
-                    fluidsynth_playsome(music_playing->data.fluidsynthmidi, stream, len);
-                    goto skip;
-                }
-#endif
-#ifdef USE_TIMIDITY_MIDI
-                if ( timidity_ok ) {
-                    int samples = len / samplesize;
-                    Timidity_PlaySome(stream, samples);
-                    goto skip;
-                }
-#endif
-                break;
-#endif
 #ifdef OGG_MUSIC
             case MUS_OGG:
-
                 left = OGG_playAudio(music_playing->data.ogg, stream, len);
-                break;
-#endif
-#ifdef FLAC_MUSIC
-            case MUS_FLAC:
-                left = FLAC_playAudio(music_playing->data.flac, stream, len);
-                break;
-#endif
-#ifdef MP3_MUSIC
-            case MUS_MP3:
-                left = (len - smpeg.SMPEG_playAudio(music_playing->data.mp3, stream, len));
-                break;
-#endif
-#ifdef MP3_MAD_MUSIC
-            case MUS_MP3_MAD:
-                left = mad_getSamples(music_playing->data.mp3_mad, stream, len);
                 break;
 #endif
             default:
@@ -355,66 +222,11 @@ int open_music(SDL_AudioSpec *mixer)
         add_music_decoder("WAVE");
     }
 #endif
-#ifdef MODPLUG_MUSIC
-    if ( modplug_init(mixer) == 0 ) {
-        add_music_decoder("MODPLUG");
-    }
-#endif
-#ifdef MOD_MUSIC
-    if ( MOD_init(mixer) == 0 ) {
-        add_music_decoder("MIKMOD");
-    }
-#endif
-#ifdef MID_MUSIC
-#ifdef USE_TIMIDITY_MIDI
-    samplesize = mixer->size / mixer->samples;
-    if ( Timidity_Init(mixer->freq, mixer->format,
-                        mixer->channels, mixer->samples) == 0 ) {
-        timidity_ok = 1;
-        add_music_decoder("TIMIDITY");
-    } else {
-        timidity_ok = 0;
-    }
-#endif
-#ifdef USE_FLUIDSYNTH_MIDI
-    if ( fluidsynth_init(mixer) == 0 ) {
-        fluidsynth_ok = 1;
-        add_music_decoder("FLUIDSYNTH");
-    } else {
-        fluidsynth_ok = 0;
-    }
-#endif
-#ifdef USE_NATIVE_MIDI
-#ifdef USE_FLUIDSYNTH_MIDI
-    native_midi_ok = !fluidsynth_ok;
-    if ( native_midi_ok )
-#endif
-#ifdef USE_TIMIDITY_MIDI
-        native_midi_ok = !timidity_ok;
-    if ( !native_midi_ok ) {
-        native_midi_ok = (getenv("SDL_NATIVE_MUSIC") != NULL);
-    }
-    if ( native_midi_ok )
-#endif
-        native_midi_ok = native_midi_detect();
-    if ( native_midi_ok )
-        add_music_decoder("NATIVEMIDI");
-#endif
-#endif
+
 #ifdef OGG_MUSIC
     if ( OGG_init(mixer) == 0 ) {
         add_music_decoder("OGG");
     }
-#endif
-#ifdef FLAC_MUSIC
-    if ( FLAC_init(mixer) == 0 ) {
-        add_music_decoder("FLAC");
-    }
-#endif
-#if defined(MP3_MUSIC) || defined(MP3_MAD_MUSIC)
-    /* Keep a copy of the mixer */
-    used_mixer = *mixer;
-    add_music_decoder("MP3");
 #endif
 
     music_playing = NULL;
@@ -487,20 +299,6 @@ static Mix_MusicType detect_music_type(SDL_RWops *src)
     /* Ogg Vorbis files have the magic four bytes "OggS" */
     if (strcmp((char *)magic, "OggS") == 0) {
         return MUS_OGG;
-    }
-
-    /* FLAC files have the magic four bytes "fLaC" */
-    if (strcmp((char *)magic, "fLaC") == 0) {
-        return MUS_FLAC;
-    }
-
-    /* MIDI files have the magic four bytes "MThd" */
-    if (strcmp((char *)magic, "MThd") == 0) {
-        return MUS_MID;
-    }
-
-    if (detect_mp3(magic)) {
-        return MUS_MP3;
     }
 
     /* Assume MOD format.
@@ -641,107 +439,6 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
         }
         break;
 #endif
-#ifdef FLAC_MUSIC
-    case MUS_FLAC:
-        music->type = MUS_FLAC;
-        music->data.flac = FLAC_new_RW(src, freesrc);
-        if (music->data.flac) {
-            music->error = 0;
-        }
-        break;
-#endif
-#ifdef MP3_MUSIC
-    case MUS_MP3:
-        if (Mix_Init(MIX_INIT_MP3)) {
-            SMPEG_Info info;
-            music->type = MUS_MP3;
-            music->data.mp3 = smpeg.SMPEG_new_rwops(src, &info, freesrc, 0);
-            if (!info.has_audio) {
-                Mix_SetError("MPEG file does not have any audio stream.");
-                smpeg.SMPEG_delete(music->data.mp3);
-                /* Deleting the MP3 closed the source if desired */
-                freesrc = SDL_FALSE;
-            } else {
-                smpeg.SMPEG_actualSpec(music->data.mp3, &used_mixer);
-                music->error = 0;
-            }
-        }
-        break;
-#elif defined(MP3_MAD_MUSIC)
-    case MUS_MP3:
-        music->type = MUS_MP3_MAD;
-        music->data.mp3_mad = mad_openFileRW(src, &used_mixer, freesrc);
-        if (music->data.mp3_mad) {
-            music->error = 0;
-        } else {
-            Mix_SetError("Could not initialize MPEG stream.");
-        }
-        break;
-#endif
-#ifdef MID_MUSIC
-    case MUS_MID:
-        music->type = MUS_MID;
-#ifdef USE_NATIVE_MIDI
-        if (native_midi_ok) {
-            SDL_RWseek(src, start, RW_SEEK_SET);
-            music->data.nativemidi = native_midi_loadsong_RW(src, freesrc);
-            if (music->data.nativemidi) {
-                music->error = 0;
-            } else {
-                Mix_SetError("%s", native_midi_error());
-            }
-            break;
-        }
-#endif
-#ifdef USE_FLUIDSYNTH_MIDI
-        if (fluidsynth_ok) {
-            SDL_RWseek(src, start, RW_SEEK_SET);
-            music->data.fluidsynthmidi = fluidsynth_loadsong_RW(src, freesrc);
-            if (music->data.fluidsynthmidi) {
-                music->error = 0;
-            }
-            break;
-        }
-#endif
-#ifdef USE_TIMIDITY_MIDI
-        if (timidity_ok) {
-            SDL_RWseek(src, start, RW_SEEK_SET);
-            music->data.midi = Timidity_LoadSong_RW(src, freesrc);
-            if (music->data.midi) {
-                music->error = 0;
-            } else {
-                Mix_SetError("%s", Timidity_Error());
-            }
-        } else {
-            Mix_SetError("%s", Timidity_Error());
-        }
-#endif
-        break;
-#endif
-#if defined(MODPLUG_MUSIC) || defined(MOD_MUSIC)
-    case MUS_MOD:
-#ifdef MODPLUG_MUSIC
-        if (music->error) {
-            SDL_RWseek(src, start, RW_SEEK_SET);
-            music->type = MUS_MODPLUG;
-            music->data.modplug = modplug_new_RW(src, freesrc);
-            if (music->data.modplug) {
-                music->error = 0;
-            }
-        }
-#endif
-#ifdef MOD_MUSIC
-        if (music->error) {
-            SDL_RWseek(src, start, RW_SEEK_SET);
-            music->type = MUS_MOD;
-            music->data.module = MOD_new_RW(src, freesrc);
-            if (music->data.module) {
-                music->error = 0;
-            }
-        }
-#endif
-        break;
-#endif
 
     default:
         Mix_SetError("Unrecognized music format");
@@ -779,66 +476,16 @@ void Mix_FreeMusic(Mix_Music *music)
         }
         SDL_UnlockAudio();
         switch (music->type) {
-#ifdef CMD_MUSIC
-            case MUS_CMD:
-                MusicCMD_FreeSong(music->data.cmd);
-                break;
-#endif
+
 #ifdef WAV_MUSIC
             case MUS_WAV:
                 WAVStream_FreeSong(music->data.wave);
                 break;
 #endif
-#ifdef MODPLUG_MUSIC
-            case MUS_MODPLUG:
-                modplug_delete(music->data.modplug);
-                break;
-#endif
-#ifdef MOD_MUSIC
-            case MUS_MOD:
-                MOD_delete(music->data.module);
-                break;
-#endif
-#ifdef MID_MUSIC
-            case MUS_MID:
-#ifdef USE_NATIVE_MIDI
-                if ( native_midi_ok ) {
-                    native_midi_freesong(music->data.nativemidi);
-                    goto skip;
-                }
-#endif
-#ifdef USE_FLUIDSYNTH_MIDI
-                if ( fluidsynth_ok ) {
-                    fluidsynth_freesong(music->data.fluidsynthmidi);
-                    goto skip;
-                }
-#endif
-#ifdef USE_TIMIDITY_MIDI
-                if ( timidity_ok ) {
-                    Timidity_FreeSong(music->data.midi);
-                    goto skip;
-                }
-#endif
-                break;
-#endif
+
 #ifdef OGG_MUSIC
             case MUS_OGG:
                 OGG_delete(music->data.ogg);
-                break;
-#endif
-#ifdef FLAC_MUSIC
-            case MUS_FLAC:
-                FLAC_delete(music->data.flac);
-                break;
-#endif
-#ifdef MP3_MUSIC
-            case MUS_MP3:
-                smpeg.SMPEG_delete(music->data.mp3);
-                break;
-#endif
-#ifdef MP3_MAD_MUSIC
-            case MUS_MP3_MAD:
-                mad_closeFile(music->data.mp3_mad);
                 break;
 #endif
             default:
@@ -910,64 +557,12 @@ static int music_internal_play(Mix_Music *music, double position)
         WAVStream_Start(music->data.wave);
         break;
 #endif
-#ifdef MODPLUG_MUSIC
-        case MUS_MODPLUG:
-        /* can't set volume until file is loaded, so finally set it now */
-        music_internal_initialize_volume();
-        modplug_play(music->data.modplug);
-        break;
-#endif
-#ifdef MOD_MUSIC
-        case MUS_MOD:
-        MOD_play(music->data.module);
-        /* Player_SetVolume() does nothing before Player_Start() */
-        music_internal_initialize_volume();
-        break;
-#endif
-#ifdef MID_MUSIC
-        case MUS_MID:
-#ifdef USE_NATIVE_MIDI
-        if ( native_midi_ok ) {
-            native_midi_start(music->data.nativemidi, music_loops);
-            goto skip;
-        }
-#endif
-#ifdef USE_FLUIDSYNTH_MIDI
-        if (fluidsynth_ok ) {
-            fluidsynth_start(music->data.fluidsynthmidi);
-            goto skip;
-        }
-#endif
-#ifdef USE_TIMIDITY_MIDI
-        if ( timidity_ok ) {
-            Timidity_Start(music->data.midi);
-            goto skip;
-        }
-#endif
-        break;
-#endif
 #ifdef OGG_MUSIC
         case MUS_OGG:
         OGG_play(music->data.ogg);
         break;
 #endif
-#ifdef FLAC_MUSIC
-        case MUS_FLAC:
-        FLAC_play(music->data.flac);
-        break;
-#endif
-#ifdef MP3_MUSIC
-        case MUS_MP3:
-        smpeg.SMPEG_enableaudio(music->data.mp3,1);
-        smpeg.SMPEG_enablevideo(music->data.mp3,0);
-        smpeg.SMPEG_play(music_playing->data.mp3);
-        break;
-#endif
-#ifdef MP3_MAD_MUSIC
-        case MUS_MP3_MAD:
-        mad_start(music->data.mp3_mad);
-        break;
-#endif
+
         default:
         Mix_SetError("Can't play unknown music type");
         retval = -1;
@@ -1051,38 +646,9 @@ int music_internal_position(double position)
     int retval = 0;
 
     switch (music_playing->type) {
-#ifdef MODPLUG_MUSIC
-        case MUS_MODPLUG:
-        modplug_jump_to_time(music_playing->data.modplug, position);
-        break;
-#endif
-#ifdef MOD_MUSIC
-        case MUS_MOD:
-        MOD_jump_to_time(music_playing->data.module, position);
-        break;
-#endif
 #ifdef OGG_MUSIC
         case MUS_OGG:
         OGG_jump_to_time(music_playing->data.ogg, position);
-        break;
-#endif
-#ifdef FLAC_MUSIC
-        case MUS_FLAC:
-        FLAC_jump_to_time(music_playing->data.flac, position);
-        break;
-#endif
-#ifdef MP3_MUSIC
-        case MUS_MP3:
-        smpeg.SMPEG_rewind(music_playing->data.mp3);
-        smpeg.SMPEG_play(music_playing->data.mp3);
-        if ( position > 0.0 ) {
-            smpeg.SMPEG_skip(music_playing->data.mp3, (float)position);
-        }
-        break;
-#endif
-#ifdef MP3_MAD_MUSIC
-        case MUS_MP3_MAD:
-        mad_seek(music_playing->data.mp3_mad, position);
         break;
 #endif
         default:
@@ -1125,66 +691,14 @@ static void music_internal_initialize_volume(void)
 static void music_internal_volume(int volume)
 {
     switch (music_playing->type) {
-#ifdef CMD_MUSIC
-        case MUS_CMD:
-        MusicCMD_SetVolume(volume);
-        break;
-#endif
 #ifdef WAV_MUSIC
         case MUS_WAV:
         WAVStream_SetVolume(volume);
         break;
 #endif
-#ifdef MODPLUG_MUSIC
-        case MUS_MODPLUG:
-        modplug_setvolume(music_playing->data.modplug, volume);
-        break;
-#endif
-#ifdef MOD_MUSIC
-        case MUS_MOD:
-        MOD_setvolume(music_playing->data.module, volume);
-        break;
-#endif
-#ifdef MID_MUSIC
-        case MUS_MID:
-#ifdef USE_NATIVE_MIDI
-        if ( native_midi_ok ) {
-            native_midi_setvolume(volume);
-            return;
-        }
-#endif
-#ifdef USE_FLUIDSYNTH_MIDI
-        if ( fluidsynth_ok ) {
-            fluidsynth_setvolume(music_playing->data.fluidsynthmidi, volume);
-            return;
-        }
-#endif
-#ifdef USE_TIMIDITY_MIDI
-        if ( timidity_ok ) {
-            Timidity_SetVolume(volume);
-            return;
-        }
-#endif
-        break;
-#endif
 #ifdef OGG_MUSIC
         case MUS_OGG:
         OGG_setvolume(music_playing->data.ogg, volume);
-        break;
-#endif
-#ifdef FLAC_MUSIC
-        case MUS_FLAC:
-        FLAC_setvolume(music_playing->data.flac, volume);
-        break;
-#endif
-#ifdef MP3_MUSIC
-        case MUS_MP3:
-        smpeg.SMPEG_setvolume(music_playing->data.mp3,(int)(((float)volume/(float)MIX_MAX_VOLUME)*100.0));
-        break;
-#endif
-#ifdef MP3_MAD_MUSIC
-        case MUS_MP3_MAD:
-        mad_setVolume(music_playing->data.mp3_mad, volume);
         break;
 #endif
         default:
@@ -1216,66 +730,14 @@ int Mix_VolumeMusic(int volume)
 static void music_internal_halt(void)
 {
     switch (music_playing->type) {
-#ifdef CMD_MUSIC
-        case MUS_CMD:
-        MusicCMD_Stop(music_playing->data.cmd);
-        break;
-#endif
 #ifdef WAV_MUSIC
         case MUS_WAV:
         WAVStream_Stop();
         break;
 #endif
-#ifdef MODPLUG_MUSIC
-        case MUS_MODPLUG:
-        modplug_stop(music_playing->data.modplug);
-        break;
-#endif
-#ifdef MOD_MUSIC
-        case MUS_MOD:
-        MOD_stop(music_playing->data.module);
-        break;
-#endif
-#ifdef MID_MUSIC
-        case MUS_MID:
-#ifdef USE_NATIVE_MIDI
-        if ( native_midi_ok ) {
-            native_midi_stop();
-            goto skip;
-        }
-#endif
-#ifdef USE_FLUIDSYNTH_MIDI
-        if ( fluidsynth_ok ) {
-            fluidsynth_stop(music_playing->data.fluidsynthmidi);
-            goto skip;
-        }
-#endif
-#ifdef USE_TIMIDITY_MIDI
-        if ( timidity_ok ) {
-            Timidity_Stop();
-            goto skip;
-        }
-#endif
-        break;
-#endif
 #ifdef OGG_MUSIC
         case MUS_OGG:
         OGG_stop(music_playing->data.ogg);
-        break;
-#endif
-#ifdef FLAC_MUSIC
-        case MUS_FLAC:
-        FLAC_stop(music_playing->data.flac);
-        break;
-#endif
-#ifdef MP3_MUSIC
-        case MUS_MP3:
-        smpeg.SMPEG_stop(music_playing->data.mp3);
-        break;
-#endif
-#ifdef MP3_MAD_MUSIC
-        case MUS_MP3_MAD:
-        mad_stop(music_playing->data.mp3_mad);
         break;
 #endif
         default:
@@ -1386,13 +848,6 @@ static int music_internal_playing()
     }
 
     switch (music_playing->type) {
-#ifdef CMD_MUSIC
-        case MUS_CMD:
-        if (!MusicCMD_Active(music_playing->data.cmd)) {
-            playing = 0;
-        }
-        break;
-#endif
 #ifdef WAV_MUSIC
         case MUS_WAV:
         if ( ! WAVStream_Active() ) {
@@ -1400,68 +855,10 @@ static int music_internal_playing()
         }
         break;
 #endif
-#ifdef MODPLUG_MUSIC
-        case MUS_MODPLUG:
-        if ( ! modplug_playing(music_playing->data.modplug) ) {
-            playing = 0;
-        }
-        break;
-#endif
-#ifdef MOD_MUSIC
-        case MUS_MOD:
-        if ( ! MOD_playing(music_playing->data.module) ) {
-            playing = 0;
-        }
-        break;
-#endif
-#ifdef MID_MUSIC
-        case MUS_MID:
-#ifdef USE_NATIVE_MIDI
-        if ( native_midi_ok ) {
-            if ( ! native_midi_active() )
-                playing = 0;
-            goto skip;
-        }
-#endif
-#ifdef USE_FLUIDSYNTH_MIDI
-        if ( fluidsynth_ok ) {
-            if ( ! fluidsynth_active(music_playing->data.fluidsynthmidi) )
-                playing = 0;
-            goto skip;
-        }
-#endif
-#ifdef USE_TIMIDITY_MIDI
-        if ( timidity_ok ) {
-            if ( ! Timidity_Active() )
-                playing = 0;
-            goto skip;
-        }
-#endif
-        break;
-#endif
+
 #ifdef OGG_MUSIC
         case MUS_OGG:
         if ( ! OGG_playing(music_playing->data.ogg) ) {
-            playing = 0;
-        }
-        break;
-#endif
-#ifdef FLAC_MUSIC
-        case MUS_FLAC:
-        if ( ! FLAC_playing(music_playing->data.flac) ) {
-            playing = 0;
-        }
-        break;
-#endif
-#ifdef MP3_MUSIC
-        case MUS_MP3:
-        if ( smpeg.SMPEG_status(music_playing->data.mp3) != SMPEG_PLAYING )
-            playing = 0;
-        break;
-#endif
-#ifdef MP3_MAD_MUSIC
-        case MUS_MP3_MAD:
-        if (!mad_isPlaying(music_playing->data.mp3_mad)) {
             playing = 0;
         }
         break;
