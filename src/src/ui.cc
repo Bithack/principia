@@ -7160,10 +7160,13 @@ open_menu_item_activated(GtkMenuItem *i, gpointer userdata)
                     &iter,
                     OC_VERSION,
                     &val_version);
-            uint8_t version = g_value_get_uint(&val_version);
+            const char *version = g_value_get_string(&val_version);
 
-            snprintf(msg, 2048, "Name: %s\nVersion: %" PRIu8 "\nLast modified: %s",
-                    name, version, lastmodified);
+            snprintf(
+                msg, 2048,
+                "Name: %s\nVersion: %s\nLast modified: %s",
+                name, version, lastmodified
+            );
 
             g_object_set(msg_dialog, "text", msg, NULL);
 
