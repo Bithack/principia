@@ -8,7 +8,8 @@ GLOBAL_FLAGS := -DGL_GLEXT_PROTOTYPES \
 				-DLUASOCKET_INET_PTON \
 				-D__STDC_FORMAT_MACROS=1 \
 				-DSDL_NO_COMPAT \
-				-DUNICODE
+				-DUNICODE \
+				-DUSE_GTK_SOURCE_VIEW
 
 GLOBAL_FLAGS += -I../src/tms/backends/linux/ \
 				-I../src/src/ -I../src/ -I/usr/include/ \
@@ -20,11 +21,12 @@ GLOBAL_FLAGS += -I../src/tms/backends/linux/ \
 				-I../src/include/ \
 				-I../src/gtk-undo \
 				${GTK_CFLAGS} \
+				${GTK_SOURCEVIEW_CFLAGS} \
 				-I../src/lua/
 
 principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
 principia_CXXFLAGS = ${GLOBAL_FLAGS}
-principia_LDADD = -lz -ldl -lGL -lGLEW -lpthread -lX11 -lXi -lrt ${GTK_LIBS} -lcurl -ljpeg -lpng -lfreetype ${SDL2_LIBS} ${SDL2_TTF_LIBS} ${SDL2_GFX_LIBS} ${SDL2_IMAGE_LIBS} ${SDL2_MIXER_LIBS}
+principia_LDADD = -lz -ldl -lGL -lGLEW -lpthread -lX11 -lXi -lrt ${GTK_SOURCEVIEW_LIBS} ${GTK_LIBS} -lcurl -ljpeg -lpng -lfreetype ${SDL2_LIBS} ${SDL2_TTF_LIBS} ${SDL2_GFX_LIBS} ${SDL2_IMAGE_LIBS} ${SDL2_MIXER_LIBS}
 principia_LDFLAGS = 
 
 principia_SOURCES = \
@@ -65,10 +67,6 @@ principia_SOURCES = \
 ../src/tms/backends/linux/main.cc \
 ../src/tms/bindings/cpp/cpp.cc \
 ../src/tms/modules/3ds/3ds.c \
-\
-\
-../src/gtk-undo/undo_manager.c \
-../src/gtk-undo/undo_view.c \
 \
 ../src/lua/eris.c \
 ../src/lua/lapi.c \

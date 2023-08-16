@@ -7,7 +7,8 @@
 , fribidi
 , freetype
 , glew
-, gtk2
+, gtk3
+, gtksourceview4
 , libdatrie
 , libGL
 , libjpeg
@@ -49,7 +50,7 @@ stdenv.mkDerivation {
     curl
     fribidi
     glew
-    gtk2
+    gtk3
     libdatrie
     libGL
     libjpeg
@@ -115,4 +116,3 @@ stdenv.mkDerivation {
   };
 
 }
-
