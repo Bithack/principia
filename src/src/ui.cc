@@ -3050,7 +3050,10 @@ Java_org_libsdl_app_PrincipiaBackend_triggerCreateLevel(
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+
+#ifdef USE_GTK_SOURCE_VIEW
 #include <gtksourceview/gtksource.h>
+#endif
 
 #if defined(TMS_BACKEND_WINDOWS)
 #include <windows.h>
@@ -4002,8 +4005,8 @@ GtkRange        *cursorfield_down;
 
 /** --escript **/
 GtkWindow       *escript_window;
-GtkSourceView   *escript_code;
-GtkSourceBuffer *escript_buffer;
+GtkWidget       *escript_code;
+GtkTextBuffer   *escript_buffer;
 GtkCheckButton  *escript_use_external_editor;
 GtkBox          *escript_external_box;
 GtkLabel        *escript_external_file_path;
@@ -4492,7 +4495,7 @@ pk_get_current(pkginfo *out)
 
 void pk_update_level_list()
 {
-    /* update the list of levels in the package according to the 
+    /* update the list of levels in the package according to the
      * level treemodel */
     GtkTreeIter iter;
 
@@ -8510,7 +8513,7 @@ refresh_borders()
 
 }
 
-/** 
+/**
  * Get stuff from the currently loaded level and fill in the fields
  **/
 void
@@ -8720,25 +8723,25 @@ void
 activate_export(GtkMenuItem *i, gpointer unused)
 {
     gtk_widget_show_all(GTK_WIDGET(export_window));
-} 
+}
 
 void
 activate_controls(GtkMenuItem *i, gpointer unused)
 {
     G->render_controls = true;
-} 
+}
 
 void
 activate_restart_level(GtkMenuItem *i, gpointer unused)
 {
     P.add_action(ACTION_RESTART_LEVEL, 0);
-} 
+}
 
 void
 activate_back(GtkMenuItem *i, gpointer unused)
 {
     P.add_action(ACTION_BACK, 0);
-} 
+}
 
 void
 activate_save(GtkMenuItem *i, gpointer unused)
@@ -8755,7 +8758,7 @@ activate_save(GtkMenuItem *i, gpointer unused)
     } else {
         P.add_action(ACTION_SAVE, 0);
     }
-} 
+}
 
 void
 activate_save_copy(GtkMenuItem *i, gpointer unused)
@@ -12636,7 +12639,9 @@ int _gtk_loop(void *p)
         gtk_text_buffer_create_tag(buffer, "font")
         */
 
+#ifdef USE_GTK_SOURCE_VIEW
         {
+
             //Create GtkSourceLanguageManager and get lua GtkSourceLanguage
             GtkSourceLanguageManager *lm = gtk_source_language_manager_get_default();
             GtkSourceLanguage *l = gtk_source_language_manager_guess_language(lm, ".lua", NULL);
@@ -12648,32 +12653,39 @@ int _gtk_loop(void *p)
             if (s == NULL) tms_warnf("ESCRIPT: source theme not found");
 
             //Create new escript_buffer
-            escript_buffer = GTK_SOURCE_BUFFER(gtk_source_buffer_new(NULL));
-            g_signal_connect(escript_buffer, "mark-set", G_CALLBACK(on_escript_mark_set), 0);
+            escript_buffer = GTK_TEXT_BUFFER(gtk_source_buffer_new(NULL));
+            g_signal_connect(GTK_SOURCE_BUFFER(escript_buffer), "mark-set", G_CALLBACK(on_escript_mark_set), 0);
 
             //Enable highlighting for the buffer
-            gtk_source_buffer_set_language(escript_buffer, l);
-            gtk_source_buffer_set_highlight_syntax(escript_buffer, TRUE);
-            gtk_source_buffer_set_style_scheme(escript_buffer, s);
+            gtk_source_buffer_set_language(GTK_SOURCE_BUFFER(escript_buffer), l);
+            gtk_source_buffer_set_highlight_syntax(GTK_SOURCE_BUFFER(escript_buffer), TRUE);
+            gtk_source_buffer_set_style_scheme(GTK_SOURCE_BUFFER(escript_buffer), s);
 
             //Create GtkSourceView
-            escript_code = GTK_SOURCE_VIEW(gtk_source_view_new_with_buffer(escript_buffer));
+            escript_code = gtk_source_view_new_with_buffer(GTK_SOURCE_BUFFER(escript_buffer));
 
-            //Enable fancy-ass stuff
-            gtk_source_view_set_highlight_current_line(escript_code, TRUE);
-            gtk_source_view_set_auto_indent(escript_code, TRUE);
-            gtk_source_view_set_indent_on_tab(escript_code, TRUE);
-            gtk_source_view_set_tab_width(escript_code, 4);
-            gtk_source_view_set_indent_width(escript_code, -1);
-            gtk_source_view_set_insert_spaces_instead_of_tabs(escript_code, TRUE);
-            gtk_source_view_set_smart_backspace(escript_code, TRUE);
-            gtk_source_view_set_smart_home_end(escript_code, GTK_SOURCE_SMART_HOME_END_BEFORE);
-            gtk_source_view_set_show_line_numbers(escript_code, TRUE);
-
-            //Add .code-editor class
-            GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(escript_code));
-            gtk_style_context_add_class(context, "code-editor");
+            //Enable fancy-ass stuf
+            gtk_source_view_set_highlight_current_line(GTK_SOURCE_VIEW(GTK_SOURCE_VIEW(escript_code)), TRUE);
+            gtk_source_view_set_auto_indent(GTK_SOURCE_VIEW(escript_code), TRUE);
+            gtk_source_view_set_indent_on_tab(GTK_SOURCE_VIEW(escript_code), TRUE);
+            gtk_source_view_set_tab_width(GTK_SOURCE_VIEW(escript_code), 4);
+            gtk_source_view_set_indent_width(GTK_SOURCE_VIEW(escript_code), -1);
+            gtk_source_view_set_insert_spaces_instead_of_tabs(GTK_SOURCE_VIEW(escript_code), TRUE);
+            gtk_source_view_set_smart_backspace(GTK_SOURCE_VIEW(escript_code), TRUE);
+            gtk_source_view_set_smart_home_end(GTK_SOURCE_VIEW(escript_code), GTK_SOURCE_SMART_HOME_END_BEFORE);
+            gtk_source_view_set_show_line_numbers(GTK_SOURCE_VIEW(escript_code), TRUE);
         }
+#else
+        escript_buffer = GTK_TEXT_BUFFER(gtk_text_buffer_new(NULL));
+        escript_code = gtk_text_view_new_with_buffer(GTK_TEXT_BUFFER(escript_buffer));
+#endif
+
+        //Connect mark-set
+        g_signal_connect(GTK_TEXT_BUFFER(escript_buffer), "mark-set", G_CALLBACK(on_escript_mark_set), 0);
+
+        //Add .code-editor class
+        GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(escript_code));
+        gtk_style_context_add_class(context, "code-editor");
        
         escript_external_box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL,0));
         escript_external_file_path = GTK_LABEL(new_clbl("Placeholder"));
@@ -15070,7 +15082,7 @@ ui::open_help_dialog(const char *title, const char *description, bool enable_mar
 
     
 
-    /* title and description are constant static strings in 
+    /* title and description are constant static strings in
      * object facotyr, should be safe to use directly
      * from any thread */
     _pass_info_name = const_cast<char*>(title);
