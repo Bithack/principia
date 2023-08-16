@@ -1,5 +1,3 @@
-//#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-
 #include "ui.hh"
 #include <SDL.h>
 
