@@ -10474,7 +10474,6 @@ int _gtk_loop(void *p)
 
         publish_name = GTK_ENTRY(gtk_entry_new());
         publish_descr = GTK_TEXT_VIEW(gtk_text_view_new());
-        gtk_widget_set_size_request(GTK_WIDGET(publish_descr), 400, 150);
         gtk_text_view_set_wrap_mode(publish_descr, GTK_WRAP_WORD);
 
         GtkBox *box_allow_deriv = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
@@ -10492,15 +10491,21 @@ int _gtk_loop(void *p)
         gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Level name:</b>"), false, false, 0);
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(publish_name), false, false, 0);
 
-        GtkWidget *ew = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
-                      GTK_POLICY_AUTOMATIC,
-                      GTK_POLICY_AUTOMATIC);
+        GtkWidget *ew = gtk_scrolled_window_new(NULL, NULL);
+        gtk_scrolled_window_set_policy(
+            GTK_SCROLLED_WINDOW(ew),
+            GTK_POLICY_AUTOMATIC,
+            GTK_POLICY_AUTOMATIC
+        );
+        gtk_widget_set_size_request(GTK_WIDGET(ew), 400, 150);
         gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(publish_descr));
+
+        GtkWidget *fr = gtk_frame_new(NULL);
+        gtk_container_add(GTK_CONTAINER(fr), GTK_WIDGET(ew));
 
         gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Level description:</b>"), false, false, 0);
 
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(ew), false, false, 0);
+        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(fr), false, false, 0);
 
         /* Allow derivatives box */
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(box_allow_deriv), false, false, 0);
