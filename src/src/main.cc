@@ -2840,75 +2840,61 @@ _publish_pkg(void *_unused)
                 }
                 level_list[strlen(level_list)-1] ='\0';
 
-                struct curl_httppost *formpost   = NULL;
-                struct curl_httppost *lastptr    = NULL;
-
                 struct MemoryStruct chunk;
                 chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */ 
                 chunk.size = 0;    /* no data at this point */
-
-                curl_formadd(&formpost,
-                           &lastptr,
-                           CURLFORM_COPYNAME, UPLOAD_POST_STR,
-                           CURLFORM_COPYCONTENTS, "zPaod",
-                           CURLFORM_END);
-
-                curl_formadd(&formpost,
-                           &lastptr,
-                           CURLFORM_COPYNAME, "name",
-                           CURLFORM_COPYCONTENTS, p.name,
-                           CURLFORM_END);
-
-                curl_formadd(&formpost,
-                           &lastptr,
-                           CURLFORM_COPYNAME, "levels",
-                           CURLFORM_COPYCONTENTS, level_list,
-                           CURLFORM_END);
-
-                sprintf(tmp, "%d", p.unlock_count);
-                curl_formadd(&formpost,
-                           &lastptr,
-                           CURLFORM_COPYNAME, "unlock_count",
-                           CURLFORM_COPYCONTENTS, tmp,
-                           CURLFORM_END);
-
-                sprintf(tmp, "%u", (uint32_t)p.first_is_menu);
-                curl_formadd(&formpost,
-                           &lastptr,
-                           CURLFORM_COPYNAME, "first_is_menu",
-                           CURLFORM_COPYCONTENTS, tmp,
-                           CURLFORM_END);
-
-                sprintf(tmp, "%u", (uint32_t)p.return_on_finish);
-                curl_formadd(&formpost,
-                           &lastptr,
-                           CURLFORM_COPYNAME, "return_on_finish",
-                           CURLFORM_COPYCONTENTS, tmp,
-                           CURLFORM_END);
-
-                sprintf(tmp, "%u", (uint32_t)p.version);
-                curl_formadd(&formpost,
-                           &lastptr,
-                           CURLFORM_COPYNAME, "version",
-                           CURLFORM_COPYCONTENTS, tmp,
-                           CURLFORM_END);
-
-                sprintf(tmp, "%u", (uint32_t)p.community_id);
-                curl_formadd(&formpost,
-                           &lastptr,
-                           CURLFORM_COPYNAME, "id",
-                           CURLFORM_COPYCONTENTS, tmp,
-                           CURLFORM_END);
 
                 lock_curl("publish_pkg");
                 if (P.curl) {
                     init_curl_defaults(P.curl);
 
+                    curl_mime *mime = curl_mime_init(P.curl);
+                    curl_mimepart *part = NULL;
+
+                    part = curl_mime_addpart(mime);
+                    curl_mime_name(part, UPLOAD_POST_STR);
+                    curl_mime_data(part, "zPaod", CURL_ZERO_TERMINATED);
+
+                    part = curl_mime_addpart(mime);
+                    curl_mime_name(part, "name");
+                    curl_mime_data(part, p.name, CURL_ZERO_TERMINATED);
+
+                    part = curl_mime_addpart(mime);
+                    curl_mime_name(part, "levels");
+                    curl_mime_data(part, level_list, CURL_ZERO_TERMINATED);
+
+                    sprintf(tmp, "%d", p.unlock_count);
+                    part = curl_mime_addpart(mime);
+                    curl_mime_name(part, "unlock_count");
+                    curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
+
+                    sprintf(tmp, "%u", (uint32_t)p.first_is_menu);
+                    part = curl_mime_addpart(mime);
+                    curl_mime_name(part, "first_is_menu");
+                    curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
+
+                    sprintf(tmp, "%u", (uint32_t)p.return_on_finish);
+                    part = curl_mime_addpart(mime);
+                    curl_mime_name(part, "return_on_finish");
+                    curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
+
+                    sprintf(tmp, "%u", (uint32_t)p.version);
+                    part = curl_mime_addpart(mime);
+                    curl_mime_name(part, "version");
+                    curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
+
+                    sprintf(tmp, "%u", (uint32_t)p.community_id);
+                    part = curl_mime_addpart(mime);
+                    curl_mime_name(part, "id");
+                    curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
+
+                    
+
                     char url[1024];
                     snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/upload_package.php", P.community_host);
                     curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
-                    curl_easy_setopt(P.curl, CURLOPT_HTTPPOST, formpost);
+                    curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
 
                     curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
                     curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
@@ -2955,6 +2941,10 @@ _publish_pkg(void *_unused)
                     }
 
                     curl_slist_free_all(headerlist);
+                    curl_mime_free(mime);
+                } else {
+                    tms_errorf("lock_curl failed :3");
+                    _publish_pkg_error = true;
                 }
                 unlock_curl("publish_pkg");
             } else {
@@ -2967,8 +2957,9 @@ _publish_pkg(void *_unused)
         } else {
             ui::message("Can not upload an empty package.");
         }
-    } else
+    } else {
         _publish_pkg_error = true;
+    }
 
     _publish_pkg_done = true;
 
@@ -2987,9 +2978,6 @@ _publish_level(void *p)
 
     /* TODO: Check if this simplified version works on linux as well */
     CURLcode r;
-
-    struct curl_httppost *formpost   = NULL;
-    struct curl_httppost *lastptr    = NULL;
 
     struct MemoryStruct chunk;
     chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */ 
@@ -3015,44 +3003,29 @@ _publish_level(void *p)
     tms_debugf("new revision: %d", lvl.lvl.revision);
     lvl.save();
 
-    /*
-    curl_formadd(&formpost,
-               &lastptr,
-               CURLFORM_COPYNAME, UPLOAD_FILE_STR,
-               CURLFORM_BUFFER, "data",
-               CURLFORM_BUFFERPTR, lvl.lb.buf,
-               CURLFORM_BUFFERLENGTH, lvl.lb.size,
-               CURLFORM_END);
-               */
-
-    /* BACKUP FILE UPLOAD METHOD IN CASE ABOVE FAILS */
     char level_path[1024];
     pkgman::get_level_full_path(LEVEL_LOCAL, level_id, 0, level_path);
-    curl_formadd(&formpost,
-               &lastptr,
-               CURLFORM_COPYNAME, UPLOAD_FILE_STR,
-               CURLFORM_FILE, level_path,
-               CURLFORM_END);
-
-    tms_infof("buffer length: %" PRIu64, lvl.lb.size);
-
-    /* TODO: Add a token id/user id */
-
-    curl_formadd(&formpost,
-               &lastptr,
-               CURLFORM_COPYNAME, UPLOAD_POST_STR,
-               CURLFORM_COPYCONTENTS, "Send ",
-               CURLFORM_END);
 
     lock_curl("publish_level");
     if (P.curl) {
         init_curl_defaults(P.curl);
 
+        curl_mime *mime = curl_mime_init(P.curl);
+        curl_mimepart *part;
+
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, UPLOAD_FILE_STR);
+        curl_mime_filedata(part, level_path);
+
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, UPLOAD_POST_STR);
+        curl_mime_data(part, "Send ", CURL_ZERO_TERMINATED);
+
         char url[1024];
         snprintf(url, 1023, "https://%s/upload.php", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
-        curl_easy_setopt(P.curl, CURLOPT_HTTPPOST, formpost);
+        curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
         curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
@@ -3144,6 +3117,7 @@ _publish_level(void *p)
         }
 
         curl_slist_free_all(headerlist);
+        curl_mime_free(mime);
     }
     unlock_curl("publish_level");
 
@@ -3155,7 +3129,7 @@ _publish_level(void *p)
 
     _publish_lvl_community_id = community_id;
     _publish_lvl_uploading = false;
-
+    
     return T_OK;
 }
 
@@ -3167,9 +3141,6 @@ _submit_score(void *p)
     int error = 0;
 
     CURLcode r;
-
-    struct curl_httppost *formpost   = NULL;
-    struct curl_httppost *lastptr    = NULL;
 
     char data_path[1024];
 
@@ -3222,23 +3193,24 @@ _submit_score(void *p)
 
     /* and when we're done with sbuuuuutmi score, we remove that secret stuff again */
 
-    curl_formadd(&formpost, &lastptr,
-               CURLFORM_COPYNAME, "data.bin",
-               CURLFORM_FILE, data_path,
-               CURLFORM_END);
-
-    char tmp[32];
-    sprintf(tmp, "%" PRIu32, W->level.community_id);
-
-    curl_formadd(&formpost, &lastptr,
-               CURLFORM_COPYNAME, "lvl_id",
-               CURLFORM_COPYCONTENTS, tmp,
-               CURLFORM_END);
-
     lock_curl("submit_score");
     if (P.curl) {
         struct header_data hd = {0};
         init_curl_defaults(P.curl);
+
+        curl_mime* mime = curl_mime_init(P.curl);
+        curl_mimepart* part;
+        
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, "data.bin");
+        curl_mime_filedata(part, data_path);
+
+        char tmp[32];
+        sprintf(tmp, "%" PRIu32, W->level.community_id);
+
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, "lvl_id");
+        curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
 
         char url[1024];
         snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/submit_score.php", P.community_host);
@@ -3246,7 +3218,7 @@ _submit_score(void *p)
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
 
-        curl_easy_setopt(P.curl, CURLOPT_HTTPPOST, formpost);
+        curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
 
         curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
 
@@ -3299,6 +3271,7 @@ _submit_score(void *p)
             }
         }
 
+        curl_mime_free(mime);
         curl_slist_free_all(headerlist);
     }
 
@@ -3371,41 +3344,42 @@ _login(void *p)
 {
     struct login_data *data = static_cast<struct login_data*>(p);
 
-    int res             = T_OK;
+    int res = T_OK;
 
     CURLcode r;
-
-    struct curl_httppost *formpost   = NULL;
-    struct curl_httppost *lastptr    = NULL;
 
     struct MemoryStruct chunk;
     chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */ 
     chunk.size = 0;    /* no data at this point */
 
-    curl_formadd(&formpost, &lastptr,
-               CURLFORM_COPYNAME, "username",
-               CURLFORM_COPYCONTENTS, data->username,
-               CURLFORM_END);
-
-    curl_formadd(&formpost, &lastptr,
-               CURLFORM_COPYNAME, "password",
-               CURLFORM_COPYCONTENTS, data->password,
-               CURLFORM_END);
-
-    curl_formadd(&formpost, &lastptr,
-               CURLFORM_COPYNAME, LOGIN_POST_STR,
-               CURLFORM_COPYCONTENTS, "Submit  ", /* two spaces! */
-               CURLFORM_END);
-
     lock_curl("login");
     if (P.curl) {
+        curl_mime *mime = curl_mime_init(P.curl);
+        curl_mimepart* part;
+
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, "username");
+        curl_mime_data(part, data->username, CURL_ZERO_TERMINATED);
+
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, "password");
+        curl_mime_data(part, data->password, CURL_ZERO_TERMINATED);
+
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, "password");
+        curl_mime_data(part, data->password, CURL_ZERO_TERMINATED);
+
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, LOGIN_POST_STR);
+        curl_mime_data(part, "Submit  ", CURL_ZERO_TERMINATED); /* two spaces! */
+
         init_curl_defaults(P.curl);
 
         char url[1024];
         snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/xx.php", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
-        curl_easy_setopt(P.curl, CURLOPT_HTTPPOST, formpost);
+        curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
         curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
@@ -3455,13 +3429,12 @@ _login(void *p)
             tms_errorf("curl_easy_perform failed: %s\n", curl_easy_strerror(r));
             res = 1;
         }
+        curl_mime_free(mime);
     } else {
         tms_errorf("Unable to initialize curl handle.");
         res = 1;
     }
     unlock_curl("login");
-
-    curl_formfree(formpost);
 
     free(data);
 
@@ -3478,27 +3451,11 @@ _register(void *p)
 
     CURLcode r;
 
-    struct curl_httppost *formpost   = NULL;
-    struct curl_httppost *lastptr    = NULL;
-
     struct MemoryStruct chunk;
     chunk.memory = (char*)malloc(1);
     chunk.size = 0;
 
-    curl_formadd(&formpost, &lastptr,
-               CURLFORM_COPYNAME, "username",
-               CURLFORM_COPYCONTENTS, data->username,
-               CURLFORM_END);
-
-    curl_formadd(&formpost, &lastptr,
-               CURLFORM_COPYNAME, "email",
-               CURLFORM_COPYCONTENTS, data->email,
-               CURLFORM_END);
-
-    curl_formadd(&formpost, &lastptr,
-               CURLFORM_COPYNAME, "password",
-               CURLFORM_COPYCONTENTS, data->password,
-               CURLFORM_END);
+    
 
     lock_curl("register");
     do {
@@ -3509,11 +3466,27 @@ _register(void *p)
 
         if (P.curl) {
             init_curl_defaults(P.curl);
+
+            curl_mime *mime = curl_mime_init(P.curl);
+            curl_mimepart *part;
+        
+            part = curl_mime_addpart(mime);
+            curl_mime_name(part, "username");
+            curl_mime_data(part, data->username, CURL_ZERO_TERMINATED);
+
+            part = curl_mime_addpart(mime);
+            curl_mime_name(part, "email");
+            curl_mime_data(part, data->email, CURL_ZERO_TERMINATED);
+
+            part = curl_mime_addpart(mime);
+            curl_mime_name(part, "password");
+            curl_mime_data(part, data->password, CURL_ZERO_TERMINATED);
+
             char url[1024];
             snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/" REGISTER_ANDROID_FILE ".php", P.community_host);
             curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
-            curl_easy_setopt(P.curl, CURLOPT_HTTPPOST, formpost);
+            curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
 
             curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
             curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
@@ -3576,6 +3549,8 @@ _register(void *p)
                 }
                 res = T_ERR;
             }
+
+            curl_mime_free(mime);
         } else {
             tms_errorf("CURL handle not initialized.");
             res = T_ERR;
@@ -3589,7 +3564,6 @@ _register(void *p)
         ui::emit_signal(SIGNAL_REGISTER_FAILED);
     }
 
-    curl_formfree(formpost);
     free(data);
 
     return res;
