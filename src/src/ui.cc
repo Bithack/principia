@@ -14637,13 +14637,19 @@ static void wait_ui_ready()
 
 void ui::open_url(const char *url)
 {
-    tms_infof("open url: %s", url);
-#if defined(TMS_BACKEND_WINDOWS)
-    ShellExecuteA(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
+#if SDL_VERSION_ATLEAST(2,0,14)
+    tms_infof("open url (SDL): %s", url);
+    SDL_OpenURL(url);
 #elif defined(TMS_BACKEND_LINUX)
-    char exec_str[512];
-    sprintf(exec_str, "xdg-open %s", url);
-    system(exec_str);
+    // Fallback for old Linux distros that don't contain SDL2 2.0.14
+    tms_infof("open url (Fallback): %s", url);
+
+    if (fork() == 0) {
+        execlp("xdg-open", "xdg-open", url, NULL);
+        _exit(0);
+    }
+#else
+    #error "SDL2 2.0.14+ is required for this platform"
 #endif
 }
 
