@@ -1360,7 +1360,7 @@ material_factory::init_shaders(bool is_shitty)
     tms_shader_global_define_fs("UNIFORMS", tmp);
 
     tms_shader_global_define_fs("GI_FUN",
-            enable_gi ? 
+            enable_gi ?
             "vec4 get_gi(){"
             "vec4 r = vec4(0.,0.,0.,0.);"
             "vec2 offs[16];"
@@ -2786,7 +2786,7 @@ material_factory::init_materials(bool is_shitty)
     tms_progressf("+");
     m_cable_red.pipeline[2].program = shader_red_m->get_program(2);
     tms_progressf(".");
-    
+
     tms_progressf("+");
     m_cable_black.pipeline[0].program = shader_white->get_program(0);
     tms_progressf(".");
@@ -3105,7 +3105,7 @@ material_factory::init_materials(bool is_shitty)
     m_conveyor.density = .5f*M_DENSITY;
     m_conveyor.restitution = .1f;
     m_conveyor.type = TYPE_RUBBER;
-    
+
     m_item.pipeline[0].program = shader_pv_textured->get_program(0);
     m_item.pipeline[1].program = shader_gi->get_program(1);
     m_item.pipeline[2].program = shader_pv_textured_m->get_program(2);
@@ -3120,7 +3120,7 @@ material_factory::init_materials(bool is_shitty)
     m_item.density = .5f*M_DENSITY;
     m_item.restitution = .3f;
     m_item.type = TYPE_PLASTIC;
-    
+
     m_item_shiny.pipeline[0].program = shader_textured->get_program(0);
     m_item_shiny.pipeline[1].program = shader_gi->get_program(1);
     m_item_shiny.pipeline[2].program = shader_pv_textured_m->get_program(2);
@@ -3135,7 +3135,7 @@ material_factory::init_materials(bool is_shitty)
     m_item_shiny.density = .5f*M_DENSITY;
     m_item_shiny.restitution = .3f;
     m_item_shiny.type = TYPE_PLASTIC;
-    
+
     m_chest.pipeline[0].program = shader_pv_textured_ao->get_program(0);
     m_chest.pipeline[1].program = shader_gi->get_program(1);
     m_chest.pipeline[2].program = shader_pv_textured_m->get_program(2);
@@ -3150,7 +3150,7 @@ material_factory::init_materials(bool is_shitty)
     m_chest.density = .5f*M_DENSITY;
     m_chest.restitution = .3f;
     m_chest.type = TYPE_PLASTIC;
-    
+
     m_chest_shiny.pipeline[0].program = shader_textured_ao->get_program(0);
     m_chest_shiny.pipeline[1].program = shader_gi->get_program(1);
     m_chest_shiny.pipeline[2].program = shader_pv_textured_m->get_program(2);
@@ -3165,7 +3165,7 @@ material_factory::init_materials(bool is_shitty)
     m_chest_shiny.density = .5f*M_DENSITY;
     m_chest_shiny.restitution = .3f;
     m_chest_shiny.type = TYPE_PLASTIC;
-    
+
     m_repairstation.pipeline[0].program = shader_pv_textured_ao->get_program(0);
     m_repairstation.pipeline[1].program = shader_gi->get_program(1);
     m_repairstation.pipeline[2].program = shader_pv_textured_m->get_program(2);
@@ -3180,7 +3180,7 @@ material_factory::init_materials(bool is_shitty)
     m_repairstation.density = .5f*M_DENSITY;
     m_repairstation.restitution = .0125f;
     m_repairstation.type = TYPE_PLASTIC;
-    
+
     m_robot2.pipeline[0].program = shader_pv_textured_ao->get_program(0);
     //m_robot2.pipeline[0].program = shader_colored->get_program(0);
     m_robot2.pipeline[1].program = shader_gi->get_program(1);
@@ -3192,7 +3192,7 @@ material_factory::init_materials(bool is_shitty)
     m_robot2.density = .5f*M_DENSITY*ROBOT_DENSITY_MUL;
     m_robot2.restitution = .1f;
     m_robot2.type = TYPE_SHEET_METAL;
-    
+
     m_stone.pipeline[0].program = shader_pv_textured->get_program(0);
     m_stone.pipeline[1].program = shader_gi_tex->get_program(1);
     m_stone.pipeline[2].program = shader_pv_textured_m->get_program(2);
@@ -3208,7 +3208,7 @@ material_factory::init_materials(bool is_shitty)
     m_stone.density = 3.0f*M_DENSITY;
     m_stone.restitution = .2f;
     m_stone.type = TYPE_STONE;
-    
+
     m_decoration.pipeline[0].program = shader_pv_textured->get_program(0);
     m_decoration.pipeline[1].program = shader_gi_tex->get_program(1);
     m_decoration.pipeline[2].program = shader_pv_textured_m->get_program(2);
@@ -3224,7 +3224,7 @@ material_factory::init_materials(bool is_shitty)
     m_decoration.density = .5f*M_DENSITY;
     m_decoration.restitution = .3f;
     m_decoration.type = TYPE_PLASTIC;
-    
+
     m_robot_tinted_light.pipeline[0].program = shader_pv_textured_ao_tinted->get_program(0);
     m_robot_tinted_light.pipeline[1].program = shader_gi->get_program(1);
     m_robot_tinted_light.pipeline[2].program = shader_pv_textured_m->get_program(2);
@@ -3235,7 +3235,7 @@ material_factory::init_materials(bool is_shitty)
     m_robot_tinted_light.density = m_robot.density*.5;
     m_robot_tinted_light.restitution = m_robot.restitution;
     m_robot_tinted_light.type = TYPE_SHEET_METAL;
-    
+
 /*
     m_robot_armor.pipeline[0].program = shader_pv_textured_ao->get_program(0);
     //m_robot_armor.pipeline[0].program = shader_colored->get_program(0);
@@ -3252,7 +3252,7 @@ material_factory::init_materials(bool is_shitty)
     m_robot_armor.density = .5f*M_DENSITY*ROBOT_DENSITY_MUL;
     m_robot_armor.restitution = .1f;
     m_robot_armor.type = TYPE_SHEET_METAL;*/
-    
+
     m_robot_armor.pipeline[0].program = shader_pv_textured_ao_tinted->get_program(0);
     m_robot_armor.pipeline[1].program = shader_gi->get_program(1);
     m_robot_armor.pipeline[2].program = shader_pv_textured_m->get_program(2);
@@ -3263,7 +3263,7 @@ material_factory::init_materials(bool is_shitty)
     m_robot_armor.density = m_robot.density;
     m_robot_armor.restitution = m_robot.restitution;
     m_robot_armor.type = TYPE_SHEET_METAL;
-    
+
 
     tms_progressf("OK\n");
 }

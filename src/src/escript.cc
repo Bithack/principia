@@ -334,14 +334,14 @@ static const char* lua_pop_error(lua_State *L, const char *prefix="Lua error: ")
 
     if (err_string == 0) {
         //XXX: luaL_tolstring shouldn't push anything in case of failure
-        lua_pop(L, 1); 
+        lua_pop(L, 1);
         return "";
     }
 
     snprintf(error_message, 1023, "%s%s", prefix, err_string);
 
     // S: error string, error value
-    lua_pop(L, 2); 
+    lua_pop(L, 2);
 
     return error_message;
 }
@@ -3667,47 +3667,46 @@ escript::on_pause()
 
     this->receivers.clear();
 
-    if (W->level.version >= LEVEL_VERSION_1_5) {
-        if (this->properties[1].v.i & ESCRIPT_USE_EXTERNAL_EDITOR) {
-            if (G->state.sandbox) {
-                char path[ESCRIPT_EXTERNAL_PATH_LEN];
-                this->generate_external_path(path);
+    if (W->level.version >= LEVEL_VERSION_1_5
+     && this->properties[1].v.i & ESCRIPT_USE_EXTERNAL_EDITOR
+     && G->state.sandbox) {
 
-                FILE *fh;
-                size_t sz = 0;
-                size_t result = 0;
+        char path[ESCRIPT_EXTERNAL_PATH_LEN];
+        this->generate_external_path(path);
 
-                char *data = 0;
+        FILE *fh;
+        size_t sz = 0;
+        size_t result = 0;
 
-                fh = fopen(path, "rb");
+        char *data = 0;
 
-                if (fh) {
-                    /* The file exists! */
-                    fseek(fh, 0L, SEEK_END);
-                    sz = ftell(fh);
-                    rewind(fh);
-                    if (sz > 0) {
-                        /* The file contains some content that we can read */
-                        data = (char*)calloc(sizeof(char), sz + 1);
+        fh = fopen(path, "rb");
 
-                        result = fread(data, sizeof(char), sz, fh);
+        if (fh) {
+            /* The file exists! */
+            fseek(fh, 0L, SEEK_END);
+            sz = ftell(fh);
+            rewind(fh);
+            if (sz > 0) {
+                /* The file contains some content that we can read */
+                data = (char*)calloc(sizeof(char), sz + 1);
 
-                        if (sz == result) {
-                            /* We read the expected amount of bytes,
-                             * so we can write that data into
-                             * the luascript code buffer */
-                            tms_infof("Writing read data into property 0: '%s'", data);
-                            this->set_property(0, data);
-                        }
+                result = fread(data, sizeof(char), sz, fh);
 
-                        free(data);
-                    }
-                    fclose(fh);
-                    tms_infof("File size: %d", (int)sz);
-                } else {
-                    tms_errorf("External editing enabled, yet no file at %s was readable.", path);
+                if (sz == result) {
+                    /* We read the expected amount of bytes,
+                        * so we can write that data into
+                        * the luascript code buffer */
+                    tms_infof("Writing read data into property 0: '%s'", data);
+                    this->set_property(0, data);
                 }
+
+                free(data);
             }
+            fclose(fh);
+            tms_infof("File size: %d", (int)sz);
+        } else {
+            tms_errorf("External editing enabled, yet no file at %s was readable.", path);
         }
     }
 }

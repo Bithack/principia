@@ -216,38 +216,36 @@ main(int argc, char **argv)
         while (SDL_PollEvent(&ev)) {
             switch (ev.type) {
                 case SDL_QUIT:
-                    if (_tms.screen == &G->super) {
-                        ui::open_dialog(DIALOG_CONFIRM_QUIT);
-                    } else {
+                    //if (_tms.screen == &G->super) {
+                    //    ui::open_dialog(DIALOG_CONFIRM_QUIT);
+                    //} else {
                         _tms.state = TMS_STATE_QUITTING;
-                    }
+                    //}
                     break;
 
                 case SDL_WINDOWEVENT:
-                    {
-                        switch (ev.window.event) {
-                            case SDL_WINDOWEVENT_RESIZED:
-                                {
-                                    tms_infof("Window %d resized to %dx%d",
-                                            ev.window.windowID, ev.window.data1,
-                                            ev.window.data2);
-                                    int w = ev.window.data1;
-                                    int h = ev.window.data2;
+                    switch (ev.window.event) {
+                        case SDL_WINDOWEVENT_RESIZED:
+                            {
+                                tms_infof("Window %d resized to %dx%d",
+                                        ev.window.windowID, ev.window.data1,
+                                        ev.window.data2);
+                                int w = ev.window.data1;
+                                int h = ev.window.data2;
 
-                                    if (w < 64) w = 64;
-                                    if (h < 64) h = 64;
+                                if (w < 64) w = 64;
+                                if (h < 64) h = 64;
 
-                                    _tms.window_width = w;
-                                    _tms.opengl_width = w;
-                                    _tms.window_height = h;
-                                    _tms.opengl_height = h;
+                                _tms.window_width = w;
+                                _tms.opengl_width = w;
+                                _tms.window_height = h;
+                                _tms.opengl_height = h;
 
-                                    SDL_SetWindowSize(_window, _tms.window_width, _tms.window_height);
+                                SDL_SetWindowSize(_window, _tms.window_width, _tms.window_height);
 
-                                    tproject_window_size_changed();
-                                }
-                                break;
-                        }
+                                tproject_window_size_changed();
+                            }
+                            break;
                     }
                     break;
 
@@ -277,7 +275,6 @@ main(int argc, char **argv)
         SDL_GL_SwapWindow(_window);
         tms_end_frame();
 
-//        usleep(15000);
     } while (_tms.state != TMS_STATE_QUITTING);
 
     tproject_quit();
@@ -533,27 +530,9 @@ tbackend_init_surface()
     _tms.window_width = settings["window_width"]->v.i;
     _tms.window_height = settings["window_height"]->v.i;
 
-#ifdef DEBUG
-
-#ifdef PAJLADA
-    srand((unsigned)time(0));
-    //cur_dd = rand() % NUM_DEBUG_DEVICES;
-#endif
-
-    struct device &cur_device = devices[cur_dd];
-
-    _tms.xppcm = cur_device.xppcm;
-    _tms.yppcm = cur_device.yppcm;
-
-    if (cur_device.width > 0 && cur_device.height > 0) {
-        _tms.window_width  = cur_device.width;
-        _tms.window_height = cur_device.height;
-    }
-#else
     /* default */
     _tms.xppcm = 108.f/2.54f * 1.5f;
     _tms.yppcm = 107.f/2.54f * 1.5f;
-#endif
 
     uint32_t flags = 0;
 
@@ -573,15 +552,11 @@ tbackend_init_surface()
 
     _tms._window = _window;
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-    /*
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
-    */
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
     SDL_GLContext gl_context = SDL_GL_CreateContext(_window);
@@ -642,8 +617,6 @@ tbackend_init_surface()
     }
 
     tms_progressf("\n");
-
-//#include "glhacks/definc.h"
 
     return T_OK;
 }

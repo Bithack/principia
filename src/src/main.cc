@@ -132,9 +132,6 @@ static bool          _publish_pkg_error = false;
 /* Submit score variables */
 static bool         _submit_score_done = false;
 
-/** --Ping **/
-int _ping(void *p);
-
 /** --Login **/
 int _login(void *p);
 
@@ -209,10 +206,7 @@ print_cookies(CURL *curl)
 static void
 menu_begin(void)
 {
-/*    glClear(GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
-    glFrontFace(GL_CCW);*/
+
 }
 
 static void
@@ -225,7 +219,6 @@ gi_begin(void)
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         glColorMask(1,1,1,1);
     } else {
-        //glClearColor(1.f, 1.f, 1.f, 1.f);
         glClear(GL_DEPTH_BUFFER_BIT);
     }
 
@@ -238,8 +231,6 @@ gi_begin(void)
     glEnable(GL_DEPTH_TEST);
 
     glDisable(GL_CULL_FACE);
-    //glColorMask(0,0,0,0);
-    //glCullFace(GL_FRONT);
 }
 
 static void
@@ -308,6 +299,7 @@ disconnect_all(entity *e, void *userdata)
 }
 
 void (* _glDiscardFramebufferEXT)(GLenum target, GLsizei num, const GLenum *d) = 0;
+
 static int shader_loader(int step);
 static int level_loader(int step);
 static int open_loader(int step);
@@ -324,10 +316,6 @@ static int _get_featured_levels(void *_unused);
 static void
 gi_end(void)
 {
-    //glColorMask(1,1,1,1);
-    //glFinish();
-    //
-    //
     glColorMask(1,1,1,1);
 
     if (settings["shadow_quality"]->v.i != 2 && !settings["shadow_map_depth_texture"]->is_true()) {
@@ -481,7 +469,7 @@ init_framebuffers(void)
             tms_fb_enable_depth_texture(gi_fb, GL_DEPTH_COMPONENT16);
             tms_progressf("OK\n");
         } else {
-            if (settings["is_very_shitty"]->v.b || settings["shadow_map_precision"]->v.i == 0) { 
+            if (settings["is_very_shitty"]->v.b || settings["shadow_map_precision"]->v.i == 0) {
                 shadow_map_precision = GL_RGB;
             } else if (settings["shadow_map_precision"]->v.i == 1) {
 #ifdef TMS_BACKEND_ANDROID
@@ -844,47 +832,33 @@ tproject_step(void)
                     break;
 
                 case ACTION_MULTI_JOINT_STRENGTH:
-                    {
-                        G->multiselect_perform(&set_connection_strength, data);
-                    }
+                    G->multiselect_perform(&set_connection_strength, data);
                     break;
 
                 case ACTION_MULTI_PLASTIC_COLOR:
-                    {
-                        G->multiselect_perform(&set_color, data);
-                        free(data);
-                    }
+                    G->multiselect_perform(&set_color, data);
+                    free(data);
                     break;
 
                 case ACTION_MULTI_PLASTIC_DENSITY:
-                    {
-                        G->multiselect_perform(&set_density, data);
-                    }
+                    G->multiselect_perform(&set_density, data);
                     break;
 
                 case ACTION_MULTI_CHANGE_CONNECTION_RENDER_TYPE:
-                    {
-                        G->multiselect_perform(&set_render_type, data);
-                    }
+                    G->multiselect_perform(&set_render_type, data);
                     break;
 
                 case ACTION_MULTI_UNLOCK_ALL:
-                    {
-                        G->multiselect_perform(&unlock_all);
-                    }
+                    G->multiselect_perform(&unlock_all);
                     break;
 
                 case ACTION_MULTI_DISCONNECT_ALL:
-                    {
-                        G->multiselect_perform(&disconnect_all);
-                        G->selection.disable();
-                    }
+                    G->multiselect_perform(&disconnect_all);
+                    G->selection.disable();
                     break;
 
                 case ACTION_OPEN_AUTOSAVE:
-                    {
-                        G->open_sandbox(LEVEL_LOCAL,0);
-                    }
+                    G->open_sandbox(LEVEL_LOCAL,0);
                     break;
 
                 case ACTION_PUZZLEPLAY:
@@ -934,7 +908,7 @@ tproject_step(void)
                         G->state.modified = true;
                     }
                     break;
-                    
+
                 case ACTION_CONSTRUCT_DECORATION:
                     {
                         uint32_t decoration_id = VOID_TO_UINT32(P.actions[x].data);
@@ -944,40 +918,32 @@ tproject_step(void)
                     break;
 
                 case ACTION_GOTO_MAINMENU:
-                    {
-                        if (!data) {
-                            sm::stop_all();
-                        }
-                        tms::set_screen(P.s_menu_main);
+                    if (!data) {
+                        sm::stop_all();
                     }
+                    tms::set_screen(P.s_menu_main);
                     break;
 
                 case ACTION_GOTO_CREATE:
-                    {
-                        if (!data) {
-                            sm::stop_all();
-                        }
-                        tms::set_screen(P.s_menu_create);
+                    if (!data) {
+                        sm::stop_all();
                     }
+                    tms::set_screen(P.s_menu_create);
                     break;
 
                 case ACTION_GOTO_PLAY:
-                    {
-                        if (!data) {
-                            sm::stop_all();
-                        }
-                        tms::set_screen(P.s_menu_play);
+                    if (!data) {
+                        sm::stop_all();
                     }
+                    tms::set_screen(P.s_menu_play);
                     break;
 
                 case ACTION_SAVE_STATE:
-                    {
-                        if (W->is_playing() && W->level.flag_active(LVL_ALLOW_QUICKSAVING)) {
-                            G->save_state();
-                            ui::message("Saved!");
-                        } else {
-                            ui::message("This level does not support quick saving.");
-                        }
+                    if (W->is_playing() && W->level.flag_active(LVL_ALLOW_QUICKSAVING)) {
+                        G->save_state();
+                        ui::message("Saved!");
+                    } else {
+                        ui::message("This level does not support quick saving.");
                     }
                     break;
 
@@ -1035,15 +1001,11 @@ tproject_step(void)
                     break;
 
                 case ACTION_MULTI_DELETE:
-                    {
-                        G->_multidelete();
-                    }
+                    G->_multidelete();
                     break;
 
                 case ACTION_DELETE_SELECTION:
-                    {
-                        G->delete_selected_entity();
-                    }
+                    G->delete_selected_entity();
                     break;
 
                 case ACTION_DELETE_PARTIAL:
@@ -1142,9 +1104,7 @@ tproject_step(void)
                     break;
 
                 case ACTION_PING:
-                    {
-                        create_thread(_ping, "_ping", NULL);
-                    }
+                    tms_infof("unused ping action");
                     break;
 
                 case ACTION_RELOAD_GRAPHICS:
@@ -1183,29 +1143,15 @@ tproject_step(void)
                 case ACTION_UPGRADE_LEVEL:
                     {
                         /* make sure the chunk preloader has loaded all chunks */
-
                         W->level.version = LEVEL_VERSION;
                         G->save();
                         G->open_sandbox(LEVEL_LOCAL, W->level.local_id);
                         ui::message("level version upgraded!");
-                        /*
-                        lvledit lvl;
-                        if (lvl.open(LEVEL_LOCAL, W->level.local_id)) {
-                            lvl.lvl.version = LEVEL_VERSION;
-                            lvl.save();
-                            G->open_sandbox(LEVEL_LOCAL, W->level.local_id);
-                            ui::message("level version upgraded!");
-                        } else {
-                            ui::message("An error occurred while upgrading the level.");
-                        }
-                        */
                     }
                     break;
 
                 case ACTION_BACK:
-                    {
-                        G->back();
-                    }
+                    G->back();
                     break;
 
                 case ACTION_RESELECT:
@@ -1229,9 +1175,7 @@ tproject_step(void)
                 break;
 
                 case ACTION_SET_MODE:
-                    {
-                        G->set_mode(VOID_TO_INT(data));
-                    }
+                    G->set_mode(VOID_TO_INT(data));
                     break;
 
                 case ACTION_HIGHLIGHT_SELECTED:
@@ -1248,22 +1192,18 @@ tproject_step(void)
                         if (W->is_paused() && W->is_puzzle()) {
                             G->open_play(W->level_id_type, W->level.local_id, G->state.pkg);
                         } else {
-                            G->do_pause(); /* NOTE: for custom and adventure, do_pause will trigger do_play when done */ 
+                            G->do_pause(); /* NOTE: for custom and adventure, do_pause will trigger do_play when done */
                         }
                     }
                     break;
 
                 case ACTION_WORLD_PAUSE:
-                    {
-                        G->do_pause();
-                    }
+                    G->do_pause();
                     break;
 
                 case ACTION_AUTOFIT_LEVEL_BORDERS:
-                    {
-                        G->fit_level_borders();
-                        G->state.modified = true;
-                    }
+                    G->fit_level_borders();
+                    G->state.modified = true;
                     break;
 
                 case ACTION_RELOAD_LEVEL:
@@ -1453,19 +1393,15 @@ tproject_step(void)
                     break;
 
                 case ACTION_OPEN_URL:
-                    {
-                        if (data) {
-                            ui::open_url((char*)data);
-                            free(data);
-                        }
+                    if (data) {
+                        ui::open_url((char*)data);
+                        free(data);
                     }
                     break;
 
                 case ACTION_SELF_DESTRUCT:
-                    {
-                        if (W->is_adventure() && adventure::player) {
-                            adventure::player->damage(10000.f, 0, DAMAGE_TYPE_OTHER, DAMAGE_SOURCE_WORLD, 0);
-                        }
+                    if (W->is_adventure() && adventure::player) {
+                        adventure::player->damage(10000.f, 0, DAMAGE_TYPE_OTHER, DAMAGE_SOURCE_WORLD, 0);
                     }
                     break;
             }
@@ -1737,23 +1673,6 @@ tproject_init(void)
 
     P.focused = 1;
 
-#ifdef TMS_BACKEND_WINDOWS
-    /*
-    WORD wVersionRequested;
-    WSADATA wsaData;
-
-    wVersionRequested = MAKEWORD(2, 2);
-    tms_progressf("Initializing WSA... ");
-    int err = WSAStartup(wVersionRequested, &wsaData);
-
-    if (err != 0) {
-        tms_progressf("ERROR[%d]\n", err);
-        exit(1);
-    }
-    tms_progressf("OK\n");
-    */
-#endif
-
     tms_progressf("Initializing curl... ");
     CURLcode r = curl_global_init(CURL_GLOBAL_ALL);
     if (r != CURLE_OK) {
@@ -1768,11 +1687,6 @@ tproject_init(void)
 static int
 shader_loader(int step)
 {
-    /*
-    int ierr;
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d at shader_loader(%d)", ierr, step);
-    */
-
     P.can_set_settings = true;
 
     bool is_shitty = tbackend_is_shitty();
@@ -1807,10 +1721,12 @@ struct level_write {
     FILE *stream;
 };
 
-static size_t
-_save_level(void *buffer, size_t size, size_t nmemb, void *stream)
+#ifdef BUILD_CURL
+
+// Function used for saving a level that gets downloaded from a community site
+static size_t _save_level(void *buffer, size_t size, size_t nmemb, void *stream)
 {
-    tms_infof("HELLO????????");
+    tms_infof("Saving level...");
     if (!stream) {
         tms_errorf("No stream!");
         return 0;
@@ -2001,7 +1917,6 @@ _download_pkg(void *_p)
     snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/xxxx.php?i=%d",
             P.community_host,
             _play_pkg_id);
-    //tms_infof("url: %s", url);
     long http_code = 0;
 
     struct level_write save_data = {
@@ -2241,7 +2156,7 @@ _download_level(void *p)
             } else {
                 tms_debugf("derive = false");
             }
-            /* make sure the level has its community_id set correctly, just in case. 
+            /* make sure the level has its community_id set correctly, just in case.
              * This should have been set when the level was published but it is possible
              * for the publisher to alter the id stored in the level file using tools
              * such as wireshark */
@@ -2327,6 +2242,9 @@ level_loader(int step)
     return LOAD_CONT;
 }
 
+/**
+ * Function used for deriving levels.
+*/
 static int
 open_loader(int step)
 {
@@ -2478,13 +2396,7 @@ _check_version_code(void *_unused)
 
                 if (server_version_code > PRINCIPIA_VERSION_CODE) {
                     P.new_version_available = true;
-# ifdef TMS_BACKEND_ANDROID
-                    ui::message("A new version of Principia is available. Please go to Google Play to download the latest version.", true);
-#elif defined TMS_BACKEND_IOS
-                    ui::message("A new version of Principia is available. Please visit the App Store to get the latest version.", true);
-# else
-                    ui::message("A new version of Principia is available. Please go to www.principiagame.com/download to download the latest version.", true);
-# endif
+                    ui::message("A new version of Principia is available!", true);
                 }
 
                 tms_debugf("Client: %d. Server: %d", PRINCIPIA_VERSION_CODE, server_version_code);
@@ -2514,12 +2426,6 @@ _check_version_code(void *_unused)
     tms_debugf("exiting version check thread");
     return 0;
 }
-
-static bool ignore_fl_cache = false;
-
-#ifdef DEBUG
-//ignore_fl_cache = true;
-#endif
 
 static int
 _get_featured_levels(void *_num)
@@ -2560,7 +2466,7 @@ _get_featured_levels(void *_num)
         init_curl_defaults(P.curl);
 
         char url[1024];
-        if (fl_fetch_time && file_exists(featured_data_path) && !ignore_fl_cache) {
+        if (fl_fetch_time && file_exists(featured_data_path)) {
             snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/get_feature.php?num=%" PRIu32 "&time=%d", P.community_host, num_featured_levels, fl_fetch_time);
         } else {
             snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/get_feature.php?num=%" PRIu32, P.community_host, num_featured_levels);
@@ -2799,6 +2705,7 @@ _get_featured_levels(void *_num)
     return 0;
 }
 
+#ifdef BUILD_PKGMGR
 static int
 _publish_pkg(void *_unused)
 {
@@ -2841,7 +2748,7 @@ _publish_pkg(void *_unused)
                 level_list[strlen(level_list)-1] ='\0';
 
                 struct MemoryStruct chunk;
-                chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */ 
+                chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */
                 chunk.size = 0;    /* no data at this point */
 
                 lock_curl("publish_pkg");
@@ -2888,7 +2795,7 @@ _publish_pkg(void *_unused)
                     curl_mime_name(part, "id");
                     curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
 
-                    
+
 
                     char url[1024];
                     snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/upload_package.php", P.community_host);
@@ -2965,6 +2872,7 @@ _publish_pkg(void *_unused)
 
     return T_OK;
 }
+#endif
 
 static int
 _publish_level(void *p)
@@ -2980,7 +2888,7 @@ _publish_level(void *p)
     CURLcode r;
 
     struct MemoryStruct chunk;
-    chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */ 
+    chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */
     chunk.size = 0;    /* no data at this point */
 
     lvledit lvl;
@@ -3052,15 +2960,12 @@ _publish_level(void *p)
 
                     switch (notify_id) {
                         case PUBLISH_NOT_LOGGED_IN:
-#ifndef TMS_BACKEND_IOS
                             ui::message("You must be logged in with a valid Principia account to publish levels.");
-#endif
                             ui::set_next_action(ACTION_PUBLISH);
                             ui::open_dialog(DIALOG_LOGIN);
                             break;
 
                         case PUBLISH_NO_ACCESS:
-                            lvl.lvl.parent_id = lvl.lvl.community_id;
                             ui::message("You need the FULL version of Principia to be able to publish levels.");
                             break;
 
@@ -3129,7 +3034,7 @@ _publish_level(void *p)
 
     _publish_lvl_community_id = community_id;
     _publish_lvl_uploading = false;
-    
+
     return T_OK;
 }
 
@@ -3200,7 +3105,7 @@ _submit_score(void *p)
 
         curl_mime* mime = curl_mime_init(P.curl);
         curl_mimepart* part;
-        
+
         part = curl_mime_addpart(mime);
         curl_mime_name(part, "data.bin");
         curl_mime_filedata(part, data_path);
@@ -3282,62 +3187,6 @@ _submit_score(void *p)
     return T_OK;
 }
 
-/** --Ping **/
-int
-_ping(void *p)
-{
-    int res = T_OK;
-    CURLcode r;
-
-    struct MemoryStruct chunk;
-    chunk.memory = (char*)malloc(1);
-    chunk.size = 0;
-
-    lock_curl("ping");
-    tms_debugf("starting ping");
-    if (P.curl) {
-        init_curl_defaults(P.curl);
-
-        char url[1024];
-        snprintf(url, 1023, "https://%s/ping.php", P.community_host);
-        curl_easy_setopt(P.curl, CURLOPT_URL, url);
-
-        curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
-        curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
-        curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 10L);
-
-        if ((r = curl_easy_perform(P.curl)) == CURLE_OK) {
-            if (chunk.size == 0) {
-                /* not logged in */
-                tms_debugf("Not logged in.: '%s'", username);
-                username[0] = '\0';
-            } else if (chunk.size > 0 && chunk.size < 255) {
-                snprintf(username, 255, "%s", chunk.memory);
-                tms_debugf("Logged in as %s", username);
-            } else {
-                tms_errorf("invalid input: %s", chunk.memory);
-                /* invalid input */
-            }
-        } else {
-            tms_errorf("login curl_easy_perform failed: %s\n", curl_easy_strerror(r));
-            res = 1;
-        }
-    } else {
-        tms_errorf("Unable to initialize curl handle.");
-        res = 1;
-    }
-    tms_debugf("ping done");
-    unlock_curl("ping");
-
-    P.add_action(ACTION_REFRESH_HEADER_DATA, 0);
-
-    if (chunk.memory) {
-        free(chunk.memory);
-    }
-
-    return res;
-}
-
 /** --Login **/
 int
 _login(void *p)
@@ -3349,7 +3198,7 @@ _login(void *p)
     CURLcode r;
 
     struct MemoryStruct chunk;
-    chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */ 
+    chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */
     chunk.size = 0;    /* no data at this point */
 
     lock_curl("login");
@@ -3455,8 +3304,6 @@ _register(void *p)
     chunk.memory = (char*)malloc(1);
     chunk.size = 0;
 
-    
-
     lock_curl("register");
     do {
         num_tries ++;
@@ -3469,7 +3316,7 @@ _register(void *p)
 
             curl_mime *mime = curl_mime_init(P.curl);
             curl_mimepart *part;
-        
+
             part = curl_mime_addpart(mime);
             curl_mime_name(part, "username");
             curl_mime_data(part, data->username, CURL_ZERO_TERMINATED);
@@ -3569,6 +3416,7 @@ _register(void *p)
     return res;
 }
 
+#ifdef BUILD_PKGMGR
 static int
 publish_pkg_loader(int step)
 {
@@ -3605,6 +3453,7 @@ publish_pkg_loader(int step)
 
     return LOAD_CONT;
 }
+#endif
 
 static int
 publish_loader(int step)
@@ -3704,37 +3553,6 @@ submit_score_loader(int step)
     return LOAD_CONT;
 }
 
-static int
-adventure_loader(int step)
-{
-    switch (step) {
-        case 0:
-            _submit_score_done = false;
-            create_thread(_submit_score, "_submit_score", 0);
-            P.s_loading_screen->set_text("Generating world..");
-            break;
-
-        case 1:
-            if (!_submit_score_done) {
-                return LOAD_RETRY;
-            }
-            break;
-
-        case 2: default:
-            P.s_loading_screen->set_text(0);
-            _submit_score_done = false;
-            /* FIXME
-            if (G->w_submit_score && G->w_submit_score->surface) {
-                tms_surface_remove_widget(G->w_submit_score->surface, G->w_submit_score);
-            }
-            */
-            return LOAD_DONE;
-
-        case LOAD_RETURN_NUM_STEPS: return 2;
-    }
-
-    return LOAD_CONT;
-}
 
 static Uint32 loader_times[32] = {0,};
 static Uint32 total_load = 0;
@@ -3865,12 +3683,6 @@ initial_loader(int step)
             break;
 
         case 1:
-            /*
-            if (gui_spritesheet::use_cache) {
-                gui_spritesheet::load_cache();
-            }
-            */
-
             gui_spritesheet::init_loading_font();
             P.s_loading_screen->set_text("Loading fonts...");
             break;
@@ -4116,12 +3928,7 @@ tproject_initialize(void)
 
 principia::~principia()
 {
-    /*
-    tms_progressf("CURL cleanup... ");
-    curl_easy_cleanup(this->curl);
-    curl_global_cleanup();
-    tms_progressf("OK\n");
-    */
+
 }
 
 void
@@ -4143,15 +3950,9 @@ principia::add_action(int id, void *data)
 tvec3
 principia::get_light_normal()
 {
-#define LIGHT_NORMAL_X 0.5
-#define LIGHT_NORMAL_Y 1.3
-#define LIGHT_NORMAL_Z 0.6
-    tvec3 light = (tvec3){LIGHT_NORMAL_X, LIGHT_NORMAL_Y, LIGHT_NORMAL_Z};
+    tvec3 light = (tvec3){0.5, 1.3, 0.6}; // X,Y,Z normals
     tvec3_normalize(&light);
     return light;
-#undef LIGHT_NORMAL_X
-#undef LIGHT_NORMAL_Y
-#undef LIGHT_NORMAL_Z
 }
 
 /**

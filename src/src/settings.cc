@@ -31,11 +31,6 @@ _settings::init()
     int rw = (int)exp2(roundf(w2)) / 2;
     int rh = (int)exp2(roundf(h2)) / 2;
 
-    /*if (tbackend_is_shitty()) {
-        rw = rw/2;
-        rh = rh/2;
-    }*/
-
     bool is_shitty = tbackend_is_shitty() == 1;
 
     /** -Graphics **/

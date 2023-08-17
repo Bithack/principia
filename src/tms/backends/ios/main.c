@@ -115,18 +115,18 @@ tbackend_init_surface()
 	SDL_SetHint("SDL_HINT_ORIENTATIONS", "LandscapeRight");
 	SDL_SetHint("SDL_IOS_ORIENTATIONS", "LandscapeRight");
     SDL_DisplayMode mode;
-    
+
     int num_modes = SDL_GetNumDisplayModes(0);
-    
+
     int min_displ = 2000000000;
     int max_displ = 0;
-    
+
     int min_displ_w, min_displ_h, max_displ_w, max_displ_h;
-    
+
     for (int x=0; x<num_modes; x++) {
         SDL_GetDisplayMode(0, x, &mode);
         tms_infof("display mode %d %d", mode.w, mode.h);
-        
+
         int displ = mode.w*mode.h;
         if (displ < min_displ) {
             min_displ = displ;
@@ -139,30 +139,30 @@ tbackend_init_surface()
             max_displ_h = mode.h;
         }
     }
-    
+
     if (max_displ_w < max_displ_h) {
         int tmp = max_displ_w;
         max_displ_w = max_displ_h;
         max_displ_h = tmp;
     }
-    
+
     if (min_displ_w < min_displ_h) {
         int tmp = min_displ_w;
         min_displ_w = min_displ_h;
         min_displ_h = tmp;
     }
     SDL_GetDesktopDisplayMode(0, &mode);
-    
+
     tms_infof("max display mode: %d %d", max_displ_w, max_displ_h);
     tms_infof("min display mode: %d %d", min_displ_w, min_displ_h);
-    
+
 
     _window = SDL_CreateWindow("Principia", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
             //mode.w, mode.h,
 			min_displ_w, min_displ_h,
             SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN /*| SDL_WINDOW_FULLSCREEN*/ | SDL_WINDOW_BORDERLESS);
 
-	
+
     //SDL_GetWindowSize(_window, &_tms.window_width, &_tms.window_height);
 #if 0
     tms.opengl_width = min_displ_w;
@@ -174,11 +174,11 @@ tbackend_init_surface()
 #endif
     tms.window_width = max_displ_w;
     tms.window_height = max_displ_h;
-    
+
     tms._window = _window;
     tms.xppcm = IOS_density_x / 2.54;
     tms.yppcm = IOS_density_y / 2.54;
-	
+
     tms_infof("OpenGL dimensions: %d %d", tms.opengl_width, tms.opengl_height);
     tms_infof("Window dimensions: %d %d", _tms.window_width, _tms.window_height);
     tms_infof("Device PPCM: %f %f", tms.xppcm, tms.yppcm);

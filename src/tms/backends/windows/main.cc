@@ -24,10 +24,6 @@
 
 #include "shlwapi.h"
 
-#if 0
-#include "ui.hh"
-#include "game.hh"
-#endif
 #include "main.hh"
 #include "version.hh"
 
@@ -112,7 +108,7 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
             1,
             128,
             128,
-            0, 
+            0,
             0
             );
 
@@ -149,13 +145,13 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
                 pipe_h,
                 &dwMode,
                 0,0);
-        
+
         int len = strlen(cl);
         DWORD written;
         if (!(WriteFile(pipe_h, cl, len, &written, 0))) {
             tms_errorf("error writing to pipe");
         }
-        
+
         tms_infof("done");
         CloseHandle(pipe_h);
 
@@ -214,12 +210,6 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
     _tms.window_height = (int)((double)_tms.window_width * .5625);
 
     tms_infof("set initial res to %dx%d", _tms.window_width, _tms.window_height);
-
-    /*
-    _tms.window_width = 1280;
-    _tms.window_height = 720;
-    */
-    /* 1000, 563 */
 
     settings.init();
     tms_progressf("Loading settings... ");
@@ -506,13 +496,8 @@ tbackend_init_surface()
     tms_progressf("Initializing SDL... ");
     tms_progressf("OK\n");
 
-#ifdef RECORDING
-    _tms.window_width = 1920;
-    _tms.window_height = 1080;
-#else
     _tms.window_width = settings["window_width"]->v.i;
     _tms.window_height = settings["window_height"]->v.i;
-#endif
 
     _tms.xppcm = 108.f/2.54f * 1.5f;
     _tms.yppcm = 107.f/2.54f * 1.5f;
@@ -523,9 +508,6 @@ tbackend_init_surface()
     flags |= SDL_WINDOW_SHOWN;
     flags |= SDL_WINDOW_RESIZABLE;
 
-#ifdef RECORDING
-    flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-#endif
     if (settings["window_maximized"]->v.b)
         flags |= SDL_WINDOW_MAXIMIZED;
 
@@ -544,10 +526,6 @@ tbackend_init_surface()
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-    /*
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
-    */
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
     SDL_GLContext gl_context = SDL_GL_CreateContext(_window);

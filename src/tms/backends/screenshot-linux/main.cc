@@ -132,7 +132,7 @@ int _pipe_listener(void *p)
 
             if (sz > 0) {
                 buf[sz] = '\0';
-                _args[1] = buf; 
+                _args[1] = buf;
                 tproject_set_args(2, _args);
             }
         }
@@ -163,7 +163,7 @@ main(int argc, char **argv)
             skip_pipe = 1;
         }
     }
-    
+
     if (!skip_pipe) {
         if ((pipe_h = open("principia.run", O_WRONLY | O_NONBLOCK)) == -1) {
             if (errno != ENXIO) {

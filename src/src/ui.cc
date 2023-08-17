@@ -237,7 +237,7 @@ void ui_set_property_uint8(int index, uint8_t val)
 {
     G->selection.e->properties[index].v.u8 = val;
 }
-    
+
 uint32_t ui_get_property_uint32(int index)
 {
     return G->selection.e->properties[index].v.i;
@@ -247,22 +247,22 @@ void ui_set_property_uint32(int index, uint32_t val)
 {
     G->selection.e->properties[index].v.i = val;
 }
-    
+
 float ui_get_property_float(int index)
 {
     return G->selection.e->properties[index].v.f;
 }
-    
+
 void ui_set_property_float(int index, float val)
 {
     G->selection.e->properties[index].v.f = val;
 }
-    
+
     const char* ui_get_property_string(int index)
     {
         return G->selection.e->properties[index].v.s.buf;
     }
-    
+
     void ui_set_property_string(int index, const char* val)
     {
         G->selection.e->set_property(index, val);
@@ -271,31 +271,31 @@ void ui_set_property_float(int index, float val)
     {
         return settings["border_scroll_enabled"]->v.b;
     }
-    
+
     float ui_settings_get_border_scrolling_speed()
     {
         return settings["border_scroll_speed"]->v.f;
     }
-    
+
     int ui_settings_get_enable_object_ids()
     {
         return settings["display_object_id"]->v.b;
-        
+
     }
     void ui_settings_set_enable_border_scrolling(int s)
     {
         settings["border_scroll_enabled"]->v.b = s;
     }
-    
+
     void ui_settings_set_border_scrolling_speed(float s)
     {
         settings["border_scroll_speed"]->v.f = s;
     }
-    
+
     void ui_settings_set_enable_object_ids(int s)
     {
         settings["display_object_id"]->v.b = s;
-        
+
     }
     int ui_settings_get_shadow_resx()
     {
@@ -464,12 +464,12 @@ void ui_cb_reset_all_variables()
         ui::message("Unable to delete variable data for this level.");
     }
 }
-    
+
 void ui_cb_set_level_type(int type){/*W->set_level.type(type);*/P.add_action(ACTION_SET_LEVEL_TYPE, (void*)type);};
 int ui_cb_get_level_type(){return W->level.type;};
 char *ui_cb_get_level_title(){char *fuckxcode = (char*)malloc(W->level.name_len+1); memcpy(fuckxcode, W->level.name, W->level.name_len); fuckxcode[W->level.name_len] = '\0'; return fuckxcode;};
 const char *ui_cb_get_level_description(){return W->level.descr != 0 ? W->level.descr : "";};
-    
+
     float ui_cb_get_level_prism_tolerance(void)
     {
         return W->level.prismatic_tolerance;
@@ -478,7 +478,7 @@ const char *ui_cb_get_level_description(){return W->level.descr != 0 ? W->level.
     {
         W->level.prismatic_tolerance = s;
     }
-    
+
     float ui_cb_get_level_pivot_tolerance(void)
     {
         return W->level.pivot_tolerance;
@@ -487,7 +487,7 @@ const char *ui_cb_get_level_description(){return W->level.descr != 0 ? W->level.
     {
         W->level.pivot_tolerance = s;
     }
-    
+
     uint8_t ui_cb_get_level_pos_iter(void)
     {
         return W->level.position_iterations;
@@ -577,7 +577,7 @@ void ui_cb_set_command(int n)
 {
     if (G->selection.e && G->selection.e->g_id == 64) {
         ((command*)G->selection.e)->set_command(n);
-        
+
         P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
         P.add_action(ACTION_RESELECT, 0);
     }
@@ -587,7 +587,7 @@ void ui_cb_set_command(int n)
         if (G->selection.e && G->selection.e->g_id == O_ITEM) {
             ((item*)G->selection.e)->set_item_type(n);
             ((item*)G->selection.e)->do_recreate_shape = true;
-            
+
             P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
             P.add_action(ACTION_RESELECT, 0);
         }
@@ -597,31 +597,31 @@ void ui_cb_set_event(int n)
 {
     if (G->selection.e && G->selection.e->g_id == 156) {
         G->selection.e->properties[0].v.i = n;
-        
+
         P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
         P.add_action(ACTION_RESELECT, 0);
     }
 }
-    
+
 void
 ui_cb_back_to_community(void)
 {
     char tmp[1024];
     snprintf(tmp, 1023, "https://%s/level/%d", P.community_host, W->level.community_id);
-    
+
     ui::open_url(tmp);
 }
 
-    
+
 void ui_cb_refresh_sequencer()
 {
     ((sequencer*)G->selection.e)->refresh_sequence();
 }
-    
+
 int ui_cb_get_fx(int n){return G->selection.e->properties[3+n].v.i == FX_INVALID ? 0 : G->selection.e->properties[3+n].v.i+1;};
 void ui_cb_set_fx(int n, int fx){
     G->selection.e->properties[3+n].v.i = (fx == 0 ? FX_INVALID : fx - 1);
-    
+
     P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
     P.add_action(ACTION_RESELECT, 0);
 }
@@ -648,7 +648,7 @@ ui::messagef(const char *format, ...)
 {
     va_list vl;
     va_start(vl, format);
-    
+
     char short_msg[256];
     const size_t sz = vsnprintf(short_msg, sizeof short_msg, format, vl) + 1;
     if (sz <= sizeof short_msg) {
@@ -3165,9 +3165,9 @@ GtkMenuItem     *editor_menu_toggle_mark_entity;
 GtkMenuItem     *editor_menu_lvl_prop;
 GtkMenuItem     *editor_menu_save;
 GtkMenuItem     *editor_menu_save_copy;
-# ifdef DEBUG
+#ifdef BUILD_PKGMGR
 GtkMenuItem     *editor_menu_package_manager;
-# endif
+#endif
 GtkMenuItem     *editor_menu_publish;
 GtkMenuItem     *editor_menu_settings;
 GtkMenuItem     *editor_menu_login;
@@ -4223,7 +4223,7 @@ static void apply_dialog_defaults(
 
 static GtkGrid* create_settings_table() {
     GtkGrid *tbl = GTK_GRID(gtk_grid_new());
-    
+
     gtk_grid_set_column_spacing(tbl, 15);
     gtk_grid_set_row_spacing(tbl, 6);
 
@@ -4246,7 +4246,7 @@ static void add_setting_row(GtkGrid *tbl, int y, const char *label, GtkWidget *w
         0, y,
         1, 1
     );
-    
+
 
     //widget
     gtk_widget_set_hexpand(widget, true);
@@ -4746,6 +4746,8 @@ press_play_selected(GtkButton *w, gpointer unused)
     }
 }
 
+#ifdef BUILD_PKGMGR
+
 void
 cursor_changed_pk_pkg(GtkTreeView *w, gpointer unused)
 {
@@ -4820,6 +4822,8 @@ activate_pkg_lvl_chooser(GtkEntry *e, gpointer unused)
 {
     gtk_widget_show(GTK_WIDGET(pkg_lvl_chooser));
 }
+
+#endif
 
 void
 editor_mark_activate(GtkMenuItem *i, gpointer mark_pointer)
@@ -4965,7 +4969,7 @@ editor_menu_activate(GtkMenuItem *i, gpointer unused)
 
         gtk_widget_hide(GTK_WIDGET(properties_dialog));
 
-# ifdef DEBUG
+#ifdef BUILD_PKGMGR
     } else if (i == editor_menu_package_manager) {
         gtk_widget_show(GTK_WIDGET(package_window));
 #endif
@@ -8973,7 +8977,6 @@ on_multi_config_tab_changed(GtkNotebook *nb, GtkWidget *page, gint tab_num, gpoi
 static void
 on_login_show(GtkWidget *wdg, void *unused)
 {
-    //P.add_action(ACTION_PING, 0);
     gtk_widget_set_sensitive(GTK_WIDGET(login_btn_log_in), true);
 
     gtk_entry_set_text(login_username, "");
@@ -9422,7 +9425,7 @@ const gchar* css_global = R"(
         border-radius: 0;
         background: #101010;
     }
-    
+
     .display-cell:checked {
         background: #5fbd5a;
     }
@@ -9578,7 +9581,7 @@ int _gtk_loop(void *p)
         editor_menu_save_copy = add_menuitem_m(editor_menu, "Save _copy", activate_save_copy);
         add_menuitem_m(editor_menu, "_Open", activate_open);
 
-#ifdef DEBUG
+#ifdef BUILD_PKGMGR
         editor_menu_package_manager = add_menuitem(editor_menu, "Package manager", editor_menu_activate);
 #endif
 
@@ -9971,6 +9974,7 @@ int _gtk_loop(void *p)
         gtk_container_add(GTK_CONTAINER(export_window), GTK_WIDGET(content));
     }
 
+#ifdef BUILD_PKGMGR
     /** --Package manager **/
     {
         package_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
@@ -10112,6 +10116,7 @@ int _gtk_loop(void *p)
         gtk_container_add(GTK_CONTAINER(package_window), GTK_WIDGET(layout));
         gtk_widget_show_all(GTK_WIDGET(layout));
     }
+#endif
 
     /** --Level properties **/
     {
@@ -10135,7 +10140,7 @@ int _gtk_loop(void *p)
         GtkGrid *tbl_info = create_settings_table();
         {
             int y = -1;
-            
+
             lvl_title = GTK_ENTRY(gtk_entry_new());
             lvl_descr = GTK_TEXT_VIEW(gtk_text_view_new());
 
@@ -10196,7 +10201,7 @@ int _gtk_loop(void *p)
             // g_signal_connect(lvl_bg_cd, "delete-event", G_CALLBACK(on_window_close), 0);
 
             // g_signal_connect(gtk_dialog_get_content_area(GTK_DIALOG(lvl_bg_cd)),  "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
-            
+
             // GtkWidget *ok_button_lvl_bg_cd = gtk_dialog_get_widget_for_response(GTK_DIALOG(lvl_bg_cd), GTK_RESPONSE_OK);
 
             // g_signal_connect(ok_button_lvl_bg_cd, "key-press-event", G_CALLBACK(on_coolman_keypress), 0);
@@ -10259,7 +10264,7 @@ int _gtk_loop(void *p)
                 "Gravity X",
                 GTK_WIDGET(lvl_gx)
             );
-            
+
             add_setting_row(
                 tbl_world, ++y,
                 "Gravity Y",
@@ -10280,7 +10285,7 @@ int _gtk_loop(void *p)
             lvl_linear_damping = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 10.0f, 0.05f));
             lvl_angular_damping = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 10.0f, 0.05f));
             lvl_joint_friction = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 10.0f, 0.05f));
-            
+
             add_setting_row(
                 tbl_physics, ++y,
                 "Position iterations",
@@ -10614,7 +10619,7 @@ int _gtk_loop(void *p)
         }
 
         key_listener_cb = GTK_COMBO_BOX(gtk_combo_box_new_with_model(GTK_TREE_MODEL(key_listener_ls)));
-        
+
         GtkCellRenderer *cell = gtk_cell_renderer_text_new();
         gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(key_listener_cb), cell, TRUE);
         gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(key_listener_cb), cell, "text", 0, NULL);
@@ -10689,11 +10694,11 @@ int _gtk_loop(void *p)
                     );
                 }
             }
-            
+
             //Create aspect frame and put tbl_symbol into it, to ensure perfect aspect ratio
             GtkAspectFrame* aspect_frame = GTK_ASPECT_FRAME(gtk_aspect_frame_new(NULL, .5f, .5f, 5.f / 7.f, false));
             gtk_container_add(GTK_CONTAINER(aspect_frame), GTK_WIDGET(tbl_symbol));
-            
+
             gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(digi_label), false, false, 0);
             gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(aspect_frame), true, true, 0);
         }
@@ -10790,7 +10795,7 @@ int _gtk_loop(void *p)
 
         item_dialog = dialog;
     }
-    
+
     /** --Decoration **/
     {
         dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
@@ -11111,7 +11116,7 @@ int _gtk_loop(void *p)
         gtk_grid_attach(tbl, new_clbl("Amount"), 0, x, 1, 1);
         gtk_grid_attach(tbl, GTK_WIDGET(tchest_count), 1, x, 1, 1);
         ++x;
-        
+
         //spacing
         GtkWidget* spacer = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
         gtk_widget_set_vexpand(spacer, true);
@@ -12291,7 +12296,7 @@ int _gtk_loop(void *p)
         robot_dir_right = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label_from_widget(
             robot_dir_left, "Right"
         ));
-        
+
         gtk_grid_attach(tbl, new_rlbl("Default state"), 0, y, 1, 1);
         gtk_grid_attach(tbl, GTK_WIDGET(robot_state_idle), 1, y, 1, 1);
         y++;
@@ -12408,7 +12413,7 @@ int _gtk_loop(void *p)
         gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(robot_btn_cancel));
 
         GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-        
+
         GtkScrolledWindow *robot_tv_equipment_scroll = GTK_SCROLLED_WINDOW(
             gtk_scrolled_window_new(NULL, NULL)
         );
@@ -12619,7 +12624,7 @@ int _gtk_loop(void *p)
 
         //escript_buffer = GTK_SOURCE_BUFFER(gtk_source_buffer_new(NULL));
 
-        
+
 
         // escript_tt_function = gtk_text_buffer_create_tag(GTK_TEXT_BUFFER(escript_buffer),
         //                                                  "function",
@@ -12629,7 +12634,7 @@ int _gtk_loop(void *p)
         //g_signal_connect(escript_buffer, "mark-set", G_CALLBACK(on_escript_mark_set), 0);
 
         //escript_code = GTK_SOURCE_VIEW(gtk_source_view_new_with_buffer(escript_buffer));
-        
+
         //gtk_widget_modify_font(GTK_WIDGET(escript_code), pango_font_description_from_string("monospace"));
 
         /*
@@ -12684,7 +12689,7 @@ int _gtk_loop(void *p)
         //Add .code-editor class
         GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(escript_code));
         gtk_style_context_add_class(context, "code-editor");
-       
+
         escript_external_box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL,0));
         escript_external_file_path = GTK_LABEL(new_clbl("Placeholder"));
 
@@ -13170,9 +13175,9 @@ int _gtk_loop(void *p)
 
     gdk_threads_add_idle(_sig_ui_ready, 0);
 
-    
+
     gtk_main();
-    
+
 
     return T_OK;
 }
@@ -13329,7 +13334,7 @@ _open_beam_color(gpointer unused)
         color.blue  = c.b;
         color.alpha = (double)(e->properties[4].v.i8) / 255.0;
         //color.alpha = (double)((guint16) e->properties[4].v.i8 * 257) / 65535.;
-        
+
         gtk_color_chooser_set_rgba(sel, &color);
 
         if (e->g_id == O_PIXEL) {
@@ -13347,7 +13352,7 @@ _open_beam_color(gpointer unused)
             color.green = t->properties[1].v.f;
             color.blue  = t->properties[2].v.f;
             color.alpha = 1.0;
-            
+
             gtk_color_chooser_set_use_alpha(sel, false);
             gtk_color_chooser_set_rgba(sel, &color);
             */
@@ -14089,7 +14094,7 @@ _open_multi_config(gpointer unused)
         "show-editor", FALSE,
         NULL
     );
-    
+
     gtk_widget_show_all(GTK_WIDGET(multi_config_window));
 
     return false;
@@ -14956,7 +14961,7 @@ ui::open_dialog(int num, void *data/*=0*/)
 
     wait_ui_ready();
 
-    
+
 
     switch (num) {
         case DIALOG_SANDBOX_MENU:
@@ -15056,7 +15061,7 @@ ui::open_dialog(int num, void *data/*=0*/)
     }
 
     gdk_display_flush(gdk_display_get_default());
-    
+
 }
 
 void ui::open_sandbox_tips()
@@ -15067,12 +15072,12 @@ void ui::open_sandbox_tips()
 
     wait_ui_ready();
 
-    
+
 
     gdk_threads_add_idle(_open_tips_dialog, 0);
 
     gdk_display_flush(gdk_display_get_default());
-    
+
 }
 
 void
@@ -15084,7 +15089,7 @@ ui::open_help_dialog(const char *title, const char *description, bool enable_mar
 
     wait_ui_ready();
 
-    
+
 
     /* title and description are constant static strings in
      * object facotyr, should be safe to use directly
@@ -15095,7 +15100,7 @@ ui::open_help_dialog(const char *title, const char *description, bool enable_mar
     gdk_threads_add_idle(_open_info_dialog, 0);
 
     gdk_display_flush(gdk_display_get_default());
-    
+
 }
 
 void
@@ -15156,13 +15161,13 @@ ui::open_error_dialog(const char *error_msg)
 {
     wait_ui_ready();
 
-    
+
 
     _pass_error_text = strdup(error_msg);
     gdk_threads_add_idle(_open_error_dialog, 0);
 
     gdk_display_flush(gdk_display_get_default());
-    
+
 }
 
 void
@@ -15182,7 +15187,7 @@ ui::confirm(const char *text,
 
     wait_ui_ready();
 
-    
+
 
     _pass_confirm_text    = strdup(text);
     _pass_confirm_button1 = strdup(button1);
@@ -15206,7 +15211,7 @@ ui::confirm(const char *text,
     gdk_threads_add_idle(_open_confirm_dialog, 0);
 
     gdk_display_flush(gdk_display_get_default());
-    
+
 }
 
 void
@@ -15214,7 +15219,7 @@ ui::alert(const char *text, uint8_t alert_type/*=ALERT_INFORMATION*/)
 {
     wait_ui_ready();
 
-    
+
 
     if (_alert_text) {
         free(_alert_text);
@@ -15226,7 +15231,7 @@ ui::alert(const char *text, uint8_t alert_type/*=ALERT_INFORMATION*/)
     gdk_threads_add_idle(_open_alert_dialog, 0);
 
     gdk_display_flush(gdk_display_get_default());
-    
+
 
 }
 
