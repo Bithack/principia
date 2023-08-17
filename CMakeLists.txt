@@ -9,7 +9,6 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-find_package(CURL REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(JPEG REQUIRED)
 find_package(PNG REQUIRED)
@@ -39,7 +38,6 @@ include_directories(
 	src/lua/
 	src/SDL_image/
 	src/src/
-	${CURL_INCLUDE_DIR}
 	${FREETYPE_INCLUDE_DIRS}
 	${JPEG_INCLUDE_DIRS}
 	${OPENGL_INCLUDE_DIRS}
@@ -76,6 +74,7 @@ file(GLOB SRCS
 if(NOT SCREENSHOT_BUILD)
 	find_package(PkgConfig REQUIRED)
 	pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+	find_package(CURL REQUIRED)
 	find_package(GLEW REQUIRED)
 
 	# Luasocket
@@ -83,6 +82,7 @@ if(NOT SCREENSHOT_BUILD)
 
 	include_directories(
 		src/luasocket/
+		${CURL_INCLUDE_DIR}
 		${GLEW_INCLUDE_DIRS}
 		${GTK3_INCLUDE_DIRS})
 

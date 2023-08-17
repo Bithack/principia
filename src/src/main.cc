@@ -65,7 +65,13 @@
 
 #include "zlib.h"
 
+#ifndef TMS_BACKEND_LINUX_SS
+#define BUILD_CURL
+#endif
+
+#ifdef BUILD_CURL
 #include <curl/curl.h>
+#endif
 
 extern "C" void tmod_3ds_init(void);
 
@@ -157,6 +163,8 @@ create_thread(int (SDLCALL *fn)(void*),
 #endif
 }
 
+#ifdef BUILD_CURL
+
 static void
 lock_curl(const char *invoker="N/A")
 {
@@ -202,6 +210,7 @@ print_cookies(CURL *curl)
     curl_slist_free_all(cookies);
 }
 
+#endif
 
 static void
 menu_begin(void)
@@ -775,6 +784,7 @@ tproject_step(void)
                 case ACTION_IGNORE:
                     break;
 
+#ifdef BUILD_CURL
                 case ACTION_GET_FEATURED_LEVELS:
                     {
                         uint32_t num_featured_levels = VOID_TO_UINT32(data);
@@ -796,6 +806,28 @@ tproject_step(void)
                 case ACTION_VERSION_CHECK:
                     create_thread(_check_version_code,"_version_check",  (void*)0);
                     break;
+
+                case ACTION_LOGIN:
+                    create_thread(_login, "_login", data);
+                    break;
+
+                case ACTION_REGISTER:
+                    create_thread(_register, "_register", data);
+                    break;
+
+                case ACTION_PUBLISH_PKG:
+#ifdef BUILD_PKGMGR
+                    _publish_pkg_id = VOID_TO_UINT32(data);
+                    G->resume_action = GAME_RESUME_OPEN;
+                    if (_tms.screen == &P.s_loading_screen->super) {
+                        P.s_intermediary->prepare(publish_pkg_loader, G);
+                    } else {
+                        P.s_loading_screen->load(publish_pkg_loader, G);
+                    }
+#endif
+                    break;
+
+#endif
 
                 case ACTION_RELOAD_DISPLAY:
                     ((display*)G->selection.e)->load_symbols();
@@ -1091,18 +1123,6 @@ tproject_step(void)
                     }
                     break;
 
-                case ACTION_LOGIN:
-                    {
-                        create_thread(_login, "_login", data);
-                    }
-                    break;
-
-                case ACTION_REGISTER:
-                    {
-                        create_thread(_register, "_register", data);
-                    }
-                    break;
-
                 case ACTION_PING:
                     tms_infof("unused ping action");
                     break;
@@ -1207,26 +1227,13 @@ tproject_step(void)
                     break;
 
                 case ACTION_RELOAD_LEVEL:
-                    {
-                        G->apply_level_properties();
-                        W->init_level(true);
-                    }
-                    break;
-
-                case ACTION_PUBLISH_PKG:
-                    _publish_pkg_id = VOID_TO_UINT32(data);
-                    G->resume_action = GAME_RESUME_OPEN;
-                    if (_tms.screen == &P.s_loading_screen->super) {
-                        P.s_intermediary->prepare(publish_pkg_loader, G);
-                    } else {
-                        P.s_loading_screen->load(publish_pkg_loader, G);
-                    }
+                    G->apply_level_properties();
+                    W->init_level(true);
                     break;
 
                 case ACTION_PLAY_PKG:
                     if (data != (void*)0) {
                         _play_id = VOID_TO_UINT32(data);
-                        //_play_type = LEVEL_LOCAL;
                     }
 
                     if (_tms.screen == &P.s_loading_screen->super) {
@@ -1279,17 +1286,6 @@ tproject_step(void)
                     } else {
                         P.s_loading_screen->load(edit_loader, G);
                     }
-                    break;
-
-                case ACTION_PUBLISH:
-                    tms_debugf("action publish");
-                    P.s_loading_screen->load(publish_loader, G);
-                    G->resume_action = GAME_RESUME_CONTINUE;
-                    break;
-
-                case ACTION_SUBMIT_SCORE:
-                    P.s_loading_screen->load(submit_score_loader, G);
-                    G->resume_action = GAME_RESUME_CONTINUE;
                     break;
 
                 case ACTION_REFRESH_WIDGETS:
@@ -1442,6 +1438,7 @@ tproject_soft_resume(void)
 
     init_framebuffers();
 
+#ifdef BUILD_CURL
     lock_curl("tproject_soft_resume");
     CURLcode r = curl_global_init(CURL_GLOBAL_ALL);
     if (r != CURLE_OK) {
@@ -1451,6 +1448,7 @@ tproject_soft_resume(void)
     P.curl = curl_easy_init();
     tms_progressf("OK v(%s)\n", LIBCURL_VERSION);
     unlock_curl("tproject_soft_resume");
+#endif
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d after soft resume", ierr);
     sm::resume_all();
@@ -1476,6 +1474,7 @@ tproject_soft_pause(void)
     progress::commit();
     tms_progressf(" OK\n");
 
+#ifdef BUILD_CURL
     lock_curl("tproject_soft_pause");
 
     if (P.curl) {
@@ -1486,6 +1485,7 @@ tproject_soft_pause(void)
     tms_progressf("OK\n");
 
     unlock_curl("tproject_soft_pause");
+#endif
 
     /* TODO: Save current level as a backup */
 }
@@ -1519,6 +1519,7 @@ tproject_quit(void)
     progress::commit();
     tms_progressf(" OK\n");
 
+#ifdef BUILD_CURL
     tms_progressf("CURL easy cleanup[%p]... ", P.curl);
     lock_curl("tproject_quit");
     if (P.curl) {
@@ -1529,8 +1530,8 @@ tproject_quit(void)
     tms_progressf("CURL global cleanup... ");
     curl_global_cleanup();
     tms_progressf("OK\n");
-
     unlock_curl("tproject_quit");
+#endif
 
     tms_progressf("Cleaning settings...");
     settings.clean();
@@ -1665,6 +1666,7 @@ tproject_init(void)
         tms_fatalf("Unable to create action mutex.");
     }
 
+#ifdef BUILD_CURL
     tms_debugf("Creating curl mutex");
     P.curl_mutex = SDL_CreateMutex();
     if (!P.curl_mutex) {
@@ -1682,6 +1684,7 @@ tproject_init(void)
     tms_progressf("OK v(%s)\n", LIBCURL_VERSION);
 
     snprintf(cookie_file, 1024, "%s/c", tbackend_get_storage_path());
+#endif
 }
 
 static int
@@ -2186,6 +2189,8 @@ _download_level(void *p)
     return T_OK;
 }
 
+#endif
+
 static int
 level_loader(int step)
 {
@@ -2196,9 +2201,8 @@ level_loader(int step)
             _play_lock = true;
             _play_downloading = false;
             _play_download_for_pkg = false;
-#if defined(TMS_BACKEND_LINUX_SS)
             // For Linux SS manager we will always assume it has DB levels downloaded :)
-#else
+#if defined(BUILD_CURL)
             if (_play_type == LEVEL_DB) {
                 _play_downloading = true;
                 create_thread(_download_level, "_download_level", 0);
@@ -2206,6 +2210,7 @@ level_loader(int step)
 #endif
             break;
         case 1:
+#ifdef BUILD_CURL
             if (num < 10) {
                 P.s_loading_screen->set_text("Downloading level.");
             } else if (num < 20) {
@@ -2224,6 +2229,7 @@ level_loader(int step)
                 if (_play_header_data.notify_message)
                     ui::message(_play_header_data.notify_message, 1);
             }
+#endif
 
             G->screen_back = 0;
             G->open_play(_play_type, _play_id, 0);
@@ -2246,6 +2252,7 @@ level_loader(int step)
 static int
 open_loader(int step)
 {
+#ifdef BUILD_CURL
     switch (step) {
         case 0:
             _play_lock = true;
@@ -2273,6 +2280,7 @@ open_loader(int step)
         case 2: default: _play_lock = false; _play_downloading = false; _play_downloading_error = 0; return LOAD_DONE;
         case LOAD_RETURN_NUM_STEPS: return 2;
     }
+#endif
 
     return LOAD_CONT;
 }
@@ -2280,6 +2288,7 @@ open_loader(int step)
 static int
 edit_loader(int step)
 {
+#ifdef BUILD_CURL
     switch (step) {
         case 0:
             _play_lock = true;
@@ -2307,6 +2316,7 @@ edit_loader(int step)
         case 2: default: _play_lock = false; _play_downloading = false; _play_downloading_error = 0; return LOAD_DONE;
         case LOAD_RETURN_NUM_STEPS: return 2;
     }
+#endif
 
     return LOAD_CONT;
 }
@@ -2314,6 +2324,7 @@ edit_loader(int step)
 static int
 pkg_loader(int step)
 {
+#ifdef BUILD_CURL
     switch (step) {
         case 0:
             _play_lock = true;
@@ -2343,6 +2354,7 @@ pkg_loader(int step)
         case 2: default: _play_lock = false; _play_pkg_downloading = false; _play_pkg_downloading_error = false; return LOAD_DONE;
         case LOAD_RETURN_NUM_STEPS: return 2;
     }
+#endif
 
     return LOAD_CONT;
 }
@@ -2365,6 +2377,8 @@ write_memory_cb(void *contents, size_t size, size_t nmemb, void *userp)
 
     return realsize;
 }
+
+#ifdef BUILD_CURL
 
 static int
 _check_version_code(void *_unused)
@@ -3551,6 +3565,7 @@ submit_score_loader(int step)
     return LOAD_CONT;
 }
 
+#endif
 
 static Uint32 loader_times[32] = {0,};
 static Uint32 total_load = 0;
@@ -3714,10 +3729,12 @@ initial_loader(int step)
         case 4:
             ui::init();
 
+#ifdef BUILD_CURL
             lock_curl("initial_loader-curl_init");
             P.curl = curl_easy_init();
             unlock_curl("initial_loader-curl_init");
             if (!P.curl) return LOAD_ERROR;
+#endif
 
             /* initialize worker threads */
             w_init();
@@ -3953,6 +3970,8 @@ principia::get_light_normal()
     return light;
 }
 
+#ifdef BUILD_CURL
+
 /**
  * Get the community site login token from cURL, intended for the user to be automatically
  * logged into the Android webview.
@@ -4003,6 +4022,8 @@ P_get_cookie_data(char **token)
     }
     unlock_curl("get_cookie_data");
 }
+
+#endif
 
 extern "C" void
 P_focus(int focus)
