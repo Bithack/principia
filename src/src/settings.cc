@@ -31,12 +31,10 @@ _settings::init()
     int rw = (int)exp2(roundf(w2)) / 2;
     int rh = (int)exp2(roundf(h2)) / 2;
 
-    bool is_shitty = tbackend_is_shitty() == 1;
-
     /** -Graphics **/
     this->add("debug",              S_BOOL,  false);
     this->add("postprocess",        S_BOOL,  false);
-    this->add("enable_shadows",     S_BOOL,  is_shitty ? false : true);
+    this->add("enable_shadows",     S_BOOL,  true);
 
     this->add("uiscale",            S_FLOAT, (tbackend_is_tablet() ? 1.5f : 1.3f));
 
@@ -68,11 +66,7 @@ _settings::init()
     // False for now to allow for resetting the screensize if resizing somehow breaks it.
     this->add("autosave_screensize",S_BOOL,  false);
 
-#if defined(TMS_BACKEND_IOS)
-    this->add("shadow_quality",     S_UINT8,  is_shitty ? 0 : 1);
-#else
     this->add("shadow_quality",     S_UINT8,  1);
-#endif
 
 #if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
     this->add("ao_map_res",         S_INT32,   256);
@@ -91,7 +85,7 @@ _settings::init()
     this->add("gamma_correct",      S_BOOL,  -1);
 #endif
     this->add("render_com",         S_BOOL,  false);
-    this->add("enable_ao",          S_BOOL,  (is_shitty ? false : true));
+    this->add("enable_ao",          S_BOOL,  true);
 
 #if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
     this->add("shadow_ao_combine",         S_BOOL, 0);

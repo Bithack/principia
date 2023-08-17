@@ -1689,8 +1689,6 @@ shader_loader(int step)
 {
     P.can_set_settings = true;
 
-    bool is_shitty = tbackend_is_shitty();
-
     switch (step) {
         case 0: break;
         case 1:
@@ -1702,8 +1700,8 @@ shader_loader(int step)
         case 2: tms_scene_clear_graphs(G->get_scene()); break;
         case 3: material_factory::free_shaders(); break;
         case 4:
-            material_factory::init_shaders(is_shitty);
-            material_factory::init_materials(is_shitty);
+            material_factory::init_shaders(false);
+            material_factory::init_materials(false);
             break;
         case 5: init_framebuffers(); G->init_framebuffers(); break;
         case 6: tms_scene_fill_graphs(G->get_scene()); break;
@@ -3731,7 +3729,7 @@ initial_loader(int step)
             break;
 
         case 5:
-            material_factory::init(tbackend_is_shitty() || is_very_shitty || settings["is_very_shitty"]->v.b);
+            material_factory::init(is_very_shitty || settings["is_very_shitty"]->v.b);
 
             P.s_loading_screen->set_text("Allocating models...");
             break;

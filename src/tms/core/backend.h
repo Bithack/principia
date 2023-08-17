@@ -26,7 +26,6 @@ const char *tbackend_get_user_path();
 #define tbackend_get_user_path tbackend_get_storage_path
 #endif
 const char *tbackend_get_device_info(void);
-int tbackend_is_shitty(void);
 void tbackend_toggle_fullscreen(void);
 
 #ifdef __cplusplus

@@ -264,12 +264,6 @@ const char *tbackend_get_storage_path(void)
     return "../Library/Caches";
 }
 
-int tbackend_is_shitty(void)
-{
-    /* TODO: Check IOS Version */
-    return 0;
-}
-
 void
 tbackend_toggle_fullscreen(void)
 {

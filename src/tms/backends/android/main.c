@@ -314,38 +314,6 @@ tbackend_get_device_info(void)
     return _JNI_get_device_info();
 }
 
-int tbackend_is_shitty(void)
-{
-    JNIEnv *env = Android_JNI_GetEnv();
-
-    jclass version_class = (*env)->FindClass(env, "android/os/Build$VERSION");
-    if (version_class == NULL) {
-        /* API Version is 4 or below */
-        tms_infof("API Version is 4 or below.");
-        return 1;
-    }
-
-    jfieldID sdk_int_id = NULL;
-    sdk_int_id = (*env)->GetStaticFieldID(env, version_class, "SDK_INT", "I");
-
-    if (sdk_int_id == NULL) {
-        tms_infof("Unable to get static field ID");
-        return 1;
-    }
-
-    jint sdk_int = 0;
-    sdk_int = (*env)->GetStaticIntField(env, version_class, sdk_int_id);
-    tms_infof("API Version: %d", sdk_int);
-
-    if (sdk_int < 11) {
-        return 1;
-    }
-
-    (*env)->DeleteLocalRef(env, version_class);
-
-    return 0;
-}
-
 void
 tbackend_toggle_fullscreen(void)
 {

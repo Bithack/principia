@@ -66,7 +66,6 @@ int screenshot(char *file_name, unsigned int x, unsigned int y, unsigned long wi
 extern "C" int tbackend_init_surface();
 extern "C" const char *tbackend_get_storage_path(void);
 extern "C" const char *tbackend_get_device_info(void);
-extern "C" int tbackend_is_shitty(void);
 
 static void
 _catch_signal(int signal)
@@ -488,11 +487,6 @@ const char *tbackend_get_storage_path(void)
         _storage_path = path;
     }
     return _storage_path;
-}
-
-int tbackend_is_shitty(void)
-{
-    return 0;
 }
 
 int

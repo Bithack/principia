@@ -46,7 +46,6 @@ void tgen_init(void){};
 extern "C" int tbackend_init_surface();
 extern "C" const char *tbackend_get_storage_path(void);
 extern "C" const char *tbackend_get_device_info(void);
-extern "C" int tbackend_is_shitty(void);
 
 char *_tmp[]={0,0};
 static HANDLE pipe_h;
@@ -814,13 +813,6 @@ const char*
 tbackend_get_device_info(void)
 {
     return ""; /* TODO */
-}
-
-int
-tbackend_is_shitty(void)
-{
-    /* TODO: Check graphics card/OS version */
-    return 0;
 }
 
 void
