@@ -78,7 +78,7 @@ if(NOT SCREENSHOT_BUILD)
 	find_package(GLEW REQUIRED)
 
 	# Luasocket
-	SET(LUASOCKET_FLAGS "-DLUASOCKET_INET_PTON")
+	SET(LUASOCKET_FLAGS "-DBUILD_LUASOCKET -DLUASOCKET_INET_PTON")
 
 	include_directories(
 		src/luasocket/

@@ -41,6 +41,11 @@
 
 typedef std::vector<struct escript_sprite>::iterator sprite_iterator;
 
+// TODO: remove this once CMake is the only build system on linux and windows
+#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#define BUILD_LUASOCKET
+#endif
+
 extern "C" {
 #include "lua.h"
 #include "lstate.h"
@@ -48,7 +53,7 @@ extern "C" {
 #include "lauxlib.h"
 #include "eris.h"
 
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef BUILD_LUASOCKET
 #include "luasocket/luasocket.h"
 #endif
 }
@@ -3580,7 +3585,7 @@ escript::init()
 
     register_this(this->L, this);
 
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef BUILD_LUASOCKET
     luaopen_socket_core(this->L);
     lua_pop(this->L, 1);
 #endif
