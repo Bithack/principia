@@ -36,7 +36,6 @@ endif()
 include_directories(
 	src/
 	src/lua/
-	src/SDL_image/
 	src/src/
 	${FREETYPE_INCLUDE_DIRS}
 	${JPEG_INCLUDE_DIRS}
@@ -56,8 +55,6 @@ file(GLOB SRCS
 	src/tms/modules/3ds/3ds.c
 
 	src/lua/*.c
-
-	src/SDL_image/SDL2_rotozoom.c
 
 	src/src/*.cc
 	src/src/*.c

@@ -20,13 +20,13 @@ jobs:
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libgtksourceview-4-dev libgl-dev libglew-dev libxss-dev libxxf86vm-dev libasound2-dev libudev-dev valgrind libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-gfx-dev
+          sudo apt-get install -y libgtk-3-dev libgl-dev libglew-dev libxss-dev libxxf86vm-dev libasound2-dev libudev-dev libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev cmake ninja-build
       - name: Build
         run: |
-          cd build-linux/
-          ./autogen.sh
-          ./configure
-          ./go --silent --release
+          mkdir build
+          cd build
+          cmake .. -G Ninja
+          ninja -j4
 
   windows:
     runs-on: windows-latest
@@ -45,16 +45,15 @@ jobs:
             autotools
             mingw-w64-x86_64-curl
             mingw-w64-x86_64-gtk3
-            mingw-w64-x86_64-gtksourceview4
             mingw-w64-x86_64-libpng
             mingw-w64-x86_64-libjpeg-turbo
             mingw-w64-x86_64-freetype
             mingw-w64-x86_64-SDL2
-            mingw-w64-x86_64-SDL2_gfx
             mingw-w64-x86_64-SDL2_image
             mingw-w64-x86_64-SDL2_mixer
             mingw-w64-x86_64-SDL2_ttf
             mingw-w64-x86_64-nsis
+
       - name: Build
         run: |
           cd build-windows/
@@ -65,10 +64,7 @@ jobs:
       - name: Bundle together
         run: |
           cd build-windows/
-          mkdir release
-          cp principia.exe release/
-          ./mingw-bundledlls release/principia.exe --copy
-          makensis principia_install
+          bash make_release.sh
 
       - name: Upload output as artifact
         uses: actions/upload-artifact@v3

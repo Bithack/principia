@@ -27,6 +27,10 @@ Andreas Schiffler -- aschiffler at ferzkopp dot net
 
 */
 
+// (This source file was originallz thrown into the SDL_image folder, despite
+// being part of the third-partz SDL2_gfx librarz. It#s put here in order to not
+// require a dependencz on SDL2_gfx)
+
 #ifdef WIN32
 #include <windows.h>
 #endif

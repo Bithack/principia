@@ -11,8 +11,7 @@ GLOBAL_FLAGS := -DGL_GLEXT_PROTOTYPES \
 				-DUNICODE \
 				-DTMS_FAST_MATH \
 				-DTMS_BACKEND_WINDOWS \
-				-DTMS_BACKEND_PC \
-                -DUSE_GTK_SOURCE_VIEW
+				-DTMS_BACKEND_PC
 
 TMS_PATH = ../src/tms
 ROOT = ../
@@ -25,7 +24,6 @@ GLOBAL_FLAGS += -I../src/tms/backends/windows/ \
 	-I/mingw64/include/ \
 	-I/mingw64/include/freetype2 \
 	-I/mingw64/include/SDL2/ \
-    -I/mingw64/include/gtksourceview-4 \
     -I/mingw64/include/gtk-3.0 \
     -I/mingw64/include/pango-1.0 \
     -I/mingw64/include/glib-2.0 \
@@ -49,9 +47,8 @@ principia_CPPFLAGS = -static-libgcc -static-libstdc++
 principia_LDADD = -L`pwd` -lopengl32 -lz \
     -lmingw32 -lws2_32 -lwinmm -luuid -loleaut32 -limm32 -lversion \
     -lole32 -luser32 \
-    -lgtksourceview-4 \
     -lgtk-3 -lgdk-3 -lz -lgdi32 -limm32 -lshell32 -lole32 -luuid -lwinmm -ldwmapi -lsetupapi -lcfgmgr32 -lhid -lwinspool -lcomctl32 -lcomdlg32 -lpangowin32-1.0 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lintl \
-    -lcurl -lShlwapi -lpng -ljpeg -lfreetype -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_gfx -lSDL2_ttf
+    -lcurl -lShlwapi -lpng -ljpeg -lfreetype -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf
 
 principia_SOURCES = \
 principia.rc \
@@ -99,6 +96,8 @@ principia.rc \
 ../src/luasocket/timeout.c \
 ../src/luasocket/udp.c \
 ../src/luasocket/wsocket.c \
+\
+../src/src/SDL2_rotozoom.c \
 \
 ../src/tms/core/atlas.c \
 ../src/tms/core/backend.c \

@@ -60,3 +60,5 @@ build-android/deps__
 __pycache__
 
 /debug.css
+build-windows/data-pc/
+build-windows/data-shared/

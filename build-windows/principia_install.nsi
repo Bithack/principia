@@ -67,7 +67,10 @@ Section "Core Files (required)" SecCore
   SetOutPath "$INSTDIR"
 
   File "release\principia.exe"
-  File "release\*.dll"
+  File /x "opengl32.dll" "release\*.dll"
+
+  File /r "release\lib"
+  File /r "release\share"
 
   SetOutPath "$INSTDIR\data-pc"
   File /r /x *.sw* "..\data-pc\bg"
