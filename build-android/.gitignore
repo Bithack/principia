@@ -1,9 +1,8 @@
-*.class
-.classpath
-.project
-libs/
-obj/
-BuildConfig.java
-bin
-debug
-.idea
+.gradle/
+.idea/
+deps/
+principia/build/
+*.apk
+*.apk.idsig
+local.properties
+

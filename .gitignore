@@ -1,64 +1,15 @@
-*.sw?
-build
-bin/
-*.o
+# Common build files
+build/
+build_debug/
 
-#llvm-specific temporary object-files
-*.o-*
+# Misc. development files
+.vscode/
+*.patch
+local_config.h
+opengl32.dll
+result/
 
-*.lo
-*.exe
+# Junk files for the old build system
 .deps/
 .dirstamp
-apparatus2
-config.log
-config.status
-aclocal.m4
-configure
-Makefile.in
-Makefile
-Makefile.rules
-SDL2.spec
-autom4te.cache
-libtool
-sdl2-config
-sdl2.pc
-*.mode1v3
-*.pbxuser
-build-ios/principia/principia.xcodeproj/project.xcworkspace/xcuserdata/
-build-linux/Makefile
-build-windows/Makefile
-*.xcuserstate
-R.java
-R.java.d
-missing
-install-sh
-.directory
-local.properties
-callgrind.*
-*.dot
-gdb.txt
-principia.state
-sha1_test
-.DS_Store
-*.iml
-build-windows/release/
-# mesa software rendering dll
-opengl32.dll
-
-# nix build result
-result
-
-.gradle
-build-android/deps/
-configure~
-*.patch
-*.apk
-*.idsig
-build-android/principia/deps
-build-android/deps__
-__pycache__
-
-/debug.css
-build-windows/data-pc/
-build-windows/data-shared/
+*.o

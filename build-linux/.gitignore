@@ -11,3 +11,7 @@ missing
 COPYING
 INSTALL
 principia
+Makefile
+config.log
+config.status
+configure~
