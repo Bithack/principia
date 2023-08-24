@@ -1,5 +1,4 @@
-#ifndef _PLANT__H_
-#define _PLANT__H_
+#pragma once
 
 #include "entity.hh"
 #include "ud2.hh"
@@ -338,5 +337,3 @@ class plant : public entity_simpleconnect
     plant_section root_section;
     plant_branch root_branch;
 };
-
-#endif

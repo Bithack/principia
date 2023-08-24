@@ -1,5 +1,4 @@
-#ifndef _MATERIAL__HH_
-#define _MATERIAL__HH_
+#pragma once
 
 #include <tms/bindings/cpp/cpp.hh>
 
@@ -355,5 +354,3 @@ extern const char *available_bgs[];
 extern const int num_bgs;
 
 extern const int colored_bgs[];
-
-#endif

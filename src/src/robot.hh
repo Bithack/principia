@@ -1,5 +1,4 @@
-#ifndef _ROBOT__H_
-#define _ROBOT__H_
+#pragma once
 
 #include "robot_base.hh"
 
@@ -65,5 +64,3 @@ class robot : public robot_base
     robot_parts::tool* get_tool() const { return this->tool; }
     robot_parts::weapon* get_weapon() const { return this->weapon; }
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _PROGRESS__H_
-#define _PROGRESS__H_
+#pragma once
 
 #include <stdint.h>
 #include <map>
@@ -33,5 +32,3 @@ class progress
     static void init(char *custom_path=0);
     static void commit();
 };
-
-#endif

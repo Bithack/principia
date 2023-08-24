@@ -1,5 +1,4 @@
-#ifndef _WIDGET_MANAGER__H_
-#define _WIDGET_MANAGER__H_
+#pragma once
 
 #include "pscreen.hh"
 #include "font.hh"
@@ -274,5 +273,3 @@ class widget_manager
         return this->home;
     }
 };
-
-#endif

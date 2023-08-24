@@ -1,5 +1,4 @@
-#ifndef _LOADING_SCREEN__H_
-#define _LOADING_SCREEN__H_
+#pragma once
 
 #include <tms/bindings/cpp/cpp.hh>
 #include "main.hh"
@@ -55,5 +54,3 @@ class loading_screen : public tms::screen
 
     void window_size_changed();
 };
-
-#endif

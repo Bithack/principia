@@ -1,5 +1,4 @@
-#ifndef _PKGMAN__H_
-#define _PKGMAN__H_
+#pragma once
 
 #define LEVEL_VERSION_ANY     0
 #define LEVEL_VERSION_1_0     15
@@ -704,7 +703,5 @@ class lvledit
 
     void print_gids();
 };
-
-#endif
 
 #endif

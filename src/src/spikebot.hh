@@ -1,5 +1,4 @@
-#ifndef _SPIKEBOT__H_
-#define _SPIKEBOT__H_
+#pragma once
 
 #include "robot_base.hh"
 
@@ -40,5 +39,3 @@ class mini_spikebot : public spikebot
 
     const char *get_name() { return "Mini Spikebot"; };
 };
-
-#endif

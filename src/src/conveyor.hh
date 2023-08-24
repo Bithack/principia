@@ -1,5 +1,4 @@
-#ifndef _CONVEYOR__H_
-#define _CONVEYOR__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -51,5 +50,3 @@ class conveyor : public edev
         this->invert = (lb->r_uint8() != 0);
     }
 };
-
-#endif

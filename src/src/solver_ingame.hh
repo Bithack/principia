@@ -1,5 +1,4 @@
-#ifndef _SOLVER_INGAME__H_
-#define _SOLVER_INGAME__H_
+#pragma once
 
 #include "Box2D/Box2D.h"
 
@@ -11,5 +10,3 @@ class solver_ingame : public b2ContactListener
     virtual void PreSolve(b2Contact *contact, const b2Manifold *manifold);
     virtual void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse);
 };
-
-#endif

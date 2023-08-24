@@ -1,5 +1,4 @@
-#ifndef _FONT__H_
-#define _FONT__H_
+#pragma once
 
 #define NL_DIR_DOWN -1
 #define NL_DIR_UP 1
@@ -116,5 +115,3 @@ extern p_font *xlarge;
 }
 
 void render_glyph(struct tms_ddraw *dd, struct glyph *g, float x, float y, tvec4 c, tvec4 oc, float scale=1.f, bool outline=false, bool call_opengl_stuff=true);
-
-#endif

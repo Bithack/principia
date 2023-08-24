@@ -1,5 +1,4 @@
-#ifndef _GRID__H_
-#define _GRID__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -10,5 +9,3 @@ class grid : public entity
     const char *get_name() { return "Grid"; }
     void add_to_world(){};
 };
-
-#endif

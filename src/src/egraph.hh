@@ -1,5 +1,4 @@
-#ifndef _EGRAPH__H_
-#define _EGRAPH__H_
+#pragma once
 
 #include "entity.hh"
 #include "edevice.hh"
@@ -40,5 +39,3 @@ class egraph : public brcomp_multiconnect
         }
     }
 };
-
-#endif

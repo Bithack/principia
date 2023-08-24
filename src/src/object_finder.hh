@@ -1,5 +1,4 @@
-#ifndef _OBJECT_FINDER__H_
-#define _OBJECT_FINDER__H_
+#pragma once
 
 #include "iomiscgate.hh"
 
@@ -28,5 +27,3 @@ class cursor_finder : public i0o2gate
     const char *get_name(){return "Cursor finder";};
     edevice* solve_electronics();
 };
-
-#endif

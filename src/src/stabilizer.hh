@@ -1,5 +1,4 @@
-#ifndef _STABILIZER__H_
-#define _STABILIZER__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -58,5 +57,3 @@ class estabilizer : public ecomp_multiconnect
         this->refresh_damping();
     }
 };
-
-#endif

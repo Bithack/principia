@@ -1,5 +1,4 @@
-#ifndef __PIPELINE__H_
-#define __PIPELINE__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -27,5 +26,3 @@ class pipeline : public entity_simpleconnect
     void take(ball *b);
     void toggle_axis_rot();
 };
-
-#endif

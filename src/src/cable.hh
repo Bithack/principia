@@ -1,5 +1,4 @@
-#ifndef _CABLE__H_
-#define _CABLE__H_
+#pragma once
 
 #define CABLE_BLACK 0
 #define CABLE_RED   1
@@ -193,5 +192,3 @@ class plug : public plug_base
 
     friend class cable;
 };
-
-#endif

@@ -2,8 +2,7 @@
  * C++ Bindings for TMS
  **/
 
-#ifndef __TMS_CPP_BINDINGS__H_
-#define __TMS_CPP_BINDINGS__H_
+#pragma once
 
 extern "C" {
     #include <tms/core/glob.h>
@@ -684,5 +683,3 @@ namespace tms
         return _tms.window_width;
     }
 };
-
-#endif

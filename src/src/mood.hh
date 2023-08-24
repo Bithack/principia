@@ -1,5 +1,4 @@
-#ifndef _MOOD__H_
-#define _MOOD__H_
+#pragma once
 
 #define MIN_MOOD_VALUE 0.f
 #define MAX_MOOD_VALUE 1.f
@@ -25,5 +24,3 @@ class mood_data {
     void *data;
     void (*mood_changed)(int what, float old_value, float new_value, void *userdata);
 };
-
-#endif

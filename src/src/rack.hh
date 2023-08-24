@@ -1,5 +1,4 @@
-#ifndef _RACK__H_
-#define _RACK__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -30,5 +29,3 @@ class rack : public entity
 
     friend class connection;
 };
-
-#endif

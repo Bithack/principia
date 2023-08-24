@@ -1,5 +1,4 @@
-#ifndef _BATTERY__H_
-#define _BATTERY__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -14,5 +13,3 @@ class battery : public brcomp_multiconnect
     edevice* solve_electronics();
     const char* get_name(){return "Battery (3V)";};
 };
-
-#endif

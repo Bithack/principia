@@ -1,5 +1,4 @@
-#ifndef _TIMECTRL__H_
-#define _TIMECTRL__H_
+#pragma once
 
 #include "i1o0gate.hh"
 
@@ -26,5 +25,3 @@ class timectrl : public i1o0gate
         this->last_set = lb->r_float();
     }
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _ANCHOR__H_
-#define _ANCHOR__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -50,5 +49,3 @@ class anchor : public ecomp_multiconnect
         this->active = lb->r_bool();
     }
 };
-
-#endif

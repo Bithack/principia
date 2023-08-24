@@ -1,5 +1,4 @@
-#ifndef _I1O1GATE__H_
-#define _I1O1GATE__H_
+#pragma once
 
 #include "edevice.hh"
 #include "model.hh"
@@ -472,5 +471,3 @@ class sequencer : public i1o1gate_mini
         this->started = (lb->r_uint8() != 0);
     }
 };
-
-#endif

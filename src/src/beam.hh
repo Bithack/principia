@@ -1,5 +1,4 @@
-#ifndef _BEAM__H_
-#define _BEAM__H_
+#pragma once
 
 #include "composable.hh"
 
@@ -82,5 +81,3 @@ class room : public composable
     void create_sensor();
     void set_layer(int z);
 };
-
-#endif

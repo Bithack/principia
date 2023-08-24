@@ -1,5 +1,4 @@
-#ifndef _SEESAW__H_
-#define _SEESAW__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -27,5 +26,3 @@ class seesaw : public entity,
     void find_pairs();
     void connection_create_joint(connection *c);
 };
-
-#endif

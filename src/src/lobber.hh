@@ -1,5 +1,4 @@
-#ifndef _LOBBER__H_
-#define _LOBBER__H_
+#pragma once
 
 #include "bomber.hh"
 
@@ -15,5 +14,3 @@ class lobber : public bomber
 
     void attack(int add_cooldown=0);
 };
-
-#endif

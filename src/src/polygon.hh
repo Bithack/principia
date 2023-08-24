@@ -1,5 +1,4 @@
-#ifndef _POLYGON__H_
-#define _POLYGON__H_
+#pragma once
 
 #include "composable.hh"
 
@@ -114,5 +113,3 @@ class polygon : public composable, public b2RayCastCallback
     float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction);
     connection *load_connection(connection &conn);
 };
-
-#endif

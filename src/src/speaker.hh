@@ -1,5 +1,4 @@
-#ifndef _SPEAKER__H_
-#define _SPEAKER__H_
+#pragma once
 
 #include "i2o0gate.hh"
 #include "soundmanager.hh"
@@ -21,5 +20,3 @@ class speaker : public i2o0gate
         this->slot = -1;
     }
 };
-
-#endif

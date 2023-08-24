@@ -1,5 +1,4 @@
-#ifndef _PIXEL__H_
-#define _PIXEL__H_
+#pragma once
 
 #include "basepixel.hh"
 #include "receiver.hh"
@@ -69,5 +68,3 @@ class pixel : public basepixel,
         this->pending_value = lb->r_float();
     }
 };
-
-#endif

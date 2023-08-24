@@ -1,5 +1,4 @@
-#ifndef _PROMPT__H_
-#define _PROMPT__H_
+#pragma once
 
 #include "iomiscgate.hh"
 #include "const.hh"
@@ -78,5 +77,3 @@ class prompt : public i1o3gate, public base_prompt
 
     base_prompt *get_base_prompt() { return this; }
 };
-
-#endif

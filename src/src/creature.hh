@@ -1,5 +1,4 @@
-#ifndef _CREATURE__H_
-#define _CREATURE__H_
+#pragma once
 
 #include "entity.hh"
 #include "robot_parts.hh"
@@ -888,5 +887,3 @@ class creature : public entity
     friend class animal;
     friend class game;
 };
-
-#endif

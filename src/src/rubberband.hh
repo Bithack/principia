@@ -1,5 +1,4 @@
-#ifndef _RUBBERBAND__H_
-#define _RUBBERBAND__H_
+#pragma once
 
 #include "composable.hh"
 #include "main.hh"
@@ -72,5 +71,3 @@ class rubberband_2 : public rubberband
     const char* get_name(){return "Rubberband (part)";}
     void update_frame(bool hard);
 };
-
-#endif

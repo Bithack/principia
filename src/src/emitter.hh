@@ -1,5 +1,4 @@
-#ifndef __EMITTER__H_
-#define __EMITTER__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -89,5 +88,3 @@ class emitter : public edev_multiconnect
         this->time = lb->r_uint64();
     }
 };
-
-#endif

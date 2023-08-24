@@ -1,5 +1,4 @@
-#ifndef _FXEMITTER__H_
-#define _FXEMITTER__H_
+#pragma once
 
 #include "i1o1gate.hh"
 
@@ -320,5 +319,3 @@ class plasma_explosion_effect : public base_effect
     void update_effects();
 };
 
-
-#endif

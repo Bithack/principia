@@ -1,5 +1,4 @@
-#ifndef _TRANSMITTER__H_
-#define _TRANSMITTER__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -44,5 +43,3 @@ class transmitter : public brcomp_multiconnect
         this->pending_value = lb->r_float();
     }
 };
-
-#endif

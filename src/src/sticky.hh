@@ -1,5 +1,4 @@
-#ifndef _STICKY__H_
-#define _STICKY__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -36,5 +35,3 @@ class sticky : public entity
     virtual void add_to_world();
     const char *get_name(void){return "Sticky note";};
 };
-
-#endif

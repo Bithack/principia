@@ -1,5 +1,4 @@
-#ifndef _I2O1GATE__H_
-#define _I2O1GATE__H_
+#pragma once
 
 #include "edevice.hh"
 #include "model.hh"
@@ -294,5 +293,3 @@ class cmple : public cmp
     const char* get_name(){return "cmp-le";} /* <= */
     edevice* solve_electronics();
 };
-
-#endif

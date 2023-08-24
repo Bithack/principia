@@ -1,5 +1,4 @@
-#ifndef _GYROSCOPE__H_
-#define _GYROSCOPE__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -10,5 +9,3 @@ class gyroscope : public ecomp_multiconnect
     edevice* solve_electronics();
     const char *get_name(){return "Gyroscope";};
 };
-
-#endif

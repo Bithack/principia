@@ -1,5 +1,4 @@
-#ifndef _TIMER__H_
-#define _TIMER__H_
+#pragma once
 
 #include "iomiscgate.hh"
 
@@ -81,5 +80,3 @@ class ifelse : public i2o2gate
 
     const char *get_name(){return "IF-else";};
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _VENDOR__H_
-#define _VENDOR__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -53,5 +52,3 @@ class vendor : public brcomp_multiconnect
         this->last_bought = (lb->r_uint8() != 0);
     }
 };
-
-#endif

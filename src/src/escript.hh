@@ -1,5 +1,4 @@
-#ifndef _ESCRIPT__H_
-#define _ESCRIPT__H_
+#pragma once
 
 #include "edevice.hh"
 #include "world.hh"
@@ -155,5 +154,3 @@ class escript : public brcomp_multiconnect, public base_prompt
 
     base_prompt *get_base_prompt() { return this; }
 };
-
-#endif

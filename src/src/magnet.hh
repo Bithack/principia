@@ -1,5 +1,4 @@
-#ifndef _MAGNET__H_
-#define _MAGNET__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -41,5 +40,3 @@ class magnet : public edev
 
     void apply_magnetism(b2Fixture *f, float dist, float multiplier);
 };
-
-#endif

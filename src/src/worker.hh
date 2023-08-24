@@ -1,5 +1,4 @@
-#ifndef _WORKER__H_
-#define _WORKER__H_
+#pragma once
 
 #include "Box2D/Box2D.h"
 #include <SDL.h>
@@ -81,5 +80,3 @@ bool w_is_enabled();
 int  w_get_num_workers();
 void w_wait(int w); /* send -1 to wait for all */
 int  w_run(int runmode, void *data);
-
-#endif

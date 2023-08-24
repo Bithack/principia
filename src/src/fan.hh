@@ -1,5 +1,4 @@
-#ifndef _FAN__H_
-#define _FAN__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -54,5 +53,3 @@ class fan : public ecomp_multiconnect
         this->force = lb->r_float();
     }
 };
-
-#endif

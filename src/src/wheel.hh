@@ -1,5 +1,4 @@
-#ifndef _WHEEL__H_
-#define _WHEEL__H_
+#pragma once
 
 #include "composable.hh"
 
@@ -38,5 +37,3 @@ class wheel : public composable, public b2QueryCallback
 
     bool do_update_fixture;
 };
-
-#endif

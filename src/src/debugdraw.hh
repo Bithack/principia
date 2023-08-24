@@ -1,5 +1,4 @@
-#ifndef _DEBUGDRAW__H_
-#define _DEBUGDRAW__H_
+#pragma once
 
 #include "Box2D/Box2D.h"
 #include <tms/bindings/cpp/cpp.hh>
@@ -24,5 +23,3 @@ class debugdraw : public b2Draw
     void DrawTransform(const b2Transform &xf);
     void DrawParticles(const b2Vec2 *p, float32 a, const b2ParticleColor *col, int32 i);
 };
-
-#endif

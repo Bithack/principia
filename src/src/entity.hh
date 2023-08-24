@@ -1,5 +1,4 @@
-#ifndef _ENTITY__H_
-#define _ENTITY__H_
+#pragma once
 
 #include <tms/bindings/cpp/cpp.hh>
 #include "Box2D/Box2D.h"
@@ -957,5 +956,3 @@ class ghost : public entity, public b2QueryCallback
 };
 
 void entity_fast_update(struct tms_entity *t);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _FLUIDBUFFER__H_
-#define _FLUIDBUFFER__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -16,5 +15,3 @@ class fluidbuffer
     static void add(float x, float y, float z, float pressure, float w, float h);
     static tms::entity *get_entity();
 };
-
-#endif

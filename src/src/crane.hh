@@ -1,5 +1,4 @@
-#ifndef _CRANE__H_
-#define _CRANE__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -82,5 +81,3 @@ class crane_pulley : public entity
 
     friend class crane;
 };
-
-#endif

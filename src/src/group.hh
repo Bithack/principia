@@ -1,5 +1,4 @@
-#ifndef _GROUP__H_
-#define _GROUP__H_
+#pragma once
 
 #include <vector>
 #include <set>
@@ -73,5 +72,3 @@ class group : public entity
     friend class game;
     friend class selection_handler;
 };
-
-#endif

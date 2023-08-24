@@ -1,5 +1,4 @@
-#ifndef _MINIBOT__H_
-#define _MINIBOT__H_
+#pragma once
 
 #include "robot_base.hh"
 
@@ -24,5 +23,3 @@ class minibot : public robot_base
     void on_load(bool created, bool has_state);
     void eat(entity *e);
 };
-
-#endif

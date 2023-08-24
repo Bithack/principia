@@ -1,5 +1,4 @@
-#ifndef _GENERATOR__H_
-#define _GENERATOR__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -19,5 +18,3 @@ class generator : public brcomp_multiconnect
     const char* get_name(){return "Power Supply";};
     void write_quickinfo(char *out);
 };
-
-#endif

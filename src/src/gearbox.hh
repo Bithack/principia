@@ -1,5 +1,4 @@
-#ifndef _GEARBOX__H_
-#define _GEARBOX__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -57,5 +56,3 @@ class gearbox : public edev, public b2QueryCallback
 
         void create_gearjoint();
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _IFDEVICE__H_
-#define _IFDEVICE__H_
+#pragma once
 
 struct iffeed
 {
@@ -22,5 +21,3 @@ class ifdevice
             )=0;
     virtual void ifget(iffeed *feed)=0;
 };
-
-#endif

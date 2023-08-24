@@ -1,5 +1,4 @@
-#ifndef _IMPACT_SENSOR__H_
-#define _IMPACT_SENSOR__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -64,5 +63,3 @@ class impact_sensor : public ecomp_multiconnect
 
     friend class explosive;
 };
-
-#endif

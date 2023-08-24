@@ -1,5 +1,4 @@
-#ifndef _FACTION__H_
-#define _FACTION__H_
+#pragma once
 
 #include "mood.hh"
 
@@ -32,5 +31,3 @@ extern class faction_info
     float mood_decr[NUM_MOODS];
     float mood_sensitivity[NUM_MOODS];
 } factions[NUM_FACTIONS];
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _TPIXEL__H_
-#define _TPIXEL__H_
+#pragma once
 
 #include "ud2.hh"
 
@@ -140,7 +139,5 @@ class tpixel : public basepixel
     const char *get_slider_label(int s){if (s==0)return basepixel::get_slider_label(s);else return "Material";};
     void on_slider_change(int s, float value);
 };
-
-#endif
 
 #endif

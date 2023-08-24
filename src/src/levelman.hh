@@ -1,5 +1,4 @@
-#ifndef _LEVELMAN__H_
-#define _LEVELMAN__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -10,5 +9,3 @@ class levelman : public brcomp_multiconnect
     const char *get_name() { return "Level Manager"; }
     edevice *solve_electronics();
 };
-
-#endif

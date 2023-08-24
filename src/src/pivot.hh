@@ -1,5 +1,4 @@
-#ifndef _PIVOT__H_
-#define _PIVOT__H_
+#pragma once
 
 #include "composable.hh"
 
@@ -40,5 +39,3 @@ class pivot_2 : public pivot
     const char* get_name(){return "Open Pivot (part)";}
     void set_layer(int z);
 };
-
-#endif

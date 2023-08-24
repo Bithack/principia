@@ -1,5 +1,4 @@
-#ifndef _BUTTON__H_
-#define _BUTTON__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -68,5 +67,3 @@ class button : public edev_multiconnect
         this->switch_sensor_status = lb->r_bool();
     }
 };
-
-#endif

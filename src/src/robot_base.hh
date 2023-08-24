@@ -1,5 +1,4 @@
-#ifndef _ROBOT_BASE__H_
-#define _ROBOT_BASE__H_
+#pragma once
 
 #include "creature.hh"
 #include "robot_parts.hh"
@@ -240,5 +239,3 @@ class robot_base : public creature, public b2QueryCallback
     friend class robot_parts::leg;
     friend class robot_parts::leg::foot;
 };
-
-#endif

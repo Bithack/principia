@@ -1,5 +1,4 @@
-#ifndef _CORNER__H_
-#define _CORNER__H_
+#pragma once
 
 #include "composable.hh"
 
@@ -24,5 +23,3 @@ class corner : public composable
 
     friend class corner_ray_cb;
 };
-
-#endif

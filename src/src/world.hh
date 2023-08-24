@@ -1,5 +1,4 @@
-#ifndef _WORLD__H_
-#define _WORLD__H_
+#pragma once
 
 #include "Box2D/Box2D.h"
 #include "entity.hh"
@@ -411,5 +410,3 @@ class world : public b2QueryCallback
 };
 
 extern world *W;
-
-#endif

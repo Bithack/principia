@@ -1,5 +1,4 @@
-#ifndef _SCREENSHOT_MARKER__H_
-#define _SCREENSHOT_MARKER__H_
+#pragma once
 
 #include "entity.hh"
 #include "edevice.hh"
@@ -60,5 +59,3 @@ class zoomer : public i1o0gate
     const char *get_slider_label(int s){return s==0?"Zoom":"Smoothness";};
     void on_slider_change(int s, float value);
 };
-
-#endif

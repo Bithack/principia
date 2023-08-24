@@ -1,5 +1,4 @@
-#ifndef _LINEBUFFER__H_
-#define _LINEBUFFER__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -28,5 +27,3 @@ class linebuffer
     static tms::entity *get_entity();
     static tms::entity *get_entity2();
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _PRINCIPIA_SCREEN__H_
-#define _PRINCIPIA_SCREEN__H_
+#pragma once
 
 #include "misc.hh"
 #include "font.hh"
@@ -179,5 +178,3 @@ class pscreen : public tms::screen
         return this->wm;
     }
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _SWITCH__H_
-#define _SWITCH__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -26,5 +25,3 @@ class switcher : public brcomp_multiconnect
         this->n_out = lb->r_uint8();
     }
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _I1O0GATE__H_
-#define _I1O0GATE__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -20,5 +19,3 @@ class statesaver : public i1o0gate
     void write_state(lvlinfo *lvl, lvlbuf *lb);
     void read_state(lvlinfo *lvl, lvlbuf *lb);
 };
-
-#endif

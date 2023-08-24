@@ -1,5 +1,4 @@
-#ifndef _TREASURE_CHEST__H_
-#define _TREASURE_CHEST__H_
+#pragma once
 
 #include "composable.hh"
 #include "activator.hh"
@@ -53,5 +52,3 @@ class treasure_chest : public composable_simpleconnect, public activator
     static struct treasure_chest_item parse_item(char *str);
     static std::vector<struct treasure_chest_item> parse_items(char *str);
 };
-
-#endif

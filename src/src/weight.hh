@@ -1,5 +1,4 @@
-#ifndef _WEIGHT__H_
-#define _WEIGHT__H_
+#pragma once
 
 #include "composable.hh"
 
@@ -18,5 +17,3 @@ class weight : public entity_simpleconnect
     const char *get_slider_label(int s){return "Weight multiplier";};
     void on_slider_change(int s, float value);
 };
-
-#endif

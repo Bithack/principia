@@ -1,5 +1,4 @@
-#ifndef _SCUP__H_
-#define _SCUP__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -34,5 +33,3 @@ class scup : public ecomp_multiconnect
     } a[SCUP_NUM_JOINTS];
     joint_info *ji;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _DECORATIONS__H_
-#define _DECORATIONS__H_
+#pragma once
 
 #include "entity.hh"
 #include "material.hh"
@@ -73,5 +72,3 @@ class decoration : public entity
     void on_slider_change(int s, float value){ this->properties[1].v.f = value;};
     bool do_recreate_shape;
 };
-
-#endif

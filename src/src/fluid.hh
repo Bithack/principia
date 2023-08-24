@@ -1,5 +1,4 @@
-#ifndef _FLUID__H_
-#define _FLUID__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -27,5 +26,3 @@ class fluid : public entity
     float get_slider_value(int s);
     void on_slider_change(int s, float value);
 };
-
-#endif

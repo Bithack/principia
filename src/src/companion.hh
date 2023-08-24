@@ -1,5 +1,4 @@
-#ifndef _COMPANION__H_
-#define _COMPANION__H_
+#pragma once
 
 #include "robot_base.hh"
 
@@ -15,5 +14,3 @@ class companion : public robot_base
 
     void roam_update_dir();
 };
-
-#endif

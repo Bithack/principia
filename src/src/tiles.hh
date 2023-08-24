@@ -1,5 +1,4 @@
-#ifndef _TILES__H_
-#define _TILES__H_
+#pragma once
 
 #include <cstring>
 #include <inttypes.h>
@@ -55,5 +54,3 @@ class tile_factory
 
     static void init(void);
 };
-
-#endif

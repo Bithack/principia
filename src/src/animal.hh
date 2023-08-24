@@ -1,5 +1,4 @@
-#ifndef _ANIMAL__H_
-#define _ANIMAL__H_
+#pragma once
 
 #include "creature.hh"
 #include "activator.hh"
@@ -162,5 +161,3 @@ class animal : public creature, public activator
     void on_touch(b2Fixture *my, b2Fixture *other);
     void on_untouch(b2Fixture *my, b2Fixture *other);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _MENU_MAIN__H_
-#define _MENU_MAIN__H_
+#pragma once
 
 #include "menu-base.hh" // ;-)
 #include "main.hh"
@@ -34,5 +33,3 @@ class menu_main : public menu_base
 
     void refresh_widgets();
 };
-
-#endif

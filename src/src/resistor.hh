@@ -1,5 +1,4 @@
-#ifndef _RESISTOR__H_
-#define _RESISTOR__H_
+#pragma once
 
 #include "i2o1gate.hh"
 
@@ -11,5 +10,3 @@ class resistor : public i2o1gate
 
     edevice* solve_electronics();
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _TRAMPOLINE__H_
-#define _TRAMPOLINE__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -50,5 +49,3 @@ class trampoline : public edev
 
     const char *get_name(){return "Trampoline";};
 };
-
-#endif

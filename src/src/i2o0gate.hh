@@ -1,5 +1,4 @@
-#ifndef _I2O0GATE__H_
-#define _I2O0GATE__H_
+#pragma once
 
 struct sfxemitter_option {
     const char *name;
@@ -56,6 +55,4 @@ class camera_rotator : public i2o0gate
 
     edevice *solve_electronics();
 };
-
-#endif
 #endif

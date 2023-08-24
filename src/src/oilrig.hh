@@ -1,5 +1,4 @@
-#ifndef _OILRIG__H_
-#define _OILRIG__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -35,5 +34,3 @@ class oilrig : public entity_simpleconnect
     void add_to_world();
     const char *get_name(){return "Oil Rig";};
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _OBJECT_FACTORY__H_
-#define _OBJECT_FACTORY__H_
+#pragma once
 
 #include <stdint.h>
 #include "Box2D/Box2D.h"
@@ -271,5 +270,3 @@ class of
     static int get_gid(int category, int child);
     static uint32_t get_next_id(void);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _CYLINDER__H_
-#define _CYLINDER__H_
+#pragma once
 
 #include "composable.hh"
 
@@ -30,5 +29,3 @@ class cylinder : public composable
     void on_slider_change(int s, float value);
     void on_load(bool created, bool has_state);
 };
-
-#endif

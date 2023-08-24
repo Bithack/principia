@@ -1,5 +1,4 @@
-#ifndef _DRAGFIELD__H_
-#define _DRAGFIELD__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -34,5 +33,3 @@ class dragfield : public entity_multiconnect
 
     b2CircleShape sensor_shape;
 };
-
-#endif

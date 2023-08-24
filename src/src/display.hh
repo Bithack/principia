@@ -1,5 +1,4 @@
-#ifndef _DISPLAY__H_
-#define _DISPLAY__H_
+#pragma once
 
 #include "edevice.hh"
 #include <stdint.h>
@@ -90,5 +89,3 @@ class active_display : public display
     const char *get_name() { return "Active display"; };
     edevice* solve_electronics();
 };
-
-#endif

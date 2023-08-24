@@ -1,5 +1,4 @@
-#ifndef _ROBOTMAN__H_
-#define _ROBOTMAN__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -94,5 +93,3 @@ class robotman : public brcomp_multiconnect
 };
 
 void on_robotman_target_absorbed(entity *self, void *userdata);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _TEXTBUFFER__H_
-#define _TEXTBUFFER__H_
+#pragma once
 
 #include "entity.hh"
 #include "text.hh"
@@ -22,5 +21,3 @@ class textbuffer
     static void add_text2(const char *text, p_font *font, float x, float y, float z, float r, float g, float b, float a, float scale, uint8_t horizontal_align=ALIGN_CENTER, uint8_t vertical_align=ALIGN_CENTER);
     static void add_bg(float x, float y, float z, float r, float g, float b, float a, float w, float h);
 };
-
-#endif

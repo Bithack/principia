@@ -1,5 +1,4 @@
-#ifndef _MISC__H_
-#define _MISC__H_
+#pragma once
 
 #include <sys/stat.h>
 #include <time.h>
@@ -128,5 +127,3 @@ highscore_offset(uint32_t community_id)
 
 #define VEC2_INLINE(v) (v).x, (v).y
 #define VEC3_INLINE(v) (v).x, (v).y, (v).z
-
-#endif

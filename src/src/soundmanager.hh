@@ -1,5 +1,4 @@
-#ifndef _SOUNDMANAGER__H_
-#define _SOUNDMANAGER__H_
+#pragma once
 
 #include "SDL_mixer.h"
 #include "const.hh"
@@ -172,5 +171,3 @@ class sm
     static void stop_all(void);
     static void play(sm_sound *snd, float x, float y, uint8_t random, float volume, bool loop=false, void *ident=0, bool global=false);
 };
-
-#endif

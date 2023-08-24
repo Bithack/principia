@@ -1,5 +1,4 @@
-#ifndef _TERRAIN__H_
-#define _TERRAIN__H_
+#pragma once
 
 #include <map>
 #include <stdint.h>
@@ -181,5 +180,3 @@ struct terrain_transaction
  * apply a transaction
  * */
 bool operator <(const terrain_coord& lhs, const terrain_coord &rhs);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _BOX__H_
-#define _BOX__H_
+#pragma once
 
 #include "composable.hh"
 
@@ -58,5 +57,3 @@ class box : public composable, public b2QueryCallback
     void set_color(tvec4 c);
     tvec4 get_color();
 };
-
-#endif

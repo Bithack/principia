@@ -1,5 +1,4 @@
-#ifndef _WMOTOR__H_
-#define _WMOTOR__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -22,5 +21,3 @@ class wmotor : public entity
     //float get_slider_value(int s){return this->properties[0].v.f;};
     //void on_slider_change(int s, float value){this->properties[0].v.f=value;};
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _IOMISCGATE__H_
-#define _IOMISCGATE__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -63,5 +62,3 @@ class ifselect : public i3o1gate
     const char *get_name(){return "IF-select";}
     edevice *solve_electronics();
 };
-
-#endif

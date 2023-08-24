@@ -1,5 +1,4 @@
-#ifndef _CHUNK__H_
-#define _CHUNK__H_
+#pragma once
 
 #include "entity.hh"
 #include "types.hh"
@@ -325,5 +324,3 @@ class chunk_window : public tms::entity
 
     void recreate_caveview_texture(float px, float py, float ax, float ay);
 };
-
-#endif

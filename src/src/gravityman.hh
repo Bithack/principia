@@ -1,5 +1,4 @@
-#ifndef _GRAVITYMAN__H_
-#define _GRAVITYMAN__H_
+#pragma once
 
 #include "edevice.hh"
 #include "i1o0gate.hh"
@@ -93,5 +92,3 @@ class localgravity : public i1o0gate
         this->mul = lb->r_float();
     }
 };
-
-#endif

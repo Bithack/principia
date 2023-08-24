@@ -1,5 +1,4 @@
-#ifndef _MODEL__H_
-#define _MODEL__H_
+#pragma once
 
 #include <tms/bindings/cpp/cpp.hh>
 
@@ -378,5 +377,3 @@ class mesh_factory
     static bool load_next(void);
     static void upload_models(void);
 };
-
-#endif

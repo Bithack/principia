@@ -1,5 +1,4 @@
-#ifndef _COMMAND__H_
-#define _COMMAND__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -90,5 +89,3 @@ class command : public edev
         this->active = lb->r_bool();
     }
 };
-
-#endif

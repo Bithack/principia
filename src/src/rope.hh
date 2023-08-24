@@ -1,5 +1,4 @@
-#ifndef _ROPE__H_
-#define _ROPE__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -76,5 +75,3 @@ class rope : public entity,
     /* (num_bodies + ROPE_LENGTH) * 3 */
     float state[(2 + ROPE_LENGTH) * 3];
 };
-
-#endif

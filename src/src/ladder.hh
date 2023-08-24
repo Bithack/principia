@@ -1,5 +1,4 @@
-#ifndef _LADDER__H_
-#define _LADDER__H_
+#pragma once
 
 #include "entity.hh"
 #include "ud2.hh"
@@ -59,5 +58,3 @@ class ladder_step : public entity, b2QueryCallback
     bool ReportFixture(b2Fixture *f);
     void find_pairs();
 };
-
-#endif

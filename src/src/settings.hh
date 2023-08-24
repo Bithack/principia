@@ -1,5 +1,4 @@
-#ifndef _SETTINGS__H_
-#define _SETTINGS__H_
+#pragma once
 
 #include <map>
 #include <cstring>
@@ -181,5 +180,3 @@ extern class _settings {
 
     ~_settings();
 } settings;
-
-#endif

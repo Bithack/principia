@@ -1,5 +1,4 @@
-#ifndef _UI__H_
-#define _UI__H_
+#pragma once
 
 #include "main.hh"
 
@@ -288,6 +287,4 @@ extern "C" {
 
 #if defined(TMS_BACKEND_PC) && !defined(NO_UI)
 extern int prompt_is_open;
-#endif
-
 #endif

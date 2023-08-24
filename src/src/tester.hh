@@ -1,5 +1,4 @@
-#ifndef _TESTER__H_
-#define _TESTER__H_
+#pragma once
 
 #include "entity.hh"
 #include "edevice.hh"
@@ -24,5 +23,3 @@ class tester : public brcomp_multiconnect
     const char *get_slider_label(int s){return "Size";};
     void on_slider_change(int s, float value);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _FACTORY__H_
-#define _FACTORY__H_
+#pragma once
 
 #include "edevice.hh"
 #include "resource.hh"
@@ -185,5 +184,3 @@ class factory : public edev_simpleconnect
     static void generate_recipes(std::vector<uint32_t> *vec, const char *buf);
     static void init_recipes();
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _GEAR__H_
-#define _GEAR__H_
+#pragma once
 
 #include "entity.hh"
 #include <set>
@@ -57,5 +56,3 @@ class gear : public entity, public b2QueryCallback
     void on_pause();
     friend class connection;
 };
-
-#endif

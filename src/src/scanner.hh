@@ -1,5 +1,4 @@
-#ifndef _SCANNER__H_
-#define _SCANNER__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -83,5 +82,3 @@ class laser_sensor : public ecomp_simpleconnect
     float get_slider_value(int s){if (s == 0) return this->properties[0].v.f; else return (float)this->properties[1].v.i;};
     void on_slider_change(int s, float value);
 };
-
-#endif

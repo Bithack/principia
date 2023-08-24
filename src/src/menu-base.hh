@@ -1,5 +1,4 @@
-#ifndef _MENU_BASE__H_
-#define _MENU_BASE__H_
+#pragma once
 
 #include "pscreen.hh"
 
@@ -68,5 +67,3 @@ class menu_base : public pscreen
 
     float scale;
 };
-
-#endif

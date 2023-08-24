@@ -1,5 +1,4 @@
-#ifndef _PKGWARP__H_
-#define _PKGWARP__H_
+#pragma once
 
 #include "i1o0gate.hh"
 #include "iomiscgate.hh"
@@ -25,5 +24,3 @@ class pkgstatus : public i0o3gate
     void init();
 };
 
-
-#endif

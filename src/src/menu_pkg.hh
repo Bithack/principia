@@ -1,5 +1,4 @@
-#ifndef _MENU_PKG__H_
-#define _MENU_PKG__H_
+#pragma once
 
 #include <tms/bindings/cpp/cpp.hh>
 #include "menu-base.hh"
@@ -35,5 +34,3 @@ class menu_pkg : public menu_base
     void refresh_widgets();
     bool widget_clicked(principia_wdg *w, uint8_t button_id, int pid);
 };
-
-#endif

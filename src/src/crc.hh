@@ -1,5 +1,4 @@
-#ifndef _CRC__H_
-#define _CRC__H_
+#pragma once
 
 #define CRC_BUFFER_SIZE 8192
 
@@ -20,5 +19,3 @@ uint32_t crc32_level(
         int method);
 
 uint32_t crc32_file(const char *path);
-
-#endif

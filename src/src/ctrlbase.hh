@@ -1,5 +1,4 @@
-#ifndef _CTRLMINI__H_
-#define _CTRLMINI__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -48,5 +47,3 @@ class ctrlfplus : public ctrlbase
     edevice* solve_electronics(void);
     const char *get_name(){return "CT Feedback";};
 };
-
-#endif

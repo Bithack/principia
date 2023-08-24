@@ -1,5 +1,4 @@
-#ifndef _DAMPER__H_
-#define _DAMPER__H_
+#pragma once
 
 #include "composable.hh"
 #include "main.hh"
@@ -69,5 +68,3 @@ class damper_2 : public damper
     const char* get_name(){return "Damper (part)";}
     void update_frame(bool hard);
 };
-
-#endif

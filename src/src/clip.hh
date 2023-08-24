@@ -1,5 +1,4 @@
-#ifndef _CLIP__H_
-#define _CLIP__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -19,5 +18,3 @@ class clip : public brcomp_multiconnect
 
     edevice* solve_electronics();
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _SOUNDMAN__H_
-#define _SOUNDMAN__H_
+#pragma once
 
 #include "i1o1gate.hh"
 
@@ -50,5 +49,3 @@ class soundman : public i1o1gate
 
     static void* translate(uint32_t sound_id);
 };
-
-#endif

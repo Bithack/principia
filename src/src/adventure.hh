@@ -1,5 +1,4 @@
-#ifndef _ADVENTURE__H_
-#define _ADVENTURE__H_
+#pragma once
 
 #include "gui.hh"
 #include "resource.hh"
@@ -136,5 +135,3 @@ class adventure
     static tms_wdg *w_action;
     static tms_wdg *w_jump;
 };
-
-#endif

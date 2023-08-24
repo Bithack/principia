@@ -1,5 +1,4 @@
-#ifndef _TILTMETER__H_
-#define _TILTMETER__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -15,5 +14,3 @@ class tiltmeter : public ecomp_multiconnect
     const char *get_slider_label(int s);
     void on_slider_change(int s, float value);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _VELMETER__H_
-#define _VELMETER__H_
+#pragma once
 
 #include "iomiscgate.hh"
 
@@ -25,5 +24,3 @@ class velmeter : public i0o2gate
     }
     void on_slider_change(int s, float value);
 };
-
-#endif

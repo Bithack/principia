@@ -1,5 +1,4 @@
-#ifndef _GAME_MESSAGE__H_
-#define _GAME_MESSAGE__H_
+#pragma once
 
 #include <inttypes.h>
 
@@ -39,5 +38,3 @@ class game_message
 
     void show(const char *text, double duration=2.5, double in_speed=0.125, double out_speed=0.125);
 };
-
-#endif

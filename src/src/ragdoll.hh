@@ -1,5 +1,4 @@
-#ifndef _RAGDOLL__H_
-#define _RAGDOLL__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -93,5 +92,3 @@ class ragdoll : public entity
         return "";
     };
 };
-
-#endif

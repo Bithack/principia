@@ -1,5 +1,4 @@
-#ifndef _SPLANK__H_
-#define _SPLANK__H_
+#pragma once
 
 #include "composable.hh"
 
@@ -37,5 +36,3 @@ class splank : public composable, public b2RayCastCallback
     const char *get_slider_label(int s){return "Sublayer";};
     void on_slider_change(int s, float value);
 };
-
-#endif

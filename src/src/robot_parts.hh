@@ -1,5 +1,4 @@
-#ifndef _ROBOT_PARTS__H_
-#define _ROBOT_PARTS__H_
+#pragma once
 
 #include "entity.hh"
 #include "types.hh"
@@ -1703,5 +1702,3 @@ namespace robot_parts
         return tclampf(v, 0.f, 1.f);
     }
 };
-
-#endif

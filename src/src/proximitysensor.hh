@@ -1,5 +1,4 @@
-#ifndef _PROXIMITYSENSOR__H_
-#define _PROXIMITYSENSOR__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -34,5 +33,3 @@ class proximitysensor : public edev_multiconnect
         return this->sensor_shape;
     }
 };
-
-#endif

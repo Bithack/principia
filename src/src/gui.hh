@@ -1,5 +1,4 @@
-#ifndef _GUI__H_
-#define _GUI__H_
+#pragma once
 
 #include <tms/bindings/cpp/cpp.hh>
 #include "resource.hh"
@@ -190,5 +189,3 @@ class gui_spritesheet
 
     static FT_Library ft;
 };
-
-#endif

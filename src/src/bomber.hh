@@ -1,5 +1,4 @@
-#ifndef _BOMBER__H_
-#define _BOMBER__H_
+#pragma once
 
 #include "robot_base.hh"
 
@@ -29,5 +28,3 @@ class bomber : public robot_base
 
     int attack_timer;
 };
-
-#endif

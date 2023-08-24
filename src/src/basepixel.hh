@@ -1,5 +1,4 @@
-#ifndef _BASEPIXEL__H_
-#define _BASEPIXEL__H_
+#pragma once
 
 #include "entity.hh"
 #include <set>
@@ -40,5 +39,3 @@ class basepixel : public entity,
     bool got_pos;
     static int radius;
 };
-
-#endif

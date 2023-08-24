@@ -1,5 +1,4 @@
-#ifndef _SPIKES__H_
-#define _SPIKES__H_
+#pragma once
 
 #include "composable.hh"
 
@@ -30,5 +29,3 @@ class spikes : public entity_multiconnect
     float get_slider_value(int s) { return this->properties[s].v.f / 2.f; }; 
     void on_slider_change(int s, float value);
 };
-
-#endif

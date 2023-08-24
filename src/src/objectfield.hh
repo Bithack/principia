@@ -1,5 +1,4 @@
-#ifndef _OBJECTFIELD__H_
-#define _OBJECTFIELD__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -51,5 +50,3 @@ class objectfield : public edev_multiconnect
     /* stores the sensor shape */
     b2PolygonShape sensor_shape;
 };
-
-#endif

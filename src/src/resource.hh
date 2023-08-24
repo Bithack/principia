@@ -1,5 +1,4 @@
-#ifndef _RESOURCE__H_
-#define _RESOURCE__H_
+#pragma once
 
 #include "entity.hh"
 #include "const.hh"
@@ -58,5 +57,3 @@ class resource : public entity
     uint8_t resource_type;
     uint32_t amount;
 };
-
-#endif

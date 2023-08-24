@@ -1,5 +1,4 @@
-#ifndef _CONNECTION__H_
-#define _CONNECTION__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -13,5 +12,3 @@ class connection_entity : public entity
     const char *get_name() { return "Connection entity"; }
     void add_to_world(){};
 };
-
-#endif

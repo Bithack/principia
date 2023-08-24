@@ -1,5 +1,4 @@
-#ifndef _TYPES__HH_
-#define _TYPES__HH_
+#pragma once
 
 #include <stdint.h>
 
@@ -61,5 +60,3 @@ enum damage_type {
 
     NUM_DAMAGE_TYPES
 };
-
-#endif

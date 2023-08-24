@@ -1,5 +1,4 @@
-#ifndef _GENTYPE__H_
-#define _GENTYPE__H_
+#pragma once
 
 #include "terrain.hh"
 #include "tms/backend/print.h"
@@ -136,5 +135,3 @@ struct gentype_data
         this->coord = terrain_coord(this->base_x, this->heights[this->coord.get_local_x()]);;
     }
 };
-
-#endif

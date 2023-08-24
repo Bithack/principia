@@ -1,5 +1,4 @@
-#ifndef _RECEIVER__H_
-#define _RECEIVER__H_
+#pragma once
 
 #include "wplug.hh"
 
@@ -67,5 +66,3 @@ class receiver : public wireless_plug, public receiver_base
 
     void restore();
 };
-
-#endif

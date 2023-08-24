@@ -1,5 +1,4 @@
-#ifndef _CURSORFIELD__H_
-#define _CURSORFIELD__H_
+#pragma once
 
 #include "iomiscgate.hh"
 
@@ -17,5 +16,3 @@ class cursorfield : public i0o3gate
 
     const char *get_name(){return "Cursor field";};
 };
-
-#endif

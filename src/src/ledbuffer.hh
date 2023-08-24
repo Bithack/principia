@@ -1,5 +1,4 @@
-#ifndef _LEDBUFFER__H_
-#define _LEDBUFFER__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -16,5 +15,3 @@ class ledbuffer
     static void add(float x, float y, float z, float col);
     static tms::entity *get_entity();
 };
-
-#endif

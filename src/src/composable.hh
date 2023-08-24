@@ -1,5 +1,4 @@
-#ifndef _COMPOSABLE__H_
-#define _COMPOSABLE__H_
+#pragma once
 
 #include "entity.hh"
 #include "group.hh"
@@ -130,5 +129,3 @@ inline void composable::grouped_update()
 
     tmat3_copy_mat4_sub3x3(this->N, this->M);
 }
-
-#endif

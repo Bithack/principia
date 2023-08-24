@@ -1,5 +1,4 @@
-#ifndef _SPRITEBUFFER__H_
-#define _SPRITEBUFFER__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -18,5 +17,3 @@ class spritebuffer
     static tms::entity *get_entity();
     static tms::entity *get_entity2();
 };
-
-#endif

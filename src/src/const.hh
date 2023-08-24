@@ -1,5 +1,4 @@
-#ifndef _CONST__H_
-#define _CONST__H_
+#pragma once
 
 enum {
     RESOURCE_RUBY,
@@ -176,5 +175,3 @@ enum {
     PROMPT_RESPONSE_B,
     PROMPT_RESPONSE_C
 };
-
-#endif

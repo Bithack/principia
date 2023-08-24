@@ -1,5 +1,4 @@
-#ifndef _YSPLITTER__H_
-#define _YSPLITTER__H_
+#pragma once
 
 #include "iomiscgate.hh"
 
@@ -24,5 +23,3 @@ class halfunpack : public i1o2gate
     const char *get_name(void){return "Half-unpack";};
 
 };
-
-#endif

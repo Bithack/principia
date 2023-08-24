@@ -1,5 +1,4 @@
-#ifndef _MINI_TRANSMITTER__H_
-#define _MINI_TRANSMITTER__H_
+#pragma once
 
 #include "wplug.hh"
 
@@ -71,5 +70,3 @@ class mini_transmitter : public wireless_plug
         this->reconnect();
     }
 };
-
-#endif

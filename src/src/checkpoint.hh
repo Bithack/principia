@@ -1,5 +1,4 @@
-#ifndef _CHECKPOINT__H_
-#define _CHECKPOINT__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -34,5 +33,3 @@ class checkpoint : public edev_multiconnect
         this->activated = lb->r_bool();
     }
 };
-
-#endif

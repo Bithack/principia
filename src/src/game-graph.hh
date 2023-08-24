@@ -1,5 +1,4 @@
-#ifndef _GAME_GRAPH__H_
-#define _GAME_GRAPH__H_
+#pragma once
 
 #include <deque>
 #include <stdint.h>
@@ -43,5 +42,3 @@ class game_graph
 
     const std::deque<double>& get_data() const;
 };
-
-#endif

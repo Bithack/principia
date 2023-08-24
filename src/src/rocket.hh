@@ -1,5 +1,4 @@
-#ifndef _ROCKET__H_
-#define _ROCKET__H_
+#pragma once
 
 #include "entity.hh"
 #include "edevice.hh"
@@ -48,5 +47,3 @@ class rocket : public ecomp_multiconnect, b2QueryCallback
         this->thrustmul = lb->r_float();
     }
 };
-
-#endif

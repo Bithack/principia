@@ -1,5 +1,4 @@
-#ifndef _REPAIR_STATION__H_
-#define _REPAIR_STATION__H_
+#pragma once
 
 #include "edevice.hh"
 #include "activator.hh"
@@ -104,5 +103,3 @@ class repair_station : public edev_multiconnect, public activator
 
     friend class game;
 };
-
-#endif

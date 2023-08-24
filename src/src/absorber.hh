@@ -1,5 +1,4 @@
-#ifndef __ABSORBER__H_
-#define __ABSORBER__H_
+#pragma once
 
 #include "edevice.hh"
 #include "i1o0gate.hh"
@@ -85,5 +84,3 @@ class autoprotector : public i1o0gate
     const char *get_name(){return "Auto Protector";};
     edevice* solve_electronics();
 };
-
-#endif

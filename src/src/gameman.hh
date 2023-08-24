@@ -1,5 +1,4 @@
-#ifndef _GAMEMAN__H_
-#define _GAMEMAN__H_
+#pragma once
 
 #include "entity.hh"
 #include "edevice.hh"
@@ -11,5 +10,3 @@ class gameman : public brcomp_multiconnect
     edevice* solve_electronics(void);
     const char *get_name(){return "Game Manager";};
 };
-
-#endif

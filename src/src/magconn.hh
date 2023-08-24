@@ -1,5 +1,4 @@
-#ifndef _MAGCONN__H_
-#define _MAGCONN__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -41,5 +40,3 @@ class magplug : public ecomp_multiconnect
 
     friend class magsock;
 };
-
-#endif

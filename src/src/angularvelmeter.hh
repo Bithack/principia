@@ -1,5 +1,4 @@
-#ifndef _ANGULARVELMETER__H_
-#define _ANGULARVELMETER__H_
+#pragma once
 
 #include "velmeter.hh"
 
@@ -11,5 +10,3 @@ class angularvelmeter : public velmeter
 
     edevice* solve_electronics();
 };
-
-#endif

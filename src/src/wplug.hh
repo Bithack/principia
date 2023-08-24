@@ -1,5 +1,4 @@
-#ifndef _WPLUG__H_
-#define _WPLUG__H_
+#pragma once
 
 #include "edevice.hh"
 #include "cable.hh"
@@ -64,5 +63,3 @@ class wireless_plug : public wplug
      **/
     bool compatible_with(entity *o);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _ITEM__H_
-#define _ITEM__H_
+#pragma once
 
 #include "entity.hh"
 #include "robot_base.hh"
@@ -427,5 +426,3 @@ class item : public entity, public activator
     void on_touch(b2Fixture *my, b2Fixture *other);
     void on_untouch(b2Fixture *my, b2Fixture *other);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _LMOTOR__H_
-#define _LMOTOR__H_
+#pragma once
 
 #include "edevice.hh"
 #include "ifdevice.hh"
@@ -75,5 +74,3 @@ class lmotor : public ecomp, public b2QueryCallback, public ifdevice
     float _speed;
     float _force;
 };
-
-#endif

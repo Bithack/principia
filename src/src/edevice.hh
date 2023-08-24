@@ -1,5 +1,4 @@
-#ifndef _EDEVICE__H_
-#define _EDEVICE__H_
+#pragma once
 
 #include "entity.hh"
 #include "cable.hh"
@@ -493,5 +492,3 @@ class edev_multiconnect: public edev
     connection *load_connection(connection &conn);
     void find_pairs();
 };
-
-#endif

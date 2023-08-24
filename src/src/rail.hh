@@ -1,5 +1,4 @@
-#ifndef _RAIL__H_
-#define _RAIL__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -27,5 +26,3 @@ class rail : public entity
       void set_angle(float a);
       void set_position(float x, float y, uint8_t frame=0);
 };
-
-#endif

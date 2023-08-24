@@ -1,5 +1,4 @@
-#ifndef _ANGULARDAMPER__H_
-#define _ANGULARDAMPER__H_
+#pragma once
 
 #include "composable.hh"
 
@@ -63,5 +62,3 @@ class angulardamper : public composable,
     };
     void on_slider_change(int s, float value);
 };
-
-#endif

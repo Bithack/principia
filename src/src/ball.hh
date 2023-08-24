@@ -1,5 +1,4 @@
-#ifndef _BALL__H_
-#define _BALL__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -38,5 +37,3 @@ class ball : public entity
             return "Interactive ball";
     };
 };
-
-#endif

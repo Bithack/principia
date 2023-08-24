@@ -1,5 +1,4 @@
-#ifndef _MAIN__H_
-#define _MAIN__H_
+#pragma once
 
 #ifdef __cplusplus
 
@@ -313,6 +312,4 @@ extern "C" {
 void P_get_cookie_data(char **token);
 #ifdef __cplusplus
 }
-#endif
-
 #endif

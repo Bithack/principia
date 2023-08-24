@@ -1,5 +1,4 @@
-#ifndef _EXPLOSIVE__H_
-#define _EXPLOSIVE__H_
+#pragma once
 
 #include "entity.hh"
 #include "Box2D/Box2D.h"
@@ -90,5 +89,3 @@ class explosive : public entity, public b2QueryCallback
     bool triggered;
     uint64_t trigger_time;
 };
-
-#endif

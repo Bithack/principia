@@ -1,5 +1,4 @@
-#ifndef _MENU_SHARED__H_
-#define _MENU_SHARED__H_
+#pragma once
 
 #include <tms/bindings/cpp/cpp.hh>
 #include "main.hh"
@@ -63,5 +62,3 @@ class menu_shared
     static void refresh_message();
     static void step();
 };
-
-#endif

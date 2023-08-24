@@ -1,5 +1,4 @@
-#ifndef _GOAL__H_
-#define _GOAL__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -13,5 +12,3 @@ class goal : public entity
 
     const char *get_name(void){return "Goal";};
 };
-
-#endif

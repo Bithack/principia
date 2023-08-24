@@ -1,5 +1,4 @@
-#ifndef _MOTOR__H_
-#define _MOTOR__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -57,5 +56,3 @@ class motor : public ecomp, public b2QueryCallback, public ifdevice
     bool get_dir(){return this->properties[2].v.i == 0;};
     void toggle_dir(){this->properties[2].v.i = !this->properties[2].v.i;};
 };
-
-#endif

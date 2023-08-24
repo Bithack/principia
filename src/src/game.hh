@@ -1,5 +1,4 @@
-#ifndef _GAME__H_
-#define _GAME__H_
+#pragma once
 
 #include "pscreen.hh"
 #include "entity.hh"
@@ -1188,5 +1187,3 @@ extern tms_sprite *catsprite_hints[of::num_categories];
 extern tms_sprite *filterlabel;
 extern tms_sprite *factionlabel;
 extern tvec2 move_pos;
-
-#endif

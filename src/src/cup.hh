@@ -1,5 +1,4 @@
-#ifndef _CUP__H_
-#define _CUP__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -16,5 +15,3 @@ class cup : public entity
     void add_to_world();
     const char* get_name(){return "Plastic Cup";}
 };
-
-#endif

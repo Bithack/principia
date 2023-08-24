@@ -1,5 +1,4 @@
-#ifndef _SIMPLEBG__H_
-#define _SIMPLEBG__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -60,5 +59,3 @@ class simplebg : public entity
 
     void add_to_world(){};
 };
-
-#endif

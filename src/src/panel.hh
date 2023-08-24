@@ -1,5 +1,4 @@
-#ifndef _PANEL__H_
-#define _PANEL__H_
+#pragma once
 
 #include "edevice.hh"
 #include "activator.hh"
@@ -190,5 +189,3 @@ class panel : public brcomp_multiconnect, public activator
         }
     }
 };
-
-#endif

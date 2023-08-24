@@ -1,5 +1,4 @@
-#ifndef _UD2_INFO__H_
-#define _UD2_INFO__H_
+#pragma once
 
 #include <inttypes.h>
 
@@ -23,5 +22,3 @@ struct ud2_info
         return this->ud2_type;
     }
 };
-
-#endif

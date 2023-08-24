@@ -1,5 +1,4 @@
-#ifndef _ACTIVATOR__H_
-#define _ACTIVATOR__H_
+#pragma once
 
 #include <map>
 #include "Box2D/Box2D.h"
@@ -47,5 +46,3 @@ class activator
     bool activator_touched(b2Fixture *other);
     bool activator_untouched(b2Fixture *other);
 };
-
-#endif

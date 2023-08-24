@@ -1,5 +1,4 @@
-#ifndef _TEXT__H_
-#define _TEXT__H_
+#pragma once
 
 #include "font.hh"
 #include <tms/math/glob.h>
@@ -141,5 +140,3 @@ class p_text
   private:
     tms::texture *create_texture();
 };
-
-#endif

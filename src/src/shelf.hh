@@ -1,5 +1,4 @@
-#ifndef _SHELF__H_
-#define _SHELF__H_
+#pragma once
 
 #include "entity.hh"
 
@@ -19,5 +18,3 @@ class shelf : public entity
     void recreate_shape();
     void on_load(bool created, bool has_state);
 };
-
-#endif

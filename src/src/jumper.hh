@@ -1,5 +1,4 @@
-#ifndef _JUMPER__H_
-#define _JUMPER__H_
+#pragma once
 
 #include "wplug.hh"
 #include "edevice.hh"
@@ -43,5 +42,3 @@ class jumper : public wplug
         this->reconnect();
     }
 };
-
-#endif

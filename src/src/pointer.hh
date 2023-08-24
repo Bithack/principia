@@ -1,5 +1,4 @@
-#ifndef _POINTER__H_
-#define _POINTER__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -29,5 +28,3 @@ class pointer : public ecomp_multiconnect
         this->arrow_angle = lb->r_float();
     }
 };
-
-#endif

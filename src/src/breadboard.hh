@@ -1,5 +1,4 @@
-#ifndef _BREADBOARD__H_
-#define _BREADBOARD__H_
+#pragma once
 
 #include "composable.hh"
 #include <set>
@@ -34,5 +33,3 @@ class breadboard : public composable, public b2RayCastCallback, public b2QueryCa
 
     const char* get_name(void) {return "Breadboard";};
 };
-
-#endif

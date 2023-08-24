@@ -1,5 +1,4 @@
-#ifndef _I0O1GATE__H_
-#define _I0O1GATE__H_
+#pragma once
 
 #include "edevice.hh"
 
@@ -379,5 +378,3 @@ class key_listener : public i0o1gate
 
     bool active;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _BACKPACK__H_
-#define _BACKPACK__H_
+#pragma once
 
 #include "composable.hh"
 #include "activator.hh"
@@ -29,5 +28,3 @@ class backpack : public composable_simpleconnect, public activator
     void on_touch(b2Fixture *my, b2Fixture *other);
     void on_untouch(b2Fixture *my, b2Fixture *other);
 };
-
-#endif
