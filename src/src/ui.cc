@@ -3663,9 +3663,6 @@ GtkWidget      *publish_help_allow_deriv;
 /** --New level **/
 GtkDialog      *new_level_dialog;
 
-/** --Main pkg **/
-GtkDialog      *main_pkg_dialog;
-
 /** --Mode **/
 GtkDialog      *mode_dialog;
 
@@ -5062,25 +5059,6 @@ activate_mode_dialog(GtkMenuItem *i, gpointer unused)
     }
 
     gtk_widget_hide(GTK_WIDGET(mode_dialog));
-}
-
-void
-activate_main_pkg(GtkMenuItem *i, gpointer unused)
-{
-    gint result = gtk_dialog_run(main_pkg_dialog);
-
-    switch (result) {
-        case 0:
-            P.add_action(ACTION_MAIN_MENU_PKG, 0);
-            break;
-        case 1:
-            P.add_action(ACTION_MAIN_MENU_PKG, 1);
-            break;
-
-        default: break;
-    }
-
-    gtk_widget_hide(GTK_WIDGET(main_pkg_dialog));
 }
 
 void
@@ -10541,18 +10519,6 @@ int _gtk_loop(void *p)
         /* XXX: Should we add some information about the various level types? */
     }
 
-    /** --main pkg**/
-    {
-        main_pkg_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Select package",
-                0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                "Main Puzzles", 0,
-                "Adventure Introduction", 1,
-                NULL));
-
-        apply_dialog_defaults(main_pkg_dialog);
-    }
-
     /** --Sandbox mode**/
     {
         mode_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
@@ -13560,14 +13526,6 @@ _open_object_dialog(gpointer unused)
 }
 
 static gboolean
-_open_main_pkg_dialog(gpointer unused)
-{
-    activate_main_pkg(NULL, 0);
-
-    return false;
-}
-
-static gboolean
 _open_new_level_dialog(gpointer unused)
 {
     activate_new_level(NULL, 0);
@@ -14866,7 +14824,6 @@ _close_all_dialogs(gpointer unused)
     gtk_widget_hide(GTK_WIDGET(beam_color_dialog));
     gtk_widget_hide(GTK_WIDGET(publish_dialog));
     gtk_widget_hide(GTK_WIDGET(new_level_dialog));
-    gtk_widget_hide(GTK_WIDGET(main_pkg_dialog));
     gtk_widget_hide(GTK_WIDGET(mode_dialog));
     gtk_widget_hide(GTK_WIDGET(quickadd_window));
     gtk_widget_hide(GTK_WIDGET(frequency_window));
@@ -15003,7 +14960,6 @@ ui::open_dialog(int num, void *data/*=0*/)
         case DIALOG_MULTIEMITTER:   gdk_threads_add_idle(_open_multiemitter_dialog, 0); break;
         case DIALOG_EMITTER:        gdk_threads_add_idle(_open_emitter_dialog, 0); break;
         case DIALOG_NEW_LEVEL:      gdk_threads_add_idle(_open_new_level_dialog, 0); break; /* XXX: */
-        case DIALOG_MAIN_MENU_PKG:  gdk_threads_add_idle(_open_main_pkg_dialog, 0); break; /* XXX: */
         case DIALOG_SANDBOX_MODE:   gdk_threads_add_idle(_open_mode_dialog, 0); break; /* XXX: */
         case DIALOG_SET_FREQUENCY:  gdk_threads_add_idle(_open_frequency_window, 0); break;
         case DIALOG_CONFIRM_QUIT:   gdk_threads_add_idle(_open_confirm_quit, 0); break;

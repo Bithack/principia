@@ -30,10 +30,7 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             break;
 
         case BTN_PLAY:
-            {
-                P.add_action(ACTION_GOTO_PLAY, 0x1);
-                //ui::open_dialog(DIALOG_MAIN_MENU_PKG);
-            }
+            P.add_action(ACTION_GOTO_PLAY, 1);
             break;
 
         case BTN_CREATE:

@@ -55,7 +55,7 @@
 
 #define DIALOG_RUBBER           144
 
-#define DIALOG_MAIN_MENU_PKG    145
+// 145 used to be the main menu package dialog
 
 #define DIALOG_SOUNDMAN         148
 #define DIALOG_FACTORY          149

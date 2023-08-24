@@ -25,7 +25,6 @@ import com.bithack.principia.shared.JumperDialog;
 import com.bithack.principia.shared.Level;
 import com.bithack.principia.shared.LevelDialog;
 import com.bithack.principia.shared.LoginDialog;
-import com.bithack.principia.shared.MainMenuPkgDialog;
 import com.bithack.principia.shared.NewLevelDialog;
 import com.bithack.principia.shared.OpenDialog;
 import com.bithack.principia.shared.PkgLevelDialog;
@@ -982,8 +981,6 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
 
     public static final int DIALOG_RUBBER           = 144;
 
-    public static final int DIALOG_MAIN_MENU_PKG    = 145;
-
     public static final int DIALOG_SOUNDMAN         = 148;
 
     public static final int DIALOG_FACTORY          = 149;
@@ -1240,7 +1237,6 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
         case DIALOG_ITEM:               d = ConsumableDialog.get_dialog(); break;
         case DIALOG_SANDBOX_MODE:       d = (new ToolDialog()).get_dialog(); break;
         case DIALOG_RUBBER:             d = RubberDialog.get_dialog(); break;
-        case DIALOG_MAIN_MENU_PKG:      d = (new MainMenuPkgDialog()).get_dialog(); break;
         case DIALOG_SHAPEEXTRUDER:      d = ShapeExtruderDialog.get_dialog(); break;
         case DIALOG_POLYGON:            d = PolygonDialog.get_dialog(); break;
         case DIALOG_KEY_LISTENER:       d = KeyListenerDialog.get_dialog(); break;
