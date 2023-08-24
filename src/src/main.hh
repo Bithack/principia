@@ -16,15 +16,12 @@ class menu_play;
 class loading_screen;
 class settings;
 class p_text;
-
 #endif
 
 class pkginfo;
 
 #define STR1(x) #x
 #define STR(x) STR1(x)
-
-#define UPDATE_URL "https://www.principiagame.com/"
 
 #if defined(TMS_BACKEND_WINDOWS)
 #define OS_STRING "Windows"

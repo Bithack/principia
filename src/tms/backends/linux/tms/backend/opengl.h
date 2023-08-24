@@ -5,7 +5,6 @@
 
 #include <GL/glew.h>
 
-//#include "glhacks/preinc.h"
 
 #include <SDL.h>
 
@@ -14,7 +13,5 @@
 #endif
 
 #define GL_RGB565 GL_RGB
-
-//#include "glhacks/postinc.h"
 
 #endif

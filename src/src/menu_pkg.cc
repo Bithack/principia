@@ -11,6 +11,9 @@
 
 #include <unistd.h>
 
+// Disables level completion check in packages
+#define UNLOCK_ALL_LVLS false
+
 //#define MAX_P 20
 // defined in game.hh
 
@@ -328,7 +331,6 @@ menu_pkg::render()
     glDepthMask(0);
 
     tms_texture_render(_tex_bg);
-    //tms_texture_render(&tex_icons->texture);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex_icons->texture.gl_texture);
@@ -341,13 +343,6 @@ menu_pkg::render()
     tmat4_set_ortho(tmp, 0, _tms.window_width, 0, _tms.window_height, -1, 1);
     tms_ddraw_set_matrices(this->dd, 0, tmp);
 
-    /*
-    tms_ddraw_sprite(this->dd, gui_spritesheet::get_sprite(S_PKG_SEP),
-            _tms.window_width/2.f,
-            _tms.window_height/2.f,
-            _tms.window_width, _tms.yppcm*1.5f);
-            */
-
     tms_ddraw_set_matrices(this->dd, this->cam->view, this->cam->projection);
 
     for (int x=0; x<this->pkg.num_levels; x++) {
@@ -355,14 +350,8 @@ menu_pkg::render()
         float sx = base_x + (x%3)*icon_outer + (float)block * (block_spacing + 3.f*icon_outer);
         float sy = base_y - (x%9)/3*icon_outer;
 
-#if defined(DEBUG) && !defined(PAJLADA)
-        if (true)
-#else
-        if (this->pkg.unlock_count == 0 || x < unlock_count || cache[x].progress->completed)
-#endif
-        {
+        if (UNLOCK_ALL_LVLS || this->pkg.unlock_count == 0 || x < unlock_count || cache[x].progress->completed)
             tms_ddraw_sprite(this->dd, cache[x].sprite, sx, sy, icon_width*scale, icon_height*scale);
-        }
     }
 
     glActiveTexture(GL_TEXTURE0);
@@ -374,17 +363,12 @@ menu_pkg::render()
         float sy = base_y - (x%9)/3*icon_outer;
 
         struct tms_sprite overlay;
-        overlay.bl = (tvec2){0.f, 0.f};
+        overlay.bl = (tvec2){0.1f, 0.1f};
         overlay.tr = (tvec2){1.f, 1.f};
 
-#if defined(DEBUG) && !defined(PAJLADA)
-        if (true)
-#else
-        if (this->pkg.unlock_count == 0 || x < unlock_count || cache[x].progress->completed)
-#endif
-        {
+        if (UNLOCK_ALL_LVLS || this->pkg.unlock_count == 0 || x < unlock_count || cache[x].progress->completed)
             tms_ddraw_set_color(this->dd, 0.75f, 1.f, .75f, 1.f);
-        } else 
+        else
             tms_ddraw_set_color(this->dd, 1.f, .75f, .75f, 1.f);
 
         tms_ddraw_sprite(this->dd, &overlay, sx, sy, (icon_width+7.f)*scale, (icon_height+7.f)*scale);
@@ -408,12 +392,7 @@ menu_pkg::render()
                     gui_spritesheet::get_sprite(S_CHECKMARK)->width*scale, gui_spritesheet::get_sprite(S_CHECKMARK)->height*scale);
         }
 
-#if defined(DEBUG) && !defined(PAJLADA)
-        if (true)
-#else
-        if (this->pkg.unlock_count == 0 || x < unlock_count || cache[x].progress->completed)
-#endif
-        {
+        if (UNLOCK_ALL_LVLS || this->pkg.unlock_count == 0 || x < unlock_count || cache[x].progress->completed) {
             if (cache[x].show_score) {
                 sprintf(ss, "%d", cache[x].progress->top_score);
 
@@ -506,8 +485,6 @@ menu_pkg::handle_input(tms::event *ev, int action)
 
             int btn_x = (int)(floor((tdown.x - block_pos) / icon_outer));
             int btn_y = (int)(floor(tdown.y / icon_outer));
-            //int btn = block * 9 + ;
-            //
             int btn = block * 9 + btn_x + btn_y * 3;
 
             tms_infof("clicked block %d, btn_x %d btn_y %d", block, btn_x, btn_y);
@@ -515,12 +492,7 @@ menu_pkg::handle_input(tms::event *ev, int action)
             if (btn_x >= 0 && btn_x < 3 && btn_y >= 0 && btn_y < 3 && btn >= 0 && btn < this->pkg.num_levels) {
                 tms_infof("clicked %d", btn);
 
-#if defined(DEBUG) && !defined(PAJLADA)
-                if (true)
-#else
-                if (this->pkg.unlock_count == 0 || btn < unlock_count || cache[btn].progress->completed)
-#endif
-                {
+                if (UNLOCK_ALL_LVLS || this->pkg.unlock_count == 0 || btn < unlock_count || cache[btn].progress->completed) {
                     uint32_t level_id = this->pkg.levels[btn];
 
                     bool test_playing = false;

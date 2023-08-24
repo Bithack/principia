@@ -5012,7 +5012,6 @@ save_settings()
     strcpy(tmp, get_cb_val(settings_shadow_res));
     char *x = strchr(tmp, 'x');
     if (x == NULL) {
-        //tms_infof("Setting shadow map to NATIVE '%d'x'%d'", _tms.window_width, _tms.window_height);
         settings["shadow_map_resx"]->v.i = _tms.window_width;
         settings["shadow_map_resy"]->v.i = _tms.window_height;
     } else {

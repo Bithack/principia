@@ -14,6 +14,4 @@
 
 #define GL_RGB565 GL_RGB
 
-//#include "glhacks/postinc.h"
-
 #endif

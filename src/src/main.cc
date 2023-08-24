@@ -751,7 +751,6 @@ intermediary::render(void)
 int
 intermediary::resume(void)
 {
-
     return T_OK;
 }
 
@@ -3604,7 +3603,6 @@ _create_dir(const char *path, mode_t mode)
                 return false;
 
             case EEXIST:
-                tms_warnf("The directory %s already exists. This is fine.", path);
                 /* this should not be considered an error */
                 return true;
 

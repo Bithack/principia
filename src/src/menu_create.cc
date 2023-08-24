@@ -13,7 +13,6 @@
 #define MAX_X 8.f
 #define MIN_X -8.f
 
-#define UPDATE_AVAILABLE_STRING "Update available!"
 #define MENU_PADDING 3.f
 
 bool
@@ -227,7 +226,6 @@ menu_create::resume()
     this->has_autosave = G->autosave_exists();
 
     this->refresh_widgets();
-    this->highlight = 1.f;
 
     return T_OK;
 }

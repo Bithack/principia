@@ -966,7 +966,7 @@ int sort_blending(struct tms_rstate *rstate, void *value)
         switch (val) {
             default:
             case TMS_BLENDMODE_OFF:
-                
+
                 if (P.best_variable_in_the_world3 == 1) {
                     rstate->graph->sort_reverse_prio = 1;
                     glEnable(GL_BLEND);
@@ -2848,8 +2848,6 @@ game::render()
         (*i)->update_effects();
     }
 
-#define LOOT_SCALE 0.0045
-
     if (W->is_playing() && W->is_adventure()) {
         entity *last_host = 0;
         float y_offset = 0.f;
@@ -2892,7 +2890,7 @@ game::render()
                     pos.y,
                     host->get_layer()*LAYER_DEPTH + LAYER_DEPTH/2.f+0.01,
                     color.r, color.g, color.b, fminf(l.scale, l.life),
-                    LOOT_SCALE * powf(.0001f+fminf(l.scale, l.life), .125f));
+                    0.0045 * powf(.0001f+fminf(l.scale, l.life), .125f)); // LOOT_SCALE
 
             last_host = host;
 
@@ -2952,34 +2950,11 @@ game::render()
 # else
     if (W->step_count % 120 == 0) {
         char fps[32];
-        sprintf(fps, "FPS: %f (%f)", _tms.fps, _tms.fps_mean);
+        sprintf(fps, "Principia - FPS: %f (%f)", _tms.fps, _tms.fps_mean);
         SDL_SetWindowTitle((SDL_Window*)_tms._window, fps);
     }
-
-#if 0
-    /* XXX */
-    if (W->step_count > 2000 && _tms.dt > 0.040f) {
-        exit(1);
-    }
-#endif
-
 # endif
 #endif
-
-#if defined(TMS_BACKEND_LINUX)
-    //usleep(10000);
-#elif defined (TMS_BACKEND_ANDROID)
-    //SDL_Delay(1);
-    /* XXX XXX TODO XXX XXX */
-    //_tms.delta_cap = 22000;
-#endif
-    //_tms.delta_cap = 22000;
-
-    static int xa =0;
-    xa++;
-    if (xa % 30 == 0) {
-        //tms_infof("%s", fps);
-    }
 
     //glClear(GL_COLOR_BUFFER_BIT);
     //return T_OK;
@@ -3078,7 +3053,7 @@ game::render()
             glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
             glDisable(GL_CULL_FACE);
             glDisable(GL_DEPTH_TEST);
-            
+
             if (material_factory::background_id == BG_OUTDOOR) {
                 /* responsible for rendering the horizon background */
                 struct tms_fb fb;
@@ -3668,9 +3643,6 @@ game::render()
         }
     }
 
-#ifdef DEBUG
-#endif
-
     if (this->state.sandbox && this->state.edev_labels && settings["render_edev_labels"]->v.b) {
         this->render_edev_labels();
         tms_assertf((ierr = glGetError()) == 0, "gl error %d after edev labels", ierr);
@@ -3708,13 +3680,6 @@ game::render()
             }
         }
     }
-
-#ifdef DEBUG
-    /*
-    tms_ddraw_set_color(this->get_surface()->ddraw, 1.f, 0.f, 1.f, 1.f);
-    this->multiselect_perform(&draw_square);
-    */
-#endif
 
 //#define SHOW_MOOD_DATA
 #define SHOW_RAYCASTS
@@ -4149,7 +4114,7 @@ game::render_connections(void)
     }
 }
 
-/** 
+/**
  * Render the connection type selection menu
  **/
 void
@@ -4315,8 +4280,8 @@ game::select_socksel(int x)
     this->state.modified = true;
 }
 
-/** 
- * Render the socket selection menu, and 
+/**
+ * Render the socket selection menu, and
  * store the sockets in the game object so we can identify
  * clicks on them later.
  **/
@@ -4788,7 +4753,7 @@ fadeout_update_matrices(struct tms_entity *e, b2Vec2 velocity, bool scale=false)
     }
 
     e->M[12] += velocity.x*_tms.dt;
-    e->M[13] += velocity.y*_tms.dt; 
+    e->M[13] += velocity.y*_tms.dt;
 
     if (scale) {
         float damping = powf(.025f, _tms.dt);
@@ -4984,7 +4949,7 @@ game::free_fadeout(fadeout_event *ev)
     delete ev;
 }
 
-/** 
+/**
  * Open a menu for choosing which socket to attach the
  * given plug to.
  *
@@ -5115,7 +5080,7 @@ game::setup_panel(panel *p)
     }
 }
 
-/** 
+/**
  * TODO: fix spaghetti
  **/
 void
@@ -5350,15 +5315,15 @@ game::reset()
     G->caveview_zoom = 0.f;
 }
 
-/** 
- * Apply state directly from world by reading 
+/**
+ * Apply state directly from world by reading
  **/
 void
 game::load_state()
 {
     tms_debugf("loading game/world state");
 
-    /* copy information about the worlds buffer and set the pointer to point at 
+    /* copy information about the worlds buffer and set the pointer to point at
      * the location of the state data */
     lvlbuf lb = W->lb;
     lb.rp = W->state_ptr;
@@ -5478,7 +5443,7 @@ game::write_state(lvlinfo *lvl, lvlbuf *lb)
 size_t
 game::get_state_size()
 {
-    return 
+    return
         sizeof(float)    /* timemul */
         + sizeof(uint32_t) /* adventure_id */
         + sizeof(uint32_t) /* score */
@@ -6046,7 +6011,7 @@ game::apply_pending_connection(int n)
     this->selection.select(saved);
 }
 
-/** 
+/**
  * Available keybindings.
  *
  * F5     Quicksave
@@ -6381,25 +6346,22 @@ game::handle_input_playing(tms::event *ev, int action)
             return EVENT_DONE;
         }
 
-        if (this->get_mode() == GAME_MODE_DEFAULT && W->is_adventure() && adventure::player) {
-
-#define REPAIR_STATION_HELP_URL "https://principia-web.se/wiki/Repair_Station"
+        if (this->get_mode() == GAME_MODE_DEFAULT && W->is_adventure() && adventure::player
+         && !(settings["tutorial"]->v.u32 & TUTORIAL_REPAIR_STATION)) {
 
             /* Detect clicks on help icons! */
-            if (!(settings["tutorial"]->v.u32 & TUTORIAL_REPAIR_STATION)) {
-                bool r = false;
-                r = this->check_click_help_icon(
-                        W->repair_stations,
-                        OFFS_REPAIR_STATION,
-                        b2Vec2(tproj.x, tproj.y),
-                        principia_action(
-                            ACTION_OPEN_URL,
-                            (void*)strdup(REPAIR_STATION_HELP_URL))
-                        );
+            bool r = false;
+            r = this->check_click_help_icon(
+                    W->repair_stations,
+                    OFFS_REPAIR_STATION,
+                    b2Vec2(tproj.x, tproj.y),
+                    principia_action(
+                        ACTION_OPEN_URL,
+                        (void*)strdup("https://principia-web.se/wiki/Repair_Station"))
+                    );
 
-                if (r) {
-                    return EVENT_DONE;
-                }
+            if (r) {
+                return EVENT_DONE;
             }
         }
 
@@ -6677,7 +6639,7 @@ game::handle_input_playing(tms::event *ev, int action)
                         shift_down = shift_down || snap[0] || snap[1];
 #endif
 
-                        /** 
+                        /**
                          * Holding down shift and ctrl produces 64-angle snapping
                          * Holding down shift produces 16-angle snapping
                          * Holding down ctrl produces 4-angle snapping
@@ -7475,8 +7437,8 @@ game::snap_to_camera(screenshot_marker *sm)
     this->cam_vel.z = 0.f;
 }
 
-/** 
- * Create an icon for the current level 
+/**
+ * Create an icon for the current level
  **/
 void
 game::create_icon()
@@ -7695,7 +7657,7 @@ game::numkey_pressed(uint8_t key)
     }
 }
 
-/** 
+/**
  * Available keybindings.
  *
  * I            Show help about selected object.
@@ -8652,7 +8614,7 @@ game::handle_input_paused(tms::event *ev, int action)
 
                         b2Vec2 diff = p - first->get_position();
 
-                        /* only allow one entity in each group to move, since 
+                        /* only allow one entity in each group to move, since
                          * each entity will force the whole group to move */
                         std::set<group*> cache;
 
@@ -8834,7 +8796,7 @@ game::handle_input_paused(tms::event *ev, int action)
 
                                     float na = atan2f(cs.y, cs.x) + this->rot_offs;
 
-                                    /** 
+                                    /**
                                      * Holding down shift and ctrl produces 64-angle snapping
                                      * Holding down shift produces 16-angle snapping
                                      * Holding down ctrl produces 4-angle snapping
@@ -9749,7 +9711,7 @@ game::check_click_rotate(int x, int y)
             W->query(this->cam, x, y, &this->sel_p_ent, &this->sel_p_body, &this->sel_p_offs, &this->sel_p_frame, this->layer_vis);
             return true;
         }
-    } 
+    }
 
     return false;
 }
@@ -10431,7 +10393,7 @@ game::damage_tpixel(entity *e, b2Fixture *f, void *udata2, float dmg, const b2Ve
         }
     }
 
-            
+
     if (do_fadeout) {
         fadeout_event *ev = new fadeout_event();
         fadeout_entity fe;
@@ -11310,10 +11272,6 @@ inventory_widget_on_change(struct tms_wdg *w, float values[2])
         G->dropping = resource_id;
         G->drop_step = W->step_count;
         G->drop_amount = 1;
-        /*
-        if (pid == 0) G->drop_amount = 1;
-        else if (pid == 1) G->drop_amount = 5;
-        */
 
         adventure::player->drop_resource(resource_id, G->drop_amount, b2Vec2(adventure::player->look_dir*1.25f, .75f));
 
@@ -11444,7 +11402,7 @@ game::cam_move(float x, float y, float z)
     }
 }
 
-/** 
+/**
  * Delete the current multiselection
  **/
 void
@@ -11557,7 +11515,7 @@ game::play_sound(uint32_t sound_id, float x, float y, uint8_t random, float volu
     }
 }
 
-/** 
+/**
  * Safe function to call from play-mode to queue up a level restart. (Same behaviour as P on PC)
  **/
 void
@@ -11569,7 +11527,7 @@ game::restart_level()
     }
 }
 
-/** 
+/**
  * Safe function to call from play-mode to queue up a score submission.
  **/
 void

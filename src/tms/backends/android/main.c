@@ -174,8 +174,6 @@ tbackend_init_surface()
 
     SDL_GL_SetSwapInterval(0);
 
-//#include "glhacks/definc.h"
-
     return T_OK;
 }
 
@@ -249,9 +247,7 @@ _JNI_get_storage_path()
         strcpy(storage_path, tmp);
 
         (*mEnv)->ReleaseStringUTFChars(mEnv, s, tmp);
-    }/* else
-        strcpy("/sdcard/Princ)*/
-    else {
+    } else {
         strcpy(storage_path, "");
     }
 

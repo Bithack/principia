@@ -449,17 +449,11 @@ tbackend_init_surface()
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-    /*
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
-    */
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
     SDL_GL_CreateContext(_window);
 
     SDL_GL_SetSwapInterval(0);
-
-//#include "glhacks/definc.h"
 
     return T_OK;
 }

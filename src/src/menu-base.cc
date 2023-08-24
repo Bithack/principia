@@ -231,15 +231,6 @@ menu_base::render()
             0,
             _tms.opengl_width, _tms.opengl_height);
 
-#ifdef DEBUG
-    static int rcount = 0;
-    if (++rcount % 120 == 0) {
-        char fps[32];
-        sprintf(fps, "FPS: %f (%f)", _tms.fps, _tms.fps_mean);
-        SDL_SetWindowTitle((SDL_Window*)_tms._window, fps);
-    }
-#endif
-
     // yes we call step from within render! ultracool
     menu_shared::step();
 

@@ -58,11 +58,6 @@ public class PublishDialog
                                 return;
                             }
 
-                            if (descr.length() <= 15) {
-                                SDLActivity.message("You must enter a description of at least 15 characters for your level!", 0);
-                                return;
-                            }
-
                             PrincipiaBackend.setLevelName(name);
                             PrincipiaBackend.setLevelDescription(descr);
                             PrincipiaBackend.setLevelAllowDerivatives(cb_allow_derivatives.isChecked());

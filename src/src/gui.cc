@@ -128,12 +128,10 @@ struct sprite_load_data gui_spritesheet::sprites[NUM_SPRITES] = {
     { "data-shared/textures/ui/btn_l1_inclusive.png", &atlas },
     { "data-shared/textures/ui/btn_l2_inclusive.png", &atlas },
     { "data-shared/textures/ui/btn_l3_inclusive.png", &atlas },
-    
+
     { "data-shared/textures/ui/btn_boxselect.png", &atlas },
     { "data-shared/textures/ui/btn_select_through.png", &atlas },
     { "data-shared/textures/ui/btn_layer_inclusion.png", &atlas },
-
-    { "data-shared/textures/ui/test.png", &atlas },
 
     { "data-shared/textures/ui/btn_l1.png", &atlas },
     { "data-shared/textures/ui/btn_l2.png", &atlas },

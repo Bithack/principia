@@ -10,8 +10,6 @@
 #include "widget_manager.hh"
 #include "text.hh"
 
-#define UPDATE_AVAILABLE_STRING "Update available!"
-
 bool
 menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
 {
@@ -24,9 +22,7 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
 
     switch (button_id) {
         case BTN_SHITTY:
-            {
-                ui::open_url("https://principia-web.se/wiki/Bad_Graphics");
-            }
+            ui::open_url("https://principia-web.se/wiki/Bad_Graphics");
             break;
 
         case BTN_PLAY:
@@ -34,33 +30,21 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             break;
 
         case BTN_CREATE:
-            {
-                P.add_action(ACTION_GOTO_CREATE, 0x1);
-                /*
-                   ui::emit_signal(SIGNAL_CLICK_SANDBOX);
-                   G->resume_action = GAME_RESUME_NEW;
-                   G->screen_back = 0;
-                   tms::set_screen(G);
-                   tms_infof("clicked create");
-                   */
-            }
+            P.add_action(ACTION_GOTO_CREATE, 1);
             break;
 
         case BTN_BROWSE_COMMUNITY:
             {
                 ui::emit_signal(SIGNAL_CLICK_DISCOVER);
-#ifdef TMS_BACKEND_IOS
-                ui::open_url(0);
-#else
-                char tmp[512];
-                snprintf(tmp, 511, "https://%s/", P.community_host);
+                //ui::open_url(0);
+                char tmp[128];
+                snprintf(tmp, 127, "https://%s/", P.community_host);
                 ui::open_url(tmp);
-#endif
             }
             break;
 
         case BTN_UPDATE:
-            ui::open_url(UPDATE_URL);
+            ui::open_url("https://principia-web.se/");
             break;
 
         default: return false;
@@ -78,13 +62,12 @@ menu_main::menu_main()
     this->wdg_update_available = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
             BTN_UPDATE, AREA_TOP_LEFT);
-    this->wdg_update_available->set_label(UPDATE_AVAILABLE_STRING);
+    this->wdg_update_available->set_label("Update available!");
     this->wdg_update_available->priority = 900;
 
     this->wdg_shitty = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
             BTN_SHITTY, AREA_TOP_LEFT);
-    //this->wdg_shitty->set_label("You are currently running in bad graphics mode.\nClick here to read more.");
     this->wdg_shitty->set_label("\nSafe mode enabled. Click here to read more.");
     this->wdg_shitty->priority = 500;
 
@@ -130,10 +113,6 @@ menu_main::resume()
     menu_base::resume();
     this->refresh_widgets();
 
-#ifdef DEBUG
-    //ui::open_dialog(DIALOG_MULTI_CONFIG);
-#endif
-
     return T_OK;
 }
 
@@ -152,13 +131,6 @@ menu_main::render(void)
 
     menu_base::render();
 
-    /*
-    tms_ddraw_set_color(this->get_surface()->ddraw, 0.f, 0.f, 0.f, 1.f);
-    tms_ddraw_square(this->get_surface()->ddraw,
-            _tms.window_width/2.f, _tms.window_height/2.f,
-            _tms.window_width, _tms.window_height);
-            */
-
     glViewport(
             100, 100,
             500, 500);
@@ -169,8 +141,6 @@ menu_main::render(void)
     glViewport(
             0, 0,
             _tms.opengl_width, _tms.opengl_height);
-
-    //tms_texture_render(&gui_spritesheet::atlas_text->texture);
 
     return T_OK;
 }

@@ -14,6 +14,7 @@
 #include <tms/core/tms.h>
 
 #include <tms/backend/opengl.h>
+#include <tms/backends/common.h>
 
 #ifdef DEBUG
 #include <fenv.h>
@@ -226,23 +227,7 @@ main(int argc, char **argv)
                     switch (ev.window.event) {
                         case SDL_WINDOWEVENT_RESIZED:
                             {
-                                tms_infof("Window %d resized to %dx%d",
-                                        ev.window.windowID, ev.window.data1,
-                                        ev.window.data2);
-                                int w = ev.window.data1;
-                                int h = ev.window.data2;
-
-                                if (w < 64) w = 64;
-                                if (h < 64) h = 64;
-
-                                _tms.window_width = w;
-                                _tms.opengl_width = w;
-                                _tms.window_height = h;
-                                _tms.opengl_height = h;
-
-                                SDL_SetWindowSize(_window, _tms.window_width, _tms.window_height);
-
-                                tproject_window_size_changed();
+                                RESIZE_WINDOW;
                             }
                             break;
                     }
@@ -516,15 +501,7 @@ static int cur_dd = DD_PC;
 int
 tbackend_init_surface()
 {
-    tms_progressf(
-        "            _            _       _       \n"
-        " _ __  _ __(_)_ __   ___(_)_ __ (_) __ _ \n"
-        "| '_ \\| '__| | '_ \\ / __| | '_ \\| |/ _` |\n"
-        "| |_) | |  | | | | | (__| | |_) | | (_| |\n"
-        "| .__/|_|  |_|_| |_|\\___|_| .__/|_|\\__,_|\n"
-        "|_|                       |_|            \n"
-        "Version: %d. " __DATE__ "/" __TIME__ "\n", PRINCIPIA_VERSION_CODE
-    );
+    CUTE_ASCII_ART;
 
     _tms.window_width = settings["window_width"]->v.i;
     _tms.window_height = settings["window_height"]->v.i;

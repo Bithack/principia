@@ -112,8 +112,6 @@ enum {
 
     S_LAYER_INCLUSION,
 
-    S_TEST,
-
     S_LAYER0,
     S_LAYER1,
     S_LAYER2,

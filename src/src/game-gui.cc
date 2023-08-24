@@ -30,7 +30,10 @@
 #include "widget_manager.hh"
 #include "font.hh"
 #include "text.hh"
+#if defined(TMS_BACKEND_LINUX) && defined(DEBUG)
+#define CREATE_SANDBOX_TEXTURES
 #include "savepng.h"
+#endif
 
 #ifndef UINT32_MAX
 #define UINT32_MAX  (4294967295U)
@@ -250,7 +253,7 @@ game::delete_entity(entity *e)
         if (e == adventure::player) {
             adventure::player = 0;
         }
-        /** 
+        /**
          * For these special cases, we need to figure out
          * which part of the objects we're dealing with.
          * After that, we disconnect them from eachother and
@@ -828,7 +831,7 @@ game::menu_handle_event(tms::event *ev)
                                 this->recent[0] = (int)pending_ent[pid]->g_id;
                             }
 
-                            /* readd the entity to the scene, since the update method 
+                            /* readd the entity to the scene, since the update method
                              * has changed */
                             this->remove_entity(pending_ent[pid]);
                             this->add_entity(pending_ent[pid]);
@@ -918,7 +921,7 @@ game::menu_handle_event(tms::event *ev)
                         }
                         tdown_p[pid].y = sp.y;
                     } else {
-                        /* not added yet, determine whether we are sliding the menu or 
+                        /* not added yet, determine whether we are sliding the menu or
                          * moving out an object */
                         if (std::abs(tdown_p[pid].x - sp.x) > _tms.xppcm*.4f) {
                             tvec3 pos;
@@ -1091,17 +1094,7 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                         ui::message("No description available for this level.");
                     }
                 } else {
-                    if (W->is_puzzle()) {
-                        ui::open_help_dialog(
-                                "Level help",
-                                W->level.descr,
-                                false);
-                    } else {
-                        ui::open_help_dialog(
-                                "Level description",
-                                W->level.descr,
-                                false);
-                    }
+                    ui::open_help_dialog("Level description", W->level.descr, false);
                 }
             }
             return true;
@@ -2567,14 +2560,14 @@ game::init_sandbox_menu()
     }
 }
 
-/** 
- * Should only be called when we are generating new sandbox menu textures 
+/**
+ * Should only be called when we are generating new sandbox menu textures
  * to be bundled in the release version.
  **/
 void
 game::create_sandbox_menu()
 {
-#if defined TMS_BACKEND_LINUX && defined DEBUG
+#ifdef CREATE_SANDBOX_TEXTURES
     glDisable(GL_BLEND);
 
     tms_assertf(glGetError() == 0, "VAFAN s 1");
@@ -3539,10 +3532,10 @@ game::render_sandbox_menu()
         if (o.e->flag_active(ENTITY_IS_BETA)) {
             /* render beta label */
             tms_ddraw_set_color(this->get_surface()->ddraw, 1.f*menu_tint, 1.f*menu_tint, 0.2f*menu_tint, 1.f);
-            tms_ddraw_sprite(this->get_surface()->ddraw, 
+            tms_ddraw_sprite(this->get_surface()->ddraw,
                 betasprite,
                 x1 + a_x +btn_outer_x/2.f,
-                cy+pp - betasprite->height/2.f, 
+                cy+pp - betasprite->height/2.f,
                 //roundf(p.x), roundf(p.y-30),
                 betasprite->width*.8, betasprite->height*.8);
             tms_ddraw_set_color(this->get_surface()->ddraw, 1.f*menu_tint, 1.f*menu_tint, 1.0f*menu_tint, 1.f);
@@ -3563,7 +3556,7 @@ game::render_sandbox_menu()
         tms_ddraw_sprite(this->get_surface()->ddraw,
             o.name,
             x1 + a_x +btn_outer_x/2.f,
-            cy+pp - _tms.yppcm/2.5f, 
+            cy+pp - _tms.yppcm/2.5f,
             //roundf(p.x), roundf(p.y-30),
             o.name->width*.8, o.name->height*.8);
             //s_size,//o.name->width*scale,
@@ -3854,7 +3847,7 @@ game::render_inventory(void)
             } else {
                 tms_ddraw_set_color(this->get_surface()->ddraw, .4f, .4f, .4f, 0.3f);
             }
-            tms_ddraw_square(this->get_surface()->ddraw, iw*2.f, y, 
+            tms_ddraw_square(this->get_surface()->ddraw, iw*2.f, y,
                     iw*3.f, ih*1.5f);
 
             this->render_num(x, y, iw, ih, adventure::player->get_num_resources(n), 0, 0.f, false);
@@ -3867,13 +3860,13 @@ game::render_inventory(void)
 
     if (base_y > _tms.window_height) {
         tms_ddraw_set_color(this->get_surface()->ddraw, .7f+cp, .7f+cp, .7f+cp, .35f+(cp*.2f));
-        tms_ddraw_circle(this->get_surface()->ddraw, iw*3.f, _tms.window_height+ih, 
+        tms_ddraw_circle(this->get_surface()->ddraw, iw*3.f, _tms.window_height+ih,
                 iw*4.f, ih*1.3f);
     }
 
     if (this->inventory_highest_y < -(ih*1.75f)) {
         tms_ddraw_set_color(this->get_surface()->ddraw, .7f+cp, .7f+cp, .7f+cp, .35f+(cp*.2f));
-        tms_ddraw_circle(this->get_surface()->ddraw, iw*3.f, -ih, 
+        tms_ddraw_circle(this->get_surface()->ddraw, iw*3.f, -ih,
                 iw*4.f, ih*1.3f);
     }
 }

@@ -16,15 +16,6 @@ public class AutosaveDialog
 
     public AutosaveDialog()
     {
-        /*
-        Log.v("Principia", String.format("Board: %s\nBrand:%s\nDevice:%s\nDisplay:%s\nModel:%s",
-                android.os.Build.BOARD,
-                android.os.Build.BRAND,
-                android.os.Build.DEVICE,
-                android.os.Build.DISPLAY,
-                android.os.Build.MODEL
-                ));
-                */
         _dialog = new AlertDialog.Builder(PrincipiaActivity.mSingleton)
                 .setMessage("Autosave file detected. Open or remove?")
                 .setPositiveButton("Open", new OnClickListener(){

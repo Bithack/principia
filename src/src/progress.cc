@@ -97,7 +97,7 @@ progress::init(char *custom_path/*=0*/)
 
                 fread(&p.num_plays, 1, sizeof(uint32_t), fp);
                 r_nn = p.num_plays;
-                p.completed = p.num_plays >> 31; 
+                p.completed = p.num_plays >> 31;
                 p.num_plays &= ~(1<<31);
 
                 fread(&p.top_score, 1, sizeof(uint32_t), fp);
@@ -201,7 +201,7 @@ progress::init(char *custom_path/*=0*/)
         return;
 
     } else {
-        tms_errorf("could not open data.bin");
+        tms_infof("data.bin doesn't exist, creating one");
         initialized = true;
         return;
     }

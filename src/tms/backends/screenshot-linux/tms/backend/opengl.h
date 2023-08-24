@@ -3,8 +3,6 @@
 
 //#define GL3_PROTOTYPES
 
-//#include "glhacks/preinc.h"
-
 //#include <GL3/gl3.h>
 #include <GL/gl.h>
 #include <GL/glext.h>
@@ -14,7 +12,5 @@
 #ifndef GL_RGB565
 #define GL_RGB565 GL_RGB
 #endif
-
-//#include "glhacks/postinc.h"
 
 #endif

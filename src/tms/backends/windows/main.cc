@@ -18,6 +18,7 @@
 #include <tms/core/tms.h>
 
 #include <tms/backend/opengl.h>
+#include <tms/backends/common.h>
 
 #include "settings.hh"
 #include "menu_main.hh"
@@ -255,15 +256,11 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
         while (SDL_PollEvent(&ev)) {
             switch (ev.type) {
                 case SDL_QUIT:
-#if 0
-                    if (_tms.screen == &P.s_game->super) {
-                        ui::open_dialog(DIALOG_CONFIRM_QUIT);
-                    } else {
-#endif
+                    //if (_tms.screen == &P.s_game->super) {
+                    //    ui::open_dialog(DIALOG_CONFIRM_QUIT);
+                    //} else {
                         _tms.state = TMS_STATE_QUITTING;
-#if 0
-                    }
-#endif
+                    //}
                     break;
 
                 case SDL_KEYDOWN:
@@ -277,82 +274,20 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
                     break;
 
                 case SDL_WINDOWEVENT:
-                    {
-                        //tms_infof("windowevent: %d", ev.window.event);
-                        switch (ev.window.event) {
-                            case SDL_WINDOWEVENT_SHOWN:
-                                tms_infof("Window %d shown", ev.window.windowID);
-                                break;
-                            case SDL_WINDOWEVENT_HIDDEN:
-                                tms_infof("Window %d hidden", ev.window.windowID);
-                                break;
-                            case SDL_WINDOWEVENT_EXPOSED:
-                                tms_infof("Window %d exposed", ev.window.windowID);
-                                break;
-                            case SDL_WINDOWEVENT_MOVED:
-                                tms_infof("Window %d moved to %d,%d",
-                                        ev.window.windowID, ev.window.data1,
-                                        ev.window.data2);
-                                break;
-                            case SDL_WINDOWEVENT_RESIZED:
-                                {
-                                    tms_infof("Window %d resized to %dx%d",
-                                            ev.window.windowID, ev.window.data1,
-                                            ev.window.data2);
-                                    int w = ev.window.data1;
-                                    int h = ev.window.data2;
-
-                                    if (w < 64) w = 64;
-                                    if (h < 64) h = 64;
-
-                                    _tms.window_width  = _tms.opengl_width  = w;
-                                    _tms.window_height = _tms.opengl_height = h;
-
-                                    SDL_SetWindowSize(_window, _tms.window_width, _tms.window_height);
-
-                                    tproject_window_size_changed();
-                                }
-                                break;
-                            case SDL_WINDOWEVENT_MINIMIZED:
-                                //tms_infof("Window %d minimized", ev.window.windowID);
-                                break;
-                            case SDL_WINDOWEVENT_MAXIMIZED:
-                                //tms_infof("Window %d maximized", ev.window.windowID);
-                                settings["window_maximized"]->v.b = true;
-                                break;
-                            case SDL_WINDOWEVENT_SIZE_CHANGED:
-                                //tms_infof("Window %d size changed", ev.window.windowID);
-                                break;
-                            case SDL_WINDOWEVENT_RESTORED:
-                                //tms_infof("Window %d restored", ev.window.windowID);
-                                settings["window_maximized"]->v.b = false;
-                                break;
-                            case SDL_WINDOWEVENT_ENTER:
-                                //tms_infof("Mouse entered window %d", ev.window.windowID);
-                                break;
-                            case SDL_WINDOWEVENT_LEAVE:
-                                //tms_infof("Mouse left window %d", ev.window.windowID);
-                                break;
-                            case SDL_WINDOWEVENT_FOCUS_GAINED:
-#if 0
-                                {
-                                    SDL_SysWMinfo wmi;
-                                    SDL_GetWindowWMInfo(_window, &wmi);
-                                    SetCapture(wmi.info.win.window);
-                                }
-#endif
-                                //tms_infof("Window %d gained keyboard focus", ev.window.windowID);
-                                break;
-                            case SDL_WINDOWEVENT_FOCUS_LOST:
-                                //tms_infof("Window %d lost keyboard focus", ev.window.windowID);
-                                break;
-                            case SDL_WINDOWEVENT_CLOSE:
-                                //tms_infof("Window %d closed", ev.window.windowID);
-                                break;
-                            default:
-                                //tms_infof("Window %d got unknown event %d", ev.window.windowID, ev.window.event);
-                                break;
-                        }
+                    switch (ev.window.event) {
+                        case SDL_WINDOWEVENT_RESIZED:
+                            {
+                                RESIZE_WINDOW;
+                            }
+                            break;
+                        case SDL_WINDOWEVENT_MAXIMIZED:
+                            settings["window_maximized"]->v.b = true;
+                            break;
+                        case SDL_WINDOWEVENT_RESTORED:
+                            settings["window_maximized"]->v.b = false;
+                            break;
+                        default:
+                            break;
                     }
                     break;
 
@@ -448,7 +383,7 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
                     break;
 
                 default:
-                    tms_infof("Unhandled input: %d", ev.type);
+                    tms_debugf("Unhandled input: %d", ev.type);
                     break;
             }
         }
@@ -481,15 +416,7 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
 int
 tbackend_init_surface()
 {
-    tms_progressf(
-        "            _            _       _       \n"
-        " _ __  _ __(_)_ __   ___(_)_ __ (_) __ _ \n"
-        "| '_ \\| '__| | '_ \\ / __| | '_ \\| |/ _` |\n"
-        "| |_) | |  | | | | | (__| | |_) | | (_| |\n"
-        "| .__/|_|  |_|_| |_|\\___|_| .__/|_|\\__,_|\n"
-        "|_|                       |_|            \n"
-        "Version: %d. " __DATE__ "/" __TIME__ "\n", PRINCIPIA_VERSION_CODE
-    );
+    CUTE_ASCII_ART;
 
     /* Set up SDL, create a window */
     tms_progressf("Initializing SDL... ");
@@ -538,8 +465,6 @@ tbackend_init_surface()
             SDL_GL_SetSwapInterval(1);
     } else
         SDL_GL_SetSwapInterval(0);
-
-//#include "glhacks/definc.h"
 
     tms_progressf("Initializing GLEW... ");
     glewExperimental = GL_TRUE;
