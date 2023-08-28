@@ -23,7 +23,7 @@ Principia runs on anything with a recent enough version of Windows, Linux or And
 ## Binary builds
 Every now and then new beta builds for 1.5.2 are made whenever things are stable enough on the `master` branch. These are available for download on the [principia-web downloads page](https://principia-web.se/download).
 
-There are also nightly build artifacts for Windows and Android that get automatically built by GitHub CI on each commit, see [Actions](https://github.com/Bithack/principia/actions). Keep in mind these may be broken at times during development, and you are recommended to 
+There are also nightly build artifacts for Windows and Android that get automatically built by GitHub CI on each commit, see [Actions](https://github.com/Bithack/principia/actions). Keep in mind these may be broken at times during development, and you are recommended to use the beta builds instead.
 
 ## Getting involved
 Feel free to fork this project and send in your pull requests. This is a community project and the community decides how the project evolves.
