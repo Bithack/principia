@@ -82,8 +82,6 @@ enum {
     S_ATTACH_RIGID,
     S_ATTACH_ROTARY,
 
-    S_PKG_SEP,
-    S_SANDBOX,
     S_SEP,
     S_ROT,
     S_EMPTY,

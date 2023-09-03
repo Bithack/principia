@@ -2653,14 +2653,6 @@ game::create_sandbox_menu()
                 }
                 glActiveTexture(GL_TEXTURE0);
 
-#if 0
-                glBindTexture(GL_TEXTURE_2D, gui_spritesheet::atlas->texture.gl_texture);
-                /* background */
-                tms_ddraw_set_matrices(this->get_surface()->ddraw, cam->view, cam->projection);
-                tms_ddraw_sprite(this->get_surface()->ddraw,
-                        gui_spritesheet::s_sandbox,
-                        0, 0, cam->width, cam->height);
-#endif
                 glBindTexture(GL_TEXTURE_2D, 0);
 
                 ix = x%5;
@@ -2817,14 +2809,6 @@ game::create_sandbox_menu()
             }
             glActiveTexture(GL_TEXTURE0);
 
-#if 0
-            glBindTexture(GL_TEXTURE_2D, gui_spritesheet::atlas->texture.gl_texture);
-            /* background */
-            tms_ddraw_set_matrices(this->get_surface()->ddraw, cam->view, cam->projection);
-            tms_ddraw_sprite(this->get_surface()->ddraw,
-                    gui_spritesheet::s_sandbox,
-                    0, 0, cam->width, cam->height);
-#endif
             glBindTexture(GL_TEXTURE_2D, 0);
 
             /* object */

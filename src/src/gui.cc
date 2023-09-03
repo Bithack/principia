@@ -104,8 +104,6 @@ struct sprite_load_data gui_spritesheet::sprites[NUM_SPRITES] = {
     { "data-shared/textures/symbols/attach.png", &atlas },
     { "data-shared/textures/symbols/attach_rigid.png", &atlas },
     { "data-shared/textures/symbols/attach_rotary.png", &atlas },
-    { "data-shared/textures/ui/menupkgsep.png", &atlas },
-    { "data-shared/textures/ui/btn_sandbox.png", &atlas },
     { "data-shared/textures/ui/sep.png", &atlas },
     { "data-shared/textures/symbols/rotate.png", &atlas },
     { "data-shared/textures/ui/btn_empty.png", &atlas },

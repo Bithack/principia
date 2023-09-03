@@ -363,7 +363,7 @@ menu_pkg::render()
         float sy = base_y - (x%9)/3*icon_outer;
 
         struct tms_sprite overlay;
-        overlay.bl = (tvec2){0.1f, 0.1f};
+        overlay.bl = (tvec2){0.f, 0.f};
         overlay.tr = (tvec2){1.f, 1.f};
 
         if (UNLOCK_ALL_LVLS || this->pkg.unlock_count == 0 || x < unlock_count || cache[x].progress->completed)
