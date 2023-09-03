@@ -3966,6 +3966,10 @@ game::render_activators(void)
 void
 game::render_starred(void)
 {
+    if (settings["render_gui"]->is_false()) {
+        return;
+    }
+
     tms_ddraw_set_color(this->dd, 1.0f, 1.0f, 1.0f, .75f+cos((double)_tms.last_time/100000.) * .25f);
     for (std::set<entity*>::iterator i = this->starred.begin();
     i != this->starred.end(); i++) {
