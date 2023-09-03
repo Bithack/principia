@@ -46,7 +46,6 @@ static int T_intercept_input(SDL_Event ev);
 void tgen_init(void){};
 extern "C" int tbackend_init_surface();
 extern "C" const char *tbackend_get_storage_path(void);
-extern "C" const char *tbackend_get_device_info(void);
 
 char *_tmp[]={0,0};
 static HANDLE pipe_h;
@@ -734,12 +733,6 @@ const char *tbackend_get_storage_path(void)
     return _storage_path;
 }
 
-const char*
-tbackend_get_device_info(void)
-{
-    return ""; /* TODO */
-}
-
 void
 tbackend_toggle_fullscreen(void)
 {
@@ -749,10 +742,4 @@ tbackend_toggle_fullscreen(void)
         SDL_SetWindowFullscreen(_window, SDL_FALSE);
     else
         SDL_SetWindowFullscreen(_window, SDL_TRUE);
-}
-
-int
-tbackend_is_tablet(void)
-{
-    return 0;
 }

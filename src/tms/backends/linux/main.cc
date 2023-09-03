@@ -41,7 +41,6 @@ static char buf[1024];
 void tgen_init(void){};
 extern "C" int tbackend_init_surface();
 extern "C" const char *tbackend_get_storage_path(void);
-extern "C" const char *tbackend_get_device_info(void);
 
 int _pipe_listener(void *p)
 {
@@ -710,18 +709,6 @@ const char *tbackend_get_storage_path(void)
     return _storage_path;
 }
 
-const char*
-tbackend_get_device_info(void)
-{
-#ifdef DEBUG
-    struct device &cur_device = devices[cur_dd];
-
-    return cur_device.name;
-#else
-    return "";
-#endif
-}
-
 void
 tbackend_toggle_fullscreen(void)
 {
@@ -732,12 +719,6 @@ tbackend_toggle_fullscreen(void)
     } else {
         SDL_SetWindowFullscreen(_window, SDL_TRUE);
     }
-}
-
-int
-tbackend_is_tablet(void)
-{
-    return 0;
 }
 
 void

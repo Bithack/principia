@@ -259,74 +259,7 @@ const char *tbackend_get_storage_path(void)
     return _JNI_get_storage_path();
 }
 
-static char device_info[1024];
-static const char*
-_JNI_get_device_info()
-{
-    /*
-    JNIEnv *env = Android_JNI_GetEnv();
-
-    jclass version_class = (*env)->FindClass(env, "android/os/Build$VERSION");
-    if (version_class == NULL) {
-        // this should only happen for api level 4 or below
-        return "";
-    }
-
-    jfieldID sdk_int_id = NULL;
-    jfieldID release_id = NULL;
-    sdk_int_id = (*env)->GetStaticFieldID(env, version_class, "SDK_INT", "I");
-    release_id = (*env)->GetStaticFieldID(env, version_class, "RELEASE", "Ljava/lang/String;");
-    if (sdk_int_id == NULL) {
-        return "";
-    }
-
-    if (release_id == NULL) {
-        return "";
-    }
-
-    jint sdk_int = (*env)->GetStaticIntField(env, version_class, sdk_int_id);
-    jstring release_obj = (jstring)(*env)->GetStaticObjectField(env, version_class, release_id);
-    const char *release = (*env)->GetStringUTFChars(env, release_obj, 0);
-
-    jclass build_class = (*env)->FindClass(env, "android/os/Build");
-    jfieldID model_id = (*env)->GetStaticFieldID(env, build_class, "MODEL", "Ljava/lang/String;");
-    jstring model_obj  = (jstring)(*env)->GetStaticObjectField(env, build_class, model_id);
-    const char *model = (*env)->GetStringUTFChars(env, model_obj, 0);
-
-    snprintf(device_info, 1024, "%d/%s/%s", sdk_int, release, model);
-    tms_infof("device info: %s", device_info);
-
-    (*env)->ReleaseStringUTFChars(env, release_obj, release);
-    (*env)->ReleaseStringUTFChars(env, model_obj, model);
-
-    return device_info;
-    */
-    return "android phone";
-}
-
-const char*
-tbackend_get_device_info(void)
-{
-    return _JNI_get_device_info();
-}
-
 void
 tbackend_toggle_fullscreen(void)
 {
-}
-
-int
-tbackend_is_tablet(void)
-{
-    JNIEnv *env = Android_JNI_GetEnv();
-    jclass cls = Android_JNI_GetActivityClass();
-    int res = 0;
-    jmethodID mid = (*env)->GetStaticMethodID(env, cls, "is_tablet", "()Z");
-
-    if (mid) {
-        jboolean r = (*env)->CallStaticBooleanMethod(env, cls, mid);
-        if (r) res = 1;
-    }
-
-    return res;
 }

@@ -65,7 +65,6 @@ void tgen_init(void){};
 int screenshot(char *file_name, unsigned int x, unsigned int y, unsigned long width, unsigned long height);
 extern "C" int tbackend_init_surface();
 extern "C" const char *tbackend_get_storage_path(void);
-extern "C" const char *tbackend_get_device_info(void);
 
 static void
 _catch_signal(int signal)
@@ -463,12 +462,6 @@ T_intercept_input(SDL_Event ev)
 {
 }
 
-const char*
-tbackend_get_device_info(void)
-{
-    return "";
-}
-
 const char *tbackend_get_storage_path(void)
 {
     if (!_storage_path) {
@@ -576,12 +569,6 @@ screenshot(char *path, unsigned int x, unsigned int y, unsigned long width, unsi
 
     fclose(fp);
 
-    return 0;
-}
-
-int
-tbackend_is_tablet(void)
-{
     return 0;
 }
 

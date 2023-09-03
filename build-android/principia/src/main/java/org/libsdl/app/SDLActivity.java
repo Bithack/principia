@@ -1030,18 +1030,6 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
         });
     }
 
-    public static boolean is_tablet()
-    {
-        DisplayMetrics dm = new DisplayMetrics();
-        ((SDLActivity)SDLActivity.getContext()).getWindowManager().getDefaultDisplay().getMetrics(dm);
-
-        double x = Math.pow(dm.widthPixels/dm.xdpi,2);
-        double y = Math.pow(dm.heightPixels/dm.ydpi,2);
-        double screenInches = Math.sqrt(x+y);
-
-        return (screenInches >= 5.0);
-    }
-
     public static void confirm(final String text, final String button1, final int action1, final long action1_data, final String button2, final int action2, final long action2_data, final String button3, final int action3, final long action3_data, final boolean dna_sandbox)
     {
         SDLActivity.mSingleton.runOnUiThread(new Runnable(){

@@ -36,7 +36,7 @@ _settings::init()
     this->add("postprocess",        S_BOOL,  false);
     this->add("enable_shadows",     S_BOOL,  true);
 
-    this->add("uiscale",            S_FLOAT, (tbackend_is_tablet() ? 1.5f : 1.3f));
+    this->add("uiscale",            S_FLOAT, 1.3f);
 
     this->add("fixed_uiscale",      S_BOOL,  false);
     this->add("blur_shadow_map",    S_BOOL,  false);

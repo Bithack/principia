@@ -1624,8 +1624,6 @@ tproject_init(void)
     tms_infof("tproject_init called");
     srand((unsigned)time(0));
 
-    tms_infof("%s", tbackend_get_device_info());
-
 #if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
     settings.init();
     settings.load();
@@ -3901,16 +3899,6 @@ initial_loader(int step)
                 tms_infof("%27s: %" PRIu32, "Total", total);
 
                 ui::emit_signal(SIGNAL_QUICKADD_REFRESH);
-
-#ifdef DEBUG
-                char tmp[1024];
-                const char *device_info = tbackend_get_device_info();
-                if (device_info) {
-                    snprintf(tmp, 1023, "(debug) Device info: %s", device_info);
-
-                    ui::message(tmp, false);
-                }
-#endif
             }
 
             return LOAD_DONE;

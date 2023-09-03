@@ -249,11 +249,6 @@ T_intercept_input(SDL_Event ev)
     return T_OK;
 }
 
-const char *tbackend_get_device_info()
-{
-    return "";
-}
-
 const char *tbackend_get_user_path(void)
 {
     return "../Documents";
