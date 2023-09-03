@@ -4,7 +4,7 @@
 #include <math.h>
 #include <tms/util/util.h>
 
-/** 
+/**
  * 2D vector.
  * Can be accessed using various naming conventions depending on intention. For
  * texture coordinates, V.u and V.v, and for space coordinates V.x and V.y.
@@ -14,7 +14,7 @@ typedef struct tvec2 {
     union {float y; float g; float t; float v; float h;};
 } tvec2;
 
-/** 
+/**
  * 3D vector.
  * Can be accessed using various naming conventions depending on intention.
  * For example: x y z, r g b, s t p.
@@ -25,7 +25,7 @@ typedef struct tvec3 {
     union {float z; float b; float p;};
 } tvec3;
 
-/** 
+/**
  * 4-float general purpose vector. Use this for plane equations and homogenous 3d coordinates.
  * Can be accessed using various naming conventions, x y z w, r g b a, etc.
  **/

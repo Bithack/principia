@@ -48,41 +48,41 @@ void tmath_sincos( float x, float *r0, float *r1)
 		float 	f;
 		int 	i;
 	} ax, bx;
-	
+
 	float y;
 	float a, b, c, d, xx, yy;
 	int m, n, o, p;
-	
+
 	y = x + __sincosf_rng[1];
 	ax.f = fabsf(x);
 	bx.f = fabsf(y);
-	
+
 	//Range Reduction:
-	m = (int) (ax.f * __sincosf_rng[0]);	
-	o = (int) (bx.f * __sincosf_rng[0]);	
+	m = (int) (ax.f * __sincosf_rng[0]);
+	o = (int) (bx.f * __sincosf_rng[0]);
 	ax.f = ax.f - (((float)m) * __sincosf_rng[1]);
 	bx.f = bx.f - (((float)o) * __sincosf_rng[1]);
-	
+
 	//Test Quadrant
 	n = m & 1;
 	p = o & 1;
-	ax.f = ax.f - n * __sincosf_rng[1];	
-	bx.f = bx.f - p * __sincosf_rng[1];	
+	ax.f = ax.f - n * __sincosf_rng[1];
+	bx.f = bx.f - p * __sincosf_rng[1];
 	m = m >> 1;
 	o = o >> 1;
 	n = n ^ m;
 	p = p ^ o;
 	m = (x < 0.0);
 	o = (y < 0.0);
-	n = n ^ m;	
-	p = p ^ o;	
+	n = n ^ m;
+	p = p ^ o;
 	n = n << 31;
 	p = p << 31;
-	ax.i = ax.i ^ n; 
-	bx.i = bx.i ^ p; 
+	ax.i = ax.i ^ n;
+	bx.i = bx.i ^ p;
 
 	//Taylor Polynomial
-	xx = ax.f * ax.f;	
+	xx = ax.f * ax.f;
 	yy = bx.f * bx.f;
 	*r0 = __sincosf_lut[0];
 	*r1 = __sincosf_lut[1];
@@ -115,28 +115,28 @@ float tmath_sin(float x)
 		float 	f;
 		int 	i;
 	} ax;
-	
+
 	float r, a, b, xx;
 	int m, n;
-	
+
 	ax.f = fabsf(x);
 
 	//Range Reduction:
-	m = (int) (ax.f * __sinf_rng[0]);	
+	m = (int) (ax.f * __sinf_rng[0]);
 	ax.f = ax.f - (((float)m) * __sinf_rng[1]);
 
 	//Test Quadrant
 	n = m & 1;
-	ax.f = ax.f - n * __sinf_rng[1];	
+	ax.f = ax.f - n * __sinf_rng[1];
 	m = m >> 1;
 	n = n ^ m;
 	m = (x < 0.0);
-	n = n ^ m;	
+	n = n ^ m;
 	n = n << 31;
-	ax.i = ax.i ^ n; 
+	ax.i = ax.i ^ n;
 
 	//Taylor Polynomial (Estrins)
-	xx = ax.f * ax.f;	
+	xx = ax.f * ax.f;
 	a = (__sinf_lut[0] * ax.f) * xx + (__sinf_lut[2] * ax.f);
 	b = (__sinf_lut[1] * ax.f) * xx + (__sinf_lut[3] * ax.f);
 	xx = xx * xx;
@@ -173,18 +173,18 @@ float tmath_pow(float x, float n)
 {
 	float a, b, c, d, xx;
 	int m;
-	
+
 	union {
 		float   f;
 		int 	i;
 	} r;
-	
+
 	//extract exponent
 	r.f = x;
 	m = (r.i >> 23);
 	m = m - 127;
 	r.i = r.i - (m << 23);
-	
+
 	//Taylor Polynomial (Estrins)
 	xx = r.f * r.f;
 	a = (__powf_lut[4] * r.f) + (__powf_lut[0]);
@@ -204,20 +204,20 @@ float tmath_pow(float x, float n)
 
 	//Range Reduction:
 	m = (int) (r.f * __powf_rng[0]);
-	r.f = r.f - ((float) m) * __powf_rng[1];	
-	
+	r.f = r.f - ((float) m) * __powf_rng[1];
+
 	//Taylor Polynomial (Estrins)
 	a = (__powf_lut[12] * r.f) + (__powf_lut[8]);
 	b = (__powf_lut[14] * r.f) + (__powf_lut[10]);
 	c = (__powf_lut[13] * r.f) + (__powf_lut[9]);
 	d = (__powf_lut[15] * r.f) + (__powf_lut[11]);
 	xx = r.f * r.f;
-	a = a + b * xx; 
+	a = a + b * xx;
 	c = c + d * xx;
 	xx = xx* xx;
-	r.f = a + c * xx; 
-	
-	//multiply by 2 ^ m 
+	r.f = a + c * xx;
+
+	//multiply by 2 ^ m
 	m = m << 23;
 	r.i = r.i + m;
 
@@ -229,8 +229,8 @@ static const float __atan2f_lut[4] = {
 	-0.3258083974640975,	//p3
 	+0.1555786518463281,	//p5
 	+0.9997878412794807  	//p1
-}; 
- 
+};
+
 static const float __atan2f_pi_2 = M_PI_2;
 
 float tmath_atan2(float y, float x)
@@ -250,10 +250,10 @@ float tmath_atan2(float y, float x)
 	xinv.f = 1.41176471f - 0.47058824f * xinv.f;
 	xinv.i = xinv.i + m;
 	b = 2.0 - xinv.f * xx;
-	xinv.f = xinv.f * b;	
+	xinv.f = xinv.f * b;
 	b = 2.0 - xinv.f * xx;
 	xinv.f = xinv.f * b;
-	
+
 	c = fabs(y * xinv.f);
 
 	//fast inverse approximation (2x newton)
@@ -263,22 +263,22 @@ float tmath_atan2(float y, float x)
 	xinv.f = 1.41176471f - 0.47058824f * xinv.f;
 	xinv.i = xinv.i + m;
 	b = 2.0 - xinv.f * c;
-	xinv.f = xinv.f * b;	
+	xinv.f = xinv.f * b;
 	b = 2.0 - xinv.f * c;
 	xinv.f = xinv.f * b;
-	
+
 	//if |x| > 1.0 -> ax = -1/ax, r = pi/2
 	xinv.f = xinv.f + c;
 	a = (c > 1.0f);
 	c = c - a * xinv.f;
 	r = a * __atan2f_pi_2;
-	
+
 	//polynomial evaluation
-	xx = c * c;	
+	xx = c * c;
 	a = (__atan2f_lut[0] * c) * xx + (__atan2f_lut[2] * c);
 	b = (__atan2f_lut[1] * c) * xx + (__atan2f_lut[3] * c);
 	xx = xx * xx;
-	r = r + a * xx; 
+	r = r + a * xx;
 	r = r + b;
 
 	//determine quadrant and test for small x.
@@ -291,7 +291,7 @@ float tmath_atan2(float y, float x)
 	r = r + __atan2f_pi_2 * b;
 	b = r + r;
 	r = r - (y < 0.0f) * b;
-	
+
 	return r;
 }
 
@@ -305,7 +305,7 @@ float tmath_sqrt(float x)
 		float 	f;
 		int 	i;
 	} a;
-	
+
 	//fast invsqrt approx
 	a.f = x;
 	a.i = 0x5F3759DF - (a.i >> 1);		//VRSQRTE
@@ -448,7 +448,7 @@ tmat4_set_near_plane(float *m, tvec4 *plane)
 */
 }
 
-/** 
+/**
  * Generate perspective projection matrix.
  *
  * @relates tmatN
@@ -658,7 +658,7 @@ void tmat4_lookat(float *result,
     up.x = upX;
     up.y = upY;
     up.z = upZ;
-    
+
     tvec3_cross(&side, forward, up);
     tvec3_normalize(&side);
     tvec3_cross(&up, side, forward);
@@ -686,7 +686,7 @@ void tmat4_lookat(float *result,
 
 /**
  * Multiply the vector by the matrix, dividing the
- * components by w 
+ * components by w
  *
  * @relates tvec3
  **/

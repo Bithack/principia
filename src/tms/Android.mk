@@ -5,4 +5,4 @@ LOCAL_SRC_FILES += \
 	$(wildcard $(LOCAL_PATH)/tms/util/*.c) )\
 	tms/backends/android/main.c \
 	tms/bindings/cpp/cpp.cc\
-	tms/modules/3ds/3ds.c
+	tms/modules/3ds.c

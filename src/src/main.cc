@@ -826,6 +826,17 @@ tproject_step(void)
 #endif
                     break;
 
+                case ACTION_PUBLISH:
+                    tms_debugf("action publish");
+                    P.s_loading_screen->load(publish_loader, G);
+                    G->resume_action = GAME_RESUME_CONTINUE;
+                    break;
+
+                case ACTION_SUBMIT_SCORE:
+                    P.s_loading_screen->load(submit_score_loader, G);
+                    G->resume_action = GAME_RESUME_CONTINUE;
+                    break;
+
 #endif
 
                 case ACTION_RELOAD_DISPLAY:

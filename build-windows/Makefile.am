@@ -127,16 +127,13 @@ principia.rc \
 ../src/tms/core/varray.c \
 ../src/tms/core/wdg.c \
 ../src/tms/math/intersect.c \
-../src/tms/math/lorenz.c \
 ../src/tms/math/math.c \
-../src/tms/math/rk4.c \
 ../src/tms/util/hash.c \
-../src/tms/util/list.c \
 \
 ../src/tms/backends/windows/main.cc \
 ../src/GLEW/glew.c \
 ../src/tms/bindings/cpp/cpp.cc \
-../src/tms/modules/3ds/3ds.c \
+../src/tms/modules/3ds.c \
 \
 ../src/src/fluid.cc \
 ../src/src/oilrig.cc \

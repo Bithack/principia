@@ -17,5 +17,3 @@ uint32_t crc32_level(
         uint32_t timestamp,
         uint32_t last_score,
         int method);
-
-uint32_t crc32_file(const char *path);

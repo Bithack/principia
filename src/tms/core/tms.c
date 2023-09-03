@@ -34,7 +34,6 @@ struct tms_singleton _tms = {
 int
 tms_init(void)
 {
-    tms.image_loaders = thash_create_string_table(8);
     tms.model_loaders = thash_create_string_table(8);
     tms.framebuffer = 0;
     tms.is_paused = 0;
@@ -61,18 +60,6 @@ tms_init(void)
     tproject_init_pipelines();
     tproject_initialize();
 
-    return T_OK;
-}
-
-/** 
- * Register an image filetype loader
- * @relates tms
- **/
-int
-tms_register_image_loader(int (*load_fn)(struct tms_texture *, FILE *), const char *ext)
-{
-    thash_add(tms.image_loaders, ext, strlen(ext), load_fn);
-    tms_debugf("registered image loader (%p) for \"%s\"", load_fn, ext);
     return T_OK;
 }
 

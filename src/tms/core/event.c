@@ -4,7 +4,6 @@
 #include "screen.h"
 #include "event.h"
 #include "tms.h"
-#include "tms/util/list.h"
 #include "tms/util/util.h"
 
 #define MAX_EVENTS 1024
@@ -138,7 +137,7 @@ tms_event_process_all(struct tms_screen *s)
 {
     if (s->spec->input) {
         for (int x=0; x<num_events; x++) {
-            if (tms_screen_handle_input(s, &events[x], 0) == T_CONT) 
+            if (tms_screen_handle_input(s, &events[x], 0) == T_CONT)
                 s->spec->input(s, &events[x], 0);
         }
     }

@@ -1,3 +1,0 @@
-NAME=3ds
-INIT=tmod_3ds_init
-SOURCES=( 3ds.c )

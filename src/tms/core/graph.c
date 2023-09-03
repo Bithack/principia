@@ -39,7 +39,7 @@ static const int (*sort_fns[])(void*, void*) = {
 
 /* 1 or 0 depending on whether the sorting
  * type of the given index sorts depending on true/false.
- * For example, a texture is not a boolean sort, but 
+ * For example, a texture is not a boolean sort, but
  * blending on/off. */
 static const int sort_boolean[] = {
     0,
@@ -284,7 +284,7 @@ render_entities(struct tms_rstate *state,
             if (count) glDrawElements(
                 m->primitive_type,
                 count,
-                (m->i32?GL_UNSIGNED_INT:GL_UNSIGNED_SHORT), 
+                (m->i32?GL_UNSIGNED_INT:GL_UNSIGNED_SHORT),
                 (char*)(start * (m->i32?sizeof(int):sizeof(short)))
             );
         } else {
@@ -315,7 +315,7 @@ void branch_remove_branch(struct _branch *b, struct _branch *c)
     free(c->nodes.as_branch);
     free(c);
 
-    if (b->num_nodes == 0) 
+    if (b->num_nodes == 0)
         if (b->parent) branch_remove_branch(b->parent, b);
 }
 
@@ -356,7 +356,7 @@ render_branch(struct tms_rstate *s,
               int depth)
 {
     if (depth > 0) {
-        if (*sort_v == TMS_SORT_PRIO && s->graph->sort_reverse_prio) { 
+        if (*sort_v == TMS_SORT_PRIO && s->graph->sort_reverse_prio) {
             for (int x=b->num_nodes-1; x>=0; x--) {
                 if ((s->sort_fns[*sort_v])(s, b->nodes.as_branch[x].val) == T_OK) {
                     render_branch(s, b->nodes.as_branch[x].next, sort_v+1, depth-1);
@@ -460,7 +460,7 @@ dump_branch(struct tms_scene_branch *b, int *sorting, int depth, int maxdepth)
         for (int x=0; x<b->num_nodes; x++) {
             switch (*sorting) {
                 case TMS_SORT_SHADER: tms_infof("%ssort shader: %s", indent, ((struct tms_shader*)b->nodes.as_branch[x].value)->name?:"null"); break;
-                
+
                 case TMS_SORT_TEXTURE0:
                 case TMS_SORT_TEXTURE1:
                 case TMS_SORT_TEXTURE2:
@@ -490,7 +490,7 @@ tms_scene_dump_tree(struct tms_scene *s)
 }
 */
 
-/** 
+/**
  * @relates tms_graph
  **/
 int
@@ -653,7 +653,7 @@ bind_mesh(struct tms_rstate *state,
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->vbo);
 
         tms_assertf(glIsBuffer(m->vbo), "is not buffer");
-    } else 
+    } else
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     return T_OK;
 }

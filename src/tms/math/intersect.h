@@ -7,7 +7,7 @@
 #include <tms/math/vector.h>
 #include <tms/util/util.h>
 
-/** 
+/**
  * Misc intersection functions.
  * The struct tintersect does not exist, all intersection functions take various arguments.
  **/

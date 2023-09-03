@@ -120,27 +120,3 @@ crc32_level(const lvlinfo &lvl, const lvlbuf &lb, uint32_t timestamp, uint32_t l
 
     return crc;
 }
-
-uint32_t
-crc32_file(const char *path)
-{
-    unsigned char buf[CRC_BUFFER_SIZE];
-    size_t buf_len;
-    FILE *fh = fopen(path, "rb");
-
-    if (!fh) {
-        tms_errorf("Unable to open %s for reading.", path);
-        return 1;
-    }
-
-    uint32_t crc = crc32(0L, Z_NULL, 0);
-    while ((buf_len = fread(buf, 1, CRC_BUFFER_SIZE, fh)) != 0) {
-        crc = crc32(crc, buf, buf_len);
-    }
-
-    tms_debugf("got crc: %08X", crc);
-
-    fclose(fh);
-
-    return crc;
-}

@@ -58,7 +58,7 @@ file(GLOB SRCS
 	src/tms/math/*.c
 	src/tms/util/*.c
 	src/tms/bindings/cpp/cpp.cc
-	src/tms/modules/3ds/3ds.c
+	src/tms/modules/3ds.c
 
 	src/lua/*.c
 

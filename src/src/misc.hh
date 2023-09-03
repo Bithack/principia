@@ -87,8 +87,6 @@ file_exists(const char *path)
 
 time_t get_mtime(const char *path);
 
-int base64encode(const void* data_buf, size_t dataLength, char* result, size_t resultSize);
-
 inline uint8_t
 tpixel_mat_to_chunk_mat(uint8_t mat)
 {

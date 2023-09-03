@@ -23,12 +23,6 @@ int2bin(uint32_t i, size_t len=4)
     return str;
 }
 
-static const char*
-float2bin(float f)
-{
-    return int2bin(*reinterpret_cast<uint32_t*>(&f));
-}
-
 static void
 panel_post_render(struct tms_wdg *w, struct tms_surface *s)
 {

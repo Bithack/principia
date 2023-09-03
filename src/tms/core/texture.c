@@ -82,7 +82,7 @@ tms_texture_render(struct tms_texture *t)
     tms_fb_render(&fb, _tms_fb_copy_program);
 }
 
-/** 
+/**
  * Allocate a local buffer for this texture.
  * This function will return a pointer to a buffer that you can read and write to.
  * The buffer will be managed by the texture and should never be manually freed by
@@ -107,7 +107,7 @@ unsigned char *tms_texture_alloc_buffer(struct tms_texture *tex, int width,
     return tex->data;
 }
 
-/** 
+/**
  *
  * @relates tms_texture
  **/
@@ -116,7 +116,7 @@ unsigned char* tms_texture_get_buffer(struct tms_texture *tex)
     return tex->data;
 }
 
-/** 
+/**
  * Clear this textures buffer to the given clear_value. `clear_value` will be
  * copied into each colo component of the texture.
  *
@@ -166,24 +166,24 @@ int
 tms_texture_load_pvrtc_4bpp(struct tms_texture *tex, const char *filename)
 {
     SDL_RWops *rw = SDL_RWFromFile(filename, "rb");
-    
+
     tms_infof("Load PVRTC 4BPP: %s", filename);
-    
+
     if (rw) {
         long size;
         SDL_RWseek(rw, 0, SEEK_END);
         size = SDL_RWtell(rw);
         SDL_RWseek(rw, 0, SEEK_SET);
-        
+
         /* XXX free previous? */
         if (size > 4*1024*1024 || size < sizeof(struct etc1_header) + 20)
             tms_fatalf("invalid file size");
-        
+
         struct pvrtc_header header;
         SDL_RWread(rw, &header, sizeof(struct pvrtc_header), 1);
         tex->data = malloc(size - sizeof(struct pvrtc_header));
         SDL_RWread(rw, tex->data, 1, size-sizeof(struct pvrtc_header));
-        
+
         //tex->width = ntohs(header.width);
         //tex->height = ntohs(header.height);
         tex->width = header.width;
@@ -193,20 +193,20 @@ tms_texture_load_pvrtc_4bpp(struct tms_texture *tex, const char *filename)
         tex->gamma_correction = 0;
         tex->format = GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG_OES;
         tex->buf_size = size-sizeof(struct pvrtc_header);
-        
+
         if (tex->width <= 0 || tex->height <= 0)
             tms_fatalf("invalid pvrtc texture dimensions");
-        
+
         SDL_RWclose(rw);
-        
+
         return T_OK;
     } else
         tms_errorf("Unable to open texture: '%s'", SDL_GetError());
-    
+
     return T_COULD_NOT_OPEN;
 }
 
-/** 
+/**
  * Load a compressed image
  **/
 int
@@ -252,7 +252,7 @@ tms_texture_load_etc1(struct tms_texture *tex,
     return T_COULD_NOT_OPEN;
 }
 
-/** 
+/**
  * Read texture from the given file.
  * @relates tms_texture
  **/
@@ -263,35 +263,6 @@ tms_texture_load(struct tms_texture *tex, const char *filename)
 
     if (ext != 1) {
         int status;
-
-        /*
-        int (*loader)(struct tms_texture *, FILE *)
-            = thash_get(tms.image_loaders, ext, strlen(ext));
-
-        if (!loader) {
-            tms_errorf("unsupported image format: %s", ext);
-            return T_UNSUPPORTED_FILE_FORMAT;
-        }
-
-        FILE *f = fopen(filename, "rb");
-
-        if (!f) {
-            tms_errorf("could not open file: %s", filename);
-            return T_COULD_NOT_OPEN;
-        }
-
-        if ((status = loader(tex, f)) == T_OK) {
-            tex->is_buffered = 1;
-            tex->filename = strdup(filename);
-            tex->gamma_corrected = 0;
-
-            tms_debugf("loaded texture: %s (%s, %dx%d)", filename, ext, tex->width, tex->height);
-        } else
-            tms_fatalf("could not load file: %s", filename);
-
-        fclose(f);
-            */
-
 
         SDL_RWops *rw = SDL_RWFromFile(filename,"rb");
 
@@ -324,7 +295,7 @@ tms_texture_load(struct tms_texture *tex, const char *filename)
         for (int y=0; y<s->h; y++) {
             for (int x=0; x<s->w*tex->num_channels; x++) {
                 int o = y*s->pitch;
-                ((unsigned char*)tex->data)[(s->h-y-1)*s->w*tex->num_channels+x] = 
+                ((unsigned char*)tex->data)[(s->h-y-1)*s->w*tex->num_channels+x] =
                     ((unsigned char*)s->pixels)[o+x];
             }
         }
@@ -338,7 +309,7 @@ tms_texture_load(struct tms_texture *tex, const char *filename)
     return T_UNSUPPORTED_FILE_FORMAT;
 }
 
-/** 
+/**
  * Load a texture from a memory buffer.
  * This will allocate a new buffer and copy the input buffer to it.
  * Expects one byte per pixel color channel. If `alpha_channel` is
@@ -372,8 +343,8 @@ tms_texture_load_mem(struct tms_texture *tex, const char *buf,
     return T_OK;
 }
 
-/** 
- * Loads a texture from a memory buffer 
+/**
+ * Loads a texture from a memory buffer
  * @relates tms_texture
  **/
 int
@@ -412,7 +383,7 @@ tms_texture_load_mem2(struct tms_texture *tex, const char *buf, size_t size, int
     for (int y=0; y<s->h; y++) {
         for (int x=0; x<s->w*tex->num_channels; x++) {
             int o = y*s->pitch;
-            ((unsigned char*)tex->data)[(s->h-y-1)*s->w*tex->num_channels+x] = 
+            ((unsigned char*)tex->data)[(s->h-y-1)*s->w*tex->num_channels+x] =
                 ((unsigned char*)s->pixels)[o+x];
         }
     }
@@ -532,7 +503,7 @@ tms_texture_add_alpha(struct tms_texture *tex, float a)
     return T_OK;
 }
 
-/** 
+/**
  * Upload the texture to the GPU.
  *
  * @relates tms_texture
@@ -670,7 +641,7 @@ tms_texture_upload(struct tms_texture *tex)
     return T_OK;
 }
 
-/** 
+/**
  * Set the texture filtering
  *
  * @relates tms_texture
@@ -703,7 +674,7 @@ tms_texture_set_filtering(struct tms_texture *tex, int filter)
     tex->filter = filter;
 }
 
-/** 
+/**
  * @relates tms_texture
  **/
 int
@@ -718,8 +689,8 @@ tms_texture_download(struct tms_texture *tex)
     return T_OK;
 }
 
-/** 
- * Bind the texture to the currently active opengl 
+/**
+ * Bind the texture to the currently active opengl
  * texture unit.
  * Use glActiveTexture() to choose texture unit.
  *

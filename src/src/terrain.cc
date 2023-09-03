@@ -21,7 +21,7 @@ bool operator <(const terrain_coord& lhs, const terrain_coord &rhs)
     }
 }
 
-/** 
+/**
  * Terrain generation overview
  *
  * Phase 1:
@@ -29,7 +29,7 @@ bool operator <(const terrain_coord& lhs, const terrain_coord &rhs)
  *
  * Phase 2:
  * set material based on height
- * 
+ *
  * Phase 3:
  * Dig out caves
  *
@@ -226,7 +226,7 @@ terrain_transaction::apply()
     }
 }
 
-/** 
+/**
  * 3 = very stony
  * 0 = very grassy
  **/
@@ -272,7 +272,7 @@ double cave(double x, double y, double depth)
 
     for (int n=0; n<3; n++) {
         float freq = powf(2, n);
-        float amp = powf(.7f, n); 
+        float amp = powf(.7f, n);
         float nn = powf(n, 2);
         double v[2] = {x*.035*freq, y*.035*freq};
         r += _noise2(v[0], v[1])*amp;
@@ -295,12 +295,12 @@ double cave(double x, double y, double depth)
 
 unsigned flp2(unsigned x)
 {
-   x = x | (x >> 1); 
-   x = x | (x >> 2); 
-   x = x | (x >> 4); 
-   x = x | (x >> 8); 
-   x = x | (x >>16); 
-   return x - (x >> 1); 
+   x = x | (x >> 1);
+   x = x | (x >> 2);
+   x = x | (x >> 4);
+   x = x | (x >> 8);
+   x = x | (x >>16);
+   return x - (x >> 1);
 }
 
 void
@@ -363,7 +363,7 @@ level_chunk::generate(chunk_window *win, int up_to_phase/*=5*/)
 #ifdef DEBUG_SPECIFIC_CHUNK
     if (up_to_phase > this->generate_phase && this->pos_x == DEBUG_CHUNK_X && this->pos_y == DEBUG_CHUNK_Y) {
         tms_trace();
-        tms_debugf("(chunk %d,%d) generate phase %d->%d %p", DEBUG_CHUNK_X, DEBUG_CHUNK_Y, 
+        tms_debugf("(chunk %d,%d) generate phase %d->%d %p", DEBUG_CHUNK_X, DEBUG_CHUNK_Y,
                 this->generate_phase, up_to_phase, this);
     }
 #endif
@@ -461,7 +461,7 @@ level_chunk::make_smooth(chunk_window *win)
     }
 }
 
-/** 
+/**
  * Phase 1: base outline of the terrain, heights
  **/
 void
@@ -488,7 +488,7 @@ level_chunk::generate_phase1(chunk_window *win)
                 if (z == 0 && y == 0) {
                     h[x] = t_height(((double)x)*.5+(double)this->pos_x*8.);
                 }
-                
+
                 /* setup roughness */
                 if (z == 0) {
                     rough[y][x] = roughness(wx, wy);
@@ -502,8 +502,6 @@ level_chunk::generate_phase1(chunk_window *win)
 
                 double depth = wy - height + z*.5;
 
-                //depth *= 1.f-fabsf(z*.85* _noise1(23.33+wx*.1435));
-                //depth += z*.5* _noise3(wx*.2, wy*.2, z*.1)*.35;
                 if (z > 0) {
                     depth += z*.5* _noise1(wx*.2)*1.25;
                 }
@@ -521,7 +519,7 @@ level_chunk::generate_phase1(chunk_window *win)
     }
 }
 
-/** 
+/**
  * Phase 2: set materials
  **/
 void
@@ -639,7 +637,7 @@ level_chunk::find_ground(terrain_coord *in, int layer, terrain_coord *out, float
 void
 level_chunk::generate_vegetation(float *heights)
 {
-    float last_noise; 
+    float last_noise;
     for (int x=0; x<16; x+=2) {
         double wx = (x*.5 + this->pos_x*8.);
         double wy = heights[x];
@@ -732,7 +730,7 @@ level_chunk::generate_vegetation(float *heights)
     }
 }
 
-/** 
+/**
  * Phase 3: caves and merging into bigger pixels
  *
  * Occupy gentypes
@@ -749,7 +747,7 @@ level_chunk::generate_phase3(chunk_window *win)
     gentype::generate(this);
 }
 
-/** 
+/**
  * Phase 4: Apply any gentypes allocated in this chunk
  **/
 void
@@ -759,7 +757,7 @@ level_chunk::generate_phase4(chunk_window *win)
         this->generate_phase = 4;
     }
 
-    /* before we can generate phase 4, we must make sure that a certain amount of 
+    /* before we can generate phase 4, we must make sure that a certain amount of
      * chunks nearby is generated to phase 3, incase they have gentypes of higher priority */
     for (int y=GENTYPE_MAX_REACH_Y; y>=-GENTYPE_MAX_REACH_Y; y--) {
         for (int x=-GENTYPE_MAX_REACH_X; x<=GENTYPE_MAX_REACH_X; x++) {
@@ -780,7 +778,7 @@ level_chunk::generate_phase4(chunk_window *win)
     this->apply_gentypes(0);
 }
 
-/** 
+/**
  * Phase 5: Apply gentypes that modify other gentypes (minerals etc)
  **/
 void
@@ -805,7 +803,7 @@ level_chunk::generate_phase5(chunk_window *win)
 void
 level_chunk::apply_gentypes(int sorting)
 {
-    /* TODO: to handle delete of gentypes, we first must make sure that 
+    /* TODO: to handle delete of gentypes, we first must make sure that
      * all relevant chunks are done generating, we can use reference counting in the
      * gentypes, and when a chunk generates it decrements the gentypes reference count,
      * and deletes the gentype when the reference count is 0 */
@@ -919,7 +917,7 @@ level_chunk::merge(int _x, int _y, int _z, int _w, int _h, int _d)
                     desc.size = size;
                     desc.pos = (y << 4) | (x & 15);
                     desc.material = chunk_mat_to_tpixel_mat(px);
-                    desc.r = 
+                    desc.r =
                         (((x + this->pos_x*16) ^ 0xfa367aef)
                         * (((y + this->pos_y*16)) ^ 0x73f976ab))
                         & 0xff;

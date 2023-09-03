@@ -27,7 +27,7 @@ GLOBAL_FLAGS += -I../src/tms/backends/linux/ \
 principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
 principia_CXXFLAGS = ${GLOBAL_FLAGS}
 principia_LDADD = -lz -ldl -lGL -lGLEW -lpthread -lX11 -lXi -lrt ${GTK_SOURCEVIEW_LIBS} ${GTK_LIBS} -lcurl -ljpeg -lpng -lfreetype ${SDL2_LIBS} ${SDL2_TTF_LIBS} ${SDL2_GFX_LIBS} ${SDL2_IMAGE_LIBS} ${SDL2_MIXER_LIBS}
-principia_LDFLAGS = 
+principia_LDFLAGS =
 
 principia_SOURCES = \
 ../src/tms/core/atlas.c \
@@ -58,15 +58,12 @@ principia_SOURCES = \
 ../src/tms/core/varray.c \
 ../src/tms/core/wdg.c \
 ../src/tms/math/intersect.c \
-../src/tms/math/lorenz.c \
 ../src/tms/math/math.c \
-../src/tms/math/rk4.c \
 ../src/tms/util/hash.c \
-../src/tms/util/list.c \
 \
 ../src/tms/backends/linux/main.cc \
 ../src/tms/bindings/cpp/cpp.cc \
-../src/tms/modules/3ds/3ds.c \
+../src/tms/modules/3ds.c \
 \
 ../src/lua/eris.c \
 ../src/lua/lapi.c \

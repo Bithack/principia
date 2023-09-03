@@ -15,9 +15,11 @@ TMS_STATIC_INLINE float tms_modf(float a, float b)
     return a - b*(floorf(a/b));
 }
 
+#define RANDF_MAX 2147483647.f
+
 TMS_STATIC_INLINE float trandf(float min, float max)
 {
-    return min+(float)(rand())/((float)(RAND_MAX/(max-min)));
+    return min+(float)(rand())/((float)(RANDF_MAX/(max-min)));
 }
 
 TMS_STATIC_INLINE float twrapf(float x, float min, float max)

@@ -4,7 +4,7 @@
 #include "intersect.h"
 #include <tms/backend/print.h>
 
-/** 
+/**
  * Compare the point and the line in a sense similar to strcmp(),
  * the function will return < 0 if the point is "below" the line,
  * 0 if the point is on the line, and > 0 if the point is above the
@@ -18,7 +18,7 @@ tintersect_point_line_cmp(tvec2 *l1, tvec2 *l2, tvec2 *p)
     return (l2->x - l1->x) * (p->y - l1->y) - (l2->y - l1->y) * (p->x - l1->x);
 }
 
-/** 
+/**
  * Intersect two infinite lines
  *
  * @relates tintersect
@@ -46,22 +46,22 @@ tintersect_segments(tvec2 a1, tvec2 a2, tvec2 b1, tvec2 b2, tvec2 *point)
     float d = (b2.y-b1.y)*(a2.x-a1.x) - (b2.x-b1.x)*(a2.y-a1.y);
     if (d == 0.f)
         return 0;
-    
+
     float a = ((b2.x-b1.x)*(a1.y-b1.y) - (b2.y-b1.y)*(a1.x-b1.x)) / d;
     float b = ((a2.x-a1.x)*(a1.y-b1.y) - (a2.y-a1.y)*(a1.x-b1.x)) / d;
-    
+
     if (a < 0.f || a > 1.f)
         return 0;
     if (b < 0.f || b > 1.f)
         return 0;
-    
+
     point->x = a1.x + (a2.x-a1.x)*a;
     point->y = a1.y + (a2.y-a1.y)*a;
 
     return 1;
 }
 
-/** 
+/**
  * Intersect a ray with a plane.
  *
  * @relates tintersect
