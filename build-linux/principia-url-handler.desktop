@@ -1,7 +1,0 @@
-[Desktop Entry]
-Name=Principia (principia:// Protocol)
-Exec=principia %u
-Type=Application
-Terminal=false
-NoDisplay=true
-MimeType=x-scheme-handler/principia;

@@ -118,9 +118,7 @@ On Linux Principia will attempt to load data from the following directories:
 2. `../` (data directories are one directory up relative to the executable)
 3. `/usr/share/principia/`
 
-It should work to install the Principia executable to `/usr/bin/principia` and the data directories `data-pc` and `data-shared` to `/usr/share/principia/`.
-
-The `build-linux` directory contains desktop files and an usable icon, which can be installed into `/usr/share/applications/` and `/usr/share/pixmaps` respectively. `principia-url-handler.desktop` is for handling principia:// protocol links and is confirmed to work on at least Firefox and Chromium.
+When doing `ninja install`, the data folders will be installed to `share/principia`. For packaging, you would want to pass `-DCMAKE_INSTALL_PREFIX=/usr` to CMake which when installed will put data where it can get loaded from.
 
 ### Building for Android
 These instructions assume a Linux system but can likely be easily adapted to build for Android on any platform.
