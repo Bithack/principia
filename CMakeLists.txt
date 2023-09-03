@@ -157,3 +157,23 @@ set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG} -O0")
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-O,-s,--gc-sections")
 set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "-Wl,-O,--gc-sections")
 set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-rdynamic")
+
+# Installation
+
+if(UNIX)
+	include(GNUInstallDirs)
+	set(SHAREDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}")
+	set(BINDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
+	set(APPS_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/applications")
+	set(ICONDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/icons")
+
+	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data-pc" DESTINATION "${SHAREDIR}")
+	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data-shared" DESTINATION "${SHAREDIR}")
+
+	install(FILES "packaging/principia.desktop" DESTINATION "${APPS_DIR}")
+	install(FILES "packaging/principia-url-handler.desktop" DESTINATION "${APPS_DIR}")
+
+	install(FILES "packaging/principia.png" DESTINATION "${ICONDIR}/hicolor/128x128/apps")
+
+	install(TARGETS ${PROJECT_NAME} DESTINATION ${BINDIR})
+endif()
