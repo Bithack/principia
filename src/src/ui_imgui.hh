@@ -420,6 +420,8 @@ namespace UiLogin {
         login_status = LoginStatus::Failure;
         P.user_id = 0;
         P.username = nullptr;
+        username = "";
+        password = "";
         break;
     }
   }
