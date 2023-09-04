@@ -7,6 +7,121 @@
 #include "imgui_impl_opengl3.h"
 #include "ui_imgui_impl_tms.hh"
 
+// class UiBase {
+//   public:
+//     static inline void init() {}
+//     static inline void open() {}
+//     static inline void layout() {}
+// };
+
+// class UiOpenable: public UiBase {
+//   protected:
+//     static bool is_open;
+  
+//   public:
+//     static inline void open() {
+//       is_open = true;
+//     }
+// };
+
+// class UiPopup: public UiBase {
+//   private:
+//     static bool do_open;
+
+//   protected:
+//     static const char* name;
+//     static inline void popup_layout() {};
+
+//   public:
+//     static inline void open() {
+//       do_open = true;
+//     }
+//     static inline void layout() {
+//       if (do_open) {
+//         do_open = false;
+//         ImGui::OpenPopup(name);
+//       }
+//       if (ImGui::BeginPopup(name, ImGuiWindowFlags_NoMove)) {
+//         popup_layout();
+//         ImGui::EndPopup();
+//       }
+//     }
+// };
+
+// // Implementation
+
+// class UiDemoWindow: public UiOpenable {
+//   public:
+//     static inline void layout() {
+//       if (is_open) ImGui::ShowDemoWindow(&is_open);
+//     }
+// };
+
+// class UiSandboxMenu: public UiPopup {
+//   public:
+//     static inline void popup_layout() {
+//       //True if current level can be saved as a copy
+//       //Saves can only be created if current level state is sandbox
+//       bool is_sandbox = G->state.sandbox;
+
+//       //True if already saved and the save can be updated
+//       //Saves can only be updated if:
+//       // - Current level state is sandbox
+//       // - Level is local (and not an auto-save)
+//       // - Level is already saved
+//       bool can_update_save =
+//           G->state.sandbox &&
+//           (W->level_id_type == LEVEL_LOCAL) &&
+//           (W->level.local_id != 0); //&& W->level.name_len;
+
+//       //TODO info panel
+
+//       //"Level properties"
+//       ImGui::MenuItem("Level properties");
+      
+//       //"Publish online"
+//       if (is_sandbox) {
+//         ImGui::BeginDisabled(!P.user_id);
+//         ImGui::MenuItem("Publish online");
+//         ImGui::EndDisabled();
+//         ImGui::SetItemTooltip("Upload your level to %s", P.community_host);
+//       }
+
+//       //"Save": update current save
+//       if (can_update_save && ImGui::MenuItem("Save")) {
+//         //temporarily change text to "Saved" (green)?
+//         P.add_action(ACTION_SAVE, 0);
+//         ImGui::CloseCurrentPopup();
+//       }
+
+//       //"Save as...": create a new save
+//       if (is_sandbox && ImGui::MenuItem("Save as...")) {
+//         //UiSaveAs::open();
+//         ImGui::CloseCurrentPopup();
+//       }
+
+//       //"Open...": open the Level Manager
+//       if (ImGui::MenuItem("Open...")) {
+//         //UiSaveManager::open();
+//         ImGui::CloseCurrentPopup();
+//       }
+
+//       ImGui::Separator();
+//     }
+// };
+
+static void ui_init() {
+  // UiDemoWindow::init();
+  // UiSandboxMenu::init();
+}
+
+static void ui_layout() {
+  // UiDemoWindow::layout();
+  // UiSandboxMenu::layout();
+}
+
+//*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
+
 int prompt_is_open = 0;
 
 void ui::init() {
@@ -43,11 +158,6 @@ void ui::init() {
   tms_assertf(ImGui_ImplTMS_Init() == T_OK, "tms init failed");
 }
 
-static void ui_layout() {
-  static bool show_demo_window = true;
-  ImGui::ShowDemoWindow(&show_demo_window);
-}
-
 void ui::render() {
   ImGuiIO& io = ImGui::GetIO();
 
@@ -77,8 +187,13 @@ void ui::render() {
 }
 
 void ui::open_dialog(int num, void *data) {
-  //TODO
-  tms_errorf("ui::open_dialog not implemented yet");
+  switch (num) {
+    case DIALOG_SANDBOX_MENU:
+      UiSandboxMenu::open();
+      break;
+    default:
+      tms_errorf("dialog %d not implemented yet", num);
+  }
 }
 
 void ui::open_sandbox_tips() {
@@ -102,8 +217,8 @@ void ui::emit_signal(int num, void *data){
 }
 
 void ui::quit() {
-  //TODO
-  tms_errorf("ui::quit not implemented yet");
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui::DestroyContext();
 }
 
 void ui::set_next_action(int action_id) {
