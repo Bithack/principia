@@ -107,6 +107,10 @@ ui::messagef(const char *format, ...)
     }
 }
 
+#if !defined(PRINCIPIA_BACKEND_IMGUI)
+void ui::render(){};
+#endif
+
 #if defined(NO_UI)
 int prompt_is_open = 0;
 void ui::init(){};
@@ -129,6 +133,10 @@ ui::confirm(const char *text,
     P.add_action(action1.action_id, 0);
 }
 void ui::alert(const char*, uint8_t/*=ALERT_INFORMATION*/) {};
+
+#elif defined(PRINCIPIA_BACKEND_IMGUI)
+
+#include "ui_imgui.hh"
 
 #elif defined(TMS_BACKEND_IOS)
 

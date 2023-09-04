@@ -13,3 +13,5 @@ result/
 .deps/
 .dirstamp
 *.o
+
+imgui.ini

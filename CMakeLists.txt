@@ -28,6 +28,7 @@ set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 
 option(SCREENSHOT_BUILD "Build screenshotter build (Linux only)" FALSE)
+option(BACKEND_IMGUI "Use ImGui as the UI backend (expreimental)" TRUE)
 
 if(WIN32)
 	set(TMS_BACKEND "windows")
@@ -42,6 +43,7 @@ endif()
 include_directories(
 	src/
 	src/lua/
+	src/imgui/
 	src/src/
 	${FREETYPE_INCLUDE_DIRS}
 	${JPEG_INCLUDE_DIRS}
@@ -61,6 +63,8 @@ file(GLOB SRCS
 	src/tms/modules/3ds.c
 
 	src/lua/*.c
+
+	src/imgui/*.cpp
 
 	src/src/*.cc
 	src/src/*.c
@@ -133,6 +137,13 @@ endif()
 
 set(COMMON_FLAGS "${LUASOCKET_FLAGS} -DGL_GLEXT_PROTOTYPES -DTMS_BACKEND_PC -DTMS_FAST_MATH -DLUA_COMPAT_MODULE -D__STDC_FORMAT_MACROS=1")
 
+if((NOT SCREENSHOT_BUILD) AND BACKEND_IMGUI)
+	set(COMMON_FLAGS "${COMMON_FLAGS} -DPRINCIPIA_BACKEND_IMGUI -DIMGUI_DISABLE_OBSOLETE_KEYIO")
+	set(IMGUI_FLAGS_RELEASE "-DIMGUI_DISABLE_DEMO_WINDOWS -DIMGUI_DISABLE_DEBUG_TOOLS")
+else()
+	set(COMMON_FLAGS "${COMMON_FLAGS} -DIMGUI_DISABLE")
+endif()
+
 if(WIN32)
 	set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_WINDOWS")
 else()
@@ -144,7 +155,7 @@ else()
 endif()
 
 set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1 -rdynamic")
-set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} -DNDEBUG=1 -s -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections")
+set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} ${IMGUI_FLAGS_RELEASE} -DNDEBUG=1 -s -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections")
 
 set(CMAKE_C_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O1")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE} -g")
