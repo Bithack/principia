@@ -118,7 +118,7 @@ const char *codes[NUM_CODES] = {
 };
 
 static tms_event_handler raw_handlers[MAX_RAW_HANDLERS];
-static int num_raw_handlers;
+static int num_raw_handlers = 0;
 
 int tms_event_register_raw(tms_event_handler handler) {
     if (num_raw_handlers >= MAX_RAW_HANDLERS) {
