@@ -9,8 +9,10 @@
 #include "ui_imgui_impl_tms.hh"
 
 //STUFF
-static bool __ec9f6917_true = true;
-#define REF_TRUE &(__ec9f6917_true = true)
+static bool __ec9f6917_ref;
+#define REF_TRUE &(__ec9f6917_ref = true)
+#define REF_FALSE &(__ec9f6917_ref = false)
+
 #define MODAL_FLAGS (ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)
 
 //HELPER FUNCTIONS
@@ -34,6 +36,7 @@ static void ImGui_CenterNextWindow() {
 
 namespace UiSandboxMenu  { static void open(); static void layout(); }
 namespace UiLevelManager { static void open(); static void layout(); }
+namespace UiLogin { static void open(); static void layout(); static void complete_login(int signal); }
 
 namespace UiSandboxMenu {
   static bool do_open = false;
@@ -144,7 +147,7 @@ namespace UiSandboxMenu {
         ImGui::PopID();
       } else {
         if (ImGui::MenuItem("Log in")) {
-          //TODO
+          UiLogin::open();
         };
       }
 
@@ -395,9 +398,89 @@ namespace UiLevelManager {
   }
 };
 
+namespace UiLogin {
+  enum class LoginStatus {
+    None,
+    LoggingIn,
+    Success,
+    Failure
+  };
+
+  static bool do_open = false;
+  static std::string username{""};
+  static std::string password{""};
+  static LoginStatus login_status = LoginStatus::None;
+
+  static void complete_login(int signal) {
+    switch (signal) {
+      case SIGNAL_LOGIN_SUCCESS:
+        login_status = LoginStatus::Success;
+        break;
+      case SIGNAL_LOGIN_FAILED:
+        login_status = LoginStatus::Failure;
+        break;
+    }
+  }
+  
+  static void open() {
+    do_open = true;
+    username = "";
+    password = "";
+    login_status = LoginStatus::None;
+  }
+
+  static void layout() {
+    if (do_open) {
+      do_open = false;
+      ImGui::OpenPopup("Log in");
+    }
+    ImGui_CenterNextWindow();
+    //Only allow closing the window if a login attempt is not in progress
+    bool *allow_closing = (login_status != LoginStatus::LoggingIn) ? REF_TRUE : NULL;
+    if (ImGui::BeginPopupModal("Log in", allow_closing, MODAL_FLAGS)) {
+      if (login_status == LoginStatus::Success) {
+        ImGui::CloseCurrentPopup();
+        ImGui::EndPopup();
+        return;
+      }
+
+      ImGui::BeginDisabled((login_status == LoginStatus::LoggingIn) || (login_status == LoginStatus::Success));
+
+      ImGui::InputTextWithHint("###username", "Username", &username);
+      ImGui::InputTextWithHint("###password", "Password", &password, ImGuiInputTextFlags_Password);
+      
+      if (ImGui::Button("Log in...")) {
+        login_status = LoginStatus::LoggingIn;
+        login_data *data = new login_data;
+        strncpy(data->username, username.c_str(), 256);
+        strncpy(data->password, password.c_str(), 256);
+        P.add_action(ACTION_LOGIN, data);
+      }
+
+      ImGui::EndDisabled();
+      
+      ImGui::SameLine();
+
+      switch (login_status) {
+        case LoginStatus::LoggingIn:
+          ImGui::TextUnformatted("Logging in...");
+          break;
+        case LoginStatus::Failure:
+          ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Login failed"); // Login attempt failed
+          break;
+        //default:
+        //  ImGui::TextUnformatted(" ");
+      }
+
+      ImGui::EndPopup();
+    }
+  }
+}
+
 static void ui_layout() {
   UiSandboxMenu::layout();
   UiLevelManager::layout();
+  UiLogin::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -471,6 +554,12 @@ void ui::open_dialog(int num, void *data) {
     case DIALOG_SANDBOX_MENU:
       UiSandboxMenu::open();
       break;
+    case DIALOG_OPEN:
+      UiLevelManager::open();
+      break;
+    case DIALOG_LOGIN:
+      UiLogin::open();
+      break;
     default:
       tms_errorf("dialog %d not implemented yet", num);
   }
@@ -492,8 +581,12 @@ void ui::open_help_dialog(const char* title, const char* description, bool enabl
 }
 
 void ui::emit_signal(int num, void *data){
-  //TODOs
-  tms_errorf("ui::emit_signal not implemented yet");
+  switch (num) {
+    case SIGNAL_LOGIN_SUCCESS:
+    case SIGNAL_LOGIN_FAILED:
+      UiLogin::complete_login(num);
+      break;
+  }
 }
 
 void ui::quit() {
