@@ -448,11 +448,33 @@ namespace UiLogin {
         return;
       }
 
-      ImGui::BeginDisabled((login_status == LoginStatus::LoggingIn) || (login_status == LoginStatus::Success));
+      // currently, passwords have >= 15 chars req, but the limit used to be lower (at >0 ?)...
+      // ...so disable the check for now, we don't want to lock out users out of their accounts :p
+      bool req_pass_len = username.length() > 0; //password.length() >= 15;
+      bool req_username_len = username.length() > 0;
 
+      ImGui::BeginDisabled(
+        (login_status == LoginStatus::LoggingIn) ||
+        (login_status == LoginStatus::Success)
+      );
+
+      // bool username_red = !req_username_len && username.length();
+      // if (username_red) ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
       ImGui::InputTextWithHint("###username", "Username", &username);
+      // if (username_red)ImGui::PopStyleColor();
+
+      // bool password_red = !req_pass_len && password.length();
+      // if (password_red) ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
       ImGui::InputTextWithHint("###password", "Password", &password, ImGuiInputTextFlags_Password);
-      
+      // if (password_red) ImGui::PopStyleColor();
+
+      ImGui::EndDisabled();
+
+      ImGui::BeginDisabled(
+        (login_status == LoginStatus::LoggingIn) ||
+        (login_status == LoginStatus::Success) ||
+        !req_pass_len || !req_username_len
+      );
       if (ImGui::Button("Log in...")) {
         login_status = LoginStatus::LoggingIn;
         login_data *data = new login_data;
@@ -460,7 +482,6 @@ namespace UiLogin {
         strncpy(data->password, password.c_str(), 256);
         P.add_action(ACTION_LOGIN, data);
       }
-
       ImGui::EndDisabled();
       
       ImGui::SameLine();
