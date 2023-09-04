@@ -41,11 +41,6 @@
 
 typedef std::vector<struct escript_sprite>::iterator sprite_iterator;
 
-// TODO: remove this once CMake is the only build system on linux and windows
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
-#define BUILD_LUASOCKET
-#endif
-
 extern "C" {
 #include "lua.h"
 #include "lstate.h"

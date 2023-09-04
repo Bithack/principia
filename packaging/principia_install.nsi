@@ -1,6 +1,6 @@
 !include "MUI2.nsh"
 
-!define MUI_ICON "icon.ico"
+!define MUI_ICON "..\packaging\icon.ico"
 !define /ifndef VER_MAJOR 1
 !define /ifndef VER_MINOR 5
 !define /ifndef VER_BUILD 2
@@ -32,8 +32,8 @@ FunctionEnd
 !define MUI_ABORTWARNING
 !define MUI_UNABORTWARNING
 
-!define MUI_WELCOMEFINISHPAGE_BITMAP "installer\welcome.bmp"
-!define MUI_UNWELCOMEFINISHPAGE_BITMAP "installer\unwelcome.bmp"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "..\packaging\installer\welcome.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "..\packaging\installer\unwelcome.bmp"
 
 !define MUI_FINISHPAGE_RUN "$INSTDIR/principia.exe"
 !define MUI_FINISHPAGE_RUN_TEXT "Run Principia"

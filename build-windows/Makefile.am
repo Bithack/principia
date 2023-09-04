@@ -11,16 +11,15 @@ GLOBAL_FLAGS := -DGL_GLEXT_PROTOTYPES \
 				-DUNICODE \
 				-DTMS_FAST_MATH \
 				-DTMS_BACKEND_WINDOWS \
-				-DTMS_BACKEND_PC
+				-DTMS_BACKEND_PC -DBUILD_LUASOCKET
 
 TMS_PATH = ../src/tms
 ROOT = ../
 
 GLOBAL_FLAGS += -I../src/tms/backends/windows/ \
-    -I../src/src/ -I../src/ -I/usr/include/ \
+    -I../src/src/ -I../src/ \
     -mwindows -Dsrandom=srand -Drandom=rand -Dmain=SDL_main \
     -static-libgcc -static-libstdc++ \
-    -DGLEW_STATIC \
 	-I/mingw64/include/ \
 	-I/mingw64/include/freetype2 \
 	-I/mingw64/include/SDL2/ \
@@ -37,8 +36,7 @@ GLOBAL_FLAGS += -I../src/tms/backends/windows/ \
     -I/mingw64/include/gdk-pixbuf-2.0 \
     -I/mingw64/include/webp \
     -I/mingw64/include/atk-1.0 \
-	-I../src/lua/ -I../src/include/ \
-    -DLIBDEFLATE_DLL
+	-I../src/lua/
 
 principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
 
@@ -48,7 +46,7 @@ principia_LDADD = -L`pwd` -lopengl32 -lz \
     -lmingw32 -lws2_32 -lwinmm -luuid -loleaut32 -limm32 -lversion \
     -lole32 -luser32 \
     -lgtk-3 -lgdk-3 -lz -lgdi32 -limm32 -lshell32 -lole32 -luuid -lwinmm -ldwmapi -lsetupapi -lcfgmgr32 -lhid -lwinspool -lcomctl32 -lcomdlg32 -lpangowin32-1.0 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lintl \
-    -lcurl -lShlwapi -lpng -ljpeg -lfreetype -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf
+    -lcurl -lShlwapi -lpng -ljpeg -lfreetype -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lglew32
 
 principia_SOURCES = \
 principia.rc \
@@ -131,7 +129,6 @@ principia.rc \
 ../src/tms/util/hash.c \
 \
 ../src/tms/backends/windows/main.cc \
-../src/GLEW/glew.c \
 ../src/tms/bindings/cpp/cpp.cc \
 ../src/tms/modules/3ds.c \
 \

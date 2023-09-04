@@ -10,10 +10,7 @@
 
 #include "SDL_image.h"
 
-#ifdef TMS_BACKEND_WINDOWS
-#include <Winsock2.h> // FIXME: move this to an appropriate position..
-#endif
-
+#ifdef TMS_BACKEND_ANDROID
 #include <tms/util/packme.h>
 struct etc1_header {
     char tag[6];
@@ -24,7 +21,9 @@ struct etc1_header {
     uint16_t original_height;
 } PACKED;
 #include <tms/util/unpackme.h>
+#endif
 
+#ifdef TMS_BACKEND_IOS
 #include <tms/util/packme.h>
 struct pvrtc_header {
     uint32_t header_length;
@@ -42,6 +41,7 @@ struct pvrtc_header {
     uint32_t numsurfs;
 } PACKED;
 #include <tms/util/unpackme.h>
+#endif
 
 struct tms_texture*
 tms_texture_alloc(void)
@@ -165,6 +165,7 @@ int tms_texture_free_buffer(struct tms_texture *tex)
 int
 tms_texture_load_pvrtc_4bpp(struct tms_texture *tex, const char *filename)
 {
+#ifdef TMS_BACKEND_IOS
     SDL_RWops *rw = SDL_RWFromFile(filename, "rb");
 
     tms_infof("Load PVRTC 4BPP: %s", filename);
@@ -203,6 +204,8 @@ tms_texture_load_pvrtc_4bpp(struct tms_texture *tex, const char *filename)
     } else
         tms_errorf("Unable to open texture: '%s'", SDL_GetError());
 
+#endif
+
     return T_COULD_NOT_OPEN;
 }
 
@@ -213,6 +216,7 @@ int
 tms_texture_load_etc1(struct tms_texture *tex,
                       const char *filename)
 {
+#ifdef TMS_BACKEND_ANDROID
     SDL_RWops *rw = SDL_RWFromFile(filename,"rb");
 
     tms_infof("Load ETC1: %s", filename);
@@ -248,6 +252,8 @@ tms_texture_load_etc1(struct tms_texture *tex,
         return T_OK;
     } else
         tms_errorf("Unable to open texture: '%s'", SDL_GetError());
+
+#endif
 
     return T_COULD_NOT_OPEN;
 }

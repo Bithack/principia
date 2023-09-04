@@ -79,15 +79,32 @@ if(NOT SCREENSHOT_BUILD)
 	find_package(CURL REQUIRED)
 	find_package(GLEW REQUIRED)
 
-	# Luasocket
-	SET(LUASOCKET_FLAGS "-DBUILD_LUASOCKET -DLUASOCKET_INET_PTON")
-
 	include_directories(
-		src/luasocket/
 		${CURL_INCLUDE_DIR}
 		${GLEW_INCLUDE_DIRS}
 		${GTK3_INCLUDE_DIRS})
 
+	if(WIN32) # TODO: Fix Luasocket building on Windows
+		set(USE_LUASOCKET false)
+	else()
+		option(USE_LUASOCKET "Build with Luasocket support" TRUE)
+	endif()
+else()
+	set(USE_LUASOCKET false)
+endif()
+
+# Luasocket
+if(USE_LUASOCKET)
+	set(LUASOCKET_FLAGS "-DBUILD_LUASOCKET")
+
+	if(WIN32)
+		set(LUAROCKS_PLAT_SRC src/luasocket/wsocket.c)
+	else()
+		set(LUASOCKET_FLAGS "${LUASOCKET_FLAGS} -DLUASOCKET_INET_PTON")
+		set(LUAROCKS_PLAT_SRC
+			src/luasocket/usocket.c
+			src/luasocket/unix.c)
+	endif()
 	set(SRCS ${SRCS}
 		src/luasocket/auxiliar.c
 		src/luasocket/buffer.c
@@ -100,15 +117,29 @@ if(NOT SCREENSHOT_BUILD)
 		src/luasocket/select.c
 		src/luasocket/tcp.c
 		src/luasocket/timeout.c
-		src/luasocket/udp.c
-		src/luasocket/usocket.c
-		src/luasocket/unix.c)
+		src/luasocket/udp.c)
 endif()
 
 include_directories(src/tms/backends/${TMS_BACKEND}/)
 
 set(SRCS ${SRCS}
 	src/tms/backends/${TMS_BACKEND}/main.cc)
+
+if(WIN32)
+	set(WINRESOURCE_FILE "packaging/principia.rc")
+	set(WINMANIFEST_FILE "packaging/principia.manifest")
+
+	if(NOT CMAKE_RC_COMPILER)
+		set(CMAKE_RC_COMPILER "windres.exe")
+	endif()
+	ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/winresource.o
+		COMMAND ${CMAKE_RC_COMPILER} -I${CMAKE_CURRENT_SOURCE_DIR} -I${CMAKE_CURRENT_BINARY_DIR}
+		-i${WINRESOURCE_FILE}
+		-o ${CMAKE_CURRENT_BINARY_DIR}/winresource.o
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+		DEPENDS ${WINRESOURCE_FILE} ${WINMANIFEST_FILE})
+	SET(SRCS ${SRCS} ${CMAKE_CURRENT_BINARY_DIR}/winresource.o)
+endif()
 
 add_executable(${PROJECT_NAME} ${SRCS})
 target_link_libraries(
@@ -131,10 +162,12 @@ if(NOT SCREENSHOT_BUILD)
 			${GTK3_LIBRARIES})
 endif()
 
-set(COMMON_FLAGS "${LUASOCKET_FLAGS} -DGL_GLEXT_PROTOTYPES -DTMS_BACKEND_PC -DTMS_FAST_MATH -DLUA_COMPAT_MODULE -D__STDC_FORMAT_MACROS=1")
+set(COMMON_FLAGS "${LUASOCKET_FLAGS} -DGL_GLEXT_PROTOTYPES -DTMS_BACKEND_PC -DTMS_FAST_MATH -DLUA_COMPAT_MODULE -D__STDC_FORMAT_MACROS=1 -DUNICODE")
 
 if(WIN32)
-	set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_WINDOWS")
+	target_link_libraries(${PROJECT_NAME} ws2_32.lib version.lib shlwapi.lib winmm.lib)
+
+	set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_WINDOWS -D_WIN32_WINNT=0x0501 -mwindows -Dsrandom=srand -Drandom=rand")
 else()
 	if(SCREENSHOT_BUILD)
 		set(COMMON_FLAGS "${COMMON_FLAGS} -DNO_UI -DTMS_BACKEND_LINUX_SS")
