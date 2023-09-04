@@ -37,6 +37,14 @@ static void ImGui_CenterNextWindow() {
 namespace UiSandboxMenu  { static void open(); static void layout(); }
 namespace UiLevelManager { static void open(); static void layout(); }
 namespace UiLogin { static void open(); static void layout(); static void complete_login(int signal); }
+namespace UiMessage {
+  enum class MessageType {
+    Message,
+    Error
+  };
+  static void open(const char* msg, MessageType typ = MessageType::Message);
+  static void layout();
+}
 
 namespace UiSandboxMenu {
   static bool do_open = false;
@@ -502,10 +510,53 @@ namespace UiLogin {
   }
 }
 
+namespace UiMessage {
+  static bool do_open = false;
+  static std::string message {""};
+  static MessageType msg_type = MessageType::Error;
+  
+  static void open(const char* msg, MessageType typ /*=MessageType::Message*/) {
+    do_open = true;
+    msg_type = typ;
+    message.assign(msg);
+  }
+
+  static void layout() {
+    if (do_open) {
+      do_open = false;
+      ImGui::OpenPopup("###info-popup");
+    }
+    ImGui_CenterNextWindow();
+    const char* typ;
+    switch (msg_type) {
+      case MessageType::Message:
+        typ = "Message###info-popup";
+        break;
+      
+      case MessageType::Error:
+        typ = "Error###info-popup";
+        break;
+    }
+    ImGui::SetNextWindowSize(ImVec2(400., 0.));
+    if (ImGui::BeginPopupModal(typ, NULL, MODAL_FLAGS)) {
+      ImGui::TextWrapped("%s", message.c_str());
+      if (ImGui::Button("Close")) {
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Copy to clipboard")) {
+        ImGui::SetClipboardText(message.c_str());
+      }
+      ImGui::EndPopup();
+    }
+  }
+}
+
 static void ui_layout() {
   UiSandboxMenu::layout();
   UiLevelManager::layout();
   UiLogin::layout();
+  UiMessage::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -625,8 +676,7 @@ void ui::set_next_action(int action_id) {
 }
 
 void ui::open_error_dialog(const char *error_msg) {
-  //TODO
-  tms_errorf("ui::open_error_dialog not implemented yet");
+  UiMessage::open(error_msg, UiMessage::MessageType::Error);
 }
 
 void ui::confirm(
