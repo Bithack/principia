@@ -84,11 +84,7 @@ if(NOT SCREENSHOT_BUILD)
 		${GLEW_INCLUDE_DIRS}
 		${GTK3_INCLUDE_DIRS})
 
-	if(WIN32) # TODO: Fix Luasocket building on Windows
-		set(USE_LUASOCKET false)
-	else()
-		option(USE_LUASOCKET "Build with Luasocket support" TRUE)
-	endif()
+	option(USE_LUASOCKET "Build with Luasocket support" TRUE)
 else()
 	set(USE_LUASOCKET false)
 endif()
@@ -98,10 +94,10 @@ if(USE_LUASOCKET)
 	set(LUASOCKET_FLAGS "-DBUILD_LUASOCKET")
 
 	if(WIN32)
-		set(LUAROCKS_PLAT_SRC src/luasocket/wsocket.c)
+		set(LUASOCKET_PLAT_SRC src/luasocket/wsocket.c)
 	else()
 		set(LUASOCKET_FLAGS "${LUASOCKET_FLAGS} -DLUASOCKET_INET_PTON")
-		set(LUAROCKS_PLAT_SRC
+		set(LUASOCKET_PLAT_SRC
 			src/luasocket/usocket.c
 			src/luasocket/unix.c)
 	endif()
@@ -117,7 +113,8 @@ if(USE_LUASOCKET)
 		src/luasocket/select.c
 		src/luasocket/tcp.c
 		src/luasocket/timeout.c
-		src/luasocket/udp.c)
+		src/luasocket/udp.c
+		${LUASOCKET_PLAT_SRC})
 endif()
 
 include_directories(src/tms/backends/${TMS_BACKEND}/)
