@@ -418,6 +418,8 @@ namespace UiLogin {
         break;
       case SIGNAL_LOGIN_FAILED:
         login_status = LoginStatus::Failure;
+        P.user_id = 0;
+        P.username = nullptr;
         break;
     }
   }
