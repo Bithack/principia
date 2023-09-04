@@ -80,9 +80,9 @@ namespace UiSandboxMenu {
         ImGui::Text("%s (g_id: %d)", sent->get_name(), sent->g_id);
         ImGui::Text("ID: %d", sent->id);
         ImGui::Text("Position: (%.2f, %.2f)", sent_pos.x, sent_pos.y);
-        if ((sent->dialog_id > 0) && ImGui::MenuItem("Configure...")) {
-          ui::open_dialog(sent->dialog_id);
-        }
+        // if ((sent->dialog_id > 0) && ImGui::MenuItem("Configure...")) {
+        //   ui::open_dialog(sent->dialog_id);
+        // }
         if (ImGui::MenuItem("> Move to cursor")) {
           G->selection.e->set_position(sb_position);
         };
@@ -153,7 +153,7 @@ namespace UiSandboxMenu {
       }
 
       ImGui::Separator();
-      
+
       if (ImGui::MenuItem("Back to menu")) {
         P.add_action(ACTION_GOTO_MAINMENU, 0);
       };
