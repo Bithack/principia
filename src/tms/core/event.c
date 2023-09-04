@@ -151,7 +151,7 @@ tms_event_process_all(struct tms_screen *s)
     for (int x=0; x<num_events; x++) {
         for (int i = 0; i < num_raw_handlers; i++) {
             if (raw_handlers[i](&events[x]) == T_OK) {
-                goto cont_outer;
+                goto continue_outer;
             }
         }
         if (s->spec->input) {
@@ -159,7 +159,7 @@ tms_event_process_all(struct tms_screen *s)
                 s->spec->input(s, &events[x], 0);
             }
         }
-        cont_outer:
+        continue_outer: continue;
     }
 
     num_events = 0;
