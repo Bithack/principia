@@ -183,6 +183,9 @@ struct tms_event {
 int tms_event_push(struct tms_event in);
 int tms_event_process_all(struct tms_screen *s);
 
+typedef int (*tms_event_handler)(struct tms_event*);
+int tms_event_register_raw(tms_event_handler);
+
 #ifdef __cplusplus
 }
 #endif

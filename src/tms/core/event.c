@@ -7,6 +7,7 @@
 #include "tms/util/util.h"
 
 #define MAX_EVENTS 1024
+#define MAX_RAW_HANDLERS 16
 
 #define NUM_CODES 232
 const char *codes[NUM_CODES] = {
@@ -116,6 +117,18 @@ const char *codes[NUM_CODES] = {
     "RIGHT_META", /* 231 */
 };
 
+static tms_event_handler raw_handlers[MAX_RAW_HANDLERS];
+static int num_raw_handlers;
+
+int tms_event_register_raw(tms_event_handler handler) {
+    if (num_raw_handlers >= MAX_RAW_HANDLERS) {
+        tms_errorf("MAX_RAW_HANDLERS reached");
+        return T_ERR;
+    }
+    raw_handlers[num_raw_handlers++] = handler;
+    return T_OK;
+}
+
 static struct tms_event events[MAX_EVENTS];
 static int num_events = 0;
 
@@ -135,10 +148,16 @@ tms_event_push(struct tms_event ev)
 int
 tms_event_process_all(struct tms_screen *s)
 {
-    if (s->spec->input) {
-        for (int x=0; x<num_events; x++) {
-            if (tms_screen_handle_input(s, &events[x], 0) == T_CONT)
+    for (int x=0; x<num_events; x++) {
+        for (int i = 0; i < num_raw_handlers; i++) {
+            if (raw_handlers[i](&events[x]) == T_OK) {
+                continue;
+            }
+        }
+        if (s->spec->input) {
+            if (tms_screen_handle_input(s, &events[x], 0) == T_CONT) {
                 s->spec->input(s, &events[x], 0);
+            }
         }
     }
 
@@ -146,4 +165,3 @@ tms_event_process_all(struct tms_screen *s)
 
     return T_OK;
 }
-
