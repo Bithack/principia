@@ -10,6 +10,9 @@
 #include "imgui_impl_opengl3.h"
 #include "ui_imgui_impl_tms.hh"
 
+//CONFIG
+#define EXPERIMENTAL_UISCALE_NO_RELOAD
+
 //STUFF
 static uint64_t __ref;
 #define REF_FZERO ((float*) &(__ref = 0))
@@ -21,6 +24,7 @@ static uint64_t __ref;
 
 //HELPER FUNCTIONS
 
+//some random SO post
 template<typename ... Args>
 std::string string_format(const std::string& format, Args ... args) {
   int size_s = std::snprintf(nullptr, 0, format.c_str(), args ...) + 1;
@@ -597,8 +601,26 @@ namespace UiSettings {
     "muted",
     //INTERFACE
     "display_fps",
+    "uiscale",
     NULL
   };
+
+  static void on_before_apply() {
+    tms_infof("Preparing to reload stuff later...");
+#if defined(EXPERIMENTAL_UISCALE_NO_RELOAD)
+    _tms.xppcm /= settings["uiscale"]->v.f;
+    _tms.yppcm /= settings["uiscale"]->v.f;
+#endif
+  }
+
+  static void on_after_apply() {
+    tms_infof("Now, reloading some stuff (as promised!)...");
+    sm::load_settings();
+#if defined(EXPERIMENTAL_UISCALE_NO_RELOAD)
+    _tms.xppcm *= settings["uiscale"]->v.f;
+    _tms.yppcm *= settings["uiscale"]->v.f;
+#endif
+  }
 
   static void save_thread() {
     tms_debugf("inside save_thread()");
@@ -608,13 +630,13 @@ namespace UiSettings {
       SDL_Delay(1);
     }
     tms_debugf("Ok, ready, saving...");
+    on_before_apply();
     for (size_t i = 0; copy_settings[i] != NULL; i++) {
       tms_infof("writing setting %s", copy_settings[i])
       memcpy(settings[copy_settings[i]], local_settings[copy_settings[i]], sizeof(setting));
     }
     tms_assertf(settings.save(), "Unable to save settings.");
-    tms_infof("Now, reloading some stuff...");
-    sm::load_settings();
+    on_after_apply();
     tms_infof("Successfully saved settings, returning...");
     P.can_reload_graphics = true;
     is_saving = false;
@@ -777,6 +799,9 @@ namespace UiSettings {
           ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Interface")) {
+          std::string display_value = string_format("%.01f", local_settings["uiscale"]->v.f);
+          ImGui::SliderFloat("UI Scale", &local_settings["uiscale"]->v.f, 0.2, 2., display_value.c_str());
+          local_settings["uiscale"]->v.f = (local_settings["uiscale"]->v.f * (int)10) * 0.1f;
           ImGui::Checkbox("Display FPS", (bool*) &local_settings["display_fps"]->v.u8);
           ImGui::EndTabItem();
         }
