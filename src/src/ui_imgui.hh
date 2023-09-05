@@ -11,13 +11,25 @@
 #include "ui_imgui_impl_tms.hh"
 
 //STUFF
-static bool __ec9f6917_ref;
-#define REF_TRUE &(__ec9f6917_ref = true)
-#define REF_FALSE &(__ec9f6917_ref = false)
+static uint64_t __ref;
+#define REF_FZERO ((float*) &(__ref = 0))
+#define REF_IZERO ((int*) &(__ref = 0))
+#define REF_TRUE ((bool*) &(__ref = 1))
+#define REF_FALSE ((bool*) &(__ref = 0))
 
 #define MODAL_FLAGS (ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)
 
 //HELPER FUNCTIONS
+
+template<typename ... Args>
+std::string string_format(const std::string& format, Args ... args) {
+  int size_s = std::snprintf(nullptr, 0, format.c_str(), args ...) + 1;
+  if( size_s <= 0 ){ throw std::runtime_error("Error during formatting."); }
+  auto size = static_cast<size_t>(size_s);
+  std::unique_ptr<char[]> buf(new char[size]);
+  std::snprintf(buf.get(), size, format.c_str(), args ...);
+  return std::string(buf.get(), buf.get() + size - 1);
+}
 
 static bool lax_search(const std::string& where, const std::string& what) {
   return std::search(
@@ -157,7 +169,7 @@ namespace UiSandboxMenu {
         };
         ImGui::PopID();
       } else {
-        if (ImGui::MenuItem("Log in")) {
+        if (ImGui::MenuItem("Log in...")) {
           UiLogin::open();
         };
       }
@@ -579,27 +591,34 @@ namespace UiSettings {
     "enable_bloom",
     "vsync",
     "gamma_correct",
+    "volume",
+    "muted",
     NULL
   };
 
   static void save_thread() {
+    tms_debugf("inside save_thread()");
+    tms_infof("Waiting for can_set_settings...");
     while (!P.can_set_settings) {
       tms_debugf("Waiting for can_set_settings...");
       SDL_Delay(1);
     }
     tms_debugf("Ok, ready, saving...");
     for (size_t i = 0; copy_settings[i] != NULL; i++) {
-      tms_infof("writing setting %s", copy_settings[i]);
-      settings[copy_settings[i]] = local_settings[copy_settings[i]];
+      tms_infof("writing setting %s", copy_settings[i])
+      memcpy(settings[copy_settings[i]], local_settings[copy_settings[i]], sizeof(setting));
     }
     tms_assertf(settings.save(), "Unable to save settings.");
+    tms_infof("Now, reloading some stuff...");
+    sm::load_settings();
     tms_infof("Successfully saved settings, returning...");
     P.can_reload_graphics = true;
     is_saving = false;
+    tms_debugf("save_thread() completed");
   }
 
   static void save_settings() {
-    tms_infof("Saving...");
+    tms_infof("Saving settings...");
     is_saving = true;
     P.can_reload_graphics = false;
     P.can_set_settings = false;
@@ -609,10 +628,17 @@ namespace UiSettings {
   }
 
   static void read_settings() {
+    tms_infof("Reading settings...");
+    for (auto& it: local_settings) {
+      tms_debugf("free %s", it.first);
+      free((void*) local_settings[it.first]);
+    }
     local_settings.clear();
     for (size_t i = 0; copy_settings[i] != NULL; i++) {
-      tms_infof("reading setting %s", copy_settings[i]);
-      local_settings[copy_settings[i]] = settings[copy_settings[i]];
+      tms_debugf("reading setting %s", copy_settings[i]);
+      setting *heap_setting = new setting;
+      memcpy(heap_setting, settings[copy_settings[i]], sizeof(setting));
+      local_settings[copy_settings[i]] = heap_setting;
     }
   }
   
@@ -621,6 +647,43 @@ namespace UiSettings {
     is_saving = false;
     if_done = IfDone::Nothing;
     read_settings();
+  }
+
+  static void im_resolution_picker(
+    std::string friendly_name,
+    const char *setting_x,
+    const char *setting_y,
+    const char* items[],
+    int32_t items_x[],
+    int32_t items_y[]
+  ) {
+    int item_count = 0;
+    while (items[item_count] != NULL) { item_count++; }
+    item_count++; //to overwrite the terminator
+    
+    std::string cust = string_format("%dx%d", local_settings[setting_x]->v.i, local_settings[setting_y]->v.i);
+    items_x[item_count - 1] = local_settings[setting_x]->v.i;
+    items_y[item_count - 1] = local_settings[setting_y]->v.i;
+    items[item_count - 1] = cust.c_str();
+
+    int item_current = item_count - 1;
+    for (int i = 0; i < item_count; i++) {
+      if (
+        (items_x[i] == local_settings[setting_x]->v.i) &&
+        (items_y[i] == local_settings[setting_y]->v.i)
+      ) {
+        item_current = i;
+        break;
+      }
+    }
+    
+    ImGui::PushID(friendly_name.c_str());
+    ImGui::TextUnformatted(friendly_name.c_str());
+    ImGui::Combo("###combo", &item_current, items, (std::max)(item_count - 1, item_current + 1));
+    ImGui::PopID();
+
+    local_settings[setting_x]->v.i = items_x[item_current];
+    local_settings[setting_y]->v.i = items_y[item_current];
   }
 
   static void layout() {
@@ -640,34 +703,70 @@ namespace UiSettings {
       }
       if (ImGui::BeginTabBar("###settings-tabbbar")) {
         if (ImGui::BeginTabItem("Graphics")) {
+          // ImGui::BeginTable("###graphics-settings", 2);
+          // ImGui::TableNextColumn();
+
+          ImGui::SeparatorText("Shadows");
           ImGui::Checkbox("Enable shadows", (bool*) &local_settings["enable_shadows"]->v.b);
           ImGui::BeginDisabled(!local_settings["enable_shadows"]->v.b);
           ImGui::Checkbox("Smooth shadows", (bool*) &local_settings["shadow_quality"]->v.u8);
           {
-            const char* items[] = { "2048x2048", "2048x1024", "1024x1024", "1024x512", "512x512", "512x256", "128x128", "(other)" };
-            const int32_t items_x[] = { 2048, 2048, 1024, 1024, 512, 512, 128, local_settings["shadow_map_resx"]->v.i };
-            const int32_t items_y[] = { 2048, 1024, 1024, 512,  512, 256, 128, local_settings["shadow_map_resy"]->v.i };
-            int item_current = IM_ARRAYSIZE(items) - 1;
-            for (int i = 0; i < IM_ARRAYSIZE(items); i++) {
-              if (
-                (items_x[i] == local_settings["shadow_map_resx"]->v.i) &&
-                (items_y[i] == local_settings["shadow_map_resy"]->v.i)
-              ) {
-                item_current = i;
-                break;
-              }
-            }
-            int show_amount = (item_current == IM_ARRAYSIZE(items) - 1) ? IM_ARRAYSIZE(items) : (IM_ARRAYSIZE(items) - 1);
-            ImGui::TextUnformatted("Shadow resolution");
-            ImGui::Combo("##ShadowRes", &item_current, items, show_amount);
-            local_settings["shadow_map_resx"]->v.i = items_x[item_current];
-            local_settings["shadow_map_resy"]->v.i = items_y[item_current];
+            const char* resolutions[] = { "2048x2048", "2048x1024", "1024x1024", "1024x512", "512x512", "512x256", "128x128", NULL };
+            int32_t values_x[] = { 2048, 2048, 1024, 1024, 512, 512, 128, -1 };
+            int32_t values_y[] = { 2048, 1024, 1024, 512,  512, 256, 128, -1 };
+            im_resolution_picker(
+              "Shadow resolution",
+              "shadow_map_resx",
+              "shadow_map_resy",
+              resolutions,
+              values_x,
+              values_y
+            );
           }
           ImGui::EndDisabled();
+
+          ImGui::SeparatorText("Ambient Occlusion");
+          ImGui::Checkbox("Enable AO", (bool*) &local_settings["enable_ao"]->v.b);
+          {
+            const char* resolutions[] = { "512x512", "256x256", "128x128", NULL };
+            int32_t values[] = { 512, 256, 128, -1 };
+            im_resolution_picker(
+              "AO resolution",
+              "ao_map_res",
+              "ao_map_res",
+              resolutions,
+              values,
+              values
+            );
+          }
+
+          ImGui::SeparatorText("Post-processing");
+          ImGui::Checkbox("Enable bloom", (bool*) &local_settings["enable_bloom"]->v.b);
+          ImGui::Checkbox("Gamma correction", (bool*) &local_settings["gamma_correct"]->v.b);
+
+          ImGui::SeparatorText("Display");
+          ImGui::Checkbox("Enable V-Sync", (bool*) &local_settings["vsync"]->v.b);
 
           ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Sound")) {
+          ImGui::BeginDisabled(local_settings["muted"]->v.b);
+          ImGui::TextUnformatted("Volume");
+          ImGui::SliderFloat(
+            "###volume-slider",
+            local_settings["muted"]->v.b ? REF_FZERO : ((float*) &local_settings["volume"]->v.f),
+            0.f, 1.f
+          );
+          if (ImGui::IsItemDeactivatedAfterEdit()) {
+            float volume = sm::volume;
+            sm::volume = local_settings["volume"]->v.f;
+            sm::play(&sm::click, sm::position.x, sm::position.y, rand(), 1., false, 0, true);
+            sm::volume = volume;
+          }
+          ImGui::EndDisabled();
+          
+          ImGui::Checkbox("Mute", (bool*) &local_settings["muted"]->v.b);
+          
           ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Controls")) {
@@ -797,8 +896,18 @@ void ui::open_sandbox_tips() {
 }
 
 void ui::open_url(const char *url) {
-  //TODO
-  tms_errorf("ui::open_url not implemented yet");
+  tms_infof("open url: %s", url);
+  #if SDL_VERSION_ATLEAST(2,0,14)
+    SDL_OpenURL(url);
+  #elif defined(TMS_BACKEND_LINUX)
+    #warning "Please upgrade to SDL 2.0.14"
+    if (fork() == 0) {
+      execlp("xdg-open", "xdg-open", url, NULL);
+      _exit(0);
+    }
+  #else
+    #error "SDL2 2.0.14+ is required"
+  #endif
 }
 
 void ui::open_help_dialog(const char* title, const char* description, bool enable_markup) {
