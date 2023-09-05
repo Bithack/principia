@@ -711,9 +711,9 @@ namespace UiSettings {
           ImGui::BeginDisabled(!local_settings["enable_shadows"]->v.b);
           ImGui::Checkbox("Smooth shadows", (bool*) &local_settings["shadow_quality"]->v.u8);
           {
-            const char* resolutions[] = { "2048x2048", "2048x1024", "1024x1024", "1024x512", "512x512", "512x256", "128x128", NULL };
-            int32_t values_x[] = { 2048, 2048, 1024, 1024, 512, 512, 128, -1 };
-            int32_t values_y[] = { 2048, 1024, 1024, 512,  512, 256, 128, -1 };
+            const char* resolutions[] = { "2048x2048", "2048x1024", "1024x1024", "1024x512", "512x512", "512x256", NULL };
+            int32_t values_x[] = { 2048, 2048, 1024, 1024, 512, 512, -1 };
+            int32_t values_y[] = { 2048, 1024, 1024, 512,  512, 256, -1 };
             im_resolution_picker(
               "Shadow resolution",
               "shadow_map_resx",
