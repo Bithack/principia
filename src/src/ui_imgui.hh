@@ -558,7 +558,13 @@ namespace UiMessage {
 namespace UiSettings {
   static bool do_open = false;
 
-  static bool exit_if_done = false;
+  enum class IfDone {
+    Nothing,
+    Exit,
+    Reload,
+  };
+
+  static IfDone if_done = IfDone::Nothing;
   static bool is_saving = false;
 
   static std::unordered_map<const char*, setting*> local_settings;
@@ -576,7 +582,7 @@ namespace UiSettings {
     NULL
   };
 
-  static void save_loop() {
+  static void save_thread() {
     while (!P.can_set_settings) {
       tms_debugf("Waiting for can_set_settings...");
       SDL_Delay(1);
@@ -591,17 +597,30 @@ namespace UiSettings {
     P.can_reload_graphics = true;
     is_saving = false;
   }
-  
-  static void open() {
-    do_open = true;
-    is_saving = false;
-    exit_if_done = false;
+
+  static void save_settings() {
+    tms_infof("Saving...");
+    is_saving = true;
+    P.can_reload_graphics = false;
+    P.can_set_settings = false;
+    P.add_action(ACTION_RELOAD_GRAPHICS, 0);
+    std::thread thread(save_thread);
+    thread.detach();
+  }
+
+  static void read_settings() {
     local_settings.clear();
-    //local_settings.reserve();
     for (size_t i = 0; copy_settings[i] != NULL; i++) {
       tms_infof("reading setting %s", copy_settings[i]);
       local_settings[copy_settings[i]] = settings[copy_settings[i]];
     }
+  }
+  
+  static void open() {
+    do_open = true;
+    is_saving = false;
+    if_done = IfDone::Nothing;
+    read_settings();
   }
 
   static void layout() {
@@ -611,16 +630,39 @@ namespace UiSettings {
     }
     ImGui_CenterNextWindow();
     if (ImGui::BeginPopupModal("Settings", is_saving ? NULL : REF_TRUE, MODAL_FLAGS)) {
-      if (exit_if_done && !is_saving) {
+      if ((if_done == IfDone::Exit) && !is_saving) {
         ImGui::CloseCurrentPopup();
         ImGui::EndPopup();
         return;
+      } else if ((if_done == IfDone::Reload) && !is_saving) {
+        if_done = IfDone::Nothing;
+        read_settings();
       }
       if (ImGui::BeginTabBar("###settings-tabbbar")) {
         if (ImGui::BeginTabItem("Graphics")) {
           ImGui::Checkbox("Enable shadows", (bool*) &local_settings["enable_shadows"]->v.b);
           ImGui::BeginDisabled(!local_settings["enable_shadows"]->v.b);
           ImGui::Checkbox("Smooth shadows", (bool*) &local_settings["shadow_quality"]->v.u8);
+          {
+            const char* items[] = { "2048x2048", "2048x1024", "1024x1024", "1024x512", "512x512", "512x256", "128x128", "(other)" };
+            const int32_t items_x[] = { 2048, 2048, 1024, 1024, 512, 512, 128, local_settings["shadow_map_resx"]->v.i };
+            const int32_t items_y[] = { 2048, 1024, 1024, 512,  512, 256, 128, local_settings["shadow_map_resy"]->v.i };
+            int item_current = IM_ARRAYSIZE(items) - 1;
+            for (int i = 0; i < IM_ARRAYSIZE(items); i++) {
+              if (
+                (items_x[i] == local_settings["shadow_map_resx"]->v.i) &&
+                (items_y[i] == local_settings["shadow_map_resy"]->v.i)
+              ) {
+                item_current = i;
+                break;
+              }
+            }
+            int show_amount = (item_current == IM_ARRAYSIZE(items) - 1) ? IM_ARRAYSIZE(items) : (IM_ARRAYSIZE(items) - 1);
+            ImGui::TextUnformatted("Shadow resolution");
+            ImGui::Combo("##ShadowRes", &item_current, items, show_amount);
+            local_settings["shadow_map_resx"]->v.i = items_x[item_current];
+            local_settings["shadow_map_resy"]->v.i = items_y[item_current];
+          }
           ImGui::EndDisabled();
 
           ImGui::EndTabItem();
@@ -636,25 +678,18 @@ namespace UiSettings {
         }
         ImGui::EndTabBar();
 
+        ImGui::Separator();
+        
         ImGui::BeginDisabled(is_saving);
         bool do_save = false;
         if (ImGui::Button("Apply")) {
-          do_save = true;
-          exit_if_done = false;
+          if_done = IfDone::Reload;
+          save_settings();
         }
         ImGui::SameLine();
         if (ImGui::Button("Save")) {
-          do_save = true;
-          exit_if_done = true;
-        }
-        if (do_save) {
-          tms_infof("Saving...");
-          is_saving = true;
-          P.can_reload_graphics = false;
-          P.can_set_settings = false;
-          P.add_action(ACTION_RELOAD_GRAPHICS, 0);
-          std::thread t1(save_loop);
-          t1.detach();
+          if_done = IfDone::Exit;
+          save_settings();
         }
         ImGui::EndDisabled();
       }
