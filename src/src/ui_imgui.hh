@@ -284,6 +284,9 @@ namespace UiLevelManager {
         
         //Actual level name field
         ImGui::PushItemWidth(200.);
+        if (ImGui::IsWindowAppearing()) {
+          ImGui::SetKeyboardFocusHere();
+        }
         ImGui::InputTextWithHint("##LvlmanLevelName", "Search levels", &search_query);
         ImGui::PopItemWidth();
       }
