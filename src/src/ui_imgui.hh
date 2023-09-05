@@ -1,4 +1,6 @@
 #include <string>
+#include <thread>
+#include <unordered_map>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <SDL_syswm.h>
@@ -45,6 +47,7 @@ namespace UiMessage {
   static void open(const char* msg, MessageType typ = MessageType::Message);
   static void layout();
 }
+namespace UiSettings { static void open(); static void layout(); }
 
 namespace UiSandboxMenu {
   static bool do_open = false;
@@ -159,8 +162,8 @@ namespace UiSandboxMenu {
         };
       }
 
-      if (ImGui::MenuItem("Settings")) {
-        //TODO
+      if (ImGui::MenuItem("Settings...")) {
+        UiSettings::open();
       }
 
       ImGui::Separator();
@@ -552,11 +555,120 @@ namespace UiMessage {
   }
 }
 
+namespace UiSettings {
+  static bool do_open = false;
+
+  static bool exit_if_done = false;
+  static bool is_saving = false;
+
+  static std::unordered_map<const char*, setting*> local_settings;
+
+  static const char* copy_settings[] = {
+    "enable_shadows",
+    "shadow_quality",
+    "shadow_map_resx",
+    "shadow_map_resy",
+    "enable_ao",
+    "ao_map_res",
+    "enable_bloom",
+    "vsync",
+    "gamma_correct",
+    NULL
+  };
+
+  static void save_loop() {
+    while (!P.can_set_settings) {
+      tms_debugf("Waiting for can_set_settings...");
+      SDL_Delay(1);
+    }
+    tms_debugf("Ok, ready, saving...");
+    for (size_t i = 0; copy_settings[i] != NULL; i++) {
+      tms_infof("writing setting %s", copy_settings[i]);
+      settings[copy_settings[i]] = local_settings[copy_settings[i]];
+    }
+    tms_assertf(settings.save(), "Unable to save settings.");
+    tms_infof("Successfully saved settings, returning...");
+    P.can_reload_graphics = true;
+    is_saving = false;
+  }
+  
+  static void open() {
+    do_open = true;
+    is_saving = false;
+    exit_if_done = false;
+    local_settings.clear();
+    //local_settings.reserve();
+    for (size_t i = 0; copy_settings[i] != NULL; i++) {
+      tms_infof("reading setting %s", copy_settings[i]);
+      local_settings[copy_settings[i]] = settings[copy_settings[i]];
+    }
+  }
+
+  static void layout() {
+    if (do_open) {
+      do_open = false;
+      ImGui::OpenPopup("Settings");
+    }
+    ImGui_CenterNextWindow();
+    if (ImGui::BeginPopupModal("Settings", is_saving ? NULL : REF_TRUE, MODAL_FLAGS)) {
+      if (exit_if_done && !is_saving) {
+        ImGui::CloseCurrentPopup();
+        ImGui::EndPopup();
+        return;
+      }
+      if (ImGui::BeginTabBar("###settings-tabbbar")) {
+        if (ImGui::BeginTabItem("Graphics")) {
+          ImGui::Checkbox("Enable shadows", (bool*) &local_settings["enable_shadows"]->v.b);
+          ImGui::BeginDisabled(!local_settings["enable_shadows"]->v.b);
+          ImGui::Checkbox("Smooth shadows", (bool*) &local_settings["shadow_quality"]->v.u8);
+          ImGui::EndDisabled();
+
+          ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Sound")) {
+          ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Controls")) {
+          ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Interface")) {
+          ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+
+        ImGui::BeginDisabled(is_saving);
+        bool do_save = false;
+        if (ImGui::Button("Apply")) {
+          do_save = true;
+          exit_if_done = false;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Save")) {
+          do_save = true;
+          exit_if_done = true;
+        }
+        if (do_save) {
+          tms_infof("Saving...");
+          is_saving = true;
+          P.can_reload_graphics = false;
+          P.can_set_settings = false;
+          P.add_action(ACTION_RELOAD_GRAPHICS, 0);
+          std::thread t1(save_loop);
+          t1.detach();
+        }
+        ImGui::EndDisabled();
+      }
+      ImGui::EndPopup();
+    }
+  }
+}
+
 static void ui_layout() {
   UiSandboxMenu::layout();
   UiLevelManager::layout();
   UiLogin::layout();
   UiMessage::layout();
+  UiSettings::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -635,6 +747,9 @@ void ui::open_dialog(int num, void *data) {
       break;
     case DIALOG_LOGIN:
       UiLogin::open();
+      break;
+    case DIALOG_SETTINGS:
+      UiSettings::open();
       break;
     default:
       tms_errorf("dialog %d not implemented yet", num);
