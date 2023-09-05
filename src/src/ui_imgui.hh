@@ -484,27 +484,21 @@ namespace UiLogin {
         (login_status == LoginStatus::Success)
       );
 
-      // bool username_red = !req_username_len && username.length();
-      // if (username_red) ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
       if (ImGui::IsWindowAppearing()) {
         ImGui::SetKeyboardFocusHere();
       }
-      ImGui::InputTextWithHint("###username", "Username", &username);
-      // if (username_red)ImGui::PopStyleColor();
-
-      // bool password_red = !req_pass_len && password.length();
-      // if (password_red) ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
-      ImGui::InputTextWithHint("###password", "Password", &password, ImGuiInputTextFlags_Password);
-      // if (password_red) ImGui::PopStyleColor();
+      bool activate = false;
+      activate |= ImGui::InputTextWithHint("###username", "Username", &username, ImGuiInputTextFlags_EnterReturnsTrue);
+      activate |= ImGui::InputTextWithHint("###password", "Password", &password, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_Password);
 
       ImGui::EndDisabled();
 
-      ImGui::BeginDisabled(
-        (login_status == LoginStatus::LoggingIn) ||
-        (login_status == LoginStatus::Success) ||
-        !(req_pass_len && req_username_len)
-      );
-      if (ImGui::Button("Log in...")) {
+      bool can_submit =
+        (login_status != LoginStatus::LoggingIn) &&
+        (login_status != LoginStatus::Success) &&
+        (req_pass_len && req_username_len);
+      ImGui::BeginDisabled(!can_submit);
+      if (ImGui::Button("Log in...") || (can_submit && activate)) {
         login_status = LoginStatus::LoggingIn;
         login_data *data = new login_data;
         strncpy(data->username, username.c_str(), 256);
