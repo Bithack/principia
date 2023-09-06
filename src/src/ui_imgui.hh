@@ -1098,7 +1098,14 @@ void ui::open_help_dialog(const char* title, const char* description, bool enabl
 void ui::emit_signal(int num, void *data){
   switch (num) {
     case SIGNAL_LOGIN_SUCCESS:
+      UiLogin::complete_login(num);
+      if (ui::next_action != ACTION_IGNORE) {
+        P.add_action(ui::next_action, 0);
+        ui::next_action = ACTION_IGNORE;
+      }
+      break;
     case SIGNAL_LOGIN_FAILED:
+      ui::next_action = ACTION_IGNORE;
       UiLogin::complete_login(num);
       break;
   }
