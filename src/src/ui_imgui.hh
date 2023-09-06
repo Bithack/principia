@@ -59,7 +59,15 @@ static void ImGui_CenterNextWindow() {
   );
 }
 
+static void handle_do_open(bool *do_open, const char* name) {
+  if (*do_open) {
+    *do_open = false;
+    ImGui::OpenPopup(name);
+  }
+}
+
 namespace UiSandboxMenu  { static void open(); static void layout(); }
+namespace UiPlayMenu { static void open(); static void layout(); }
 namespace UiLevelManager { static void open(); static void layout(); }
 namespace UiLogin { static void open(); static void layout(); static void complete_login(int signal); }
 namespace UiMessage {
@@ -80,10 +88,7 @@ namespace UiSandboxMenu {
   }
 
   static void layout() {
-    if (do_open) {
-      do_open = false;
-      ImGui::OpenPopup("sandbox_menu");
-    }
+    handle_do_open(&do_open, "sandbox_menu");
     if (ImGui::BeginPopup("sandbox_menu", ImGuiWindowFlags_NoMove)) {
       //True if current level can be saved as a copy
       //Saves can only be created if current level state is sandbox
@@ -197,6 +202,29 @@ namespace UiSandboxMenu {
   }
 };
 
+namespace UiPlayMenu {
+  static bool do_open = false;
+
+  static void open() {
+    do_open = true;
+  }
+
+  static void layout() {
+    handle_do_open(&do_open, "play_menu");
+    if (ImGui::BeginPopup("play_menu", ImGuiWindowFlags_NoMove)) {
+      if (ImGui::MenuItem("Controls")) {
+        G->render_controls = true;
+      }
+      if (ImGui::MenuItem("Restart")) {
+        P.add_action(ACTION_RESTART_LEVEL, 0);
+      }
+      if (ImGui::MenuItem("Back")) {
+        P.add_action(ACTION_BACK, 0);
+      }
+      ImGui::EndMenu();
+    }
+  }
+}
 
 namespace UiLevelManager {
   struct lvlinfo_ext {
@@ -262,10 +290,7 @@ namespace UiLevelManager {
 
   static void layout() {
     ImGuiIO& io = ImGui::GetIO();
-    if (do_open) {
-      do_open = false;
-      ImGui::OpenPopup("Level Manager");
-    }
+    handle_do_open(&do_open, "Level Manager");
     ImGui_CenterNextWindow();
     ImGui::SetNextWindowSize(ImVec2(800., 0.));
     if (ImGui::BeginPopupModal("Level Manager", REF_TRUE, MODAL_FLAGS)) {
@@ -468,10 +493,7 @@ namespace UiLogin {
   }
 
   static void layout() {
-    if (do_open) {
-      do_open = false;
-      ImGui::OpenPopup("Log in");
-    }
+    handle_do_open(&do_open, "Log in");
     ImGui_CenterNextWindow();
     //Only allow closing the window if a login attempt is not in progress
     bool *allow_closing = (login_status != LoginStatus::LoggingIn) ? REF_TRUE : NULL;
@@ -545,10 +567,7 @@ namespace UiMessage {
   }
 
   static void layout() {
-    if (do_open) {
-      do_open = false;
-      ImGui::OpenPopup("###info-popup");
-    }
+    handle_do_open(&do_open, "###info-popup");
     ImGui_CenterNextWindow();
     const char* typ;
     switch (msg_type) {
@@ -730,10 +749,7 @@ namespace UiSettings {
   }
 
   static void layout() {
-    if (do_open) {
-      do_open = false;
-      ImGui::OpenPopup("Settings");
-    }
+    handle_do_open(&do_open, "Settings");
     ImGui_CenterNextWindow();
     if (ImGui::BeginPopupModal("Settings", is_saving ? NULL : REF_TRUE, MODAL_FLAGS)) {
       if ((if_done == IfDone::Exit) && !is_saving) {
@@ -893,10 +909,7 @@ namespace UiLuaEditor {
 
   static void layout() {
     ImGuiIO& io = ImGui::GetIO();
-    if (do_open) {
-      do_open = false;
-      ImGui::OpenPopup("Code editor");
-    }
+    handle_do_open(&do_open, "Code editor");
     ImGui_CenterNextWindow();
     ImGui::SetNextWindowSize(ImVec2(800, 600));
     //has_unsaved_changes ? NULL : REF_TRUE
@@ -932,6 +945,7 @@ static void ui_init() {
 
 static void ui_layout() {
   UiSandboxMenu::layout();
+  UiPlayMenu::layout();
   UiLevelManager::layout();
   UiLogin::layout();
   UiMessage::layout();
@@ -1012,6 +1026,9 @@ void ui::open_dialog(int num, void *data) {
   switch (num) {
     case DIALOG_SANDBOX_MENU:
       UiSandboxMenu::open();
+      break;
+    case DIALOG_PLAY_MENU:
+      UiPlayMenu::open();
       break;
     case DIALOG_OPEN:
       UiLevelManager::open();
