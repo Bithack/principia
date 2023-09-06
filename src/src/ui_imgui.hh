@@ -11,7 +11,13 @@
 #include "ui_imgui_impl_tms.hh"
 
 //CONFIG
-#define EXPERIMENTAL_UISCALE_NO_RELOAD
+
+//Allow changing the UI scale without reloading the game
+//XXX: the game needs a way to reinit G->wdg_* stuff for this to become viable
+//...which is out of scope of this backend
+//Currently only affects non-tms-widget stuff like the sidebar and various uis
+//but may breeak some widget size calculations...
+#define EXPERIMENTAL_UISCALE_NO_RELOAD false
 
 //STUFF
 static uint64_t __ref;
@@ -608,17 +614,27 @@ namespace UiSettings {
   static void on_before_apply() {
     tms_infof("Preparing to reload stuff later...");
 #if defined(EXPERIMENTAL_UISCALE_NO_RELOAD)
-    _tms.xppcm /= settings["uiscale"]->v.f;
-    _tms.yppcm /= settings["uiscale"]->v.f;
+    if (EXPERIMENTAL_UISCALE_NO_RELOAD) {
+      _tms.xppcm /= settings["uiscale"]->v.f;
+      _tms.yppcm /= settings["uiscale"]->v.f;
+    }
 #endif
   }
 
   static void on_after_apply() {
     tms_infof("Now, reloading some stuff (as promised!)...");
+    //Reload sound manager settings to apply new volume
     sm::load_settings();
+
+    //Reload gui to apply the new ui scale
 #if defined(EXPERIMENTAL_UISCALE_NO_RELOAD)
-    _tms.xppcm *= settings["uiscale"]->v.f;
-    _tms.yppcm *= settings["uiscale"]->v.f;
+    if (EXPERIMENTAL_UISCALE_NO_RELOAD) {
+      _tms.xppcm *= settings["uiscale"]->v.f;
+      _tms.yppcm *= settings["uiscale"]->v.f;
+      //need something like G->recreate_widgets() to make this work
+      G->refresh_gui();
+      G->refresh_widgets();
+    }
 #endif
   }
 
