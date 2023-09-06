@@ -902,14 +902,14 @@ namespace UiLuaEditor {
     ImGui::SetNextWindowSize(ImVec2(800, 600));
     //has_unsaved_changes ? NULL : REF_TRUE
     if (ImGui::BeginPopupModal("Code editor", REF_TRUE, MODAL_FLAGS | (has_unsaved_changes ? ImGuiWindowFlags_UnsavedDocument : 0))) {
-      if (ImGui::Button("Save and exit (Ctrl+Shift+S)") | (io.KeyCtrl && io.KeyShift && ImGui::IsKeyReleased(ImGuiKey_S, false))) {
+      if (ImGui::Button("Save and exit (Ctrl+Shift+S)") | (io.KeyCtrl && io.KeyShift && ImGui::IsKeyReleased(ImGuiKey_S))) {
         flash_controller();
         ImGui::CloseCurrentPopup();
         ImGui::EndPopup();
         return;
       }
       ImGui::SameLine();
-      if (ImGui::Button("Save (Ctrl+S)") | (io.KeyCtrl && ImGui::IsKeyReleased(ImGuiKey_S, false))) {
+      if (ImGui::Button("Save (Ctrl+S)") | (io.KeyCtrl && ImGui::IsKeyReleased(ImGuiKey_S))) {
         flash_controller();
       }
       ImGui::SameLine();
