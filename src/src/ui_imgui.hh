@@ -837,7 +837,7 @@ namespace UiSettings {
           ImGui::TextUnformatted("UI Scale (requires restart)");
           std::string display_value = string_format("%.01f", local_settings["uiscale"]->v.f);
           ImGui::SliderFloat("###uiScale", &local_settings["uiscale"]->v.f, 0.2, 2., display_value.c_str());
-          local_settings["uiscale"]->v.f = (local_settings["uiscale"]->v.f * (int)10) * 0.1f;
+          local_settings["uiscale"]->v.f = (int)(local_settings["uiscale"]->v.f * 10) * 0.1f;
 
           ImGui::SeparatorText("Debug");
 
@@ -1019,7 +1019,7 @@ void ui::init() {
 
 void ui::render() {
   if (settings["render_gui"]->is_false()) return;
-  
+
   ImGuiIO& io = ImGui::GetIO();
 
   //update window size
