@@ -1018,6 +1018,8 @@ void ui::init() {
 }
 
 void ui::render() {
+  if (settings["render_gui"]->is_false()) return;
+  
   ImGuiIO& io = ImGui::GetIO();
 
   //update window size
