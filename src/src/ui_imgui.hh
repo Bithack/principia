@@ -905,7 +905,7 @@ namespace UiLuaEditor {
     //create a new buffer and copy the data
     //...reserving extra space for the newline
     //principia lua code is not zero terminated
-    *buf = (char*) malloc(*len + 1);
+    *buf = (char*) malloc(*len);
     memcpy(*buf, src, *len);
     //(*buf)[*len] = '\n';
 
