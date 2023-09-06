@@ -885,7 +885,31 @@ namespace UiLuaEditor {
   }
 
   static void flash_controller() {
-    //TODO
+    tms_infof("Flashing controller");
+
+    //get ptr to len and buf, freeing the old buf if present
+    uint32_t *len = &entity_ptr->properties[0].v.s.len;
+    char **buf = &entity_ptr->properties[0].v.s.buf;
+    if (*buf) free(*buf);
+
+    //get code
+    std::string code = editor.GetText();
+    
+    //get code ptr and len
+    const char *src = code.c_str();
+    *len = code.size();
+
+    //trim trailing newlines
+    while (*len && (src[*len - 1] == '\n')) --*len;
+
+    //create a new buffer and copy the data
+    //...reserving extra space for the newline
+    //principia lua code is not zero terminated
+    *buf = (char*) malloc(*len + 1);
+    memcpy(*buf, src, *len);
+    //(*buf)[*len] = '\n';
+
+    has_unsaved_changes = false;
   }
 
   static void reload_code() {
@@ -898,13 +922,13 @@ namespace UiLuaEditor {
     std::string code = std::string(buf, len);
     editor.SetText(code);
     tms_infof("buf load success");
+    has_unsaved_changes = false;
   }
 
   static void open(entity *entity /*= G->selection.e*/) {
     do_open = true;
     entity_ptr = entity;
     reload_code();
-    has_unsaved_changes = false;
   }
 
   static void layout() {
@@ -923,6 +947,7 @@ namespace UiLuaEditor {
       ImGui::SameLine();
       if (ImGui::Button("Save (Ctrl+S)") | (io.KeyCtrl && ImGui::IsKeyReleased(ImGuiKey_S))) {
         flash_controller();
+        reload_code();
       }
       ImGui::SameLine();
       if (ImGui::Button("Close")) {
