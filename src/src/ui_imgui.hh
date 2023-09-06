@@ -623,6 +623,9 @@ namespace UiSettings {
     "volume",
     "muted",
     //INTERFACE
+    "hide_tips",
+    "display_grapher_value",
+    "display_object_id",
     "display_fps",
     "uiscale",
 #ifdef DEBUG
@@ -839,15 +842,25 @@ namespace UiSettings {
           ImGui::SliderFloat("###uiScale", &local_settings["uiscale"]->v.f, 0.2, 2., display_value.c_str());
           local_settings["uiscale"]->v.f = (int)(local_settings["uiscale"]->v.f * 10) * 0.1f;
 
-          ImGui::SeparatorText("Debug");
+          ImGui::SeparatorText("Help & Tips");
+
+          ImGui::Checkbox("Do not show tips", (bool*) &local_settings["hide_tips"]->v.b);
+
+          ImGui::SeparatorText("Advanced");
+
+          ImGui::Checkbox("Display grapher values", (bool*) &local_settings["display_grapher_value"]->v.b);
+
+          ImGui::Checkbox("Display object IDs", (bool*) &local_settings["display_object_id"]->v.b);
 
           ImGui::TextUnformatted("Display FPS");
           ImGui::Combo("###displayFPS", (int*) &local_settings["display_fps"]->v.u8, "Off\0On\0Graph\0Graph (Raw)\0", 4);
-          ImGui::EndTabItem();
-
+          
           #ifdef DEBUG
+          ImGui::SeparatorText("Debug");
           ImGui::Checkbox("debug (f1)", (bool*) &local_settings["debug"]->v.b);
           #endif
+
+          ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
 
@@ -1143,3 +1156,5 @@ void ui::alert(const char* text, uint8_t type) {
   //TODO
   tms_errorf("ui::alert not implemented yet");
 }
+
+//ї
