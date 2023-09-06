@@ -859,6 +859,7 @@ namespace UiSettings {
 namespace UiLuaEditor {
   static bool do_open = false;
   static entity *entity_ptr;
+  static bool has_unsaved_changes = false;
 
   static TextEditor editor;
 	
@@ -868,20 +869,27 @@ namespace UiLuaEditor {
     editor.SetTabSize(2);
   }
 
+  static void flash_controller() {
+    //TODO
+  }
+
   static void reload_code() {
-    // uint32_t len = entity_ptr->properties[0].v.s.len;
-    // char *buf = entity_ptr->properties[0].v.s.buf;
+    uint32_t len = entity_ptr->properties[0].v.s.len;
+    char *buf = entity_ptr->properties[0].v.s.buf;
     // char *code = (char*) malloc(len + 1);
     // memcpy(code, buf, len);
     // code[len] = '\0';
-    std::string code = std::string(entity_ptr->properties[0].v.s.buf, entity_ptr->properties[0].v.s.len);
+    tms_infof("code len %d", len);
+    std::string code = std::string(buf, len);
     editor.SetText(code);
+    tms_infof("buf load success");
   }
 
   static void open(entity *entity /*= G->selection.e*/) {
     do_open = true;
     entity_ptr = entity;
     reload_code();
+    has_unsaved_changes = false;
   }
 
   static void layout() {
@@ -891,8 +899,19 @@ namespace UiLuaEditor {
     }
     ImGui_CenterNextWindow();
     ImGui::SetNextWindowSize(ImVec2(800, 600));
-    if (ImGui::BeginPopupModal("Code editor", NULL, MODAL_FLAGS)) {
+    //has_unsaved_changes ? NULL : REF_TRUE
+    if (ImGui::BeginPopupModal("Code editor", REF_TRUE, MODAL_FLAGS | (has_unsaved_changes ? ImGuiWindowFlags_UnsavedDocument : 0))) {
+      ImGui::Button("Save") {
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Close")) {
+        ImGui::CloseCurrentPopup();
+      }
       editor.Render("TextEditor");
+      if (editor.IsTextChanged()) {
+        has_unsaved_changes = true;
+      }
       ImGui::EndPopup();
     }
   }
