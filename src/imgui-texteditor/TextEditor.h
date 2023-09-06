@@ -1,5 +1,3 @@
-//Trimmed down Lua-specific version of ImGuiColorTextEdit
-
 #pragma once
 
 #include <string>
@@ -367,6 +365,7 @@ private:
 	bool mHandleMouseInputs;
 	bool mIgnoreImGuiChild;
 	bool mShowWhitespaces;
+	bool mBeginFocus;
 
 	Palette mPaletteBase;
 	Palette mPalette;

@@ -893,6 +893,7 @@ namespace UiLuaEditor {
   }
 
   static void layout() {
+    ImGuiIO& io = ImGui::GetIO();
     if (do_open) {
       do_open = false;
       ImGui::OpenPopup("Code editor");
@@ -901,12 +902,21 @@ namespace UiLuaEditor {
     ImGui::SetNextWindowSize(ImVec2(800, 600));
     //has_unsaved_changes ? NULL : REF_TRUE
     if (ImGui::BeginPopupModal("Code editor", REF_TRUE, MODAL_FLAGS | (has_unsaved_changes ? ImGuiWindowFlags_UnsavedDocument : 0))) {
-      if (ImGui::Button("Save")) {
+      if (ImGui::Button("Save and exit (Ctrl+Shift+S)") | (io.KeyCtrl && io.KeyShift && ImGui::IsKeyReleased(ImGuiKey_S, false))) {
+        flash_controller();
         ImGui::CloseCurrentPopup();
+        ImGui::EndPopup();
+        return;
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Save (Ctrl+S)") | (io.KeyCtrl && ImGui::IsKeyReleased(ImGuiKey_S, false))) {
+        flash_controller();
       }
       ImGui::SameLine();
       if (ImGui::Button("Close")) {
         ImGui::CloseCurrentPopup();
+        ImGui::EndPopup();
+        return;
       }
       editor.Render("TextEditor");
       if (editor.IsTextChanged()) {

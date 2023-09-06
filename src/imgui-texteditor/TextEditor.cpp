@@ -1,4 +1,7 @@
-//Trimmed down Lua-specific version of ImGuiColorTextEdit
+//Trimmed down Principia-specific version of ImGuiColorTextEdit
+//removed all lang defs except Lua
+//removed some deprecated imgui function calls
+//removed horizontal scrollbar
 //high-performance lua impl from: https://github.com/santaclose/ImGuiColorTextEdit/blob/master/LanguageDefinitions.cpp
 
 #include <algorithm>
@@ -1130,12 +1133,12 @@ void TextEditor::Render(const char* aTitle, const ImVec2& aSize, bool aBorder)
 	ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::ColorConvertU32ToFloat4(mPalette[(int)PaletteIndex::Background]));
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 	if (!mIgnoreImGuiChild)
-		ImGui::BeginChild(aTitle, aSize, aBorder, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove);
+		ImGui::BeginChild(aTitle, aSize, aBorder, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoMove);
 
 	if (mHandleKeyboardInputs)
 	{
 		HandleKeyboardInputs();
-		ImGui::PushAllowKeyboardFocus(true);
+		ImGui::PushTabStop(true);
 	}
 
 	if (mHandleMouseInputs)
@@ -1145,9 +1148,9 @@ void TextEditor::Render(const char* aTitle, const ImVec2& aSize, bool aBorder)
 	Render();
 
 	if (mHandleKeyboardInputs)
-		ImGui::PopAllowKeyboardFocus();
+		ImGui::PopTabStop();
 
-	if (!mIgnoreImGuiChild)
+	if (!(mIgnoreImGuiChild))
 		ImGui::EndChild();
 
 	ImGui::PopStyleVar();
