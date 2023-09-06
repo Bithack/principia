@@ -901,7 +901,7 @@ namespace UiLuaEditor {
     ImGui::SetNextWindowSize(ImVec2(800, 600));
     //has_unsaved_changes ? NULL : REF_TRUE
     if (ImGui::BeginPopupModal("Code editor", REF_TRUE, MODAL_FLAGS | (has_unsaved_changes ? ImGuiWindowFlags_UnsavedDocument : 0))) {
-      ImGui::Button("Save") {
+      if (ImGui::Button("Save")) {
         ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
