@@ -608,6 +608,9 @@ namespace UiSettings {
     //INTERFACE
     "display_fps",
     "uiscale",
+#ifdef DEBUG
+    "debug",
+#endif
     NULL
   };
 
@@ -792,8 +795,8 @@ namespace UiSettings {
           ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Sound")) {
+          ImGui::SeparatorText("Volume");
           ImGui::BeginDisabled(local_settings["muted"]->v.b);
-          ImGui::TextUnformatted("Volume");
           ImGui::SliderFloat(
             "###volume-slider",
             local_settings["muted"]->v.b ? REF_FZERO : ((float*) &local_settings["volume"]->v.f),
@@ -815,11 +818,22 @@ namespace UiSettings {
           ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Interface")) {
+          ImGui::SeparatorText("UI");
+
+          ImGui::TextUnformatted("UI Scale (requires restart)");
           std::string display_value = string_format("%.01f", local_settings["uiscale"]->v.f);
-          ImGui::SliderFloat("UI Scale", &local_settings["uiscale"]->v.f, 0.2, 2., display_value.c_str());
+          ImGui::SliderFloat("###uiScale", &local_settings["uiscale"]->v.f, 0.2, 2., display_value.c_str());
           local_settings["uiscale"]->v.f = (local_settings["uiscale"]->v.f * (int)10) * 0.1f;
-          ImGui::Checkbox("Display FPS", (bool*) &local_settings["display_fps"]->v.u8);
+
+          ImGui::SeparatorText("Debug");
+
+          ImGui::TextUnformatted("Display FPS");
+          ImGui::Combo("###displayFPS", (int*) &local_settings["display_fps"]->v.u8, "Off\0On\0Graph\0Graph (Raw)\0", 4);
           ImGui::EndTabItem();
+
+          #ifdef DEBUG
+          ImGui::Checkbox("debug (f1)", (bool*) &local_settings["debug"]->v.b);
+          #endif
         }
         ImGui::EndTabBar();
 
