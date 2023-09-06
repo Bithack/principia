@@ -118,7 +118,7 @@ namespace UiSandboxMenu {
         // if ((sent->dialog_id > 0) && ImGui::MenuItem("Configure...")) {
         //   ui::open_dialog(sent->dialog_id);
         // }
-        if (ImGui::MenuItem("> Move to cursor")) {
+        if (ImGui::MenuItem("Move to cursor")) {
           G->selection.e->set_position(sb_position);
         };
         ImGui::Separator();
@@ -128,14 +128,6 @@ namespace UiSandboxMenu {
       //"Level properties"
       if (ImGui::MenuItem("Level properties")) {
         //TODO
-      }
-      
-      //"Publish online"
-      if (is_sandbox) {
-        ImGui::BeginDisabled(!P.user_id);
-        ImGui::MenuItem("Publish online");
-        ImGui::EndDisabled();
-        ImGui::SetItemTooltip("Upload your level to %s", P.community_host);
       }
 
       //"Save": update current save
@@ -182,12 +174,19 @@ namespace UiSandboxMenu {
           UiLogin::open();
         };
       }
+      //"Publish online"
+      if (is_sandbox) {
+        ImGui::BeginDisabled(!P.user_id);
+        ImGui::MenuItem("Publish online");
+        ImGui::EndDisabled();
+        ImGui::SetItemTooltip("Upload your level to %s", P.community_host);
+      }
+
+      ImGui::Separator();
 
       if (ImGui::MenuItem("Settings...")) {
         UiSettings::open();
       }
-
-      ImGui::Separator();
 
       if (ImGui::MenuItem("Back to menu")) {
         P.add_action(ACTION_GOTO_MAINMENU, 0);
