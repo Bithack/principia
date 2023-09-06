@@ -9,6 +9,7 @@
 #include "imgui_stdlib.h"
 #include "imgui_impl_opengl3.h"
 #include "ui_imgui_impl_tms.hh"
+#include "TextEditor.h"
 
 //CONFIG
 
@@ -62,14 +63,12 @@ namespace UiSandboxMenu  { static void open(); static void layout(); }
 namespace UiLevelManager { static void open(); static void layout(); }
 namespace UiLogin { static void open(); static void layout(); static void complete_login(int signal); }
 namespace UiMessage {
-  enum class MessageType {
-    Message,
-    Error
-  };
+  enum class MessageType { Message, Error };
   static void open(const char* msg, MessageType typ = MessageType::Message);
   static void layout();
 }
 namespace UiSettings { static void open(); static void layout(); }
+namespace UiLuaEditor { static void init(); static void open(entity *e = G->selection.e); static void layout(); }
 
 namespace UiSandboxMenu {
   static bool do_open = false;
@@ -857,12 +856,59 @@ namespace UiSettings {
   }
 }
 
+namespace UiLuaEditor {
+  static bool do_open = false;
+  static entity *entity_ptr;
+
+  static TextEditor editor;
+	
+  static void init() {
+    editor.SetLanguageDefinition(TextEditor::LanguageDefinition::Lua());
+    editor.SetPalette(TextEditor::GetDarkPalette());
+    editor.SetTabSize(2);
+  }
+
+  static void reload_code() {
+    // uint32_t len = entity_ptr->properties[0].v.s.len;
+    // char *buf = entity_ptr->properties[0].v.s.buf;
+    // char *code = (char*) malloc(len + 1);
+    // memcpy(code, buf, len);
+    // code[len] = '\0';
+    std::string code = std::string(entity_ptr->properties[0].v.s.buf, entity_ptr->properties[0].v.s.len);
+    editor.SetText(code);
+  }
+
+  static void open(entity *entity /*= G->selection.e*/) {
+    do_open = true;
+    entity_ptr = entity;
+    reload_code();
+  }
+
+  static void layout() {
+    if (do_open) {
+      do_open = false;
+      ImGui::OpenPopup("Code editor");
+    }
+    ImGui_CenterNextWindow();
+    ImGui::SetNextWindowSize(ImVec2(800, 600));
+    if (ImGui::BeginPopupModal("Code editor", NULL, MODAL_FLAGS)) {
+      editor.Render("TextEditor");
+      ImGui::EndPopup();
+    }
+  }
+}
+
+static void ui_init() {
+  UiLuaEditor::init();
+}
+
 static void ui_layout() {
   UiSandboxMenu::layout();
   UiLevelManager::layout();
   UiLogin::layout();
   UiMessage::layout();
   UiSettings::layout();
+  UiLuaEditor::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -901,6 +947,9 @@ void ui::init() {
   tms_assertf(SDL_GL_GetCurrentContext() != NULL, "no gl ctx");
   tms_assertf(ImGui_ImplOpenGL3_Init(), "gl ctx init failed");
   tms_assertf(ImGui_ImplTMS_Init() == T_OK, "tms init failed");
+
+  //call ui_init
+  ui_init();
 }
 
 void ui::render() {
@@ -944,6 +993,9 @@ void ui::open_dialog(int num, void *data) {
       break;
     case DIALOG_SETTINGS:
       UiSettings::open();
+      break;
+    case DIALOG_ESCRIPT:
+      UiLuaEditor::open();
       break;
     default:
       tms_errorf("dialog %d not implemented yet", num);

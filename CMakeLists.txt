@@ -44,6 +44,7 @@ include_directories(
 	src/
 	src/lua/
 	src/imgui/
+	src/imgui-texteditor/
 	src/src/
 	${FREETYPE_INCLUDE_DIRS}
 	${JPEG_INCLUDE_DIRS}
@@ -65,6 +66,7 @@ file(GLOB SRCS
 	src/lua/*.c
 
 	src/imgui/*.cpp
+	src/imgui-texteditor/*.cpp
 
 	src/src/*.cc
 	src/src/*.c

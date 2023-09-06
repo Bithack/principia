@@ -40,6 +40,7 @@ GLOBAL_FLAGS += -I../src/tms/backends/windows/ \
     -I/mingw64/include/atk-1.0 \
 	-I../src/lua/ -I../src/include/ \
     -I../src/imgui \
+    -I../src/imgui-texteditor \
     -DLIBDEFLATE_DLL
 
 principia_CFLAGS = ${GLOBAL_FLAGS} -std=gnu99
@@ -106,6 +107,8 @@ principia.rc \
 ../src/imgui/imgui_tables.cpp \
 ../src/imgui/imgui_widgets.cpp \
 ../src/imgui/imgui.cpp \
+\
+../src/imgui-texteditor/TextEditor.cpp \
 \
 ../src/src/SDL2_rotozoom.c \
 \
