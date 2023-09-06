@@ -903,11 +903,9 @@ namespace UiLuaEditor {
     while (*len && (src[*len - 1] == '\n')) --*len;
 
     //create a new buffer and copy the data
-    //...reserving extra space for the newline
     //principia lua code is not zero terminated
     *buf = (char*) malloc(*len);
     memcpy(*buf, src, *len);
-    //(*buf)[*len] = '\n';
 
     has_unsaved_changes = false;
   }
@@ -1112,8 +1110,8 @@ void ui::quit() {
 }
 
 void ui::set_next_action(int action_id) {
-  //TODO
-  tms_errorf("ui::set_next_action not implemented yet");
+  tms_infof("set_next_action %d", action_id);
+  ui::next_action = action_id;
 }
 
 void ui::open_error_dialog(const char *error_msg) {
