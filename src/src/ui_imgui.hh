@@ -807,6 +807,7 @@ namespace UiSettings {
 
           ImGui::SeparatorText("Ambient Occlusion");
           ImGui::Checkbox("Enable AO", (bool*) &local_settings["enable_ao"]->v.b);
+          ImGui::SetItemTooltip("Creates subtle shading behind objects");
           {
             const char* resolutions[] = { "512x512", "256x256", "128x128", NULL };
             int32_t values[] = { 512, 256, 128, -1 };
@@ -821,11 +822,19 @@ namespace UiSettings {
           }
 
           ImGui::SeparatorText("Post-processing");
-          ImGui::Checkbox("Enable bloom", (bool*) &local_settings["enable_bloom"]->v.b);
-          ImGui::Checkbox("Gamma correction", (bool*) &local_settings["gamma_correct"]->v.b);
 
+          ImGui::Checkbox("Enable bloom", (bool*) &local_settings["enable_bloom"]->v.b);
+          ImGui::SetItemTooltip("Adds a subtle glow effect to bright objects");
+
+          ImGui::Checkbox("Gamma correction", (bool*) &local_settings["gamma_correct"]->v.b);
+          ImGui::SetItemTooltip("Adjusts the brightness and contrast to ensure accurate color representation");
+
+          //VSync option has no effect on Android
+          #ifdef TMS_BACKEND_PC
           ImGui::SeparatorText("Display");
           ImGui::Checkbox("Enable V-Sync", (bool*) &local_settings["vsync"]->v.b);
+          ImGui::SetItemTooltip("Helps eliminate screen tearing by limiting the refresh rate.\nMay introduce a slight input delay.");
+          #endif
 
           ImGui::EndTabItem();
         }
