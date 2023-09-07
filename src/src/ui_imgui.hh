@@ -628,6 +628,7 @@ namespace UiSettings {
     "display_object_id",
     "display_fps",
     "uiscale",
+    "first_adventure", "tutorial",
 #ifdef DEBUG
     "debug",
 #endif
@@ -845,6 +846,13 @@ namespace UiSettings {
           ImGui::SeparatorText("Help & Tips");
 
           ImGui::Checkbox("Do not show tips", (bool*) &local_settings["hide_tips"]->v.b);
+          //Should this be in debug?
+          ImGui::BeginDisabled((local_settings["tutorial"]->v.u32 & 0b1111111) == 0b1111111);
+          if (ImGui::Button("Skip tutorial")) {
+            local_settings["first_adventure"]->v.b = false;
+            local_settings["tutorial"]->v.u32 = 0xFFFFFFFF;
+          }
+          ImGui::EndDisabled();
 
           ImGui::SeparatorText("Advanced");
 
