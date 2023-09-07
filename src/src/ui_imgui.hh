@@ -610,6 +610,7 @@ namespace UiSettings {
 
   static const char* copy_settings[] = {
     //GRAPHICS
+    "texture_quality",
     "enable_shadows",
     "shadow_quality",
     "shadow_map_resx",
@@ -622,6 +623,14 @@ namespace UiSettings {
     //VOLUME
     "volume",
     "muted",
+    //CONTROLS
+    "touch_controls",
+    "jail_cursor",
+    "cam_speed_modifier",
+    "smooth_cam",
+    "zoom_speed",
+    "smooth_zoom",
+    //"smooth_menu",
     //INTERFACE
     "hide_tips",
     "display_grapher_value",
@@ -629,6 +638,10 @@ namespace UiSettings {
     "display_fps",
     "uiscale",
     "first_adventure", "tutorial",
+    "menu_speed",
+    "smooth_menu",
+    "emulate_touch",
+    "rc_lock_cursor",
 #ifdef DEBUG
     "debug",
 #endif
@@ -769,6 +782,10 @@ namespace UiSettings {
           // ImGui::BeginTable("###graphics-settings", 2);
           // ImGui::TableNextColumn();
 
+          ImGui::SeparatorText("Textures");
+          ImGui::TextUnformatted("Texture quality");
+          ImGui::SliderInt("###texture_quality", (int*) &local_settings["texture_quality"]->v.u8, 0, 2);
+
           ImGui::SeparatorText("Shadows");
           ImGui::Checkbox("Enable shadows", (bool*) &local_settings["enable_shadows"]->v.b);
           ImGui::BeginDisabled(!local_settings["enable_shadows"]->v.b);
@@ -834,6 +851,41 @@ namespace UiSettings {
         }
         if (ImGui::BeginTabItem("Controls")) {
           ImGui::EndTabItem();
+
+          ImGui::SeparatorText("Camera");
+
+          ImGui::TextUnformatted("Camera speed");
+          ImGui::SliderFloat("###Camera-speed", (float*) &local_settings["cam_speed_modifier"]->v.f, 0.1, 15.);
+
+          ImGui::Checkbox("Smooth camera", (bool*) &local_settings["smooth_cam"]->v.b);
+
+          ImGui::TextUnformatted("Zoom speed");
+          ImGui::SliderFloat("###Camera-zoom-speed", (float*) &local_settings["zoom_speed"]->v.f, 0.1, 3.);
+
+          ImGui::Checkbox("Smooth zoom", (bool*) &local_settings["smooth_zoom"]->v.b);
+
+          ImGui::SeparatorText("Menu");
+
+          ImGui::TextUnformatted("Menu scroll speed");
+          ImGui::SliderFloat("###Menu-speed", (float*) &local_settings["menu_speed"]->v.f, 1., 15.);
+
+          ImGui::Checkbox("Smooth menu scrolling", (bool*) &local_settings["smooth_menu"]->v.b);
+
+          ImGui::SeparatorText("Mouse");
+
+          ImGui::Checkbox("Enable cursor jail", (bool*) &local_settings["jail_cursor"]->v.b);
+          ImGui::SetItemTooltip("Lock the cursor inside the the game window while playing a level");
+
+          ImGui::Checkbox("Enable RC cursor lock", (bool*) &local_settings["rc_lock_cursor"]->v.b);
+          ImGui::SetItemTooltip("Lock the cursor while controlling RC widgets");
+
+          ImGui::SeparatorText("Touchscreen");
+          
+          ImGui::Checkbox("Enable on-screen controls", (bool*) &local_settings["touch_controls"]->v.b);
+          ImGui::SetItemTooltip("Enable touch-friendly on-screen controls");
+
+          ImGui::Checkbox("Emulate touch", (bool*) &local_settings["emulate_touch"]->v.b);
+          ImGui::SetItemTooltip("Enable this if you use an external device other than a mouse to control Principia, such as a Wacom pad.");
         }
         if (ImGui::BeginTabItem("Interface")) {
           ImGui::SeparatorText("UI");
