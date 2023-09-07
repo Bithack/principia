@@ -610,6 +610,7 @@ namespace UiSettings {
 
   static const char* copy_settings[] = {
     //GRAPHICS
+    "is_very_shitty",
     "texture_quality",
     "enable_shadows",
     "shadow_quality",
@@ -617,6 +618,7 @@ namespace UiSettings {
     "shadow_map_resy",
     "enable_ao",
     "ao_map_res",
+    "postprocess",
     "enable_bloom",
     "vsync",
     "gamma_correct",
@@ -825,18 +827,33 @@ namespace UiSettings {
           
           ImGui::SeparatorText("Post-processing");
 
-          ImGui::Checkbox("Enable bloom", (bool*) &local_settings["enable_bloom"]->v.b);
+          // ImGui::Checkbox("Enable post-processing", (bool*) &local_settings["postprocess"]->v.b);
+          // ImGui::BeginDisabled(!local_settings["postprocess"]->v.b);
+          // ImGui::Checkbox("Enable bloom", local_settings["postprocess"]->v.b ? ((bool*) &local_settings["enable_bloom"]->v.b) : REF_FALSE);
+          // ImGui::SetItemTooltip("Adds a subtle glow effect to bright objects");
+          // ImGui::EndDisabled();ImGui::Checkbox("Enable post-processing", (bool*) &local_settings["postprocess"]->v.b);
+
+          //XXX: Post-processing always enables bloom, so these two settings basically do the same thing
+          bool is_bloom_enabled = local_settings["enable_bloom"]->v.b && local_settings["postprocess"]->v.b;
+          if (ImGui::Checkbox("Enable bloom", &is_bloom_enabled)) {
+            local_settings["postprocess"]->v.b = is_bloom_enabled;
+            local_settings["enable_bloom"]->v.b = is_bloom_enabled;
+          }
           ImGui::SetItemTooltip("Adds a subtle glow effect to bright objects");
 
           ImGui::Checkbox("Gamma correction", (bool*) &local_settings["gamma_correct"]->v.b);
           ImGui::SetItemTooltip("Adjusts the brightness and contrast to ensure accurate color representation");
 
+          ImGui::SeparatorText("Display");
+
           //VSync option has no effect on Android
           #ifdef TMS_BACKEND_PC
-          ImGui::SeparatorText("Display");
           ImGui::Checkbox("Enable V-Sync", (bool*) &local_settings["vsync"]->v.b);
           ImGui::SetItemTooltip("Helps eliminate screen tearing by limiting the refresh rate.\nMay introduce a slight input delay.");
           #endif
+
+          ImGui::Checkbox("Safe mode", (bool*) &local_settings["is_very_shitty"]->v.b);
+          ImGui::SetItemTooltip("a.k.a Very Shitty Mode\nDisables most visual effects");
 
           ImGui::EndTabItem();
         }
