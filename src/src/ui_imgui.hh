@@ -77,6 +77,7 @@ namespace UiMessage {
 }
 namespace UiSettings { static void open(); static void layout(); }
 namespace UiLuaEditor { static void init(); static void open(entity *e = G->selection.e); static void layout(); }
+namespace UiTips {  static void open(); static void layout(); }
 
 namespace UiSandboxMenu {
   static bool do_open = false;
@@ -1065,6 +1066,47 @@ namespace UiLuaEditor {
   }
 }
 
+namespace UiTips {
+  static bool do_open = false;
+
+  static void open() {
+    ctip = rand() % num_tips;
+    do_open = true;
+  }
+
+  static void layout() {
+    handle_do_open(&do_open, "Tips and tricks");
+    ImGui_CenterNextWindow();
+    ImGui::SetNextWindowSize(ImVec2(400, 200));
+    if (ImGui::BeginPopupModal("Tips and tricks", REF_TRUE, MODAL_FLAGS)) {
+      ImGui::TextWrapped("%s", tips[ctip]);
+      //Align at the bottom of the window
+      //TODO do not hardcode y
+      ImGui::SetCursorPosY(ImGui::GetWindowSize().y - 27);
+      if (ImGui::Button("<###tips-prev")) {
+        if (--ctip < 0) ctip = num_tips - 1;
+      }
+      ImGui::SameLine();
+      ImGui::TextColored(ImVec4(.8, .8, .8, 1), "Tip %d/%d", ctip + 1, num_tips);
+      ImGui::SameLine();
+      if (ImGui::Button(">###tips-next")) {
+        ctip = (ctip + 1) % num_tips;
+      }
+      ImGui::SameLine();
+      if (ImGui::Checkbox("Don't show again", (bool*) &settings["hide_tips"]->v.b)) {
+        settings.save();
+      }
+      ImGui::SameLine();
+      const char* close_text = "Close";
+      ImGui::SetCursorPosX(ImGui::GetWindowSize().x - ImGui::CalcTextSize(close_text).x - 15);
+      if (ImGui::Button(close_text)) {
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::EndPopup();
+    }
+  }
+}
+
 static void ui_init() {
   UiLuaEditor::init();
 }
@@ -1077,6 +1119,7 @@ static void ui_layout() {
   UiMessage::layout();
   UiSettings::layout();
   UiLuaEditor::layout();
+  UiTips::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -1176,8 +1219,7 @@ void ui::open_dialog(int num, void *data) {
 }
 
 void ui::open_sandbox_tips() {
-  //TODO
-  tms_errorf("ui::open_sandbox_tips not implemented yet");
+  UiTips::open();
 }
 
 void ui::open_url(const char *url) {
