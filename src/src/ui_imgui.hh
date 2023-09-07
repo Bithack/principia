@@ -1243,8 +1243,9 @@ void ui::confirm(
 }
 
 void ui::alert(const char* text, uint8_t type) {
-  //TODO
-  tms_errorf("ui::alert not implemented yet");
+  //TODO handle type, e.g. error, warning.
+  //these are currently unused by principia, but should be handled regardless
+  UiMessage::open(text, UiMessage::MessageType::Message);
 }
 
 //ї
