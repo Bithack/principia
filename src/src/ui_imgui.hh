@@ -807,7 +807,8 @@ namespace UiSettings {
 
           ImGui::SeparatorText("Ambient Occlusion");
           ImGui::Checkbox("Enable AO", (bool*) &local_settings["enable_ao"]->v.b);
-          ImGui::SetItemTooltip("Creates subtle shading behind objects");
+          ImGui::SetItemTooltip("Adds subtle shading behind objects");
+          ImGui::BeginDisabled(!local_settings["enable_ao"]->v.b);
           {
             const char* resolutions[] = { "512x512", "256x256", "128x128", NULL };
             int32_t values[] = { 512, 256, 128, -1 };
@@ -820,7 +821,8 @@ namespace UiSettings {
               values
             );
           }
-
+          ImGui::EndDisabled();
+          
           ImGui::SeparatorText("Post-processing");
 
           ImGui::Checkbox("Enable bloom", (bool*) &local_settings["enable_bloom"]->v.b);
