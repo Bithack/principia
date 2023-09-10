@@ -53,7 +53,7 @@
 
 #define MAX_GRAVITY 75.f
 
-static const char *tips[] = {
+const char *tips[] = {
 #ifdef TMS_BACKEND_PC
 "Double-click"
 #else
@@ -77,8 +77,8 @@ static const char *tips[] = {
 "Building something mechanically advanced? If it gets unstable or wobbly, try increasing physics iterations count in the Level Properties dialog. The velocity iterations number will affect joint parts (motors, linear motors, etc), while position iterations affects at what precision objects collide and interact, roughly speaking."
 };
 
-static const int num_tips = sizeof(tips)/sizeof(char*);
-static int ctip = -1;
+const int num_tips = sizeof(tips)/sizeof(char*);
+int ctip = -1;
 int ui::next_action = ACTION_IGNORE;
 
 void

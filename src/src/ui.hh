@@ -289,3 +289,7 @@ extern "C" {
 #if defined(TMS_BACKEND_PC) && !defined(NO_UI)
 extern int prompt_is_open;
 #endif
+
+extern const char* tips[];
+extern const int num_tips;
+extern int ctip;
