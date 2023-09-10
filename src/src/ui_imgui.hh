@@ -1139,6 +1139,10 @@ static void ui_layout() {
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
 
+#if defined(TMS_BACKEND_PC) && !defined(NO_UI)
+int prompt_is_open = 0;
+#endif 
+
 void ui::init() {
   //create context
 #ifdef DEBUG
