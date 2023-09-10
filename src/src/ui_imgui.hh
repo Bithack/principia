@@ -35,6 +35,9 @@
 //but may breeak some widget size calculations...
 #define EXPERIMENTAL_UISCALE_NO_RELOAD false
 
+//Apply UI scale setting to ImGui guis
+#define EXPERIMENTAL_UISCALE_IMGUI true
+
 //STUFF
 static uint64_t __ref;
 #define REF_FZERO ((float*) &(__ref = 0))
@@ -81,11 +84,15 @@ static void handle_do_open(bool *do_open, const char* name) {
   }
 }
 
+/* forward */ 
+static void update_imgui_ui_scale();
+
 enum class MessageType { 
   Message,
   Error 
 };
 
+/* forward */ 
 namespace UiSandboxMenu  { static void open(); static void layout(); }
 namespace UiPlayMenu { static void open(); static void layout(); }
 namespace UiLevelManager { static void open(); static void layout(); }
@@ -682,19 +689,22 @@ namespace UiSettings {
 
   static void on_after_apply() {
     tms_infof("Now, reloading some stuff (as promised!)...");
+
     //Reload sound manager settings to apply new volume
     sm::load_settings();
 
     //Reload gui to apply the new ui scale
-#if defined(EXPERIMENTAL_UISCALE_NO_RELOAD)
-    if (EXPERIMENTAL_UISCALE_NO_RELOAD) {
-      _tms.xppcm *= settings["uiscale"]->v.f;
-      _tms.yppcm *= settings["uiscale"]->v.f;
-      //need something like G->recreate_widgets() to make this work
-      G->refresh_gui();
-      G->refresh_widgets();
-    }
-#endif
+    #if defined(EXPERIMENTAL_UISCALE_NO_RELOAD)
+      if (EXPERIMENTAL_UISCALE_NO_RELOAD) {
+        _tms.xppcm *= settings["uiscale"]->v.f;
+        _tms.yppcm *= settings["uiscale"]->v.f;
+        //need something like G->recreate_widgets() to make this work
+        G->refresh_gui();
+        G->refresh_widgets();
+        //also update imgui widget size
+        update_imgui_ui_scale();
+      }
+    #endif
   }
 
   static void save_thread() {
@@ -1148,8 +1158,14 @@ static void ui_layout() {
 int prompt_is_open = 0;
 #endif 
 
-static void refresh_gui() {
-
+static void update_imgui_ui_scale() {
+#ifdef EXPERIMENTAL_UISCALE_IMGUI
+  if (EXPERIMENTAL_UISCALE_IMGUI) {
+    float scale_factor = settings["uiscale"]->v.f;
+    ImGui::GetStyle().ScaleAllSizes(scale_factor);
+    ImGui::GetIO().FontGlobalScale = scale_factor;
+  }
+#endif
 }
 
 void ui::init() {
@@ -1184,6 +1200,9 @@ void ui::init() {
   tms_assertf(SDL_GL_GetCurrentContext() != NULL, "no gl ctx");
   tms_assertf(ImGui_ImplOpenGL3_Init(), "gl ctx init failed");
   tms_assertf(ImGui_ImplTMS_Init() == T_OK, "tms init failed");
+
+  //update scale
+  update_imgui_ui_scale();
 
   //call ui_init
   ui_init();
