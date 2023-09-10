@@ -76,15 +76,16 @@ static void handle_do_open(bool *do_open, const char* name) {
   }
 }
 
+enum class MessageType { 
+  Message,
+  Error 
+};
+
 namespace UiSandboxMenu  { static void open(); static void layout(); }
 namespace UiPlayMenu { static void open(); static void layout(); }
 namespace UiLevelManager { static void open(); static void layout(); }
 namespace UiLogin { static void open(); static void layout(); static void complete_login(int signal); }
-namespace UiMessage {
-  enum class MessageType { Message, Error };
-  static void open(const char* msg, MessageType typ = MessageType::Message);
-  static void layout();
-}
+namespace UiMessage { static void open(const char* msg, MessageType typ = MessageType::Message); static void layout(); }
 namespace UiSettings { static void open(); static void layout(); }
 namespace UiLuaEditor { static void init(); static void open(entity *e = G->selection.e); static void layout(); }
 namespace UiTips {  static void open(); static void layout(); }
@@ -1281,7 +1282,7 @@ void ui::set_next_action(int action_id) {
 }
 
 void ui::open_error_dialog(const char *error_msg) {
-  UiMessage::open(error_msg, UiMessage::MessageType::Error);
+  UiMessage::open(error_msg, MessageType::Error);
 }
 
 void ui::confirm(
@@ -1299,7 +1300,7 @@ void ui::confirm(
 void ui::alert(const char* text, uint8_t type) {
   //TODO handle type, e.g. error, warning.
   //these are currently unused by principia, but should be handled regardless
-  UiMessage::open(text, UiMessage::MessageType::Message);
+  UiMessage::open(text, MessageType::Message);
 }
 
 //NOLINTEND(misc-definitions-in-headers)
