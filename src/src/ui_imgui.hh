@@ -1,3 +1,8 @@
+#ifdef __UI_IMGUI_H_GUARD
+#error please do not include this file directly
+#endif
+#define __UI_IMGUI_H_GUARD
+
 //NOLINTBEGIN(misc-definitions-in-headers)
 
 #include "ui.hh"
@@ -1142,6 +1147,10 @@ static void ui_layout() {
 #if defined(TMS_BACKEND_PC) && !defined(NO_UI)
 int prompt_is_open = 0;
 #endif 
+
+static void refresh_gui() {
+
+}
 
 void ui::init() {
   //create context
