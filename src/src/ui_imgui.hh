@@ -1,3 +1,9 @@
+#include "ui.hh"
+#include "game.hh"
+#include "settings.hh"
+#include "soundmanager.hh"
+#include "loading_screen.hh"
+//----------------------------------
 #include <string>
 #include <thread>
 #include <unordered_map>
@@ -460,24 +466,24 @@ namespace UiLevelManager {
 
 namespace UiLogin {
   enum class LoginStatus {
-    None,
+    No,
     LoggingIn,
-    Success,
-    Failure
+    ResultSuccess,
+    ResultFailure
   };
 
   static bool do_open = false;
   static std::string username{""};
   static std::string password{""};
-  static LoginStatus login_status = LoginStatus::None;
+  static LoginStatus login_status = LoginStatus::No;
 
   static void complete_login(int signal) {
     switch (signal) {
       case SIGNAL_LOGIN_SUCCESS:
-        login_status = LoginStatus::Success;
+        login_status = LoginStatus::ResultSuccess;
         break;
       case SIGNAL_LOGIN_FAILED:
-        login_status = LoginStatus::Failure;
+        login_status = LoginStatus::ResultFailure;
         P.user_id = 0;
         P.username = nullptr;
         username = "";
@@ -490,7 +496,7 @@ namespace UiLogin {
     do_open = true;
     username = "";
     password = "";
-    login_status = LoginStatus::None;
+    login_status = LoginStatus::No;
   }
 
   static void layout() {
@@ -499,7 +505,7 @@ namespace UiLogin {
     //Only allow closing the window if a login attempt is not in progress
     bool *allow_closing = (login_status != LoginStatus::LoggingIn) ? REF_TRUE : NULL;
     if (ImGui::BeginPopupModal("Log in", allow_closing, MODAL_FLAGS)) {
-      if (login_status == LoginStatus::Success) {
+      if (login_status == LoginStatus::ResultSuccess) {
         ImGui::CloseCurrentPopup();
         ImGui::EndPopup();
         return;
@@ -512,7 +518,7 @@ namespace UiLogin {
 
       ImGui::BeginDisabled(
         (login_status == LoginStatus::LoggingIn) ||
-        (login_status == LoginStatus::Success)
+        (login_status == LoginStatus::ResultSuccess)
       );
 
       if (ImGui::IsWindowAppearing()) {
@@ -526,7 +532,7 @@ namespace UiLogin {
 
       bool can_submit =
         (login_status != LoginStatus::LoggingIn) &&
-        (login_status != LoginStatus::Success) &&
+        (login_status != LoginStatus::ResultSuccess) &&
         (req_pass_len && req_username_len);
       ImGui::BeginDisabled(!can_submit);
       if (ImGui::Button("Log in...") || (can_submit && activate)) {
@@ -544,11 +550,11 @@ namespace UiLogin {
         case LoginStatus::LoggingIn:
           ImGui::TextUnformatted("Logging in...");
           break;
-        case LoginStatus::Failure:
+        case LoginStatus::ResultFailure:
           ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Login failed"); // Login attempt failed
           break;
-        //default:
-        //  ImGui::TextUnformatted(" ");
+        default:
+          break;
       }
 
       ImGui::EndPopup();

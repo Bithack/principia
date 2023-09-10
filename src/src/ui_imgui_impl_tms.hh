@@ -1,6 +1,7 @@
 #include "imgui.h"
 #include "imgui_stdlib.h"
 #include "imgui_impl_opengl3.h"
+#include "tms/core/event.h"
 
 static int tms_mouse_button_to_imgui(int btn) {
   switch (btn) {
@@ -149,6 +150,6 @@ static int event_handler(tms_event *event) {
   return T_CONT;
 }
 
-int ImGui_ImplTMS_Init() {
+inline int ImGui_ImplTMS_Init() {
   return tms_event_register_raw(&event_handler);
 }
