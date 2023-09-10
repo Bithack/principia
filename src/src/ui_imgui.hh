@@ -48,6 +48,7 @@
 //Use TTF font instead of the default one
 #define UI_USE_TTF_FONT true
 #define UI_TTF_FONT "data-shared" SLASH "fonts" SLASH "Roboto-Bold.ttf"
+#define UI_BASE_FONT_SIZE 10.f /* only applies to ttf fonts! */
 
 //--------------------------------------------
 
@@ -1215,7 +1216,7 @@ static void im_load_ttf() {
   if (UI_USE_TTF_FONT) {
     if (fontbuffer) free(fontbuffer);
 
-    float size_pixels = 10.;
+    float size_pixels = UI_BASE_FONT_SIZE;
 
     #ifdef UI_UISCALE_IMGUI
     if (UI_UISCALE_IMGUI) {
