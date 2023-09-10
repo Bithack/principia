@@ -396,8 +396,11 @@ namespace UiLevelManager {
           //Version
           if (ImGui::TableNextColumn()) {
             const char* version_str = level_version_string(level->version);
-            if (version_str == "unknown_version") version_str = "unknown";
-            if (version_str == "old_level") version_str = "old";
+            if (strcmp(version_str, "unknown_version") == 0) {
+              version_str = "unknown";
+            } else if (strcmp(version_str, "old_level") == 0) {
+              version_str = "old";
+            }
             ImGui::Text("%s (%d)", version_str, level->version);
           }
 
