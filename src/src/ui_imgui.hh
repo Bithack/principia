@@ -1,21 +1,25 @@
+//NOLINTBEGIN(misc-definitions-in-headers)
+
 #include "ui.hh"
 #include "game.hh"
 #include "settings.hh"
 #include "soundmanager.hh"
 #include "loading_screen.hh"
-//----------------------------------
+//---
 #include <string>
 #include <thread>
 #include <unordered_map>
+//---
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <SDL_syswm.h>
+//---
 #include "imgui.h"
-//#include "imgui_internal.h"
 #include "imgui_stdlib.h"
 #include "imgui_impl_opengl3.h"
-#include "ui_imgui_impl_tms.hh"
 #include "TextEditor.h"
+//---
+#include "ui_imgui_impl_tms.hh"
 
 //CONFIG
 
@@ -780,6 +784,7 @@ namespace UiSettings {
   static void layout() {
     handle_do_open(&do_open, "Settings");
     ImGui_CenterNextWindow();
+    //TODO unsaved changes indicator
     if (ImGui::BeginPopupModal("Settings", is_saving ? NULL : REF_TRUE, MODAL_FLAGS)) {
       if ((if_done == IfDone::Exit) && !is_saving) {
         ImGui::CloseCurrentPopup();
@@ -1133,8 +1138,6 @@ static void ui_layout() {
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
 
-int prompt_is_open = 0;
-
 void ui::init() {
   //create context
 #ifdef DEBUG
@@ -1299,4 +1302,5 @@ void ui::alert(const char* text, uint8_t type) {
   UiMessage::open(text, UiMessage::MessageType::Message);
 }
 
+//NOLINTEND(misc-definitions-in-headers)
 //ї
