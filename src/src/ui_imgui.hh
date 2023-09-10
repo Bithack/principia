@@ -1195,15 +1195,17 @@ void ui::init() {
   //style
   ImGui::StyleColorsDark();
 
-  //init
-  tms_assertf(_tms._window != NULL, "window does not exist yet");
-  tms_assertf(SDL_GL_GetCurrentContext() != NULL, "no gl ctx");
-  tms_assertf(ImGui_ImplOpenGL3_Init(), "gl ctx init failed");
-  tms_assertf(ImGui_ImplTMS_Init() == T_OK, "tms init failed");
-
   //update scale
   update_imgui_ui_scale();
 
+  //ensure gl ctx exists
+  tms_assertf(_tms._window != NULL, "window does not exist yet");
+  tms_assertf(SDL_GL_GetCurrentContext() != NULL, "no gl ctx");
+
+  //init
+  tms_assertf(ImGui_ImplOpenGL3_Init(), "gl impl init failed");
+  tms_assertf(ImGui_ImplTMS_Init() == T_OK, "tms impl init failed");
+  
   //call ui_init
   ui_init();
 }
