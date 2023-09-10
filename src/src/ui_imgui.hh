@@ -1,3 +1,6 @@
+#include "misc.hh"
+#include "tms/backend/print.h"
+#include <cstdio>
 #ifdef __UI_IMGUI_H_GUARD
 #error please do not include this file directly
 #endif
@@ -28,15 +31,25 @@
 
 //CONFIG
 
+// **Experimental/Broken**
 //Allow changing the UI scale without reloading the game
+//Currently only affects:
+// * non-tms-widget stuff like the sidebar and various uis
+// * ImGui dialogs
+//disabled because it may break some widget size calculations for not much benefit.
 //XXX: the game needs a way to reinit G->wdg_* stuff for this to become viable
-//...which is out of scope of this backend
-//Currently only affects non-tms-widget stuff like the sidebar and various uis
-//but may breeak some widget size calculations...
-#define EXPERIMENTAL_UISCALE_NO_RELOAD false
+//...which is out of scope of this pr
+#define UI_UISCALE_NO_RELOAD false
 
 //Apply UI scale setting to ImGui guis
-#define EXPERIMENTAL_UISCALE_IMGUI true
+//Seems to work ¯\_(ツ)_/¯
+#define UI_UISCALE_IMGUI true
+
+//Use TTF font instead of the default one
+#define UI_USE_TTF_FONT true
+#define UI_TTF_FONT "data-shared" SLASH "fonts" SLASH "Roboto-Bold.ttf"
+
+//--------------------------------------------
 
 //STUFF
 static uint64_t __ref;
@@ -95,6 +108,7 @@ static void handle_do_open(bool *do_open, const char* name) {
 
 /* forward */ 
 static void update_imgui_ui_scale();
+static void im_load_ttf();
 
 enum class MessageType { 
   Message,
@@ -688,8 +702,8 @@ namespace UiSettings {
 
   static void on_before_apply() {
     tms_infof("Preparing to reload stuff later...");
-#if defined(EXPERIMENTAL_UISCALE_NO_RELOAD)
-    if (EXPERIMENTAL_UISCALE_NO_RELOAD) {
+#if defined(UI_UISCALE_NO_RELOAD)
+    if (UI_UISCALE_NO_RELOAD) {
       _tms.xppcm /= settings["uiscale"]->v.f;
       _tms.yppcm /= settings["uiscale"]->v.f;
     }
@@ -703,16 +717,21 @@ namespace UiSettings {
     sm::load_settings();
 
     //Reload gui to apply the new ui scale
-    #if defined(EXPERIMENTAL_UISCALE_NO_RELOAD)
-      if (EXPERIMENTAL_UISCALE_NO_RELOAD) {
-        _tms.xppcm *= settings["uiscale"]->v.f;
-        _tms.yppcm *= settings["uiscale"]->v.f;
-        //need something like G->recreate_widgets() to make this work
-        G->refresh_gui();
-        G->refresh_widgets();
-        //also update imgui widget size
+  #if defined(UI_UISCALE_NO_RELOAD)
+    if (UI_UISCALE_NO_RELOAD) {
+      _tms.xppcm *= settings["uiscale"]->v.f;
+      _tms.yppcm *= settings["uiscale"]->v.f;
+      //need something like G->recreate_widgets() to make this work
+      G->refresh_gui();
+      G->refresh_widgets();
+      //also update imgui widget size
+      #if defined(UI_UISCALE_IMGUI)
+      if (UI_UISCALE_IMGUI) {
         update_imgui_ui_scale();
+        im_load_ttf();
       }
+      #endif
+    }
     #endif
   }
 
@@ -1168,11 +1187,11 @@ int prompt_is_open = 0;
 #endif 
 
 static void update_imgui_ui_scale() {
-#ifdef EXPERIMENTAL_UISCALE_IMGUI
-  if (EXPERIMENTAL_UISCALE_IMGUI) {
+#ifdef UI_UISCALE_IMGUI
+  if (UI_UISCALE_IMGUI) {
     float scale_factor = settings["uiscale"]->v.f;
     ImGui::GetStyle().ScaleAllSizes(scale_factor);
-    ImGui::GetIO().FontGlobalScale = scale_factor;
+    //ImGui::GetIO().FontGlobalScale = scale_factor;
   }
 #endif
 }
@@ -1186,6 +1205,52 @@ static void principia_style() {
   //colors[ImGuiCol_ScrollbarBg] = rgba(0x767676ff);
   //colors[ImGuiCol_ScrollbarGrab] = rgba(0x767676ff);
   //colors[ImGuiCol_ScrollbarGrabActive] = rgba(0xb1b1b1);
+}
+
+static void* fontbuffer = NULL;
+static ImFont *ui_font = NULL;
+
+static void im_load_ttf() {
+  #if defined(UI_USE_TTF_FONT)
+  if (UI_USE_TTF_FONT) {
+    if (fontbuffer) free(fontbuffer);
+
+    float size_pixels = 10.;
+
+    #ifdef UI_UISCALE_IMGUI
+    if (UI_UISCALE_IMGUI) {
+      size_pixels *= settings["uiscale"]->v.f;
+    }
+    #endif
+
+    size_pixels = roundf(size_pixels);
+
+    tms_infof("font size %fpx", size_pixels);
+
+    tms_infof("loading ui font from %s...", UI_TTF_FONT);
+
+    FILE_IN_ASSET(true);
+    FILE *file = (FILE*) _fopen(UI_TTF_FONT, "rb");
+    tms_assertf(file, "font file not found");
+
+    _fseek(file, 0, SEEK_END);
+    size_t size = _ftell(file);
+    tms_infof("buf size %d", (int) size);
+    fontbuffer = malloc(size + 1);
+
+    _fseek(file, 0, SEEK_SET);
+    _fread(fontbuffer, 1, size, file);
+    _fclose(file);
+    
+    ImFontConfig font_cfg;
+    font_cfg.FontDataOwnedByAtlas = false;
+    if (size_pixels <= 16.) {
+      font_cfg.OversampleH = 3;
+    }
+
+    ui_font = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fontbuffer, size, size_pixels, &font_cfg);
+  }
+  #endif
 }
 
 void ui::init() {
@@ -1217,6 +1282,9 @@ void ui::init() {
 
   //update scale
   update_imgui_ui_scale();
+
+  //load font
+  im_load_ttf();
 
   //ensure gl ctx exists
   tms_assertf(_tms._window != NULL, "window does not exist yet");
@@ -1251,9 +1319,17 @@ void ui::render() {
   //start frame
   ImGui_ImplOpenGL3_NewFrame();
   ImGui::NewFrame();
+  
+  #if defined(UI_USE_TTF_FONT)
+  if (UI_USE_TTF_FONT && ui_font) ImGui::PushFont(ui_font);
+  #endif
 
   //layout
   ui_layout();
+
+  #if defined(UI_USE_TTF_FONT)
+  if (UI_USE_TTF_FONT && ui_font) ImGui::PopFont();
+  #endif
 
   //render
   ImGui::Render();
