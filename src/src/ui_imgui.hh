@@ -60,6 +60,15 @@ std::string string_format(const std::string& format, Args ... args) {
   return std::string(buf.get(), buf.get() + size - 1);
 }
 
+static ImVec4 rgba(uint32_t color) {
+  float components[4]; //ABGR
+  for (int i = 0; i < 4; i++) {
+    components[i] = (float)(color & 0xFF) / 255.;
+    color >>= 8;
+  }
+  return ImVec4(components[3], components[2], components[1], components[0]);
+}
+
 static bool lax_search(const std::string& where, const std::string& what) {
   return std::search(
     where.begin(), where.end(),
@@ -1168,6 +1177,17 @@ static void update_imgui_ui_scale() {
 #endif
 }
 
+static void principia_style() {
+  ImGui::StyleColorsDark();
+  ImGuiStyle *style = &ImGui::GetStyle();
+  ImVec4* colors = style->Colors;
+  //TODO style
+  //colors[ImGuiCol_WindowBg]    = rgba(0xfdfdfdff);
+  //colors[ImGuiCol_ScrollbarBg] = rgba(0x767676ff);
+  //colors[ImGuiCol_ScrollbarGrab] = rgba(0x767676ff);
+  //colors[ImGuiCol_ScrollbarGrabActive] = rgba(0xb1b1b1);
+}
+
 void ui::init() {
   //create context
 #ifdef DEBUG
@@ -1193,7 +1213,7 @@ void ui::init() {
 #endif
 
   //style
-  ImGui::StyleColorsDark();
+  principia_style();
 
   //update scale
   update_imgui_ui_scale();
