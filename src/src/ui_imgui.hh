@@ -59,11 +59,13 @@ static uint64_t __ref;
 #define REF_TRUE ((bool*) &(__ref = 1))
 #define REF_FALSE ((bool*) &(__ref = 0))
 
-#define MODAL_FLAGS (ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)
+//constants
+#define MODAL_FLAGS (ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)
+#define POPUP_FLAGS (ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)
 
 //HELPER FUNCTIONS
 
-//some random SO post
+//I stole this one from some random SO post...
 template<typename ... Args>
 std::string string_format(const std::string& format, Args ... args) {
   int size_s = std::snprintf(nullptr, 0, format.c_str(), args ...) + 1;
@@ -74,6 +76,7 @@ std::string string_format(const std::string& format, Args ... args) {
   return std::string(buf.get(), buf.get() + size - 1);
 }
 
+//converts 0xRRGGBBAA-encoded u32 to ImVec4
 static ImVec4 rgba(uint32_t color) {
   float components[4]; //ABGR
   for (int i = 0; i < 4; i++) {
@@ -83,6 +86,7 @@ static ImVec4 rgba(uint32_t color) {
   return ImVec4(components[3], components[2], components[1], components[0]);
 }
 
+//check if string should be filtered by a search query
 static bool lax_search(const std::string& where, const std::string& what) {
   return std::search(
     where.begin(), where.end(),
@@ -91,6 +95,7 @@ static bool lax_search(const std::string& where, const std::string& what) {
   ) != where.end();
 }
 
+//imgui helper: Center next imgui window
 static void ImGui_CenterNextWindow() {
   ImGuiIO& io = ImGui::GetIO();
   ImGui::SetNextWindowPos(
@@ -100,6 +105,7 @@ static void ImGui_CenterNextWindow() {
   );
 }
 
+//if &do_open, *do_open = false, and open popup with name
 static void handle_do_open(bool *do_open, const char* name) {
   if (*do_open) {
     *do_open = false;
@@ -138,7 +144,7 @@ namespace UiSandboxMenu {
 
   static void layout() {
     handle_do_open(&do_open, "sandbox_menu");
-    if (ImGui::BeginPopup("sandbox_menu", ImGuiWindowFlags_NoMove)) {
+    if (ImGui::BeginPopup("sandbox_menu", POPUP_FLAGS)) {
       //True if current level can be saved as a copy
       //Saves can only be created if current level state is sandbox
       bool is_sandbox = G->state.sandbox;
@@ -260,7 +266,7 @@ namespace UiPlayMenu {
 
   static void layout() {
     handle_do_open(&do_open, "play_menu");
-    if (ImGui::BeginPopup("play_menu", ImGuiWindowFlags_NoMove)) {
+    if (ImGui::BeginPopup("play_menu", POPUP_FLAGS)) {
       if (ImGui::MenuItem("Controls")) {
         G->render_controls = true;
       }
