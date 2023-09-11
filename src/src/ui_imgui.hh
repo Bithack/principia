@@ -48,7 +48,7 @@
 //Use TTF font instead of the default one
 #define UI_USE_TTF_FONT true
 #define UI_TTF_FONT "data-shared" SLASH "fonts" SLASH "Roboto-Bold.ttf"
-#define UI_BASE_FONT_SIZE 10.f /* only applies to ttf fonts! */
+#define UI_BASE_FONT_SIZE 12.f /* only applies to ttf fonts! */
 
 //--------------------------------------------
 
@@ -1008,6 +1008,10 @@ namespace UiSettings {
           ImGui::Checkbox("debug (f1)", (bool*) &local_settings["debug"]->v.b);
           #endif
 
+          ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Gameplay")) {
+          ImGui::TextUnformatted("WIP");
           ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
