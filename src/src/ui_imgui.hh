@@ -846,7 +846,10 @@ namespace UiSettings {
 
           ImGui::SeparatorText("Textures");
           ImGui::TextUnformatted("Texture quality");
-          ImGui::SliderInt("###texture_quality", (int*) &local_settings["texture_quality"]->v.u8, 0, 2);
+          const char* quality_str[] = {"Low", "Medium", "High"};
+          int *tex_q_ptr = (int*) &local_settings["texture_quality"]->v.u8;
+          ImGui::SliderInt("###texture_quality", tex_q_ptr, 0, 2, quality_str[*tex_q_ptr]);
+          ImGui::SetItemTooltip("Decrease texture resolution to reduce VRAM usage and improve performace");
 
           ImGui::SeparatorText("Shadows");
           ImGui::Checkbox("Enable shadows", (bool*) &local_settings["enable_shadows"]->v.b);
