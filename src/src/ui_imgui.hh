@@ -125,6 +125,7 @@ namespace UiMessage { static void open(const char* msg, MessageType typ = Messag
 namespace UiSettings { static void open(); static void layout(); }
 namespace UiLuaEditor { static void init(); static void open(entity *e = G->selection.e); static void layout(); }
 namespace UiTips {  static void open(); static void layout(); }
+namespace UiSandboxMode  { static void open(); static void layout(); }
 
 namespace UiSandboxMenu {
   static bool do_open = false;
@@ -1141,6 +1142,7 @@ namespace UiTips {
   }
 
   static void layout() {
+    //TODO: optimize for uiscale!
     handle_do_open(&do_open, "Tips and tricks");
     ImGui_CenterNextWindow();
     ImGui::SetNextWindowSize(ImVec2(400, 200));
@@ -1173,6 +1175,36 @@ namespace UiTips {
   }
 }
 
+namespace UiSandboxMode {
+  static bool do_open = false;
+
+  static void open() {
+    do_open = true;
+  }
+
+  static void layout() {
+    handle_do_open(&do_open, "sandbox_mode");
+    if (ImGui::BeginPopup("sandbox_mode", ImGuiWindowFlags_NoMove)) {
+      if (ImGui::MenuItem("Multiselect")) {
+        G->lock();
+        G->set_mode(GAME_MODE_MULTISEL);
+        G->unlock();
+      }
+      if (ImGui::MenuItem("Connection edit")) {
+        G->lock();
+        G->set_mode(GAME_MODE_CONN_EDIT);
+        G->unlock();
+      } 
+      if (ImGui::MenuItem("Terrain paint")) {
+        G->lock();
+        G->set_mode(GAME_MODE_DRAW);
+        G->unlock();
+      }
+      ImGui::EndPopup();
+    }
+  }
+}
+
 static void ui_init() {
   UiLuaEditor::init();
 }
@@ -1186,6 +1218,7 @@ static void ui_layout() {
   UiSettings::layout();
   UiLuaEditor::layout();
   UiTips::layout();
+  UiSandboxMode::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -1363,6 +1396,9 @@ void ui::open_dialog(int num, void *data) {
       break;
     case DIALOG_ESCRIPT:
       UiLuaEditor::open();
+      break;
+    case DIALOG_SANDBOX_MODE:
+      UiSandboxMode::open();
       break;
     default:
       tms_errorf("dialog %d not implemented yet", num);
