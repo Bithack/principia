@@ -1334,7 +1334,7 @@ namespace UiQuickadd {
       }
 
       if (ImGui::InputTextWithHint(
-        "###qs-search", 
+        "###qs-search",
         "Search for components", 
         &query, 
         ImGuiInputTextFlags_EnterReturnsTrue
@@ -1342,11 +1342,10 @@ namespace UiQuickadd {
         if (search_results.size() > 0) {
           activate_item(haystack[search_results[0]]);
         } else {
+          tms_infof("falling back to last best solution, can't just refuse to do anything!");
           activate_item(haystack[last_viable_solution]);
         }
         ImGui::CloseCurrentPopup();
-        ImGui::EndPopup();
-        return;
       };
       if (ImGui::IsItemEdited()) {
         search();
@@ -1358,8 +1357,16 @@ namespace UiQuickadd {
           SearchItem item = haystack[search_results[i]];
           if (ImGui::Selectable(resolve_item_name(item).c_str())) {
             activate_item(item);
+            ImGui::CloseCurrentPopup();
           }
           ImGui::PopID();
+        }
+        if (search_results.size() == 0) {
+          SearchItem item = haystack[last_viable_solution];
+          if (ImGui::Selectable(resolve_item_name(item).c_str())) {
+            activate_item(item);
+            ImGui::CloseCurrentPopup();
+          }
         }
         ImGui::EndListBox();
       }
