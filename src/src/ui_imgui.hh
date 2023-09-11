@@ -136,6 +136,19 @@ namespace UiTips {  static void open(); static void layout(); }
 namespace UiSandboxMode  { static void open(); static void layout(); }
 namespace UiQuickadd { /*static void init();*/ static void open(); static void layout(); }
 
+//On debug builds, open imgui demo window by pressing Shift+F9
+#ifdef DEBUG
+static bool show_demo = false;
+static void ui_demo_layout() {
+  if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_F9) && ImGui::GetIO().KeyShift) {
+    show_demo ^= 1;
+  }
+  if (show_demo) {
+    ImGui::ShowDemoWindow(&show_demo);
+  }
+}
+#endif
+
 namespace UiSandboxMenu {
   static bool do_open = false;
   static b2Vec2 sb_position = b2Vec2_zero;
@@ -1387,6 +1400,9 @@ static void ui_init() {
 }
 
 static void ui_layout() {
+#ifdef DEBUG
+  ui_demo_layout();
+#endif
   UiSandboxMenu::layout();
   UiPlayMenu::layout();
   UiLevelManager::layout();
