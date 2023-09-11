@@ -1502,7 +1502,7 @@ void ui::init() {
   
   //set flags
   io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange | ImGuiConfigFlags_NavEnableKeyboard;
-  io.ConfigInputTrickleEventQueue = false;
+  //io.ConfigInputTrickleEventQueue = false;
   io.ConfigWindowsResizeFromEdges = true; //XXX: not active until custom cursors are implemented...
   io.ConfigDragClickToInputText = true;
 
