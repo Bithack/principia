@@ -62,8 +62,8 @@ static uint64_t __ref;
 #define REF_FALSE ((bool*) &(__ref = 0))
 
 //constants
-#define MODAL_FLAGS (ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)
-#define POPUP_FLAGS (ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)
+#define MODAL_FLAGS (ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize)
+#define POPUP_FLAGS (ImGuiWindowFlags_NoMove)
 
 //HELPER FUNCTIONS
 
