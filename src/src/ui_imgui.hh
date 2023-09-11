@@ -1435,6 +1435,10 @@ static void principia_style() {
   ImGui::StyleColorsDark();
   ImGuiStyle *style = &ImGui::GetStyle();
   ImVec4* colors = style->Colors;
+
+  style->FrameRounding = 3.;
+  style->WindowRounding = 5.;
+
   //TODO style
   //colors[ImGuiCol_WindowBg]    = rgba(0xfdfdfdff);
   //colors[ImGuiCol_ScrollbarBg] = rgba(0x767676ff);
