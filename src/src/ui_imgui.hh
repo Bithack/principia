@@ -45,6 +45,7 @@
 
 //Apply UI scale setting to ImGui guis
 //Seems to work ¯\_(ツ)_/¯
+//Usage WITHOUT a TTF font is experimental
 #define UI_UISCALE_IMGUI true
 
 //Use TTF font instead of the default one
@@ -1432,7 +1433,14 @@ static void update_imgui_ui_scale() {
   if (UI_UISCALE_IMGUI) {
     float scale_factor = settings["uiscale"]->v.f;
     ImGui::GetStyle().ScaleAllSizes(scale_factor);
-    //ImGui::GetIO().FontGlobalScale = scale_factor;
+
+    #ifdef UI_USE_TTF_FONT
+    if(!UI_USE_TTF_FONT) {
+    #endif
+      ImGui::GetIO().FontGlobalScale = roundf(9. * scale_factor) / 9.;
+    #ifdef UI_USE_TTF_FONT
+    }
+    #endif
   }
 #endif
 }
