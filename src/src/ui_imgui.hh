@@ -1339,7 +1339,6 @@ namespace UiQuickadd {
         &query, 
         ImGuiInputTextFlags_EnterReturnsTrue
       )) {
-        //TODO check for item count
         if (search_results.size() > 0) {
           activate_item(haystack[search_results[0]]);
         } else {
