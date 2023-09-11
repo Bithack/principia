@@ -1442,8 +1442,9 @@ static void principia_style() {
   ImGuiStyle *style = &ImGui::GetStyle();
   ImVec4* colors = style->Colors;
 
-  style->FrameRounding = 3.;
-  style->WindowRounding = 5.;
+  style->FrameRounding = 2.;
+  style->WindowRounding = 3.;
+  style->FrameBorderSize = .5;
 
   //TODO style
   //colors[ImGuiCol_WindowBg]    = rgba(0xfdfdfdff);
