@@ -1,6 +1,4 @@
-#include "misc.hh"
-#include "tms/backend/print.h"
-#include <cstdio>
+#include <cstdint>
 #ifdef __UI_IMGUI_H_GUARD
 #error please do not include this file directly
 #endif
@@ -13,10 +11,14 @@
 #include "settings.hh"
 #include "soundmanager.hh"
 #include "loading_screen.hh"
+#include "misc.hh"
+#include "tms/backend/print.h"
 //---
+#include <cstdio>
 #include <string>
 #include <thread>
 #include <unordered_map>
+#include <vector>
 //---
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -132,6 +134,7 @@ namespace UiSettings { static void open(); static void layout(); }
 namespace UiLuaEditor { static void init(); static void open(entity *e = G->selection.e); static void layout(); }
 namespace UiTips {  static void open(); static void layout(); }
 namespace UiSandboxMode  { static void open(); static void layout(); }
+namespace UiQuickadd { static void open(); static void layout(); }
 
 namespace UiSandboxMenu {
   static bool do_open = false;
@@ -1190,7 +1193,7 @@ namespace UiSandboxMode {
 
   static void layout() {
     handle_do_open(&do_open, "sandbox_mode");
-    if (ImGui::BeginPopup("sandbox_mode", ImGuiWindowFlags_NoMove)) {
+    if (ImGui::BeginPopup("sandbox_mode", POPUP_FLAGS)) {
       if (ImGui::MenuItem("Multiselect")) {
         G->lock();
         G->set_mode(GAME_MODE_MULTISEL);
@@ -1211,6 +1214,47 @@ namespace UiSandboxMode {
   }
 }
 
+namespace UiQuickadd {
+  static bool do_open = false;
+  static std::string query{""};
+
+  static int sel_item = 0;
+  static std::vector<int32_t> search_results;
+
+  static void open() {
+    do_open = true;
+    query = "";
+  }
+
+  static void layout() {
+    handle_do_open(&do_open, "quickadd");
+    if (ImGui::BeginPopup("quickadd", POPUP_FLAGS)) {
+      if (ImGui::IsKeyReleased(ImGuiKey_Escape)) {
+        ImGui::CloseCurrentPopup();
+        ImGui::EndPopup();
+      }
+      if (ImGui::IsWindowAppearing()) ImGui::SetKeyboardFocusHere();
+      if (ImGui::InputTextWithHint(
+        "###qs-search", 
+        "Search for components", 
+        &query, 
+        ImGuiInputTextFlags_EnterReturnsTrue
+      )) {
+        //TODO
+      };
+      if (ImGui::BeginListBox("###listbox")) {
+        for (int i = 0; i < 100; i++) {
+          ImGui::PushID(i);
+          ImGui::Selectable("Snelfer###s");
+          ImGui::PopID();
+        }
+        ImGui::EndListBox();
+      }
+      ImGui::EndPopup();
+    }
+  }
+}
+
 static void ui_init() {
   UiLuaEditor::init();
 }
@@ -1225,6 +1269,7 @@ static void ui_layout() {
   UiLuaEditor::layout();
   UiTips::layout();
   UiSandboxMode::layout();
+  UiQuickadd::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -1405,6 +1450,9 @@ void ui::open_dialog(int num, void *data) {
       break;
     case DIALOG_SANDBOX_MODE:
       UiSandboxMode::open();
+      break;
+    case DIALOG_QUICKADD:
+      UiQuickadd::open();
       break;
     default:
       tms_errorf("dialog %d not implemented yet", num);
