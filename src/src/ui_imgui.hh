@@ -1452,7 +1452,7 @@ static void principia_style() {
 
   style->FrameRounding = 2.;
   style->WindowRounding = 3.;
-  style->FrameBorderSize = .5;
+  //style->FrameBorderSize = .5;
 
   //TODO style
   //colors[ImGuiCol_WindowBg]    = rgba(0xfdfdfdff);
