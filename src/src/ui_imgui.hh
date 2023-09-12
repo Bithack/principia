@@ -1594,12 +1594,9 @@ void ui::render() {
 
 void ui::open_dialog(int num, void *data) {
   switch (num) {
-    case CLOSE_ABSOLUTELY_ALL_DIALOGS:
-    case CLOSE_ALL_DIALOGS:
-      //XXX: not sure if CloseCurrentPopup is ok to use here?
-      tms_infof("closing dialogs");
-      ImGui::CloseCurrentPopup();
-      break;
+    //XXX: this gets called after opening the sandbox menu, closing it immediately
+    // case CLOSE_ABSOLUTELY_ALL_DIALOGS:
+    // case CLOSE_ALL_DIALOGS:
     case DIALOG_SANDBOX_MENU:
       UiSandboxMenu::open();
       break;
