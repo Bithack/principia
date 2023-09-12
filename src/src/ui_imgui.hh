@@ -1,4 +1,3 @@
-#include <cstdint>
 #ifdef __UI_IMGUI_H_GUARD
 #error please do not include this file directly
 #endif
@@ -15,6 +14,7 @@
 #include "tms/backend/print.h"
 //---
 #include <cstdio>
+#include <cstdint>
 #include <string>
 #include <thread>
 #include <unordered_map>
