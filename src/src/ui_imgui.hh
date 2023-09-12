@@ -1446,86 +1446,90 @@ namespace UiSynthesizer {
 
       if (*waveform < WAVEFORM_ETC) {
         //Render graph
+        ImVec2 p_min = ImGui::GetCursorScreenPos();
+        ImVec2 p_max = ImVec2(p_min.x + SYNTH_GRAPH_SIZE.x, p_min.y + SYNTH_GRAPH_SIZE.y);
+        ImVec2 size = SYNTH_GRAPH_SIZE;
+
+        ImGui::PushID("synth-graph");
+        ImGui::Dummy(SYNTH_GRAPH_SIZE);
+        ImGui::PopID();
+
+        draw_list->PushClipRect(p_min, p_max);
+
+        //Background
+        draw_list->AddRectFilled(p_min, p_max, ImColor(0, 0, 0));
+
+        //Center h. line
+        draw_list->AddLine(
+          ImVec2(0., p_min.y + (size.y / 2)),
+          ImVec2(p_max.x, p_min.y + (size.y / 2)),
+          ImColor(128, 128, 128),
+          2.
+        );
+
+        //Graph
         {
-          ImVec2 p_min = ImGui::GetCursorScreenPos();
-          ImVec2 p_max = ImVec2(p_min.x + SYNTH_GRAPH_SIZE.x, p_min.y + SYNTH_GRAPH_SIZE.y);
-          ImVec2 size = SYNTH_GRAPH_SIZE;
-
-          ImGui::PushID("synth-graph");
-          ImGui::Dummy(SYNTH_GRAPH_SIZE);
-          ImGui::PopID();
-
-          draw_list->PushClipRect(p_min, p_max);
-
-          //Background
-          draw_list->AddRectFilled(p_min, p_max, ImColor(0, 0, 0));
-
-          //Center h. line
-          draw_list->AddLine(
-            ImVec2(0., p_min.y + (size.y / 2)),
-            ImVec2(p_max.x, p_min.y + (size.y / 2)),
-            ImColor(128, 128, 128),
-            2.
-          );
-
-          //Graph
+          float freq = *low_hz;
+          float phase = 0.f;
+          double time_seconds;
           {
-            float freq = *low_hz;
-            float phase = 0.f;
-            double time_seconds;
-            {
-              auto now = std::chrono::steady_clock::now();
-              time_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(now - init_time).count();
-            }
-            float x_offset = (time_seconds * SYNTH_GRAPH_VX) / 10.;
-            float x = 0.;
-            float prev_draw_x, prev_draw_y;
-            for (int i = 0; i < SYNTH_GRAPH_POINTS; i++) {
-              float y;
-              switch (*waveform) {
-                case WAVEFORM_SQR:
-                  y = ((int)((x - phase + x_offset) * freq) & 1) ? 1 : -1;
-                  break;
-                case WAVEFORM_SINE:
-                  y = sinf((x - phase + x_offset) * (freq * 2. * M_PI));
-                  break;
-                case WAVEFORM_ETC:
-                  break;
-              } 
-
-              float draw_x = p_min.x + (x / SYNTH_GRAPH_VX) * size.x;
-              float draw_y = p_min.y + (((y / SYNTH_GRAPH_VY) * -.5) + .5) * size.y;
-
-              if (i != 0) draw_list->AddLine(
-                ImVec2(prev_draw_x, prev_draw_y),
-                ImVec2(draw_x, draw_y),
-                ImColor(255, 0, 0),
-                2.f
-              );
-
-              prev_draw_x = draw_x;
-              prev_draw_y = draw_y;
-
-              x += SYNTH_GRAPH_VX / (float) SYNTH_GRAPH_POINTS;
-            }
+            auto now = std::chrono::steady_clock::now();
+            time_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(now - init_time).count();
           }
-          
-          //Numbers
-          draw_list->AddText(
-            ImVec2(p_min.x, p_max.y - ImGui::GetFontSize()),
-            ImColor(128, 128, 128),
-            "0.0"
-          );
-          static const std::string end = string_format("%.02f", SYNTH_GRAPH_VX);
-          draw_list->AddText(
-            ImVec2(p_max.x - ImGui::CalcTextSize(end.c_str()).x, p_max.y - ImGui::GetFontSize()),
-            ImColor(128, 128, 128),
-            end.c_str()
-          );
-          draw_list->PopClipRect();
+          float x_offset = (time_seconds * SYNTH_GRAPH_VX) / 10.;
+          float x = 0.;
+          float prev_draw_x, prev_draw_y;
+          for (int i = 0; i < SYNTH_GRAPH_POINTS; i++) {
+            float y;
+            switch (*waveform) {
+              case WAVEFORM_SQR:
+                y = ((int)((x - phase + x_offset) * freq) & 1) ? 1 : -1;
+                break;
+              case WAVEFORM_SINE:
+                y = sinf((x - phase + x_offset) * (freq * 2. * M_PI));
+                break;
+              case WAVEFORM_ETC:
+                break;
+            } 
+
+            float draw_x = p_min.x + (x / SYNTH_GRAPH_VX) * size.x;
+            float draw_y = p_min.y + (((y / SYNTH_GRAPH_VY) * -.5) + .5) * size.y;
+
+            if (i != 0) draw_list->AddLine(
+              ImVec2(prev_draw_x, prev_draw_y),
+              ImVec2(draw_x, draw_y),
+              ImColor(255, 0, 0),
+              2.f
+            );
+
+            prev_draw_x = draw_x;
+            prev_draw_y = draw_y;
+
+            x += SYNTH_GRAPH_VX / (float) SYNTH_GRAPH_POINTS;
+          }
         }
+        
+        //Numbers
+        draw_list->AddText(
+          ImVec2(p_min.x, p_max.y - ImGui::GetFontSize()),
+          ImColor(128, 128, 128),
+          "0.0"
+        );
+        static const std::string end = string_format("%.02f", SYNTH_GRAPH_VX);
+        draw_list->AddText(
+          ImVec2(p_max.x - ImGui::CalcTextSize(end.c_str()).x, p_max.y - ImGui::GetFontSize()),
+          ImColor(128, 128, 128),
+          end.c_str()
+        );
+        draw_list->PopClipRect();
       } else {
-        ImGui::TextColored(ImColor(255, 0, 0), "Unable to render this waveform");
+        // ImGui::TextColored(ImColor(255, 0, 0), "Unable to [preview this waveform");
+        // ImGui::SetCursorPosY(ImGui::GetStyle().ItemSpacing.y);
+        ImVec2 p = ImGui::GetCursorScreenPos();
+        ImGui::PushID("synth-graph-dummy");
+        ImGui::Dummy(SYNTH_GRAPH_SIZE);
+        ImGui::PopID();
+        draw_list->AddText(p, ImColor(255, 0, 0), "Unable to preview this waveform");
       }
 
       //Controls
