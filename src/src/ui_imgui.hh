@@ -1,3 +1,5 @@
+#include <bits/chrono.h>
+#include <cmath>
 #ifdef __UI_IMGUI_H_GUARD
 #error please do not include this file directly
 #endif
@@ -11,6 +13,7 @@
 #include "soundmanager.hh"
 #include "loading_screen.hh"
 #include "misc.hh"
+#include "speaker.hh"
 #include "tms/backend/print.h"
 //---
 #include <cstdio>
@@ -19,6 +22,7 @@
 #include <thread>
 #include <unordered_map>
 #include <vector>
+#include <chrono>
 //---
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -136,6 +140,7 @@ namespace UiLuaEditor { static void init(); static void open(entity *e = G->sele
 namespace UiTips {  static void open(); static void layout(); }
 namespace UiSandboxMode  { static void open(); static void layout(); }
 namespace UiQuickadd { /*static void init();*/ static void open(); static void layout(); }
+namespace UiSynthesizer { static void init(); static void open(entity *e = G->selection.e); static void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
@@ -1401,9 +1406,165 @@ namespace UiQuickadd {
   }
 }
 
+namespace UiSynthesizer {
+  static bool do_open = false;
+  static entity *entity_ptr = nullptr;
+
+  static std::chrono::steady_clock::time_point init_time;
+
+  #define SYNTH_GRAPH_SIZE ImVec2(400., 200.)
+  #define SYNTH_GRAPH_POINTS 400
+  #define SYNTH_GRAPH_VX 0.01f
+  #define SYNTH_GRAPH_VY 1.f
+
+  // static const char *graph_type_names[] = { "Sine" };
+  //static const graph_type_fns = {};
+  enum {
+    WAVEFORM_SINE,
+    WAVEFORM_SQR,
+    WAVEFORM_ETC,
+  };
+
+  static void init() {
+    init_time = std::chrono::steady_clock::now();
+  }
+
+  static void open(entity *entity /*= G->selection.e*/) {
+    do_open = true;
+    entity_ptr = entity;
+  }
+  
+  static void layout() {
+    handle_do_open(&do_open, "Synthesizer");
+    ImGui_CenterNextWindow();
+    if (ImGui::BeginPopupModal("Synthesizer", REF_TRUE, MODAL_FLAGS)) {
+      ImDrawList *draw_list = ImGui::GetWindowDrawList();
+
+      float *low_hz = &entity_ptr->properties[0].v.f;
+      float *high_hz = &entity_ptr->properties[1].v.f;
+      uint32_t *waveform = &entity_ptr->properties[2].v.i;
+
+      if (*waveform < WAVEFORM_ETC) {
+        //Render graph
+        {
+          ImVec2 p_min = ImGui::GetCursorScreenPos();
+          ImVec2 p_max = ImVec2(p_min.x + SYNTH_GRAPH_SIZE.x, p_min.y + SYNTH_GRAPH_SIZE.y);
+          ImVec2 size = SYNTH_GRAPH_SIZE;
+
+          ImGui::PushID("synth-graph");
+          ImGui::Dummy(SYNTH_GRAPH_SIZE);
+          ImGui::PopID();
+
+          draw_list->PushClipRect(p_min, p_max);
+
+          //Background
+          draw_list->AddRectFilled(p_min, p_max, ImColor(0, 0, 0));
+
+          //Center h. line
+          draw_list->AddLine(
+            ImVec2(0., p_min.y + (size.y / 2)),
+            ImVec2(p_max.x, p_min.y + (size.y / 2)),
+            ImColor(128, 128, 128),
+            2.
+          );
+
+          //Graph
+          {
+            float freq = *low_hz;
+            float phase = 0.f;
+            double time_seconds;
+            {
+              auto now = std::chrono::steady_clock::now();
+              time_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(now - init_time).count();
+            }
+            float x_offset = (time_seconds * SYNTH_GRAPH_VX) / 10.;
+            float x = 0.;
+            float prev_draw_x, prev_draw_y;
+            for (int i = 0; i < SYNTH_GRAPH_POINTS; i++) {
+              float y;
+              switch (*waveform) {
+                case WAVEFORM_SQR:
+                  y = ((int)((x - phase + x_offset) * freq) % 2 == 0) ? 1 : -1;
+                  break;
+                case WAVEFORM_SINE:
+                  y = sinf((x - phase + x_offset) * (freq * 2. * M_PI));
+                  break;
+                case WAVEFORM_ETC:
+                  break;
+              } 
+
+              float draw_x = p_min.x + (x / SYNTH_GRAPH_VX) * size.x;
+              float draw_y = p_min.y + (((y / SYNTH_GRAPH_VY) * -.5) + .5) * size.y;
+
+              if (i != 0) draw_list->AddLine(
+                ImVec2(prev_draw_x, prev_draw_y),
+                ImVec2(draw_x, draw_y),
+                ImColor(255, 0, 0),
+                2.f
+              );
+
+              prev_draw_x = draw_x;
+              prev_draw_y = draw_y;
+
+              x += SYNTH_GRAPH_VX / (float) SYNTH_GRAPH_POINTS;
+            }
+          }
+          
+          //Numbers
+          draw_list->AddText(
+            ImVec2(p_min.x, p_max.y - ImGui::GetFontSize()),
+            ImColor(128, 128, 128),
+            "0.0"
+          );
+          static const std::string end = string_format("%.02f", SYNTH_GRAPH_VX);
+          draw_list->AddText(
+            ImVec2(p_max.x - ImGui::CalcTextSize(end.c_str()).x, p_max.y - ImGui::GetFontSize()),
+            ImColor(128, 128, 128),
+            end.c_str()
+          );
+          draw_list->PopClipRect();
+        }
+      } else {
+        ImGui::TextColored(ImColor(255, 0, 0), "Unable to render this waveform");
+      }
+
+      //Controls
+
+      //Waveform
+      if (ImGui::BeginCombo("Waveform", (*waveform < NUM_WAVEFORMS) ? speaker_options[*waveform]: "???")) {
+        for (int i = 0; i < NUM_WAVEFORMS; i++) {
+          ImGui::PushID(i);
+          if (ImGui::Selectable(speaker_options[i])) {
+            *waveform = i;
+          }
+          ImGui::PopID();
+        }
+        ImGui::EndCombo();
+      }
+
+      //Base freq
+      int hz_int = (int) roundf(*low_hz);
+      if (ImGui::SliderInt("Base requency", &hz_int, 100, 3520)) {
+        *low_hz = (float) hz_int;
+        *high_hz = (std::max)(*high_hz, *low_hz);
+      }
+
+      //Max freq
+      hz_int = (int) roundf(*high_hz);
+      if (ImGui::SliderInt("Max frequency", &hz_int, 100, 3520)) {
+        *high_hz = (float) hz_int;
+        *low_hz = (std::min)(*high_hz, *low_hz);
+      }
+
+      ImGui::EndPopup();
+    }
+  }
+}
+
 static void ui_init() {
   UiLuaEditor::init();
   //UiQuickadd::init();
+  UiSynthesizer::init();
 }
 
 static void ui_layout() {
@@ -1420,6 +1581,7 @@ static void ui_layout() {
   UiTips::layout();
   UiSandboxMode::layout();
   UiQuickadd::layout();
+  UiSynthesizer::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -1620,6 +1782,9 @@ void ui::open_dialog(int num, void *data) {
       break;
     case DIALOG_QUICKADD:
       UiQuickadd::open();
+      break;
+    case DIALOG_SYNTHESIZER:
+      UiSynthesizer::open();
       break;
     default:
       tms_errorf("dialog %d not implemented yet", num);
