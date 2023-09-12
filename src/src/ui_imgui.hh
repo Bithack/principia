@@ -1450,8 +1450,10 @@ static void principia_style() {
   ImGuiStyle *style = &ImGui::GetStyle();
   ImVec4* colors = style->Colors;
 
-  style->FrameRounding = 2.;
-  style->WindowRounding = 3.;
+  //Rounding
+  style->FrameRounding  = style->GrabRounding  = 2.3f;
+  style->WindowRounding = style->PopupRounding = style->ChildRounding = 3.0f;
+
   //style->FrameBorderSize = .5;
 
   //TODO style
