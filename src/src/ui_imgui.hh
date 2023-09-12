@@ -1484,7 +1484,7 @@ namespace UiSynthesizer {
               float y;
               switch (*waveform) {
                 case WAVEFORM_SQR:
-                  y = ((int)((x - phase + x_offset) * freq) % 2 == 0) ? 1 : -1;
+                  y = ((int)((x - phase + x_offset) * freq) & 1) ? 1 : -1;
                   break;
                 case WAVEFORM_SINE:
                   y = sinf((x - phase + x_offset) * (freq * 2. * M_PI));
