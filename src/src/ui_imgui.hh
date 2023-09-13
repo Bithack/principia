@@ -1422,6 +1422,7 @@ namespace UiSynthesizer {
   enum {
     WAVEFORM_SINE,
     WAVEFORM_SQR,
+    WAVEFORM_PULSE,
     WAVEFORM_ETC,
   };
 
@@ -1470,7 +1471,6 @@ namespace UiSynthesizer {
         //Graph
         {
           float freq = *low_hz;
-          float phase = 0.f;
           double time_seconds;
           {
             auto now = std::chrono::steady_clock::now();
@@ -1482,11 +1482,11 @@ namespace UiSynthesizer {
           for (int i = 0; i < SYNTH_GRAPH_POINTS; i++) {
             float y;
             switch (*waveform) {
-              case WAVEFORM_SQR:
-                y = ((int)((x - phase + x_offset) * freq) & 1) ? 1 : -1;
-                break;
               case WAVEFORM_SINE:
-                y = sinf((x - phase + x_offset) * (freq * 2. * M_PI));
+                y = sinf((x + x_offset) * (freq * 2. * M_PI));
+                break;
+              case WAVEFORM_SQR:
+                y = ((int)((x + x_offset) * freq) & 1) ? 1 : -1;
                 break;
               case WAVEFORM_ETC:
                 break;
