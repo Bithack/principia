@@ -1487,15 +1487,15 @@ namespace UiSynthesizer {
           int points = (freq > 1000.) ? ((freq > 2000.) ? SYNTH_GRAPH_POINTS_2 : SYNTH_GRAPH_POINTS_1) : SYNTH_GRAPH_POINTS_0;
           for (int i = 0; i < points; i++) {
             float y;
-            float sx = x + x_offset;
-            float wave = sinf(sx * freq * 2. * M_PI);
+            float sx = (x + x_offset) * freq;
+            float wave = sinf(sx * 2. * M_PI);
             switch (*waveform) {
               case WAVEFORM_SINE:
                 y = wave;
                 break;
               case WAVEFORM_SQR:
                 //XXX: is this correct?
-                y = ((int)(sx * freq) & 1) ? 1 : -1;
+                y = ((int)(sx) & 1) ? 1 : -1;
                 break;
               case WAVEFORM_PULSE:
                 if (*pulse_width >= 1.) {
@@ -1507,13 +1507,13 @@ namespace UiSynthesizer {
                 }
                 break;
               case WAVEFORM_SAWTOOTH:
-                y = fmod(sx * freq * 2., 2.) - 1.;
+                y = fmod(sx * 2., 2.) - 1.;
                 break;
               case WAVEFORM_TRIANGLE:
                 // y = fmod(sx * freq, 1.);
                 // if (y > 0.5) y = .5 - y;
                 // y = (y - .25) * 4.;
-                y = 4.0 * fabs(fmod(sx * freq, 1.0) - 0.5) -1.;
+                y = 4.0 * fabs(fmod(sx, 1.0) - 0.5) -1.;
                 break;
               case WAVEFORM_ETC:
                 break;
