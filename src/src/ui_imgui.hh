@@ -1413,7 +1413,9 @@ namespace UiSynthesizer {
   static std::chrono::steady_clock::time_point init_time;
 
   #define SYNTH_GRAPH_SIZE ImVec2(400., 200.)
-  #define SYNTH_GRAPH_POINTS 400
+  #define SYNTH_GRAPH_POINTS_0 400
+  #define SYNTH_GRAPH_POINTS_1 1200
+  #define SYNTH_GRAPH_POINTS_2 2000
   #define SYNTH_GRAPH_VX 0.01f
   #define SYNTH_GRAPH_VY 1.f
 
@@ -1423,7 +1425,9 @@ namespace UiSynthesizer {
     WAVEFORM_SINE,
     WAVEFORM_SQR,
     WAVEFORM_PULSE,
-    WAVEFORM_ETC,
+    WAVEFORM_SAWTOOTH,
+    WAVEFORM_TRIANGLE,
+    WAVEFORM_ETC
   };
 
   static void init() {
@@ -1444,6 +1448,7 @@ namespace UiSynthesizer {
       float *low_hz = &entity_ptr->properties[0].v.f;
       float *high_hz = &entity_ptr->properties[1].v.f;
       uint32_t *waveform = &entity_ptr->properties[2].v.i;
+      float *pulse_width = &entity_ptr->properties[8].v.f;
 
       if (*waveform < WAVEFORM_ETC) {
         //Render graph
@@ -1479,18 +1484,40 @@ namespace UiSynthesizer {
           float x_offset = (time_seconds * SYNTH_GRAPH_VX) / 10.;
           float x = 0.;
           float prev_draw_x, prev_draw_y;
-          for (int i = 0; i < SYNTH_GRAPH_POINTS; i++) {
+          int points = (freq > 1000.) ? ((freq > 2000.) ? SYNTH_GRAPH_POINTS_2 : SYNTH_GRAPH_POINTS_1) : SYNTH_GRAPH_POINTS_0;
+          for (int i = 0; i < points; i++) {
             float y;
+            float sx = x + x_offset;
+            float wave = sinf(sx * freq * 2. * M_PI);
             switch (*waveform) {
               case WAVEFORM_SINE:
-                y = sinf((x + x_offset) * (freq * 2. * M_PI));
+                y = wave;
                 break;
               case WAVEFORM_SQR:
-                y = ((int)((x + x_offset) * freq) & 1) ? 1 : -1;
+                //XXX: is this correct?
+                y = ((int)(sx * freq) & 1) ? 1 : -1;
+                break;
+              case WAVEFORM_PULSE:
+                if (*pulse_width >= 1.) {
+                  y = 1.;
+                } else if (*pulse_width <= 0.) {
+                  y = -1.;
+                } else {
+                  y = (((wave + 1.f) / 2.f) >= (1.f - *pulse_width)) ? 1.f : -1.f;
+                }
+                break;
+              case WAVEFORM_SAWTOOTH:
+                y = fmod(sx * freq * 2., 2.) - 1.;
+                break;
+              case WAVEFORM_TRIANGLE:
+                // y = fmod(sx * freq, 1.);
+                // if (y > 0.5) y = .5 - y;
+                // y = (y - .25) * 4.;
+                y = 4.0 * fabs(fmod(sx * freq, 1.0) - 0.5) -1.;
                 break;
               case WAVEFORM_ETC:
                 break;
-            } 
+            }
 
             float draw_x = p_min.x + (x / SYNTH_GRAPH_VX) * size.x;
             float draw_y = p_min.y + (((y / SYNTH_GRAPH_VY) * -.5) + .5) * size.y;
@@ -1505,7 +1532,7 @@ namespace UiSynthesizer {
             prev_draw_x = draw_x;
             prev_draw_y = draw_y;
 
-            x += SYNTH_GRAPH_VX / (float) SYNTH_GRAPH_POINTS;
+            x += SYNTH_GRAPH_VX / (float) points;
           }
         }
         
@@ -1558,6 +1585,10 @@ namespace UiSynthesizer {
       if (ImGui::SliderInt("Max frequency", &hz_int, 100, 3520)) {
         *high_hz = (float) hz_int;
         *low_hz = (std::min)(*high_hz, *low_hz);
+      }
+
+      if (*waveform == WAVEFORM_PULSE) {
+        ImGui::SliderFloat("Pulse width", pulse_width, 0., 1.);
       }
 
       ImGui::EndPopup();
