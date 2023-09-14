@@ -1497,6 +1497,9 @@ namespace UiSynthesizer {
           float x = 0.;
 
           int points = (freq > 1000.) ? ((freq > 2000.) ? SYNTH_GRAPH_POINTS_2 : SYNTH_GRAPH_POINTS_1) : SYNTH_GRAPH_POINTS_0;
+          
+          int bcc = 0;
+
           float prev_draw_x, prev_draw_y;
           for (int i = 0; i < points; i++) {
             float y;
@@ -1537,9 +1540,14 @@ namespace UiSynthesizer {
               y *= .5 - .5 * sin(M_PI * 2. * (std::min)(*vol_vibrato, 15.f) * (time_seconds / 2.)) * *vol_vibrato_ext;
             }
 
-            float draw_x = p_min.x + (x / SYNTH_GRAPH_VX) * size.x;
+            float draw_x = p_min.x + ((x / SYNTH_GRAPH_VX) * size.x);
             float draw_y = p_min.y + (((y / SYNTH_GRAPH_VY) * -.5) + .5) * size.y;
 
+            if ((int) *bit_crushing > 0) {
+              if (bcc != 0) draw_y = prev_draw_y;
+              if (bcc++ >= *bit_crushing) bcc = 0;
+            }
+            
             if (i != 0) draw_list->AddLine(
               ImVec2(prev_draw_x, prev_draw_y),
               ImVec2(draw_x, draw_y),
