@@ -1412,7 +1412,8 @@ namespace UiSynthesizer {
 
   static std::chrono::steady_clock::time_point init_time;
 
-  #define SYNTH_GRAPH_SIZE ImVec2(400., 200.)
+  #define SYNTH_GRAPH_SIZE ImVec2(400., 100.)
+  //Points must be multiple of 400
   #define SYNTH_GRAPH_POINTS_0 400
   #define SYNTH_GRAPH_POINTS_1 800
   #define SYNTH_GRAPH_POINTS_2 1600
@@ -1498,7 +1499,7 @@ namespace UiSynthesizer {
 
           int points = (freq > 1000.) ? ((freq > 2000.) ? SYNTH_GRAPH_POINTS_2 : SYNTH_GRAPH_POINTS_1) : SYNTH_GRAPH_POINTS_0;
           
-          int bcc = 0;
+          float bcc = 0;
 
           float prev_draw_x, prev_draw_y;
           for (int i = 0; i < points; i++) {
@@ -1545,7 +1546,8 @@ namespace UiSynthesizer {
 
             if ((int) *bit_crushing > 0) {
               if (bcc != 0) draw_y = prev_draw_y;
-              if (bcc++ >= *bit_crushing) bcc = 0;
+              bcc += 400.f / points;
+              if (bcc >= (*bit_crushing + 1)) bcc = 0;
             }
             
             if (i != 0) draw_list->AddLine(
