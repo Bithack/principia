@@ -1701,7 +1701,13 @@ namespace UiObjColorPicker {
     if (ImGui::BeginPopupModal("Color###beam-color", REF_TRUE, MODAL_FLAGS)) {
       tvec4 color = entity_ptr->get_color();
       float color_arr[4] = {color.r, color.g, color.b, color.a};
-      if (ImGui::ColorPicker4("Color", (float*) &color_arr, 0, (const float*) &ref_color)) {
+      ImGuiColorEditFlags flags = 0
+        | ImGuiColorEditFlags_AlphaPreview
+        | ImGuiColorEditFlags_AlphaBar
+        | ImGuiColorEditFlags_NoDragDrop
+        | ImGuiColorEditFlags_PickerHueWheel //TODO: decide!
+      ;
+      if (ImGui::ColorPicker4("Color", (float*) &color_arr, flags, (const float*) &ref_color)) {
         color.r = color_arr[0];
         color.g = color_arr[1];
         color.b = color_arr[2];
