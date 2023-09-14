@@ -1414,8 +1414,8 @@ namespace UiSynthesizer {
 
   #define SYNTH_GRAPH_SIZE ImVec2(400., 200.)
   #define SYNTH_GRAPH_POINTS_0 400
-  #define SYNTH_GRAPH_POINTS_1 1200
-  #define SYNTH_GRAPH_POINTS_2 2000
+  #define SYNTH_GRAPH_POINTS_1 800
+  #define SYNTH_GRAPH_POINTS_2 1600
   #define SYNTH_GRAPH_VX 0.01f
   #define SYNTH_GRAPH_VY 1.f
 
@@ -1480,16 +1480,24 @@ namespace UiSynthesizer {
 
         //Graph
         {
-          float freq = *low_hz;
           double time_seconds;
           {
             auto now = std::chrono::steady_clock::now();
             time_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(now - init_time).count();
           }
-          float x_offset = (time_seconds * SYNTH_GRAPH_VX) / 10.;
+
+          float freq = *low_hz;
+          
+          // if ((*freq_vibrato > 0.) && (*freq_vibrato_ext > 0.)) {
+          //   freq *= 1. - (sin(2. * M_PI * time_seconds * *freq_vibrato) * SYNTH_GRAPH_VX) * *freq_vibrato_ext;
+          // }
+
+          static const float scr_spd_inv = 10.;
+          float x_offset = (time_seconds * SYNTH_GRAPH_VX) / scr_spd_inv;
           float x = 0.;
-          float prev_draw_x, prev_draw_y;
+
           int points = (freq > 1000.) ? ((freq > 2000.) ? SYNTH_GRAPH_POINTS_2 : SYNTH_GRAPH_POINTS_1) : SYNTH_GRAPH_POINTS_0;
+          float prev_draw_x, prev_draw_y;
           for (int i = 0; i < points; i++) {
             float y;
             float sx = (x + x_offset) * freq;
@@ -1522,6 +1530,11 @@ namespace UiSynthesizer {
                 break;
               case WAVEFORM_ETC:
                 break;
+            }
+            if (*vol_vibrato > 0.) {
+              //y *= .5 - .5 * sin(M_PI * 2. * *vol_vibrato * (((float) i / points) + x_offset)) * *vol_vibrato_ext;
+              //Limited to 15 hz to prevent epilepsy and stuff
+              y *= .5 - .5 * sin(M_PI * 2. * (std::min)(*vol_vibrato, 15.f) * (time_seconds / 2.)) * *vol_vibrato_ext;
             }
 
             float draw_x = p_min.x + (x / SYNTH_GRAPH_VX) * size.x;
