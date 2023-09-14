@@ -1546,7 +1546,7 @@ namespace UiSynthesizer {
 
             if ((int) *bit_crushing > 0) {
               if (bcc != 0) draw_y = prev_draw_y;
-              bcc += 400.f / points;
+              bcc += 1600.f / points;
               if (bcc >= (*bit_crushing + 1)) bcc = 0;
             }
             
@@ -1644,6 +1644,8 @@ namespace UiSynthesizer {
       if (ImGui::SliderInt("Bitcrushing", &bc_int, 0, 64)) {
         *bit_crushing = (float) bc_int;
       }
+
+      ImGui::TextDisabled("Visualization may be inaccurate");
 
       ImGui::EndPopup();
     }
