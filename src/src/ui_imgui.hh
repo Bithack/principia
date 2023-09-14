@@ -121,7 +121,7 @@ static void handle_do_open(bool *do_open, const char* name) {
   }
 }
 
-/* forward */ 
+/* forward */
 static void update_imgui_ui_scale();
 
 struct PFont {
@@ -137,12 +137,12 @@ static struct PFont ui_font_mono;
 static void reload_fonts();
 
 /* forward */
-enum class MessageType { 
+enum class MessageType {
   Message,
   Error
 };
 
-/* forward */ 
+/* forward */
 namespace UiSandboxMenu  { static void open(); static void layout(); }
 namespace UiPlayMenu { static void open(); static void layout(); }
 namespace UiLevelManager { static void open(); static void layout(); }
@@ -246,7 +246,7 @@ namespace UiSandboxMenu {
       }
 
       ImGui::Separator();
-      
+
       //"User menu": This menu is basically useless/just a placeholder
       if (P.user_id && P.username) {
         ImGui::PushID("##UserMenu");
@@ -341,13 +341,13 @@ namespace UiLevelManager {
       level_metadata->info.~lvlinfo();
       free(level_metadata);
     }
-    
+
     level_metadata = new lvlinfo_ext;
 
     //Update meta
     level_metadata->id = id;
     level_metadata->type = id_type;
-    
+
     //Read level info
     lvledit lvl;
     if (lvl.open(id_type, id)) {
@@ -386,7 +386,7 @@ namespace UiLevelManager {
     ImGui::SetNextWindowSize(ImVec2(800., 0.));
     if (ImGui::BeginPopupModal("Level Manager", REF_TRUE, MODAL_FLAGS)) {
       bool any_level_found = false;
-      
+
       //Top action bar
       {
         //Level type selector
@@ -405,7 +405,7 @@ namespace UiLevelManager {
         //lvlname width + padding
         ImGui::SameLine();
         ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (200. + 10.));
-        
+
         //Actual level name field
         ImGui::PushItemWidth(200.);
         if (ImGui::IsWindowAppearing()) {
@@ -578,7 +578,7 @@ namespace UiLogin {
         break;
     }
   }
-  
+
   static void open() {
     do_open = true;
     username = "";
@@ -630,7 +630,7 @@ namespace UiLogin {
         P.add_action(ACTION_LOGIN, data);
       }
       ImGui::EndDisabled();
-      
+
       ImGui::SameLine();
 
       switch (login_status) {
@@ -653,7 +653,7 @@ namespace UiMessage {
   static bool do_open = false;
   static std::string message {""};
   static MessageType msg_type = MessageType::Error;
-  
+
   static void open(const char* msg, MessageType typ /*=MessageType::Message*/) {
     do_open = true;
     msg_type = typ;
@@ -668,7 +668,7 @@ namespace UiMessage {
       case MessageType::Message:
         typ = "Message###info-popup";
         break;
-      
+
       case MessageType::Error:
         typ = "Error###info-popup";
         break;
@@ -824,7 +824,7 @@ namespace UiSettings {
       local_settings[copy_settings[i]] = heap_setting;
     }
   }
-  
+
   static void open() {
     do_open = true;
     is_saving = false;
@@ -843,7 +843,7 @@ namespace UiSettings {
     int item_count = 0;
     while (items[item_count] != NULL) { item_count++; }
     item_count++; //to overwrite the terminator
-    
+
     std::string cust = string_format("%dx%d", local_settings[setting_x]->v.i, local_settings[setting_y]->v.i);
     items_x[item_count - 1] = local_settings[setting_x]->v.i;
     items_y[item_count - 1] = local_settings[setting_y]->v.i;
@@ -859,7 +859,7 @@ namespace UiSettings {
         break;
       }
     }
-    
+
     ImGui::PushID(friendly_name.c_str());
     ImGui::TextUnformatted(friendly_name.c_str());
     ImGui::Combo("###combo", &item_current, items, (std::max)(item_count - 1, item_current + 1));
@@ -930,7 +930,7 @@ namespace UiSettings {
             );
           }
           ImGui::EndDisabled();
-          
+
           ImGui::SeparatorText("Post-processing");
 
           // ImGui::Checkbox("Enable post-processing", (bool*) &local_settings["postprocess"]->v.b);
@@ -978,9 +978,9 @@ namespace UiSettings {
             sm::volume = volume;
           }
           ImGui::EndDisabled();
-          
+
           ImGui::Checkbox("Mute", (bool*) &local_settings["muted"]->v.b);
-          
+
           ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Controls")) {
@@ -1014,7 +1014,7 @@ namespace UiSettings {
           ImGui::SetItemTooltip("Lock the cursor while controlling RC widgets");
 
           ImGui::SeparatorText("Touchscreen");
-          
+
           ImGui::Checkbox("Enable on-screen controls", (bool*) &local_settings["touch_controls"]->v.b);
           ImGui::SetItemTooltip("Enable touch-friendly on-screen controls");
 
@@ -1048,7 +1048,7 @@ namespace UiSettings {
 
           ImGui::TextUnformatted("Display FPS");
           ImGui::Combo("###displayFPS", (int*) &local_settings["display_fps"]->v.u8, "Off\0On\0Graph\0Graph (Raw)\0", 4);
-          
+
           #ifdef DEBUG
           ImGui::SeparatorText("Debug");
           ImGui::Checkbox("debug (f1)", (bool*) &local_settings["debug"]->v.b);
@@ -1063,7 +1063,7 @@ namespace UiSettings {
         ImGui::EndTabBar();
 
         //This assumes separator height == 1. which results in actual height of 0
-        float button_area_height = 
+        float button_area_height =
           ImGui::GetStyle().ItemSpacing.y + //Separator spacing
           (ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.); // Buttons
         if (ImGui::GetContentRegionAvail().y > button_area_height) {
@@ -1094,7 +1094,7 @@ namespace UiLuaEditor {
   static bool has_unsaved_changes = false;
 
   static TextEditor editor;
-	
+
   static void init() {
     editor.SetLanguageDefinition(TextEditor::LanguageDefinition::Lua());
     editor.SetPalette(TextEditor::GetDarkPalette());
@@ -1112,7 +1112,7 @@ namespace UiLuaEditor {
 
     //get code
     std::string code = editor.GetText();
-    
+
     //get code ptr and len
     const char *src = code.c_str();
     *len = code.size();
@@ -1261,7 +1261,7 @@ namespace UiSandboxMode {
         G->lock();
         G->set_mode(GAME_MODE_CONN_EDIT);
         G->unlock();
-      } 
+      }
       if (ImGui::MenuItem("Terrain paint")) {
         G->lock();
         G->set_mode(GAME_MODE_DRAW);
@@ -1284,7 +1284,7 @@ namespace UiQuickadd {
     ItemCategory cat;
     uint32_t id;
   };
-  
+
   static bool is_haystack_inited = false;
   static std::vector<SearchItem> haystack;
   static std::vector<size_t> search_results; //referencing idx in haystack
@@ -1326,9 +1326,9 @@ namespace UiQuickadd {
       search_results.push_back(low_confidence[i]);
     }
     tms_infof(
-      "search \"%s\" %d/%d matched, (%d low confidence)", 
-      query.c_str(), 
-      (int) search_results.size(), 
+      "search \"%s\" %d/%d matched, (%d low confidence)",
+      query.c_str(),
+      (int) search_results.size(),
       (int) haystack.size(),
       (int) low_confidence.size()
     );
@@ -1338,7 +1338,7 @@ namespace UiQuickadd {
   }
 
   // HAYSTACK IS LAZY-INITED!
-  // WE CAN'T CALL THIS RIGHT AWAY 
+  // WE CAN'T CALL THIS RIGHT AWAY
   // AS MENU OBJECTS ARE INITED *AFTER* UI!!!
   static void init_haystack() {
     if (is_haystack_inited) return;
@@ -1393,8 +1393,8 @@ namespace UiQuickadd {
 
       if (ImGui::InputTextWithHint(
         "###qs-search",
-        "Search for components", 
-        &query, 
+        "Search for components",
+        &query,
         ImGuiInputTextFlags_EnterReturnsTrue
       )) {
         if (search_results.size() > 0) {
@@ -1466,7 +1466,7 @@ namespace UiSynthesizer {
     do_open = true;
     entity_ptr = entity;
   }
-  
+
   static void layout() {
     handle_do_open(&do_open, "Synthesizer");
     ImGui_CenterNextWindow();
@@ -1515,7 +1515,7 @@ namespace UiSynthesizer {
           }
 
           float freq = *low_hz;
-          
+
           // if ((*freq_vibrato > 0.) && (*freq_vibrato_ext > 0.)) {
           //   freq *= 1. - (sin(2. * M_PI * time_seconds * *freq_vibrato) * SYNTH_GRAPH_VX) * *freq_vibrato_ext;
           // }
@@ -1525,7 +1525,7 @@ namespace UiSynthesizer {
           float x = 0.;
 
           int points = (freq > 1000.) ? ((freq > 2000.) ? SYNTH_GRAPH_POINTS_2 : SYNTH_GRAPH_POINTS_1) : SYNTH_GRAPH_POINTS_0;
-          
+
           float bcc = 0;
 
           float prev_draw_x, prev_draw_y;
@@ -1576,7 +1576,7 @@ namespace UiSynthesizer {
               bcc += 1600.f / points;
               if (bcc >= (*bit_crushing + 1)) bcc = 0;
             }
-            
+
             if (i != 0) draw_list->AddLine(
               ImVec2(prev_draw_x, prev_draw_y),
               ImVec2(draw_x, draw_y),
@@ -1590,7 +1590,7 @@ namespace UiSynthesizer {
             x += SYNTH_GRAPH_VX / (float) points;
           }
         }
-        
+
         //Numbers
         draw_list->AddText(
           ImVec2(p_min.x, p_max.y - ImGui::GetFontSize()),
@@ -1617,7 +1617,7 @@ namespace UiSynthesizer {
       //Controls
 
       ImGui::SeparatorText("Waveform");
-      
+
       //Waveform
       if (ImGui::BeginCombo("Waveform", (*waveform < NUM_WAVEFORMS) ? speaker_options[*waveform]: "???")) {
         for (int i = 0; i < NUM_WAVEFORMS; i++) {
@@ -1684,14 +1684,17 @@ namespace UiObjColorPicker {
   static entity *entity_ptr;
   static float ref_color[4];
 
-  static void open(entity *entity) {
+  static bool use_alpha = false;
+
+  static void open(bool alpha, entity *entity) {
     do_open = true;
     entity_ptr = entity;
     tvec4 color = entity->get_color();
     ref_color[0] = color.r;
     ref_color[1] = color.g;
     ref_color[2] = color.b;
-    ref_color[3] = color.a;
+    ref_color[3] = use_alpha ? color.a : 1.f;
+    use_alpha = alpha;
     tms_infof("opening color picker for %s", entity->get_name());
   }
 
@@ -1700,19 +1703,21 @@ namespace UiObjColorPicker {
     ImGui_CenterNextWindow();
     if (ImGui::BeginPopupModal("Color###beam-color", REF_TRUE, MODAL_FLAGS)) {
       tvec4 color = entity_ptr->get_color();
-      float color_arr[4] = {color.r, color.g, color.b, color.a};
-      ImGuiColorEditFlags flags = 0
-        | ImGuiColorEditFlags_AlphaPreview
-        | ImGuiColorEditFlags_AlphaBar
+      float color_arr[4] = {
+        color.r,
+        color.g,
+        color.b,
+        use_alpha ? color.a : 1.f
+      };
+      ImGuiColorEditFlags flags =
+        (use_alpha ? (
+          ImGuiColorEditFlags_AlphaPreviewHalf |
+          ImGuiColorEditFlags_AlphaBar
+        ) : ImGuiColorEditFlags_NoAlpha)
         | ImGuiColorEditFlags_NoDragDrop
-        | ImGuiColorEditFlags_PickerHueWheel //TODO: decide!
-      ;
+        | ImGuiColorEditFlags_PickerHueWheel; //TODO: decide! (color wheel/square)
       if (ImGui::ColorPicker4("Color", (float*) &color_arr, flags, (const float*) &ref_color)) {
-        color.r = color_arr[0];
-        color.g = color_arr[1];
-        color.b = color_arr[2];
-        color.a = color_arr[3];
-        entity_ptr->set_color(color);
+        entity_ptr->set_color4(color_arr[0], color_arr[1], color_arr[2], color_arr[3]);
       }
       ImGui::EndPopup();
     }
@@ -1747,7 +1752,7 @@ static void ui_layout() {
 
 #if defined(TMS_BACKEND_PC) && !defined(NO_UI)
 int prompt_is_open = 0;
-#endif 
+#endif
 
 static void update_imgui_ui_scale() {
 #ifdef UI_UISCALE_IMGUI
@@ -1799,7 +1804,7 @@ static struct PFont im_load_ttf(const char *path, float size_pixels) {
   _fseek(file, 0, SEEK_SET);
   _fread(fontbuffer, 1, size, file);
   _fclose(file);
-  
+
   ImFontConfig font_cfg;
   font_cfg.FontDataOwnedByAtlas = false;
   if (size_pixels <= 16.) {
@@ -1841,7 +1846,7 @@ void ui::init() {
 #endif
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
-  
+
   //set flags
   io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange | ImGuiConfigFlags_NavEnableKeyboard;
   //io.ConfigInputTrickleEventQueue = false;
@@ -1874,7 +1879,7 @@ void ui::init() {
   //init
   tms_assertf(ImGui_ImplOpenGL3_Init(), "gl impl init failed");
   tms_assertf(ImGui_ImplTMS_Init() == T_OK, "tms impl init failed");
-  
+
   //call ui_init
   ui_init();
 }
@@ -1900,7 +1905,7 @@ void ui::render() {
   //start frame
   ImGui_ImplOpenGL3_NewFrame();
   ImGui::NewFrame();
-  
+
   #if defined(UI_USE_TTF_FONT)
   if (UI_USE_TTF_FONT) ImGui::PushFont(ui_font.font);
   #endif
@@ -1920,7 +1925,7 @@ void ui::render() {
 void ui::open_dialog(int num, void *data) {
   switch (num) {
     //XXX: this gets called after opening the sandbox menu, closing it immediately
-    case CLOSE_ABSOLUTELY_ALL_DIALOGS: 
+    case CLOSE_ABSOLUTELY_ALL_DIALOGS:
     case CLOSE_ALL_DIALOGS:
       tms_infof("XXX: CLOSE_ALL_DIALOGS/CLOSE_ABSOLUTELY_ALL_DIALOGS (200/201) are intentionally ignored");
       break;
