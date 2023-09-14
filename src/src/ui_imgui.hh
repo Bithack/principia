@@ -156,6 +156,7 @@ namespace UiSandboxMode  { static void open(); static void layout(); }
 namespace UiQuickadd { /*static void init();*/ static void open(); static void layout(); }
 namespace UiSynthesizer { static void init(); static void open(entity *e = G->selection.e); static void layout(); }
 namespace UiObjColorPicker { static void open(bool alpha = false, entity *e = G->selection.e); static void layout(); }
+namespace UiLevelProperties { static void open(); static void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
@@ -224,7 +225,8 @@ namespace UiSandboxMenu {
 
       //"Level properties"
       if (ImGui::MenuItem("Level properties")) {
-        //TODO
+        UiLevelProperties::open();
+        ImGui::CloseCurrentPopup();
       }
 
       //"Save": update current save
@@ -236,6 +238,7 @@ namespace UiSandboxMenu {
 
       //"Save as...": create a new save
       if (is_sandbox && ImGui::MenuItem("Save as...")) {
+        //TODO
         //UiSaveAs::open();
         ImGui::CloseCurrentPopup();
       }
@@ -1742,6 +1745,34 @@ namespace UiObjColorPicker {
   }
 }
 
+namespace UiLevelProperties {
+  static bool do_open = false;
+
+  static void open() {
+    do_open = true;
+  }
+
+  static void layout() {
+    handle_do_open(&do_open, "Level properties");
+    ImGui_CenterNextWindow();
+    if (ImGui::BeginPopupModal("Level properties", REF_TRUE, MODAL_FLAGS)) {
+      ImGui::TextUnformatted("WIP");
+      ImGui::PushTextWrapPos(400);
+      ImGui::TextWrapped(
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, "
+        "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+        "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris "
+        "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in "
+        "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. "
+        "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia "
+        "deserunt mollit anim id est laborum."
+      );
+      ImGui::PopTextWrapPos();
+      ImGui::EndPopup();
+    }
+  }
+}
+
 static void ui_init() {
   UiLuaEditor::init();
   //UiQuickadd::init();
@@ -1764,6 +1795,7 @@ static void ui_layout() {
   UiQuickadd::layout();
   UiSynthesizer::layout();
   UiObjColorPicker::layout();
+  UiLevelProperties::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -1979,6 +2011,9 @@ void ui::open_dialog(int num, void *data) {
     case DIALOG_PIXEL_COLOR:
       UiObjColorPicker::open();
       break;
+    case DIALOG_LEVEL_PROPERTIES:
+      UiLevelProperties::open();
+      break;
     default:
       tms_errorf("dialog %d not implemented yet", num);
   }
@@ -2057,4 +2092,5 @@ void ui::alert(const char* text, uint8_t type) {
 }
 
 //NOLINTEND(misc-definitions-in-headers)
+
 //ї
