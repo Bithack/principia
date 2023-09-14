@@ -1448,6 +1448,11 @@ namespace UiSynthesizer {
       float *low_hz = &entity_ptr->properties[0].v.f;
       float *high_hz = &entity_ptr->properties[1].v.f;
       uint32_t *waveform = &entity_ptr->properties[2].v.i;
+      float *bit_crushing = &entity_ptr->properties[3].v.f;
+      float *vol_vibrato = &entity_ptr->properties[4].v.f;
+      float *freq_vibrato = &entity_ptr->properties[5].v.f;
+      float *vol_vibrato_ext = &entity_ptr->properties[6].v.f;
+      float *freq_vibrato_ext = &entity_ptr->properties[7].v.f;
       float *pulse_width = &entity_ptr->properties[8].v.f;
 
       if (*waveform < WAVEFORM_ETC) {
@@ -1561,6 +1566,8 @@ namespace UiSynthesizer {
 
       //Controls
 
+      ImGui::SeparatorText("Waveform");
+      
       //Waveform
       if (ImGui::BeginCombo("Waveform", (*waveform < NUM_WAVEFORMS) ? speaker_options[*waveform]: "???")) {
         for (int i = 0; i < NUM_WAVEFORMS; i++) {
@@ -1572,6 +1579,14 @@ namespace UiSynthesizer {
         }
         ImGui::EndCombo();
       }
+
+      //Pulse -> Pulse width
+      if (*waveform == WAVEFORM_PULSE) {
+        ImGui::SliderFloat("Pulse width", pulse_width, 0., 1.);
+      }
+
+      //Frequency
+      ImGui::SeparatorText("Frequency");
 
       //Base freq
       int hz_int = (int) roundf(*low_hz);
@@ -1587,8 +1602,24 @@ namespace UiSynthesizer {
         *low_hz = (std::min)(*high_hz, *low_hz);
       }
 
-      if (*waveform == WAVEFORM_PULSE) {
-        ImGui::SliderFloat("Pulse width", pulse_width, 0., 1.);
+      //Vibrato
+      ImGui::SeparatorText("Volume vibrato");
+
+      ImGui::SliderFloat("Frequency###vol-freq", vol_vibrato, 0., 32.);
+      ImGui::SliderFloat("Extent###vol-ext", vol_vibrato_ext, 0., 1.);
+
+      //Freq vibrato
+      ImGui::SeparatorText("Frequency vibrato");
+
+      ImGui::SliderFloat("Frequency###freq-freq", freq_vibrato, 0., 32.);
+      ImGui::SliderFloat("Extent###freq-ext", freq_vibrato_ext, 0., 1.);
+
+      //Bitcrush
+      ImGui::SeparatorText("Bitcrushing");
+
+      int bc_int = (int) *bit_crushing;
+      if (ImGui::SliderInt("Bitcrushing", &bc_int, 0, 64)) {
+        *bit_crushing = (float) bc_int;
       }
 
       ImGui::EndPopup();
