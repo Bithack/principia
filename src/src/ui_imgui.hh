@@ -12,6 +12,7 @@
 #include "loading_screen.hh"
 #include "misc.hh"
 #include "speaker.hh"
+#include "object_factory.hh"
 #include "tms/backend/print.h"
 //---
 #include <cmath>
@@ -154,7 +155,7 @@ namespace UiTips {  static void open(); static void layout(); }
 namespace UiSandboxMode  { static void open(); static void layout(); }
 namespace UiQuickadd { /*static void init();*/ static void open(); static void layout(); }
 namespace UiSynthesizer { static void init(); static void open(entity *e = G->selection.e); static void layout(); }
-namespace UiObjColorPicker { static void open(entity *e = G->selection.e); static void layout(); }
+namespace UiObjColorPicker { static void open(bool alpha = false, entity *e = G->selection.e); static void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
@@ -1685,6 +1686,7 @@ namespace UiObjColorPicker {
   static float ref_color[4];
 
   static bool use_alpha = false;
+  std::string wintitle{"Color"};
 
   static void open(bool alpha, entity *entity) {
     do_open = true;
@@ -1696,12 +1698,14 @@ namespace UiObjColorPicker {
     ref_color[3] = use_alpha ? color.a : 1.f;
     use_alpha = alpha;
     tms_infof("opening color picker for %s", entity->get_name());
+    wintitle = string_format("%s###beam-color", entity_ptr->get_name());
   }
 
   static void layout() {
-    handle_do_open(&do_open, "Color###beam-color");
+    handle_do_open(&do_open, "###beam-color");
     ImGui_CenterNextWindow();
-    if (ImGui::BeginPopupModal("Color###beam-color", REF_TRUE, MODAL_FLAGS)) {
+
+    if (ImGui::BeginPopupModal(wintitle.c_str(), REF_TRUE, MODAL_FLAGS)) {
       tvec4 color = entity_ptr->get_color();
       float color_arr[4] = {
         color.r,
@@ -1719,6 +1723,20 @@ namespace UiObjColorPicker {
       if (ImGui::ColorPicker4("Color", (float*) &color_arr, flags, (const float*) &ref_color)) {
         entity_ptr->set_color4(color_arr[0], color_arr[1], color_arr[2], color_arr[3]);
       }
+
+      //*SPECIAL CASE*: Pixel frequency
+      //This used to be controlled by the alpha value
+      //but a separate slider is more user-friendly
+      if (entity_ptr->g_id == O_PIXEL) {
+        ImGui::Separator();
+        ImGui::SliderInt(
+          "Frequency",
+          (int*) &entity_ptr->properties[4].v.i8,
+          0, 255,
+          (entity_ptr->properties[4].v.i8 == 0) ? "<none>" : "%d"
+        );
+      }
+
       ImGui::EndPopup();
     }
   }
