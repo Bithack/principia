@@ -154,6 +154,7 @@ namespace UiTips {  static void open(); static void layout(); }
 namespace UiSandboxMode  { static void open(); static void layout(); }
 namespace UiQuickadd { /*static void init();*/ static void open(); static void layout(); }
 namespace UiSynthesizer { static void init(); static void open(entity *e = G->selection.e); static void layout(); }
+namespace UiObjColorPicker { static void open(entity *e = G->selection.e); static void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
@@ -1678,6 +1679,40 @@ namespace UiSynthesizer {
   }
 }
 
+namespace UiObjColorPicker {
+  static bool do_open = false;
+  static entity *entity_ptr;
+  static float ref_color[4];
+
+  static void open(entity *entity) {
+    do_open = true;
+    entity_ptr = entity;
+    tvec4 color = entity->get_color();
+    ref_color[0] = color.r;
+    ref_color[1] = color.g;
+    ref_color[2] = color.b;
+    ref_color[3] = color.a;
+    tms_infof("opening color picker for %s", entity->get_name());
+  }
+
+  static void layout() {
+    handle_do_open(&do_open, "Color###beam-color");
+    ImGui_CenterNextWindow();
+    if (ImGui::BeginPopupModal("Color###beam-color", REF_TRUE, MODAL_FLAGS)) {
+      tvec4 color = entity_ptr->get_color();
+      float color_arr[4] = {color.r, color.g, color.b, color.a};
+      if (ImGui::ColorPicker4("Color", (float*) &color_arr, 0, (const float*) &ref_color)) {
+        color.r = color_arr[0];
+        color.g = color_arr[1];
+        color.b = color_arr[2];
+        color.a = color_arr[3];
+        entity_ptr->set_color(color);
+      }
+      ImGui::EndPopup();
+    }
+  }
+}
+
 static void ui_init() {
   UiLuaEditor::init();
   //UiQuickadd::init();
@@ -1699,6 +1734,7 @@ static void ui_layout() {
   UiSandboxMode::layout();
   UiQuickadd::layout();
   UiSynthesizer::layout();
+  UiObjColorPicker::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -1878,8 +1914,10 @@ void ui::render() {
 void ui::open_dialog(int num, void *data) {
   switch (num) {
     //XXX: this gets called after opening the sandbox menu, closing it immediately
-    // case CLOSE_ABSOLUTELY_ALL_DIALOGS:
-    // case CLOSE_ALL_DIALOGS:
+    case CLOSE_ABSOLUTELY_ALL_DIALOGS: 
+    case CLOSE_ALL_DIALOGS:
+      tms_infof("XXX: CLOSE_ALL_DIALOGS/CLOSE_ABSOLUTELY_ALL_DIALOGS (200/201) are intentionally ignored");
+      break;
     case DIALOG_SANDBOX_MENU:
       UiSandboxMenu::open();
       break;
@@ -1906,6 +1944,11 @@ void ui::open_dialog(int num, void *data) {
       break;
     case DIALOG_SYNTHESIZER:
       UiSynthesizer::open();
+      break;
+    case DIALOG_BEAM_COLOR:
+    case DIALOG_POLYGON_COLOR:
+    case DIALOG_PIXEL_COLOR:
+      UiObjColorPicker::open();
       break;
     default:
       tms_errorf("dialog %d not implemented yet", num);
