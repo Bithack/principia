@@ -1,5 +1,3 @@
-#include <bits/chrono.h>
-#include <cmath>
 #ifdef __UI_IMGUI_H_GUARD
 #error please do not include this file directly
 #endif
@@ -16,6 +14,7 @@
 #include "speaker.hh"
 #include "tms/backend/print.h"
 //---
+#include <cmath>
 #include <cstdio>
 #include <cstdint>
 #include <string>
@@ -23,6 +22,7 @@
 #include <unordered_map>
 #include <vector>
 #include <chrono>
+#include <bits/chrono.h>
 //---
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -55,6 +55,7 @@
 //Use TTF font instead of the default one
 #define UI_USE_TTF_FONT true
 #define UI_TTF_FONT "data-shared" SLASH "fonts" SLASH "Roboto-Bold.ttf"
+#define UI_TTF_FONT_MONO "data-shared" SLASH "fonts" SLASH "SourceCodePro-Medium.ttf"
 #define UI_BASE_FONT_SIZE 12.f /* only applies to ttf fonts! */
 
 //--------------------------------------------
@@ -122,11 +123,23 @@ static void handle_do_open(bool *do_open, const char* name) {
 
 /* forward */ 
 static void update_imgui_ui_scale();
-static void im_load_ttf();
 
+struct PFont {
+  void* fontbuffer;
+  ImFont* font;
+};
+
+static struct PFont im_load_ttf(const char *path, float size_pixels);
+
+static struct PFont ui_font;
+static struct PFont ui_font_mono;
+
+static void reload_fonts();
+
+/* forward */
 enum class MessageType { 
   Message,
-  Error 
+  Error
 };
 
 /* forward */ 
@@ -758,7 +771,7 @@ namespace UiSettings {
       #if defined(UI_UISCALE_IMGUI)
       if (UI_UISCALE_IMGUI) {
         update_imgui_ui_scale();
-        im_load_ttf();
+        reload_fonts();
       }
       #endif
     }
@@ -1085,6 +1098,7 @@ namespace UiLuaEditor {
     editor.SetLanguageDefinition(TextEditor::LanguageDefinition::Lua());
     editor.SetPalette(TextEditor::GetDarkPalette());
     editor.SetTabSize(2);
+    editor.SetShowWhitespaces(false);
   }
 
   static void flash_controller() {
@@ -1158,7 +1172,17 @@ namespace UiLuaEditor {
         ImGui::EndPopup();
         return;
       }
+
+      #if defined(UI_USE_TTF_FONT)
+      if (UI_USE_TTF_FONT) ImGui::PushFont(ui_font_mono.font);
+      #endif
+
       editor.Render("TextEditor");
+
+      #if defined(UI_USE_TTF_FONT)
+      if (UI_USE_TTF_FONT) ImGui::PopFont();
+      #endif
+
       if (editor.IsTextChanged()) {
         has_unsaved_changes = true;
       }
@@ -1716,48 +1740,52 @@ static void principia_style() {
   //colors[ImGuiCol_ScrollbarGrabActive] = rgba(0xb1b1b1);
 }
 
-static void* fontbuffer = NULL;
-static ImFont *ui_font = NULL;
+static struct PFont im_load_ttf(const char *path, float size_pixels) {
+  tms_infof("loading ui font from %s...", path);
 
-static void im_load_ttf() {
+  FILE_IN_ASSET(true);
+  FILE *file = (FILE*) _fopen(path, "rb");
+  tms_assertf(file, "font file not found");
+
+  _fseek(file, 0, SEEK_END);
+  size_t size = _ftell(file);
+  tms_infof("buf size %d", (int) size);
+  void *fontbuffer = malloc(size + 1);
+
+  _fseek(file, 0, SEEK_SET);
+  _fread(fontbuffer, 1, size, file);
+  _fclose(file);
+  
+  ImFontConfig font_cfg;
+  font_cfg.FontDataOwnedByAtlas = false;
+  if (size_pixels <= 16.) {
+    font_cfg.OversampleH = 3;
+  }
+
+  ImFont *font = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fontbuffer, size, size_pixels, &font_cfg);
+
+  struct PFont pfont;
+  pfont.fontbuffer = fontbuffer;
+  pfont.font = font;
+
+  return pfont;
+}
+
+void reload_fonts() {
   #if defined(UI_USE_TTF_FONT)
   if (UI_USE_TTF_FONT) {
-    if (fontbuffer) free(fontbuffer);
+    //TODO free existing fonts
 
     float size_pixels = UI_BASE_FONT_SIZE;
-
     #ifdef UI_UISCALE_IMGUI
-    if (UI_UISCALE_IMGUI) {
-      size_pixels *= settings["uiscale"]->v.f;
-    }
+    if (UI_UISCALE_IMGUI) size_pixels *= settings["uiscale"]->v.f;
     #endif
-
     size_pixels = roundf(size_pixels);
 
     tms_infof("font size %fpx", size_pixels);
 
-    tms_infof("loading ui font from %s...", UI_TTF_FONT);
-
-    FILE_IN_ASSET(true);
-    FILE *file = (FILE*) _fopen(UI_TTF_FONT, "rb");
-    tms_assertf(file, "font file not found");
-
-    _fseek(file, 0, SEEK_END);
-    size_t size = _ftell(file);
-    tms_infof("buf size %d", (int) size);
-    fontbuffer = malloc(size + 1);
-
-    _fseek(file, 0, SEEK_SET);
-    _fread(fontbuffer, 1, size, file);
-    _fclose(file);
-    
-    ImFontConfig font_cfg;
-    font_cfg.FontDataOwnedByAtlas = false;
-    if (size_pixels <= 16.) {
-      font_cfg.OversampleH = 3;
-    }
-
-    ui_font = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fontbuffer, size, size_pixels, &font_cfg);
+    ui_font = im_load_ttf(UI_TTF_FONT, size_pixels);
+    ui_font_mono = im_load_ttf(UI_TTF_FONT_MONO, size_pixels + 2);
   }
   #endif
 }
@@ -1793,7 +1821,7 @@ void ui::init() {
   update_imgui_ui_scale();
 
   //load font
-  im_load_ttf();
+  reload_fonts();
 
   //ensure gl ctx exists
   tms_assertf(_tms._window != NULL, "window does not exist yet");
@@ -1830,14 +1858,14 @@ void ui::render() {
   ImGui::NewFrame();
   
   #if defined(UI_USE_TTF_FONT)
-  if (UI_USE_TTF_FONT && ui_font) ImGui::PushFont(ui_font);
+  if (UI_USE_TTF_FONT) ImGui::PushFont(ui_font.font);
   #endif
 
   //layout
   ui_layout();
 
   #if defined(UI_USE_TTF_FONT)
-  if (UI_USE_TTF_FONT && ui_font) ImGui::PopFont();
+  if (UI_USE_TTF_FONT) ImGui::PopFont();
   #endif
 
   //render
