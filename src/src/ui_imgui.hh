@@ -1147,6 +1147,8 @@ namespace UiLuaEditor {
   }
 
   static void layout() {
+    //TODO better ui design
+
     ImGuiIO& io = ImGui::GetIO();
     handle_do_open(&do_open, "Code editor");
     ImGui_CenterNextWindow();
