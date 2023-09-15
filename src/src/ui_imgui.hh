@@ -896,7 +896,8 @@ namespace UiSettings {
           ImGui::TextUnformatted("Texture quality");
           const char* quality_str[] = {"Low", "Medium", "High"};
           int *tex_q_ptr = (int*) &local_settings["texture_quality"]->v.u8;
-          ImGui::SliderInt("###texture_quality", tex_q_ptr, 0, 2, quality_str[*tex_q_ptr]);
+          int tex_q_f = abs((std::min)(*tex_q_ptr, 2));
+          ImGui::SliderInt("###texture_quality", tex_q_ptr, 0, 2, quality_str[tex_q_f]);
           ImGui::SetItemTooltip("Decrease texture resolution to reduce VRAM usage and improve performace");
 
           ImGui::SeparatorText("Shadows");
