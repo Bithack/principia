@@ -157,6 +157,7 @@ namespace UiQuickadd { /*static void init();*/ static void open(); static void l
 namespace UiSynthesizer { static void init(); static void open(entity *e = G->selection.e); static void layout(); }
 namespace UiObjColorPicker { static void open(bool alpha = false, entity *e = G->selection.e); static void layout(); }
 namespace UiLevelProperties { static void open(); static void layout(); }
+namespace UiSave { static void open(); static void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
@@ -239,7 +240,7 @@ namespace UiSandboxMenu {
       //"Save as...": create a new save
       if (is_sandbox && ImGui::MenuItem("Save as...")) {
         //TODO
-        //UiSaveAs::open();
+        UiSave::open();
         ImGui::CloseCurrentPopup();
       }
 
@@ -1773,6 +1774,73 @@ namespace UiLevelProperties {
   }
 }
 
+namespace UiSave {
+  static bool do_open = false;
+  static std::string level_name{""};
+
+  #define LEVEL_NAME_LEN_SOFT_LIMIT 250
+  #define LEVEL_NAME_LEN_HARD_LIMIT 254
+  #define LEVEL_NAME_PLACEHOLDER (const char*)"<no name>"
+
+  static void open() {
+    do_open = true;
+    size_t sz = (std::min)((int) W->level.name_len, LEVEL_NAME_LEN_HARD_LIMIT);
+    level_name = std::string((const char*) &W->level.name, sz);
+    if (level_name == std::string{LEVEL_NAME_PLACEHOLDER}) {
+      level_name = "";
+    }
+  }
+
+  static void layout() {
+    handle_do_open(&do_open, "###sas");
+    ImGui_CenterNextWindow();
+    if (ImGui::BeginPopupModal("Save as...###sas", REF_TRUE, MODAL_FLAGS)) {
+      ImGuiStyle& style = ImGui::GetStyle();
+
+      //XXX: add level icon here? (on the left)
+
+      ImGui::TextUnformatted("Level name:");
+
+      //Level name input field
+      if (ImGui::IsWindowAppearing()) ImGui::SetKeyboardFocusHere();
+      bool activate = ImGui::InputTextWithHint(
+        "###levelname",
+        LEVEL_NAME_PLACEHOLDER,
+        &level_name,
+        ImGuiInputTextFlags_EnterReturnsTrue
+      );
+
+      //Validation
+      bool invalid = level_name.length() > LEVEL_NAME_LEN_SOFT_LIMIT;
+
+      //Char counter, X/250
+      float cpy = ImGui::GetCursorPosY();
+      ImGui::SetCursorPosY(cpy + style.FramePadding.y);
+      ImGui::TextColored(
+        invalid ? ImColor(255, 0, 0) : ImColor(1.f, 1.f, 1.f, style.DisabledAlpha),
+        "%zu/%d", level_name.length(), LEVEL_NAME_LEN_SOFT_LIMIT
+      );
+      ImGui::SetCursorPosY(cpy);
+
+      //Save button, right-aligned
+      const char *save_str = "Save";
+      ImGui::SameLine();
+      ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x - (ImGui::CalcTextSize(save_str).x + style.FramePadding.x * 2.));
+      ImGui::BeginDisabled(invalid);
+      if (ImGui::Button(save_str)  || (activate && !invalid)) {
+        size_t sz = (std::min)((int) level_name.length(), LEVEL_NAME_LEN_HARD_LIMIT);
+        memcpy((char*) &W->level.name, level_name.c_str(), sz);
+        W->level.name_len = sz;
+        P.add_action(ACTION_SAVE_COPY, 0);
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::EndDisabled();
+
+      ImGui::EndPopup();
+    }
+  }
+}
+
 static void ui_init() {
   UiLuaEditor::init();
   //UiQuickadd::init();
@@ -1796,6 +1864,7 @@ static void ui_layout() {
   UiSynthesizer::layout();
   UiObjColorPicker::layout();
   UiLevelProperties::layout();
+  UiSave::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -2013,6 +2082,10 @@ void ui::open_dialog(int num, void *data) {
       break;
     case DIALOG_LEVEL_PROPERTIES:
       UiLevelProperties::open();
+      break;
+    case DIALOG_SAVE:
+    case DIALOG_SAVE_COPY:
+      UiSave::open();
       break;
     default:
       tms_errorf("dialog %d not implemented yet", num);
