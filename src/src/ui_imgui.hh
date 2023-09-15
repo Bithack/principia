@@ -1,3 +1,4 @@
+#include "tms/core/texture.h"
 #ifdef __UI_IMGUI_H_GUARD
 #error please do not include this file directly
 #endif
@@ -122,20 +123,107 @@ static void handle_do_open(bool *do_open, const char* name) {
   }
 }
 
-/* forward */
-static void update_imgui_ui_scale();
+// FILE LOADING //
+
+//Load asset
+std::vector<uint8_t> *load_ass(const char *path) {
+  tms_infof("(imgui-backend) loading asset from %s...", path);
+
+  FILE_IN_ASSET(true);
+  FILE *file = (FILE*) _fopen(path, "rb");
+  tms_assertf(file, "file not found");
+
+  _fseek(file, 0, SEEK_END);
+  size_t size = _ftell(file);
+  tms_debugf("buf size %d", (int) size);
+  void *buffer = malloc(size + 1);
+
+  _fseek(file, 0, SEEK_SET);
+  _fread(buffer, 1, size, file);
+  _fclose(file);
+
+  uint8_t *typed_buffer = (uint8_t*) buffer;
+  std::vector<uint8_t> *vec = new std::vector<uint8_t>(typed_buffer, typed_buffer + size);
+  free(buffer);
+
+  return vec;
+}
+
+/// PFONT ///
 
 struct PFont {
-  void* fontbuffer;
-  ImFont* font;
+  std::vector<uint8_t> *fontbuffer;
+  ImFont *font;
 };
 
-static struct PFont im_load_ttf(const char *path, float size_pixels);
+static struct PFont im_load_ttf(const char *path, float size_pixels) {
+  std::vector<uint8_t>* buf = load_ass(path);
+
+  ImFontConfig font_cfg;
+  font_cfg.FontDataOwnedByAtlas = false;
+  if (size_pixels <= 16.) {
+    font_cfg.OversampleH = 3;
+  }
+
+  ImFont *font = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(buf->data(), buf->size(), size_pixels, &font_cfg);
+
+  struct PFont pfont;
+  pfont.fontbuffer = buf;
+  pfont.font = font;
+
+  return pfont;
+}
 
 static struct PFont ui_font;
 static struct PFont ui_font_mono;
 
-static void reload_fonts();
+static void load_fonts() {
+  #if defined(UI_USE_TTF_FONT)
+  if (UI_USE_TTF_FONT) {
+    //TODO free existing fonts
+
+    float size_pixels = UI_BASE_FONT_SIZE;
+    #ifdef UI_UISCALE_IMGUI
+    if (UI_UISCALE_IMGUI) size_pixels *= settings["uiscale"]->v.f;
+    #endif
+    size_pixels = roundf(size_pixels);
+
+    tms_infof("font size %fpx", size_pixels);
+
+    ui_font = im_load_ttf(UI_TTF_FONT, size_pixels);
+    ui_font_mono = im_load_ttf(UI_TTF_FONT_MONO, size_pixels + 2);
+  }
+  #endif
+}
+
+
+/// TEX. ///
+
+struct PTextures {
+  tms_texture *adventure_flat;
+  tms_texture *adventure;
+  tms_texture *sandbox;
+};
+static struct PTextures ui_textures;
+
+static tms_texture *load_texture(const char *path) {
+  std::vector<uint8_t> *buf = load_ass(path);
+  tms_texture *tex = tms_texture_alloc();
+  ///XXX: should freesrc be 1? it should close rwops, but not free the data right?
+  tms_texture_load_mem2(tex, (const char*) buf->data(), buf->size(), 0);
+  tms_texture_upload(tex);
+  delete buf;
+  return tex;
+}
+
+static void load_textures() {
+  ui_textures.adventure = load_texture("data-shared/textures/img/adventure.jpg");
+  ui_textures.adventure_flat = load_texture("data-shared/textures/img/adventure_flat.jpg");
+  ui_textures.sandbox = load_texture("data-shared/textures/img/sandbox.jpg");
+}
+
+/* forward */
+static void update_imgui_ui_scale();
 
 /* forward */
 enum class MessageType {
@@ -169,6 +257,7 @@ static void ui_demo_layout() {
   if (show_demo) {
     ImGui::ShowDemoWindow(&show_demo);
   }
+  //ImGui::Image((void*)(size_t)ui_textures.adventure->gl_texture, ImVec2(ui_textures.adventure->width, ui_textures.adventure->height), ImVec2(0, 1), ImVec2(1, 0));
 }
 #endif
 
@@ -777,7 +866,7 @@ namespace UiSettings {
       #if defined(UI_UISCALE_IMGUI)
       if (UI_UISCALE_IMGUI) {
         update_imgui_ui_scale();
-        reload_fonts();
+        load_fonts();
       }
       #endif
     }
@@ -1910,56 +1999,6 @@ static void principia_style() {
   //colors[ImGuiCol_ScrollbarGrabActive] = rgba(0xb1b1b1);
 }
 
-static struct PFont im_load_ttf(const char *path, float size_pixels) {
-  tms_infof("loading ui font from %s...", path);
-
-  FILE_IN_ASSET(true);
-  FILE *file = (FILE*) _fopen(path, "rb");
-  tms_assertf(file, "font file not found");
-
-  _fseek(file, 0, SEEK_END);
-  size_t size = _ftell(file);
-  tms_infof("buf size %d", (int) size);
-  void *fontbuffer = malloc(size + 1);
-
-  _fseek(file, 0, SEEK_SET);
-  _fread(fontbuffer, 1, size, file);
-  _fclose(file);
-
-  ImFontConfig font_cfg;
-  font_cfg.FontDataOwnedByAtlas = false;
-  if (size_pixels <= 16.) {
-    font_cfg.OversampleH = 3;
-  }
-
-  ImFont *font = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fontbuffer, size, size_pixels, &font_cfg);
-
-  struct PFont pfont;
-  pfont.fontbuffer = fontbuffer;
-  pfont.font = font;
-
-  return pfont;
-}
-
-void reload_fonts() {
-  #if defined(UI_USE_TTF_FONT)
-  if (UI_USE_TTF_FONT) {
-    //TODO free existing fonts
-
-    float size_pixels = UI_BASE_FONT_SIZE;
-    #ifdef UI_UISCALE_IMGUI
-    if (UI_UISCALE_IMGUI) size_pixels *= settings["uiscale"]->v.f;
-    #endif
-    size_pixels = roundf(size_pixels);
-
-    tms_infof("font size %fpx", size_pixels);
-
-    ui_font = im_load_ttf(UI_TTF_FONT, size_pixels);
-    ui_font_mono = im_load_ttf(UI_TTF_FONT_MONO, size_pixels + 2);
-  }
-  #endif
-}
-
 void ui::init() {
   //create context
 #ifdef DEBUG
@@ -1990,8 +2029,11 @@ void ui::init() {
   //update scale
   update_imgui_ui_scale();
 
-  //load font
-  reload_fonts();
+  //load fonts
+  load_fonts();
+
+  //load textures
+  load_textures();
 
   //ensure gl ctx exists
   tms_assertf(_tms._window != NULL, "window does not exist yet");
