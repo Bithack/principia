@@ -1,3 +1,5 @@
+#include "main.hh"
+#include "pkgman.hh"
 #include "tms/core/texture.h"
 #ifdef __UI_IMGUI_H_GUARD
 #error please do not include this file directly
@@ -263,6 +265,7 @@ namespace UiSynthesizer { static void init(); static void open(entity *e = G->se
 namespace UiObjColorPicker { static void open(bool alpha = false, entity *e = G->selection.e); static void layout(); }
 namespace UiLevelProperties { static void open(); static void layout(); }
 namespace UiSave { static void open(); static void layout(); }
+namespace UiNewLevel { static void open(); static void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
@@ -354,6 +357,11 @@ namespace UiSandboxMenu {
       //"Open...": open the Level Manager
       if (ImGui::MenuItem("Open...")) {
         UiLevelManager::open();
+        ImGui::CloseCurrentPopup();
+      }
+
+      if (ImGui::MenuItem("New level...")) {
+        UiNewLevel::open();
         ImGui::CloseCurrentPopup();
       }
 
@@ -1950,6 +1958,29 @@ namespace UiSave {
   }
 }
 
+namespace UiNewLevel {
+  static bool do_open = false;
+
+  static void open() {
+    do_open = true;
+  }
+
+  static void option(const char *label, const char *name, int action, int lcat, tms_texture* texture) {
+    const ImVec2 size = ImVec2(400., 200.);
+    ImGui::Selectable(label, false, ImGuiSelectableFlags_AllowOverlap);
+    //WIP
+  }
+
+  static void layout() {
+    handle_do_open(&do_open, "###new-level");
+    ImGui_CenterNextWindow();
+    if (ImGui::BeginPopupModal("New level###new-level", REF_TRUE, MODAL_FLAGS)) {
+      option("###o-sandbox", "Sandbox", ACTION_NEW_LEVEL, LCAT_CUSTOM, ui_textures.sandbox);
+      ImGui::EndPopup();
+    }
+  }
+}
+
 static void ui_init() {
   UiLuaEditor::init();
   //UiQuickadd::init();
@@ -1974,6 +2005,7 @@ static void ui_layout() {
   UiObjColorPicker::layout();
   UiLevelProperties::layout();
   UiSave::layout();
+  UiNewLevel::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -2148,6 +2180,9 @@ void ui::open_dialog(int num, void *data) {
     case DIALOG_SAVE:
     case DIALOG_SAVE_COPY:
       UiSave::open();
+      break;
+    case DIALOG_NEW_LEVEL:
+      UiNewLevel::open();
       break;
     default:
       tms_errorf("dialog %d not implemented yet", num);
