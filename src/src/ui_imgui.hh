@@ -1414,7 +1414,8 @@ namespace UiQuickadd {
         search();
       }
 
-      if (ImGui::BeginListBox("###listbox")) {
+      const float area_height = ImGui::GetTextLineHeightWithSpacing() * 7.25f + ImGui::GetStyle().FramePadding.y * 2.0f;
+      if (ImGui::BeginChildFrame(ImGui::GetID("qsbox"), ImVec2(-FLT_MIN, area_height), ImGuiWindowFlags_NavFlattened)) {
         for (int i = 0; i < search_results.size(); i++) {
           ImGui::PushID(i);
           SearchItem item = haystack[search_results[i]];
@@ -1431,7 +1432,7 @@ namespace UiQuickadd {
             ImGui::CloseCurrentPopup();
           }
         }
-        ImGui::EndListBox();
+        ImGui::EndChildFrame();
       }
       ImGui::EndPopup();
     }
