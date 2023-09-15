@@ -60,6 +60,9 @@
 #define UI_TTF_FONT_MONO "data-shared" SLASH "fonts" SLASH "SourceCodePro-Medium.ttf"
 #define UI_BASE_FONT_SIZE 12.f /* only applies to ttf fonts! */
 
+//Load and use image assets
+#define LOAD_IMAGES true
+
 //--------------------------------------------
 
 //STUFF
@@ -217,9 +220,23 @@ static tms_texture *load_texture(const char *path) {
 }
 
 static void load_textures() {
-  ui_textures.adventure = load_texture("data-shared/textures/img/adventure.jpg");
-  ui_textures.adventure_flat = load_texture("data-shared/textures/img/adventure_flat.jpg");
-  ui_textures.sandbox = load_texture("data-shared/textures/img/sandbox.jpg");
+  #ifdef LOAD_IMAGES
+  if(LOAD_IMAGES){
+    ui_textures.adventure = load_texture("data-shared/textures/img/adventure.jpg");
+    ui_textures.adventure_flat = load_texture("data-shared/textures/img/adventure_flat.jpg");
+    ui_textures.sandbox = load_texture("data-shared/textures/img/sandbox.jpg");
+  }
+  #endif
+}
+
+static void ImGui_TmsImage(tms_texture* texture, ImVec2 size = ImVec2(-1., -1.)) {
+  #ifdef LOAD_IMAGES
+  if(LOAD_IMAGES){
+    if (size.x <= 0.) size.x = (float)texture->width;
+    if (size.y <= 0.) size.y = (float)texture->height;
+    ImGui::Image((void*)(size_t)texture->gl_texture, size, ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
+  }
+  #endif
 }
 
 /* forward */
@@ -258,6 +275,7 @@ static void ui_demo_layout() {
     ImGui::ShowDemoWindow(&show_demo);
   }
   //ImGui::Image((void*)(size_t)ui_textures.adventure->gl_texture, ImVec2(ui_textures.adventure->width, ui_textures.adventure->height), ImVec2(0, 1), ImVec2(1, 0));
+  //ImGui_TmsImage(ui_textures.adventure);
 }
 #endif
 
