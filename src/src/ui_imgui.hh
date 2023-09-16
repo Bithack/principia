@@ -63,10 +63,10 @@
 #define UI_TTF_FONT_MONO "data-shared" SLASH "fonts" SLASH "SourceCodePro-Medium.ttf"
 #define UI_BASE_FONT_SIZE 12.f /* only applies to ttf fonts! */
 
-//Load and use image assets
-//Do not disable unless absolutely required, may cause null ptr dereferences (not tested)
-//(Also disable TTF fonts for zero fs access)
-#define USE_IM_TMS_IMAGES true
+//Load image assets
+//(For debugging issues with asset loading)
+//If disabled, placeholders (red squares) will be loaded in from RAM instead
+#define DO_LOAD_IMAGE_ASSETS true
 
 //--------------------------------------------
 
@@ -229,16 +229,6 @@ struct PUiTextures {
 };
 static struct PUiTextures ui_textures;
 
-static tms_texture *load_texture(const char *path) {
-  std::vector<uint8_t> *buf = load_ass(path);
-  tms_texture *tex = tms_texture_alloc();
-  ///XXX: should freesrc be 1? it should close rwops, but not free the data right?
-  tms_texture_load_mem2(tex, (const char*) buf->data(), buf->size(), 0);
-  tms_texture_upload(tex);
-  delete buf;
-  return tex;
-}
-
 static tms_texture *load_texture_mem(const char *buf, int width, int height, int num_channels = 3) {
   tms_texture *tex = tms_texture_alloc();
   tms_texture_load_mem(tex, buf, width, height, num_channels);
@@ -246,14 +236,30 @@ static tms_texture *load_texture_mem(const char *buf, int width, int height, int
   return tex;
 }
 
-static void load_textures() {
-  #ifdef USE_IM_TMS_IMAGES
-  if(USE_IM_TMS_IMAGES){
-    ui_textures.adventure = load_texture("data-shared/textures/img/adventure.jpg");
-    ui_textures.adventure_empty = load_texture("data-shared/textures/img/adventure_empty.jpg");
-    ui_textures.custom = load_texture("data-shared/textures/img/custom.jpg");
+static tms_texture *load_texture(const char *path) {
+  #ifdef DO_LOAD_IMAGE_ASSETS
+  if (DO_LOAD_IMAGE_ASSETS) {
+    std::vector<uint8_t> *buf = load_ass(path);
+    tms_texture *tex = tms_texture_alloc();
+    ///XXX: should freesrc be 1? it should close rwops, but not free the data right?
+    tms_texture_load_mem2(tex, (const char*) buf->data(), buf->size(), 0);
+    tms_texture_upload(tex);
+    delete buf;
+    return tex;
+  } else {
+  #endif
+    unsigned char x[] = {255, 0, 0};
+    return load_texture_mem((const char*) x, 1, 1);
+  #ifdef DO_LOAD_IMAGE_ASSETS
   }
   #endif
+}
+
+
+static void load_textures() {
+  ui_textures.adventure = load_texture("data-shared/textures/img/adventure.jpg");
+  ui_textures.adventure_empty = load_texture("data-shared/textures/img/adventure_empty.jpg");
+  ui_textures.custom = load_texture("data-shared/textures/img/custom.jpg");
 }
 
 #define TIM_UV0 ImVec2(0.f, 1.f)
