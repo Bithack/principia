@@ -250,7 +250,7 @@ static ImVec2 ImGui_TmsImage_Size(tms_texture* texture, ImVec2 size = ImVec2(-1.
     } else if (size.x < 0.) {
       size.x = (size.y / th) * tw;
     } else if (size.y < 0.) {
-      size.x = (size.y / th) * tw;
+      size.y = (size.x / tw) * th;
     }
     return size;
   }
