@@ -64,6 +64,8 @@
 #define UI_BASE_FONT_SIZE 12.f /* only applies to ttf fonts! */
 
 //Load and use image assets
+//Do not disable unless absolutely required, may cause null ptr dereferences (not tested)
+//(Also disable TTF fonts for zero fs access)
 #define USE_IM_TMS_IMAGES true
 
 //--------------------------------------------
