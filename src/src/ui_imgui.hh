@@ -125,6 +125,17 @@ static void ImGui_CenterNextWindow() {
   );
 }
 
+static void ImGui_BeginScaleFont(float scale) {
+  ImGui::GetFont()->Scale = scale;
+  ImGui::PushFont(ImGui::GetFont());
+}
+
+static void ImGui_EndScaleFont() {
+  ImGui::GetFont()->Scale = 1.;
+  ImGui::PopFont();
+  ImGui::GetFont()->Scale = 1.;
+}
+
 //if &do_open, *do_open = false, and open popup with name
 static void handle_do_open(bool *do_open, const char* name) {
   if (*do_open) {
@@ -2007,7 +2018,7 @@ namespace UiNewLevel {
     ImGuiStyle& style = ImGui::GetStyle();
     ImDrawList *draw_list = ImGui::GetWindowDrawList();
 
-    const ImVec2 size = ImVec2(400., 100.);
+    const ImVec2 size = ImVec2(200., 200.);
     const ImVec2 size_inner = ImVec2(size.x - style.FramePadding.x * 2., size.y - style.FramePadding.y * 2.);
 
     //Top-left corner
@@ -2033,7 +2044,7 @@ namespace UiNewLevel {
     draw_list->PushClipRect(p, p_max);
 
     //Icon
-    ImVec2 image_size = ImGui_TmsImage_Size(texture, ImVec2(-1., size_inner.y));
+    ImVec2 image_size = ImGui_TmsImage_Size(texture, ImVec2(size_inner.x, -1));
     {
       void *user_texture_id = ImGui_TmsImage_Id(texture);
       ImVec2 img_p_max = ImVec2(pp.x + image_size.x, pp.y + image_size.y);
@@ -2042,7 +2053,7 @@ namespace UiNewLevel {
 
     //Text fields
 
-    ImVec2 cursor_after_image = ImVec2(pp.x + image_size.x + style.ItemSpacing.x, pp.y);
+    ImVec2 cursor_after_image = ImVec2(pp.x, pp.y + image_size.y + style.ItemSpacing.y);
 
     ImU32 text_color = ImColor(style.Colors[ImGuiCol_Text]);
     ImU32 text_color_disabled = ImColor(IM_XYZ(style.Colors[ImGuiCol_Text]), style.DisabledAlpha);
@@ -2052,16 +2063,9 @@ namespace UiNewLevel {
     cursor_after_image.y += ImGui::GetFontSize() + style.ItemSpacing.y;
 
     //Description
-
-    //HACK: scale font
-    float wrap_width = cursor_after_image.x - size_inner.x;
-    ImGui::GetFont()->Scale = .75f;
-    ImGui::PushFont(ImGui::GetFont());
-    //Full syntax is required for wrap_width argument
-    draw_list->AddText(NULL, 0., cursor_after_image, text_color_disabled, description, NULL, wrap_width);
-    ImGui::GetFont()->Scale = 1.f;
-    ImGui::PopFont();
-    ImGui::GetFont()->Scale = 1.f;
+    ImGui_BeginScaleFont(.75);
+    draw_list->AddText(NULL, 0., cursor_after_image, text_color_disabled, description, NULL, size_inner.x);
+    ImGui_EndScaleFont();
 
     draw_list->PopClipRect();
   }
@@ -2078,6 +2082,7 @@ namespace UiNewLevel {
         LCAT_CUSTOM,
         ui_textures.custom
       );
+      ImGui::SameLine();
       option(
         "###o-adventure-flat",
         "Empty adventure",
@@ -2086,6 +2091,7 @@ namespace UiNewLevel {
         LCAT_ADVENTURE,
         ui_textures.adventure_empty
       );
+      ImGui::SameLine();
       option(
         "###o-adventure",
         "Adventure",
