@@ -2037,7 +2037,7 @@ namespace UiNewLevel {
     {
       void *user_texture_id = ImGui_TmsImage_Id(texture);
       ImVec2 img_p_max = ImVec2(pp.x + image_size.x, pp.y + image_size.y);
-      draw_list->AddImage(user_texture_id, pp, img_p_max, TIM_UV);
+      draw_list->AddImageRounded(user_texture_id, pp, img_p_max, TIM_UV, ImColor(255,255,255), style.FrameRounding);
     }
 
     //Text fields
