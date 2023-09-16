@@ -556,7 +556,7 @@ namespace UiLevelManager {
         //Align stuff to the right
         //lvlname width + padding
         ImGui::SameLine();
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (200. + 10.));
+        ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x - 200.);
 
         //Actual level name field
         ImGui::PushItemWidth(200.);
