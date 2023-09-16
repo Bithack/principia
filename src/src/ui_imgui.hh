@@ -239,6 +239,13 @@ static tms_texture *load_texture(const char *path) {
   return tex;
 }
 
+static tms_texture *load_texture_mem(const char *buf, int width, int height, int num_channels = 3) {
+  tms_texture *tex = tms_texture_alloc();
+  tms_texture_load_mem(tex, buf, width, height, num_channels);
+  tms_texture_upload(tex);
+  return tex;
+}
+
 static void load_textures() {
   #ifdef USE_IM_TMS_IMAGES
   if(USE_IM_TMS_IMAGES){
