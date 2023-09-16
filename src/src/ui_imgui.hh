@@ -65,7 +65,7 @@
 
 //Load image assets
 //(For debugging issues with asset loading)
-//If disabled, placeholders (red squares) will be loaded in from RAM instead
+//If disabled, placeholders will be loaded in from RAM instead
 #define DO_LOAD_IMAGE_ASSETS true
 
 //--------------------------------------------
@@ -248,8 +248,8 @@ static tms_texture *load_texture(const char *path) {
     return tex;
   } else {
   #endif
-    unsigned char x[] = {255, 0, 0};
-    return load_texture_mem((const char*) x, 1, 1);
+    const unsigned char buf[] = {255, 0, 0, 0, 255, 0, 0, 0, 255};
+    return load_texture_mem((const char*) &buf, 3, 1);
   #ifdef DO_LOAD_IMAGE_ASSETS
   }
   #endif
@@ -267,42 +267,28 @@ static void load_textures() {
 #define TIM_UV TIM_UV0,TIM_UV1
 
 static ImVec2 ImGui_TmsImage_Size(tms_texture* texture, ImVec2 size = ImVec2(-1., -1.)) {
-  #ifdef USE_IM_TMS_IMAGES
-  if(USE_IM_TMS_IMAGES) {
-    float tw = (float)texture->width;
-    float th = (float)texture->height;
-    if ((size.x < 0.) && (size.y < 0)) {
-      size = ImVec2(tw, th);
-    } else if (size.x < 0.) {
-      size.x = (size.y / th) * tw;
-    } else if (size.y < 0.) {
-      size.y = (size.x / tw) * th;
-    }
-    return size;
+  float tw = (float)texture->width;
+  float th = (float)texture->height;
+  if ((size.x < 0.) && (size.y < 0)) {
+    size = ImVec2(tw, th);
+  } else if (size.x < 0.) {
+    size.x = (size.y / th) * tw;
+  } else if (size.y < 0.) {
+    size.y = (size.x / tw) * th;
   }
-  #endif
-  return ImVec2(0.f, 0.f);
+  return size;
 }
 
 static void* ImGui_TmsImage_Id(tms_texture* texture) {
-  #ifdef USE_IM_TMS_IMAGES
-  if(USE_IM_TMS_IMAGES) {
-    return (void*)(size_t)texture->gl_texture;
-  }
-  #endif
-  return nullptr;
+  return (void*)(size_t)texture->gl_texture;
 }
 
 static void ImGui_TmsImage_Widget(tms_texture* texture, ImVec2 size = ImVec2(-1., -1.)) {
-  #ifdef USE_IM_TMS_IMAGES
-  if(USE_IM_TMS_IMAGES) {
-    ImGui::Image(
-      ImGui_TmsImage_Id(texture),
-      ImGui_TmsImage_Size(texture, size),
-      TIM_UV
-    );
-  }
-  #endif
+  ImGui::Image(
+    ImGui_TmsImage_Id(texture),
+    ImGui_TmsImage_Size(texture, size),
+    TIM_UV
+  );
 }
 
 /* forward */
