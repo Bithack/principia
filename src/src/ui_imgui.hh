@@ -2057,8 +2057,8 @@ namespace UiNewLevel {
     float wrap_width = cursor_after_image.x - size_inner.x;
     ImGui::GetFont()->Scale = .75f;
     ImGui::PushFont(ImGui::GetFont());
-    //Full syntax is required (GImGui stuff) for wrap_width argument
-    draw_list->AddText(GImGui->Font, GImGui->FontSize, cursor_after_image, text_color_disabled, description, description + strlen(description), wrap_width);
+    //Full syntax is required for wrap_width argument
+    draw_list->AddText(NULL, 0., cursor_after_image, text_color_disabled, description, NULL, wrap_width);
     ImGui::GetFont()->Scale = 1.f;
     ImGui::PopFont();
     ImGui::GetFont()->Scale = 1.f;
