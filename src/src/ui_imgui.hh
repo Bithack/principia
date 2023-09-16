@@ -63,7 +63,7 @@
 #define UI_BASE_FONT_SIZE 12.f /* only applies to ttf fonts! */
 
 //Load and use image assets
-#define LOAD_IMAGES true
+#define USE_IM_TMS_IMAGES true
 
 //--------------------------------------------
 
@@ -204,12 +204,12 @@ static void load_fonts() {
 
 /// TEX. ///
 
-struct PTextures {
+struct PUiTextures {
   tms_texture *adventure_flat;
   tms_texture *adventure;
   tms_texture *sandbox;
 };
-static struct PTextures ui_textures;
+static struct PUiTextures ui_textures;
 
 static tms_texture *load_texture(const char *path) {
   std::vector<uint8_t> *buf = load_ass(path);
@@ -222,8 +222,8 @@ static tms_texture *load_texture(const char *path) {
 }
 
 static void load_textures() {
-  #ifdef LOAD_IMAGES
-  if(LOAD_IMAGES){
+  #ifdef USE_IM_TMS_IMAGES
+  if(USE_IM_TMS_IMAGES){
     ui_textures.adventure = load_texture("data-shared/textures/img/adventure.jpg");
     ui_textures.adventure_flat = load_texture("data-shared/textures/img/adventure_flat.jpg");
     ui_textures.sandbox = load_texture("data-shared/textures/img/sandbox.jpg");
@@ -231,12 +231,44 @@ static void load_textures() {
   #endif
 }
 
-static void ImGui_TmsImage(tms_texture* texture, ImVec2 size = ImVec2(-1., -1.)) {
-  #ifdef LOAD_IMAGES
-  if(LOAD_IMAGES){
-    if (size.x <= 0.) size.x = (float)texture->width;
-    if (size.y <= 0.) size.y = (float)texture->height;
-    ImGui::Image((void*)(size_t)texture->gl_texture, size, ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
+#define TIM_UV0 ImVec2(0.f, 1.f)
+#define TIM_UV1 ImVec2(1.f, 0.f)
+
+static ImVec2 ImGui_TmsImage_Size(tms_texture* texture, ImVec2 size = ImVec2(-1., -1.)) {
+  #ifdef USE_IM_TMS_IMAGES
+  if(USE_IM_TMS_IMAGES) {
+    float tw = (float)texture->width;
+    float th = (float)texture->height;
+    if ((size.x < 0.) && (size.y < 0)) {
+      size = ImVec2(tw, th);
+    } else if (size.x < 0.) {
+      size.x = (size.y / th) * tw;
+    } else if (size.y < 0.) {
+      size.x = (size.y / th) * tw;
+    }
+    return size;
+  }
+  #endif
+  return ImVec2(0.f, 0.f);
+}
+
+static void* ImGui_TmsImage_Id(tms_texture* texture) {
+  #ifdef USE_IM_TMS_IMAGES
+  if(USE_IM_TMS_IMAGES) {
+    return (void*)(size_t)texture->gl_texture;
+  }
+  #endif
+  return nullptr;
+}
+
+static void ImGui_TmsImage_Widget(tms_texture* texture, ImVec2 size = ImVec2(-1., -1.)) {
+  #ifdef USE_IM_TMS_IMAGES
+  if(USE_IM_TMS_IMAGES) {
+    ImGui::Image(
+      ImGui_TmsImage_Id(texture),
+      ImGui_TmsImage_Size(texture, size),
+      TIM_UV0, TIM_UV1
+    );
   }
   #endif
 }
@@ -1965,17 +1997,82 @@ namespace UiNewLevel {
     do_open = true;
   }
 
-  static void option(const char *label, const char *name, int action, int lcat, tms_texture* texture) {
-    const ImVec2 size = ImVec2(400., 200.);
-    ImGui::Selectable(label, false, ImGuiSelectableFlags_AllowOverlap);
-    //WIP
+  static void option(const char *label, const char *name, const char* description, int action, int lcat, tms_texture* texture) {
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImDrawList *draw_list = ImGui::GetWindowDrawList();
+
+    const ImVec2 size = ImVec2(400., 100.);
+    const ImVec2 size_inner = ImVec2(size.x - style.FramePadding.x * 2., size.y - style.FramePadding.y * 2.);
+
+    const ImVec2 p = ImGui::GetCursorScreenPos();
+    const ImVec2 pp = ImVec2(p.x + style.FramePadding.x, p.y + style.FramePadding.y);
+
+    //Selectable
+    if (ImGui::Selectable(label, false, ImGuiSelectableFlags_AllowOverlap, size)) {
+      P.add_action(action, lcat);
+      ImGui::CloseCurrentPopup();
+    }
+
+    draw_list->PushClipRect(p, ImVec2(p.x + size.x, p.y + size.y));
+
+    //Icon
+    ImVec2 image_size = ImGui_TmsImage_Size(texture, ImVec2(-1., size_inner.y));
+    {
+      draw_list->AddImage(
+        ImGui_TmsImage_Id(texture),
+        pp, ImVec2(pp.x + image_size.x, pp.y + image_size.y),
+        TIM_UV0, TIM_UV1
+      );
+    }
+    ImVec2 cursor_after_image = ImVec2(pp.x + image_size.x + style.ItemSpacing.x, pp.y);
+
+    ImU32 text_color = ImColor(style.Colors[ImGuiCol_Text]);
+
+    //Name
+    draw_list->AddText(cursor_after_image, text_color, name);
+    cursor_after_image.y += ImGui::GetFontSize() + style.ItemSpacing.y;
+
+    //Description
+
+    //HACK: scale font
+    ImGui::GetFont()->Scale = .75f;
+    ImGui::PushFont(ImGui::GetFont());
+    draw_list->AddText(cursor_after_image, text_color, description);
+    ImGui::GetFont()->Scale = 1.f;
+    ImGui::PopFont();
+    ImGui::GetFont()->Scale = 1.f;
+
+    draw_list->PopClipRect();
   }
 
   static void layout() {
     handle_do_open(&do_open, "###new-level");
     ImGui_CenterNextWindow();
     if (ImGui::BeginPopupModal("New level###new-level", REF_TRUE, MODAL_FLAGS)) {
-      option("###o-sandbox", "Sandbox", ACTION_NEW_LEVEL, LCAT_CUSTOM, ui_textures.sandbox);
+      option(
+        "###o-sandbox",
+        "Custom",
+        "Custom description",
+        ACTION_NEW_LEVEL,
+        LCAT_CUSTOM,
+        ui_textures.sandbox
+      );
+      option(
+        "###o-adventure",
+        "Adventure",
+        "Adventure description",
+        ACTION_NEW_GENERATED_LEVEL,
+        LCAT_ADVENTURE,
+        ui_textures.adventure
+      );
+      option(
+        "###o-adventure-flat",
+        "Empty adventure",
+        "Empty adventure description",
+        ACTION_NEW_LEVEL,
+        LCAT_ADVENTURE,
+        ui_textures.adventure_flat
+      );
       ImGui::EndPopup();
     }
   }
