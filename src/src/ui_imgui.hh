@@ -303,7 +303,7 @@ enum class MessageType {
 /* forward */
 namespace UiSandboxMenu  { static void open(); static void layout(); }
 namespace UiPlayMenu { static void open(); static void layout(); }
-namespace UiLevelManager { static void open(); static void layout(); }
+namespace UiLevelManager { static void init(); static void open(); static void layout(); }
 namespace UiLogin { static void open(); static void layout(); static void complete_login(int signal); }
 namespace UiMessage { static void open(const char* msg, MessageType typ = MessageType::Message); static void layout(); }
 namespace UiSettings { static void open(); static void layout(); }
@@ -501,11 +501,17 @@ namespace UiLevelManager {
   static int level_list_type = LEVEL_LOCAL;
 
   static lvlinfo_ext *level_metadata = nullptr;
+  static tms_texture *level_icon;
 
-  static void update_level_info(int id_type, uint32_t id) {
+  static void upload_level_icon() {
+    tms_texture_load_mem(level_icon, (const char*) &level_metadata->info.icon, 128, 128, 1);
+    tms_texture_upload(level_icon);
+  }
+
+  static int update_level_info(int id_type, uint32_t id) {
     if (level_metadata) {
       //Check if data needs to be reloaded
-      if ((level_metadata->id == id) && (level_metadata->type == id_type)) return;
+      if ((level_metadata->id == id) && (level_metadata->type == id_type)) return 0;
 
       //Dealloc current data
       level_metadata->info.~lvlinfo();
@@ -525,9 +531,11 @@ namespace UiLevelManager {
       if (level_metadata->info.descr_len && level_metadata->info.descr) {
         level_metadata->info.descr = strdup(level_metadata->info.descr);
       }
+      return 1;
     } else {
       delete level_metadata;
       level_metadata = nullptr;
+      return -1;
     }
   }
 
@@ -540,6 +548,10 @@ namespace UiLevelManager {
     }
     //Get a new list of levels
     level_list = pkgman::get_levels(level_list_type);
+  }
+
+  static void init() {
+    level_icon = tms_texture_alloc();
   }
 
   static void open() {
@@ -628,7 +640,13 @@ namespace UiLevelManager {
 
             //Display description if hovered
             if (ImGui::BeginItemTooltip()) {
-              update_level_info(level->id_type, level->id);
+              if (update_level_info(level->id_type, level->id) == 1) {
+                upload_level_icon();
+              }
+              if (level_metadata) {
+                ImGui_TmsImage_Widget(level_icon);
+                ImGui::SameLine();
+              }
               if (!level_metadata) {
                 ImGui::TextColored(ImVec4(1.,.3,.3,1.), "Failed to load level metadata");
               } else if (level_metadata->info.descr_len && level_metadata->info.descr) {
@@ -2107,6 +2125,7 @@ namespace UiNewLevel {
 }
 
 static void ui_init() {
+  UiLevelManager::init();
   UiLuaEditor::init();
   //UiQuickadd::init();
   UiSynthesizer::init();
