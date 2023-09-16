@@ -33,6 +33,7 @@
 #include <SDL_syswm.h>
 //---
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "imgui_stdlib.h"
 #include "imgui_impl_opengl3.h"
 #include "TextEditor.h"
@@ -77,6 +78,10 @@ static uint64_t __ref;
 //constants
 #define MODAL_FLAGS (ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize)
 #define POPUP_FLAGS (ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove)
+
+//Unroll ImVec4 components
+#define IM_XYZ(V) (V).x, (V).y, (V).z
+#define IM_XYZW(V) (V).x, (V).y, (V).z, (V).w
 
 //HELPER FUNCTIONS
 
@@ -205,9 +210,9 @@ static void load_fonts() {
 /// TEX. ///
 
 struct PUiTextures {
-  tms_texture *adventure_flat;
+  tms_texture *adventure_empty;
   tms_texture *adventure;
-  tms_texture *sandbox;
+  tms_texture *custom;
 };
 static struct PUiTextures ui_textures;
 
@@ -225,14 +230,15 @@ static void load_textures() {
   #ifdef USE_IM_TMS_IMAGES
   if(USE_IM_TMS_IMAGES){
     ui_textures.adventure = load_texture("data-shared/textures/img/adventure.jpg");
-    ui_textures.adventure_flat = load_texture("data-shared/textures/img/adventure_flat.jpg");
-    ui_textures.sandbox = load_texture("data-shared/textures/img/sandbox.jpg");
+    ui_textures.adventure_empty = load_texture("data-shared/textures/img/adventure_empty.jpg");
+    ui_textures.custom = load_texture("data-shared/textures/img/custom.jpg");
   }
   #endif
 }
 
 #define TIM_UV0 ImVec2(0.f, 1.f)
 #define TIM_UV1 ImVec2(1.f, 0.f)
+#define TIM_UV TIM_UV0,TIM_UV1
 
 static ImVec2 ImGui_TmsImage_Size(tms_texture* texture, ImVec2 size = ImVec2(-1., -1.)) {
   #ifdef USE_IM_TMS_IMAGES
@@ -267,7 +273,7 @@ static void ImGui_TmsImage_Widget(tms_texture* texture, ImVec2 size = ImVec2(-1.
     ImGui::Image(
       ImGui_TmsImage_Id(texture),
       ImGui_TmsImage_Size(texture, size),
-      TIM_UV0, TIM_UV1
+      TIM_UV
     );
   }
   #endif
@@ -2004,29 +2010,42 @@ namespace UiNewLevel {
     const ImVec2 size = ImVec2(400., 100.);
     const ImVec2 size_inner = ImVec2(size.x - style.FramePadding.x * 2., size.y - style.FramePadding.y * 2.);
 
+    //Top-left corner
     const ImVec2 p = ImGui::GetCursorScreenPos();
+    //Bottom-right corner
+    const ImVec2 p_max = ImVec2(p.x + size.x, p.y + size.y);
+    //Top-left corner, with padding
     const ImVec2 pp = ImVec2(p.x + style.FramePadding.x, p.y + style.FramePadding.y);
 
+    //XXX: not sure selectable or button
+
     //Selectable
-    if (ImGui::Selectable(label, false, ImGuiSelectableFlags_AllowOverlap, size)) {
+    if (ImGui::Selectable(label, false, ImGuiSelectableFlags_NoPadWithHalfSpacing | ImGuiSelectableFlags_SetNavIdOnHover, size)) {
       P.add_action(action, lcat);
-      ImGui::CloseCurrentPopup();
     }
 
-    draw_list->PushClipRect(p, ImVec2(p.x + size.x, p.y + size.y));
+    //Button
+    // if (ImGui::Button(label, size)) {
+    //   P.add_action(action, lcat);
+    //   ImGui::CloseCurrentPopup();
+    // }
+
+    draw_list->PushClipRect(p, p_max);
 
     //Icon
     ImVec2 image_size = ImGui_TmsImage_Size(texture, ImVec2(-1., size_inner.y));
     {
-      draw_list->AddImage(
-        ImGui_TmsImage_Id(texture),
-        pp, ImVec2(pp.x + image_size.x, pp.y + image_size.y),
-        TIM_UV0, TIM_UV1
-      );
+      void *user_texture_id = ImGui_TmsImage_Id(texture);
+      ImVec2 img_p_max = ImVec2(pp.x + image_size.x, pp.y + image_size.y);
+      draw_list->AddImage(user_texture_id, pp, img_p_max, TIM_UV);
     }
+
+    //Text fields
+
     ImVec2 cursor_after_image = ImVec2(pp.x + image_size.x + style.ItemSpacing.x, pp.y);
 
     ImU32 text_color = ImColor(style.Colors[ImGuiCol_Text]);
+    ImU32 text_color_disabled = ImColor(IM_XYZ(style.Colors[ImGuiCol_Text]), style.DisabledAlpha);
 
     //Name
     draw_list->AddText(cursor_after_image, text_color, name);
@@ -2035,9 +2054,11 @@ namespace UiNewLevel {
     //Description
 
     //HACK: scale font
+    float wrap_width = cursor_after_image.x - size_inner.x;
     ImGui::GetFont()->Scale = .75f;
     ImGui::PushFont(ImGui::GetFont());
-    draw_list->AddText(cursor_after_image, text_color, description);
+    //Full syntax is required (GImGui stuff) for wrap_width argument
+    draw_list->AddText(GImGui->Font, GImGui->FontSize, cursor_after_image, text_color_disabled, description, description + strlen(description), wrap_width);
     ImGui::GetFont()->Scale = 1.f;
     ImGui::PopFont();
     ImGui::GetFont()->Scale = 1.f;
@@ -2052,26 +2073,26 @@ namespace UiNewLevel {
       option(
         "###o-sandbox",
         "Custom",
-        "Custom description",
+        "Build anything you want, from structures to contraptions",
         ACTION_NEW_LEVEL,
         LCAT_CUSTOM,
-        ui_textures.sandbox
-      );
-      option(
-        "###o-adventure",
-        "Adventure",
-        "Adventure description",
-        ACTION_NEW_GENERATED_LEVEL,
-        LCAT_ADVENTURE,
-        ui_textures.adventure
+        ui_textures.custom
       );
       option(
         "###o-adventure-flat",
         "Empty adventure",
-        "Empty adventure description",
+        "Take control of a robot",
         ACTION_NEW_LEVEL,
         LCAT_ADVENTURE,
-        ui_textures.adventure_flat
+        ui_textures.adventure_empty
+      );
+      option(
+        "###o-adventure",
+        "Adventure",
+        "Build and explore dynamically generated worlds",
+        ACTION_NEW_GENERATED_LEVEL,
+        LCAT_ADVENTURE,
+        ui_textures.adventure
       );
       ImGui::EndPopup();
     }
