@@ -2130,10 +2130,15 @@ namespace UiNewLevel {
 }
 
 namespace UiFrequency {
+  static uint32_t __always_zero = 0;
+
   static bool do_open = false;
   static bool range = false;
-  static bool is_tx = false;
   static entity *entity_ptr;
+
+  static bool this_is_tx = false;
+  static uint32_t* this_freq_range_start;
+  static uint32_t* this_freq_range_size;
 
   typedef struct {
     //only used by update_freq_space, now freq_user
@@ -2158,7 +2163,13 @@ namespace UiFrequency {
     } else if (e->g_id == O_BROADCASTER) {
       usr.is_tx = true;
       usr.range_start = e->properties[0].v.i;
-      usr.range_end = e->properties[1].v.i;
+      usr.range_end = e->properties[0].v.i + e->properties[1].v.i;
+    } else if (e->g_id == O_RECEIVER) {
+      usr.is_tx = false;
+      usr.range_start = usr.range_end = e->properties[0].v.i;
+    } else if ((e->g_id == O_PIXEL) && (e->properties[4].v.i8 != 0)) {
+      usr.is_tx = false;
+      usr.range_start = usr.range_end = (uint32_t)(int8_t)e->properties[4].v.i8;
     } else {
       //usr is not fully inited~
       return std::pair<FreqUsr, bool>(usr, false);
@@ -2184,7 +2195,9 @@ namespace UiFrequency {
       }
     }
     std::sort(freq_space.begin(), freq_space.end(), [](const FreqUsr& a, const FreqUsr& b) {
-      return a.ent->id < b.ent->id;
+      //return a.ent->id < b.ent->id;
+      //XXX: sort by range_start looks better
+      return a.range_start < b.range_start;
     });
     for (size_t i = 0; i < freq_space.size(); i++) freq_space[i].index = i;
   }
@@ -2195,10 +2208,14 @@ namespace UiFrequency {
     range = is_range;
     entity_ptr = e;
 
-    is_tx =
+    this_is_tx =
       (e->g_id == O_TRANSMITTER) ||
       (e->g_id == O_MINI_TRANSMITTER) ||
       (e->g_id == O_BROADCASTER);
+
+    //XXX: pixel->properties[4].v.i (need i8) is incorrect but this menu is currently unused for pixel anyway
+    this_freq_range_start = (e->g_id == O_PIXEL) ? &e->properties[4].v.i : &e->properties[0].v.i;
+    this_freq_range_size = range ? &e->properties[1].v.i : &__always_zero;
 
     update_freq_space();
   }
@@ -2207,14 +2224,35 @@ namespace UiFrequency {
     handle_do_open(&do_open, "Frequency");
     ImGui_CenterNextWindow();
     if (ImGui::BeginPopupModal("Frequency", REF_TRUE, MODAL_FLAGS)) {
+      ImGui::DragInt("Frequency", (int*) this_freq_range_start, .1, 0, 10000);
+      (*this_freq_range_size)++;
+      if (range) ImGui::SliderInt("Range", (int*) this_freq_range_size, 1, 30);
+      (*this_freq_range_size)--;
+
+      ImGui::Text(
+        range ? "%s on frequencies: %d-%d" : "%s on frequency: %d",
+        this_is_tx ? "Transmitting" : "Listening",
+        *this_freq_range_start,
+        *this_freq_range_start + *this_freq_range_size
+      );
+
       //Frequency space visualizer
-      //XXX: this is broken
       {
         static const float GRAPH_WIDTH = 400.;
-        static const float LINE_WIDTH = 3.;
+        static const float LINE_WIDTH = 6.;
+        static const float VISIBLE_AREA = 50.;
 
-        size_t line_count = freq_space.size() + 1;
+        const size_t line_count = freq_space.size() + 1;
         ImVec2 size = ImVec2(GRAPH_WIDTH, ((float) line_count) * LINE_WIDTH);
+
+        ImVec2 p_min_global = ImGui::GetCursorScreenPos();
+        ImVec2 p_max_global = ImVec2(p_min_global.x + size.x, p_min_global.y + size.y);
+
+        ImGui::BeginChild(ImGui::GetID("###x-frame"), size);
+
+        const float bar_area = (std::max)((float) max_freq + 1, VISIBLE_AREA);
+        size = ImVec2((size.x / VISIBLE_AREA) * bar_area, size.y);
+
         ImVec2 p_min = ImGui::GetCursorScreenPos();
         ImVec2 p_max = ImVec2(p_min.x + size.x, p_min.y + size.y);
 
@@ -2222,20 +2260,45 @@ namespace UiFrequency {
         ImDrawList *draw_list = ImGui::GetWindowDrawList();
 
         draw_list->AddRectFilled(p_min, p_max, ImColor(0, 0, 0));
-        draw_list->PushClipRect(p_min, p_max);
+        draw_list->PushClipRect(p_min_global, p_max_global);
 
-        const float bar_area = (std::max)((float) max_freq + 1, 100.f);
+        auto draw_bar = [size, p_min, line_count, bar_area, &draw_list](size_t index, uint32_t range_start, uint32_t range_end, int bar_type) {
+          float py = p_min.y + ((float) index / line_count) * size.y;
+          ImVec2 p1 = ImVec2(p_min.x + (((float) range_start) / bar_area) * size.x, py);
+          ImVec2 p2 = ImVec2(p_min.x + (((float) range_end + 1.) / bar_area) * size.x, py + LINE_WIDTH);
+          ImU32 color;
+          switch (bar_type) {
+            case 0: color = ImColor(255,0,0); break;
+            case 1: color = ImColor(0,255,0); break;
+            case 2: color = ImColor(255,64,64); break;
+            case 3: color = ImColor(64,255,64); break;
+          }
+          if (bar_type >= 2) {
+            draw_list->AddRectFilled(
+              p1,
+              ImVec2(p2.x, p_min.y + size.y),
+              (bar_type == 2) ? ImColor(255,0,0,64) : ImColor(0,255,0,64)
+            );
+            draw_list->AddRectFilled(
+              p1, ImVec2(p2.x, p1.y + 1), color
+            );
+          } else {
+            draw_list->AddRectFilled(p1, p2, color);
+          }
+        };
+
+        draw_bar(0, *this_freq_range_start, *this_freq_range_start + *this_freq_range_size, 2 + (int) this_is_tx);
 
         for (const FreqUsr& usr: freq_space) {
-          size_t index = usr.index;
-          float py = p_min.y + ((float) index / line_count) * size.y;
-          ImVec2 p1 = ImVec2(p_min.x + (((float) usr.range_start) / bar_area) * size.x, py);
-          ImVec2 p2 = ImVec2(p_min.x  + (((float) usr.range_end + 1.) / bar_area) * size.x, py + LINE_WIDTH);
-          draw_list->AddRectFilled(p1, p2, usr.is_tx ? ImColor(0,255,0) : ImColor(255,0,0));
+          draw_bar(usr.index + 1, usr.range_start, usr.range_end, (int) usr.is_tx);
         }
 
         draw_list->PopClipRect();
+
+        ImGui::EndChild();
       }
+
+      //TODO put table here
 
       ImGui::EndPopup();
     }
