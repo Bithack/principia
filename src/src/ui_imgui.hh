@@ -1,6 +1,3 @@
-#include "main.hh"
-#include "pkgman.hh"
-#include "tms/core/texture.h"
 #ifdef __UI_IMGUI_H_GUARD
 #error please do not include this file directly
 #endif
@@ -8,24 +5,30 @@
 
 //NOLINTBEGIN(misc-definitions-in-headers)
 
+//---
 #include "ui.hh"
 #include "game.hh"
+#include "pkgman.hh"
 #include "settings.hh"
 #include "soundmanager.hh"
 #include "loading_screen.hh"
 #include "misc.hh"
 #include "speaker.hh"
 #include "object_factory.hh"
+//---
 #include "tms/backend/print.h"
+#include "tms/core/texture.h"
 //---
 #include <cmath>
 #include <cstdio>
 #include <cstdint>
 #include <string>
 #include <thread>
+#include <map>
 #include <unordered_map>
 #include <vector>
 #include <chrono>
+#include <utility>
 #include <bits/chrono.h>
 //---
 #include <SDL.h>
@@ -39,6 +42,7 @@
 #include "TextEditor.h"
 //---
 #include "ui_imgui_impl_tms.hh"
+//---
 
 //CONFIG
 
@@ -316,6 +320,7 @@ namespace UiObjColorPicker { static void open(bool alpha = false, entity *e = G-
 namespace UiLevelProperties { static void open(); static void layout(); }
 namespace UiSave { static void open(); static void layout(); }
 namespace UiNewLevel { static void open(); static void layout(); }
+namespace UiFrequency { static void open(bool is_range, entity *e = G->selection.e); static void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
@@ -2124,6 +2129,117 @@ namespace UiNewLevel {
   }
 }
 
+namespace UiFrequency {
+  static bool do_open = false;
+  static bool range = false;
+  static bool is_tx = false;
+  static entity *entity_ptr;
+
+  typedef struct {
+    //only used by update_freq_space, now freq_user
+    size_t index;
+    entity *ent;
+    bool is_tx;
+    //this is an inclusive range
+    //a.k.a range_start..=range_end
+    uint32_t range_start; uint32_t range_end;
+  } FreqUsr;
+
+  static uint32_t max_freq = 0;
+  static std::vector<FreqUsr> freq_space;
+
+  //emulating std::optional from c++17 (rust Option) with std::pair<T, bool>
+  static std::pair<FreqUsr, bool> freq_user(entity *e) {
+    FreqUsr usr;
+    usr.ent = e;
+    if ((e->g_id == O_TRANSMITTER) || (e->g_id == O_MINI_TRANSMITTER)) {
+      usr.is_tx = true;
+      usr.range_start = usr.range_end = e->properties[0].v.i;
+    } else if (e->g_id == O_BROADCASTER) {
+      usr.is_tx = true;
+      usr.range_start = e->properties[0].v.i;
+      usr.range_end = e->properties[1].v.i;
+    } else {
+      //usr is not fully inited~
+      return std::pair<FreqUsr, bool>(usr, false);
+    }
+    return std::pair<FreqUsr, bool>(usr, true);
+  }
+
+  //Update freq_space and max_freq
+  //freq_space does not include the current tx
+  static void update_freq_space() {
+    freq_space.clear();
+    max_freq = 0;
+    uint32_t counter = 0;
+    std::map<uint32_t, entity*> all_entities = W->get_all_entities();
+    for (auto i = all_entities.begin(); i != all_entities.end(); i++) {
+      entity *e = i->second;
+      //Skip currently selected entity
+      if (e == entity_ptr) continue;
+      auto x = freq_user(e);
+      if (x.second) {
+        max_freq = (std::max)(max_freq, x.first.range_start);
+        freq_space.push_back(x.first);
+      }
+    }
+    std::sort(freq_space.begin(), freq_space.end(), [](const FreqUsr& a, const FreqUsr& b) {
+      return a.ent->id < b.ent->id;
+    });
+    for (size_t i = 0; i < freq_space.size(); i++) freq_space[i].index = i;
+  }
+
+  static void open(bool is_range, entity *e) {
+    do_open = true;
+
+    range = is_range;
+    entity_ptr = e;
+
+    is_tx =
+      (e->g_id == O_TRANSMITTER) ||
+      (e->g_id == O_MINI_TRANSMITTER) ||
+      (e->g_id == O_BROADCASTER);
+
+    update_freq_space();
+  }
+
+  static void layout() {
+    handle_do_open(&do_open, "Frequency");
+    ImGui_CenterNextWindow();
+    if (ImGui::BeginPopupModal("Frequency", REF_TRUE, MODAL_FLAGS)) {
+      //Frequency space visualizer
+      //XXX: this is broken
+      {
+        static const float GRAPH_WIDTH = 400.;
+        static const float LINE_WIDTH = 3.;
+
+        size_t line_count = freq_space.size() + 1;
+        ImVec2 size = ImVec2(GRAPH_WIDTH, ((float) line_count) * LINE_WIDTH);
+        ImVec2 p_min = ImGui::GetCursorScreenPos();
+        ImVec2 p_max = ImVec2(p_min.x + size.x, p_min.y + size.y);
+
+        ImGui::Dummy(size);
+        ImDrawList *draw_list = ImGui::GetWindowDrawList();
+
+        draw_list->AddRectFilled(p_min, p_max, ImColor(0, 0, 0));
+        draw_list->PushClipRect(p_min, p_max);
+
+        for (const FreqUsr& usr: freq_space) {
+          size_t index = usr.index;
+          float py = p_min.y + ((float) index / line_count) * size.y;
+          ImVec2 p1 = ImVec2(p_min.x + (((float) usr.range_start - .5) / max_freq) * size.x, py);
+          ImVec2 p2 = ImVec2(p_min.x  + (((float) usr.range_end + .5) / max_freq) * size.x, py + LINE_WIDTH);
+          draw_list->AddRectFilled(p1, p2, usr.is_tx ? ImColor(0,255,0) : ImColor(255,0,0));
+        }
+
+        draw_list->PopClipRect();
+      }
+
+      ImGui::EndPopup();
+    }
+  }
+}
+
 static void ui_init() {
   UiLevelManager::init();
   UiLuaEditor::init();
@@ -2150,6 +2266,7 @@ static void ui_layout() {
   UiLevelProperties::layout();
   UiSave::layout();
   UiNewLevel::layout();
+  UiFrequency::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -2327,6 +2444,12 @@ void ui::open_dialog(int num, void *data) {
       break;
     case DIALOG_NEW_LEVEL:
       UiNewLevel::open();
+      break;
+    case DIALOG_SET_FREQUENCY:
+      UiFrequency::open(false);
+      break;
+    case DIALOG_SET_FREQ_RANGE:
+      UiFrequency::open(true);
       break;
     default:
       tms_errorf("dialog %d not implemented yet", num);
