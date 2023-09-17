@@ -2224,11 +2224,13 @@ namespace UiFrequency {
         draw_list->AddRectFilled(p_min, p_max, ImColor(0, 0, 0));
         draw_list->PushClipRect(p_min, p_max);
 
+        const float bar_area = (std::max)((float) max_freq + 1, 100.f);
+
         for (const FreqUsr& usr: freq_space) {
           size_t index = usr.index;
           float py = p_min.y + ((float) index / line_count) * size.y;
-          ImVec2 p1 = ImVec2(p_min.x + (((float) usr.range_start - .5) / max_freq) * size.x, py);
-          ImVec2 p2 = ImVec2(p_min.x  + (((float) usr.range_end + .5) / max_freq) * size.x, py + LINE_WIDTH);
+          ImVec2 p1 = ImVec2(p_min.x + (((float) usr.range_start) / bar_area) * size.x, py);
+          ImVec2 p2 = ImVec2(p_min.x  + (((float) usr.range_end + 1.) / bar_area) * size.x, py + LINE_WIDTH);
           draw_list->AddRectFilled(p1, p2, usr.is_tx ? ImColor(0,255,0) : ImColor(255,0,0));
         }
 
