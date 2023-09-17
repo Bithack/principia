@@ -2277,7 +2277,7 @@ namespace UiFrequency {
             draw_list->AddRectFilled(
               p1,
               ImVec2(p2.x, p_min.y + size.y),
-              (bar_type == 2) ? ImColor(255,0,0,64) : ImColor(0,255,0,64)
+              (bar_type == 2) ? ImColor(255,32,32,128) : ImColor(0,255,0,64)
             );
             draw_list->AddRectFilled(
               p1, ImVec2(p2.x, p1.y + 1), color
