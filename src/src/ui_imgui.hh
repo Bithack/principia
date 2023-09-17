@@ -2227,6 +2227,7 @@ namespace UiFrequency {
     handle_do_open(&do_open, "Frequency");
     ImGui_CenterNextWindow();
     if (ImGui::BeginPopupModal("Frequency", REF_TRUE, MODAL_FLAGS)) {
+      //XXX: This assumes int is 4 bytes
       ImGui::DragInt("Frequency", (int*) this_freq_range_start, .1, 0, 10000);
       (*this_freq_range_size)++;
       if (range) ImGui::SliderInt("Range", (int*) this_freq_range_size, 1, 30);
