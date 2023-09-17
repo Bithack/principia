@@ -1929,6 +1929,9 @@ namespace UiObjColorPicker {
           0, 255,
           (entity_ptr->properties[4].v.i8 == 0) ? "<none>" : "%d"
         );
+        // if (ImGui::Button("[BETA] Advanced UI")) {
+        //   UiFrequency::open(false);
+        // }
       }
 
       ImGui::EndPopup();
