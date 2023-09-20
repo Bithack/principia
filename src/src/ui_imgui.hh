@@ -1,3 +1,4 @@
+#include "Box2D/Common/b2Math.h"
 #ifdef __UI_IMGUI_H_GUARD
 #error please do not include this file directly
 #endif
@@ -230,6 +231,7 @@ struct PUiTextures {
   tms_texture *adventure_empty;
   tms_texture *adventure;
   tms_texture *custom;
+  tms_texture *ud;
 };
 static struct PUiTextures ui_textures;
 
@@ -264,6 +266,7 @@ static void load_textures() {
   ui_textures.adventure = load_texture("data-shared/textures/img/adventure.jpg");
   ui_textures.adventure_empty = load_texture("data-shared/textures/img/adventure_empty.jpg");
   ui_textures.custom = load_texture("data-shared/textures/img/custom.jpg");
+  ui_textures.ud = load_texture("data-shared/textures/img/ud.png");
 }
 
 #define TIM_UV0 ImVec2(0.f, 1.f)
@@ -605,8 +608,8 @@ namespace UiLevelManager {
       ImGui::Separator();
 
       //Actual level list
-      ImGui::BeginChild("save_list_child", ImVec2(0., 500.), false);
-      if (ImGui::BeginTable("save_list", 5, ImGuiTableFlags_Borders)) {
+      ImGui::BeginChild("save_list_child", ImVec2(0., 500.), false, ImGuiWindowFlags_NoSavedSettings);
+      if (ImGui::BeginTable("save_list", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_NoSavedSettings)) {
         //Setup table columns
         ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);
@@ -2302,7 +2305,67 @@ namespace UiFrequency {
         ImGui::EndChild();
       }
 
-      //TODO put table here
+      ImVec2 size = ImVec2(0., 133.);
+      if (ImGui::BeginChild(ImGui::GetID("###x-table-frame"), size, false, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NavFlattened)) {
+        if (ImGui::BeginTable("###x-table", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_NoSavedSettings)) {
+          ImGui::TableSetupColumn("###", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Object");
+          ImGui::TableSetupColumn("Frequency");
+          ImGui::TableHeadersRow();
+          for (const FreqUsr& usr: freq_space) {
+            ImGui::TableNextRow();
+            ImGui::TableSetBgColor(
+              ImGuiTableBgTarget_RowBg0,
+              (
+                (usr.is_tx != this_is_tx) &&
+                (this_is_tx ? (
+                  (usr.range_start >= *this_freq_range_start) &&
+                  (usr.range_end <= (*this_freq_range_start + *this_freq_range_size))
+                ) : (
+                  (*this_freq_range_start >= usr.range_start) &&
+                  ((*this_freq_range_start + *this_freq_range_size) <= usr.range_end)
+                ))
+              ) ? (usr.is_tx ? ImColor(48, 255, 48, 48) : ImColor(255, 48, 48, 48))
+                : ImColor(0,0,0,0)
+            );
+            ImGui::TableNextColumn();
+            float imx = usr.is_tx ? 0. : .5;
+            ImGui::Image(
+              ImGui_TmsImage_Id(ui_textures.ud),
+              ImVec2(16., 16.),
+              ImVec2(imx, 1.),
+              ImVec2(imx + .5, 0.)
+            );
+            ImGui::TableNextColumn();
+            ImGui::Text("%s (id: %d)", usr.ent->get_name(), usr.ent->id);
+            ImGui::SetItemTooltip("Click to set frequency\nShift + click to select object");
+            if (ImGui::IsItemClicked()) {
+              if (ImGui::GetIO().KeyShift) {
+                G->lock();
+                b2Vec2 xy = usr.ent->get_position();
+                float z = G->cam->_position.z;
+                G->cam->set_position(xy.x, xy.y, z);
+                G->selection.reset();
+                G->selection.select(usr.ent);
+                G->unlock();
+                //ImGui::CloseCurrentPopup();
+              } else {
+                *this_freq_range_start = usr.range_start;
+                if (range) *this_freq_range_size = usr.range_end - usr.range_start;
+              }
+            }
+            ImGui::TableNextColumn();
+            if (usr.range_end == usr.range_start) {
+              ImGui::Text("%d", usr.range_start);
+            } else {
+              ImGui::Text("%d-%d", usr.range_start, usr.range_end);
+            }
+          }
+          ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, 0);
+          ImGui::EndTable();
+        }
+        ImGui::EndChild();
+      }
 
       ImGui::EndPopup();
     }
