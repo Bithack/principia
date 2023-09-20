@@ -2246,7 +2246,7 @@ namespace UiFrequency {
       //Frequency space visualizer
       {
         static const float GRAPH_WIDTH = 400.;
-        static const float LINE_WIDTH = 6.;
+        static const float LINE_WIDTH = 4.;
         static const float VISIBLE_AREA = 50.;
 
         const size_t line_count = freq_space.size() + 1;
@@ -2364,9 +2364,8 @@ namespace UiFrequency {
           ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, 0);
           ImGui::EndTable();
         }
-        ImGui::EndChild();
       }
-
+      ImGui::EndChild();
       ImGui::EndPopup();
     }
   }
