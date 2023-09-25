@@ -86,6 +86,10 @@ static uint64_t __ref;
 #define MODAL_FLAGS (ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize)
 #define POPUP_FLAGS (ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove)
 
+#define LEVEL_NAME_LEN_SOFT_LIMIT 250
+#define LEVEL_NAME_LEN_HARD_LIMIT 254
+#define LEVEL_NAME_PLACEHOLDER (const char*)"<no name>"
+
 //Unroll ImVec4 components
 #define IM_XYZ(V) (V).x, (V).y, (V).z
 #define IM_XYZW(V) (V).x, (V).y, (V).z, (V).w
@@ -1953,18 +1957,15 @@ namespace UiLevelProperties {
     handle_do_open(&do_open, "Level properties");
     ImGui_CenterNextWindow();
     if (ImGui::BeginPopupModal("Level properties", REF_TRUE, MODAL_FLAGS)) {
-      ImGui::TextUnformatted("WIP");
-      ImGui::PushTextWrapPos(400);
-      ImGui::TextWrapped(
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, "
-        "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-        "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris "
-        "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in "
-        "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. "
-        "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia "
-        "deserunt mollit anim id est laborum."
-      );
-      ImGui::PopTextWrapPos();
+      std::string lvl_name(W->level.name, W->level.name_len);
+      bool over_soft_limit = lvl_name.length() >= LEVEL_NAME_LEN_SOFT_LIMIT + 1;
+      ImGui::BeginDisabled(over_soft_limit);
+      if (ImGui::InputText("Level name", &lvl_name)) {
+        size_t to_copy = (size_t)(std::min)((int) lvl_name.length(), LEVEL_NAME_LEN_HARD_LIMIT);
+        memcpy(&W->level.name, lvl_name.data(), to_copy);
+        W->level.name_len = lvl_name.length();
+      }
+      ImGui::EndDisabled();
       ImGui::EndPopup();
     }
   }
@@ -1973,10 +1974,6 @@ namespace UiLevelProperties {
 namespace UiSave {
   static bool do_open = false;
   static std::string level_name{""};
-
-  #define LEVEL_NAME_LEN_SOFT_LIMIT 250
-  #define LEVEL_NAME_LEN_HARD_LIMIT 254
-  #define LEVEL_NAME_PLACEHOLDER (const char*)"<no name>"
 
   static void open() {
     do_open = true;
@@ -2024,7 +2021,7 @@ namespace UiSave {
       ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x - (ImGui::CalcTextSize(save_str).x + style.FramePadding.x * 2.));
       ImGui::BeginDisabled(invalid);
       if (ImGui::Button(save_str)  || (activate && !invalid)) {
-        size_t sz = (std::min)((int) level_name.length(), LEVEL_NAME_LEN_HARD_LIMIT);
+        size_t sz = (std::min)((int) level_name.length(), LEVEL_NAME_LEN_SOFT_LIMIT); 
         memcpy((char*) &W->level.name, level_name.c_str(), sz);
         W->level.name_len = sz;
         P.add_action(ACTION_SAVE_COPY, 0);
