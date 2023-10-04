@@ -7461,9 +7461,6 @@ game::create_icon()
 
     this->cam->calculate();
 
-    bool arch = this->state.abo_architect_mode;
-    this->set_architect_mode(true);
-
     settings["render_gui"]->set(false);
 
     tms_fb_bind(this->icon_fb);
@@ -7503,7 +7500,6 @@ game::create_icon()
     SDL_FreeSurface(srf);
 
     tms_fb_unbind(this->icon_fb);
-    this->set_architect_mode(arch);
 
 #ifndef NO_UI
     settings["render_gui"]->set(true);
