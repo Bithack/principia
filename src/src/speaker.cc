@@ -66,9 +66,8 @@ speaker::solve_electronics()
 
     bool do_play = false;
 
-#define VOLUME_HALT 0.001f
     if (s == -1) {
-        if (volume > VOLUME_HALT) {
+        if (volume > 0.001f) {
             /* find an open slot */
             for (int x=0; x<SM_MAX_CHANNELS; x++) {
                 if (sm::generated[x].available) {
@@ -92,18 +91,16 @@ speaker::solve_electronics()
             }
         }
     } else {
-        if (volume <= VOLUME_HALT) {
+        if (volume <= 0.001f) {
             //Mix_HaltChannel(SM_MAX_CHANNELS+s);
             sm::generated[s].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].command = SM_GENWAVE_STOP;
             //sm::generated[s].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].freq = 0;
             //sm::generated[s].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].volume = 0;
-            s = (this->slot = -1);
         } else {
             sm::generated[s].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].freq = freq;
             sm::generated[s].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].volume = volume;
         }
     }
-#undef VOLUME_HALT
 
     return 0;
 }

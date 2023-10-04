@@ -20,9 +20,6 @@ class motor : public ecomp, public b2QueryCallback, public ifdevice
     uint8_t q_frame;
     int mtype;
 
-    int sound_state;
-    bool sound_started;
-
   public:
     motor(int mtype);
     const char *get_name(){

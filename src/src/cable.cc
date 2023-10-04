@@ -490,7 +490,7 @@ cable::update(void)
          *   b, the current length
          *   r, the minimum length
          *
-         * Each subdivision's job is to make sure the 
+         * Each subdivision's job is to make sure the
          * archlength along the cable is as close to
          * the minimum length as possible.
          *
@@ -499,8 +499,8 @@ cable::update(void)
          *
          * To allow for more subdivisions, 'h' is biased
          * giving the next subdivision a guessed b and r.
-         * By adjusting the bias factor (h_bias), we can 
-         * decide how "roundly" the cable will bend. 
+         * By adjusting the bias factor (h_bias), we can
+         * decide how "roundly" the cable will bend.
          * As the two end vertices gets closer, a higher
          * h_bias will form the cable into a elliptical shape,
          * while a lower h_bias forms a triangle.
@@ -621,8 +621,6 @@ plug::plug(cable *c)
 void
 plug::update_mesh()
 {
-    int dir = this->get_dir();
-
     switch (this->c->ctype) {
         case CABLE_BLACK:
             this->set_mesh(mesh_factory::get_mesh(MODEL_PLUG_FEMALE));

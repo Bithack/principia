@@ -641,7 +641,7 @@ rope::add_to_world()
     }
 
     for (int x=0; x<ROPE_LENGTH-1; x++) {
-        bd.type = b2_dynamicBody; 
+        bd.type = b2_dynamicBody;
 
         float a = M_PI+(M_PI/(float)(ROPE_LENGTH-1))*x;
 

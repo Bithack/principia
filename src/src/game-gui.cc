@@ -637,27 +637,7 @@ game::menu_handle_event(tms::event *ev)
                 if (ev->data.motion.y > _tms.window_height-_tms.yppcm*.25f) {
                     category_selector_open = true;
                     category_selector_x = ev->data.motion.x;
-#if 0
-                    for (int x=0; x<of::num_categories; x++) {
-                        int c = (curr_category+x)%of::num_categories;
 
-                        float h = ch * .8f;
-                        float w = (h / catsprites[c]->height) * catsprites[c]->width;
-
-                        float p = x1+w/2.f + _tms.xppcm * .1f + xxx;
-
-                        if (std::abs(ev->data.motion.x - p) < w/2.f) {
-                            if (c == curr_category) {
-                                //curr_category = (curr_category+1)%of::num_categories;
-                                category_selector_open = true;
-                            } else
-                                curr_category = c;
-                        }
-
-                        xxx += w + _tms.xppcm*.125f;
-                    }
-#endif
-                    //menu_highlight = 1.f;
                     tdown[pid] = 1;
                     dragging[pid] = false;
                     return 1;
@@ -673,109 +653,103 @@ game::menu_handle_event(tms::event *ev)
                     return 1;
                 }
 
-                if (false) {
-                } else {
-                    struct menu_obj o;
-                    int found = 0;
-                    int n=0;
+                struct menu_obj o;
+                int found = 0;
+                int n=0;
 
-                    /* --- */
-                    float x1 = _tms.window_width - this->get_menu_width();
-                    float btn_outer_x = _tms.xppcm * 1.1f;
-                    float btn_outer_y = _tms.yppcm * 1.1f;
-                    float top = -_tms.yppcm/4.f + (_tms.window_height - btn_outer_y/2.f);
+                /* --- */
+                float x1 = _tms.window_width - this->get_menu_width();
+                float btn_outer_x = _tms.xppcm * 1.1f;
+                float btn_outer_y = _tms.yppcm * 1.1f;
+                float top = -_tms.yppcm/4.f + (_tms.window_height - btn_outer_y/2.f);
 
-                    int xx = roundf((this->get_menu_width()) / btn_outer_x);
-                    if (xx < 1) xx = 1;
-                    int yy = floor((_tms.window_height-btn_outer_y) / btn_outer_y);
+                int xx = roundf((this->get_menu_width()) / btn_outer_x);
+                if (xx < 1) xx = 1;
+                int yy = floor((_tms.window_height-btn_outer_y) / btn_outer_y);
 
-                    float a_x = 0.f;
-                    float a_y = 0.f;
-                    int ww = 0;
+                float a_x = 0.f;
+                float a_y = 0.f;
+                int ww = 0;
 
-                    float pp = top;
+                float pp = top;
 
-                    float cy = menu_cam->_position.y;
-                    if (cy > (btn_outer_y*yy)) {
-                        //cy -= (btn_outer_y*(xx)*yy);
-                    }
-
-                    int div = ceil((float)menu_objects_cat[curr_category].size()/((float)xx));
-
-                    if (div < yy) div = yy;
-
-                    float max_y = 0.f;
-                    /* --- */
-
-                    if (ev->data.motion.y > _tms.yppcm/2.f + _tms.yppcm*.25f) {
-                        for (int x=0; x<menu_objects_cat[curr_category].size(); x++) {
-                            o = menu_objects[menu_objects_cat[curr_category][x]];
-
-                            if (x != 0 && (x%div) == 0) {
-                                a_x += btn_outer_x;
-                                pp = top;
-                                ww++;
-                            }
-
-                            float _x = x1 + a_x +btn_outer_x/2.f;
-                            float _y = cy + pp;
-
-                            if (std::abs(_x - ev->data.motion.x) < btn_outer_x/2.f
-                                && std::abs(_y - ev->data.motion.y) < btn_outer_y/2.f) {
-                                found = 1;
-                                break;
-                            }
-
-                            pp -= btn_outer_y;
-                        }
-                    } else {
-                        float tja = ev->data.motion.x - (_tms.window_width - this->get_menu_width());
-                        tja /= btn_outer_x/2.f;
-
-                        tja = floor(tja);
-
-                        int tjatja = (int)tja;
-
-                        if (tjatja >= 0 && tjatja < MAX_RECENT && this->recent[tjatja] != -1) {
-                            found = 1;
-                            o = menu_objects[gid_to_menu_pos[this->recent[tjatja]]];
-                        }
-                    }
-
-                    if (found) {
-                        //entity *e = o.e->create();
-                        if (o.e) {
-                            entity *e = of::create(o.e->g_id);
-                            if (e) {
-                                menu_objects[gid_to_menu_pos[e->g_id]].highlighted = true;
-                                pending_ent[pid] = e;
-                                pending_a_scene[pid] = false;
-
-                                bool copied_properties = false;
-                                if (this->selection.e && e->g_id == this->selection.e->g_id) {
-                                    /* copy properties from the selected object */
-                                    this->copy_properties(e, this->selection.e);
-
-                                    e->_angle = this->selection.e->get_angle();
-                                    e->set_layer(this->selection.e->get_layer());
-                                    e->set_angle(this->selection.e->get_angle());
-                                    e->set_moveable(this->selection.e->is_moveable());
-
-                                    copied_properties = true;
-                                }
-
-                                e->on_load(true, false);
-                            } else {
-                                sliding_menu[pid] = true;
-                            }
-                        }
-                    } else {
-                        sliding_menu[pid] = true;
-                    }
-
-                    tdown[pid] = 1;
-                    tdown_p[pid] = (tvec2){ev->data.motion.x, ev->data.motion.y};
+                float cy = menu_cam->_position.y;
+                if (cy > (btn_outer_y*yy)) {
+                    //cy -= (btn_outer_y*(xx)*yy);
                 }
+
+                int div = ceil((float)menu_objects_cat[curr_category].size()/((float)xx));
+
+                if (div < yy) div = yy;
+
+                float max_y = 0.f;
+                /* --- */
+
+                if (ev->data.motion.y > _tms.yppcm/2.f + _tms.yppcm*.25f) {
+                    for (int x=0; x<menu_objects_cat[curr_category].size(); x++) {
+                        o = menu_objects[menu_objects_cat[curr_category][x]];
+
+                        if (x != 0 && (x%div) == 0) {
+                            a_x += btn_outer_x;
+                            pp = top;
+                            ww++;
+                        }
+
+                        float _x = x1 + a_x +btn_outer_x/2.f;
+                        float _y = cy + pp;
+
+                        if (std::abs(_x - ev->data.motion.x) < btn_outer_x/2.f
+                            && std::abs(_y - ev->data.motion.y) < btn_outer_y/2.f) {
+                            found = 1;
+                            break;
+                        }
+
+                        pp -= btn_outer_y;
+                    }
+                } else {
+                    float tja = ev->data.motion.x - (_tms.window_width - this->get_menu_width());
+                    tja /= btn_outer_x/2.f;
+
+                    tja = floor(tja);
+
+                    int tjatja = (int)tja;
+
+                    if (tjatja >= 0 && tjatja < MAX_RECENT && this->recent[tjatja] != -1) {
+                        found = 1;
+                        o = menu_objects[gid_to_menu_pos[this->recent[tjatja]]];
+                    }
+                }
+
+                if (found) {
+                    if (o.e) {
+                        entity *e = of::create(o.e->g_id);
+                        if (e) {
+                            menu_objects[gid_to_menu_pos[e->g_id]].highlighted = true;
+                            pending_ent[pid] = e;
+                            pending_a_scene[pid] = false;
+
+                            if (this->selection.e && e->g_id == this->selection.e->g_id) {
+                                /* copy properties from the selected object */
+                                this->copy_properties(e, this->selection.e);
+
+                                e->_angle = this->selection.e->get_angle();
+                                e->set_layer(this->selection.e->get_layer());
+                                e->set_angle(this->selection.e->get_angle());
+                                e->set_moveable(this->selection.e->is_moveable());
+                            }
+
+                            e->on_load(true, false);
+                        } else {
+                            sliding_menu[pid] = true;
+                        }
+                    }
+                } else {
+                    sliding_menu[pid] = true;
+                }
+
+                tdown[pid] = 1;
+                tdown_p[pid] = (tvec2){ev->data.motion.x, ev->data.motion.y};
+
                 return 1;
             }
             }break;
@@ -2519,14 +2493,9 @@ game::init_sandbox_menu()
         if (of::get_num_objects(y) > 25)
             theight = 1024;
 
-        for (int x=0; x<of::get_num_objects(y); x++) {
-            int ix = (x % 5)*SIZE_PER_MENU_ITEM;
-            int iy = (x / 5)*SIZE_PER_MENU_ITEM;
-
-            entity *e = menu_objects[n].e;
-
-            ix = x%5;
-            iy = x/5;
+        for (int x = 0; x < of::get_num_objects(y); x++) {
+            int ix = x % 5;
+            int iy = x / 5;
 
             menu_objects[n].image.bl.x = SIZE_PER_MENU_ITEM / (float)twidth  * (float)ix;
             menu_objects[n].image.bl.y = SIZE_PER_MENU_ITEM / (float)theight * (float)iy;
@@ -2545,12 +2514,9 @@ game::init_sandbox_menu()
         int twidth = 512;
         int theight = 1024;
 
-        for (int x=0; x<NUM_ITEMS; ++x) {
-            int ix = x % 8;
-            int iy = x / 8;
-
-            ix = x%8;
-            iy = x/8;
+        for (int x = 0; x < NUM_ITEMS; ++x) {
+            int ix = x%8;
+            int iy = x/8;
 
             item_options[x].image.bl = (tvec2){(float)SIZE_PER_OBJECT_ITEM/twidth * (float)ix,     (float)SIZE_PER_OBJECT_ITEM/theight * (float)iy};
             item_options[x].image.tr = (tvec2){(float)SIZE_PER_OBJECT_ITEM/twidth * (float)(ix+1), (float)SIZE_PER_OBJECT_ITEM/theight * (float)(iy+1)};
@@ -2874,7 +2840,6 @@ game::render_gui(void)
     glEnable(GL_BLEND);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glDisable(GL_DEPTH_TEST);
 
     glBindTexture(GL_TEXTURE_2D, gui_spritesheet::atlas->texture.gl_texture);
 
@@ -2992,33 +2957,6 @@ game::render_gui(void)
     if (this->state.test_playing && W->is_paused()) {
         this->add_text(gui_spritesheet::t_test_playing_back, _tms.window_width/2.f, _tms.window_height/2.f);
     }
-
-#if 0
-    {
-        /* render MENU button */
-        float m_x = _tms.window_width - this->get_bmenu_x();
-        float x1 = _tms.window_width - this->get_menu_width();
-        if (W->is_paused() && this->state.sandbox) {
-            m_x = (int)((float)x1 * ((float)_tms.opengl_width/(float)_tms.window_width)) - b_margin_x - b_w_pad / 2.f;
-        }
-
-        if (!W->is_paused() && _tms.emulating_portrait) {
-            tms_ddraw_sprite_r(this->get_surface()->ddraw,
-                             gui_spritesheet::get_sprite(S_MENU),
-                             this->get_bmenu_x(),
-                             _tms.window_height - this->get_bmenu_y(),
-                             b_w,
-                             b_h, -90);
-        } else {
-            tms_ddraw_sprite(this->get_surface()->ddraw,
-                             gui_spritesheet::s_menu,
-                             m_x,
-                             _tms.window_height - this->get_bmenu_y(),
-                             b_w,
-                             b_h);
-        }
-    }
-#endif
 
     if (!W->is_paused() && !W->is_puzzle()) {
         if (W->is_adventure() && adventure::player != 0 && this->selection.e == 0) {
@@ -3321,9 +3259,7 @@ game::get_item_texture()
     if (!item_texture) {
         item_texture = tms_texture_alloc();
 
-        char name[256];
-        sprintf(name, "data-shared/textures/menu_items.png");
-        tms_texture_load(item_texture, name);
+        tms_texture_load(item_texture, "data-shared/textures/menu_items.png");
         tms_texture_flip_y(item_texture);
         tms_texture_set_filtering(item_texture, GL_LINEAR);
         tms_texture_upload(item_texture);

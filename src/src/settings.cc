@@ -28,9 +28,6 @@ _settings::init()
     double w2 = log2((double)_tms.window_width);
     double h2 = log2((double)_tms.window_height);
 
-    int rw = (int)exp2(roundf(w2)) / 2;
-    int rh = (int)exp2(roundf(h2)) / 2;
-
     /** -Graphics **/
     this->add("debug",              S_BOOL,  false);
     this->add("postprocess",        S_BOOL,  false);
@@ -42,6 +39,9 @@ _settings::init()
     this->add("blur_shadow_map",    S_BOOL,  false);
     this->add("swap_shadow_map",    S_BOOL,  false);
 #if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+    int rw = (int)exp2(roundf(w2)) / 2;
+    int rh = (int)exp2(roundf(h2)) / 2;
+
     this->add("shadow_map_resx",    S_INT32,   rw);
     this->add("shadow_map_resy",    S_INT32,   rh);
 #else

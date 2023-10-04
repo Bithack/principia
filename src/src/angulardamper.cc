@@ -130,13 +130,9 @@ angulardamper::step()
     b2RevoluteJoint *j = static_cast<b2RevoluteJoint*>(this->c.j);
 
     if (j) {
-        //float a = -M_PI/2.f;
-        //float a = 0.1f;
         float c_angle = j->GetJointAngle();
-        float twopi = 2.f * M_PI; float ref = j->GetReferenceAngle();
-        //float d = twopi * floorf()
+        float twopi = 2.f * M_PI;
         float nref = 0.f;
-        //float a = ref - (M_PI/2.f);
         float a = 0.f;
         float dist = tmath_adist(c_angle, a);
 
@@ -157,7 +153,6 @@ angulardamper::step()
 bool
 angulardamper::connection_destroy_joint(connection *c)
 {
-    tms_infof("djskal");
     this->layer_mask = 9;
 
     if (this->fx)
@@ -177,19 +172,13 @@ angulardamper::connection_create_joint(connection *c)
         float aA = c->e->get_body(c->f[0])->GetAngle();
         float aB = c->o->get_body(c->f[1])->GetAngle();
         rjd.referenceAngle = aB - aA;
-        //rjd.referenceAngle = aA;
-        //rjd.referenceAngle = (this->get_body(0)->GetAngle());
-        //rjd.referenceAngle = 0.f;
         tms_infof("reference angle: %.3f", rjd.referenceAngle);
         rjd.bodyA = c->e->get_body(c->f[0]);
         rjd.bodyB = c->o->get_body(c->f[1]);
 
         rjd.enableLimit = false;
-        //rjd.lowerAngle = .0f-M_PI - rjd.referenceAngle;
-        //rjd.upperAngle = M_PI-M_PI - rjd.referenceAngle;
         rjd.localAnchorA = c->e->local_to_body(b2Vec2(0.f, .0f), c->f[0]);
         rjd.localAnchorB = c->o->world_to_body(this->get_position(), c->f[1]);
-        //rjd.localAnchorB = c->o->local_to_body(b2Vec2(c->p_s.x, c->p_s.y), c->f[1]);
 
         if (!W->is_paused()) {
             rjd.maxMotorTorque = 0.f;

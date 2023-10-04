@@ -36,7 +36,7 @@
  *
  * Using sensors can get very slow if we have very many fixtures inside it though,
  * because box2d will perform collision testing of all shapes with the sensor
- * shape every tick, every shape in the world will always collide with something. 
+ * shape every tick, every shape in the world will always collide with something.
  *
  * A slight optimization would be to remove the sensor shape if all surrounding chunks
  * are active as well, because then we don't have to track what's inside, but only what
@@ -45,8 +45,8 @@
  * We could also put 4 sensors in each chunk, one for every dir. As long as the sensor
  * is wider than b2_maxTranslation it should not be a problem.
  *
- * 
- * 
+ *
+ *
  **/
 
 bool operator <(const chunk_pos& lhs, const chunk_pos &rhs)
@@ -67,7 +67,7 @@ bool operator <(const genslot& lhs, const genslot &rhs)
         } else {
             if (lhs.slot_x != rhs.slot_x) {
                 return lhs.slot_x < rhs.slot_x;
-            } else if (lhs.slot_y != lhs.slot_y) {
+            } else if (lhs.slot_y != rhs.slot_y) {
                 return lhs.slot_y < rhs.slot_y;
             }
         }
@@ -119,7 +119,7 @@ level_chunk::~level_chunk()
 #endif
 }
 
-/** 
+/**
  * Read merged[] and convert it to a pixel buffer,
  * this is used when a chunk has been loaded from a file
  **/
@@ -159,7 +159,7 @@ level_chunk::update_pixel_buffer()
     }
 }
 
-/** 
+/**
  * Update the heights buffer
  **/
 void

@@ -116,7 +116,7 @@ basepixel::ReportFixture(b2Fixture *f)
             case 2: side = 4; break;
             case 3: side = 8; break;
         }
-        /*
+#ifdef PIXEL_DEBUG
         tms_debugf("pixel id: %u", e->id);
         tms_debugf("pos_x: %f", pos.x);
         tms_debugf("pos_y: %f", pos.y);
@@ -134,7 +134,7 @@ basepixel::ReportFixture(b2Fixture *f)
         tms_debugf("Grid 2: %d/%d", grid2_x, grid2_y);
         tms_debugf("Base: %d/%d", base_x, base_y);
         tms_debugf("Side: %d", side);
-        */
+#endif
 
         for (int i=0; i<side; ++i) {
             for (int j=0; j<side; ++j) {
@@ -211,10 +211,8 @@ basepixel::search(float start_x, float start_y, int search_width, float *rx, flo
 
     int X = search_width;
     int Y = search_width;
-    int mid_width = search_width / 2;
     int x = 0, y = 0, dx = 0, dy = -1;
     int t = std::max(X,Y);
-    int maxI = t*t;
     int grid_x, grid_y;
     bool success = false;
     //tms_debugf("search_width: %d", search_width);
