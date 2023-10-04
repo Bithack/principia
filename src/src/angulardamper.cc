@@ -200,22 +200,16 @@ angulardamper::connection_create_joint(connection *c)
 void
 angulardamper::on_slider_change(int s, float value)
 {
-    switch (s) {
-        case 0:
-            {
-                float v = (value / 5.f) * 9.f + 0.2f;
-                this->set_property(0, v);
-                G->show_numfeed(v);
-            }
-            break;
+    float v;
+    if (s == 0) {
+        v = (value / 5.f) * 9.f + 0.2f;
+    } else if (s == 1) {
+        v = (value * 40.f) * 18.f + 40.f;
+    }
 
-        case 1:
-            {
-                float v = (value * 40.f) * 18.f + 40.f;
-                this->set_property(1, v);
-                G->show_numfeed(v);
-            }
-            break;
+    if (s == 0 || s == 1) {
+        this->set_property(s, v);
+        G->show_numfeed(v);
     }
 }
 

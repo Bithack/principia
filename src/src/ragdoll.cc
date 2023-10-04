@@ -702,23 +702,15 @@ ragdoll::get_slider_value(int s)
 void
 ragdoll::on_slider_change(int s, float value)
 {
-    switch (s) {
-        case 0:
-            {
-                float durability = (value * 99.f) + 1.f;
-                this->properties[9*3].v.f = durability;
-                G->show_numfeed(durability);
-            }
-            break;
+    if (s == 0) {
+        float durability = (value * 99.f) + 1.f;
+        this->properties[9*3].v.f = durability;
+        G->show_numfeed(durability);
+    } else if (s == 1) {
+        uint32_t size = (uint32_t)value;
+        this->properties[9*3+1].v.i = size;
 
-        case 1:
-            {
-                uint32_t size = (uint32_t)value;
-                this->properties[9*3+1].v.i = size;
-
-                this->recreate_head();
-                this->recreate_head_joint(true);
-            }
-            break;
+        this->recreate_head();
+        this->recreate_head_joint(true);
     }
 }

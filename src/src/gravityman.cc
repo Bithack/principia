@@ -104,35 +104,19 @@ gravityman::get_slider_value(int s)
 void
 gravityman::on_slider_change(int s, float value)
 {
-    switch (this->_type) {
-        case GRAVITY_MANAGER:
-            switch (s) {
-                case 0:
-                    /* TODO: show an indicator where it's actually pointed */
-                    this->set_property(0, (float)(value * (2.f*M_PI)));
-                    G->show_numfeed(this->properties[0].v.f);
-                    break;
-
-                case 1:
-                    this->set_property(1, (uint32_t)((value * 5) * 20.f));
-                    G->show_numfeed(this->properties[1].v.i);
-                    break;
-            }
-            break;
-
-        case GRAVITY_SETTER:
-            switch (s) {
-                case 0:
-                    this->set_property(0, (value * 10.f * 20.f) - 100.f);
-                    G->show_numfeed(this->properties[0].v.f);
-                    break;
-
-                case 1:
-                    this->set_property(1, (value * 10.f * 20.f) - 100.f);
-                    G->show_numfeed(this->properties[1].v.f);
-                    break;
-            }
-            break;
+    if (this->_type == GRAVITY_MANAGER) {
+        if (s == 0) {
+            this->set_property(0, (float)(value * (2.f*M_PI)));
+            G->show_numfeed(this->properties[0].v.f);
+        } else if (s == 1) {
+            this->set_property(1, (uint32_t)((value * 5) * 20.f));
+            G->show_numfeed(this->properties[1].v.i);
+        }
+    } else if (this->_type == GRAVITY_SETTER) {
+        if (s == 0 || s == 1) {
+            this->set_property(s, (value * 10.f * 20.f) - 100.f);
+            G->show_numfeed(this->properties[s].v.f);
+        }
     }
 }
 
