@@ -17,6 +17,9 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
         return true;
     }
 
+    bool left = (pid == 0);
+    bool right = (pid == 1);
+
     switch (button_id) {
         case BTN_SHITTY:
             ui::open_url("https://principia-web.se/wiki/Bad_Graphics");

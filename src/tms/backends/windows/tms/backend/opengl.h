@@ -3,9 +3,8 @@
 
 //#define GL3_PROTOTYPES
 
-#include <windows.h>
-#include <GL/glew.h>
-#include <GL/wglew.h>
+#include "GL/glew.h"
+#include "GL/wglew.h"
 
 #include <SDL.h>
 

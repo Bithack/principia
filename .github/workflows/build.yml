@@ -5,13 +5,11 @@ on:
     paths:
       - 'src/**'
       - 'build-*/**'
-      - 'CMakeLists.txt'
       - '.github/workflows/**.yml'
   pull_request:
     paths:
       - 'src/**'
       - 'build-*/**'
-      - 'CMakeLists.txt'
       - '.github/workflows/**.yml'
 
 jobs:
@@ -44,10 +42,8 @@ jobs:
           install: >-
             base-devel
             mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-ninja
+            autotools
             mingw-w64-x86_64-curl
-            mingw-w64-x86_64-glew
             mingw-w64-x86_64-gtk3
             mingw-w64-x86_64-libpng
             mingw-w64-x86_64-libjpeg-turbo
@@ -60,21 +56,21 @@ jobs:
 
       - name: Build
         run: |
-          mkdir build
-          cd build
-          cmake .. -G Ninja
-          ninja -j4
+          cd build-windows/
+          ./autogen.sh
+          ./configure
+          ./go --silent --release
 
       - name: Bundle together
         run: |
-          cd build
-          bash ../packaging/windows_release.sh
+          cd build-windows/
+          bash make_release.sh
 
       - name: Upload output as artifact
         uses: actions/upload-artifact@v3
         with:
           name: principia-setup.exe
-          path: build/principia-setup.exe
+          path: build-windows/principia-setup.exe
 
   android:
     runs-on: ubuntu-20.04

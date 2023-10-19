@@ -20,9 +20,6 @@ cp /mingw64/$SCHEMAS_DIR/{gschema.dtd,gschemas.compiled} $SCHEMAS_DIR/
 
 cd ..
 
-../packaging/mingw-bundledlls release/principia.exe --copy
-
-cp ../packaging/principia_install.nsi .
-cp -r ../packaging/installer/ .
+./mingw-bundledlls release/principia.exe --copy
 
 makensis principia_install

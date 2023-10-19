@@ -14,11 +14,13 @@ class lmotor : public ecomp, public b2QueryCallback, public ifdevice
     struct tms_entity *jent;
 
     bool is_servo;
+    int sound_state;
+    bool sound_started;
 
   public:
     lmotor(bool is_servo);
 
-    void init(){};
+    void init(){this->sound_state =-1;this->sound_started = false;};
     const char *get_name(){if (this->is_servo)return "Linear Servo"; else return "Linear Motor";};
     void find_pairs();
     void connection_create_joint(connection *c);

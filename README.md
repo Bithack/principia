@@ -51,24 +51,24 @@ pacman -Syu
 The terminal will then ask you to close it when done. Proceed with doing so, and then go to the start menu and run MSYS Mingw32 64-bit. It is important that you run the "MINGW64 64-Bit" version and not the "MSYS2 MSYS" or "MINGW64 32-Bit". Run the commands below to install the necessary dependencies.
 
 ```bash
-pacman -S base-devel mingw-w64-x86_64-{toolchain,cmake,ninja,curl,gtk3,glew,gtksourceview4,libpng,libjpeg-turbo,freetype,SDL2,SDL2_image,SDL2_mixer,SDL2_ttf}
+pacman -S base-devel autotools mingw-w64-x86_64-{toolchain,curl,gtk3,gtksourceview4,libpng,libjpeg-turbo,freetype,SDL2,SDL2_image,SDL2_mixer,SDL2_ttf}
 ```
 
-Then navigate to the folder where you cloned Principia, for example:
+Then navigate to the `build-windows` folder inside of where you cloned Principia, for example:
 
 ```bash
-cd /c/Users/<username>/Documents/Principia
+cd /c/Users/<username>/Documents/Principia/build-windows
 ```
 
 And start the building process:
 
 ```bash
-mkdir build; cd build
-cmake .. -G Ninja
-ninja
+./autogen.sh
+./configure
+./go
 ```
 
-When finished there will be a `principia.exe` file in the build folder. Keep in mind that the built executable can only be run inside of the MINGW terminal, to make a release build see below to build the installer:
+Principia will launch if the compilation was successful. Keep in mind that the built executable can only be run inside of the MINGW terminal, to make a release build see below to build the installer:
 
 #### Windows installer
 The Windows installer uses NSIS, which must be installed first before building:
@@ -77,7 +77,7 @@ The Windows installer uses NSIS, which must be installed first before building:
 pacman -S mingw-w64-x86_64-nsis
 ```
 
-For making Windows release builds you would run the `packaging/windows_release.sh` script, which will bundle necessary DLLs and other files to make the game run, and builds the installer.
+For making Windows release builds you would run the `make_release.sh` script, which will bundle necessary DLLs and other files to make the game run, and builds the installer.
 
 ### Linux
 If you just want to play Principia on Linux, there are packages available for Arch-based and Debian-based distros as well as NixOS. See the [principia-web downloads page](https://principia-web.se/download) for more info.
