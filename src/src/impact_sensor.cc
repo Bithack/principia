@@ -90,23 +90,18 @@ impact_sensor::get_slider_value(int s)
 void
 impact_sensor::on_slider_change(int s, float value)
 {
-    switch (s) {
-        case 0:
-            {
-                uint32_t size = (uint32_t)roundf(value * 3.f);
-                G->animate_disconnect(this);
-                this->disconnect_all();
-                this->set_property(0, size);
+    if (s == 0) {
+        uint32_t size = (uint32_t)roundf(value * 3.f);
+        G->animate_disconnect(this);
+        this->disconnect_all();
+        this->set_property(0, size);
 
-                this->update_appearance();
-                G->show_numfeed(1.f+size);
-            }
-            break;
-        case 1:
-            double logval = tmath_logstep(value, pressure ? 0.25f : 2.5f, pressure ? 100 : 250);
-            this->set_property(1, (float)logval);
-            G->show_numfeed(logval);
-            break;
+        this->update_appearance();
+        G->show_numfeed(1.f+size);
+    } else if (s == 1) {
+        double logval = tmath_logstep(value, pressure ? 0.25f : 2.5f, pressure ? 100 : 250);
+        this->set_property(1, (float)logval);
+        G->show_numfeed(logval);
     }
 }
 

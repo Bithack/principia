@@ -22,9 +22,6 @@ menu_create::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
         return true;
     }
 
-    bool left = (pid == 0);
-    bool right = (pid == 1);
-
     switch (button_id) {
         case BTN_BACK:
             P.add_action(ACTION_GOTO_MAINMENU, 0x1);

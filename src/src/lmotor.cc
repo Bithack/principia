@@ -432,7 +432,7 @@ lmotor::ifstep(float v, float ctl_speed, float ctl_angle,float ctl_tradeoff, boo
             dd = target - j->GetJointTranslation();
 
             if (this->is_servo) {
-                if (fabsf(dd) > 0.02f && 
+                if (fabsf(dd) > 0.02f &&
                         (tr != 0.f && tr != 1.f)
                         )
                     play_sound = true;
@@ -473,35 +473,6 @@ lmotor::ifstep(float v, float ctl_speed, float ctl_angle,float ctl_tradeoff, boo
         j->SetMaxMotorForce(force);
         this->_speed = speed;
         this->_force = force;
-
-        this->sound_state += play_sound ? 1 : -1;
-
-        if (this->sound_state == 15) {
-            this->sound_started = true;
-        }
-
-        float js = j->GetJointSpeed(), ms = copysignf(max_speed, dd);
-        float volume = tclampf(1.f-sqrtf(js/ms), 0.f, 1.f); /* XXX divide by zero */
-
-        if (sound_started) {
-            //sm::play(&sm::motor, this->get_position().x, this->get_position().y, 0, volume, true, this);
-        }
-
-        if (this->sound_state == 0 && !this->sound_started) {
-            /*sm::play(&sm::motor_startstop, this->get_position().x, this->get_position().y, 0,
-                    1.f,
-                    false, this);*/
-        }
-
-        if (this->sound_state == -1 && this->sound_started) {
-            //sm::play(&sm::motor_startstop, this->get_position().x, this->get_position().y, 1, volume, false, this);
-            this->sound_started = false;
-        }
-
-        if (this->sound_state < -4)
-            this->sound_state = -4;
-        if (this->sound_state > 16)
-            this->sound_state = 16;
     }
 }
 

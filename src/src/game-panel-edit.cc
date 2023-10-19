@@ -212,9 +212,6 @@ game::panel_edit_handle_event(tms::event *ev)
 
         case TMS_EV_POINTER_DOWN:
             if (fabsf(sp.y - (_tms.window_height - 1.5f*menu_ydim / 2.f)) < menu_ydim) {
-                float px = sp.x;
-                float py = sp.y;
-                //int sx = (int)floorf((spx+(b_w/2.f)) / b_w + b_w/2.f);
                 int sx = (int)floorf((roundf(sp.x - scroll_x) - 4.f) / b_w);
                 int sy = (int)floorf(roundf(base_y - sp.y) / b_h);
 
@@ -241,7 +238,6 @@ game::panel_edit_handle_event(tms::event *ev)
                         float size_y = (w->size.y/2.f) * WIDGET_PADDING;
                         if (sp.x > w->pos.x-size_x && sp.x < w->pos.x+size_x
                             && sp.y > w->pos.y-size_y && sp.y < w->pos.y+size_y) {
-                            int found_n = w->wtype;
                             modifying[pid] = x;
                         }
                     }
@@ -383,7 +379,7 @@ game::panel_edit_handle_event(tms::event *ev)
 
                 if (sx >= 0 && sy >= 0) {
                     if (sx + btns[id].sx < 4 && sy + btns[id].sy < 4) {
-                        panel *p = (panel*)this->selection.e; 
+                        panel *p = (panel*)this->selection.e;
 
                         bool used = false;
                         int num_skipped = 0;

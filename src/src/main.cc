@@ -341,8 +341,6 @@ gi_end(void)
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    Uint32 delta = SDL_GetTicks() - time_start;
-    //tms_infof("GI render time: %u", delta);
 }
 
 static void
@@ -375,8 +373,6 @@ ao_end(void)
     glDepthMask(1);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    Uint32 delta = SDL_GetTicks() - time_start;
-    //tms_infof("GI render time: %u", delta);
 }
 
 static void
@@ -439,8 +435,6 @@ end(void)
     }
 #endif
 
-    Uint32 delta = SDL_GetTicks() - time_start;
-    //tms_infof("MAIN render time: %u", delta);
 }
 
 void

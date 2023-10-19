@@ -189,11 +189,11 @@ class mining_handler : public b2RayCastCallback
 static void
 handle_layer_up()
 {
-    if (adventure::player->motion == MOTION_DEFAULT) {
-        if (!W->level.flag_active(LVL_DISABLE_LAYER_SWITCH)) {
-            adventure::pending_layermove = -1;
-            adventure::layermove_attempts = 0;
-        }
+    if (adventure::player->motion == MOTION_DEFAULT
+     && !W->level.flag_active(LVL_DISABLE_LAYER_SWITCH)) {
+
+        adventure::pending_layermove = -1;
+        adventure::layermove_attempts = 0;
     }
 
     adventure::player->move(DIR_UP);
@@ -202,41 +202,39 @@ handle_layer_up()
 static void
 handle_layer_down()
 {
-    if (adventure::player->motion == MOTION_DEFAULT) {
-        if (!W->level.flag_active(LVL_DISABLE_LAYER_SWITCH)) {
-            bool on_ladder_step = false;
+    if (adventure::player->motion == MOTION_DEFAULT
+     && !W->level.flag_active(LVL_DISABLE_LAYER_SWITCH)) {
 
-            if (adventure::player->feet) {
-                for (int x=0; x<adventure::player->feet->get_num_bodies() && !on_ladder_step; x++) {
-                    if (adventure::player->get_body(1+x)) {
-                        /* make sure we're not on a ladder step */
-                        b2ContactEdge *c;
-                        for (c=adventure::player->get_body(1+x)->GetContactList(); c; c = c->next) {
+        bool on_ladder_step = false;
 
-                            b2Fixture *f = 0, *my;
-                            if (c->contact->GetFixtureA()->GetBody() == adventure::player->get_body(1+x)) {
-                                f = c->contact->GetFixtureB();
-                                my = c->contact->GetFixtureA();
-                            } else {
-                                f = c->contact->GetFixtureA();
-                                my = c->contact->GetFixtureB();
-                            }
+        if (adventure::player->feet) {
+            for (int x=0; x<adventure::player->feet->get_num_bodies() && !on_ladder_step; x++) {
+                if (adventure::player->get_body(1+x)) {
+                    /* make sure we're not on a ladder step */
+                    b2ContactEdge *c;
+                    for (c=adventure::player->get_body(1+x)->GetContactList(); c; c = c->next) {
 
-                            if (f && f->GetUserData() && static_cast<entity*>(f->GetUserData())->g_id == O_LADDER_STEP) {
-                                if (c->contact->IsTouching()) {
-                                    on_ladder_step = true;
-                                    break;
-                                }
+                        b2Fixture *f = 0;
+                        if (c->contact->GetFixtureA()->GetBody() == adventure::player->get_body(1+x)) {
+                            f = c->contact->GetFixtureB();
+                        } else {
+                            f = c->contact->GetFixtureA();
+                        }
+
+                        if (f && f->GetUserData() && static_cast<entity*>(f->GetUserData())->g_id == O_LADDER_STEP) {
+                            if (c->contact->IsTouching()) {
+                                on_ladder_step = true;
+                                break;
                             }
                         }
                     }
                 }
             }
+        }
 
-            if (!on_ladder_step) {
-                adventure::pending_layermove = +1;
-                adventure::layermove_attempts = 0;
-            }
+        if (!on_ladder_step) {
+            adventure::pending_layermove = +1;
+            adventure::layermove_attempts = 0;
         }
     }
 

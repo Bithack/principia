@@ -6,7 +6,7 @@
 #include "soundman.hh"
 #include "ui.hh"
 
-/** 
+/**
  * Sockets:
  * IN0 = Active
  * IN1 = Reset
@@ -33,8 +33,6 @@ vendor::vendor()
     this->s_out[1].lpos = b2Vec2( .15f, .12f);
 
     this->set_as_rect(.375f, .25f);
-    float qw = this->width/2.f + 0.15f;
-    float qh = this->height/2.f + 0.15f;
 
     this->set_flag(ENTITY_HAS_TRACKER,  true);
     this->set_flag(ENTITY_HAS_CONFIG,   true);

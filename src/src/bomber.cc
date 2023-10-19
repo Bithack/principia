@@ -20,7 +20,7 @@ bomber::bomber()
     this->properties[0].v.f = 10.f;
     this->properties[1].v.i8 = CREATURE_IDLE;
     this->properties[3].v.i = 1500;
-    
+
     this->properties[ROBOT_PROPERTY_FEET].v.i8 = FEET_MINIWHEELS;
 
     this->body_shape = static_cast<b2Shape*>(new b2PolygonShape());

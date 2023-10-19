@@ -19,14 +19,14 @@ static b2Vec2 ipos[9] =
     b2Vec2(0.f, -TORSOLEN/2.f - .2f), /*torso */
 
     b2Vec2(0.f, -TORSOLEN/2.f - .2f - TORSOLEN/2.f - LEGLEN/4.f),  /* legs */
-    b2Vec2(0.f, -TORSOLEN/2.f - .2f - TORSOLEN/2.f - LEGLEN/4.f - LEGLEN/2.f), 
-    b2Vec2(0.f, -TORSOLEN/2.f - .2f - TORSOLEN/2.f - LEGLEN/4.f), 
-    b2Vec2(0.f, -TORSOLEN/2.f - .2f - TORSOLEN/2.f - LEGLEN/4.f - LEGLEN/2.f), 
+    b2Vec2(0.f, -TORSOLEN/2.f - .2f - TORSOLEN/2.f - LEGLEN/4.f - LEGLEN/2.f),
+    b2Vec2(0.f, -TORSOLEN/2.f - .2f - TORSOLEN/2.f - LEGLEN/4.f),
+    b2Vec2(0.f, -TORSOLEN/2.f - .2f - TORSOLEN/2.f - LEGLEN/4.f - LEGLEN/2.f),
 
     b2Vec2(0.f, -TORSOLEN/2.f - .2f - .1f + ARMLEN/4.f),  /* arms */
-    b2Vec2(0.f, -TORSOLEN/2.f - .2f - .1f + ARMLEN/4.f - ARMLEN/2.f), 
-    b2Vec2(0.f, -TORSOLEN/2.f - .2f - .1f + ARMLEN/4.f), 
-    b2Vec2(0.f, -TORSOLEN/2.f - .2f - .1f + ARMLEN/4.f - ARMLEN/2.f), 
+    b2Vec2(0.f, -TORSOLEN/2.f - .2f - .1f + ARMLEN/4.f - ARMLEN/2.f),
+    b2Vec2(0.f, -TORSOLEN/2.f - .2f - .1f + ARMLEN/4.f),
+    b2Vec2(0.f, -TORSOLEN/2.f - .2f - .1f + ARMLEN/4.f - ARMLEN/2.f),
 #endif
 b2Vec2(0.003423, -0.671770),
 b2Vec2(0.281585, -1.358396),
@@ -39,7 +39,7 @@ b2Vec2(0.162758, -0.465837),
 b2Vec2(0.534898, -0.468301),
 };
 
-static float iangle[9] = 
+static float iangle[9] =
 {
 0.214114,
 1.002892,
@@ -52,7 +52,7 @@ static float iangle[9] =
 2.441211,
 };
 
-//static float iangle[9] = 
+//static float iangle[9] =
 
 void
 update_limb(struct tms_entity *e)
@@ -302,13 +302,6 @@ ragdoll::pre_write(void)
         this->properties[x*3+0].v.f = p.x;
         this->properties[x*3+1].v.f = p.y;
         this->properties[x*3+2].v.f = a;
-
-        //tms_debugf("b2Vec2(%f, %f),", p.x, p.y);
-    }
-
-    for (int x=0; x<9; x++) {
-        float a = (*this->limbs[x].body)->GetAngle() - this->get_angle();
-        //tms_debugf("%f,", a);
     }
 
     entity::pre_write();
@@ -565,7 +558,6 @@ ragdoll::read_state(lvlinfo *lvl, lvlbuf *lb)
     for (int x=0; x<9; x++) {
         b2Body *b = this->get_body(x);
         b2Vec2 velocity = b ? b->GetLinearVelocity() : b2Vec2(0.f, 0.f);
-        float avel = b ? b->GetAngularVelocity() : 0.f;
         this->body_states[x][0] = lb->r_float();
         this->body_states[x][1] = lb->r_float();
         this->body_states[x][2] = lb->r_float();
@@ -710,23 +702,15 @@ ragdoll::get_slider_value(int s)
 void
 ragdoll::on_slider_change(int s, float value)
 {
-    switch (s) {
-        case 0:
-            {
-                float durability = (value * 99.f) + 1.f;
-                this->properties[9*3].v.f = durability;
-                G->show_numfeed(durability);
-            }
-            break;
+    if (s == 0) {
+        float durability = (value * 99.f) + 1.f;
+        this->properties[9*3].v.f = durability;
+        G->show_numfeed(durability);
+    } else if (s == 1) {
+        uint32_t size = (uint32_t)value;
+        this->properties[9*3+1].v.i = size;
 
-        case 1:
-            {
-                uint32_t size = (uint32_t)value;
-                this->properties[9*3+1].v.i = size;
-
-                this->recreate_head();
-                this->recreate_head_joint(true);
-            }
-            break;
+        this->recreate_head();
+        this->recreate_head_joint(true);
     }
 }

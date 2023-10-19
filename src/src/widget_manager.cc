@@ -204,7 +204,6 @@ my_post_render(struct tms_wdg *w, struct tms_surface *s)
 
     if (pwdg->marker) {
         float px = w->pos.x, py = w->pos.y;
-        float sx = 1.f, sy = 0.f;
         float r = 0.f;
 
         if (_tms.emulating_portrait) {
@@ -213,7 +212,6 @@ my_post_render(struct tms_wdg *w, struct tms_surface *s)
             px = (float)xx;
             py = (float)yy;
 
-            sx = 0.f; sy = 1.f;
             r = -90.f;
         }
 
@@ -474,8 +472,6 @@ principia_wdg::resize_percentage(
         float w = this->label->get_width();
         float h = this->label->get_height();
 
-        float ratio = w / h;
-
         float cur_width_percentage  = w / base_width;
         float cur_height_percentage = h / base_height;
 
@@ -497,9 +493,6 @@ principia_wdg::resize_percentage(
         float scale_ratio = new_w/w;
         float new_h = h * scale_ratio;
 
-        w *= mod;
-        h *= mod;
-
         w = new_w;
         h = new_h;
 
@@ -510,19 +503,13 @@ principia_wdg::resize_percentage(
                 new_width_percentage,
                 new_height_percentage);
 
-        //tms_fatalf("asd");
-
         this->label->set_scale(scale_ratio);
-    } else {
-
     }
 }
 
 void
 principia_wdg::set_draggable(bool val)
 {
-    bool prev = this->draggable;
-
     this->draggable = val;
 
     this->touch_down = draggable_touch_down;
@@ -1195,7 +1182,7 @@ widget_manager::render()
     }
 }
 
-/** 
+/**
  * Loop through all active widgets and set their positions according to
  * their areas and priorities
  **/

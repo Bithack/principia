@@ -307,9 +307,6 @@ void damper_1::step(void)
 
         offs = 1.f - tclampf(offs, 0.f, 1.f);
 
-        //offs *= offs;
-        //
-
         j->SetMaxMotorForce(this->properties[1].v.f*120.f/4.f + 120.f * offs * this->properties[1].v.f);
         j->SetMotorSpeed(.5f * this->properties[2].v.f * offs);
     }

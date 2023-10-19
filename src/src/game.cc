@@ -508,7 +508,6 @@ static void
 active_radial_render(struct tms_wdg *w, struct tms_surface *s)
 {
     float px = w->pos.x, py = w->pos.y;
-    float sx = 1.f, sy = 0.f;
     float r = 0.f;
 
     if (_tms.emulating_portrait) {
@@ -517,7 +516,6 @@ active_radial_render(struct tms_wdg *w, struct tms_surface *s)
         px = (float)xx;
         py = (float)yy;
 
-        sx = 0.f; sy = 1.f;
         r = -90.f;
     }
 
@@ -1668,7 +1666,6 @@ game::step(double dt)
         if (((this->hov_text->active && diff > HOVER_TIME_ACTIVE) || (this->hov_text->active == false && diff > HOVER_TIME)) && !move_queried) {
             move_queried = true;
 
-            entity *prev_hov_ent = this->hov_ent;
             b2Body *_b;
             tvec2 _o;
             uint8_t _f;
@@ -2386,7 +2383,9 @@ game::update_static_entities()
 void
 game::update_entities()
 {
+#ifdef PROFILING
     Uint32 ss = SDL_GetTicks();
+#endif
 
     for (std::set<entity*>::iterator i = this->u_ghost.begin();
             i != this->u_ghost.end(); i++)
@@ -2820,8 +2819,7 @@ game::render()
     ss = SDL_GetTicks();
 #endif
 
-    //if (W->is_paused() || !W->level.flag_active(LVL_DISABLE_PHYSICS))
-        this->update_entities();
+    this->update_entities();
 
 #ifdef PROFILING
     tms_infof("update: %d", SDL_GetTicks() - ss);
@@ -2949,7 +2947,7 @@ game::render()
     G->show_numfeed(_tms.fps_mean);
 # else
     if (W->step_count % 120 == 0) {
-        char fps[32];
+        char fps[64];
         sprintf(fps, "Principia - FPS: %f (%f)", _tms.fps, _tms.fps_mean);
         SDL_SetWindowTitle((SDL_Window*)_tms._window, fps);
     }
@@ -3090,7 +3088,6 @@ game::render()
 
                 v1 = tms_camera_project(this->cam, this->cam->_position.x, -1.f, -.5f);
                 float pp2 = (v1.y / this->cam->height) * 2.f;
-                float pp3 = (v1.x / this->cam->width) * 2.f;
                 tms_program_bind(trans_program);
                 //glUniform2f(trans_program_shift_loc, 0.f, 0.f);
                 glUniform2f(trans_program_shift_loc, 0.f,0* (this->cam->_position.y > 0? .01f : .075f) * this->cam->_position.y);
@@ -3931,7 +3928,6 @@ game::render_activators(void)
         for (std::deque<activator*>::iterator it = this->pending_activators.begin();
                 it != this->pending_activators.end(); ++it) {
             activator* act = *it;
-            entity *e = act->get_activator_entity();
 
             tmat4_copy(mv, this->cam->view);
             tmat4_translate(mv, 0, 0, layer*LAYER_DEPTH+((LAYER_DEPTH/2.f)));
@@ -3957,7 +3953,7 @@ game::render_activators(void)
                 this->add_text(activator_texts[x], proj.x, proj.y);
             }
 
-            ++ x;
+            x++;
 #endif
         }
     }
@@ -4261,7 +4257,6 @@ game::select_socksel(int x)
                 break;
 
             case 1:
-                /* FIXME TODO XXX: fix message */
                 ui::message("The plugs of a cable cannot be more than one layer apart.");
                 break;
 
@@ -5520,9 +5515,6 @@ game::apply_level_properties()
 
     if (W->level.type == LCAT_ADVENTURE) {
         this->cam->_position.z = 12.f;
-#if defined(DEBUG) && defined(PAJLADA)
-        //this->cam->_position.z = 20.f;
-#endif
     }
 
     this->cam->_position.x = W->level.sandbox_cam_x;
@@ -7469,9 +7461,6 @@ game::create_icon()
 
     this->cam->calculate();
 
-    bool arch = this->state.abo_architect_mode;
-    this->set_architect_mode(true);
-
     settings["render_gui"]->set(false);
 
     tms_fb_bind(this->icon_fb);
@@ -7511,7 +7500,6 @@ game::create_icon()
     SDL_FreeSurface(srf);
 
     tms_fb_unbind(this->icon_fb);
-    this->set_architect_mode(arch);
 
 #ifndef NO_UI
     settings["render_gui"]->set(true);
@@ -8715,24 +8703,16 @@ game::handle_input_paused(tms::event *ev, int action)
                             } else {
 
                                 if (simple_snap) {
-                                    double gox = fmod(this->selection.e->get_width(), state.gridsize);
-                                    double goy = fmod(this->selection.e->height, state.gridsize);
-                                    //float gox = 0.f;
-                                    //float goy = 0.f;
-
-                                    gox = 0.f;
-                                    goy = 0.f;
-
                                     /* Shift-dragging pixels remove them from their grid */
                                     if (this->selection.e->g_id == O_PIXEL || this->selection.e->g_id == O_TPIXEL) {
                                         this->selection.e->entity::set_position(
-                                                roundf(pos.x/state.gridsize)*state.gridsize+gox,
-                                                roundf(pos.y/state.gridsize)*state.gridsize+goy,
+                                                roundf(pos.x/state.gridsize)*state.gridsize,
+                                                roundf(pos.y/state.gridsize)*state.gridsize,
                                                 this->selection.frame);
                                     } else {
                                         this->selection.e->set_position(
-                                                roundf(pos.x/state.gridsize)*state.gridsize+gox,
-                                                roundf(pos.y/state.gridsize)*state.gridsize+goy,
+                                                roundf(pos.x/state.gridsize)*state.gridsize,
+                                                roundf(pos.y/state.gridsize)*state.gridsize,
                                                 this->selection.frame);
                                     }
                                 } else {
@@ -11001,8 +10981,6 @@ selection_handler::select(entity *e, b2Body *b, tvec2 offs, uint8_t frame, bool 
         }
     }
 #endif
-
-    ui = W->is_paused() || W->is_adventure();
 
     if (e) {
         e->set_flag(ENTITY_CONNECTED_TO_BREADBOARD, false);
