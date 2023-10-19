@@ -825,7 +825,6 @@ game::render_factory(void)
 
     char num[64];
     sprintf(num, "%.1f", fa->get_oil());
-    int slen = strlen(num);
     int yy = 0;
     int o = 0;
 
@@ -1153,7 +1152,7 @@ factory::add_to_queue(int sel)
         return 1;
     }
 
-    if (this->queue_size>0 && this->queue[this->queue_size-1].item == sel) 
+    if (this->queue_size>0 && this->queue[this->queue_size-1].item == sel)
         x = this->queue_size - 1;
     else if (this->queue_size < FACTORY_QUEUE_SIZE) {
         this->queue[x].count = 0;

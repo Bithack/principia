@@ -17,8 +17,6 @@ extern GLuint              menu_bg_color_loc;
 bool
 menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
 {
-    bool left = (pid == 0);
-    bool right = (pid == 1);
 
     switch (button_id) {
         case BTN_VERSION:

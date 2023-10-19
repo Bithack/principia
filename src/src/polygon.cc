@@ -71,7 +71,7 @@ polygon::_init()
     /* duplicate the index list */
     for (int y=1; y<MAX_POLYGONS; y++) {
         for (int x=0; x<90; x++) {
-            i[y*90+x] = i[x]+20*y; 
+            i[y*90+x] = i[x]+20*y;
         }
     }
 
@@ -92,8 +92,8 @@ polygon::polygon(int material_type)
     this->slot = -1;
 
     tms_mesh_init(&this->_mesh, va, ibuf);
-    this->_mesh.i_start = 0; 
-    this->_mesh.i_count = 0; 
+    this->_mesh.i_start = 0;
+    this->_mesh.i_count = 0;
 
     this->set_mesh(&this->_mesh);
 
@@ -123,7 +123,7 @@ polygon::polygon(int material_type)
     this->properties[0].v.i8 = 3;
     this->properties[1].type = P_INT8;
     this->properties[1].v.i8 = 0;
-    this->properties[2].type = P_FLT;  
+    this->properties[2].type = P_FLT;
     this->properties[2].v.f = 1.f;
 
     b2Vec2 def[] = {
@@ -275,8 +275,6 @@ polygon::reassign_slot(bool changed)
         this->add_to_slot(x);
         this->mesh->i_start = 90 * x;
         this->mesh->i_count = 90;
-    } else {
-
     }
 
     tms_debugf("assigned slot %d", this->slot);
@@ -462,8 +460,6 @@ polygon::find_pairs()
         return;
     }
 
-    property *p = this->properties;
-
     for (int x=0; x<4; ++x) {
         c = &this->c_side[x];
 
@@ -481,9 +477,7 @@ polygon::find_pairs()
             vec.Normalize();
             vec *= this->query_len;
 
-            W->raycast(this,
-                    midpoint,
-                    midpoint+vec);
+            W->raycast(this, midpoint, midpoint+vec);
 
             if (this->q_result) {
                 c->o = this->q_result;

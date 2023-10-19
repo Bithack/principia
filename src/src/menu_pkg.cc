@@ -39,7 +39,6 @@ menu_pkg_render(struct tms_wdg *w, struct tms_surface *s)
         py = w->pos.y;
     }
 
-    float sx = 1.f, sy = 0.f;
     float r = 0.f;
 
     if (_tms.emulating_portrait) {
@@ -48,7 +47,6 @@ menu_pkg_render(struct tms_wdg *w, struct tms_surface *s)
         px = (float)xx;
         py = (float)yy;
 
-        sx = 0.f; sy = 1.f;
         r = -90.f;
     }
 
@@ -98,9 +96,6 @@ menu_pkg::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
     if (menu_base::widget_clicked(w, button_id, pid)) {
         return true;
     }
-
-    bool left = (pid == 0);
-    bool right = (pid == 1);
 
     switch (button_id) {
         case BTN_BACK:

@@ -298,7 +298,7 @@ animal::recreate_shape()
     uint32_t at = this->get_animal_type();
 
     if (at >= NUM_ANIMAL_TYPES) {
-        this->set_animal_type(at = NUM_ANIMAL_TYPES - 1);
+        this->set_animal_type(NUM_ANIMAL_TYPES - 1);
     }
 
     tms_assertf(this->body, "Animal called recreate_shape without a body");

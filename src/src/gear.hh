@@ -31,9 +31,9 @@ class gear : public entity, public b2QueryCallback
     void on_touch(b2Fixture *a, b2Fixture *b);
     void set_anchor_pos(float x, float y);
     void find_pairs();
-    int get_num_gear_conns(); 
+    int get_num_gear_conns();
     void create_shape();
-    float get_slider_value(int s); 
+    float get_slider_value(int s);
     float get_slider_snap(int s);
     void on_slider_change(int s, float value);
     float get_ratio();

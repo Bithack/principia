@@ -11,8 +11,6 @@
 #define TORQUE 40.f
 
 motor::motor(int mtype)
-    : sound_state(-1)
-    , sound_started(false)
 {
     this->mtype = mtype;
 
@@ -327,28 +325,6 @@ motor::ifstep(float voltage, float ctl_speed,
 
         j->SetMotorSpeed(speed);
         j->SetMaxMotorTorque(torque);
-
-        this->sound_state += play_sound ? 1 : -1;
-
-        if (this->sound_state == 15) {
-            //sm::play(&sm::motor, this->get_position().x, this->get_position().y, 0, 1.f, true, this);
-        }
-
-        if (this->sound_state == 0 && !this->sound_started) {
-            //sm::play(&sm::motor_startstop, this->get_position().x, this->get_position().y, 0, 1.f, false, this);
-            this->sound_started = true;
-        }
-
-        if (this->sound_state == -1 && this->sound_started) {
-            //sm::stop(&sm::motor, this); 
-            //sm::play(&sm::motor_startstop, this->get_position().x, this->get_position().y, 1, 1.f, false, this);
-            this->sound_started = false;
-        }
-
-        if (this->sound_state < -1)
-            this->sound_state = -1;
-        if (this->sound_state > 16)
-            this->sound_state = 16;
     }
 }
 

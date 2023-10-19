@@ -90,8 +90,6 @@ ladder::ReportFixture(b2Fixture *f)
     entity *e = (entity*)f->GetUserData();
     uint8_t fr = VOID_TO_UINT8(f->GetBody()->GetUserData());
 
-    bool open = this->c_back.pending;
-
     if (e && e!=this && f->TestPoint(this->q_point)
         && e->allow_connections() && e->allow_connection(this,fr,this->q_point)) {
         int dist = e->get_layer() - this->get_layer();

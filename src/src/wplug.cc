@@ -64,7 +64,6 @@ wplug::disconnect()
         this->_angle = this->get_angle();
 
         if (this->plugged_edev) {
-            edevice *e = this->plugged_edev;
             this->plugged_edev = 0;
             this->s->p = 0;
             this->s = 0;
