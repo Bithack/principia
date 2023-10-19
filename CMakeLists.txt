@@ -156,7 +156,8 @@ target_link_libraries(
 		${SDL2_image_LIBRARIES}
 		${SDL2_mixer_LIBRARIES}
 		${SDL2_ttf_LIBRARIES}
-		${ZLIB_LIBRARIES})
+		${ZLIB_LIBRARIES}
+		${CMAKE_DL_LIBS})
 
 if(NOT SCREENSHOT_BUILD)
 	target_link_libraries(
