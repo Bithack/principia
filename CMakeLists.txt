@@ -173,7 +173,10 @@ else()
 	endif()
 endif()
 
-set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1 -rdynamic")
+set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1")
+if(NOT WIN32)
+	set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG} -rdynamic")
+endif()
 set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} -DNDEBUG=1 -s -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections")
 
 set(CMAKE_C_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O1")
@@ -186,7 +189,11 @@ set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG} -O0")
 
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-O,-s,--gc-sections")
 set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "-Wl,-O,--gc-sections")
-set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-rdynamic")
+if(WIN32)
+	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "")
+else()
+	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-rdynamic")
+endif()
 
 # Installation
 
