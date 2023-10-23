@@ -1,4 +1,3 @@
-#include "Box2D/Common/b2Math.h"
 #ifdef __UI_IMGUI_H_GUARD
 #error please do not include this file directly
 #endif
@@ -8,6 +7,7 @@
 
 //---
 #include "ui.hh"
+#include "main.hh"
 #include "game.hh"
 #include "pkgman.hh"
 #include "settings.hh"
@@ -1960,11 +1960,23 @@ namespace UiLevelProperties {
       std::string lvl_name(W->level.name, W->level.name_len);
       bool over_soft_limit = lvl_name.length() >= LEVEL_NAME_LEN_SOFT_LIMIT + 1;
       ImGui::BeginDisabled(over_soft_limit);
-      if (ImGui::InputText("Level name", &lvl_name)) {
+      ImGui::TextUnformatted("Level name");
+      if (ImGui::InputTextWithHint("###LevelName", LEVEL_NAME_PLACEHOLDER, &lvl_name)) {
         size_t to_copy = (size_t)(std::min)((int) lvl_name.length(), LEVEL_NAME_LEN_HARD_LIMIT);
         memcpy(&W->level.name, lvl_name.data(), to_copy);
         W->level.name_len = lvl_name.length();
       }
+
+      std::string lvl_descr(W->level.descr, W->level.descr_len);
+      ImGui::TextUnformatted("Description");
+      if (ImGui::InputTextMultiline("###LevelDescr", &lvl_descr)) {
+        W->level.descr = strdup(lvl_descr.c_str());
+        W->level.descr_len = lvl_descr.length();
+      }
+
+      ImGui::TextUnformatted("Type");
+      //ImGui::RadioButton("Adventure");
+
       ImGui::EndDisabled();
       ImGui::EndPopup();
     }
@@ -2127,6 +2139,17 @@ namespace UiNewLevel {
         LCAT_ADVENTURE,
         ui_textures.adventure
       );
+#ifdef DEBUG
+      ImGui::SameLine();
+      option(
+        "###o-puzzle",
+        "Puzzle",
+        "PUZZLE_DESCRIPTION",
+        ACTION_NEW_LEVEL,
+        LCAT_PUZZLE,
+        ui_textures.ud
+      );
+#endif
       ImGui::EndPopup();
     }
   }
@@ -2358,7 +2381,7 @@ namespace UiFrequency {
               ImGui::Text("%d-%d", usr.range_start, usr.range_end);
             }
           }
-          ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, 0);
+          //ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, 0);
           ImGui::EndTable();
         }
       }
