@@ -1360,9 +1360,21 @@ namespace UiLuaEditor {
     ImGuiIO& io = ImGui::GetIO();
     handle_do_open(&do_open, "Code editor");
     ImGui_CenterNextWindow();
-    ImGui::SetNextWindowSize(ImVec2(800, 600));
+    ImGui::SetNextWindowSize(ImVec2(800, 0.));
     //has_unsaved_changes ? NULL : REF_TRUE
     if (ImGui::BeginPopupModal("Code editor", REF_TRUE, MODAL_FLAGS | (has_unsaved_changes ? ImGuiWindowFlags_UnsavedDocument : 0))) {
+      #if defined(UI_USE_TTF_FONT)
+      if (UI_USE_TTF_FONT) ImGui::PushFont(ui_font_mono.font);
+      #endif
+
+      editor.Render("###TextEditor", ImVec2(0., 500.));
+
+      #if defined(UI_USE_TTF_FONT)
+      if (UI_USE_TTF_FONT) ImGui::PopFont();
+      #endif
+
+      ImGui::Spacing();
+
       ImGui::BeginDisabled(!has_unsaved_changes);
       // if (ImGui::Button("Save and exit (Alt+S)") | (io.KeyAlt && ImGui::IsKeyReleased(ImGuiKey_S))) {
       //   flash_controller();
@@ -1383,19 +1395,10 @@ namespace UiLuaEditor {
         return;
       }
 
-      #if defined(UI_USE_TTF_FONT)
-      if (UI_USE_TTF_FONT) ImGui::PushFont(ui_font_mono.font);
-      #endif
-
-      editor.Render("TextEditor");
-
-      #if defined(UI_USE_TTF_FONT)
-      if (UI_USE_TTF_FONT) ImGui::PopFont();
-      #endif
-
       if (editor.IsTextChanged()) {
         has_unsaved_changes = true;
       }
+
       ImGui::EndPopup();
     }
   }
