@@ -1995,8 +1995,8 @@ namespace UiLevelProperties {
           //Gravity
           {
             ImGui::TextUnformatted("Gravity");
-            ImGui::SliderFloat("X###gravityx", &W->level.gravity_x, -20., 20.);
-            ImGui::SliderFloat("Y###gravityy", &W->level.gravity_y, -20., 20.);
+            ImGui::SliderFloat("X###gravityx", &W->level.gravity_x, -40., 40., "%.01f");
+            ImGui::SliderFloat("Y###gravityy", &W->level.gravity_y, -40., 40., "%.01f");
           }
           //ImGui::SameLine();
 
