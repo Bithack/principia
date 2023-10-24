@@ -73,6 +73,9 @@
 //If disabled, placeholders will be loaded in from RAM instead
 #define DO_LOAD_IMAGE_ASSETS true
 
+//Should options related to broken puzzle mode be shown?
+#define SHOW_PUZZLE DEBUG
+
 //--------------------------------------------
 
 //STUFF
@@ -236,6 +239,7 @@ struct PUiTextures {
   tms_texture *adventure;
   tms_texture *custom;
   tms_texture *ud;
+  tms_texture *placeholder_image;
 };
 static struct PUiTextures ui_textures;
 
@@ -267,10 +271,12 @@ static tms_texture *load_texture(const char *path) {
 
 
 static void load_textures() {
+  //ui_textures.null = load_texture_mem(nullptr, 0, 0);
   ui_textures.adventure = load_texture("data-shared/textures/img/adventure.jpg");
   ui_textures.adventure_empty = load_texture("data-shared/textures/img/adventure_empty.jpg");
   ui_textures.custom = load_texture("data-shared/textures/img/custom.jpg");
   ui_textures.ud = load_texture("data-shared/textures/img/ud.png");
+  ui_textures.placeholder_image = load_texture("data-shared/textures/img/placeholder_image.png");
 }
 
 #define TIM_UV0 ImVec2(0.f, 1.f)
@@ -741,10 +747,10 @@ namespace UiLevelManager {
           ImGui::PopID();
         }
         ImGui::EndTable();
+        if (!any_level_found) {
+          ImGui::TextUnformatted("No levels found");
+        }
         ImGui::EndChild();
-      }
-      if (!any_level_found) {
-        ImGui::TextUnformatted("No levels found");
       }
       ImGui::EndPopup();
     }
@@ -2134,20 +2140,19 @@ namespace UiNewLevel {
       option(
         "###o-adventure",
         "Adventure",
-        "Build and explore dynamically generated worlds",
+        "Build and explore procedurally generated worlds",
         ACTION_NEW_GENERATED_LEVEL,
         LCAT_ADVENTURE,
         ui_textures.adventure
       );
-#ifdef DEBUG
-      ImGui::SameLine();
+#ifdef SHOW_PUZZLE
       option(
         "###o-puzzle",
-        "Puzzle",
-        "PUZZLE_DESCRIPTION",
+        "Puzzle [DEBUG]",
+        "PUZZLE_DESCRIPTION\nPUZZLE_DESCRIPTION",
         ACTION_NEW_LEVEL,
         LCAT_PUZZLE,
-        ui_textures.ud
+        ui_textures.placeholder_image
       );
 #endif
       ImGui::EndPopup();
