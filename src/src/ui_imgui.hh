@@ -1966,27 +1966,105 @@ namespace UiLevelProperties {
     handle_do_open(&do_open, "Level properties");
     ImGui_CenterNextWindow();
     if (ImGui::BeginPopupModal("Level properties", REF_TRUE, MODAL_FLAGS)) {
-      std::string lvl_name(W->level.name, W->level.name_len);
-      bool over_soft_limit = lvl_name.length() >= LEVEL_NAME_LEN_SOFT_LIMIT + 1;
-      ImGui::BeginDisabled(over_soft_limit);
-      ImGui::TextUnformatted("Level name");
-      if (ImGui::InputTextWithHint("###LevelName", LEVEL_NAME_PLACEHOLDER, &lvl_name)) {
-        size_t to_copy = (size_t)(std::min)((int) lvl_name.length(), LEVEL_NAME_LEN_HARD_LIMIT);
-        memcpy(&W->level.name, lvl_name.data(), to_copy);
-        W->level.name_len = lvl_name.length();
+      if (ImGui::BeginTabBar("MyTabBar")) {
+        if (ImGui::BeginTabItem("Cucumber")) {
+          std::string lvl_name(W->level.name, W->level.name_len);
+          bool over_soft_limit = lvl_name.length() >= LEVEL_NAME_LEN_SOFT_LIMIT + 1;
+          ImGui::BeginDisabled(over_soft_limit);
+          ImGui::TextUnformatted("Level name");
+          if (ImGui::InputTextWithHint("###LevelName", LEVEL_NAME_PLACEHOLDER, &lvl_name)) {
+            size_t to_copy = (size_t)(std::min)((int) lvl_name.length(), LEVEL_NAME_LEN_HARD_LIMIT);
+            memcpy(&W->level.name, lvl_name.data(), to_copy);
+            W->level.name_len = lvl_name.length();
+          }
+          ImGui::EndDisabled();
+
+          std::string lvl_descr(W->level.descr, W->level.descr_len);
+          ImGui::TextUnformatted("Description");
+          if (ImGui::InputTextMultiline("###LevelDescr", &lvl_descr)) {
+            W->level.descr = strdup(lvl_descr.c_str());
+            W->level.descr_len = lvl_descr.length();
+          }
+
+          ImGui::TextUnformatted("Type");
+          //ImGui::RadioButton("Adventure");
+          
+          ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("World")) {
+          //Gravity
+          {
+            ImGui::TextUnformatted("Gravity");
+            ImGui::SliderFloat("X###gravityx", &W->level.gravity_x, -20., 20.);
+            ImGui::SliderFloat("Y###gravityy", &W->level.gravity_y, -20., 20.);
+          }
+          //ImGui::SameLine();
+
+          //Border size
+          {
+            static const ImVec2 bs = ImVec2(128. + 24., 100.);
+
+            float ix = 48.;
+            float iy = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.;
+
+            bool do_reload = false;
+
+            auto slider = [ix, &do_reload](const char *id, uint16_t *x, float flip, int flags = 0) {
+              ImGui::PushItemWidth(ix);
+              int xint = *x;
+              if (ImGui::DragInt(id, &xint, flip * 0.1f, 0, 0, "%d", flags)) { 
+                *x = (std::max)(0, xint);
+              }
+              ImGui::PopItemWidth();
+              do_reload |= ImGui::IsItemDeactivatedAfterEdit();
+            };
+
+            ImGui::TextUnformatted("Border size");
+
+            ImVec2 c = ImGui::GetCursorPos();
+            ImVec2 p_min = ImGui::GetCursorScreenPos();
+            ImVec2 p_max = ImVec2(p_min.x + bs.x, p_min.y + bs.y);
+            ImGui::Dummy(bs);
+            ImVec2 after_dummy = ImGui::GetCursorPos();
+
+            ImGui::GetWindowDrawList()->AddRect(
+              ImVec2(p_min.x + ix / 2, p_min.y + iy / 2), 
+              ImVec2(p_max.x - ix / 2, p_max.y - iy / 2),
+              ImColor(255, 255, 255, 64), 
+              5., 0, 2.
+            );
+
+            ImGui::SetCursorPos(ImVec2(c.x, c.y + bs.y / 2 - iy / 2));
+            slider("###x0", &W->level.size_x[0], -1.);
+
+            ImGui::SetCursorPos(ImVec2(c.x + bs.x - ix, c.y + bs.y / 2 - iy / 2));
+            slider("###x1", &W->level.size_x[1], 1.); 
+
+            ImGui::SetCursorPos(ImVec2(c.x + bs.x / 2 - ix / 2, c.y + bs.y - iy));
+            slider("###y0", &W->level.size_y[0], -1., ImGuiSliderFlags_Vertical); 
+
+            ImGui::SetCursorPos(ImVec2(c.x + bs.x / 2 - ix / 2, c.y));
+            slider("###y1", &W->level.size_y[1], 1., ImGuiSliderFlags_Vertical);
+            
+            //Button right in the center
+            // const char *btext = "FIT";
+            // float bix = ImGui::CalcTextSize(btext).y + ImGui::GetStyle().FramePadding.x * 2.;
+            // ImGui::SetCursorPos(ImVec2(c.x + bs.x / 2 - bix / 2, c.y + bs.y / 2 - iy / 2));
+            // ImGui::Button(btext);
+
+            if (do_reload) P.add_action(ACTION_RELOAD_LEVEL, 0);
+
+            ImGui::SetCursorPos(after_dummy);
+
+            if (ImGui::Button("Auto-fit borders", ImVec2(bs.x, 0.))) {
+              P.add_action(ACTION_AUTOFIT_LEVEL_BORDERS, 0);
+            }
+          }
+
+          ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
       }
-
-      std::string lvl_descr(W->level.descr, W->level.descr_len);
-      ImGui::TextUnformatted("Description");
-      if (ImGui::InputTextMultiline("###LevelDescr", &lvl_descr)) {
-        W->level.descr = strdup(lvl_descr.c_str());
-        W->level.descr_len = lvl_descr.length();
-      }
-
-      ImGui::TextUnformatted("Type");
-      //ImGui::RadioButton("Adventure");
-
-      ImGui::EndDisabled();
       ImGui::EndPopup();
     }
   }
