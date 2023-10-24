@@ -1994,7 +1994,7 @@ namespace UiLevelProperties {
         if (ImGui::BeginTabItem("World")) {
           //Gravity
           {
-            ImGui::TextUnformatted("Gravity");
+            ImGui::SeparatorText("Gravity");
             ImGui::SliderFloat("X###gravityx", &W->level.gravity_x, -40., 40., "%.01f");
             ImGui::SliderFloat("Y###gravityy", &W->level.gravity_y, -40., 40., "%.01f");
           }
@@ -2019,7 +2019,7 @@ namespace UiLevelProperties {
               do_reload |= ImGui::IsItemDeactivatedAfterEdit();
             };
 
-            ImGui::TextUnformatted("Border size");
+            ImGui::SeparatorText("Border size");
 
             ImVec2 c = ImGui::GetCursorPos();
             ImVec2 p_min = ImGui::GetCursorScreenPos();
