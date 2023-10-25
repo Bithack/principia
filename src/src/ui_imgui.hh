@@ -2063,6 +2063,10 @@ namespace UiLevelProperties {
 
           ImGui::EndTabItem();
         }
+        if (ImGui::BeginTabItem("Gameplay")) {
+          
+          ImGui::EndTabItem();
+        }
         ImGui::EndTabBar();
       }
       ImGui::EndPopup();
