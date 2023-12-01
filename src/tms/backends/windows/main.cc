@@ -39,6 +39,7 @@ FILE *_f_err = stderr;
 
 int keys[235];
 int mouse_down;
+static int _storage_type = 0;
 static char *_storage_path = 0;
 
 static int T_intercept_input(SDL_Event ev);
@@ -177,6 +178,11 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
     tms_infof("chdirring to %s", current_dir_2);
     chdir(current_dir_2);
 #endif
+
+    // Switch to portable if ./portable.txt exists next to exe
+    if (access("portable.txt", F_OK) == 0) {
+        _storage_type = 1;
+    }
 
     char path[512];
     const char *storage = tbackend_get_storage_path();
@@ -725,8 +731,12 @@ const char *tbackend_get_storage_path(void)
     if (!_storage_path) {
         char *path = (char*)malloc(512);
 
-        strcpy(path, getenv("USERPROFILE"));
-        strcat(path, "\\Principia");
+        if (_storage_type == 0) { // System (Installed)
+            strcpy(path, getenv("USERPROFILE"));
+            strcat(path, "\\Principia");
+        } else if (_storage_type == 1) { // Portable
+            strcpy(path, ".\\userdata\\");
+        }
 
         _storage_path = path;
     }
