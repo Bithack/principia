@@ -1,5 +1,8 @@
 # Common build files
 build/
+build_ss/
+build_32/
+build_ucrt/
 build_debug/
 
 # Misc. development files
