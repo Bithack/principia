@@ -249,14 +249,9 @@ T_intercept_input(SDL_Event ev)
     return T_OK;
 }
 
-const char *tbackend_get_user_path(void)
-{
-    return "../Documents";
-}
-
 const char *tbackend_get_storage_path(void)
 {
-    return "../Library/Caches";
+    return "../Documents";
 }
 
 void

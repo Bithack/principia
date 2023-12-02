@@ -184,20 +184,7 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
         _storage_type = 1;
     }
 
-    char path[512];
-    const char *storage = tbackend_get_storage_path();
-    static const char *dirs[] = {
-        "",
-        "/lvl", "/lvl/db", "/lvl/local", "/lvl/main",
-        "/pkg", "/pkg/db", "/pkg/local", "/pkg/main",
-    };
-
-    //tms_infof("Creating directories..");
-    for (int x=0; x<sizeof(dirs)/sizeof(char*); x++) {
-        /* XXX no bounds checking */
-        sprintf(path, "%s%s", storage, dirs[x]);
-        mkdir(path);
-    }
+    mkdir(tbackend_get_storage_path());
 
     /* set temporary width and height for the settings loader */
     SDL_Init(SDL_INIT_VIDEO);

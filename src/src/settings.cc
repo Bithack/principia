@@ -158,7 +158,7 @@ _settings::init()
     this->add("score_automatically_submit", S_BOOL, true);
 
     char filename[1024];
-    sprintf(filename, "%s/settings.ini", tbackend_get_user_path());
+    sprintf(filename, "%s/settings.ini", tbackend_get_storage_path());
     FILE *fh;
 
     if ((fh = fopen(filename, "r")) == NULL) {
@@ -178,7 +178,7 @@ bool
 _settings::load(void)
 {
     char filename[1024];
-    sprintf(filename, "%s/settings.ini", tbackend_get_user_path());
+    sprintf(filename, "%s/settings.ini", tbackend_get_storage_path());
     FILE *fh = fopen(filename, "r");
 
     if (!fh) {
@@ -303,7 +303,7 @@ _settings::save(void)
     /* TODO: store filename in the class, char[1024] settings_file, to be
      * set in init*/
     char filename[1024];
-    sprintf(filename, "%s/settings.ini", tbackend_get_user_path());
+    sprintf(filename, "%s/settings.ini", tbackend_get_storage_path());
     FILE *fh = fopen(filename, "w+");
 
     if (!fh) {

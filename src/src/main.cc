@@ -3063,7 +3063,7 @@ _submit_score(void *p)
 
     char data_path[1024];
 
-    const char *storage = tbackend_get_user_path();
+    const char *storage = tbackend_get_storage_path();
     snprintf(data_path, 1023, "%s/data.bin", storage);
 
     uint32_t highscore_level_id = BASE_HIGHSCORE_LEVEL_ID;
@@ -3637,8 +3637,8 @@ _init_more_fonts(void *unused)
 static void
 generate_paths()
 {
-    snprintf(featured_data_path, 1023, "%s/fl.cache", tbackend_get_user_path());
-    snprintf(featured_data_time_path, 1023, "%s/fl.time", tbackend_get_user_path());
+    snprintf(featured_data_path, 1023, "%s/fl.cache", tbackend_get_storage_path());
+    snprintf(featured_data_time_path, 1023, "%s/fl.time", tbackend_get_storage_path());
 }
 
 static int
@@ -3660,22 +3660,15 @@ initial_loader(int step)
         case 0:
             {
                 P.community_host = "principia-web.se";
-                static const char *u_dirs[]={
-                    "/lvl", "/lvl/local",
-                    "/pkg", "/pkg/local",
-                    "/cache", "/cache/local", "/cache/sav",
+
+                static const char *s_dirs[]={
+                    "",
+                    "/cache", "/cache/db", "/cache/local", "/cache/main", "/cache/sav",
+                    "/lvl", "/lvl/db", "/lvl/local", "/lvl/main",
+                    "/pkg", "/pkg/db", "/pkg/local", "/pkg/main",
                     "/sav"
                 };
-                static const char *s_dirs[]={
-                    "/lvl", "/lvl/db", "/lvl/main",
-                    "/pkg", "/pkg/db", "/pkg/main",
-                    "/cache", "/cache/db", "/cache/main"
-                };
 
-                for (int x=0; x<sizeof(u_dirs)/sizeof(const char*); x++) {
-                    sprintf(tmp, "%s%s", tbackend_get_user_path(), u_dirs[x]);
-                    create_dir(tmp, S_IRWXU | S_IRWXG | S_IRWXO);
-                }
                 for (int x=0; x<sizeof(s_dirs)/sizeof(const char*); x++) {
                     sprintf(tmp, "%s%s", tbackend_get_storage_path(), s_dirs[x]);
                     create_dir(tmp, S_IRWXU | S_IRWXG | S_IRWXO);

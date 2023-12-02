@@ -18,11 +18,7 @@ extern const char *T_B_strings[]; /* backends.c */
 int tbackend_init_surface(void);
 
 const char *tbackend_get_storage_path();
-#if defined TMS_BACKEND_IOS
-const char *tbackend_get_user_path();
-#else
-#define tbackend_get_user_path tbackend_get_storage_path
-#endif
+
 void tbackend_toggle_fullscreen(void);
 
 #ifdef __cplusplus

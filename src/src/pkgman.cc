@@ -730,7 +730,7 @@ pkgman::get_pkg_path(int type)
                     _dir_names[type]);
         } else {
             snprintf((char*)_pkg_path[type], 1023, "%s" SLASH "pkg" SLASH "%s",
-                     type == LEVEL_DB ? tbackend_get_storage_path() : tbackend_get_user_path(),
+                    tbackend_get_storage_path(),
                     _dir_names[type]);
         }
     }
@@ -756,7 +756,7 @@ pkgman::get_level_path(int level_type)
             _state_path = (char*)malloc(1024); /* XXX free this somewhere */
             snprintf((char*)_state_path, 1023,
                     "%s" SLASH "sav",
-                     tbackend_get_user_path());
+                     tbackend_get_storage_path());
         }
 
         return _state_path;
@@ -778,7 +778,7 @@ pkgman::get_level_path(int level_type)
         } else {
             snprintf((char*)_level_path[level_type], 1023,
                     "%s" SLASH "lvl" SLASH "%s",
-                     level_type == LEVEL_DB ? tbackend_get_storage_path() : tbackend_get_user_path(),
+                    tbackend_get_storage_path(),
                     _dir_names[level_type]);
         }
     }
@@ -821,7 +821,7 @@ pkgman::get_cache_path(int level_type)
 
             snprintf((char*)_cache_state_path, 1023,
                     "%s" SLASH "cache" SLASH "sav",
-                    tbackend_get_user_path());
+                    tbackend_get_storage_path());
         }
 
         return _cache_state_path;
@@ -837,7 +837,7 @@ pkgman::get_cache_path(int level_type)
 
         snprintf((char*)_cache_path[level_type], 1023,
                 "%s" SLASH "cache" SLASH "%s",
-                 level_type == LEVEL_DB ? tbackend_get_storage_path() : tbackend_get_user_path(), /* XXX ? */
+                tbackend_get_storage_path(),
                 _dir_names[level_type]);
     }
 

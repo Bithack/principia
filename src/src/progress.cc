@@ -49,7 +49,7 @@ progress::init(char *custom_path/*=0*/)
     if (custom_path) {
         strcpy(tmp, custom_path);
     } else {
-        const char *storage = tbackend_get_user_path();
+        const char *storage = tbackend_get_storage_path();
         snprintf(tmp, 1023, "%s/data.bin", storage);
     }
 
@@ -223,7 +223,7 @@ progress::commit()
     }
 
     char filename[1024];
-    const char *storage = tbackend_get_user_path();
+    const char *storage = tbackend_get_storage_path();
     snprintf(filename, 1023, "%s/data.bin", storage);
 
     long crc_pos[4]={0,0,0,0};
