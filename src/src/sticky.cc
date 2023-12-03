@@ -8,7 +8,7 @@
 
 #include <cstddef>
 
-#define NUM_SLOTS 64
+#define NUM_SLOTS 33
 
 #define NOTE_FONT "data-shared/fonts/easyspeech.ttf"
 #define NUM_SIZES 4
