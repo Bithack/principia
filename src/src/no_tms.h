@@ -20,11 +20,7 @@
 #define tms_raise()
 #define tms_assertf(expr, f, ...) {if (expr);else tms_fatalf(f, ##__VA_ARGS__);}
 
-#ifdef PROGRESSTEST
-static const char *tbackend_get_storage_path(){return ".";};
-#else
 static const char *tbackend_get_storage_path(){return STATIC_STORAGE_PATH;};
-#endif
 
 static inline int
 _fatal_exit() {

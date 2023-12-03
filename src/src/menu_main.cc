@@ -33,7 +33,6 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
         case BTN_BROWSE_COMMUNITY:
             {
                 ui::emit_signal(SIGNAL_CLICK_DISCOVER);
-                //ui::open_url(0);
                 char tmp[128];
                 snprintf(tmp, 127, "https://%s/", P.community_host);
                 ui::open_url(tmp);
