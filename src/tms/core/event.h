@@ -134,6 +134,7 @@ enum {
     TMS_EV_POINTER_MOVE   = 1 << 7,
     TMS_EV_POINTER_SCROLL = 1 << 8,
     TMS_EV_KEY_REPEAT     = 1 << 9,
+    TMS_EV_TEXT_INPUT     = 1 << 10,
 };
 
 enum {
@@ -170,6 +171,10 @@ struct tms_key {
     uint16_t mod;
 };
 
+struct tms_text_input {
+    char text[32];
+};
+
 struct tms_event {
     int  type;
     union {
@@ -177,11 +182,15 @@ struct tms_event {
         struct tms_pointer_button    button;
         struct tms_key               key;
         struct tms_pointer_scroll    scroll;
+        struct tms_text_input        text;
     } data;
 };
 
 int tms_event_push(struct tms_event in);
 int tms_event_process_all(struct tms_screen *s);
+
+typedef int (*tms_event_handler)(struct tms_event*);
+int tms_event_register_raw(tms_event_handler);
 
 #ifdef __cplusplus
 }

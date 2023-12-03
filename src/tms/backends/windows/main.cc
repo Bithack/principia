@@ -374,6 +374,10 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
                     }
                     break;
 
+                case SDL_TEXTINPUT:
+                    T_intercept_input(ev);
+                    break;
+                
                 default:
                     tms_debugf("Unhandled input: %d", ev.type);
                     break;
@@ -705,6 +709,11 @@ T_intercept_input(SDL_Event ev)
             spec.data.scroll.x = ev.wheel.x;
             spec.data.scroll.y = ev.wheel.y;
             SDL_GetMouseState(&spec.data.scroll.mouse_x, &spec.data.scroll.mouse_y);
+            break;
+        
+        case SDL_TEXTINPUT:
+            spec.type = TMS_EV_TEXT_INPUT;
+            std::copy(ev.text.text, ev.text.text + 32, spec.data.text.text);
             break;
     }
 
