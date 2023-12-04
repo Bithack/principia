@@ -677,7 +677,7 @@ gui_spritesheet::init_atlas()
 
     text_factor = (float)_tms.xppcm / (float)text_xppcm;
 
-    snprintf(cache_path, 511, "%s/textures.cache", tbackend_get_user_path());
+    snprintf(cache_path, 511, "%s/textures.cache", tbackend_get_storage_path());
     gui_spritesheet::use_cache = false;
 
     tms_infof("Textures cache path: %s", cache_path);
@@ -726,7 +726,7 @@ gui_spritesheet::init_loading_font()
         return;
     }
 
-    snprintf(font_cache_path, 511, "%s/fonts.cache", tbackend_get_user_path());
+    snprintf(font_cache_path, 511, "%s/fonts.cache", tbackend_get_storage_path());
 
     lvlbuf lb;
 

@@ -56,46 +56,41 @@ speaker::solve_electronics()
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
         return this->s_in[1].get_connected_edevice();
-    if (!this->s_in[2].is_ready())
-        return this->s_in[2].get_connected_edevice();
 
     int s = this->slot;
 
     float freq = this->properties[0].v.f + (this->properties[1].v.f - this->properties[0].v.f) * this->s_in[1].get_value();
     float volume = this->s_in[0].p ? this->s_in[0].get_value() : 1.f;
 
-    bool do_play = false;
-
     if (s == -1) {
-        if (volume > 0.001f) {
-            /* find an open slot */
-            for (int x=0; x<SM_MAX_CHANNELS; x++) {
-                if (sm::generated[x].available) {
-                    s = (this->slot = x);
+        if (volume < 0.001f) return 0;
 
-                    sm::generated[s].phase = 0.;
-                    sm::generated[s].bitcrushing = this->properties[3].v.f;
-                    sm::generated[s].volume_vibrato = this->properties[4].v.f;
-                    sm::generated[s].freq_vibrato = this->properties[5].v.f;
-                    sm::generated[s].waveform = this->properties[2].v.i;
-                    sm::generated[s].freq_vibrato_width = this->properties[7].v.f;
-                    sm::generated[s].volume_vibrato_width = this->properties[6].v.f;
-                    sm::generated[s].pulse_width = this->properties[8].v.f;
+        /* find an open slot */
+        for (int x=0; x<SM_MAX_CHANNELS; x++) {
+            if (!sm::generated[x].available) continue;
 
-                    sm::generated[s].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].freq = freq;
-                    sm::generated[s].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].volume = volume;
+            s = (this->slot = x);
 
-                    sm::play_gen(s);
-                    break;
-                }
-            }
+            sm::generated[s].phase = 0.;
+            sm::generated[s].bitcrushing = this->properties[3].v.f;
+            sm::generated[s].volume_vibrato = this->properties[4].v.f;
+            sm::generated[s].freq_vibrato = this->properties[5].v.f;
+            sm::generated[s].waveform = this->properties[2].v.i;
+            sm::generated[s].freq_vibrato_width = this->properties[7].v.f;
+            sm::generated[s].volume_vibrato_width = this->properties[6].v.f;
+            sm::generated[s].pulse_width = this->properties[8].v.f;
+
+            sm::generated[s].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].freq = freq;
+            sm::generated[s].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].volume = volume;
+
+            sm::play_gen(s);
+            break;
         }
     } else {
         if (volume <= 0.001f) {
-            //Mix_HaltChannel(SM_MAX_CHANNELS+s);
             sm::generated[s].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].command = SM_GENWAVE_STOP;
-            //sm::generated[s].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].freq = 0;
-            //sm::generated[s].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].volume = 0;
+
+            s = (this->slot = -1);
         } else {
             sm::generated[s].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].freq = freq;
             sm::generated[s].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].volume = volume;

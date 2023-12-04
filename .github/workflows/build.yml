@@ -5,12 +5,16 @@ on:
     paths:
       - 'src/**'
       - 'build-*/**'
+      - 'data-*/**'
+      - 'packaging/**'
       - 'CMakeLists.txt'
       - '.github/workflows/**.yml'
   pull_request:
     paths:
       - 'src/**'
       - 'build-*/**'
+      - 'data-*/**'
+      - 'packaging/**'
       - 'CMakeLists.txt'
       - '.github/workflows/**.yml'
 
@@ -46,17 +50,20 @@ jobs:
             mingw-w64-x86_64-toolchain
             mingw-w64-x86_64-cmake
             mingw-w64-x86_64-ninja
-            mingw-w64-x86_64-curl
             mingw-w64-x86_64-glew
+            mingw-w64-x86_64-zlib
             mingw-w64-x86_64-gtk3
             mingw-w64-x86_64-libpng
             mingw-w64-x86_64-libjpeg-turbo
-            mingw-w64-x86_64-freetype
             mingw-w64-x86_64-SDL2
-            mingw-w64-x86_64-SDL2_image
-            mingw-w64-x86_64-SDL2_mixer
             mingw-w64-x86_64-SDL2_ttf
             mingw-w64-x86_64-nsis
+
+      # custom built packages with less dependencies than MSYS' counterparts
+      - name: Install external packages
+        run: |
+         wget https://grejer.voxelmanip.se/msys-pkgs/mingw-w64-x86_64-{curl-winssl-8.4.0-3,freetype-2.13.2-1,SDL2_image-2.6.3-2,SDL2_mixer-2.6.3-1}-any.pkg.tar.zst
+         pacman -U --noconfirm *.pkg.tar.zst
 
       - name: Build
         run: |
@@ -85,10 +92,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends openjdk-11-jdk-headless
+
       - name: Build with gradle
         run: |
           cd build-android
           ./gradlew assemblerelease
+
       - name: Save apk artifact
         uses: actions/upload-artifact@v3
         with:

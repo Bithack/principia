@@ -634,12 +634,6 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
     }
 
     /* -----------------------------------------------------------------------------------------------------  TMS PRINCIPIA */
-    public static boolean has_external_storage()
-    {
-        //String state = Environment.getExternalStorageState();
-        //return Environment.MEDIA_MOUNTED.equals(state);
-	return true;
-    }
 
     public static String get_storage_path()
     {

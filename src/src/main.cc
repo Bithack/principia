@@ -1127,10 +1127,6 @@ tproject_step(void)
                     }
                     break;
 
-                case ACTION_PING:
-                    tms_infof("unused ping action");
-                    break;
-
                 case ACTION_RELOAD_GRAPHICS:
                     {
                         tms_debugf("Reloading graphics...");
@@ -1461,8 +1457,6 @@ tproject_soft_resume(void)
 void
 tproject_soft_pause(void)
 {
-    //sm::stop_all();
-
     sm::pause_all();
 
     if (_tms.screen == &G->super && G->state.sandbox && W->is_paused() && !G->state.test_playing && G->state.modified) {
@@ -1615,16 +1609,6 @@ tproject_init(void)
     P.message = 0;
     P.new_version_available = false;
     P.curl = 0;
-
-#if defined(TMS_BACKEND_ANDROID_X86_64)
-    tms_debugf("ARCH: x86_64");
-#elif defined(TMS_BACKEND_ANDROID_X86)
-    tms_debugf("ARCH: x86");
-#elif defined(TMS_BACKEND_ANDROID_ARM64_V8A)
-    tms_debugf("ARCH: arm64-v8a");
-#elif defined(TMS_BACKEND_ANDROID_ARMEABI_V7A)
-    tms_debugf("ARCH: armeabi-v7");
-#endif
 
     tms_infof("tproject_init called");
     srand((unsigned)time(0));
@@ -3063,7 +3047,7 @@ _submit_score(void *p)
 
     char data_path[1024];
 
-    const char *storage = tbackend_get_user_path();
+    const char *storage = tbackend_get_storage_path();
     snprintf(data_path, 1023, "%s/data.bin", storage);
 
     uint32_t highscore_level_id = BASE_HIGHSCORE_LEVEL_ID;
@@ -3581,19 +3565,15 @@ static const char *load_step_name[] = {
     /* 5  */ "Load materials",
     /* 6  */ "Allocating models",
     /* 7  */ "Loading models",
-    /* 8  */ "Unused",
-    /* 9  */ "Uploading models",
-    /* 10 */ "Loading tilemaps",
-    /* 11 */ "Initializing buffers",
-    /* 12 */ "Init world",
-    /* 13 */ "Init game",
-    /* 14 */ "Init game GUI",
-    /* 15 */ "Unused",
-    /* 16 */ "Unused",
-    /* 17 */ "Load shared menus assets",
-    /* 18 */ "Init menus",
-    /* 19 */ "Load progress",
-    /* 20 */ "Save settings",
+    /* 8  */ "Uploading models",
+    /* 9 */ "Loading tilemaps",
+    /* 10 */ "Initializing buffers",
+    /* 11 */ "Init world",
+    /* 12 */ "Init game",
+    /* 13 */ "Init game GUI",
+    /* 14 */ "Init menus",
+    /* 15 */ "Load progress",
+    /* 16 */ "Save settings",
 };
 
 bool
@@ -3626,19 +3606,11 @@ _create_dir(const char *path, mode_t mode)
     return true;
 }
 
-static int
-_init_more_fonts(void *unused)
-{
-    gui_spritesheet::init_fonts();
-
-    return 0;
-}
-
 static void
 generate_paths()
 {
-    snprintf(featured_data_path, 1023, "%s/fl.cache", tbackend_get_user_path());
-    snprintf(featured_data_time_path, 1023, "%s/fl.time", tbackend_get_user_path());
+    snprintf(featured_data_path, 1023, "%s/fl.cache", tbackend_get_storage_path());
+    snprintf(featured_data_time_path, 1023, "%s/fl.time", tbackend_get_storage_path());
 }
 
 static int
@@ -3650,32 +3622,19 @@ initial_loader(int step)
     Uint32 ss = SDL_GetTicks();
     int retval = LOAD_CONT;
 
-    /* this is necessary for multithreaded fontloading
-    if (gui_spritesheet::text_atlas_modified) {
-        gui_spritesheet::upload_text_atlas();
-    }
-    */
-
     switch (step) {
         case 0:
             {
                 P.community_host = "principia-web.se";
-                static const char *u_dirs[]={
-                    "/lvl", "/lvl/local",
-                    "/pkg", "/pkg/local",
-                    "/cache", "/cache/local", "/cache/sav",
+
+                static const char *s_dirs[]={
+                    "",
+                    "/cache", "/cache/db", "/cache/local", "/cache/main", "/cache/sav",
+                    "/lvl", "/lvl/db", "/lvl/local", "/lvl/main",
+                    "/pkg", "/pkg/db", "/pkg/local", "/pkg/main",
                     "/sav"
                 };
-                static const char *s_dirs[]={
-                    "/lvl", "/lvl/db", "/lvl/main",
-                    "/pkg", "/pkg/db", "/pkg/main",
-                    "/cache", "/cache/db", "/cache/main"
-                };
 
-                for (int x=0; x<sizeof(u_dirs)/sizeof(const char*); x++) {
-                    sprintf(tmp, "%s%s", tbackend_get_user_path(), u_dirs[x]);
-                    create_dir(tmp, S_IRWXU | S_IRWXG | S_IRWXO);
-                }
                 for (int x=0; x<sizeof(s_dirs)/sizeof(const char*); x++) {
                     sprintf(tmp, "%s%s", tbackend_get_storage_path(), s_dirs[x]);
                     create_dir(tmp, S_IRWXU | S_IRWXG | S_IRWXO);
@@ -3690,9 +3649,6 @@ initial_loader(int step)
                 generate_paths();
 
                 gui_spritesheet::init_atlas();
-
-                //create_thread(_init_more_fonts, "_init_more_fonts", (void*)0);
-
             }
             break;
 
@@ -3703,7 +3659,6 @@ initial_loader(int step)
 
         case 2:
             gui_spritesheet::init_fonts();
-
             P.s_loading_screen->set_text("Loading GUI...");
             break;
 
@@ -3775,24 +3730,21 @@ initial_loader(int step)
                     break;
                 }
             }
-            break;
-
-        case 8:
             P.s_loading_screen->set_text("Uploading models...");
             break;
 
-        case 9:
+        case 8:
             mesh_factory::upload_models();
 
             P.s_loading_screen->set_text("Loading tilemaps...");
             break;
 
-        case 10:
+        case 9:
             tile_factory::init();
             P.s_loading_screen->set_text("Loading buffers...");
             break;
 
-        case 11:
+        case 10:
             cable::_init();
             display::_init();
             ledbuffer::_init();
@@ -3807,13 +3759,13 @@ initial_loader(int step)
             P.s_loading_screen->set_text("Loading world...");
             break;
 
-        case 12:
+        case 11:
             W = new world();
 
             P.s_loading_screen->set_text("Loading game...");
             break;
 
-        case 13:
+        case 12:
             /* All fonts must be loaded before we can continue here */
             if (!gui_spritesheet::all_fonts_loaded) {
                 tms_infof("Waiting for fonts to load...");
@@ -3827,22 +3779,11 @@ initial_loader(int step)
             P.s_loading_screen->set_text("Loading game GUI...");
             break;
 
-        case 14:
+        case 13:
             G->init_gui();
             break;
 
-        case 15:
-            break;
-
-        case 16:
-
-            P.s_loading_screen->set_text("Loading menus...");
-            break;
-
-        case 17:
-            break;
-
-        case 18:
+        case 14:
             P.s_menu_pkg = new menu_pkg();
             P.s_menu_main = new menu_main();
             P.s_menu_create = new menu_create();
@@ -3856,11 +3797,11 @@ initial_loader(int step)
             P.s_loading_screen->set_text("Loading progress...");
             break;
 
-        case 19:
+        case 15:
             progress::init();
             break;
 
-        case 20:
+        case 16:
             {
                 P.s_loading_screen->set_text(0);
 
@@ -3893,7 +3834,7 @@ initial_loader(int step)
             }
             break;
 
-        case 21:
+        case 17:
             {
                 uint32_t total = 0;
                 for (int x=0; x<step; x++) {
@@ -3908,7 +3849,7 @@ initial_loader(int step)
 
             return LOAD_DONE;
 
-        case LOAD_RETURN_NUM_STEPS: return 21;
+        case LOAD_RETURN_NUM_STEPS: return 17;
         default: return LOAD_ERROR;
     }
 
