@@ -64,7 +64,7 @@ jobs:
       # custom built packages with less dependencies than MSYS' counterparts
       - name: Install external packages
         run: |
-         wget https://grejer.voxelmanip.se/msys-pkgs/mingw-w64-ucrt-x86_64-{curl-winssl-8.4.0-3,freetype-2.13.2-1,SDL2_image-2.6.3-2,SDL2_mixer-2.6.3-1}-any.pkg.tar.zst
+         wget https://grejer.voxelmanip.se/msys-pkgs/mingw-w64-ucrt-x86_64-{curl-winssl-8.5.0-1,freetype-2.13.2-1,SDL2_image-2.8.1-1,SDL2_mixer-2.6.3-1}-any.pkg.tar.zst
          pacman -U --noconfirm *.pkg.tar.zst
 
       - name: Build

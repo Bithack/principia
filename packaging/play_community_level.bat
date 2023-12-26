@@ -34,7 +34,8 @@ goto main
 	echo.
 	echo Enter the numeric ID of the level you want to play.
 	echo.
-	echo (To find a level's ID, see the URL "/level/<ID>", or the "Level ID: <ID>" below the level's thumbnail.)
+	echo (To find a level's ID, see the URL "/level/<ID>", or
+	echo the "Level ID: <ID>" below the level's thumbnail.)
 	echo.
 	set /p level=^>
 
@@ -51,7 +52,11 @@ goto main
 
 :main
 	echo.
-	echo This is a helper script to allow playing levels with a portable version of Principia without needing to install registry keys.
+	echo This is a helper script to allow playing levels with a portable version of
+	echo Principia without needing to install registry keys.
+	echo.
+	echo For more info about the portable Windows build of Principia see:
+	echo https://principia-web.se/wiki/Windows_Portable
 
 	echo.
 	echo Select a community site domain:
