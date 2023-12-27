@@ -16,3 +16,8 @@ result/
 .deps/
 .dirstamp
 *.o
+
+# Model junk files
+*.blend1
+*.blend2
+*.blend3
