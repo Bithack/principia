@@ -1,3 +1,5 @@
+SetCompressor lzma
+
 !include "MUI2.nsh"
 
 !define MUI_ICON "..\packaging\icon.ico"

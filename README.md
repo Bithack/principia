@@ -38,9 +38,9 @@ Below are instructions to build Principia on Windows, Linux and Android from sou
 If you have issues building Principia, then please ask in the `#development` channel on Discord.
 
 ### Windows
-The game engine behind Principia (TMS) is written in the C99 standard of C. Unfortunately, the Visual Studio C compiler does not support the C99 standard. Principia must therefore be compiled using the MSYS2 MINGW64 toolchain, as described below.
+The game engine behind Principia (TMS) is written in the C99 standard of C. Unfortunately, the Visual Studio C compiler does not support the C99 standard. Principia must therefore be compiled using MinGW-w64 toolchain.
 
-Please find the latest version of the 64-bit MSYS2 here: https://www.msys2.org/
+The following build Windows instructions use MSYS2 which is a development environment for Windows including MinGW and other tools. Please download and install the latest version of the MSYS2 installer here: https://www.msys2.org/
 
 After installation, a terminal opens. Run the following command to update the environment:
 
@@ -48,19 +48,21 @@ After installation, a terminal opens. Run the following command to update the en
 pacman -Syu
 ```
 
-The terminal will then ask you to close it when done. Proceed with doing so, and then go to the start menu and run MSYS Mingw32 64-bit. It is important that you run the "MINGW64 64-Bit" version and not the "MSYS2 MSYS" or "MINGW64 32-Bit". Run the commands below to install the necessary dependencies.
+The terminal will then ask you to shut down the MSYS2 runtime to the finish the update. Proceed with doing so, and then go to the start menu and start the "MSYS2 UCRT64" environment (icon with gold background) again. Run the following command to install the necessary dependencies:
 
 ```bash
-pacman -S base-devel mingw-w64-x86_64-{toolchain,cmake,ninja,curl,gtk3,glew,gtksourceview4,libpng,libjpeg-turbo,freetype,SDL2,SDL2_image,SDL2_mixer,SDL2_ttf}
+pacman -S git mingw-w64-ucrt-x86_64-{gcc,cmake,ninja,curl-winssl,gtk3,glew,libpng,libjpeg-turbo,freetype,SDL2,SDL2_image,SDL2_mixer,SDL2_ttf}
 ```
 
-Then navigate to the folder where you cloned Principia, for example:
+Navigate somewhere you want to clone the Principia source code to, such as on your desktop:
 
 ```bash
-cd /c/Users/<username>/Documents/Principia
+cd /c/Users/$USER/Desktop/
+git clone https://github.com/Bithack/principia
+cd principia
 ```
 
-And start the building process:
+Then generate the build files using CMake and start the compilation:
 
 ```bash
 mkdir build; cd build
@@ -68,13 +70,13 @@ cmake .. -G Ninja
 ninja
 ```
 
-When finished there will be a `principia.exe` file in the build folder. Keep in mind that the built executable can only be run inside of the MINGW terminal, to make a release build see below to build the installer:
+When finished there will be a `principia.exe` file in the build folder. Keep in mind that the built executable can only be run inside of the MSYS2 terminal, to make a release build see below to build the installer:
 
 #### Windows installer
 The Windows installer uses NSIS, which must be installed first before building:
 
 ```bash
-pacman -S mingw-w64-x86_64-nsis
+pacman -S mingw-w64-ucrt-x86_64-nsis
 ```
 
 For making Windows release builds you would run the `packaging/windows_release.sh` script, which will bundle necessary DLLs and other files to make the game run, and builds the installer.

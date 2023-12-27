@@ -34,6 +34,7 @@ jobs:
           cmake .. -G Ninja
           ninja -j4
 
+
   windows:
     runs-on: windows-latest
     defaults:
@@ -45,24 +46,25 @@ jobs:
       - uses: msys2/setup-msys2@v2
         with:
           update: true
+          msystem: UCRT64
           install: >-
-            base-devel
-            mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-ninja
-            mingw-w64-x86_64-glew
-            mingw-w64-x86_64-zlib
-            mingw-w64-x86_64-gtk3
-            mingw-w64-x86_64-libpng
-            mingw-w64-x86_64-libjpeg-turbo
-            mingw-w64-x86_64-SDL2
-            mingw-w64-x86_64-SDL2_ttf
-            mingw-w64-x86_64-nsis
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-glew
+            mingw-w64-ucrt-x86_64-zlib
+            mingw-w64-ucrt-x86_64-gtk3
+            mingw-w64-ucrt-x86_64-libpng
+            mingw-w64-ucrt-x86_64-libjpeg-turbo
+            mingw-w64-ucrt-x86_64-SDL2
+            mingw-w64-ucrt-x86_64-SDL2_ttf
+            mingw-w64-ucrt-x86_64-nsis
+            mingw-w64-ucrt-x86_64-7zip
 
       # custom built packages with less dependencies than MSYS' counterparts
       - name: Install external packages
         run: |
-         wget https://grejer.voxelmanip.se/msys-pkgs/mingw-w64-x86_64-{curl-winssl-8.4.0-3,freetype-2.13.2-1,SDL2_image-2.6.3-2,SDL2_mixer-2.6.3-1}-any.pkg.tar.zst
+         wget https://grejer.voxelmanip.se/msys-pkgs/mingw-w64-ucrt-x86_64-{curl-winssl-8.5.0-1,freetype-2.13.2-1,SDL2_image-2.8.1-1,SDL2_mixer-2.6.3-1}-any.pkg.tar.zst
          pacman -U --noconfirm *.pkg.tar.zst
 
       - name: Build
@@ -72,16 +74,23 @@ jobs:
           cmake .. -G Ninja
           ninja -j4
 
-      - name: Bundle together
+      - name: Bundle together installer and portable
         run: |
           cd build
-          bash ../packaging/windows_release.sh
+          ../packaging/windows_release.sh
+          ../packaging/windows_portable.sh
 
       - name: Upload output as artifact
         uses: actions/upload-artifact@v3
         with:
           name: principia-setup.exe
           path: build/principia-setup.exe
+
+      - name: Upload output as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: principia-portable.7z
+          path: build/principia-portable.7z
 
   android:
     runs-on: ubuntu-20.04
