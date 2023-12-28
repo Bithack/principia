@@ -534,48 +534,6 @@ Java_org_libsdl_app_PrincipiaBackend_updateJumper(JNIEnv *env, jclass _jcls,
     }
 }
 
-/* returns the public key for android licensing */
-extern "C" jstring
-Java_org_libsdl_app_PrincipiaBackend_getMiscSettings(JNIEnv *env, jclass _jcls)
-{
-    const char *str = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAle4QEaYTi2gyn/tN8rjt8Ny53zH1+V2qNHDLCJVJX4UHF+rmNLZlio1+MqAtDfaZXLJAh1xAUzSL3efzyvpLfdpD2XqZ1lAvlegBfg9iYVUjlhwfqKcjp3QE5Jk2oMTqp+yJEu/8mfffxpgQA6xeIBdMHx8QzyLLklhogqYlMFu4Oey87mPGyAhVi0EDSRzL0y+1tsscQwXtVUU9+/JiOs7ro/hZaaNBRLCJvI4Y7uuXiJ3UMb2EDMyw/ZI4b5oziiMPr7YA5D0nfBlaSQZfVnFBjtFHYd8ydscknnwLUczKvq4890BXKjrxlpShy4LQ7Hunsdpb5DWDQKfTlLf2RwIDAQAB";
-    return env->NewStringUTF(str);
-}
-
-/* returns the salt for android licensing */
-extern "C" jbyteArray
-Java_org_libsdl_app_PrincipiaBackend_getMiscValues(JNIEnv *env, jclass _jcls)
-{
-#define BA_SZ 20
-    jbyteArray arr = env->NewByteArray(BA_SZ);
-    jbyte x[BA_SZ];
-    x[0] = 6;
-    x[1] = 85;
-    x[2] = 30;
-    x[3] = -128;
-    x[4] = -103;
-    x[5] = -87;
-    x[6] = 14;
-    x[7] = -24;
-    x[8] = 11;
-    x[9] = 51;
-    x[10] = 13;
-    x[11] = 11;
-    x[12] = -3;
-    x[13] = -11;
-    x[14] = -36;
-    x[15] = -113;
-    x[16] = -1;
-    x[17] = -32;
-    x[18] = -64;
-    x[19] = 81;
-
-    env->SetByteArrayRegion(arr, 0, BA_SZ, x);
-
-    return arr;
-#undef BA_SZ
-}
-
 extern "C" jobject
 Java_org_libsdl_app_PrincipiaBackend_getSettings(JNIEnv *env, jclass _jcls)
 {

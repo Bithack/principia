@@ -162,8 +162,6 @@ public class PrincipiaBackend
     public static native boolean isAdventure();
 
     public static native void updateJumper(float value);
-    public static native byte[] getMiscValues();
-    public static native String getMiscSettings();
     public static native String getLevelPage();
     public static native String getObjects();
     public static native void createObject(String str);
