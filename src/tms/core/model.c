@@ -99,27 +99,23 @@ tms_model_shift_mesh_uv(struct tms_model *m,
 struct tms_mesh *
 tms_model_load(struct tms_model *m, const char *filename, int *status)
 {
-    const char *ext = strrchr(filename, '.')+1;
+    const char *ext = strrchr(filename, '.');
     struct tms_mesh *ret = 0;
 
     *status = T_ERR;
 
-    if (ext != 1) {
+    if (ext) {
         struct tms_mesh * (*loader)(struct tms_model *, SDL_RWops *, int *)
             = thash_get(tms.model_loaders, ext, strlen(ext));
 
         if (!loader) {
-            tms_errorf("unsupported model format: %s", ext);
-            *status = T_UNSUPPORTED_FILE_FORMAT;
-            return 0;
+            tms_fatalf("unsupported model format: %s", ext);
         }
 
         SDL_RWops *fp = SDL_RWFromFile(filename,"rb");
 
         if (!fp) {
-            tms_errorf("could not open model file: %s", filename);
-            *status = T_COULD_NOT_OPEN;
-            return 0;
+            tms_fatalf("could not open model file: %s", filename);
         }
 
         ret = loader(m, fp, status);
