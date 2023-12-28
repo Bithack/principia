@@ -9,7 +9,7 @@
 goal::goal()
 {
     this->set_flag(ENTITY_ALLOW_CONNECTIONS, false);
-    this->set_mesh(mesh_factory::get_mesh(MODEL_CPAD+13));
+    this->set_mesh(mesh_factory::get_mesh(MODEL_CPAD+14));
     this->set_material(&m_cpad);
 
     this->update_method = ENTITY_UPDATE_STATIC;
