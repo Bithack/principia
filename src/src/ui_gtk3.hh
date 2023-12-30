@@ -10193,6 +10193,9 @@ _open_sandbox_menu(gpointer unused)
     // Disable the Login button if the user is already logged in.
     gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_login), (P.user_id == 0));
 
+    // Disable the Publish button if the user is not logged in.
+    gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_publish), (P.user_id != 0));
+
     return false;
 }
 

@@ -1767,17 +1767,11 @@ _parse_headers(void *buffer, size_t size, size_t nmemb, void *data)
             }
         }
 
-        // Both lower case and title case, former is for HTTP/2, latter is
-        // for HTTP/1.1, which Android currently uses as cURL isn't built
-        // with nghttp2 (gah, TODO!)
-        if (strcmp(buf, "x-principia-user-id") == 0
-         || strcmp(buf, "x-Principia-User-Id") == 0) {
+        if (strcmp(buf, "x-principia-user-id") == 0) {
             P.user_id = atoi(v);
-        } else if (strcmp(buf, "x-principia-user-name") == 0
-                || strcmp(buf, "X-Principia-User-Name") == 0) {
+        } else if (strcmp(buf, "x-principia-user-name") == 0) {
             P.username = strdup(v);
-        } else if (strcmp(buf, "x-principia-unread") == 0
-                || strcmp(buf, "X-Principia-Unread") == 0) {
+        } else if (strcmp(buf, "x-principia-unread") == 0) {
             P.num_unread_messages = atoi(v);
         }
     }
@@ -1901,7 +1895,7 @@ _download_pkg(void *_p)
     tms_debugf("save: %s", save_path);
 
     char url[1024];
-    snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/xxxx.php?i=%d",
+    snprintf(url, 1023, "https://%s/internal/get_package?i=%d",
             P.community_host,
             _play_pkg_id);
     long http_code = 0;
@@ -2042,11 +2036,15 @@ _download_level(void *p)
     const char *host = strlen(_community_host) > 0 ? _community_host : P.community_host;
 
     char url[1024];
-    snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/%s.php?i=%d&h=%u",
+    snprintf(url, 1023, "https://%s/internal/%s_level?i=%d&h=%u",
             host,
-            _play_download_for_pkg ? "xxxxx" : (type == LEVEL_DB ? "x":(derive == true ? "xxx" : "xxxxxx")),
+            _play_download_for_pkg ? "get_package" :
+                (type == LEVEL_DB ? "get" :
+                    (derive == true ? "derive" : "edit")),
             _play_id, r);
-    //tms_infof("url: %s", url);
+
+    tms_infof("url: %s", url);
+
     long http_code = 0;
     bool require_login = false;
 
@@ -2111,7 +2109,6 @@ _download_level(void *p)
 
                 _play_downloading_error = 1;
             }
-
         }
     }
     unlock_curl("download_level");
@@ -2162,8 +2159,7 @@ _download_level(void *p)
             }
             e.save();
         } else {
-            tms_errorf("VERY SERIOUS ERROR !! PLEASE REPORT TO FBI . ");
-            /* wtf? we just downloaded it and couldnt open it */
+            tms_errorf("wtf? we just downloaded it and couldnt open it");
         }
     } else {
         tms_debugf("An error occured while downloading the level.");
@@ -2381,7 +2377,7 @@ _check_version_code(void *_unused)
         init_curl_defaults(P.curl);
 
         char url[1024];
-        snprintf(url, 1023, "https://%s/principia-version-code", P.community_host);
+        snprintf(url, 1023, "https://%s/internal/version_code", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
@@ -2465,9 +2461,9 @@ _get_featured_levels(void *_num)
 
         char url[1024];
         if (fl_fetch_time && file_exists(featured_data_path)) {
-            snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/get_feature.php?num=%" PRIu32 "&time=%d", P.community_host, num_featured_levels, fl_fetch_time);
+            snprintf(url, 1023, "https://%s/internal/get_featured?num=%" PRIu32 "&time=%d", P.community_host, num_featured_levels, fl_fetch_time);
         } else {
-            snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/get_feature.php?num=%" PRIu32, P.community_host, num_featured_levels);
+            snprintf(url, 1023, "https://%s/internal/get_featured?num=%" PRIu32, P.community_host, num_featured_levels);
         }
 
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
@@ -2757,7 +2753,7 @@ _publish_pkg(void *_unused)
                     curl_mimepart *part = NULL;
 
                     part = curl_mime_addpart(mime);
-                    curl_mime_name(part, UPLOAD_POST_STR);
+                    curl_mime_name(part, "xFxlax");
                     curl_mime_data(part, "zPaod", CURL_ZERO_TERMINATED);
 
                     part = curl_mime_addpart(mime);
@@ -2792,7 +2788,6 @@ _publish_pkg(void *_unused)
                     part = curl_mime_addpart(mime);
                     curl_mime_name(part, "id");
                     curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
-
 
 
                     char url[1024];
@@ -2914,86 +2909,54 @@ _publish_level(void *p)
 
     lock_curl("publish_level");
     if (P.curl) {
+        struct header_data hd = {0};
         init_curl_defaults(P.curl);
 
         curl_mime *mime = curl_mime_init(P.curl);
         curl_mimepart *part;
 
         part = curl_mime_addpart(mime);
-        curl_mime_name(part, UPLOAD_FILE_STR);
+        curl_mime_name(part, "level");
         curl_mime_filedata(part, level_path);
 
         part = curl_mime_addpart(mime);
-        curl_mime_name(part, UPLOAD_POST_STR);
-        curl_mime_data(part, "Send ", CURL_ZERO_TERMINATED);
+        curl_mime_name(part, "key");
+        curl_mime_data(part, "cuddles", CURL_ZERO_TERMINATED);
 
         char url[1024];
-        snprintf(url, 1023, "https://%s/upload.php", P.community_host);
+        snprintf(url, 1023, "https://%s/internal/upload", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
+        curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
         curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
-
-        curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
-        curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
         curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
 
         struct curl_slist *headerlist = NULL;
         headerlist = curl_slist_append(headerlist, "Expect:");
         r = curl_easy_setopt(P.curl, CURLOPT_HTTPHEADER, headerlist);
 
-        tms_debugf("Publishing level %d...", level_id);
+        tms_infof("Publishing level %d...", level_id);
         r = curl_easy_perform(P.curl);
         if (r == CURLE_OK) {
-            if (chunk.size != 0) {
-                char *pch;
-                char error_msg[4096] = {0};
+            // Check for messages
+            if (hd.error_message) {
+                ui::message(hd.error_message);
 
-                pch = strchr(chunk.memory, '-');
+                _publish_lvl_uploading_error = true;
 
-                if ((pch-chunk.memory) == 0) {
-                    community_id = 0;
-                    lvl.lvl.revision--;
-                    int notify_id = atoi(chunk.memory);
-                    _publish_lvl_uploading_error = true;
+                free(hd.error_message);
+            } else if (hd.notify_message) {
+                tms_infof("got data: %s", hd.notify_message);
+                community_id = atoi(hd.notify_message);
 
-                    switch (notify_id) {
-                        case PUBLISH_NOT_LOGGED_IN:
-                            ui::message("You must be logged in with a valid Principia account to publish levels.");
-                            ui::set_next_action(ACTION_PUBLISH);
-                            ui::open_dialog(DIALOG_LOGIN);
-                            break;
+                W->level.revision = lvl.lvl.revision;
+                lvl.lvl.community_id = community_id;
+                tms_infof("community id: %d", community_id);
+                tms_infof("parent id:    %u", lvl.lvl.parent_id);
+                tms_infof("revision:     %u", lvl.lvl.revision);
 
-                        case PUBLISH_NO_ACCESS:
-                            ui::message("You need the FULL version of Principia to be able to publish levels.");
-                            break;
+                free(hd.notify_message);
 
-                        case PUBLISH_NO_NAME:
-                            ui::message("Your level must have a name!");
-                            break;
-
-                        case PUBLISH_ERROR:
-                            ui::message("An error occured when attempting to publish your map. Please try again soon.");
-                            break;
-
-                        default:
-                            ui::message("Unknown error message");
-                            break;
-                    }
-                } else {
-                    tms_debugf("got data: %s", chunk.memory);
-                    community_id = atoi(chunk.memory);
-                    if (community_id == 0) {
-                        ui::message("Server error, please try uploading again in a few minutes.");
-                        lvl.lvl.revision--;
-                        _publish_lvl_uploading_error = true;
-                    } else {
-                        W->level.revision = lvl.lvl.revision;
-                        lvl.lvl.community_id = community_id;
-                        tms_debugf("community id: %d", community_id);
-                        tms_debugf("parent id:    %u", lvl.lvl.parent_id);
-                        tms_debugf("revision:     %u", lvl.lvl.revision);
-                    }
-                }
             } else {
                 /* we did not recieve any data back, an unknown error occured */
                 tms_errorf("no data received");
@@ -3116,7 +3079,7 @@ _submit_score(void *p)
         curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
 
         char url[1024];
-        snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/submit_score.php", P.community_host);
+        snprintf(url, 1023, "https://%s/internal/submit_score", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
@@ -3201,6 +3164,9 @@ _login(void *p)
 
     lock_curl("login");
     if (P.curl) {
+        struct header_data hd = {0};
+        init_curl_defaults(P.curl);
+
         curl_mime *mime = curl_mime_init(P.curl);
         curl_mimepart* part;
 
@@ -3213,64 +3179,40 @@ _login(void *p)
         curl_mime_data(part, data->password, CURL_ZERO_TERMINATED);
 
         part = curl_mime_addpart(mime);
-        curl_mime_name(part, "password");
-        curl_mime_data(part, data->password, CURL_ZERO_TERMINATED);
+        curl_mime_name(part, "key");
+        curl_mime_data(part, "cuddles", CURL_ZERO_TERMINATED);
 
-        part = curl_mime_addpart(mime);
-        curl_mime_name(part, LOGIN_POST_STR);
-        curl_mime_data(part, "Submit  ", CURL_ZERO_TERMINATED); /* two spaces! */
-
-        init_curl_defaults(P.curl);
-
-        char url[1024];
-        snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/xx.php", P.community_host);
+        char url[256];
+        snprintf(url, 255, "https://%s/internal/login", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
+        curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
         curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
+        curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
 
-        curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
-        curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
-        curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 10L);
+        struct curl_slist *headerlist = NULL;
+        headerlist = curl_slist_append(headerlist, "Expect:");
+        r = curl_easy_setopt(P.curl, CURLOPT_HTTPHEADER, headerlist);
 
-        if ((r = curl_easy_perform(P.curl)) == CURLE_OK) {
-            P.username = strdup(data->username);
-            P.add_action(ACTION_REFRESH_HEADER_DATA, 0);
+        r = curl_easy_perform(P.curl);
+        if (r == CURLE_OK) {
+            // Check for messages
+            if (hd.error_message) {
+                ui::message(hd.error_message);
+                ui::emit_signal(SIGNAL_LOGIN_FAILED);
 
-            if (chunk.size > 0) {
-                int notify_id = atoi(chunk.memory);
+                free(hd.error_message);
+            }
 
-                switch (notify_id) {
-                    case LOGIN_SUCCESS:
-                        ui::message("Logged in successfully!");
-                        ui::emit_signal(SIGNAL_LOGIN_SUCCESS);
-                        break;
+            if (hd.notify_message) {
+                ui::message(hd.notify_message);
 
-                    case LOGIN_ERROR:
-                        ui::message("An error occured when trying to log in.");
-                        ui::emit_signal(SIGNAL_LOGIN_FAILED);
-                        break;
+                P.username = strdup(data->username);
+                P.add_action(ACTION_REFRESH_HEADER_DATA, 0);
 
-                    case LOGIN_NO_DATA:
-                        ui::message("Fill the Username and Password field before pressing Log in.");
-                        ui::emit_signal(SIGNAL_LOGIN_FAILED);
-                        break;
+                ui::emit_signal(SIGNAL_LOGIN_SUCCESS);
 
-                    case LOGIN_BAD_DATA:
-                        ui::message("Invalid username or password.");
-                        ui::emit_signal(SIGNAL_LOGIN_FAILED);
-                        break;
-
-                    case LOGIN_ATTEMPTS:
-                        ui::message("You have reached the maximum amount of login attempts. Please wait.");
-                        ui::emit_signal(SIGNAL_LOGIN_FAILED);
-                        break;
-
-                    default:
-                        tms_debugf("Unknown error occured when logging in. Data: %d", notify_id);
-                        ui::message("An unknown error occured when logging in.\nPlease make sure your internet connection is online, and you have no firewall blocking Principia.", true);
-                        ui::emit_signal(SIGNAL_LOGIN_FAILED);
-                        break;
-                }
+                free(hd.notify_message);
             }
         } else {
             tms_errorf("curl_easy_perform failed: %s\n", curl_easy_strerror(r));
@@ -3922,7 +3864,7 @@ P_get_cookie_data(char **token)
         init_curl_defaults(P.curl);
 
         char url[1024];
-        snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/xx.php", P.community_host);
+        snprintf(url, 1023, "https://%s/internal/login", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         struct curl_slist *cookies;

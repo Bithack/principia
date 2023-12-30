@@ -39,13 +39,11 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             }
             break;
 
-        case BTN_MESSAGE:
-	    {
-                char url[1024];
-                snprintf(url, 1023, "https://%s/version-redir.php", P.community_host);
-                ui::open_url(url);
-	    }
-            break;
+        case BTN_MESSAGE: {
+            char url[256];
+            snprintf(url, 255, "https://%s/version-redir", P.community_host);
+            ui::open_url(url);
+	    } break;
 
         case BTN_BITHACK:
             ui::open_url("https://www.bithack.com/");
