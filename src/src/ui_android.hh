@@ -674,7 +674,6 @@ Java_org_libsdl_app_PrincipiaBackend_register(JNIEnv *env, jclass _jcls,
     strcpy(data->username, tmp_username);
     strcpy(data->email,    tmp_email);
     strcpy(data->password, tmp_password);
-    data->platform = PLATFORM_ANDROID;
 
     env->ReleaseStringUTFChars(username, tmp_username);
     env->ReleaseStringUTFChars(email, tmp_email);

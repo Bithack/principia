@@ -164,12 +164,6 @@ enum {
 #define LOGIN_POST_STR          "cPa1Ozi"
 #define REGISTER_ANDROID_FILE   "bppfoal2_"
 
-#define PLATFORM_LINUX      1
-#define PLATFORM_WINDOWS    2
-#define PLATFORM_OSX        3
-#define PLATFORM_ANDROID    4
-#define PLATFORM_IOS        5
-
 #define ERROR_ACTION_LOG_IN 1
 
 struct action {
@@ -186,7 +180,6 @@ struct register_data {
     char username[256];
     char email[256];
     char password[256];
-    int platform;
 };
 
 /*

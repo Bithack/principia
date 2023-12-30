@@ -6,6 +6,7 @@
 #include <cmath>
 #include <tms/backend/print.h>
 
+
 class gentype;
 
 #define GENTYPE_MAX_REACH_X 4
@@ -176,7 +177,7 @@ struct terrain_transaction
 
 /**
  * Comparison of terrain_coords are done by comparing the chunk positions,
- * this allows us to easily sort terrain_coords by chunk and quickly 
+ * this allows us to easily sort terrain_coords by chunk and quickly
  * apply a transaction
  * */
 bool operator <(const terrain_coord& lhs, const terrain_coord &rhs);

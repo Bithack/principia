@@ -956,7 +956,6 @@ class game : public pscreen
     void add_entity(entity *e, bool soft=false);
     void destroy_mover(uint8_t x, bool do_not_deselect=false);
     void remove_entity(entity *e);
-    bool allow_construct_entity(uint32_t g_id);
     entity* editor_construct_entity(uint32_t g_id, int pid=0, bool force_on_pid=false, b2Vec2 offs=b2Vec2(0.f,0.f));
     entity* editor_construct_item(uint32_t item_id);
     entity* editor_construct_decoration(uint32_t decoration_id);

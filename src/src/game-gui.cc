@@ -778,53 +778,48 @@ game::menu_handle_event(tms::event *ev)
                     if (pending_a_scene[pid]) {
                         this->set_menu_width(real_menu_width);
 
-                        if (!this->allow_construct_entity(pending_ent[pid]->g_id)) {
-                            this->remove_entity(pending_ent[pid]);
-                            delete pending_ent[pid];
-                        } else {
-                            W->add(pending_ent[pid]);
+                        W->add(pending_ent[pid]);
 
-                            if ((int)pending_ent[pid]->g_id != this->recent[0]) {
-                                int p = -1;
-                                for (int x=0; x<MAX_RECENT; x++) {
-                                    if (this->recent[x] == (int)pending_ent[pid]->g_id) {
-                                        p = x;
-                                        break;
-                                    }
+                        if ((int)pending_ent[pid]->g_id != this->recent[0]) {
+                            int p = -1;
+                            for (int x=0; x<MAX_RECENT; x++) {
+                                if (this->recent[x] == (int)pending_ent[pid]->g_id) {
+                                    p = x;
+                                    break;
                                 }
+                            }
 
-                                if (p != -1) {
-                                    for (int x=p; x>0; x--) {
-                                        this->recent[x] = this->recent[x-1];
-                                    }
-                                }
-                                for (int x=MAX_RECENT-1; x>0; x--) {
+                            if (p != -1) {
+                                for (int x=p; x>0; x--) {
                                     this->recent[x] = this->recent[x-1];
                                 }
-
-                                this->recent[0] = (int)pending_ent[pid]->g_id;
+                            }
+                            for (int x=MAX_RECENT-1; x>0; x--) {
+                                this->recent[x] = this->recent[x-1];
                             }
 
-                            /* readd the entity to the scene, since the update method
-                             * has changed */
-                            this->remove_entity(pending_ent[pid]);
-                            this->add_entity(pending_ent[pid]);
+                            this->recent[0] = (int)pending_ent[pid]->g_id;
+                        }
 
-                            pending_ent[pid]->construct();
-                            pending_ent[pid]->on_pause();
+                        /* readd the entity to the scene, since the update method
+                            * has changed */
+                        this->remove_entity(pending_ent[pid]);
+                        this->add_entity(pending_ent[pid]);
 
-                            if (pending_ent[pid]->type == ENTITY_CABLE) {
-                                cable *c = static_cast<cable*>(pending_ent[pid]);
-                                this->selection.select(c->p[0], c->p[0]->get_body(0), (tvec2){0,0}, 0, true);
-                            } else {
-                                this->selection.select(pending_ent[pid], pending_ent[pid]->get_body(0), (tvec2){0,0}, 0, true);
-                            }
+                        pending_ent[pid]->construct();
+                        pending_ent[pid]->on_pause();
 
-                            this->state.modified = true;
+                        if (pending_ent[pid]->type == ENTITY_CABLE) {
+                            cable *c = static_cast<cable*>(pending_ent[pid]);
+                            this->selection.select(c->p[0], c->p[0]->get_body(0), (tvec2){0,0}, 0, true);
+                        } else {
+                            this->selection.select(pending_ent[pid], pending_ent[pid]->get_body(0), (tvec2){0,0}, 0, true);
+                        }
 
-                            if (W->is_paused()) {
-                                ui::emit_signal(SIGNAL_ENTITY_CONSTRUCTED, UINT_TO_VOID(pending_ent[pid]->id));
-                            }
+                        this->state.modified = true;
+
+                        if (W->is_paused()) {
+                            ui::emit_signal(SIGNAL_ENTITY_CONSTRUCTED, UINT_TO_VOID(pending_ent[pid]->id));
                         }
                     } else {
                         delete pending_ent[pid];

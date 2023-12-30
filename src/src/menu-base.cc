@@ -115,7 +115,7 @@ menu_base::menu_base(bool _include_logo)
     this->wdg_bithack = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             BTN_BITHACK, AREA_NOMARGIN_BOTTOM_LEFT,
-            gui_spritesheet::get_sprite(S_BITHACK), 0, 0.5f);
+            gui_spritesheet::get_sprite(S_BITHACK), 0, 1.0f);
     this->wdg_bithack->add();
 
     this->wdg_settings = this->wm->create_widget(

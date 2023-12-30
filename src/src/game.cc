@@ -795,17 +795,6 @@ render_hidden_prio(struct tms_rstate *rstate, void *value)
     return T_OK;
 }
 
-static void
-draw_square(entity *e, void *userdata)
-{
-    b2Vec2 pos = e->get_position();
-    int l = e->get_layer();
-
-    tms_ddraw_square3d(G->dd,
-            pos.x, pos.y, (l * LAYER_DEPTH),
-            0.2f, 0.2f);
-}
-
 void
 post_fn(struct tms_rstate *state)
 {
@@ -1044,12 +1033,7 @@ game::game()
 {
     G = this;
 
-#if defined(DEBUG) && defined(PAJLADA)
-    //this->layer_vis = 3;
     this->layer_vis = 7;
-#else
-    this->layer_vis = 7;
-#endif
 
     this->layer_vis_saved = 7;
 
@@ -2598,12 +2582,12 @@ _box_select_handler::ReportFixture(b2Fixture *f)
 int
 game::render()
 {
+    /* only delay on android */
+#ifdef TMS_BACKEND_ANDROID
     if (!P.focused) {
-        /* only delay on android */
-#if defined TMS_BACKEND_ANDROID
         SDL_Delay(500);
-#endif
     }
+#endif
 
     int ierr;
 
@@ -2943,7 +2927,7 @@ game::render()
 #endif
 
 #ifdef DEBUG
-# if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+# ifdef TMS_BACKEND_MOBILE
     G->show_numfeed(_tms.fps_mean);
 # else
     if (W->step_count % 120 == 0) {
@@ -3469,8 +3453,9 @@ game::render()
 #endif
 
             switch (this->selection.e->g_id) {
-                case O_CURSOR_FIELD:
-                    {
+                case O_CURSOR_FIELD: {
+                    // Draw click area for Cursor field object
+
                     cursorfield *g = static_cast<cursorfield*>(this->selection.e);
                     tms_ddraw_set_color(this->dd, 0.0f, 0.0f, 1.0f, 1.0f);
 
@@ -3488,10 +3473,10 @@ game::render()
                                 vertices[(x+1)%4].x, vertices[(x+1)%4].y, this->selection.e->get_layer()*LAYER_DEPTH
                             );
                     }
-                    }
-                    break;
-                case O_FLUID:
-                    {
+                } break;
+                case O_FLUID: {
+                    // Draw bounding box for fluid particles to spawn
+
                     fluid *g = static_cast<fluid*>(this->selection.e);
                     tms_ddraw_set_color(this->dd, 0.0f, 0.0f, 1.0f, 1.0f);
                     b2Vec2 vertices[4] = {
@@ -3506,11 +3491,10 @@ game::render()
                                 vertices[(x+1)%4].x, vertices[(x+1)%4].y, this->selection.e->get_layer()*LAYER_DEPTH
                             );
                     }
-                    }
-                    break;
+                } break;
+                case O_SHAPE_EXTRUDER: {
+                    // Draw bounding box of Shape extruder
 
-                case O_SHAPE_EXTRUDER:
-                    {
                     ghost *g = static_cast<ghost*>(this->selection.e);
                     if (g->conn_ll) {
                         tms_ddraw_set_color(this->dd, 0.0f, 0.0f, 1.0f, 1.0f);
@@ -3536,10 +3520,10 @@ game::render()
                             }
                         }
                     }
-                    }
-                    break;
-                case O_PROXIMITY_SENSOR:
-                    {
+                } break;
+                case O_PROXIMITY_SENSOR: {
+                    // Draw range of proximity sensor
+
                     proximitysensor *sensor = static_cast<proximitysensor*>(this->selection.e);
                     static const int32 num_v = 4;
                     tms_ddraw_set_color(this->dd, 1.0f, 0.0f, 0.0f, 0.8f);
@@ -3555,12 +3539,10 @@ game::render()
                                 vertices[(x+1)%num_v].x, vertices[(x+1)%num_v].y, this->selection.e->get_layer()*LAYER_DEPTH
                             );
                     }
-                    }
-                    break;
+                } break;
                 case O_ID_FIELD:
                 case O_OBJECT_FIELD:
-                case O_TARGET_SETTER:
-                    {
+                case O_TARGET_SETTER: {
                     objectfield *of = static_cast<objectfield*>(this->selection.e);
 
                     tms_ddraw_set_color(this->dd, 1.0f, 0.0f, 0.0f, 0.8f);
@@ -3577,11 +3559,11 @@ game::render()
                                 vertices[(x+1)%num_v].x, vertices[(x+1)%num_v].y, this->selection.e->get_layer()*LAYER_DEPTH
                             );
                     }
-                    }
-                    break;
+                } break;
 
-                case O_DRAGFIELD:
-                    {
+                case O_DRAGFIELD: {
+                    // Draw
+
                     dragfield *df = static_cast<dragfield*>(this->selection.e);
 
                     tms_ddraw_set_color(this->dd, 1.0f, 0.0f, 0.0f, 0.8f);
@@ -3589,38 +3571,40 @@ game::render()
                     tms_ddraw_lcircle(this->dd,
                             df->get_position().x, df->get_position().y,
                             df->sensor_shape.m_radius, df->sensor_shape.m_radius);
+                } break;
+                case O_FAN: { // "Oh fan!"
+                    // Draw lines showing the exhaust of selected Fan object
+
+                    fan *f = static_cast<fan*>(this->selection.e);
+
+                    #define NUM_RAYS    5
+                    #define RAY_LENGTH  10.f
+                    #define FAN_WIDTH   1.f
+                    #define FAN_LINE_OFFSET (((x / ((float)NUM_RAYS - 1.f)) * FAN_WIDTH) - (FAN_WIDTH / 2.f))
+
+                    tms_ddraw_set_color(this->dd, 1.0f, 0.0f, 0.0f, 0.4f);
+                    for (int x=0; x<NUM_RAYS; x++) {
+                        float a = f->get_angle();
+                        b2Vec2 angle;
+                        tmath_sincos(a, &angle.y, &angle.x);
+
+                        b2Vec2 r = f->get_position();
+                        b2Vec2 dir = f->local_to_world(b2Vec2(0.f,  RAY_LENGTH), 0);
+
+                        r.x   += angle.x * FAN_LINE_OFFSET;
+                        r.y   += angle.y * FAN_LINE_OFFSET;
+                        dir.x += angle.x * FAN_LINE_OFFSET;
+                        dir.y += angle.y * FAN_LINE_OFFSET;
+
+                        float l = f->get_layer()*LAYER_DEPTH;
+
+                        tms_ddraw_line3d(this->dd, r.x, r.y, l, dir.x, dir.y, l);
                     }
-                    break;
-
-                case O_FAN:
-                    {
-                        fan *f = static_cast<fan*>(this->selection.e);
-
-#define NUM_RAYS    5
-#define RAY_LENGTH  10.f
-#define FAN_WIDTH   1.f
-
-                        tms_ddraw_set_color(this->dd, 1.0f, 0.0f, 0.0f, 0.3f);
-                        for (int x=0; x<NUM_RAYS; x++) {
-                            float a = f->get_angle();
-                            b2Vec2 angle;
-                            tmath_sincos(a, &angle.y, &angle.x);
-
-                            b2Vec2 r = f->get_position();
-                            b2Vec2 dir = f->local_to_world(b2Vec2(0.f,  RAY_LENGTH), 0);
-                            r.x   += angle.x * (((x / ((float)NUM_RAYS - 1.f)) * FAN_WIDTH) - (FAN_WIDTH / 2.f));
-                            r.y   += angle.y * (((x / ((float)NUM_RAYS - 1.f)) * FAN_WIDTH) - (FAN_WIDTH / 2.f));
-                            dir.x += angle.x * (((x / ((float)NUM_RAYS - 1.f)) * FAN_WIDTH) - (FAN_WIDTH / 2.f));
-                            dir.y += angle.y * (((x / ((float)NUM_RAYS - 1.f)) * FAN_WIDTH) - (FAN_WIDTH / 2.f));
-
-                            float l = f->get_layer()*LAYER_DEPTH;
-
-                            tms_ddraw_line3d(this->dd, r.x, r.y, l, dir.x, dir.y, l);
-                        }
-                    }
-                    break;
+                } break;
             }
         }
+
+        // Render straight lines for socket connections of the selected object
         if (settings["render_com"]->v.b) {
             tms_ddraw_set_color(this->dd, 0.3f, 0.3f, 1.f, 1.f);
             for (std::map<uint32_t, group*>::iterator i = W->groups.begin();
@@ -3673,7 +3657,6 @@ game::render()
         if (h->e->flag_active(ENTITY_IS_CREATURE)) {
             if (static_cast<creature*>(h->e)->creature_flag_active(CREATURE_IS_ZOMBIE)) {
                 h->color = (tvec3){0.4f, 0.4f, .4f};
-                //bg = (tvec3){1.f, 1.f, 1.f};
             }
         }
     }
@@ -3704,9 +3687,8 @@ game::render()
     }
 #endif
 
-#if defined(DEBUG)
+#ifdef SHOW_MOOD_DATA
     if (!W->is_paused()) {
-#if defined(SHOW_MOOD_DATA)
         for (std::map<uint32_t, entity*>::iterator it = W->all_entities.begin();
                 it != W->all_entities.end(); ++it) {
             if (it->second->flag_active(ENTITY_IS_ROBOT)) {
@@ -3747,7 +3729,6 @@ game::render()
                 }
             }
         }
-#endif
     }
 #endif
 
@@ -3875,12 +3856,6 @@ game::reselect()
 void
 game::render_tt()
 {
-    /*
-    this->tt[0].life = 1.f;
-    this->tt[0].what = TUTORIAL_TEXT_CAVE_FIRST_TIME;
-    this->tt[0].pos = b2Vec2(0.f, 20.f);
-    */
-
     for (int x=0; x<MAX_TUTORIAL_TEXTS; x++) {
         if (this->tt[x].life > 0.f) {
             b2Vec2 p;
@@ -6656,12 +6631,6 @@ game::handle_input_playing(tms::event *ev, int action)
                         }
 
                         float da = tmath_adist(a, na);
-#if 0
-#define AMAX .25f
-                        if (da > AMAX) da = AMAX;
-                        if (da < -AMAX) da = -AMAX;
-#undef AMAX
-#endif
 
                         for (int x=0; x<MAX_INTERACTING; x++) {
                             if (mover_joint[x] && mover_joint[x]->GetBodyB() == re->get_body(0)) {
@@ -6943,12 +6912,10 @@ game::handle_input_playing(tms::event *ev, int action)
                         break;
 
                     case TMS_WDG_FIELD:
-                        {
-                            wdg->value[0] = tclampf(wdg->value[0] + x_value_diff, 0.f, 1.f);
-                            wdg->value[1] = tclampf(wdg->value[1] + y_value_diff, 0.f, 1.f);
+                        wdg->value[0] = tclampf(wdg->value[0] + x_value_diff, 0.f, 1.f);
+                        wdg->value[1] = tclampf(wdg->value[1] + y_value_diff, 0.f, 1.f);
 
-                            SDL_WarpMouseInWindow((SDL_Window*)_tms._window, G->wdg_base_x, G->wdg_base_y);
-                        }
+                        SDL_WarpMouseInWindow((SDL_Window*)_tms._window, G->wdg_base_x, G->wdg_base_y);
                         break;
 
                     case TMS_WDG_RADIAL:
@@ -8093,21 +8060,20 @@ game::handle_input_paused(tms::event *ev, int action)
 
             /* Shift+E: Connect all */
             case TMS_KEY_E:
-                if (ev->data.key.mod & TMS_MOD_SHIFT) {
-                    if (this->state.sandbox && this->selection.e) {
-                        entity *saved = this->selection.e;
-                        for (c_map::iterator it = this->pairs.begin(); it != this->pairs.end(); ++it) {
-                            connection *c = it->second;
+                if (ev->data.key.mod & TMS_MOD_SHIFT
+                        && this->state.sandbox && this->selection.e) {
+                    entity *saved = this->selection.e;
+                    for (c_map::iterator it = this->pairs.begin(); it != this->pairs.end(); ++it) {
+                        connection *c = it->second;
 
-                            if (!c->typeselect) {
-                                this->apply_connection(c, 0);
-                            }
+                        if (!c->typeselect) {
+                            this->apply_connection(c, 0);
                         }
-
-                        this->pairs.clear();
-
-                        this->selection.select(saved);
                     }
+
+                    this->pairs.clear();
+
+                    this->selection.select(saved);
                 }
                 break;
 
@@ -9813,44 +9779,45 @@ void
 game::handle_shape_resize(float x, float y)
 {
     entity *e = this->selection.e;
-    if (e) {
-        b2Vec2 projected = e->world_to_local(b2Vec2(x,y), 0);
 
-        if (resize_type == 0) {
-            /* snap the placements */
-            projected.x = roundf(projected.x * 8.f)/8.f;
-            projected.y = roundf(projected.y * 8.f)/8.f;
+    if (!e) return;
 
-            b2PolygonShape *sh = e->get_resizable_shape();
+    b2Vec2 projected = e->world_to_local(b2Vec2(x,y), 0);
 
-            if (sh && resize_index >= 0) {
-                b2Vec2 saved = sh->m_vertices[resize_index];
-                sh->m_vertices[resize_index] = projected;
+    if (resize_type == 0) {
+        /* snap the placements */
+        projected.x = roundf(projected.x * 8.f)/8.f;
+        projected.y = roundf(projected.y * 8.f)/8.f;
 
-                /* perform sanity checks, make sure no edge angle makes a concave polygon */
-                /* also make sure the distance to the previous or next vertex is greater than 1./16. */
-                bool valid = sh->Validate()
-                          && sh->ValidateMinEdgeLength(1.f/16.f)
-                          //&& sh->ValidateVertexOrder()
-                          && sh->ValidateAreaMin(.125f)
-                          ;
+        b2PolygonShape *sh = e->get_resizable_shape();
 
-                if (!valid) {
-                    tms_debugf("invalid polygon");
-                    sh->m_vertices[resize_index] = saved;
+        if (sh && resize_index >= 0) {
+            b2Vec2 saved = sh->m_vertices[resize_index];
+            sh->m_vertices[resize_index] = projected;
+
+            /* perform sanity checks, make sure no edge angle makes a concave polygon */
+            /* also make sure the distance to the previous or next vertex is greater than 1./16. */
+            bool valid = sh->Validate()
+                        && sh->ValidateMinEdgeLength(1.f/16.f)
+                        //&& sh->ValidateVertexOrder()
+                        && sh->ValidateAreaMin(.125f)
+                        ;
+
+            if (!valid) {
+                tms_debugf("invalid polygon");
+                sh->m_vertices[resize_index] = saved;
+            } else {
+                if (e->on_resize_vertex(resize_index, projected)) {
+                    sh->RecalculateCentroid();
+                    sh->RecalculateNormals();
+                    e->get_body(0)->ResetMassData();
                 } else {
-                    if (e->on_resize_vertex(resize_index, projected)) {
-                        sh->RecalculateCentroid();
-                        sh->RecalculateNormals();
-                        e->get_body(0)->ResetMassData();
-                    } else {
-                        sh->m_vertices[resize_index] = saved;
-                    }
+                    sh->m_vertices[resize_index] = saved;
                 }
             }
-        } else {
-            /* TODO: edges */
         }
+    } else {
+        /* TODO: edges */
     }
 }
 
@@ -9867,31 +9834,31 @@ game::render_shape_resize()
 
     b2PolygonShape *sh = e->get_resizable_shape();
 
-    if (sh) {
-        int vertices[POLYGON_MAX_CORNERS];
+    if (!sh) return;
 
-        int num_verts = e->get_resizable_vertices(vertices);
+    int vertices[POLYGON_MAX_CORNERS];
 
-        for (int x=0; x<num_verts; x++) {
-            b2Vec2 p = e->local_to_world(sh->m_vertices[vertices[x]], 0);
+    int num_verts = e->get_resizable_vertices(vertices);
 
-            float size = .125f + (vertices[x] == resize_index)*.125f;
+    for (int x=0; x<num_verts; x++) {
+        b2Vec2 p = e->local_to_world(sh->m_vertices[vertices[x]], 0);
 
-            if (vertices[x] == resize_index) {
-                tms_ddraw_set_color(this->dd, .7f, .7f, 1.3f, .9f);
-            } else {
-                tms_ddraw_set_color(this->dd, .5f, .5f, 1.f, .8f);
-            }
+        float size = .125f + (vertices[x] == resize_index)*.125f;
 
-            tms_ddraw_circle(this->dd,
-                    p.x, p.y,
-                    size, size);
-
-            tms_ddraw_set_color(this->dd, 1.f, 1.f, 1.f, .8f);
-            tms_ddraw_lcircle(this->dd,
-                    p.x, p.y,
-                    size, size);
+        if (vertices[x] == resize_index) {
+            tms_ddraw_set_color(this->dd, .7f, .7f, 1.3f, .9f);
+        } else {
+            tms_ddraw_set_color(this->dd, .5f, .5f, 1.f, .8f);
         }
+
+        tms_ddraw_circle(this->dd,
+                p.x, p.y,
+                size, size);
+
+        tms_ddraw_set_color(this->dd, 1.f, 1.f, 1.f, .8f);
+        tms_ddraw_lcircle(this->dd,
+                p.x, p.y,
+                size, size);
     }
 }
 
@@ -10505,13 +10472,6 @@ game::timed_absorb(uint32_t id, double time)
     return true;
 }
 
-bool
-game::allow_construct_entity(uint32_t g_id)
-{
-    // Previously used for restricting objects in DEMO mode.
-    return true;
-}
-
 /* construct an entity at the mouse position */
 entity*
 game::editor_construct_entity(uint32_t g_id, int pid/*=0*/, bool force_on_pid/*=false*/, b2Vec2 offs/*=b2Vec2(0.f,0.f)*/)
@@ -10521,16 +10481,13 @@ game::editor_construct_entity(uint32_t g_id, int pid/*=0*/, bool force_on_pid/*=
         return 0;
     }
 
+    // Override for partial
     if (g_id == O_DAMPER_2) {
         g_id = O_DAMPER;
     } else if (g_id == O_RUBBERBAND_2) {
         g_id = O_RUBBERBAND;
     } else if (g_id == O_OPEN_PIVOT_2) {
         g_id = O_OPEN_PIVOT;
-    }
-
-    if (!this->allow_construct_entity(g_id)) {
-        return 0;
     }
 
     tvec3 pos;
@@ -10663,9 +10620,6 @@ game::editor_construct_item(uint32_t item_id)
         return 0;
     }
 
-    if (!this->allow_construct_entity(g_id))
-        return 0;
-
     tvec3 pos;
 #ifdef TMS_BACKEND_PC
     int mx, my;
@@ -10719,9 +10673,6 @@ game::editor_construct_decoration(uint32_t decoration_id)
         tms_errorf("can not create an entity if not sandbox");
         return 0;
     }
-
-    if (!this->allow_construct_entity(g_id))
-        return 0;
 
     tvec3 pos;
 #ifdef TMS_BACKEND_PC
