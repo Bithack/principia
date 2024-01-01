@@ -133,8 +133,8 @@ main(int argc, char **argv)
         // How about now?
         if (stat("data-shared", &st) != 0) {
             // If that doesn't work we're assuming a system install.
-            tms_infof("chdirring to /usr/share/principia/");
-            chdir("/usr/share/principia/");
+            tms_infof("chdirring to ./share/principia/");
+            chdir("./share/principia/");
 
             if (stat("data-shared", &st) != 0) {
                 // We're doomed, better just fail.
