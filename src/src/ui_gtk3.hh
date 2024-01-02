@@ -8315,16 +8315,13 @@ int _gtk_loop(void *p)
 
     /** --Quickadd **/
     {
-#ifdef TMS_BACKEND_WINDOWS
         quickadd_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
         //VX: GTK_WIDGET_SET_FLAGS(quickadd_window, GTK_CAN_FOCUS);
         //VX: GTK_WINDOW(quickadd_window)->type = GTK_WINDOW_TOPLEVEL;
         gtk_window_set_decorated(GTK_WINDOW(quickadd_window), FALSE);
         //VX: gtk_window_set_has_frame(GTK_WINDOW(quickadd_window), FALSE);
         gtk_window_set_type_hint(GTK_WINDOW(quickadd_window), GDK_WINDOW_TYPE_HINT_POPUP_MENU);
-#else
-        quickadd_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_POPUP));
-#endif
+
         gtk_container_set_border_width(GTK_CONTAINER(quickadd_window), 4);
         gtk_window_set_default_size(GTK_WINDOW(quickadd_window), 200, 20);
         gtk_widget_set_size_request(GTK_WIDGET(quickadd_window), 200, 20);
