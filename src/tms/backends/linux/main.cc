@@ -21,8 +21,6 @@
 #endif
 
 #include "settings.hh"
-#include "ui.hh"
-#include "game.hh"
 #include "main.hh"
 #include "version.hh"
 
@@ -170,14 +168,11 @@ main(int argc, char **argv)
     settings["loaded_correctly"]->v.b = false;
     settings.save();
 
-    if (settings["fv"]->v.i == 1) {
-        settings["fv"]->v.i = 2;
-        settings["cam_speed_modifier"]->v.f = 1.f;
-        settings["menu_speed"]->v.f = 1.f;
-        settings["smooth_zoom"]->v.b = false;
-        settings["smooth_cam"]->v.b = false;
-        tms_infof("Modified cam settings.");
-    }
+    tms_infof("Texture quality: %d", settings["texture_quality"]->v.i8);
+    tms_infof("Shadow quality: %d (%dx%d)",
+            settings["shadow_quality"]->v.i8,
+            settings["shadow_map_resx"]->v.i,
+            settings["shadow_map_resy"]->v.i);
 
     tproject_set_args(argc, argv);
     tms_init();
@@ -202,21 +197,7 @@ main(int argc, char **argv)
         while (SDL_PollEvent(&ev)) {
             switch (ev.type) {
                 case SDL_QUIT:
-                    //if (_tms.screen == &G->super) {
-                    //    ui::open_dialog(DIALOG_CONFIRM_QUIT);
-                    //} else {
-                        _tms.state = TMS_STATE_QUITTING;
-                    //}
-                    break;
-
-                case SDL_WINDOWEVENT:
-                    switch (ev.window.event) {
-                        case SDL_WINDOWEVENT_RESIZED:
-                            {
-                                RESIZE_WINDOW;
-                            }
-                            break;
-                    }
+                    _tms.state = TMS_STATE_QUITTING;
                     break;
 
                 case SDL_KEYDOWN:
@@ -229,12 +210,37 @@ main(int argc, char **argv)
                     keys[ev.key.keysym.scancode] = 0;
                     break;
 
+                case SDL_WINDOWEVENT:
+                    switch (ev.window.event) {
+                        case SDL_WINDOWEVENT_RESIZED: {
+                            RESIZE_WINDOW;
+                        } break;
+                        case SDL_WINDOWEVENT_MAXIMIZED:
+                            settings["window_maximized"]->v.b = true;
+                            break;
+                        case SDL_WINDOWEVENT_RESTORED:
+                            settings["window_maximized"]->v.b = false;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+
+                case SDL_FINGERDOWN:
+                case SDL_FINGERUP:
+                case SDL_FINGERMOTION:
+                case SDL_MOUSEWHEEL:
+                    T_intercept_input(ev);
+                    break;
                 case SDL_MOUSEBUTTONDOWN:
                 case SDL_MOUSEBUTTONUP:
-                case SDL_MOUSEWHEEL:
                 case SDL_MOUSEMOTION:
-                //case SDL_INPUTMOTION:
-                    T_intercept_input(ev);
+                    {
+                        if (settings["emulate_touch"]->is_false()) {
+                            //tms_infof("from sdl mouse thing");
+                            T_intercept_input(ev);
+                        }
+                    }
                     break;
 
                 case SDL_TEXTINPUT:
@@ -249,6 +255,16 @@ main(int argc, char **argv)
         SDL_GL_SwapWindow(_window);
         tms_end_frame();
 
+        if (settings["emulate_touch"]->is_true()) {
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+
+            SDL_Event user_event;
+            user_event.type = SDL_MOUSEMOTION;
+            user_event.button.x = x;
+            user_event.button.y = y;
+            user_event.button.button = SDL_BUTTON_LEFT;
+        }
     } while (_tms.state != TMS_STATE_QUITTING);
 
     tproject_quit();
@@ -257,236 +273,6 @@ main(int argc, char **argv)
 
     return 0;
 }
-
-#ifdef DEBUG
-enum {
-    DD_PC,
-    DD_PC_27,
-    DD_720,
-    DD_1080,
-    DD_GALAXY_ACE,
-    DD_GALAXY_S3,
-    DD_GALAXY_S4,
-    DD_GALAXY_S5,
-    DD_IPHONE_5S,
-    DD_IPHONE_4,
-    DD_IPAD_MINI,
-    DD_IPAD_MINI_RETINA,
-    DD_NEXUS_5,
-};
-
-static struct device {
-    const char *name;
-    float xppcm;
-    float yppcm;
-    int32_t width;
-    int32_t height;
-    float diagonal;
-} devices[] = {
-    {
-        "PC",
-        108.f/2.54f * 1.5f,
-        107.f/2.54f * 1.5f,
-        -1, -1,
-        0.f,
-    }, {
-        "27\" PC",
-        108.79f/2.54f,
-        108.79f/2.54f,
-        -1, -1,
-        0.f,
-    }, {
-        "1280x720",
-        108.f/2.54f * 1.5f,
-        107.f/2.54f * 1.5f,
-        1280, 720,
-        0.f,
-    }, {
-        "1920x1080",
-        108.f/2.54f * 1.5f,
-        107.f/2.54f * 1.5f,
-        1920, 1080,
-        0.f,
-    }, {
-        "Galaxy ACE",
-        165.f / 2.54f,
-        165.f / 2.54f,
-        480, 320,
-        3.5f,
-    }, {
-        "Galaxy S3",
-        306.f / 2.54f,
-        306.f / 2.54f,
-        1280, 720,
-        4.8f,
-    }, {
-        "Galaxy S4",
-        441.f / 2.54f,
-        441.f / 2.54f,
-        1920, 1080,
-        5.f,
-    }, {
-        "Galaxy S5",
-        332.f / 2.54f,
-        332.f / 2.54f,
-        1920, 1080,
-        5.1f,
-    }, {
-        "iPhone 5s",
-        125.98f,
-        125.98f,
-        1136, 640,
-        4.f,
-    }, {
-        "iPhone 4",
-        125.98f,
-        125.98f,
-        960, 640,
-        3.5f,
-    }, {
-        "iPad mini / iPad 1/2",
-        163.f / 2.54f,
-        163.f / 2.54f,
-        1024, 768,
-        7.9f,
-    }, {
-        "iPad mini Retina",
-        324.f / 2.54f,
-        324.f / 2.54f,
-        2048, 1536,
-        7.9f,
-    }, {
-        "Google Nexus 5",
-        445.f / 2.54f,
-        445.f / 2.54f,
-        1920, 1080,
-        4.95f,
-    }, {
-        "iPad 3",
-        264.f / 2.54f,
-        264.f / 2.54f,
-        2048, 1536,
-        9.7f,
-    }, {
-        "Galaxy Tab 7.0 Plus",
-        169.f / 2.54f,
-        169.f / 2.54f,
-        1024, 600,
-        7.f,
-    }, {
-        "Galaxy Tab 8.9",
-        169.f / 2.54f,
-        169.f / 2.54f,
-        1280, 800,
-        8.9f,
-    }, {
-        "Galaxy Tab 10.1",
-        149.f / 2.54f,
-        149.f / 2.54f,
-        1280, 800,
-        10.1f,
-    }, {
-        "Google Nexus 7",
-        216.f / 2.54f,
-        216.f / 2.54f,
-        1280, 800,
-        7.f,
-    }, {
-        "Google Nexus 7 (2013)",
-        323.f / 2.54f,
-        323.f / 2.54f,
-        1920, 1200,
-        7.f,
-    }, {
-        "Google Nexus 4",
-        318.f / 2.54f,
-        318.f / 2.54f,
-        1280, 720,
-        4.7f,
-    }, {
-        "HTC Evo",
-        217.f / 2.54f,
-        217.f / 2.54f,
-        800, 480,
-        4.3f,
-    }, {
-        "HTC Sensation",
-        256.f / 2.54f,
-        256.f / 2.54f,
-        960, 540,
-        4.3f,
-    }, {
-        "HTC One",
-        469.f / 2.54f,
-        469.f / 2.54f,
-        1920, 1080,
-        4.7f,
-    }, {
-        "HTC Imagio",
-        259.f / 2.54f,
-        259.f / 2.54f,
-        800, 480,
-        3.6f,
-    }, {
-        "HTC One Max",
-        373.f / 2.54f,
-        373.f / 2.54f,
-        1920, 1080,
-        5.9f,
-    }, {
-        "HTC One V",
-        252.f / 2.54f,
-        252.f / 2.54f,
-        800, 480,
-        3.7f,
-    }, {
-        "HTC Pure",
-        292.f / 2.54f,
-        292.f / 2.54f,
-        800, 480,
-        3.2f,
-    }, {
-        "Motorola Moto G",
-        326.f / 2.54f,
-        326.f / 2.54f,
-        1280, 720,
-        4.5f,
-    }, {
-        "Motorola Moto X",
-        312.f / 2.54f,
-        312.f / 2.54f,
-        1280, 720,
-        4.7f,
-    }, {
-        "Nokia Lumia 920",
-        332.f / 2.54f,
-        332.f / 2.54f,
-        1280, 768,
-        4.5f,
-    }, {
-        "Nokia Lumia 820",
-        217.f / 2.54f,
-        217.f / 2.54f,
-        800, 480,
-        4.3f,
-    }, {
-        "Sony Xperia SP",
-        282.f / 2.54f,
-        282.f / 2.54f,
-        1080, 720,
-        4.6f,
-    }, {
-        "ZTE Open",
-        165.f / 2.54f,
-        165.f / 2.54f,
-        480, 320,
-        3.5f,
-    },
-};
-
-static int NUM_DEBUG_DEVICES = sizeof(devices) / sizeof(devices[0]);
-static int cur_dd = DD_PC;
-#endif
 
 int
 tbackend_init_surface()
@@ -506,6 +292,9 @@ tbackend_init_surface()
     flags |= SDL_WINDOW_SHOWN;
     flags |= SDL_WINDOW_RESIZABLE;
 
+    if (settings["window_maximized"]->v.b)
+        flags |= SDL_WINDOW_MAXIMIZED;
+
     tms_progressf("Creating window... ");
     _window = SDL_CreateWindow("Principia", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _tms.window_width, _tms.window_height, flags);
 
@@ -518,11 +307,8 @@ tbackend_init_surface()
 
     _tms._window = _window;
 
-    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
     SDL_GLContext gl_context = SDL_GL_CreateContext(_window);
@@ -552,35 +338,34 @@ tbackend_init_surface()
 
     tms_progressf("GL versions supported: ");
 
-    if (GLEW_VERSION_4_4) {
+    if (GLEW_VERSION_4_4)
         tms_progressf("4.4, ");
-    } if (GLEW_VERSION_4_3) {
+    if (GLEW_VERSION_4_3)
         tms_progressf("4.3, ");
-    } if (GLEW_VERSION_4_2) {
+    if (GLEW_VERSION_4_2)
         tms_progressf("4.2, ");
-    } if (GLEW_VERSION_4_1) {
+    if (GLEW_VERSION_4_1)
         tms_progressf("4.1, ");
-    } if (GLEW_VERSION_3_3) {
+    if (GLEW_VERSION_3_3)
         tms_progressf("3.3, ");
-    } if (GLEW_VERSION_3_1) {
+    if (GLEW_VERSION_3_1)
         tms_progressf("3.1, ");
-    } if (GLEW_VERSION_3_0) {
+    if (GLEW_VERSION_3_0)
         tms_progressf("3.0, ");
-    } if (GLEW_VERSION_2_1) {
+    if (GLEW_VERSION_2_1)
         tms_progressf("2.1, ");
-    } if (GLEW_VERSION_2_0) {
+    if (GLEW_VERSION_2_0)
         tms_progressf("2.0, ");
-    } if (GLEW_VERSION_1_5) {
+    if (GLEW_VERSION_1_5)
         tms_progressf("1.5, ");
-    } if (GLEW_VERSION_1_4) {
+    if (GLEW_VERSION_1_4)
         tms_progressf("1.4, ");
-    } if (GLEW_VERSION_1_3) {
+    if (GLEW_VERSION_1_3)
         tms_progressf("1.3, ");
-    } if (GLEW_VERSION_1_2) {
+    if (GLEW_VERSION_1_2)
         tms_progressf("1.2, ");
-    } if (GLEW_VERSION_1_1) {
+    if (GLEW_VERSION_1_1)
         tms_progressf("1.1");
-    }
 
     tms_progressf("\n");
 
@@ -599,6 +384,29 @@ mouse_button_to_pointer_id(int button)
     }
 }
 
+#define MAX_P 10
+
+static int finger_ids[MAX_P];
+
+static int finger_to_pointer(int finger, bool create)
+{
+    for (int x=0; x<MAX_P; x++) {
+        if ((finger_ids[x] == 0 && create) || finger_ids[x] == finger) {
+            tms_infof("found %u at %d", finger, x);
+            finger_ids[x] = finger;
+            return x;
+        }
+    }
+
+    /* no slot found */
+    if (create) {
+        /* helo */
+    }
+
+    finger_ids[MAX_P-1] = finger;
+    return MAX_P-1;
+}
+
 int
 T_intercept_input(SDL_Event ev)
 {
@@ -608,13 +416,14 @@ T_intercept_input(SDL_Event ev)
     int motion_y = _tms.window_height-ev.motion.y;
     int button_y = _tms.window_height-ev.button.y;
 
+    int f;
+
     switch (ev.type) {
         case SDL_KEYDOWN:
-            if (ev.key.repeat) {
+            if (ev.key.repeat)
                 spec.type = TMS_EV_KEY_REPEAT;
-            } else {
+            else
                 spec.type = TMS_EV_KEY_PRESS;
-            }
 
             spec.data.key.keycode = ev.key.keysym.scancode;
 
@@ -634,7 +443,44 @@ T_intercept_input(SDL_Event ev)
             spec.data.key.mod = ev.key.keysym.mod;
             break;
 
+        case SDL_FINGERDOWN:
+            spec.type = TMS_EV_POINTER_DOWN;
+
+            f = finger_to_pointer(ev.tfinger.fingerId, true);
+            spec.data.button.pointer_id = f;
+
+            spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
+            spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
+            spec.data.button.button = 0;
+            break;
+
+        case SDL_FINGERUP:
+            spec.type = TMS_EV_POINTER_UP;
+
+            f = finger_to_pointer(ev.tfinger.fingerId, false);
+            spec.data.button.pointer_id = f;
+            spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
+            spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
+            spec.data.button.button = 0;
+
+            finger_ids[f] = 0;
+            break;
+
+        case SDL_FINGERMOTION:
+            spec.type = TMS_EV_POINTER_DRAG;
+
+            f = finger_to_pointer(ev.tfinger.fingerId, false);
+            spec.data.button.pointer_id = f;
+            spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
+            spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
+            spec.data.button.button = 0;
+
+            break;
+
         case SDL_MOUSEBUTTONDOWN:
+            if (ev.button.which == SDL_TOUCH_MOUSEID)
+                return T_OK;
+
             spec.type = TMS_EV_POINTER_DOWN;
             spec.data.button.pointer_id = mouse_button_to_pointer_id(ev.button.button);
             spec.data.button.x = ev.button.x;
@@ -643,9 +489,13 @@ T_intercept_input(SDL_Event ev)
 
             if (mouse_down == 0)
                 mouse_down = ev.button.button;
+
             break;
 
         case SDL_MOUSEBUTTONUP:
+            if (ev.button.which == SDL_TOUCH_MOUSEID)
+                return T_OK;
+
             spec.type = TMS_EV_POINTER_UP;
             spec.data.button.pointer_id = mouse_button_to_pointer_id(ev.button.button);
             spec.data.button.x = ev.button.x;
@@ -654,10 +504,13 @@ T_intercept_input(SDL_Event ev)
 
             if (mouse_down == ev.button.button)
                 mouse_down = 0;
+
             break;
 
         case SDL_MOUSEMOTION:
-            //spec.data.button.pointer_id = 0;
+            if (ev.button.which == SDL_TOUCH_MOUSEID)
+                return T_OK;
+
             spec.data.button.pointer_id = mouse_button_to_pointer_id(ev.button.button);
 
             if (mouse_down) {
@@ -679,7 +532,7 @@ T_intercept_input(SDL_Event ev)
             spec.data.scroll.y = ev.wheel.y;
             SDL_GetMouseState(&spec.data.scroll.mouse_x, &spec.data.scroll.mouse_y);
             break;
-        
+
         case SDL_TEXTINPUT:
             spec.type = TMS_EV_TEXT_INPUT;
             std::copy(ev.text.text, ev.text.text + 32, spec.data.text.text);

@@ -186,9 +186,9 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
 
     mkdir(tbackend_get_storage_path());
 
-    /* set temporary width and height for the settings loader */
+    tms_progressf("Initializing SDL... ");
     SDL_Init(SDL_INIT_VIDEO);
-
+    tms_progressf("OK\n");
     SDL_DisplayMode mode;
     SDL_GetCurrentDisplayMode(0, &mode);
 
@@ -248,11 +248,7 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
         while (SDL_PollEvent(&ev)) {
             switch (ev.type) {
                 case SDL_QUIT:
-                    //if (_tms.screen == &P.s_game->super) {
-                    //    ui::open_dialog(DIALOG_CONFIRM_QUIT);
-                    //} else {
-                        _tms.state = TMS_STATE_QUITTING;
-                    //}
+                    _tms.state = TMS_STATE_QUITTING;
                     break;
 
                 case SDL_KEYDOWN:
@@ -267,11 +263,9 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
 
                 case SDL_WINDOWEVENT:
                     switch (ev.window.event) {
-                        case SDL_WINDOWEVENT_RESIZED:
-                            {
-                                RESIZE_WINDOW;
-                            }
-                            break;
+                        case SDL_WINDOWEVENT_RESIZED: {
+                            RESIZE_WINDOW;
+                        } break;
                         case SDL_WINDOWEVENT_MAXIMIZED:
                             settings["window_maximized"]->v.b = true;
                             break;
@@ -377,7 +371,7 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
                 case SDL_TEXTINPUT:
                     T_intercept_input(ev);
                     break;
-                
+
                 default:
                     tms_debugf("Unhandled input: %d", ev.type);
                     break;
@@ -399,8 +393,6 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
             user_event.button.x = x;
             user_event.button.y = y;
             user_event.button.button = SDL_BUTTON_LEFT;
-
-            //SDL_PushEvent(&user_event);
         }
     } while (_tms.state != TMS_STATE_QUITTING);
 
@@ -413,10 +405,6 @@ int
 tbackend_init_surface()
 {
     CUTE_ASCII_ART;
-
-    /* Set up SDL, create a window */
-    tms_progressf("Initializing SDL... ");
-    tms_progressf("OK\n");
 
     _tms.window_width = settings["window_width"]->v.i;
     _tms.window_height = settings["window_height"]->v.i;
@@ -443,11 +431,8 @@ tbackend_init_surface()
 
     _tms._window = _window;
 
-    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
     SDL_GLContext gl_context = SDL_GL_CreateContext(_window);
@@ -477,35 +462,34 @@ tbackend_init_surface()
 
     tms_progressf("GL versions supported: ");
 
-    if (GLEW_VERSION_4_4) {
+    if (GLEW_VERSION_4_4)
         tms_progressf("4.4, ");
-    } if (GLEW_VERSION_4_3) {
+    if (GLEW_VERSION_4_3)
         tms_progressf("4.3, ");
-    } if (GLEW_VERSION_4_2) {
+    if (GLEW_VERSION_4_2)
         tms_progressf("4.2, ");
-    } if (GLEW_VERSION_4_1) {
+    if (GLEW_VERSION_4_1)
         tms_progressf("4.1, ");
-    } if (GLEW_VERSION_3_3) {
+    if (GLEW_VERSION_3_3)
         tms_progressf("3.3, ");
-    } if (GLEW_VERSION_3_1) {
+    if (GLEW_VERSION_3_1)
         tms_progressf("3.1, ");
-    } if (GLEW_VERSION_3_0) {
+    if (GLEW_VERSION_3_0)
         tms_progressf("3.0, ");
-    } if (GLEW_VERSION_2_1) {
+    if (GLEW_VERSION_2_1)
         tms_progressf("2.1, ");
-    } if (GLEW_VERSION_2_0) {
+    if (GLEW_VERSION_2_0)
         tms_progressf("2.0, ");
-    } if (GLEW_VERSION_1_5) {
+    if (GLEW_VERSION_1_5)
         tms_progressf("1.5, ");
-    } if (GLEW_VERSION_1_4) {
+    if (GLEW_VERSION_1_4)
         tms_progressf("1.4, ");
-    } if (GLEW_VERSION_1_3) {
+    if (GLEW_VERSION_1_3)
         tms_progressf("1.3, ");
-    } if (GLEW_VERSION_1_2) {
+    if (GLEW_VERSION_1_2)
         tms_progressf("1.2, ");
-    } if (GLEW_VERSION_1_1) {
+    if (GLEW_VERSION_1_1)
         tms_progressf("1.1");
-    }
 
     tms_progressf("\n");
 
@@ -560,11 +544,10 @@ T_intercept_input(SDL_Event ev)
 
     switch (ev.type) {
         case SDL_KEYDOWN:
-            if (ev.key.repeat) {
+            if (ev.key.repeat)
                 spec.type = TMS_EV_KEY_REPEAT;
-            } else {
+            else
                 spec.type = TMS_EV_KEY_PRESS;
-            }
 
             spec.data.key.keycode = ev.key.keysym.scancode;
 
@@ -588,7 +571,6 @@ T_intercept_input(SDL_Event ev)
             spec.type = TMS_EV_POINTER_DOWN;
 
             f = finger_to_pointer(ev.tfinger.fingerId, true);
-            //tms_infof("FINGER DOWN %d->%d", ev.tfinger.fingerId, f);
             spec.data.button.pointer_id = f;
 
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
@@ -600,7 +582,6 @@ T_intercept_input(SDL_Event ev)
             spec.type = TMS_EV_POINTER_UP;
 
             f = finger_to_pointer(ev.tfinger.fingerId, false);
-            //tms_infof("FINGER UP %d->%d", ev.tfinger.fingerId, f);
             spec.data.button.pointer_id = f;
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
@@ -613,7 +594,6 @@ T_intercept_input(SDL_Event ev)
             spec.type = TMS_EV_POINTER_DRAG;
 
             f = finger_to_pointer(ev.tfinger.fingerId, false);
-            //tms_infof("FINGER MOTION %d->%d", ev.tfinger.fingerId, f);
             spec.data.button.pointer_id = f;
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
@@ -622,9 +602,8 @@ T_intercept_input(SDL_Event ev)
             break;
 
         case SDL_MOUSEBUTTONDOWN:
-            if (ev.button.which == SDL_TOUCH_MOUSEID) {
+            if (ev.button.which == SDL_TOUCH_MOUSEID)
                 return T_OK;
-            }
 
             spec.type = TMS_EV_POINTER_DOWN;
             spec.data.button.pointer_id = mouse_button_to_pointer_id(ev.button.button);
@@ -632,22 +611,14 @@ T_intercept_input(SDL_Event ev)
             spec.data.button.y = button_y;
             spec.data.button.button = ev.button.button;
 
-            /*
-            tms_infof("MOUSE BUTTON DOWN %d %d %d %d",
-                    ev.button.which,
-                    spec.data.button.pointer_id,
-                    spec.data.button.button,
-                    ev.button.button);
-                    */
-
             if (mouse_down == 0)
                 mouse_down = ev.button.button;
+
             break;
 
         case SDL_MOUSEBUTTONUP:
-            if (ev.button.which == SDL_TOUCH_MOUSEID) {
+            if (ev.button.which == SDL_TOUCH_MOUSEID)
                 return T_OK;
-            }
 
             spec.type = TMS_EV_POINTER_UP;
             spec.data.button.pointer_id = mouse_button_to_pointer_id(ev.button.button);
@@ -655,25 +626,15 @@ T_intercept_input(SDL_Event ev)
             spec.data.button.y = button_y;
             spec.data.button.button = ev.button.button;
 
-            /*
-            tms_infof("MOUSE BUTTON UP %d %d %d %d",
-                    ev.button.which,
-                    spec.data.button.pointer_id,
-                    spec.data.button.button,
-                    ev.button.button);
-                    */
-
             if (mouse_down == ev.button.button)
                 mouse_down = 0;
+
             break;
 
         case SDL_MOUSEMOTION:
             if (ev.button.which == SDL_TOUCH_MOUSEID)
                 return T_OK;
 
-            //tms_infof("MOUSE MOTION");
-
-            //spec.data.button.pointer_id = 0;
             spec.data.button.pointer_id = mouse_button_to_pointer_id(ev.button.button);
 
             if (mouse_down) {
@@ -681,25 +642,10 @@ T_intercept_input(SDL_Event ev)
                 spec.data.button.x = ev.motion.x;
                 spec.data.button.y = button_y;
                 spec.data.button.button = mouse_down;
-
-                /*
-                tms_infof("MOUSE MOTION %.2f %.2f %d",
-                        spec.data.button.x,
-                        spec.data.button.y,
-                        spec.data.button.button
-                        );
-                        */
             } else {
                 spec.type = TMS_EV_POINTER_MOVE;
                 spec.data.button.x = ev.motion.x;
                 spec.data.button.y = motion_y;
-
-                /*
-                tms_infof("MOUSE MOTION %.2f %.2f",
-                        spec.data.button.x,
-                        spec.data.button.y
-                        );
-                        */
             }
 
             break;
@@ -710,7 +656,7 @@ T_intercept_input(SDL_Event ev)
             spec.data.scroll.y = ev.wheel.y;
             SDL_GetMouseState(&spec.data.scroll.mouse_x, &spec.data.scroll.mouse_y);
             break;
-        
+
         case SDL_TEXTINPUT:
             spec.type = TMS_EV_TEXT_INPUT;
             std::copy(ev.text.text, ev.text.text + 32, spec.data.text.text);
