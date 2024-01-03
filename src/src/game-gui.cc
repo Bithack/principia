@@ -2815,8 +2815,8 @@ game::create_sandbox_menu()
     tms_ddraw_set_matrices(this->get_surface()->ddraw, omv, op);
 
     tms_assertf(glGetError() == 0, "VAFAN s 4");
-    tms_infof("Sandbox textures generated successfully. Running ./update-sandbox-menu.sh ...");
-    system("./update-sandbox-menu.sh");
+    tms_infof("Sandbox textures generated successfully. Running ./utils/update-sandbox-menu.sh ...");
+    system("../utils/update-sandbox-menu.sh");
     tms_infof("OK!");
     exit(0);
 #endif
@@ -3273,17 +3273,11 @@ game::get_sandbox_texture(int n)
     if (!sandbox_texture[n]) {
         sandbox_texture[n] = tms_texture_alloc();
         char name[256];
-#if defined(TMS_BACKEND_ANDROID)
-        sprintf(name, "data-mobile/textures/sandbox-menu-%d.pkm", n);
-        tms_texture_load_etc1(sandbox_texture[n], name);
-#elif defined (TMS_BACKEND_IOS)
-        sprintf(name, "data-ios/textures/sandbox-menu-%d.pvr", n);
-        tms_texture_load_pvrtc_4bpp(sandbox_texture[n], name);
-#else
-        sprintf(name, "data-pc/textures/sandbox-menu-%d.jpg", n);
+
+        sprintf(name, "data-shared/textures/sandbox-menu-%d.png", n);
         tms_texture_load(sandbox_texture[n], name);
         tms_texture_flip_y(sandbox_texture[n]);
-#endif
+
         tms_texture_set_filtering(sandbox_texture[n], GL_LINEAR);
         tms_texture_upload(sandbox_texture[n]);
         tms_texture_free_buffer(sandbox_texture[n]);

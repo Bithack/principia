@@ -10,7 +10,7 @@ for ((i = 0; i < $NUM_TEXTURES; i ++)); do
   convert tmp_alpha.png -background black -shadow 80x3+0+0 tmp_shadow.png
 
   convert tmp_alpha.png tmp_shadow.png -compose DstOver +repage -gravity center +repage -composite tmp_composite.png
-  convert tmp_composite.png -background 'rgb(54,54,54)' -flatten -alpha Off ../data-pc/textures/sandbox-menu-$i.jpg
+  convert tmp_composite.png -background 'rgb(54,54,54)' -flatten -alpha Off ../data-shared/textures/sandbox-menu-$i.png
 #gimp ../data-pc/textures/sandbox-menu-$i.jpg
 
   rm tmp.png mask.png tmp_alpha.png tmp_shadow.png
