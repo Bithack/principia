@@ -91,12 +91,11 @@ endif()
 
 # Luasocket
 if(USE_LUASOCKET)
-	set(LUASOCKET_FLAGS "-DBUILD_LUASOCKET")
+	set(LUASOCKET_FLAGS "-DBUILD_LUASOCKET -DLUASOCKET_INET_PTON")
 
 	if(WIN32)
 		set(LUASOCKET_PLAT_SRC src/luasocket/wsocket.c)
 	else()
-		set(LUASOCKET_FLAGS "${LUASOCKET_FLAGS} -DLUASOCKET_INET_PTON")
 		set(LUASOCKET_PLAT_SRC
 			src/luasocket/usocket.c
 			src/luasocket/unix.c)
@@ -164,7 +163,7 @@ set(COMMON_FLAGS "${LUASOCKET_FLAGS} -DGL_GLEXT_PROTOTYPES -DTMS_BACKEND_PC -DTM
 if(WIN32)
 	target_link_libraries(${PROJECT_NAME} ws2_32.lib version.lib shlwapi.lib winmm.lib)
 
-	set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_WINDOWS -D_WIN32_WINNT=0x0501 -mwindows -Dsrandom=srand -Drandom=rand")
+	set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_WINDOWS -D_WIN32_WINNT=0x0501 -Dsrandom=srand -Drandom=rand")
 else()
 	if(SCREENSHOT_BUILD)
 		set(COMMON_FLAGS "${COMMON_FLAGS} -DNO_UI -DTMS_BACKEND_LINUX_SS")
@@ -173,8 +172,13 @@ else()
 	endif()
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	# Downgrade some errors to warnings when building with Clang
+	set(COMMON_FLAGS "${COMMON_FLAGS} -Wno-error=incompatible-function-pointer-types -Wno-error=int-conversion")
+endif()
+
 set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1")
-set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} -DNDEBUG=1 -s -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections")
+set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} -DNDEBUG=1 -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections")
 
 set(CMAKE_C_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O1")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE} -g")
@@ -187,6 +191,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG} -O0")
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-O,-s,--gc-sections")
 set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "-Wl,-O,--gc-sections")
 set(CMAKE_EXE_LINKER_FLAGS_DEBUG "")
+
+if(WIN32)
+	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-mwindows")
+endif()
 
 # Installation
 
