@@ -21,7 +21,6 @@ find_package(SDL2 REQUIRED)
 find_package(ZLIB REQUIRED)
 
 pkg_check_modules(SDL2_image REQUIRED SDL2_image)
-pkg_check_modules(SDL2_mixer REQUIRED SDL2_mixer)
 pkg_check_modules(SDL2_ttf REQUIRED SDL2_ttf)
 
 set(OpenGL_GL_PREFERENCE GLVND)
@@ -49,7 +48,6 @@ include_directories(
 	${PNG_INCLUDE_DIRS}
 	${SDL2_INCLUDE_DIRS}
 	${SDL2_image_INCLUDE_DIRS}
-	${SDL2_mixer_INCLUDE_DIRS}
 	${SDL2_ttf_INCLUDE_DIRS}
 	${ZLIB_INCLUDE_DIRS})
 
@@ -79,10 +77,13 @@ if(NOT SCREENSHOT_BUILD)
 	find_package(CURL REQUIRED)
 	find_package(GLEW REQUIRED)
 
+	pkg_check_modules(SDL2_mixer REQUIRED SDL2_mixer)
+
 	include_directories(
 		${CURL_INCLUDE_DIR}
 		${GLEW_INCLUDE_DIRS}
-		${GTK3_INCLUDE_DIRS})
+		${GTK3_INCLUDE_DIRS}
+		${SDL2_mixer_INCLUDE_DIRS})
 
 	option(USE_LUASOCKET "Build with Luasocket support" TRUE)
 else()
@@ -140,22 +141,22 @@ endif()
 add_executable(${PROJECT_NAME} ${SRCS})
 target_link_libraries(
 	${PROJECT_NAME}
-		${CURL_LIBRARIES}
 		${FREETYPE_LIBRARIES}
 		${JPEG_LIBRARIES}
 		${OPENGL_LIBRARIES}
 		${PNG_LIBRARIES}
 		${SDL2_LIBRARIES}
 		${SDL2_image_LIBRARIES}
-		${SDL2_mixer_LIBRARIES}
 		${SDL2_ttf_LIBRARIES}
 		${ZLIB_LIBRARIES})
 
 if(NOT SCREENSHOT_BUILD)
 	target_link_libraries(
 		${PROJECT_NAME}
+			${CURL_LIBRARIES}
 			${GLEW_LIBRARIES}
-			${GTK3_LIBRARIES})
+			${GTK3_LIBRARIES}
+			${SDL2_mixer_LIBRARIES})
 endif()
 
 set(COMMON_FLAGS "${LUASOCKET_FLAGS} -DGL_GLEXT_PROTOTYPES -DTMS_BACKEND_PC -DTMS_FAST_MATH -DLUA_COMPAT_MODULE -D__STDC_FORMAT_MACROS=1 -DUNICODE")
