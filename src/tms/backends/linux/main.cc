@@ -70,10 +70,6 @@ int _pipe_listener(void *p)
 int
 main(int argc, char **argv)
 {
-#ifdef DEBUG
-    //feenableexcept(FE_INVALID | FE_OVERFLOW);
-#endif
-
     SDL_Event  ev;
     int        done = 0;
 
@@ -99,8 +95,8 @@ main(int argc, char **argv)
             if (argc > 1) {
                 /* open the fifo for writing instead */
                 tms_infof("sending arg: %s", argv[1]);
-                write(pipe_h, argv[1], strlen(argv[1]));
 
+                write(pipe_h, argv[1], strlen(argv[1]));
             } else {
                 tms_infof("principia already running");
             }
@@ -301,9 +297,8 @@ tbackend_init_surface()
     if (_window == NULL) {
         tms_progressf("ERROR: %s\n", SDL_GetError());
         exit(1);
-    } else {
+    } else
         tms_progressf("OK\n");
-    }
 
     _tms._window = _window;
 

@@ -1,13 +1,12 @@
 #include <unistd.h>
+#include <fcntl.h>
 #include <errno.h>
 #include <sys/time.h>
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <pwd.h>
-#include <signal.h>
-#include <execinfo.h>
-#include <cxxabi.h>
+#include <libgen.h>
 
 #include <tms/core/project.h>
 #include <tms/core/event.h>
@@ -66,41 +65,6 @@ int screenshot(char *file_name, unsigned int x, unsigned int y, unsigned long wi
 extern "C" int tbackend_init_surface();
 extern "C" const char *tbackend_get_storage_path(void);
 
-static void
-_catch_signal(int signal)
-{
-    time_t t = time(0);
-    struct tm *now = localtime(&t);
-    char timebuf[128];
-    remove("principia.state");
-    int j, nptrs;
-    char **strings;
-    void *buffer[100];
-
-    strftime(timebuf, 128, "%F %T", now);
-
-    FILE *fh = fopen("principia.error", "a");
-    fprintf(fh, "Segfault at %s\n", timebuf);
-
-    nptrs = backtrace(buffer, 100);
-    strings = backtrace_symbols(buffer, nptrs);
-    if (strings == NULL) {
-        perror("backtrace_symbols");
-        exit(1);
-    }
-
-    for (j=0; j<nptrs; ++j) {
-        fprintf(fh, "%s\n", strings[j]);
-    }
-
-    free(strings);
-
-    fclose(fh);
-
-    exit(1);
-}
-
-
 
 void
 set_state(int state)
@@ -117,7 +81,7 @@ int _pipe_listener(void *p)
 
     while (1) {
         tms_infof("attempting to open principia.run O_RDONLY");
-        while ((pipe_h = open("principia.run", O_RDONLY)) == -1) {
+        while ((pipe_h = open("/tmp/principia.run", O_RDONLY)) == -1) {
             if (errno != EINTR)
                 return 1;
         }
@@ -144,13 +108,10 @@ int _pipe_listener(void *p)
 int
 main(int argc, char **argv)
 {
-#ifdef DEBUG
-    //feenableexcept(FE_INVALID | FE_OVERFLOW);
-#endif
-
     SDL_Event  ev;
     int        done = 0;
-    int status = mkfifo("principia.run", S_IWUSR | S_IRUSR);
+
+    int status = mkfifo("/tmp/principia.run", S_IWUSR | S_IRUSR);
     int skip_pipe = 0;
 
     if (status == 0) {
@@ -163,7 +124,7 @@ main(int argc, char **argv)
     }
 
     if (!skip_pipe) {
-        if ((pipe_h = open("principia.run", O_WRONLY | O_NONBLOCK)) == -1) {
+        if ((pipe_h = open("/tmp/principia.run", O_WRONLY | O_NONBLOCK)) == -1) {
             if (errno != ENXIO) {
                 skip_pipe = 1;
                 tms_infof("error: %s", strerror(errno));
@@ -174,7 +135,6 @@ main(int argc, char **argv)
                 tms_infof("sending arg: %s", argv[1]);
                 set_state(STATE_WORKING);
                 write(pipe_h, argv[1], strlen(argv[1]));
-
             } else {
                 tms_infof("principia already running");
             }
@@ -189,9 +149,13 @@ main(int argc, char **argv)
         SDL_CreateThread(_pipe_listener, "_pipe_listener", 0);
     }
 
-    if (signal(SIGSEGV, _catch_signal) == SIG_ERR) {
-        tms_fatalf("Unable to handle SIGSEGV");
-    }
+    char buf[512];
+    readlink("/proc/self/exe", buf, 511);
+    dirname(buf);
+    tms_infof("chdirring to %s", buf);
+    chdir(buf);
+
+    mkdir(tbackend_get_storage_path(), S_IRWXU | S_IRWXG | S_IRWXO);
 
     settings.init();
     settings.load();
@@ -278,62 +242,60 @@ main(int argc, char **argv)
 
                 break;
 
-            case STEP_SNAP:
-                {
-                    P.focused = true;
+            case STEP_SNAP: {
+                P.focused = true;
 
-                    tms_infof("STEP_SNAP");
-                    size_t sz = W->cam_markers.size();
-                    if (sz > 0) {
-                        if (first) {
-                            for (G->cam_iterator = W->cam_markers.begin(); G->cam_iterator != W->cam_markers.end(); G->cam_iterator++) {
-                                G->cam_iterator->second->hide();
-                            }
+                tms_infof("STEP_SNAP");
+                size_t sz = W->cam_markers.size();
+                if (sz > 0) {
+                    if (first) {
+                        for (G->cam_iterator = W->cam_markers.begin(); G->cam_iterator != W->cam_markers.end(); G->cam_iterator++) {
+                            G->cam_iterator->second->hide();
                         }
+                    }
 
-                        if (G->cam_iterator == W->cam_markers.end()) {
-                            if (first)
-                                G->cam_iterator = W->cam_markers.begin();
-                            else {
-                                step = STEP_QUIT;
-                            }
-                        } else {
-                            if (ss_id == 15) {
-                                tms_infof("Aborting, only 15 cam markers allowed.");
-                                step = STEP_QUIT;
-                            } else {
-                                tms_progressf("Snapping to camera %p... ", G->cam_iterator->second);
-                                G->snap_to_camera(G->cam_iterator->second);
-                                G->cam_iterator->second->hide();
-                                G->cam_iterator++;
-                                tms_progressf(" OK\n");
-
-                                snap_step_num = G->state.step_num;
-                                step = STEP_SCREENSHOT;
-                            }
+                    if (G->cam_iterator == W->cam_markers.end()) {
+                        if (first)
+                            G->cam_iterator = W->cam_markers.begin();
+                        else {
+                            step = STEP_QUIT;
                         }
                     } else {
-                        /* snap to "saved position" */
-                        if (first) {
-                            tms_progressf("Snapping to saved pos... (%.2f/%.2f %.2f)",
-                                    W->level.sandbox_cam_x,
-                                    W->level.sandbox_cam_y,
-                                    W->level.sandbox_cam_zoom
-                                    );
-                            G->cam->_position.x = W->level.sandbox_cam_x;
-                            G->cam->_position.y = W->level.sandbox_cam_y;
-                            G->cam->_position.z = W->level.sandbox_cam_zoom;
-                            tms_progressf("OK\n");
+                        if (ss_id == 15) {
+                            tms_infof("Aborting, only 15 cam markers allowed.");
+                            step = STEP_QUIT;
+                        } else {
+                            tms_progressf("Snapping to camera %p... ", G->cam_iterator->second);
+                            G->snap_to_camera(G->cam_iterator->second);
+                            G->cam_iterator->second->hide();
+                            G->cam_iterator++;
+                            tms_progressf(" OK\n");
 
                             snap_step_num = G->state.step_num;
                             step = STEP_SCREENSHOT;
-                        } else {
-                            step = STEP_QUIT;
                         }
                     }
-                    first = false;
+                } else {
+                    /* snap to "saved position" */
+                    if (first) {
+                        tms_progressf("Snapping to saved pos... (%.2f/%.2f %.2f)",
+                                W->level.sandbox_cam_x,
+                                W->level.sandbox_cam_y,
+                                W->level.sandbox_cam_zoom
+                                );
+                        G->cam->_position.x = W->level.sandbox_cam_x;
+                        G->cam->_position.y = W->level.sandbox_cam_y;
+                        G->cam->_position.z = W->level.sandbox_cam_zoom;
+                        tms_progressf("OK\n");
+
+                        snap_step_num = G->state.step_num;
+                        step = STEP_SCREENSHOT;
+                    } else {
+                        step = STEP_QUIT;
+                    }
                 }
-                break;
+                first = false;
+            } break;
 
             case STEP_QUIT:
                 tms_infof("We are returning to main menu!");
@@ -348,48 +310,44 @@ main(int argc, char **argv)
         tms_begin_frame();
         tms_render();
 
-        switch (step) {
-            case STEP_SCREENSHOT:
-                {
-                    if (W->level.flag_active(LVL_CHUNKED_LEVEL_LOADING)) {
-                        int32_t step_diff = G->state.step_num - snap_step_num;
-                        if (step_diff < 1) {
-                            tms_infof("Step diff is %d, waiting...", step_diff);
-                            break;
-                        }
-                        bool all_chunks_loaded = true;
-
-                        const std::map<chunk_pos, level_chunk*> &active_chunks = W->cwindow->preloader.get_active_chunks();
-                        /* This never fails, but I'll leave it for now! */
-                        for (std::map<chunk_pos, level_chunk*>::const_iterator it = active_chunks.begin();
-                                it != active_chunks.end(); ++it) {
-                            if (it->second->slot != -1 && it->second->load_phase != 2) {
-                                tms_infof("Chunk %p load phase: %d", it->second, it->second->load_phase);
-                                all_chunks_loaded = false;
-                                break;
-                            }
-                        }
-
-                        if (!all_chunks_loaded) {
-                            tms_infof("Waiting for chunks to fully load...");
-                            break;
-                        }
-                    }
-
-                    char filename[256];
-                    snprintf(filename, 256, "ss-%d.png", ss_id++);
-
-                    tms_progressf("Saving screenshot to %s... ", filename);
-
-                    int r = screenshot(filename, 0, 0, 1280, 720);
-                    if (r != 0) {
-                        tms_progressf("ERROR\n");
-                    } else {
-                        tms_progressf("OK\n");
-                    }
-                    step = STEP_SNAP;
+        if (step == STEP_SCREENSHOT) {
+            if (W->level.flag_active(LVL_CHUNKED_LEVEL_LOADING)) {
+                int32_t step_diff = G->state.step_num - snap_step_num;
+                if (step_diff < 1) {
+                    tms_infof("Step diff is %d, waiting...", step_diff);
+                    break;
                 }
-                break;
+                bool all_chunks_loaded = true;
+
+                const std::map<chunk_pos, level_chunk*> &active_chunks = W->cwindow->preloader.get_active_chunks();
+                /* This never fails, but I'll leave it for now! */
+                for (std::map<chunk_pos, level_chunk*>::const_iterator it = active_chunks.begin();
+                        it != active_chunks.end(); ++it) {
+                    if (it->second->slot != -1 && it->second->load_phase != 2) {
+                        tms_infof("Chunk %p load phase: %d", it->second, it->second->load_phase);
+                        all_chunks_loaded = false;
+                        break;
+                    }
+                }
+
+                if (!all_chunks_loaded) {
+                    tms_infof("Waiting for chunks to fully load...");
+                    break;
+                }
+            }
+
+            char filename[256];
+            snprintf(filename, 256, "ss-%d.png", ss_id++);
+
+            tms_progressf("Saving screenshot to %s... ", filename);
+
+            int r = screenshot(filename, 0, 0, 1280, 720);
+            if (r != 0) {
+                tms_progressf("ERROR\n");
+            } else {
+                tms_progressf("OK\n");
+            }
+            step = STEP_SNAP;
         }
 
         SDL_GL_SwapWindow(_window);
@@ -418,8 +376,14 @@ tbackend_init_surface()
     _tms.xppcm = 108.f/2.54f * 1.5f;
     _tms.yppcm = 107.f/2.54f * 1.5f;
 
+    uint32_t flags = 0;
+
+    flags |= SDL_WINDOW_OPENGL;
+    flags |= SDL_WINDOW_SHOWN;
+
     tms_progressf("Creating window... ");
-    _window = SDL_CreateWindow("Principia Screenshotter", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _tms.window_width, _tms.window_height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    _window = SDL_CreateWindow("Principia Screenshotter", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _tms.window_width, _tms.window_height, flags);
+
     if (_window == NULL) {
         tms_progressf("ERROR: %s\n", SDL_GetError());
         exit(1);
@@ -449,16 +413,7 @@ T_intercept_input(SDL_Event ev)
 
 const char *tbackend_get_storage_path(void)
 {
-    if (!_storage_path) {
-        char *path = (char*)malloc(512);
-        struct passwd *pw = getpwuid(getuid());
-
-        strcpy(path, pw->pw_dir);
-        strcat(path, "/Principia");
-
-        _storage_path = path;
-    }
-    return _storage_path;
+    return "storage";
 }
 
 int
@@ -560,64 +515,4 @@ screenshot(char *path, unsigned int x, unsigned int y, unsigned long width, unsi
 void
 tms_trace(void)
 {
-#ifdef DEBUG
-    void *array[10];
-    size_t size;
-    char **strings;
-    size_t i;
-
-    size = backtrace(array, 10);
-    strings = backtrace_symbols(array, size);
-
-    size_t funcnamesize = 256;
-    char *funcname = (char*)malloc(funcnamesize);
-
-    for (i=1; i<size; ++i) {
-        char *begin_name = 0, *begin_offset = 0, *end_offset = 0;
-
-        // find parentheses and +address offset surrounding the mangled name:
-        // ./module(function+0x15c) [0x8048a6d]
-        for (char *p = strings[i]; *p; ++p) {
-            if (*p == '(') {
-                begin_name = p;
-            } else if (*p == '+') {
-                begin_offset = p;
-            } else if (*p == ')' && begin_offset) {
-                end_offset = p;
-                break;
-            }
-        }
-
-        if (begin_name && begin_offset && end_offset && begin_name < begin_offset) {
-            *begin_name++ = '\0';
-            *begin_offset++ = '\0';
-            *end_offset = '\0';
-
-            // mangled name is now in [begin_name, begin_offset) and caller
-            // offset in [begin_offset, end_offset). now apply
-            // __cxa_demangle():
-
-            int status;
-            char* ret = abi::__cxa_demangle(begin_name,
-                    funcname, &funcnamesize, &status);
-
-            if (status == 0) {
-                funcname = ret; // use possibly realloc()-ed string
-                fprintf(stdout, "  %s : %s+%s\n",
-                        strings[i], funcname, begin_offset);
-            } else {
-                // demangling failed. Output function name as a C function with
-                // no arguments.
-                fprintf(stdout, "  %s : %s()+%s\n",
-                        strings[i], begin_name, begin_offset);
-            }
-        } else {
-            // couldn't parse the line? print the whole line.
-            fprintf(stdout, "  %s\n", strings[i]);
-        }
-    }
-
-    free(funcname);
-    free(strings);
-#endif
 }
