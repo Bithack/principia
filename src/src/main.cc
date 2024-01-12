@@ -3745,7 +3745,11 @@ initial_loader(int step)
 
         case 16:
             {
+#ifdef TMS_BACKEND_LINUX_SS
+                P.s_loading_screen->set_text("Ready! o.o");
+#else
                 P.s_loading_screen->set_text(0);
+#endif
 
                 P.loaded = true;
                 settings["loaded_correctly"]->v.b = true;
