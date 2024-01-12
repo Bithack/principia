@@ -511,8 +511,3 @@ screenshot(char *path, unsigned int x, unsigned int y, unsigned long width, unsi
 
     return 0;
 }
-
-void
-tms_trace(void)
-{
-}
