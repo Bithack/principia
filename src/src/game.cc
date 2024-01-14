@@ -7442,7 +7442,7 @@ game::create_icon()
 
     if ((err = glGetError()) != 0) tms_infof("glReadPixels: %u", err);
 
-    SDL_Surface *n = zoomSurface(srf, .25, .25, 1);
+    SDL_Surface *n = zoomSurface(srf, .25, .25);
 
     for (int y=0; y<128; y++) {
         for (int x=0; x<128; x++) {
