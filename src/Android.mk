@@ -46,7 +46,7 @@ LOCAL_MODULE := main
 SDL_PATH := $(ROOT)/SDL-mobile/SDL
 TMS_PATH := $(ROOT)/tms
 
-$(warning $(ROOT))
+#$(warning $(ROOT))
 
 LOCAL_CPP_EXTENSION := .cc
 
@@ -88,7 +88,7 @@ ifeq ($(TARGET_ARCH_ABI),x86)
 endif
 
 LOCAL_CONLYFLAGS := -std=gnu99
-LOCAL_CFLAGS += $(GLOBAL_FLAGS) -DFT2_BUILD_LIBRARY -D__STDC_FORMAT_MACROS=1
+LOCAL_CFLAGS += $(GLOBAL_FLAGS) -D__STDC_FORMAT_MACROS=1
 LOCAL_CPPFLAGS += $(GLOBAL_FLAGS)
 LOCAL_STATIC_LIBRARIES := \
 	freetype libjpeg libpng \
@@ -100,7 +100,6 @@ LOCAL_CFLAGS += -DLOAD_JPG -DLOAD_PNG -DLOAD_TGA
 
 include $(ROOT)/lua/Android.mk
 include $(ROOT)/SDL_image/Android.mk
-include $(ROOT)/SDL_ttf/Android.mk
 include $(ROOT)/SDL_mixer/Android.mk
 include $(TMS_PATH)/Android.mk
 include $(SDL_PATH)/Android.mk
@@ -109,10 +108,10 @@ include $(ROOT)/src/Android.mk
 
 # reset path before building
 
-$(warning $(LOCAL_SRC_FILES))
+#$(warning $(LOCAL_SRC_FILES))
 
 LOCAL_PATH := $(ROOT)
 
-$(warning $(LOCAL_PATH))
+#$(warning $(LOCAL_PATH))
 
 include $(BUILD_SHARED_LIBRARY)

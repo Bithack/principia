@@ -21,7 +21,6 @@ find_package(SDL2 REQUIRED)
 find_package(ZLIB REQUIRED)
 
 pkg_check_modules(SDL2_image REQUIRED SDL2_image)
-pkg_check_modules(SDL2_ttf REQUIRED SDL2_ttf)
 
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
@@ -48,7 +47,6 @@ include_directories(
 	${PNG_INCLUDE_DIRS}
 	${SDL2_INCLUDE_DIRS}
 	${SDL2_image_INCLUDE_DIRS}
-	${SDL2_ttf_INCLUDE_DIRS}
 	${ZLIB_INCLUDE_DIRS})
 
 file(GLOB SRCS
@@ -147,7 +145,6 @@ target_link_libraries(
 		${PNG_LIBRARIES}
 		${SDL2_LIBRARIES}
 		${SDL2_image_LIBRARIES}
-		${SDL2_ttf_LIBRARIES}
 		${ZLIB_LIBRARIES})
 
 if(NOT SCREENSHOT_BUILD)
