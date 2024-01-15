@@ -74,13 +74,14 @@ if(NOT SCREENSHOT_BUILD)
 	find_package(CURL REQUIRED)
 	find_package(GLEW REQUIRED)
 
-	pkg_check_modules(SDL2_mixer REQUIRED SDL2_mixer)
-
 	include_directories(
 		${CURL_INCLUDE_DIR}
 		${GLEW_INCLUDE_DIRS}
 		${GTK3_INCLUDE_DIRS}
-		${SDL2_mixer_INCLUDE_DIRS})
+		src/SDL_mixer/)
+
+	file(GLOB SDL_mixer_SRCS src/SDL_mixer/*.c)
+	set(SRCS ${SRCS} ${SDL_mixer_SRCS})
 
 	option(USE_LUASOCKET "Build with Luasocket support" TRUE)
 else()
@@ -114,10 +115,7 @@ if(USE_LUASOCKET)
 		${LUASOCKET_PLAT_SRC})
 endif()
 
-include_directories(src/tms/backends/${TMS_BACKEND}/)
-
-set(SRCS ${SRCS}
-	src/tms/backends/${TMS_BACKEND}/main.cc)
+set(SRCS ${SRCS} src/tms/backends/${TMS_BACKEND}/main.cc)
 
 if(WIN32)
 	set(WINRESOURCE_FILE "packaging/principia.rc")
@@ -150,8 +148,7 @@ if(NOT SCREENSHOT_BUILD)
 		${PROJECT_NAME}
 			${CURL_LIBRARIES}
 			${GLEW_LIBRARIES}
-			${GTK3_LIBRARIES}
-			${SDL2_mixer_LIBRARIES})
+			${GTK3_LIBRARIES})
 endif()
 
 set(COMMON_FLAGS "${LUASOCKET_FLAGS} -DGL_GLEXT_PROTOTYPES -DTMS_BACKEND_PC -DTMS_FAST_MATH -DLUA_COMPAT_MODULE -D__STDC_FORMAT_MACROS=1 -DUNICODE")
