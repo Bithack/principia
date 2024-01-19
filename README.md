@@ -30,10 +30,10 @@ Feel free to fork this project and send in your pull requests. This is a communi
 
 Most of our discussion and development happens in the `#development` channel of the [Principia Discord server](https://principia-web.se/discord) (also bridged to [Matrix](https://principia-web.se/matrix)), make sure to join it if you want to discuss and participate in the development of the game.
 
-Also be sure to follow [@Bithack](https://twitter.com/Bithack) on Twitter for more updates about the project.
+Also be sure to follow [@principia](https://fosstodon.org/@principia) on Fosstodon for more updates about the project.
 
 ## Building and running
-Below are instructions to build Principia on Windows, Linux and Android from source. See also [this Wiki page](https://principia-web.se/wiki/Compiling_Principia) for notes on running Principia on particular platforms. (e.g. Chrome OS or a Raspberry Pi)
+Below are instructions to build Principia on Windows, Linux and Android from source. See also [this Wiki page](https://principia-web.se/wiki/Compiling_Principia) for notes on running Principia on particular platforms. (e.g. Chrome OS, Raspberry Pi or Haiku OS)
 
 If you have issues building Principia, then please ask in the `#development` channel on Discord.
 
@@ -51,7 +51,7 @@ pacman -Syu
 The terminal will then ask you to shut down the MSYS2 runtime to the finish the update. Proceed with doing so, and then go to the start menu and start the "MSYS2 UCRT64" environment (icon with gold background) again. Run the following command to install the necessary dependencies:
 
 ```bash
-pacman -S git mingw-w64-ucrt-x86_64-{gcc,cmake,ninja,curl-winssl,gtk3,glew,libpng,libjpeg-turbo,freetype,SDL2,SDL2_image,SDL2_mixer,SDL2_ttf}
+pacman -S git mingw-w64-ucrt-x86_64-{gcc,cmake,ninja,curl-winssl,gtk3,glew,libpng,libjpeg-turbo,freetype,SDL2}
 ```
 
 Navigate somewhere you want to clone the Principia source code to, such as on your desktop:
@@ -89,24 +89,30 @@ Install dependencies.
 **Debian-based distros:**
 
 ```bash
-sudo apt-get install cmake ninja-build libgtk-3-dev libgtksourceview-4-dev libgl-dev libglew-dev libxss-dev libxxf86vm-dev libasound2-dev libudev-dev libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev
+sudo apt install --no-install-recommends cmake ninja-build libgtk-3-dev libgl-dev libglew-dev libasound2-dev libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev libsdl2-dev
 ```
 
 **For Arch-based distros:**
 
 ```bash
-sudo pacman -S cmake ninja glew gtk3 gtksourceview4 curl freetype2 libpng libjpeg sdl2 sdl2_image sdl2_mixer sdl2_ttf
+sudo pacman -S --needed cmake ninja glew gtk3 curl freetype2 libpng libjpeg sdl2
 ```
 
 **For Fedora:**
 
 ```bash
-sudo dnf install @development-tools cmake ninja gcc-c++ freetype-devel libcurl-devel libpng-devel libjpeg-turbo-devel gtk3-devel gtksourceview4-devel SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel libXxf86vm-devel glew-devel mesa-libGLU-devel alsa-lib-devel systemd-devel
+sudo dnf install @development-tools cmake ninja gcc-c++ freetype-devel libcurl-devel libpng-devel libjpeg-turbo-devel gtk3-devel SDL2-devel libXxf86vm-devel glew-devel mesa-libGLU-devel alsa-lib-devel systemd-devel
+```
+
+**For Alpine:**
+
+```bash
+doas apk add build-base cmake ninja mesa-dev glew-dev gtk+3.0-dev libpng-dev jpeg-dev curl-dev freetype-dev zlib-dev sdl2-dev
 ```
 
 **For NixOS**, Follow the instructions [here](./nix/README.md).
 
-We are working on switching our build system to CMake. Currently it should work to compile on Linux without any issues.
+Generate the build files using CMake and start compilation:
 
 ```bash
 mkdir build; cd build
@@ -116,9 +122,10 @@ ninja
 
 #### Packaging for Linux
 On Linux Principia will attempt to load data from the following directories:
+
 1. `./` (data directories are next to the executable)
 2. `../` (data directories are one directory up relative to the executable)
-3. `/usr/share/principia/`
+3. `./share/principia/` (for an installed build)
 
 When doing `ninja install`, the data folders will be installed to `share/principia`. For packaging, you would want to pass `-DCMAKE_INSTALL_PREFIX=/usr` to CMake which when installed will put data where it can get loaded from.
 
