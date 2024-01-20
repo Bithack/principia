@@ -1,2 +1,0 @@
-#!/bin/bash
-echo $1 | arm-linux-androideabi-addr2line -C -f -e obj/local/armeabi-v7a/libmain.so

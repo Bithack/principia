@@ -778,53 +778,48 @@ game::menu_handle_event(tms::event *ev)
                     if (pending_a_scene[pid]) {
                         this->set_menu_width(real_menu_width);
 
-                        if (!this->allow_construct_entity(pending_ent[pid]->g_id)) {
-                            this->remove_entity(pending_ent[pid]);
-                            delete pending_ent[pid];
-                        } else {
-                            W->add(pending_ent[pid]);
+                        W->add(pending_ent[pid]);
 
-                            if ((int)pending_ent[pid]->g_id != this->recent[0]) {
-                                int p = -1;
-                                for (int x=0; x<MAX_RECENT; x++) {
-                                    if (this->recent[x] == (int)pending_ent[pid]->g_id) {
-                                        p = x;
-                                        break;
-                                    }
+                        if ((int)pending_ent[pid]->g_id != this->recent[0]) {
+                            int p = -1;
+                            for (int x=0; x<MAX_RECENT; x++) {
+                                if (this->recent[x] == (int)pending_ent[pid]->g_id) {
+                                    p = x;
+                                    break;
                                 }
+                            }
 
-                                if (p != -1) {
-                                    for (int x=p; x>0; x--) {
-                                        this->recent[x] = this->recent[x-1];
-                                    }
-                                }
-                                for (int x=MAX_RECENT-1; x>0; x--) {
+                            if (p != -1) {
+                                for (int x=p; x>0; x--) {
                                     this->recent[x] = this->recent[x-1];
                                 }
-
-                                this->recent[0] = (int)pending_ent[pid]->g_id;
+                            }
+                            for (int x=MAX_RECENT-1; x>0; x--) {
+                                this->recent[x] = this->recent[x-1];
                             }
 
-                            /* readd the entity to the scene, since the update method
-                             * has changed */
-                            this->remove_entity(pending_ent[pid]);
-                            this->add_entity(pending_ent[pid]);
+                            this->recent[0] = (int)pending_ent[pid]->g_id;
+                        }
 
-                            pending_ent[pid]->construct();
-                            pending_ent[pid]->on_pause();
+                        /* readd the entity to the scene, since the update method
+                            * has changed */
+                        this->remove_entity(pending_ent[pid]);
+                        this->add_entity(pending_ent[pid]);
 
-                            if (pending_ent[pid]->type == ENTITY_CABLE) {
-                                cable *c = static_cast<cable*>(pending_ent[pid]);
-                                this->selection.select(c->p[0], c->p[0]->get_body(0), (tvec2){0,0}, 0, true);
-                            } else {
-                                this->selection.select(pending_ent[pid], pending_ent[pid]->get_body(0), (tvec2){0,0}, 0, true);
-                            }
+                        pending_ent[pid]->construct();
+                        pending_ent[pid]->on_pause();
 
-                            this->state.modified = true;
+                        if (pending_ent[pid]->type == ENTITY_CABLE) {
+                            cable *c = static_cast<cable*>(pending_ent[pid]);
+                            this->selection.select(c->p[0], c->p[0]->get_body(0), (tvec2){0,0}, 0, true);
+                        } else {
+                            this->selection.select(pending_ent[pid], pending_ent[pid]->get_body(0), (tvec2){0,0}, 0, true);
+                        }
 
-                            if (W->is_paused()) {
-                                ui::emit_signal(SIGNAL_ENTITY_CONSTRUCTED, UINT_TO_VOID(pending_ent[pid]->id));
-                            }
+                        this->state.modified = true;
+
+                        if (W->is_paused()) {
+                            ui::emit_signal(SIGNAL_ENTITY_CONSTRUCTED, UINT_TO_VOID(pending_ent[pid]->id));
                         }
                     } else {
                         delete pending_ent[pid];
@@ -2820,8 +2815,8 @@ game::create_sandbox_menu()
     tms_ddraw_set_matrices(this->get_surface()->ddraw, omv, op);
 
     tms_assertf(glGetError() == 0, "VAFAN s 4");
-    tms_infof("Sandbox textures generated successfully. Running ./update-sandbox-menu.sh ...");
-    system("./update-sandbox-menu.sh");
+    tms_infof("Sandbox textures generated successfully. Running ./utils/update-sandbox-menu.sh ...");
+    system("../utils/update-sandbox-menu.sh");
     tms_infof("OK!");
     exit(0);
 #endif
@@ -3278,17 +3273,11 @@ game::get_sandbox_texture(int n)
     if (!sandbox_texture[n]) {
         sandbox_texture[n] = tms_texture_alloc();
         char name[256];
-#if defined(TMS_BACKEND_ANDROID)
-        sprintf(name, "data-mobile/textures/sandbox-menu-%d.pkm", n);
-        tms_texture_load_etc1(sandbox_texture[n], name);
-#elif defined (TMS_BACKEND_IOS)
-        sprintf(name, "data-ios/textures/sandbox-menu-%d.pvr", n);
-        tms_texture_load_pvrtc_4bpp(sandbox_texture[n], name);
-#else
-        sprintf(name, "data-pc/textures/sandbox-menu-%d.jpg", n);
+
+        sprintf(name, "data-shared/textures/sandbox-menu-%d.png", n);
         tms_texture_load(sandbox_texture[n], name);
         tms_texture_flip_y(sandbox_texture[n]);
-#endif
+
         tms_texture_set_filtering(sandbox_texture[n], GL_LINEAR);
         tms_texture_upload(sandbox_texture[n]);
         tms_texture_free_buffer(sandbox_texture[n]);

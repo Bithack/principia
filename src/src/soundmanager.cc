@@ -886,7 +886,7 @@ void genwave(int chan, void *stream, int len, void *udata)
                 wave = fmod(phase, 1.);
                 if (wave > 0.5) wave = .5-wave;
                 wave = wave-.25 * 4.;
-            } else 
+            } else
                 wave = sin(M_PI*2. * phase);
 
             if (data->waveform == 1)
@@ -967,6 +967,7 @@ static Mix_Chunk *chunk;
 void
 sm::play_gen(int x)
 {
+#ifdef ENABLE_SOUND
     if (!sm::gen_started) {
         sm::gen_started = true;
         sm::read_counter = 0;
@@ -988,6 +989,7 @@ sm::play_gen(int x)
     sm::generated[x].started = false;
     sm::generated[x].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].command = SM_GENWAVE_START;
     sm::generated[x].available = false;
+#endif
 }
 
 void
@@ -1002,6 +1004,7 @@ sm::load_settings()
 void
 sm::init()
 {
+#ifdef ENABLE_SOUND
     tms_progressf("Initializing audio device... ");
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
         tms_progressf("Error: %s\n", Mix_GetError());
@@ -1055,6 +1058,7 @@ sm::init()
     }
 
     tms_progressf("OK\n");
+#endif
 }
 
 static void channel_finished_cb(int channel)
@@ -1068,6 +1072,7 @@ static void channel_finished_cb(int channel)
 void
 sm::play(sm_sound *snd, float x, float y, uint8_t random, float volume, bool loop/*=false*/, void *ident/*=0*/, bool global/*=false*/)
 {
+#ifdef ENABLE_SOUND
     volume *= sm::volume;
     if (volume <= SM_MIN_VOLUME) {
         return;
@@ -1133,11 +1138,13 @@ sm::play(sm_sound *snd, float x, float y, uint8_t random, float volume, bool loo
             }
         }
     }
+#endif
 }
 
 bool
 sm::stop(sm_sound *snd, void *ident)
 {
+#ifdef ENABLE_SOUND
 #ifdef DEBUG
     if (snd->last_chan != -1 && sm::channels[snd->last_chan].ident != ident) {
         tms_debugf("last chan was something, but it wasnt our ident! %p %p", sm::channels[snd->last_chan].ident, ident);
@@ -1150,24 +1157,31 @@ sm::stop(sm_sound *snd, void *ident)
         return true;
     }
 
+#endif
+
     return false;
 }
 
 void
 sm::pause_all(void)
 {
+#ifdef ENABLE_SOUND
     Mix_Pause(-1);
+#endif
 }
 
 void
 sm::resume_all(void)
 {
+#ifdef ENABLE_SOUND
     Mix_Resume(-1);
+#endif
 }
 
 void
 sm::stop_all(void)
 {
+#ifdef ENABLE_SOUND
     for (int x=0; x<SM_MAX_CHANNELS; x++) {
         Mix_HaltChannel(x);
     }
@@ -1196,11 +1210,13 @@ sm::stop_all(void)
     for (int x=0; x<SM_MAX_CHANNELS; x++) {
         sm::channels[x].playing = false;
     }
+#endif
 }
 
 void
 sm_sound::add_chunk(const char *filename, const char *chunk_name)
 {
+#ifdef ENABLE_SOUND
     if (this->num_chunks < SM_MAX_CHUNKS) {
         this->chunks[this->num_chunks].chunk = Mix_LoadWAV(filename);
         this->chunks[this->num_chunks].name = chunk_name;
@@ -1208,22 +1224,26 @@ sm_sound::add_chunk(const char *filename, const char *chunk_name)
     } else {
         tms_errorf("Unable to add chunk '%s', too many chunks loaded for this sound.", filename);
     }
+#endif
 }
 
 void
 sm::step(void)
 {
+#ifdef ENABLE_SOUND
     for (int x=0; x<SM_MAX_CHANNELS; x++) {
         if (sm::channels[x].playing) {
             Mix_Volume(x, (int)(roundf(tclampf(channels[x].volume, 0.f, 1.f)*MIX_MAX_VOLUME)));
             channels[x].update_position();
         }
     }
+#endif
 }
 
 void
 sm_channel::update_position()
 {
+#ifdef ENABLE_SOUND
     if (this->global) {
         Mix_SetPosition(this->chan, 0, 0);
     } else {
@@ -1242,4 +1262,5 @@ sm_channel::update_position()
 
         Mix_SetPosition(this->chan, s_a, s_d);
     }
+#endif
 }

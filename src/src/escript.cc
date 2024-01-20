@@ -276,31 +276,18 @@ const char *before_code =
 "local KEY_UP = 82;"
 ;
 const char *after_code = "";
-const char *default_code =
-"--\n"
-"-- This is an example program.\n"
-"-- This program outputs a sine wave with a controllable frequency to OUT0.\n"
-"-- Increase the frequency by sending a value through IN0.\n"
-"--\n"
-"--Values prefixed with local will not survive between runs.\n"
-"--\n"
-"--To initialize persistant variables only once, we check this:first_run()\n"
-"--\n"
-"\n"
-"if this:first_run() then\n"
-"  timer = 0.0\n"
-"end\n"
-"\n"
-"local speed = this:read(0)\n"
-"timer = timer + 0.008 + speed * 0.128\n"
-"game:show_numfeed(timer)\n"
-"\n"
-"this:write(0, math.sin(timer) * .5 + .5)\n"
+const char *default_code_old =
+"-- This is a new LuaScript object created in a level version below 1.5.\n"
+"-- It will not support modern LuaScript functionality such as the init()\n"
+"-- and step() callbacks. To use modern LuaScript please upgrade the level\n"
+"-- to the latest version.\n"
 ;
-const char *default_code_1_5 =
+const char *default_code =
 "function init(is_sandbox)\n"
+"\t\n"
 "end\n"
 "function step(count)\n"
+"\t\n"
 "end\n"
 ;
 
@@ -3423,9 +3410,9 @@ escript::escript()
 
     this->properties[0].type = P_STR;
     if (W->level.version >= LEVEL_VERSION_1_5) {
-        this->set_property(0, default_code_1_5);
-    } else {
         this->set_property(0, default_code);
+    } else {
+        this->set_property(0, default_code_old);
     }
 
     this->properties[1].type = P_INT;

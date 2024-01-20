@@ -18,3 +18,8 @@ result/
 *.o
 
 imgui.ini
+
+# Model junk files
+*.blend1
+*.blend2
+*.blend3

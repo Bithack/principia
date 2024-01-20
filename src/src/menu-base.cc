@@ -39,13 +39,11 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             }
             break;
 
-        case BTN_MESSAGE:
-	    {
-                char url[1024];
-                snprintf(url, 1023, "https://%s/version-redir.php", P.community_host);
-                ui::open_url(url);
-	    }
-            break;
+        case BTN_MESSAGE: {
+            char url[256];
+            snprintf(url, 255, "https://%s/version-redir", P.community_host);
+            ui::open_url(url);
+	    } break;
 
         case BTN_BITHACK:
             ui::open_url("https://www.bithack.com/");
@@ -115,7 +113,7 @@ menu_base::menu_base(bool _include_logo)
     this->wdg_bithack = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             BTN_BITHACK, AREA_NOMARGIN_BOTTOM_LEFT,
-            gui_spritesheet::get_sprite(S_BITHACK), 0, 0.5f);
+            gui_spritesheet::get_sprite(S_BITHACK), 0, 1.0f);
     this->wdg_bithack->add();
 
     this->wdg_settings = this->wm->create_widget(

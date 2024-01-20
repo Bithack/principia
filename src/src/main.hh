@@ -128,27 +128,6 @@ enum {
 #define MAX_ACTIONS 10
 #define MAX_FEATURED_LEVELS_FETCHED 16
 
-/* The user is not logged in */
-#define PUBLISH_NOT_LOGGED_IN    -100
-
-/* The user does not have access to publish the level or package */
-#define PUBLISH_NO_ACCESS        -101
-
-/* The user does not have access to the level he's trying to put in a package */
-#define PUBLISH_NO_ACCESS_TO_LVL -102
-
-/* A generic error occured, unknown cause */
-#define PUBLISH_ERROR            -103
-
-/* The user attempted to publish a level that doesn't have a name */
-#define PUBLISH_NO_NAME          -104
-
-#define LOGIN_SUCCESS           100
-#define LOGIN_ERROR             101
-#define LOGIN_NO_DATA           102
-#define LOGIN_BAD_DATA          103
-#define LOGIN_ATTEMPTS          104
-
 #define REGISTER_SUCCESS            110
 #define REGISTER_ERROR              111
 #define REGISTER_USERNAME_BUSY      112
@@ -159,16 +138,7 @@ enum {
 #define REGISTER_EMAIL_BANNED       117
 
 #define COMMUNITY_SECRET        "apZodIaL1"
-#define UPLOAD_FILE_STR         "xFxIax"
-#define UPLOAD_POST_STR         "xFxlax"
-#define LOGIN_POST_STR          "cPa1Ozi"
 #define REGISTER_ANDROID_FILE   "bppfoal2_"
-
-#define PLATFORM_LINUX      1
-#define PLATFORM_WINDOWS    2
-#define PLATFORM_OSX        3
-#define PLATFORM_ANDROID    4
-#define PLATFORM_IOS        5
 
 #define ERROR_ACTION_LOG_IN 1
 
@@ -186,7 +156,6 @@ struct register_data {
     char username[256];
     char email[256];
     char password[256];
-    int platform;
 };
 
 /*
@@ -227,6 +196,7 @@ extern class principia
     SDL_mutex      *curl_mutex;
     void           *curl;
 
+    // LOL
     int best_variable_in_the_world;
     int best_variable_in_the_world2;
     int best_variable_in_the_world3;

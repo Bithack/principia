@@ -17,7 +17,6 @@
 #define tms_errorf(...)
 #define tms_progressf(f, ...) fprintf(stdout, f, ##__VA_ARGS__); fflush(stdout);
 #define tms_debugf(...)
-#define tms_raise()
 #define tms_assertf(expr, f, ...) {if (expr);else tms_fatalf(f, ##__VA_ARGS__);}
 
 static const char *tbackend_get_storage_path(){return STATIC_STORAGE_PATH;};

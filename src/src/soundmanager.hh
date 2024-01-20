@@ -1,8 +1,25 @@
 #pragma once
 
-#include "SDL_mixer.h"
+#ifndef TMS_BACKEND_LINUX_SS
+#define ENABLE_SOUND
+#endif
+
 #include "const.hh"
 #include <tms/core/tms.h>
+
+#ifdef ENABLE_SOUND
+#include "SDL_mixer.h"
+#else
+
+// Dummy typedef to make it still compile when SDL2_mixer is not present
+typedef struct Mix_Chunk {
+    int allocated;
+    uint8_t *abuf;
+    uint32_t alen;
+    uint8_t volume;
+} Mix_Chunk;
+
+#endif
 
 #define SM_MAX_CHANNELS     18
 #define SM_FRONT_BIAS       -2.f /* front bias for 3d effect */

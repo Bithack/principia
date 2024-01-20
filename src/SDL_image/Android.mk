@@ -1,1 +1,4 @@
-LOCAL_SRC_FILES += $(subst $(LOCAL_PATH)/,,$(filter-out %/showimage.c, $(wildcard $(LOCAL_PATH)/SDL_image/*.c)))
+LOCAL_SRC_FILES += \
+	SDL_image/IMG_jpg.c \
+	SDL_image/IMG_png.c \
+	SDL_image/IMG.c

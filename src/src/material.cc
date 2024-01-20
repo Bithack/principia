@@ -637,13 +637,10 @@ material_factory::load_bg_texture(bool soft)
                 tex_bg->wrap = GL_REPEAT;
                 tms_texture_set_filtering(tex_bg, GL_LINEAR);
 #else
-                sprintf(bgname, "data-pc/bg/%d%s.jpg",
-                        material_factory::background_id, (settings["texture_quality"]->v.u8 == 0 ? ".low" : "")
-                       );
+                sprintf(bgname, "data-pc/bg/%d.jpg", material_factory::background_id);
 
-                if (tex_bg->load(bgname) != T_OK) {
+                if (tex_bg->load(bgname) != T_OK)
                     tex_bg->load("data-pc/bg/0.jpg");
-                }
 
                 tex_bg->format = GL_RGB;
 

@@ -13,16 +13,11 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-find_package(PkgConfig REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(JPEG REQUIRED)
 find_package(PNG REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(ZLIB REQUIRED)
-
-pkg_check_modules(SDL2_image REQUIRED SDL2_image)
-pkg_check_modules(SDL2_mixer REQUIRED SDL2_mixer)
-pkg_check_modules(SDL2_ttf REQUIRED SDL2_ttf)
 
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
@@ -45,15 +40,13 @@ include_directories(
 	src/lua/
 	src/imgui/
 	src/imgui-texteditor/
+	src/SDL_image/
 	src/src/
 	${FREETYPE_INCLUDE_DIRS}
 	${JPEG_INCLUDE_DIRS}
 	${OPENGL_INCLUDE_DIRS}
 	${PNG_INCLUDE_DIRS}
 	${SDL2_INCLUDE_DIRS}
-	${SDL2_image_INCLUDE_DIRS}
-	${SDL2_mixer_INCLUDE_DIRS}
-	${SDL2_ttf_INCLUDE_DIRS}
 	${ZLIB_INCLUDE_DIRS})
 
 file(GLOB SRCS
@@ -64,6 +57,7 @@ file(GLOB SRCS
 	src/tms/modules/3ds.c
 
 	src/lua/*.c
+	src/SDL_image/*.c
 
 	src/imgui/*.cpp
 	src/imgui-texteditor/*.cpp
@@ -81,6 +75,7 @@ file(GLOB SRCS
 )
 
 if(NOT SCREENSHOT_BUILD)
+	find_package(PkgConfig REQUIRED)
 	pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
 	find_package(CURL REQUIRED)
 	find_package(GLEW REQUIRED)
@@ -88,7 +83,11 @@ if(NOT SCREENSHOT_BUILD)
 	include_directories(
 		${CURL_INCLUDE_DIR}
 		${GLEW_INCLUDE_DIRS}
-		${GTK3_INCLUDE_DIRS})
+		${GTK3_INCLUDE_DIRS}
+		src/SDL_mixer/)
+
+	file(GLOB SDL_mixer_SRCS src/SDL_mixer/*.c)
+	set(SRCS ${SRCS} ${SDL_mixer_SRCS})
 
 	option(USE_LUASOCKET "Build with Luasocket support" TRUE)
 else()
@@ -97,12 +96,11 @@ endif()
 
 # Luasocket
 if(USE_LUASOCKET)
-	set(LUASOCKET_FLAGS "-DBUILD_LUASOCKET")
+	set(LUASOCKET_FLAGS "-DBUILD_LUASOCKET -DLUASOCKET_INET_PTON")
 
 	if(WIN32)
 		set(LUASOCKET_PLAT_SRC src/luasocket/wsocket.c)
 	else()
-		set(LUASOCKET_FLAGS "${LUASOCKET_FLAGS} -DLUASOCKET_INET_PTON")
 		set(LUASOCKET_PLAT_SRC
 			src/luasocket/usocket.c
 			src/luasocket/unix.c)
@@ -123,10 +121,7 @@ if(USE_LUASOCKET)
 		${LUASOCKET_PLAT_SRC})
 endif()
 
-include_directories(src/tms/backends/${TMS_BACKEND}/)
-
-set(SRCS ${SRCS}
-	src/tms/backends/${TMS_BACKEND}/main.cc)
+set(SRCS ${SRCS} src/tms/backends/${TMS_BACKEND}/main.cc)
 
 if(WIN32)
 	set(WINRESOURCE_FILE "packaging/principia.rc")
@@ -147,21 +142,17 @@ endif()
 add_executable(${PROJECT_NAME} ${SRCS})
 target_link_libraries(
 	${PROJECT_NAME}
-		${CURL_LIBRARIES}
 		${FREETYPE_LIBRARIES}
 		${JPEG_LIBRARIES}
 		${OPENGL_LIBRARIES}
 		${PNG_LIBRARIES}
 		${SDL2_LIBRARIES}
-		${SDL2_image_LIBRARIES}
-		${SDL2_mixer_LIBRARIES}
-		${SDL2_ttf_LIBRARIES}
-		${ZLIB_LIBRARIES}
-		${CMAKE_DL_LIBS})
+		${ZLIB_LIBRARIES})
 
 if(NOT SCREENSHOT_BUILD)
 	target_link_libraries(
 		${PROJECT_NAME}
+			${CURL_LIBRARIES}
 			${GLEW_LIBRARIES}
 			${GTK3_LIBRARIES})
 endif()
@@ -178,7 +169,7 @@ endif()
 if(WIN32)
 	target_link_libraries(${PROJECT_NAME} ws2_32.lib version.lib shlwapi.lib winmm.lib)
 
-	set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_WINDOWS -D_WIN32_WINNT=0x0501 -mwindows -Dsrandom=srand -Drandom=rand")
+	set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_WINDOWS -D_WIN32_WINNT=0x0501 -Dsrandom=srand -Drandom=rand")
 else()
 	if(SCREENSHOT_BUILD)
 		set(COMMON_FLAGS "${COMMON_FLAGS} -DNO_UI -DTMS_BACKEND_LINUX_SS")
@@ -187,8 +178,13 @@ else()
 	endif()
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	# Downgrade some errors to warnings when building with Clang
+	set(COMMON_FLAGS "${COMMON_FLAGS} -Wno-error=incompatible-function-pointer-types -Wno-error=int-conversion")
+endif()
+
 set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1")
-set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} ${IMGUI_FLAGS_RELEASE} -DNDEBUG=1 -s -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections")
+set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} ${IMGUI_FLAGS_RELEASE} -DNDEBUG=1 -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections")
 
 set(CMAKE_C_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O1")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE} -g")
@@ -201,6 +197,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG} -O0 -pthread")
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-O,-s,--gc-sections")
 set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "-Wl,-O,--gc-sections")
 set(CMAKE_EXE_LINKER_FLAGS_DEBUG "")
+
+if(WIN32)
+	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-mwindows")
+endif()
 
 # Installation
 
