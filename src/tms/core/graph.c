@@ -21,7 +21,7 @@ static int bind_prio(struct tms_rstate *state, void *val);
 static int render_entities(struct tms_rstate *state, struct tms_entity **ee, int count);
 static int render_branch(struct tms_rstate *s, struct _branch *b, int *sort_v, int depth) /*__attribute__((optimize("O0")))*/;
 static void branch_remove_entity(struct tms_graph *g, struct _branch *b, struct tms_entity *e);
-TMS_STATIC_INLINE struct _branch * get_branch(struct tms_graph *g, struct tms_entity *e);
+static inline struct _branch * get_branch(struct tms_graph *g, struct tms_entity *e);
 
 static const int (*sort_fns[])(void*, void*) = {
     enable_blending,
@@ -155,7 +155,7 @@ uncull_children:
 
 /* get the branch that the given entity would be
  * placed in */
-TMS_STATIC_INLINE struct _branch *
+static inline struct _branch *
 get_branch(struct tms_graph *g, struct tms_entity *e)
 {
     void *refval = 0;

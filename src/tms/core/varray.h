@@ -20,7 +20,7 @@ struct tms_varray_gbufdata {
     size_t vsize;
 };
 
-/** 
+/**
  * Vertex array
  **/
 struct tms_varray {

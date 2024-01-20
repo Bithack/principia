@@ -53,7 +53,7 @@ void tms_program_load_uniforms(struct tms_program *p);
 int* tms_program_get_locations(struct tms_program *s, struct tms_varray *va);
 void tms_program_load_attributes(struct tms_program *p);
 
-TMS_STATIC_INLINE void
+static inline void
 tms_program_bind(struct tms_program *p)
 {
     glUseProgram(p->id);

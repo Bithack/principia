@@ -1,8 +1,6 @@
 #include <stdlib.h>
 #include <assert.h>
-#ifndef _MSC_VER
 #include <unistd.h>
-#endif
 
 #include <tms/math/glob.h>
 #include <tms/core/glob.h>

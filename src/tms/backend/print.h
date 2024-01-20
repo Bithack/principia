@@ -52,7 +52,7 @@ static inline int _fatal_exit() {
 	#define tms_fatalf(f, ...) (fprintf(_f_err, "fatal error: " f "\n", ##__VA_ARGS__), fflush(_f_err), _fatal_exit())
 	#define tms_errorf(f, ...) fprintf(_f_err, "error: " f "\n", ##__VA_ARGS__), fflush(_f_err);
 
-	TMS_STATIC_INLINE void
+	static inline void
 	tms_set_log_file(FILE *out, FILE *err)
 	{
 		tms_infof("Log file changing!");

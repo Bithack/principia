@@ -497,12 +497,12 @@ namespace tms
     class meshfactory
     {
       public:
-          TMS_STATIC_INLINE const tms::mesh *get_cube()
+          static inline const tms::mesh *get_cube()
           {
               return reinterpret_cast<const mesh*>(tms_meshfactory_get_cube());
           }
 
-          TMS_STATIC_INLINE const tms::mesh *get_cylinder()
+          static inline const tms::mesh *get_cylinder()
           {
               return reinterpret_cast<const mesh*>(tms_meshfactory_get_cylinder());
           }

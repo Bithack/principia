@@ -126,7 +126,6 @@ class pkginfo;
 
 #endif
 
-#include <tms/util/packme.h>
 struct lvlfile
 {
     uint32_t id;
@@ -150,8 +149,7 @@ struct lvlfile
         this->next = 0;
     }
 #endif
-} PACKED;
-#include <tms/util/unpackme.h>
+} __attribute__ ((__packed__));
 
 #ifndef __cplusplus
 struct lvlfile* pkgman_get_levels(int level_type);

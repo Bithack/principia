@@ -68,13 +68,13 @@ void tms_entity_readd(struct tms_entity *e);
 
 void tms_entity_set_prio_all(struct tms_entity *e, uintptr_t prio);
 
-TMS_STATIC_INLINE void tms_entity_update(struct tms_entity *e)
+static inline void tms_entity_update(struct tms_entity *e)
 {
     if (e->update)
         e->update(e);
 }
 
-TMS_STATIC_INLINE void tms_entity_update_with_children(struct tms_entity *e)
+static inline void tms_entity_update_with_children(struct tms_entity *e)
 {
     if (e->update)
         e->update(e);
@@ -83,21 +83,21 @@ TMS_STATIC_INLINE void tms_entity_update_with_children(struct tms_entity *e)
         tms_entity_update_with_children(e->children[x]);
 }
 
-TMS_STATIC_INLINE struct tms_scene* tms_entity_get_scene(struct tms_entity *e)
+static inline struct tms_scene* tms_entity_get_scene(struct tms_entity *e)
 {
     return e->scene;
 }
 
-TMS_STATIC_INLINE void tms_entity_set_update_fn(struct tms_entity *e, void *fn)
+static inline void tms_entity_set_update_fn(struct tms_entity *e, void *fn)
 {
     e->update = (void(*)(struct tms_entity*))fn;
 }
 
-TMS_STATIC_INLINE void tms_entity_set_type(struct tms_entity *e, int type) {
+static inline void tms_entity_set_type(struct tms_entity *e, int type) {
     e->type = type;
 }
 
-TMS_STATIC_INLINE int tms_entity_get_type(struct tms_entity *e)
+static inline int tms_entity_get_type(struct tms_entity *e)
 {
     return e->type;
 }

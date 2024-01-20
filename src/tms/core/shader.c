@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#ifndef _MSC_VER
 #include <unistd.h>
-#endif
 
 #include <tms/math/matrix.h>
 #include <tms/core/err.h>
@@ -146,11 +144,7 @@ static GLint compile(struct tms_shader *sh, GLenum st, const char *src)
     else if (st == GL_FRAGMENT_SHADER)
         num_src += sh->num_fs_defines + _tms_global_shader.num_fs_defines;
 
-#ifdef _MSC_VER
-	char **sources = malloc((num_src+1)*sizeof(char*));
-#else
     char *sources[num_src+1];
-#endif
     sources[0] = TMS_GLSL_HEADER;
 
     for (int x=0; x<sh->num_defines; x++)
@@ -202,7 +196,7 @@ static GLint compile(struct tms_shader *sh, GLenum st, const char *src)
     return s;
 }
 
-/** 
+/**
  * Link the shaders into a program and return a
  * handle. Set pipeline to TMS_NO_PIPELINE to not
  * associate the shader with any specific pipeline.
@@ -274,7 +268,7 @@ tms_shader_get_program(struct tms_shader *s, int pipeline)
 
     if (pipeline == TMS_NO_PIPELINE) {
         s->program = p;
-    } else 
+    } else
         s->pipeline_program[pipeline] = p;
 
     return p;

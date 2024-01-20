@@ -23,7 +23,7 @@ int tintersect_point_rect(tvec2 *point, tvec2 *rect_pos, tvec2 *rect_size);
 int tintersect_lines(tvec2 a1, tvec2 a2, tvec2 b1, tvec2 b2, tvec2 *point);
 int tintersect_segments(tvec2 a1, tvec2 a2, tvec2 b1, tvec2 b2, tvec2 *point);
 
-TMS_STATIC_INLINE tvec2
+static inline tvec2
 tintersect_segment_point_nearest(tvec2 v, tvec2 w, tvec2 p)
 {
     float l2 = tvec2_distsq(w, v);
@@ -36,7 +36,7 @@ tintersect_segment_point_nearest(tvec2 v, tvec2 w, tvec2 p)
     return tvec2_add(v, tvec2_mul(tvec2_sub(w, v), t));
 }
 
-TMS_STATIC_INLINE float
+static inline float
 tintersect_segment_point_distance(tvec2 v, tvec2 w, tvec2 p)
 {
     float l2, t;
@@ -51,7 +51,7 @@ tintersect_segment_point_distance(tvec2 v, tvec2 w, tvec2 p)
     return tvec2_dist(p, pr);
 }
 
-TMS_STATIC_INLINE tvec2
+static inline tvec2
 tintersect_point_poly_nearest(tvec2 *p, tvec2 *verts, int num_verts)
 {
     float n_dist = INFINITY;
@@ -68,7 +68,7 @@ tintersect_point_poly_nearest(tvec2 *p, tvec2 *verts, int num_verts)
     return nearest;
 }
 
-TMS_STATIC_INLINE float
+static inline float
 tintersect_point_poly_distance(tvec2 *p, tvec2 *verts, int num_verts)
 {
     float n_dist = INFINITY;

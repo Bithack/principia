@@ -75,7 +75,7 @@ struct tms_program *tms_shader_get_program(struct tms_shader *s, int pipeline);
 void tms_shader_free(struct tms_shader *s);
 void tms_shader_uninit(struct tms_shader *s);
 
-TMS_STATIC_INLINE void
+static inline void
 tms_shader_global_clear_defines(void)
 {
     _tms_global_shader.num_defines = 0;
@@ -86,19 +86,19 @@ tms_shader_global_clear_defines(void)
     if (_tms_global_shader.fs_defines) {free(_tms_global_shader.fs_defines);_tms_global_shader.fs_defines = 0;}
 }
 
-TMS_STATIC_INLINE void
+static inline void
 tms_shader_global_define_vs(const char *name, const char *value)
 {
     tms_shader_define_vs(&_tms_global_shader,name,value);
 }
 
-TMS_STATIC_INLINE void
+static inline void
 tms_shader_global_define_fs(const char *name, const char *value)
 {
     tms_shader_define_fs(&_tms_global_shader,name,value);
 }
 
-TMS_STATIC_INLINE void
+static inline void
 tms_shader_global_define(const char *name, const char *value)
 {
     tms_shader_define(&_tms_global_shader,name,value);

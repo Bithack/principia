@@ -51,18 +51,18 @@ void tmat4_scale(float *m, float x, float y, float z);
 void tmat4_set_near_plane(float *m, tvec4 *plane);
 void tmat4_transpose(float *m);
 
-TMS_STATIC_INLINE void tmat4_translate_vec3(float *m, tvec3 *v)
+static inline void tmat4_translate_vec3(float *m, tvec3 *v)
 {
     tmat4_translate(m, v->x, v->y, v->z);
 }
 
-TMS_STATIC_INLINE void
+static inline void
 tmat4_copy(float *dest, float *target)
 {
     memcpy(dest, target, TMAT4_SIZE);
 }
 
-TMS_STATIC_INLINE void
+static inline void
 tmat4_lerp(float *out, float *m1, float *m2, float blend)
 {
     int x;
@@ -70,7 +70,7 @@ tmat4_lerp(float *out, float *m1, float *m2, float blend)
         out[x] = m1[x]*(1.f-blend) + m2[x]*blend;
 }
 
-TMS_STATIC_INLINE void
+static inline void
 tmat3_copy(float *dest, float *target)
 {
     memcpy(dest, target, TMAT3_SIZE);
@@ -81,7 +81,7 @@ tmat3_copy(float *dest, float *target)
  *
  * @relates tmatN
  **/
-TMS_STATIC_INLINE void
+static inline void
 tmat3_copy_mat4_sub3x3T(float *d, float *s)
 {
     d[0] = s[0];
@@ -100,7 +100,7 @@ tmat3_copy_mat4_sub3x3T(float *d, float *s)
  *
  * @relates tmatN
  **/
-TMS_STATIC_INLINE void
+static inline void
 tmat3_copy_mat4_sub3x3(float *d, float *s)
 {
     d[0] = s[0];

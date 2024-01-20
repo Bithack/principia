@@ -1,11 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
-#ifdef _MSC_VER
-#include <time.h>
-#include <WinSock2.h> // lol
-#else
 #include <sys/time.h>
-#endif
 #include <stdarg.h>
 
 #include "tms.h"
@@ -106,7 +101,7 @@ tms_set_screen(struct tms_screen *screen)
 uint64_t tms_IOS_get_time();
 #endif
 
-TMS_STATIC_INLINE void
+static inline void
 init_frame_time(void)
 {
 #ifndef TMS_BACKEND_IOS

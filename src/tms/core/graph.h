@@ -75,13 +75,13 @@ int tms_graph_add_entity(struct tms_graph *g, struct tms_entity *e);
 int tms_graph_render(struct tms_graph *g, struct tms_camera *cam, void *data);
 void tms_graph_uncull_entity(struct tms_graph *g, struct tms_entity *e);
 
-TMS_STATIC_INLINE void
+static inline void
 tms_graph_enable_culling(struct tms_graph *g, int enable)
 {
     g->enable_culling = enable;
 }
 
-TMS_STATIC_INLINE void
+static inline void
 tms_graph_cull_all(struct tms_graph *g)
 {
     g->cull_step ++;

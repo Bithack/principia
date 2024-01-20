@@ -28,7 +28,7 @@ struct tms_sprite * tms_atlas_add_bitmap(struct tms_atlas *t, int width, int hei
 struct tms_sprite * tms_atlas_add_file(struct tms_atlas *t, const char *filename, int invert_y);
 void tms_atlas_free(struct tms_atlas* a);
 
-TMS_STATIC_INLINE void tms_atlas_reset(struct tms_atlas *t)
+static inline void tms_atlas_reset(struct tms_atlas *t)
 {
     t->current_x = 0;
     t->current_y = 0;

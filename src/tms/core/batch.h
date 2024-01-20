@@ -47,7 +47,7 @@ int tms_batch_commit(struct tms_batch *b);
 int tms_batch_render(struct tms_batch *batch);
 int tms_batch_add_sprite(struct tms_batch *b, struct tms_sprite *sprite, float x, float y);
 
-TMS_STATIC_INLINE void tms_batch_set_color(struct tms_batch *ba, float r, float g, float b, float a)
+static inline void tms_batch_set_color(struct tms_batch *ba, float r, float g, float b, float a)
 {
     ba->color = tvec4f(r,g,b,a);
 }

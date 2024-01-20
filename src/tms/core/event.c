@@ -4,7 +4,6 @@
 #include "screen.h"
 #include "event.h"
 #include "tms.h"
-#include "tms/util/util.h"
 
 #define MAX_EVENTS 1024
 #define MAX_RAW_HANDLERS 16

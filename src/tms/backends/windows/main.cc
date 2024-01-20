@@ -1,8 +1,5 @@
 #include <stdlib.h>
-#ifdef _MSC_VER
-#else
 #include <sys/time.h>
-#endif
 #include <windows.h>
 #include <windowsx.h>
 #include <sys/types.h>
