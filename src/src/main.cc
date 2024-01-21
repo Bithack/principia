@@ -2769,7 +2769,6 @@ _publish_pkg(void *_unused)
                         _publish_pkg_error = true;
                     }
 
-                    curl_slist_free_all(headerlist);
                     curl_mime_free(mime);
                 } else {
                     tms_errorf("lock_curl failed :3");
@@ -2905,7 +2904,6 @@ _publish_level(void *p)
             _publish_lvl_uploading_error = true;
         }
 
-        curl_slist_free_all(headerlist);
         curl_mime_free(mime);
     }
     unlock_curl("publish_level");
@@ -3059,7 +3057,6 @@ _submit_score(void *p)
         }
 
         curl_mime_free(mime);
-        curl_slist_free_all(headerlist);
     }
 
     _submit_score_done = true;
