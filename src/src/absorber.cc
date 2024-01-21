@@ -214,7 +214,7 @@ absorber::step()
             /* do we have any entity pending removal? */
             if (pending_fixtures.size() > 0) {
                 entity *e = static_cast<entity*>(pending_fixtures.front()->GetUserData());
-                if ((g_id == 0 || e->g_id == g_id) && G->absorb(e)) {
+                if ((g_id == O_PLANK || e->g_id == g_id) && G->absorb(e)) {
                     W->events[WORLD_EVENT_ABSORB] ++;
 
                     G->play_sound(SND_ABSORB, this->get_position().x, this->get_position().y, rand(), 1.f);

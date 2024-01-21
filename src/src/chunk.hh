@@ -94,7 +94,7 @@ class level_chunk : public entity
         this->set_flag(ENTITY_ALLOW_CONNECTIONS, true);
         this->set_flag(ENTITY_IS_STATIC, true);
         this->set_flag(ENTITY_IS_ZAPPABLE, true);
-        this->g_id = 197;//O_CHUNK;
+        this->g_id = O_CHUNK;
         this->set_mesh((struct tms_mesh*)0);
         this->set_material(&m_tpixel);
         this->generate_phase = 0;

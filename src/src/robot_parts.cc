@@ -4474,6 +4474,9 @@ robot_parts::base_spear::step()
                 this->state = SPEAR_RETRACTING;
             }
             break;
+
+        case SPEAR_IDLE:
+            break;
     }
 }
 

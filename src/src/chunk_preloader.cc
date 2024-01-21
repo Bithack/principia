@@ -426,9 +426,9 @@ chunk_preloader::unload(level_chunk *chunk)
             }
 
             connection *extra_conn = 0;
-            if (en->g_id == 16) extra_conn = &((pivot_1*)en)->dconn;
-            else if (en->g_id == 19) extra_conn = &((damper_1*)en)->dconn;
-            else if (en->g_id == 95) extra_conn = &((rubberband_1*)en)->dconn;
+            if (en->g_id == O_OPEN_PIVOT) extra_conn = &((pivot_1*)en)->dconn;
+            else if (en->g_id == O_DAMPER) extra_conn = &((damper_1*)en)->dconn;
+            else if (en->g_id == O_RUBBERBAND) extra_conn = &((rubberband_1*)en)->dconn;
 
             if (extra_conn) {
                 connections.insert(extra_conn);

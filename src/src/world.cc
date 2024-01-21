@@ -2365,9 +2365,9 @@ world::save_partial(std::set<entity*> *entity_list, const char *name, uint32_t p
 
         /* special case for pivots, dampers, etc, YUCK! */
         connection *extra_conn = 0;
-        if (en->g_id == 16) extra_conn = &((pivot_1*)en)->dconn;
-        else if (en->g_id == 19) extra_conn = &((damper_1*)en)->dconn;
-        else if (en->g_id == 95) extra_conn = &((rubberband_1*)en)->dconn;
+        if (en->g_id == O_OPEN_PIVOT) extra_conn = &((pivot_1*)en)->dconn;
+        else if (en->g_id == O_DAMPER) extra_conn = &((damper_1*)en)->dconn;
+        else if (en->g_id == O_RUBBERBAND) extra_conn = &((rubberband_1*)en)->dconn;
 
         if (extra_conn) {
             connections.insert(extra_conn);

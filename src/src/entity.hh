@@ -7,6 +7,7 @@
 #include "material.hh"
 #include "types.hh"
 #include "const.hh"
+#include "object_factory.hh"
 
 #include <set>
 #include <map>
@@ -563,12 +564,12 @@ class entity : public tms::entity
      * a wireless frequency. */
     inline bool is_wireless()
     {
-        return (this->g_id == 123 || this->g_id == 124 || this->g_id == 139);
+        return (this->g_id == O_RECEIVER || this->g_id == O_TRANSMITTER || this->g_id == O_MINI_TRANSMITTER);
     }
 
     inline bool is_item()
     {
-        return (this->g_id == 186);
+        return (this->g_id == O_ITEM);
     }
 
     inline bool is_prompt_compatible()
@@ -590,7 +591,7 @@ class entity : public tms::entity
     inline bool is_interactive() { return this->flag_active(ENTITY_IS_INTERACTIVE); }
     inline bool is_composable() { return this->flag_active(ENTITY_IS_COMPOSABLE); }
     inline bool is_wheel() { return (this->type == ENTITY_WHEEL || this->type == ENTITY_GEAR); }
-    inline bool is_gearbox() { return (this->g_id == 18); }
+    inline bool is_gearbox() { return (this->g_id == O_GEARBOX); }
     inline bool allow_connections() { return this->flag_active(ENTITY_ALLOW_CONNECTIONS); }
     inline bool has_tracker() { return this->flag_active(ENTITY_HAS_TRACKER); }
     virtual bool is_locked() { return this->flag_active(ENTITY_IS_LOCKED); }

@@ -372,7 +372,7 @@ void
 emitter::step()
 {
     int g_id = this->properties[1].v.i;
-    if (g_id == 0 && this->size != 2) return;
+    if (g_id == O_PLANK && this->size != 2) return;
 
     this->time += G->timemul(WORLD_STEP);
 
@@ -639,8 +639,9 @@ emitter::copy_properties(entity *e)
         char *s;
 
         /* special case for boxes and mini emitter, accept boxes but force their size to 0 */
-        if (this->size == TYPE_MINI && (e->g_id == 108 || e->g_id == 93 || e->g_id == O_CYLINDER || e->g_id == O_INTERACTIVE_CYLINDER
-                    || e->g_id == O_PLASTIC_BOX) && x == 0) {
+        if (this->size == TYPE_MINI &&
+                (e->g_id == O_INTERACTIVE_BOX || e->g_id == O_BOX || e->g_id == O_CYLINDER || e->g_id == O_INTERACTIVE_CYLINDER || e->g_id == O_PLASTIC_BOX)
+                && x == 0) {
             uint32_t i_saved = e->properties[x].v.i;
             e->properties[x].v.i = 0;
             s = e->properties[x].stringify();

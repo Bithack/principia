@@ -191,7 +191,7 @@ motor::connection_create_joint(connection *c)
     if (c->o->type == ENTITY_PLANK && !c->o->gr) {
         rjd.localAnchorB = c->o->world_to_body(this->get_position(), c->f[1]);
         rjd.localAnchorB.y = 0.f;
-    } else if (c->o->type == ENTITY_WHEEL || c->o->g_id == 18) {
+    } else if (c->o->type == ENTITY_WHEEL || c->o->g_id == O_GEARBOX) {
         /* get the centroid of the object */
         rjd.localAnchorB = c->o->local_to_body(b2Vec2(0.f,0.f), c->f[1]);
     } else {
