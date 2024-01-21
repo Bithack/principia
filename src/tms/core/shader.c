@@ -260,7 +260,6 @@ tms_shader_get_program(struct tms_shader *s, int pipeline)
         glDeleteProgram(p->id);
         free(p);
         return 0;
-    } else {
     }
 
     tms_program_load_attributes(p);
@@ -309,5 +308,3 @@ tms_shader_compile(struct tms_shader *s,
 
     return T_OK;
 }
-
-

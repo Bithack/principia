@@ -307,54 +307,48 @@ pscreen::post_render()
                     call_opengl_stuff = (last_type != pr->type);
 
                     switch (pr->subtype) {
-                        case ST_TEXT:
-                            {
-                                const pending_text *pt = static_cast<const pending_text*>(pr);
+                        case ST_TEXT: {
+                            const pending_text *pt = static_cast<const pending_text*>(pr);
 
-                                if (pt->set_color) {
-                                    pt->text->color = tvec4f(pt->r, pt->g, pt->b, pt->a);
-                                    pt->text->outline_color = tvec4f(pt->o_r, pt->o_g, pt->o_b, pt->a);
-                                }
-
-                                pt->text->render_at_pos(this->get_surface()->ddraw, pt->x, pt->y, pt->render_outline, call_opengl_stuff);
-
-                                if (pt->do_free) {
-                                    delete pt->text;
-                                }
+                            if (pt->set_color) {
+                                pt->text->color = tvec4f(pt->r, pt->g, pt->b, pt->a);
+                                pt->text->outline_color = tvec4f(pt->o_r, pt->o_g, pt->o_b, pt->a);
                             }
-                            break;
 
-                        case ST_GLYPH:
-                            {
-                                const pending_glyph *pg = static_cast<const pending_glyph*>(pr);
+                            pt->text->render_at_pos(this->get_surface()->ddraw, pt->x, pt->y, pt->render_outline, call_opengl_stuff);
 
-                                render_glyph(this->get_surface()->ddraw, pg->glyph,
-                                        pg->x, pg->y,
-                                        tvec4f(pg->r, pg->g, pg->b, pg->a),
-                                        tvec4f(pg->o_r, pg->o_g, pg->o_b, pg->a),
-                                        pg->scale,
-                                        pg->render_outline,
-                                        call_opengl_stuff);
+                            if (pt->do_free) {
+                                delete pt->text;
                             }
-                            break;
+                        } break;
+
+                        case ST_GLYPH: {
+                            const pending_glyph *pg = static_cast<const pending_glyph*>(pr);
+
+                            render_glyph(this->get_surface()->ddraw, pg->glyph,
+                                    pg->x, pg->y,
+                                    tvec4f(pg->r, pg->g, pg->b, pg->a),
+                                    tvec4f(pg->o_r, pg->o_g, pg->o_b, pg->a),
+                                    pg->scale,
+                                    pg->render_outline,
+                                    call_opengl_stuff);
+                        } break;
                     }
                     break;
 
-                case RT_ROUNDED_SQUARE:
-                    {
-                        const rounded_square *rs = static_cast<const rounded_square*>(pr);
+                case RT_ROUNDED_SQUARE: {
+                    const rounded_square *rs = static_cast<const rounded_square*>(pr);
 
-                        if (last_type != pr->type) {
-                            glBindTexture(GL_TEXTURE_2D, gui_spritesheet::atlas->texture.gl_texture);
-                        }
-
-                        tms_ddraw_set_rsprite_color(this->get_surface()->ddraw, TVEC4_INLINE(rs->color));
-                        tms_ddraw_rsprite(this->get_surface()->ddraw, gui_spritesheet::get_sprite(S_ROUNDED_SQUARE),
-                                rs->x, rs->y,
-                                rs->width, rs->height,
-                                rs->outline_width);
+                    if (last_type != pr->type) {
+                        glBindTexture(GL_TEXTURE_2D, gui_spritesheet::atlas->texture.gl_texture);
                     }
-                    break;
+
+                    tms_ddraw_set_rsprite_color(this->get_surface()->ddraw, TVEC4_INLINE(rs->color));
+                    tms_ddraw_rsprite(this->get_surface()->ddraw, gui_spritesheet::get_sprite(S_ROUNDED_SQUARE),
+                            rs->x, rs->y,
+                            rs->width, rs->height,
+                            rs->outline_width);
+                } break;
             }
 
             last_type = pr->type;

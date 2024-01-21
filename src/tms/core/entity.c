@@ -16,7 +16,7 @@ static int remove_child(struct tms_entity *e, struct tms_entity *child);
 int find_uniform(struct tms_entity *e, const char *name);
 int add_uniform(struct tms_entity *e, const char *name, int type);
 
-/** 
+/**
  * Allocate space for an entity.
  **/
 struct tms_entity* tms_entity_alloc(void)
@@ -28,7 +28,7 @@ struct tms_entity* tms_entity_alloc(void)
     return e;
 }
 
-/** 
+/**
  * Initialize an already allocated entity.
  * If tms_entity_alloc was used to create the entity,
  * this function should not be called.
@@ -67,7 +67,7 @@ int tms_entity_uninit(struct tms_entity *e)
     return T_OK;
 }
 
-/** 
+/**
  * Duplicate the entity.
  *
  * @relates tms_entity
@@ -104,7 +104,7 @@ void tms_entity_set_prio_all(struct tms_entity *e, uintptr_t prio)
     set_prio_all(e, prio);
 }
 
-/** 
+/**
  * Copy the entity `source` to `dest`.
  *
  * @relates tms_entity
@@ -120,7 +120,7 @@ int tms_entity_remove_child(struct tms_entity *e, struct tms_entity *p)
     return remove_child(e, p);
 }
 
-/** 
+/**
  * Apply the entities uniform variables.
  * Called internally by tms_scene before the entity
  * is rendered.
@@ -158,7 +158,7 @@ tms_entity_apply_uniforms(struct tms_entity *e, int pipeline)
     }
 }
 
-/** 
+/**
  * Set this entity's mesh
  **/
 int
@@ -243,7 +243,7 @@ add_uniform(struct tms_entity *e,
     return e->num_uniforms - 1;
 }
 
-/** 
+/**
  * Set a tvec4 uniform value of this entity.
  * When this entity is rendered, the shader program's
  * uniform variable with the same name will have the given
@@ -293,7 +293,7 @@ tms_entity_set_uniform_fn(struct tms_entity *e, const char *name, void *fn)
     return T_OK;
 }
 
-/** 
+/**
  * Set a tvec2 uniform value of this entity.
  *
  * @relates tms_entity
@@ -310,7 +310,7 @@ int tms_entity_set_uniform2f(struct tms_entity *e, const char *name,
     return T_OK;
 }
 
-/** 
+/**
  * Set a float uniform value of this entity.
  *
  * @relates tms_entity

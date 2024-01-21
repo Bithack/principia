@@ -4,7 +4,7 @@
 #include "camera.h"
 #include "tms.h"
 
-/** 
+/**
  * Allocate a camera struct.
  **/
 struct tms_camera* tms_camera_alloc(void)
@@ -120,9 +120,9 @@ tms_camera_set_direction(struct tms_camera *c, float x, float y, float z)
     tvec3_normalize(&c->_direction);
 }
 
-/** 
+/**
  * Set the position of the camera.
- * Use TVEC3_INLINE() to expand a tvec3. The position is relative 
+ * Use TVEC3_INLINE() to expand a tvec3. The position is relative
  * to the world origin.
  **/
 void
@@ -133,7 +133,7 @@ tms_camera_set_position(struct tms_camera *c, float x, float y, float z)
     c->_position.z = z;
 }
 
-/** 
+/**
  * Move the camera relative to its current position.
  * Also see tms_camera_set_position
  **/
@@ -155,7 +155,7 @@ tms_camera_step(struct tms_camera *c, float dt)
     }
 }
 
-/** 
+/**
  * Move the camera towards a point.
  * Smoothly interpolates the the camera's position towards
  * the given point x, y, z, by a factory specified using factor_*
@@ -184,7 +184,7 @@ tms_camera_set_lookat(struct tms_camera *c, float x, float y, float z)
     c->_lookat = (tvec3){x,y,z};
 }
 
-/** 
+/**
  * Update the camera's matrices.
  *
  * Call this function to update the combined, view and projection

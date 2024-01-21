@@ -8,7 +8,7 @@
 #define CABLE_OUT 2
 #define CABLE_INOUT 3
 
-#define CABLE_TWIST_DEC .25f 
+#define CABLE_TWIST_DEC .25f
 
 #define CABLE_Z .375f
 

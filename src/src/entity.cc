@@ -580,7 +580,7 @@ entity::remove_from_world()
  * Therefore, it is important that we ALWAYS make sure the data changed/set in
  * setup is also modified by restore() or read_state().
  *
- * read_state() is used to restore the state of an entity that is not yet added to 
+ * read_state() is used to restore the state of an entity that is not yet added to
  * the world, we need to keep important data in temporary variables until restore()
  * is called.
  *
@@ -1624,7 +1624,7 @@ entity::signal(int event)
     }
 }
 
-/** 
+/**
  * Reset any resettable flags in here
  **/
 void

@@ -127,7 +127,7 @@ void display::upload()
         _mesh->i_start = 0;
         _mesh->i_count = n*6;
     }
-    
+
     if (n)
         verts->upload_partial(n*4*sizeof(tvec4));
 }

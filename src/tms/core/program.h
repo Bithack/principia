@@ -5,7 +5,7 @@
 
 struct tms_entity;
 
-/** 
+/**
  * A compiled shader, possibly associated with a pipeline
  **/
 struct tms_program {

@@ -342,7 +342,7 @@ tms_ddraw_set_matrices(struct tms_ddraw *d, float *mv, float *p)
 {
     if (!mv)
         tmat4_load_identity(d->modelview);
-    else 
+    else
         tmat4_copy(d->modelview, mv);
 
     if (!p)

@@ -58,7 +58,7 @@ tms_init(void)
     return T_OK;
 }
 
-/** 
+/**
  * Register a 3D model filetype loader
  * @relates tms
  **/

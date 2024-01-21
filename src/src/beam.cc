@@ -268,8 +268,6 @@ beam::update_fixture()
     if (this->body) {
         this->recreate_shape();
     }
-
-
 }
 
 void

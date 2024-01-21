@@ -116,7 +116,7 @@ struct decoration_info decorations[NUM_DECORATIONS] = {
         true,
         true,
     },
-    
+
     {
         "Mushroom 2",
         {.2f, .2f},
@@ -284,7 +284,7 @@ struct decoration_info decorations[NUM_DECORATIONS] = {
         true,
         false,
     },
-    
+
     {
         "Stone head",
         {.6f, .82f},
@@ -302,7 +302,7 @@ struct decoration_info decorations[NUM_DECORATIONS] = {
         false,
         false,
     },
-    
+
     {
         "Ground plant 1",
         {.11f, .11f},
@@ -318,7 +318,7 @@ struct decoration_info decorations[NUM_DECORATIONS] = {
         true,
         true,
     },
-    
+
     {
         "Ground plant 2",
         {.02f, .3f},
@@ -334,7 +334,7 @@ struct decoration_info decorations[NUM_DECORATIONS] = {
         true,
         false,
     },
-    
+
     {
         "Ground plant 3",
         {.02f, .3f},
@@ -350,7 +350,7 @@ struct decoration_info decorations[NUM_DECORATIONS] = {
         true,
         false,
     },
-    
+
     {
         "Ground plant 4",
         {.02f, .3f},
@@ -366,7 +366,7 @@ struct decoration_info decorations[NUM_DECORATIONS] = {
         true,
         false,
     },
-    
+
     /*{
         "Banner",
         {.4f, 1.2f},
@@ -477,7 +477,7 @@ decoration::recreate_shape()
     this->_pos = p;
 
     b2PolygonShape shape;
-    
+
     if (i->is_rect) {
         shape.SetAsBox(i->size.x, i->size.y);
     } else {

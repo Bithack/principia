@@ -956,7 +956,7 @@ tms_fb_swap_blur3x3(struct tms_fb *f)
 }
 
 
-/** 
+/**
  * Swap the buffers
  **/
 void
@@ -1090,7 +1090,7 @@ tms_fb_unbind(struct tms_fb *f)
     return T_OK;
 }
 
-/** 
+/**
  * Render the framebuffer as a fullscreen textured
  * quad using the provided shader.
  **/

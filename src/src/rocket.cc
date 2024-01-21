@@ -202,7 +202,7 @@ rocket::solve_electronics(void)
             this->set_thrustmul(0.f);
         else
             this->set_thrustmul(1.f);
-    } else 
+    } else
         this->set_thrustmul(this->s_in[0].get_value());
 
     return 0;

@@ -3,7 +3,7 @@
 
 #include "glob.h"
 
-/** 
+/**
  * Allocate space for a mesh.
  *
  * @relates tms_mesh
@@ -60,7 +60,7 @@ tms_mesh_render(struct tms_mesh *m, struct tms_program *program)
     return T_OK;
 }
 
-/** 
+/**
  * Draw the mesh, assume all necessary textures and the shader is bound.
  *
  * @relates tms_mesh
@@ -83,7 +83,7 @@ tms_mesh_draw(struct tms_mesh *m)
         if (count) glDrawElements(
             m->primitive_type,
             count,
-            (m->i32?GL_UNSIGNED_INT:GL_UNSIGNED_SHORT), 
+            (m->i32?GL_UNSIGNED_INT:GL_UNSIGNED_SHORT),
             (char*)(start * (m->i32?sizeof(int):sizeof(short)))
         );
 

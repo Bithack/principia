@@ -31,14 +31,14 @@ struct tms_shader_pairing_val {
 #endif
 };
 
-/** 
+/**
  * Pairing with a mesh
  **/
 struct tms_shader_pairing {
     struct tms_shader_pairing_val attributes;
 };
 
-/** 
+/**
  * A shader object
  **/
 struct tms_shader {

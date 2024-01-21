@@ -18,7 +18,7 @@ struct tms_entity_graph_loc {
     int             pos;
 };
 
-/** 
+/**
  * An entity is any object added to a tms_scene.
  **/
 struct tms_entity {

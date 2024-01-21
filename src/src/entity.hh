@@ -164,7 +164,7 @@ struct worth
 
 #define MATERIAL_PLASTIC 0
 
-#define ENTITY_MAX_CHUNK_INTERSECTIONS 8 
+#define ENTITY_MAX_CHUNK_INTERSECTIONS 8
 
 class entity;
 class composable;
@@ -219,7 +219,7 @@ class connection
     entity *o;
 
     bool fixed; /* can't be removed */
-    bool tolerant; /* if this joint allows slight displacement */ 
+    bool tolerant; /* if this joint allows slight displacement */
     bool destroyed;
 
     /* layer of the connection, if the connection spans multiple layers,
@@ -382,7 +382,7 @@ struct entity_listener {
     void (*cb)(entity* self,void* userdata);
 };
 
-/** 
+/**
  *
  * entity pointer is stored in UserData of fixtures
  * uint8 frame ID is stored in the body's UserData

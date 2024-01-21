@@ -154,7 +154,7 @@ world::insert(entity *e)
     }
 }
 
-/** 
+/**
  * insert and call add_to_world
  **/
 void
@@ -217,7 +217,7 @@ world::erase(entity *e)
     }
 }
 
-/** 
+/**
  * Erase and call remove_from_world
  *
  * return true if we removed an emitted entity
@@ -1717,7 +1717,7 @@ world::init_level(bool soft)
 
 /**
  * - Make dynamic bodies connected to static bodies static, if the max force is inf
- * - Remove joints between static entities 
+ * - Remove joints between static entities
  **/
 void
 world::optimize_connections()
@@ -2274,7 +2274,7 @@ world::fill_buffer(lvlinfo *lvl, lvlbuf *buf,
         }
 
         if (this->is_paused()) {
-            /* if we're paused and saving, we recalculate the relative angles of 
+            /* if we're paused and saving, we recalculate the relative angles of
              * some connection types */
             (*i)->update_relative_angle(false);
         }
@@ -2289,7 +2289,7 @@ world::fill_buffer(lvlinfo *lvl, lvlbuf *buf,
     if (fill_unloaded) this->cwindow->preloader.write_connections(lvl, buf);
 }
 
-/** 
+/**
  * return true if the world has minimum 'count' number of entities with the given gid
  *
  * very slow function
@@ -2309,7 +2309,7 @@ world::has_num_entities_with_gid(uint32_t gid, int count)
     return false;
 }
 
-/** 
+/**
  * Save a partial set of entities from the world, including all related connections, groups and cables.
  * Used by game to save a multiselect.
  **/
@@ -2489,7 +2489,7 @@ world::save(int save_type)
     switch (save_type) {
         case SAVE_TYPE_DEFAULT:
             if (this->level.local_id == 0) {
-                /* this level does not have a local id, 
+                /* this level does not have a local id,
                  * we need to retrieve a new id for it */
                 this->level.local_id = pkgman::get_next_level_id();
                 tms_infof("Assigned level ID: %d", this->level.local_id);
@@ -2989,7 +2989,7 @@ world::b2_sleep_listener::OnSleep(b2Body *b)
         return;
     }
 
-    /* loop through all fixtures and decrement the num fixtures in the chunks their 
+    /* loop through all fixtures and decrement the num fixtures in the chunks their
      * contained in */
     b2Fixture *f, *my;
     entity *e;

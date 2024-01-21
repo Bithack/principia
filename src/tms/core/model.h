@@ -7,7 +7,7 @@ struct tms_mesh;
 
 /** @relates tms_model @{ */
 
-/** 
+/**
  * A model loaded from file
  * Essentially a collection of meshes
  **/

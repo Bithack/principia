@@ -26,7 +26,7 @@
 #define HOVER_TOLERANCE_X (tms.xppcm*.035f)
 #define HOVER_TOLERANCE_Y (tms.yppcm*.035f)
 
-/** 
+/**
  * Allocate a surface.
  *
  * Will be called automatically by a screen if the screen's
@@ -45,7 +45,7 @@ struct tms_surface *tms_surface_alloc(void)
     return s;
 }
 
-/** 
+/**
  * Initialize a surface.
  *
  * @relates tms_surface
@@ -96,7 +96,7 @@ tms_surface_draw_widget_outlines(struct tms_surface *s, struct tms_wdg *w, int s
 }
 #endif
 
-/** 
+/**
  * Render the surface (all widgets)
  *
  * @relates tms_surface
@@ -115,7 +115,7 @@ tms_surface_render(struct tms_surface *s)
     glActiveTexture(GL_TEXTURE0);
     tms_texture_bind(&s->atlas->texture);
 
-    /** 
+    /**
      * states:
      * 0   = base = 1.0
      * 100 = base = 0.5, due to widget faded
@@ -181,7 +181,7 @@ tms_surface_render(struct tms_surface *s)
     return T_OK;
 }
 
-/** 
+/**
  * Add many widgets to the surface
  *
  * @relates tms_surface
@@ -412,7 +412,7 @@ tms_surface_handle_input(struct tms_surface *s,
     return T_CONT;
 }
 
-/** 
+/**
  * Remove a widget from the surface
  *
  * @relates tms_surface
@@ -450,7 +450,7 @@ tms_surface_remove_widget(struct tms_surface *s, struct tms_wdg *w)
     return T_OK;
 }
 
-/** 
+/**
  * Add a widget to this surface
  *
  * @relates tms_surface

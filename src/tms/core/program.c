@@ -160,7 +160,7 @@ tms_program_load_attributes(struct tms_program *p)
             }
 
             char *nm = strdup(name);
-            int loc = 
+            int loc =
         }
     }
     */

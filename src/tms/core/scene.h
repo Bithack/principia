@@ -8,7 +8,7 @@
 struct tms_entity;
 struct tms_graph;
 
-/** 
+/**
  * The scene is a sorted tree of entities in the world. The structure
  * of the tree will be static, but before each frame culling will be done.
  * The culling will sort entities in the tree and reorder them depending

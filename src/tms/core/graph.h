@@ -43,8 +43,8 @@ struct value {
     void *val;
 };
 
-/** 
- * A graph is a "path" through a scene using a 
+/**
+ * A graph is a "path" through a scene using a
  * specified rendering pipeline.
  **/
 struct tms_graph {
@@ -65,7 +65,7 @@ struct tms_graph {
 
     void *data;
 
-    struct _branch root; 
+    struct _branch root;
 };
 
 struct tms_graph *tms_graph_alloc(void);

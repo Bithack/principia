@@ -2,7 +2,7 @@
 
 #include "entity.hh"
 
-/* TODO: use special shadowing to prevent artifacts */ 
+/* TODO: use special shadowing to prevent artifacts */
 
 class cup : public entity
 {

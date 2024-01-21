@@ -249,13 +249,13 @@ void sticky::draw_text(const char *txt) {
         //Alignment/centering
         int align_y = this->properties[2].v.i8 ? ((HEIGHT + this->currline * line_skip) / 2.) : HEIGHT-1;
         int align_x = this->properties[1].v.i8 ? ((WIDTH - srf->w) / 2.) : 0;
-        
+
         for (int y = 0; y < srf->h; y++) {
             for (int x = 0; x < srf->pitch; x++) {
                 for (int z = 0; z < PIXELSZ; z++) {
                     int dest_y = ((align_y - line_skip * text_line) - y);
                     int dest_x = align_x + x;
-                    
+
                     //Prevent leaking to other notes
                     if ((dest_x < 0) || (dest_x >= WIDTH)) continue;
                     if ((dest_y < 0) || (dest_y >= HEIGHT)) continue;
@@ -265,7 +265,7 @@ void sticky::draw_text(const char *txt) {
                         (((this->slot / SLOTS_PER_TEX_LINE) * HEIGHT + (size_t) dest_y) * TEX_WIDTH) +
                         ((this->slot % SLOTS_PER_TEX_LINE) * WIDTH) + (size_t) dest_x
                     ) * PIXELSZ + z;
-                    
+
                     //Prevent out-of-bounds access
                     if (offset >= TEX_HEIGHT * TEX_WIDTH) continue;
 
@@ -275,7 +275,7 @@ void sticky::draw_text(const char *txt) {
                     //Source -> Destination
                     unsigned char data = ((unsigned char*) srf->pixels)[data_offset];
                     buf[offset] = data;
-                    
+
                     // tms_debugf(
                     //     "slot/offset/data_offset/data %d/%d/%d/%d/%x - '%s'",
                     //     this->slot, offset, data_offset, data, this->lines[text_line]
