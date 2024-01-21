@@ -22,3 +22,12 @@
 	_tms.window_height = _tms.opengl_height = h; \
 \
 	tproject_window_size_changed();
+
+#define TOGGLE_FULLSCREEN \
+	uint32_t flags = SDL_GetWindowFlags(_window); \
+\
+    if (flags & SDL_WINDOW_FULLSCREEN) { \
+        SDL_SetWindowFullscreen(_window, SDL_FALSE); \
+    } else { \
+        SDL_SetWindowFullscreen(_window, SDL_TRUE); \
+    }

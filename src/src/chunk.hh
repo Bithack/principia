@@ -105,14 +105,6 @@ class level_chunk : public entity
         this->loaded_neighbours = false;
         memset(this->neighbours, 0, sizeof(this->neighbours));
 
-#if 0
-        if (x > 1000 || y > 1000 || x < -1000 || y < -1000) {
-            tms_trace();
-            tms_debugf("NOOOOOOOOO!");
-            tms_fatalf("NO!");
-        }
-#endif
-
         for (int x=0; x<3; x++) {
             tms_entity_init(&this->layer_entities[x]);
             tms_entity_set_mesh(&this->layer_entities[x], tms_mesh_alloc(0, 0));

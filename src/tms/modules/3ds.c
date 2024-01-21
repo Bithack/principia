@@ -39,7 +39,7 @@ load_3ds_model(struct tms_model *model,
     filesz = SDL_RWtell(fp);
     SDL_RWseek(fp, 0, SEEK_SET);
 
-    tms_infof("3DS FILE SIZE: %d", (int)filesz);
+    tms_debugf("3DS FILE SIZE: %d", (int)filesz);
 
     while (SDL_RWtell(fp) < filesz) {
         SDL_RWread(fp, &chunk_id, 2, 1);

@@ -1427,18 +1427,6 @@ tproject_soft_pause(void)
     /* TODO: Save current level as a backup */
 }
 
-void
-tproject_resume(void)
-{
-
-}
-
-void
-tproject_pause(void)
-{
-
-}
-
 /**
  * This function is called when SDL gives us the SDL_Quit command.
  **/

@@ -4487,108 +4487,107 @@ game::render_selected_entity()
 {
     this->state.edev_labels = false;
 
-    if (this->selection.enabled()) {
-        if (this->selection.e/* && this->selection.e->scene != 0*/) {
+    if (!this->selection.enabled() || !this->selection.e)
+        return;
 
-            this->state.edev_labels = (this->selection.e->flag_active(ENTITY_IS_EDEVICE) || this->selection.e->type == ENTITY_PLUG || this->selection.e->type == ENTITY_EDEVICE);
+    this->state.edev_labels = (this->selection.e->flag_active(ENTITY_IS_EDEVICE) || this->selection.e->type == ENTITY_PLUG || this->selection.e->type == ENTITY_EDEVICE);
 
-            if (this->selection.e->curr_update_method == ENTITY_UPDATE_GROUPED) {
-                composable *ee = static_cast<composable*>(this->selection.e);
+    if (this->selection.e->curr_update_method == ENTITY_UPDATE_GROUPED) {
+        composable *ee = static_cast<composable*>(this->selection.e);
 
-                b2Vec2 p = ee->gr->body->GetWorldPoint(ee->_pos);
-                float a = ee->gr->body->GetAngle()+ee->_angle;
+        b2Vec2 p = ee->gr->body->GetWorldPoint(ee->_pos);
+        float a = ee->gr->body->GetAngle()+ee->_angle;
 
-                float c,s;
-                tmath_sincos(a, &s, &c);
+        float c,s;
+        tmath_sincos(a, &s, &c);
 
-                ee->M[0] = c;
-                ee->M[1] = s;
-                ee->M[4] = -s;
-                ee->M[5] = c;
-                ee->M[12] = p.x;
-                ee->M[13] = p.y;
-                ee->M[14] = ee->prio * LAYER_DEPTH;
+        ee->M[0] = c;
+        ee->M[1] = s;
+        ee->M[4] = -s;
+        ee->M[5] = c;
+        ee->M[12] = p.x;
+        ee->M[13] = p.y;
+        ee->M[14] = ee->prio * LAYER_DEPTH;
 
-                tmat3_copy_mat4_sub3x3(ee->N, ee->M);
-            }
-
-            /* XXX */
-            tms_graph_add_entity_with_children(this->outline_graph, this->selection.e);
-
-            glEnable(GL_BLEND);
-            glEnable(GL_DEPTH_TEST);
-            //glDisable(GL_DEPTH_TEST);
-            glBlendFunc(GL_ONE, GL_ONE);
-            glBlendEquation(GL_FUNC_ADD);
-            glDepthFunc(GL_EQUAL);
-            glCullFace(GL_BACK);
-            glEnable(GL_CULL_FACE);
-            glColorMask(0,0,1,1);
-
-            tms_graph_render(this->outline_graph, this->cam, this);
-
-            glBlendEquation(GL_FUNC_ADD);
-            //glDisable(GL_BLEND);
-            glDepthFunc(GL_LESS);
-
-            tms_graph_remove_entity_with_children(this->outline_graph, this->selection.e);
-
-            glColorMask(1,1,1,1);
-
-            /* get the location of the rotation icon */
-
-            glDisable(GL_DEPTH_TEST);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glEnable(GL_BLEND);
-            glBindTexture(GL_TEXTURE_2D, gui_spritesheet::atlas->texture.gl_texture);
-
-            if ((W->is_paused() || !this->selection.e->conn_ll) && this->selection.e->flag_active(ENTITY_ALLOW_ROTATION) && !this->selection.e->flag_active(ENTITY_CONNECTED_TO_BREADBOARD)) {
-                const float width = selection.e->get_width();
-                b2Vec2 p = this->selection.e->local_to_world(b2Vec2(width, 0.f), this->selection.frame);
-                b2Vec2 r = this->selection.e->local_to_world(b2Vec2(width+.9f, 0.f), this->selection.frame);
-                b2Vec2 r2 = this->selection.e->local_to_world(b2Vec2(width+1.f, 0.f), this->selection.frame);
-                glDisable(GL_DEPTH_TEST);
-                tms_ddraw_set_color(this->dd, 0.f, 0.f, 0.f, 1.f);
-                float mv[16];
-                tmat4_copy(mv, this->cam->view);
-                tmat4_translate(mv, 0, 0, this->selection.e->get_layer()*LAYER_DEPTH);
-                tms_ddraw_set_matrices(this->dd, mv, this->cam->projection);
-                tms_ddraw_line(this->dd, p.x, p.y, r.x, r.y);
-                tms_ddraw_set_color(this->dd, 1.f, 1.f, 1.f, 1.f);
-                tms_ddraw_sprite(this->dd, gui_spritesheet::get_sprite(S_ROT), r2.x, r2.y, .5f, .5f);
-            }
-
-            if (this->selection.e->g_id == 21 || this->selection.e->g_id == 20) {
-                motor *s = (motor*)this->selection.e;
-                b2Vec2 p = this->selection.e->local_to_world(b2Vec2(0.f, 0.f), this->selection.frame);
-                b2Vec2 r = this->selection.e->local_to_world(b2Vec2(cosf(s->properties[1].v.f) *3.f, sinf(s->properties[1].v.f)*3.f), this->selection.frame);
-
-                tms_ddraw_set_color(this->dd, 1.f, 0.f, 1.f, 1.f);
-                float mv[16];
-                tmat4_copy(mv, this->cam->view);
-                tmat4_translate(mv, 0, 0, this->selection.e->get_layer()*LAYER_DEPTH);
-                tms_ddraw_set_matrices(this->dd, mv, this->cam->projection);
-                tms_ddraw_line(this->dd, p.x, p.y, r.x, r.y);
-                tms_ddraw_square(this->dd, r.x, r.y, .25f, .25f);
-            }
-
-            if (this->selection.e->g_id == 104) {
-                gravityman *g = static_cast<gravityman*>(this->selection.e);
-
-                b2Vec2 p = g->local_to_world(b2Vec2(0.f, 0.f), this->selection.frame);
-                b2Vec2 r = g->local_to_world(b2Vec2(cosf(g->properties[0].v.f) *2.f, sinf(g->properties[0].v.f)*2.f), this->selection.frame);
-
-                tms_ddraw_set_color(this->dd, 1.f, 0.f, 1.f, 1.f);
-                float mv[16];
-                tmat4_copy(mv, this->cam->view);
-                tmat4_translate(mv, 0, 0, g->get_layer()*LAYER_DEPTH);
-                tms_ddraw_set_matrices(this->dd, mv, this->cam->projection);
-                tms_ddraw_line(this->dd, p.x, p.y, r.x, r.y);
-                tms_ddraw_square(this->dd, r.x, r.y, .25f, .25f);
-            }
-            glDisable(GL_BLEND);
-        }
+        tmat3_copy_mat4_sub3x3(ee->N, ee->M);
     }
+
+    /* XXX */
+    tms_graph_add_entity_with_children(this->outline_graph, this->selection.e);
+
+    glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    //glDisable(GL_DEPTH_TEST);
+    glBlendFunc(GL_ONE, GL_ONE);
+    glBlendEquation(GL_FUNC_ADD);
+    glDepthFunc(GL_EQUAL);
+    glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
+    glColorMask(0,0,1,1);
+
+    tms_graph_render(this->outline_graph, this->cam, this);
+
+    glBlendEquation(GL_FUNC_ADD);
+    //glDisable(GL_BLEND);
+    glDepthFunc(GL_LESS);
+
+    tms_graph_remove_entity_with_children(this->outline_graph, this->selection.e);
+
+    glColorMask(1,1,1,1);
+
+    /* get the location of the rotation icon */
+
+    glDisable(GL_DEPTH_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBindTexture(GL_TEXTURE_2D, gui_spritesheet::atlas->texture.gl_texture);
+
+    if ((W->is_paused() || !this->selection.e->conn_ll) && this->selection.e->flag_active(ENTITY_ALLOW_ROTATION) && !this->selection.e->flag_active(ENTITY_CONNECTED_TO_BREADBOARD)) {
+        const float width = selection.e->get_width();
+        b2Vec2 p = this->selection.e->local_to_world(b2Vec2(width, 0.f), this->selection.frame);
+        b2Vec2 r = this->selection.e->local_to_world(b2Vec2(width+.9f, 0.f), this->selection.frame);
+        b2Vec2 r2 = this->selection.e->local_to_world(b2Vec2(width+1.f, 0.f), this->selection.frame);
+        glDisable(GL_DEPTH_TEST);
+        tms_ddraw_set_color(this->dd, 0.f, 0.f, 0.f, 1.f);
+        float mv[16];
+        tmat4_copy(mv, this->cam->view);
+        tmat4_translate(mv, 0, 0, this->selection.e->get_layer()*LAYER_DEPTH);
+        tms_ddraw_set_matrices(this->dd, mv, this->cam->projection);
+        tms_ddraw_line(this->dd, p.x, p.y, r.x, r.y);
+        tms_ddraw_set_color(this->dd, 1.f, 1.f, 1.f, 1.f);
+        tms_ddraw_sprite(this->dd, gui_spritesheet::get_sprite(S_ROT), r2.x, r2.y, .5f, .5f);
+    }
+
+    if (this->selection.e->g_id == O_SERVO_MOTOR || this->selection.e->g_id == O_DC_MOTOR) {
+        motor *s = (motor*)this->selection.e;
+        b2Vec2 p = this->selection.e->local_to_world(b2Vec2(0.f, 0.f), this->selection.frame);
+        b2Vec2 r = this->selection.e->local_to_world(b2Vec2(cosf(s->properties[1].v.f) *3.f, sinf(s->properties[1].v.f)*3.f), this->selection.frame);
+
+        tms_ddraw_set_color(this->dd, 1.f, 0.f, 1.f, 1.f);
+        float mv[16];
+        tmat4_copy(mv, this->cam->view);
+        tmat4_translate(mv, 0, 0, this->selection.e->get_layer()*LAYER_DEPTH);
+        tms_ddraw_set_matrices(this->dd, mv, this->cam->projection);
+        tms_ddraw_line(this->dd, p.x, p.y, r.x, r.y);
+        tms_ddraw_square(this->dd, r.x, r.y, .25f, .25f);
+    }
+
+    if (this->selection.e->g_id == O_GRAVITY_MANAGER) {
+        gravityman *g = static_cast<gravityman*>(this->selection.e);
+
+        b2Vec2 p = g->local_to_world(b2Vec2(0.f, 0.f), this->selection.frame);
+        b2Vec2 r = g->local_to_world(b2Vec2(cosf(g->properties[0].v.f) *2.f, sinf(g->properties[0].v.f)*2.f), this->selection.frame);
+
+        tms_ddraw_set_color(this->dd, 1.f, 0.f, 1.f, 1.f);
+        float mv[16];
+        tmat4_copy(mv, this->cam->view);
+        tmat4_translate(mv, 0, 0, g->get_layer()*LAYER_DEPTH);
+        tms_ddraw_set_matrices(this->dd, mv, this->cam->projection);
+        tms_ddraw_line(this->dd, p.x, p.y, r.x, r.y);
+        tms_ddraw_square(this->dd, r.x, r.y, .25f, .25f);
+    }
+
+    glDisable(GL_BLEND);
 }
 
 void
@@ -8371,7 +8370,7 @@ game::handle_input_paused(tms::event *ev, int action)
                 return T_OK;
             }
 
-            if (this->selection.e->g_id == 21 || this->selection.e->g_id == 20) {
+            if (this->selection.e->g_id == O_SERVO_MOTOR || this->selection.e->g_id == O_DC_MOTOR) {
                 motor *s = (motor*)this->selection.e;
                 tvec3 pt;
                 W->get_layer_point(this->cam, (int)ev->data.motion.x, (int)ev->data.motion.y, this->selection.e->get_layer(), &pt);
@@ -11642,7 +11641,7 @@ game::post_render()
 connection*
 game::set_connection_strength(connection *c, float strength)
 {
-    tms_debugf("Set connection strength: %.2f", strength);
+    tms_infof("Set connection strength: %.2f", strength);
     if (strength == 1.f) {
         c->max_force = INFINITY;
     } else {

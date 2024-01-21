@@ -5,13 +5,13 @@
 #include <string.h>
 
 /** @relates tmatN @{ */
-/** 
+/**
  * tmat4 and tmat3 functions operate on float buffers directly.
  * tmat3_* functions expect a pointer to a buffer of at least 9 floats.
  * tmat4_* functions expect a pointer to a buffer of at least 16 floats.
  *
  * The types tmat3 and tmat4 are not defined.
- * For example, a 4x4 matrix on the stack is defined as float example[16]. If 
+ * For example, a 4x4 matrix on the stack is defined as float example[16]. If
  * you want it on the heap you would to float *example = malloc(16*sizeof(float))
  *
  * Functions starting with tmatN_set_* will replace the contents of the matrix, all

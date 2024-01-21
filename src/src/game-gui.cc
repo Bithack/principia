@@ -1063,7 +1063,7 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                         ui::message("No description available for this level.");
                     }
                 } else {
-                    ui::open_help_dialog("Level description", W->level.descr, false);
+                    ui::open_help_dialog("Level description", W->level.descr);
                 }
             }
             return true;

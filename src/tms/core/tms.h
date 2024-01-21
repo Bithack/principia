@@ -48,11 +48,9 @@ extern "C" {
  **/
 enum TMS_STATE {
     TMS_STATE_DEFAULT,
-    TMS_STATE_TRANSITIONING,
     TMS_STATE_QUITTING,
 };
 
-struct tms_transition;
 struct tms_screen;
 struct tms_fb;
 struct tms_model;
@@ -95,7 +93,6 @@ extern struct tms_singleton {
     struct tms_screen      *screen; /**< current screen */
     struct tms_screen      *active_screen;
     struct tms_screen      *next; /**< next screen (used if transitioning) */
-    struct tms_transition  *transition; /**< current transition, if state is TMS_STATE_TRANSITIONING */
     struct tms_fb *framebuffer; /**< pointer to the currently bound framebuffer */
     int                     state; /**< current state, see TMS_STATE */
     char *gl_extensions;
@@ -124,7 +121,6 @@ void tms_step(void);
 int tms_render(void);
 int tms_begin_frame(void);
 int tms_end_frame(void);
-int tms_begin_transition(struct tms_transition *trans, struct tms_screen *next);
 
 int tms_register_model_loader(struct tms_mesh * (*load_fn)(struct tms_model *, SDL_RWops *, int *), const char *ext);
 

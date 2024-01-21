@@ -54,27 +54,11 @@ SDL_main(int argc, char **argv)
                 case SDL_WINDOWEVENT:
                     {
                         switch (ev.window.event) {
-                            /*
-                            case SDL_WINDOWEVENT_FOCUS_LOST:
-                                tms_infof("FOCUS LOST, HARD PAUSE");
-                                tproject_pause();
-                                do_step = 0;
-                                break;
-                                */
-
                             case SDL_WINDOWEVENT_MINIMIZED:
                                 tms_infof("MINIMIZED, SOFT PAUSE");
                                 tproject_soft_pause();
                                 do_step = 0;
                                 break;
-
-                                /*
-                            case SDL_WINDOWEVENT_FOCUS_GAINED:
-                                tms_infof("FOCUS GAINED, HARD RESUME");
-                                tproject_resume();
-                                do_step = 1;
-                                break;
-                                */
 
                             case SDL_WINDOWEVENT_RESTORED:
                                 tms_infof("WINDOW RESTORED, SOFT RESUME");
@@ -226,7 +210,7 @@ T_intercept_input(SDL_Event ev)
             spec.data.motion.x = ((float)ev.tfinger.x / 32768.f)*(float)_tms.window_width;
             spec.data.motion.y = tms.window_height - ((float)ev.tfinger.y / 32768.f) * (float)_tms.window_height;
             break;
-        
+
         case SDL_TEXTINPUT:
             spec.type = TMS_EV_TEXT_INPUT;
             memcpy(spec.data.text.text, ev.text.text, 32);
@@ -266,9 +250,4 @@ _JNI_get_storage_path()
 const char *tbackend_get_storage_path(void)
 {
     return _JNI_get_storage_path();
-}
-
-void
-tbackend_toggle_fullscreen(void)
-{
 }

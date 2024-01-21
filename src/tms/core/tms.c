@@ -5,7 +5,6 @@
 
 #include "tms.h"
 #include "screen.h"
-#include "transition.h"
 #include "event.h"
 #include "material.h"
 #include "backend.h"
@@ -13,8 +12,6 @@
 #include "project.h"
 
 #include "../util/glob.h"
-
-#include "builtin-shaders.inc.c"
 
 struct tms_singleton _tms = {
     .in_frame = 0,
@@ -207,30 +204,12 @@ tms_render(void)
 {
     init_frame_time();
 
-    if (tms.state == TMS_STATE_TRANSITIONING) {
-        if (tms.transition->render((long) (tms.dt*1000.0)) == T_OK) {
-            tms.state = TMS_STATE_DEFAULT;
-            tms_set_screen(tms.next);
-        }
-    } else {
-        struct tms_screen *s = tms.active_screen;
+    struct tms_screen *s = tms.active_screen;
 
-        tms_event_process_all(s);
+    tms_event_process_all(s);
 
-        tms_screen_step(s, tms.dt);
-        tms_screen_render(s);
-    }
-
-    return T_OK;
-}
-
-int
-tms_begin_transition(struct tms_transition *trans, struct tms_screen *next)
-{
-    trans->begin(tms.screen, next);
-    tms.state = TMS_STATE_TRANSITIONING;
-    tms.transition = trans;
-    tms.next = next;
+    tms_screen_step(s, tms.dt);
+    tms_screen_render(s);
 
     return T_OK;
 }

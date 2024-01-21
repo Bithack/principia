@@ -685,10 +685,5 @@ const char *tbackend_get_storage_path(void)
 void
 tbackend_toggle_fullscreen(void)
 {
-    uint32_t flags = SDL_GetWindowFlags(_window);
-
-    if (flags & SDL_WINDOW_FULLSCREEN)
-        SDL_SetWindowFullscreen(_window, SDL_FALSE);
-    else
-        SDL_SetWindowFullscreen(_window, SDL_TRUE);
+    TOGGLE_FULLSCREEN;
 }

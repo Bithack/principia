@@ -2830,43 +2830,6 @@ world::apply_puzzle_constraints()
                 (*i)->fixed = true;
             }
         }
-
-#if 0
-        /* set objects to non-moveable if they have a connection */
-        for (std::map<uint32_t, entity*>::iterator i = this->all_entities.begin();
-                i != this->all_entities.end(); i++) {
-            if (i->second->conn_ll) {
-                if (i->second->is_moveable() && (i->second->g_id == 19 || i->second->g_id == 69)) {
-                    damper_1 *d1 = 0;
-                    damper_2 *d2 = 0;
-                    entity *other = 0;
-
-                    if (i->second->g_id == 19) {
-                        d1 = static_cast<damper_1*>(i->second);
-                        other = d1->dconn.get_other(d1);
-                    } else {
-                        d2 = static_cast<damper_2*>(i->second);
-                        other = d2->get_property_entity();
-                    }
-
-                    connection *cc = i->second->conn_ll;
-
-                    do {
-                        if (cc->o == other) {
-                            tms_infof("skipping self");
-                            continue;
-                        }
-
-                        tms_debugf("XXXXXXXXXDisabling moveable on %s due to connections.", i->second->get_name());
-                        i->second->set_moveable(false);
-                    } while ((cc = cc->next[(cc->e == i->second) ? 0:1]));
-                } else {
-                    tms_debugf("Disabling moveable on %s due to connections.", i->second->get_name());
-                    i->second->set_moveable(false);
-                }
-            }
-        }
-#endif
     }
 }
 

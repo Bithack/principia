@@ -11,7 +11,7 @@ class composable : public entity
     b2FixtureDef fd;
     b2Fixture   *fx_sensor;
 
-    /** 
+    /**
      * C++ doesn't allow classes with constructors in unions,
      * otherwise we would have used union here
      **/
