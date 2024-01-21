@@ -71,6 +71,12 @@
 
 #ifdef BUILD_CURL
 #include <curl/curl.h>
+
+#define CURL_CUDDLES \
+        part = curl_mime_addpart(mime); \
+        curl_mime_name(part, "key"); \
+        curl_mime_data(part, "cuddles", CURL_ZERO_TERMINATED);
+
 #endif
 
 extern "C" void tmod_3ds_init(void);
@@ -1821,8 +1827,8 @@ _download_pkg(void *_p)
 
     tms_debugf("save: %s", save_path);
 
-    char url[1024];
-    snprintf(url, 1023, "https://%s/internal/get_package?i=%d",
+    char url[256];
+    snprintf(url, 255, "https://%s/internal/get_package?i=%d",
             P.community_host,
             _play_pkg_id);
     long http_code = 0;
@@ -1962,8 +1968,8 @@ _download_level(void *p)
 
     const char *host = strlen(_community_host) > 0 ? _community_host : P.community_host;
 
-    char url[1024];
-    snprintf(url, 1023, "https://%s/internal/%s_level?i=%d&h=%u",
+    char url[256];
+    snprintf(url, 255, "https://%s/internal/%s_level?i=%d&h=%u",
             host,
             _play_download_for_pkg ? "get_package" :
                 (type == LEVEL_DB ? "get" :
@@ -2303,8 +2309,8 @@ _check_version_code(void *_unused)
     if (P.curl) {
         init_curl_defaults(P.curl);
 
-        char url[1024];
-        snprintf(url, 1023, "https://%s/internal/version_code", P.community_host);
+        char url[256];
+        snprintf(url, 255, "https://%s/internal/version_code", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
@@ -2386,11 +2392,11 @@ _get_featured_levels(void *_num)
     if (P.curl) {
         init_curl_defaults(P.curl);
 
-        char url[1024];
+        char url[256];
         if (fl_fetch_time && file_exists(featured_data_path)) {
-            snprintf(url, 1023, "https://%s/internal/get_featured?num=%" PRIu32 "&time=%d", P.community_host, num_featured_levels, fl_fetch_time);
+            snprintf(url, 255, "https://%s/internal/get_featured?num=%" PRIu32 "&time=%d", P.community_host, num_featured_levels, fl_fetch_time);
         } else {
-            snprintf(url, 1023, "https://%s/internal/get_featured?num=%" PRIu32, P.community_host, num_featured_levels);
+            snprintf(url, 255, "https://%s/internal/get_featured?num=%" PRIu32, P.community_host, num_featured_levels);
         }
 
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
@@ -2717,8 +2723,8 @@ _publish_pkg(void *_unused)
                     curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
 
 
-                    char url[1024];
-                    snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/upload_package.php", P.community_host);
+                    char url[256];
+                    snprintf(url, 255, "https://%s/internal/upload_package", P.community_host);
                     curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
                     curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
@@ -2726,10 +2732,6 @@ _publish_pkg(void *_unused)
                     curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
                     curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
                     curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
-
-                    struct curl_slist *headerlist = NULL;
-                    headerlist = curl_slist_append(headerlist, "Expect:");
-                    r = curl_easy_setopt(P.curl, CURLOPT_HTTPHEADER, headerlist);
 
                     tms_debugf("Publishing package..");
                     if ((r = curl_easy_perform(P.curl)) != CURLE_OK) {
@@ -2846,21 +2848,15 @@ _publish_level(void *p)
         curl_mime_name(part, "level");
         curl_mime_filedata(part, level_path);
 
-        part = curl_mime_addpart(mime);
-        curl_mime_name(part, "key");
-        curl_mime_data(part, "cuddles", CURL_ZERO_TERMINATED);
+        CURL_CUDDLES;
 
-        char url[1024];
-        snprintf(url, 1023, "https://%s/internal/upload", P.community_host);
+        char url[256];
+        snprintf(url, 255, "https://%s/internal/upload", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
         curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
         curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
-
-        struct curl_slist *headerlist = NULL;
-        headerlist = curl_slist_append(headerlist, "Expect:");
-        r = curl_easy_setopt(P.curl, CURLOPT_HTTPHEADER, headerlist);
 
         tms_infof("Publishing level %d...", level_id);
         r = curl_easy_perform(P.curl);
@@ -3005,8 +3001,10 @@ _submit_score(void *p)
         curl_mime_name(part, "lvl_id");
         curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
 
-        char url[1024];
-        snprintf(url, 1023, "https://%s/internal/submit_score", P.community_host);
+        CURL_CUDDLES;
+
+        char url[256];
+        snprintf(url, 255, "https://%s/internal/submit_score", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
@@ -3014,10 +3012,6 @@ _submit_score(void *p)
         curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
 
         curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
-
-        struct curl_slist *headerlist = NULL;
-        headerlist = curl_slist_append(headerlist, "Expect:");
-        r = curl_easy_setopt(P.curl, CURLOPT_HTTPHEADER, headerlist);
 
         r = curl_easy_perform(P.curl);
         if (r == CURLE_OK) {
@@ -3085,10 +3079,6 @@ _login(void *p)
 
     CURLcode r;
 
-    struct MemoryStruct chunk;
-    chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */
-    chunk.size = 0;    /* no data at this point */
-
     lock_curl("login");
     if (P.curl) {
         struct header_data hd = {0};
@@ -3105,9 +3095,7 @@ _login(void *p)
         curl_mime_name(part, "password");
         curl_mime_data(part, data->password, CURL_ZERO_TERMINATED);
 
-        part = curl_mime_addpart(mime);
-        curl_mime_name(part, "key");
-        curl_mime_data(part, "cuddles", CURL_ZERO_TERMINATED);
+        CURL_CUDDLES;
 
         char url[256];
         snprintf(url, 255, "https://%s/internal/login", P.community_host);
@@ -3116,10 +3104,6 @@ _login(void *p)
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
         curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
         curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
-
-        struct curl_slist *headerlist = NULL;
-        headerlist = curl_slist_append(headerlist, "Expect:");
-        r = curl_easy_setopt(P.curl, CURLOPT_HTTPHEADER, headerlist);
 
         r = curl_easy_perform(P.curl);
         if (r == CURLE_OK) {
@@ -3167,110 +3151,68 @@ _register(void *p)
 
     CURLcode r;
 
-    struct MemoryStruct chunk;
-    chunk.memory = (char*)malloc(1);
-    chunk.size = 0;
-
     lock_curl("register");
-    do {
-        num_tries ++;
-        res = T_OK;
 
-        tms_debugf("register, attempt %d", num_tries);
+    if (P.curl) {
+        struct header_data hd = {0};
+        init_curl_defaults(P.curl);
 
-        if (P.curl) {
-            init_curl_defaults(P.curl);
+        curl_mime *mime = curl_mime_init(P.curl);
+        curl_mimepart *part;
 
-            curl_mime *mime = curl_mime_init(P.curl);
-            curl_mimepart *part;
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, "username");
+        curl_mime_data(part, data->username, CURL_ZERO_TERMINATED);
 
-            part = curl_mime_addpart(mime);
-            curl_mime_name(part, "username");
-            curl_mime_data(part, data->username, CURL_ZERO_TERMINATED);
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, "email");
+        curl_mime_data(part, data->email, CURL_ZERO_TERMINATED);
 
-            part = curl_mime_addpart(mime);
-            curl_mime_name(part, "email");
-            curl_mime_data(part, data->email, CURL_ZERO_TERMINATED);
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, "password");
+        curl_mime_data(part, data->password, CURL_ZERO_TERMINATED);
 
-            part = curl_mime_addpart(mime);
-            curl_mime_name(part, "password");
-            curl_mime_data(part, data->password, CURL_ZERO_TERMINATED);
+        CURL_CUDDLES;
 
-            char url[1024];
-            snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/" REGISTER_ANDROID_FILE ".php", P.community_host);
-            curl_easy_setopt(P.curl, CURLOPT_URL, url);
+        char url[256];
+        snprintf(url, 255, "https://%s/internal/register", P.community_host);
+        curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
-            curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
+        curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
+        curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
+        curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
 
-            curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
-            curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
-            curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
+        r = curl_easy_perform(P.curl);
 
-            if ((r = curl_easy_perform(P.curl)) == CURLE_OK && chunk.size > 0) {
-                int notify_id = atoi(chunk.memory);
+        if (r == CURLE_OK) {
+            // Check for messages
+            if (hd.error_message) {
+                ui::message(hd.error_message);
+                ui::emit_signal(SIGNAL_REGISTER_FAILED);
 
-                switch (notify_id) {
-                    case REGISTER_SUCCESS:
-                        ui::message("Registered successfully!");
-                        ui::emit_signal(SIGNAL_REGISTER_SUCCESS);
-                        break;
-
-                    case REGISTER_ERROR:
-                        ui::message("An error occured when trying to register. If this problem persists, please send an email to support@bithack.se.");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-
-                    case REGISTER_USERNAME_BUSY:
-                        ui::message("This username is already taken.");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-
-                    case REGISTER_INVALID_USERNAME:
-                        ui::message("The username contains invalid characters (A-Za-z0-9-_ allowed).");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-
-                    case REGISTER_INVALID_PASSWORD:
-                        ui::message("The password is invalid.");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-
-                    case REGISTER_INVALID_EMAIL:
-                        ui::message("This email is invalid.");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-
-                    case REGISTER_EMAIL_BUSY:
-                        ui::message("This email is already in use.");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-
-                    case REGISTER_EMAIL_BANNED:
-                        ui::message("This email has been banned.");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-
-                    default:
-                        ui::message("Unknown error message.");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-                }
-            } else {
-                if (r != CURLE_OK) {
-                    tms_errorf("curl_easy_perform failed: %s", curl_easy_strerror(r));
-                } else {
-                    tms_errorf("No data received.");
-                }
-                res = T_ERR;
+                free(hd.error_message);
             }
 
-            curl_mime_free(mime);
+            if (hd.notify_message) {
+                ui::message(hd.notify_message);
+                ui::emit_signal(SIGNAL_REGISTER_SUCCESS);
+
+                free(hd.notify_message);
+            }
         } else {
-            tms_errorf("CURL handle not initialized.");
+            if (r != CURLE_OK) {
+                tms_errorf("curl_easy_perform failed: %s", curl_easy_strerror(r));
+            } else {
+                tms_errorf("No data received.");
+            }
             res = T_ERR;
-            num_tries = 5;
         }
-    } while (res != T_OK && num_tries < 5);
+
+        curl_mime_free(mime);
+    } else {
+        tms_errorf("Unable to initialize curl handle.");
+        res = T_ERR;
+    }
 
     unlock_curl("register");
 
@@ -3794,8 +3736,8 @@ P_get_cookie_data(char **token)
     if (P.curl) {
         init_curl_defaults(P.curl);
 
-        char url[1024];
-        snprintf(url, 1023, "https://%s/internal/login", P.community_host);
+        char url[256];
+        snprintf(url, 255, "https://%s/internal/login", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         struct curl_slist *cookies;

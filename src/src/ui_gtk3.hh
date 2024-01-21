@@ -5914,8 +5914,8 @@ on_login_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
             gtk_label_set_text(login_status, "Enter data into both fields.");
         }
     } else if (btn_pressed(w, login_btn_register, user_data)) {
-        char url[1024];
-        snprintf(url, 1023, "https://%s/register", P.community_host);
+        char url[256];
+        snprintf(url, 255, "https://%s/register", P.community_host);
         ui::open_url(url);
     }
 
