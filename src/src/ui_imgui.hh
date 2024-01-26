@@ -361,7 +361,13 @@ namespace UiSandboxMenu {
 
   static void layout() {
     handle_do_open(&do_open, "sandbox_menu");
+    ImGui::SetNextWindowSizeConstraints(
+      ImVec2(225., 0.),
+      ImVec2(FLT_MAX, FLT_MAX)
+    );
     if (ImGui::BeginPopup("sandbox_menu", POPUP_FLAGS)) {
+      //TODO keyboard shortcuts
+
       //True if current level can be saved as a copy
       //Saves can only be created if current level state is sandbox
       bool is_sandbox = G->state.sandbox;
@@ -392,12 +398,27 @@ namespace UiSandboxMenu {
         ImGui::Text("%s (g_id: %d)", sent->get_name(), sent->g_id);
         ImGui::Text("ID: %d", sent->id);
         ImGui::Text("Position: (%.2f, %.2f)", sent_pos.x, sent_pos.y);
+
         // if ((sent->dialog_id > 0) && ImGui::MenuItem("Configure...")) {
         //   ui::open_dialog(sent->dialog_id);
         // }
+        ImGui::Separator();
+
+        ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+        if (ImGui::MenuItem("Mark entity", "", REF_TRUE)) {
+          //TODO entity marking
+        }
+        ImGui::PopItemFlag();
+        ImGui::SetItemTooltip("(not implemented yet)");
+
+        ImGui::BeginDisabled(sent_pos.x == sb_position.x && sent_pos.y == sb_position.y);
+        ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
         if (ImGui::MenuItem("Move to cursor")) {
           G->selection.e->set_position(sb_position);
         };
+        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
+
         ImGui::Separator();
       }
 
