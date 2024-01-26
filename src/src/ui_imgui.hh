@@ -422,7 +422,6 @@ namespace UiSandboxMenu {
         ImGui::Separator();
       }
 
-
       //"Level properties"
       if (ImGui::MenuItem("Level properties")) {
         UiLevelProperties::open();
@@ -1444,7 +1443,11 @@ namespace UiTips {
       ImVec2 frame_padding = style.FramePadding;
       ImVec2 content_region = ImGui::GetContentRegionMax();
 
-      ImGui::TextWrapped("%s", tips[ctip]);
+      //TODO remove hardcoded size
+      if (ImGui::BeginChild("###tips-content-ctx", ImVec2(0, 115), false, ImGuiWindowFlags_NoSavedSettings)) {
+        ImGui::TextWrapped("%s", tips[ctip]);
+      }
+      ImGui::EndChild();
 
       //Align at the bottom of the window
       ImGui::SetCursorPosY(content_region.y - (font_size + (2. * frame_padding.y)));
