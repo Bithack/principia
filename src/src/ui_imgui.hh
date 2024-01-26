@@ -2716,10 +2716,9 @@ void ui::open_url(const char *url) {
   #endif
 }
 
-void ui::open_help_dialog(const char* title, const char* description, bool enable_markup) {
-  //TODO
-  tms_errorf("ui::open_help_dialog not implemented yet");
-}
+// void ui::open_help_dialog(const char* title, const char* description, bool enable_markup) {
+//   tms_errorf("ui::open_help_dialog not implemented yet");
+// }
 
 void ui::emit_signal(int num, void *data){
   switch (num) {
