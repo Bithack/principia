@@ -2035,6 +2035,7 @@ namespace UiLevelProperties {
           //ImGui::SameLine();
 
           //Border size
+          //TODO check for "impossible" border sizes (<2, causes glitchy rendering)
           {
             static const ImVec2 bs = ImVec2(128. + 24., 100.);
 
