@@ -96,8 +96,6 @@
 #include <iterator>
 #include <map>
 
-#include "SDL_ttf.h"
-
 #include "SDL2_rotozoom.h"
 
 #define MAX_COPY_ENTITIES 10

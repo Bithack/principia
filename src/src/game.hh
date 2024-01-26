@@ -6,7 +6,6 @@
 #include <set>
 #include <map>
 #include <deque>
-#include "SDL_ttf.h"
 #include "gui.hh"
 #include "main.hh"
 #include "adventure.hh"

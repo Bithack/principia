@@ -1,4 +1,3 @@
-#include "SDL_ttf.h"
 #include "game.hh"
 #include "main.hh"
 #include "version.hh"
