@@ -1192,6 +1192,11 @@ namespace UiSettings {
         }
         if (ImGui::BeginTabItem("Sound")) {
           ImGui::SeparatorText("Volume");
+
+          #ifndef ENABLE_SOUND
+            ImGui::BeginDisabled(true);
+          #endif
+
           ImGui::BeginDisabled(local_settings["muted"]->v.b);
           ImGui::SliderFloat(
             "###volume-slider",
@@ -1207,6 +1212,11 @@ namespace UiSettings {
           ImGui::EndDisabled();
 
           ImGui::Checkbox("Mute", (bool*) &local_settings["muted"]->v.b);
+
+          #ifndef ENABLE_SOUND
+            ImGui::EndDisabled();
+            ImGui::TextUnformatted("Sound is disabled in this build.");
+          #endif
 
           ImGui::EndTabItem();
         }
