@@ -73,7 +73,7 @@ INCLUDE_LIBS=(
 
 mkdir -p lib/
 for i in "${INCLUDE_LIBS[@]}"; do
-	cp /lib/x86_64-linux-gnu/$i lib/
+	cp /usr/lib/x86_64-linux-gnu/$i lib/
 done
 
 # Actually build the appimage
