@@ -342,7 +342,7 @@ tms_ddraw_set_matrices(struct tms_ddraw *d, float *mv, float *p)
 {
     if (!mv)
         tmat4_load_identity(d->modelview);
-    else 
+    else
         tmat4_copy(d->modelview, mv);
 
     if (!p)
@@ -496,7 +496,6 @@ tms_ddraw_rsprite(struct tms_ddraw *d, struct tms_sprite *s,
     static const float border_inner = 0.f;
     const float w2 = width/2.f;
     const float h2 = height/2.f;
-    glPointSize(10.f);
     float mat[16];
     tmat4_copy(mat, d->modelview);
     tmat4_translate(mat, x, y, 0);

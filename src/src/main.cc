@@ -1,4 +1,3 @@
-#include "SDL_ttf.h"
 #include "game.hh"
 #include "main.hh"
 #include "version.hh"
@@ -71,6 +70,12 @@
 
 #ifdef BUILD_CURL
 #include <curl/curl.h>
+
+#define CURL_CUDDLES \
+        part = curl_mime_addpart(mime); \
+        curl_mime_name(part, "key"); \
+        curl_mime_data(part, "cuddles", CURL_ZERO_TERMINATED);
+
 #endif
 
 extern "C" void tmod_3ds_init(void);
@@ -778,23 +783,21 @@ tproject_step(void)
                     break;
 
 #ifdef BUILD_CURL
-                case ACTION_GET_FEATURED_LEVELS:
-                    {
-                        uint32_t num_featured_levels = VOID_TO_UINT32(data);
+                case ACTION_GET_FEATURED_LEVELS: {
+                    uint32_t num_featured_levels = VOID_TO_UINT32(data);
 
-                        if (num_featured_levels > MAX_FEATURED_LEVELS_FETCHED) {
-                            num_featured_levels = MAX_FEATURED_LEVELS_FETCHED;
-                        }
-
-                        featured_levels_left = num_featured_levels;
-
-                        /* This thread will fetch the data */
-                        create_thread(
-                                _get_featured_levels,
-                                "_get_featured_levels",
-                                UINT_TO_VOID(num_featured_levels));
+                    if (num_featured_levels > MAX_FEATURED_LEVELS_FETCHED) {
+                        num_featured_levels = MAX_FEATURED_LEVELS_FETCHED;
                     }
-                    break;
+
+                    featured_levels_left = num_featured_levels;
+
+                    /* This thread will fetch the data */
+                    create_thread(
+                            _get_featured_levels,
+                            "_get_featured_levels",
+                            UINT_TO_VOID(num_featured_levels));
+                } break;
 
                 case ACTION_VERSION_CHECK:
                     create_thread(_check_version_code,"_version_check",  (void*)0);
@@ -847,25 +850,21 @@ tproject_step(void)
                     W->set_level_type(VOID_TO_UINT32(data));
                     break;
 
-                case ACTION_REMOVE_AUTOSAVE:
-                    {
-                        char tmp[1024];
-                        snprintf(tmp, 1023, "%s/.autosave", pkgman::get_level_path(LEVEL_LOCAL));
-                        unlink(tmp);
-                    }
-                    break;
+                case ACTION_REMOVE_AUTOSAVE: {
+                    char tmp[1024];
+                    snprintf(tmp, 1023, "%s/.autosave", pkgman::get_level_path(LEVEL_LOCAL));
+                    unlink(tmp);
+                } break;
 
-                case ACTION_AUTOSAVE:
-                    {
-                        if (G->state.sandbox && W->is_paused() && !G->state.test_playing) {
-                            tms_infof("Autosaving...");
+                case ACTION_AUTOSAVE: {
+                    if (G->state.sandbox && W->is_paused() && !G->state.test_playing) {
+                        tms_infof("Autosaving...");
 
-                            if (W->save(SAVE_TYPE_AUTOSAVE)) {
-                                G->state.modified = false;
-                            }
+                        if (W->save(SAVE_TYPE_AUTOSAVE)) {
+                            G->state.modified = false;
                         }
                     }
-                    break;
+                } break;
 
                 case ACTION_MULTI_JOINT_STRENGTH:
                     G->multiselect_perform(&set_connection_strength, data);
@@ -897,61 +896,51 @@ tproject_step(void)
                     G->open_sandbox(LEVEL_LOCAL,0);
                     break;
 
-                case ACTION_PUZZLEPLAY:
-                    {
-                        uint32_t id = VOID_TO_UINT32(data);
-                        G->puzzle_play(id);
+                case ACTION_PUZZLEPLAY: {
+                    uint32_t id = VOID_TO_UINT32(data);
+                    G->puzzle_play(id);
+                } break;
+
+                case ACTION_CONSTRUCT_ENTITY: {
+                    uint32_t g_id = VOID_TO_UINT32(data);
+                    G->editor_construct_entity(g_id);
+                    G->state.modified = true;
+                } break;
+
+                case ACTION_CREATE_ADVENTURE_ROBOT: {
+                    b2Vec2 *pos = (b2Vec2*)data;
+
+                    if (!adventure::player) {
+                        entity *e = of::create(O_ROBOT);
+                        e->_pos.x = pos->x;
+                        e->_pos.y = pos->y;
+                        e->_angle = 0.f;
+                        e->prio = 0;
+                        ((robot_base*)e)->set_faction(FACTION_FRIENDLY);
+                        e->on_load(true, false);
+                        e->set_layer(G->state.edit_layer);
+                        W->add(e);
+                        adventure::player = static_cast<robot_base*>(e);
+                        G->add_entity(e);
+
+                        W->level.set_adventure_id(e->id);
+                        G->state.adventure_id = e->id;
                     }
-                    break;
 
-                case ACTION_CONSTRUCT_ENTITY:
-                    {
-                        uint32_t g_id = VOID_TO_UINT32(data);
-                        G->editor_construct_entity(g_id);
-                        G->state.modified = true;
-                    }
-                    break;
+                    free(data);
+                } break;
 
-                case ACTION_CREATE_ADVENTURE_ROBOT:
-                    {
-                        b2Vec2 *pos = (b2Vec2*)data;
+                case ACTION_CONSTRUCT_ITEM: {
+                    uint32_t item_id = VOID_TO_UINT32(data);
+                    G->editor_construct_item(item_id);
+                    G->state.modified = true;
+                } break;
 
-                        if (!adventure::player) {
-                            entity *e = of::create(O_ROBOT);
-                            e->_pos.x = pos->x;
-                            e->_pos.y = pos->y;
-                            e->_angle = 0.f;
-                            e->prio = 0;
-                            ((robot_base*)e)->set_faction(FACTION_FRIENDLY);
-                            e->on_load(true, false);
-                            e->set_layer(G->state.edit_layer);
-                            W->add(e);
-                            adventure::player = static_cast<robot_base*>(e);
-                            G->add_entity(e);
-
-                            W->level.set_adventure_id(e->id);
-                            G->state.adventure_id = e->id;
-                        }
-
-                        free(data);
-                    }
-                    break;
-
-                case ACTION_CONSTRUCT_ITEM:
-                    {
-                        uint32_t item_id = VOID_TO_UINT32(data);
-                        G->editor_construct_item(item_id);
-                        G->state.modified = true;
-                    }
-                    break;
-
-                case ACTION_CONSTRUCT_DECORATION:
-                    {
-                        uint32_t decoration_id = VOID_TO_UINT32(P.actions[x].data);
-                        G->editor_construct_decoration(decoration_id);
-                        G->state.modified = true;
-                    }
-                    break;
+                case ACTION_CONSTRUCT_DECORATION: {
+                    uint32_t decoration_id = VOID_TO_UINT32(P.actions[x].data);
+                    G->editor_construct_decoration(decoration_id);
+                    G->state.modified = true;
+                } break;
 
                 case ACTION_GOTO_MAINMENU:
                     if (!data) {
@@ -983,58 +972,48 @@ tproject_step(void)
                     }
                     break;
 
-                case ACTION_MULTIEMITTER_SET:
-                    {
-                        if (G->selection.e && G->selection.e->g_id == 148) {
-                            uint32_t id = VOID_TO_UINT32(data);
-                            ((emitter*)G->selection.e)->set_partial(id);
-                        }
-                        G->state.modified = true;
-                    }
-                    break;
-
-                case ACTION_EXPORT_OBJECT:
-                    {
-                        char* name = (char*)data;
-                        if (name) {
-                            G->export_object(name);
-                            free(name);
-                        }
-                    }
-                    break;
-
-                case ACTION_IMPORT_OBJECT:
-                    {
+                case ACTION_MULTIEMITTER_SET: {
+                    if (G->selection.e && G->selection.e->g_id == O_MULTI_EMITTER) {
                         uint32_t id = VOID_TO_UINT32(data);
-                        G->import_object(id);
-                        G->state.modified = true;
+                        ((emitter*)G->selection.e)->set_partial(id);
                     }
-                    break;
+                    G->state.modified = true;
+                } break;
 
-                case ACTION_SELECT_IMPORT_OBJECT:
-                    {
-                        uint32_t id = VOID_TO_UINT32(data);
-                        G->select_import_object(id);
-                        G->state.modified = true;
+                case ACTION_EXPORT_OBJECT: {
+                    char* name = (char*)data;
+                    if (name) {
+                        G->export_object(name);
+                        free(name);
                     }
-                    break;
+                } break;
 
-                case ACTION_DELETE_LEVEL:
-                    {
-                        uint32_t *vec = (uint32_t*)data;
-                        uint32_t lvltype = vec[0];
-                        uint32_t id = vec[1];
-                        uint32_t save_id = vec[2];
+                case ACTION_IMPORT_OBJECT: {
+                    uint32_t id = VOID_TO_UINT32(data);
+                    G->import_object(id);
+                    G->state.modified = true;
+                } break;
 
-                        if (G->delete_level(lvltype, id, save_id)) {
-                            ui::message("Successfully deleted level.");
-                        } else {
-                            ui::message("Unable to delete level.");
-                        }
+                case ACTION_SELECT_IMPORT_OBJECT: {
+                    uint32_t id = VOID_TO_UINT32(data);
+                    G->select_import_object(id);
+                    G->state.modified = true;
+                } break;
 
-                        free(vec);
+                case ACTION_DELETE_LEVEL: {
+                    uint32_t *vec = (uint32_t*)data;
+                    uint32_t lvltype = vec[0];
+                    uint32_t id = vec[1];
+                    uint32_t save_id = vec[2];
+
+                    if (G->delete_level(lvltype, id, save_id)) {
+                        ui::message("Successfully deleted level.");
+                    } else {
+                        ui::message("Unable to delete level.");
                     }
-                    break;
+
+                    free(vec);
+                } break;
 
                 case ACTION_MULTI_DELETE:
                     G->_multidelete();
@@ -1044,105 +1023,89 @@ tproject_step(void)
                     G->delete_selected_entity();
                     break;
 
-                case ACTION_DELETE_PARTIAL:
-                    {
-                        uint32_t id = VOID_TO_UINT32(data);
-                        if (G->delete_partial(id)) {
-                            ui::message("Successfully deleted object.");
-                        } else {
-                            ui::message("Unable to delete object.");
-                        }
+                case ACTION_DELETE_PARTIAL: {
+                    uint32_t id = VOID_TO_UINT32(data);
+                    if (G->delete_partial(id)) {
+                        ui::message("Successfully deleted object.");
+                    } else {
+                        ui::message("Unable to delete object.");
                     }
-                    break;
+                } break;
 
-                case ACTION_OPEN_STATE:
-                    {
-                        if (data) {
-                            uint32_t *info = (uint32_t*)data;
+                case ACTION_OPEN_STATE: {
+                    if (data) {
+                        uint32_t *info = (uint32_t*)data;
 
-                            tms_debugf("open state called, %u %u %u", info[0], info[1], info[2]);
-                            G->resume_action = GAME_RESUME_OPEN;
-
-                            G->open_state(info[0], info[1], info[2]);
-
-                            if (_tms.screen == &P.s_loading_screen->super) {
-                                P.s_loading_screen->set_next_screen(G);
-                            } else if (_tms.screen != &G->super){
-                                tms::set_screen(G);
-                            }
-
-                            free(data);
-                        }
-                    }
-                    break;
-
-                case ACTION_OPEN:
-                    {
-                        uint32_t id = VOID_TO_UINT32(data);
+                        tms_debugf("open state called, %u %u %u", info[0], info[1], info[2]);
                         G->resume_action = GAME_RESUME_OPEN;
-                        tms_debugf("ACTION_OPEN: %u", id);
-                        G->open_sandbox(LEVEL_LOCAL, id);
+
+                        G->open_state(info[0], info[1], info[2]);
 
                         if (_tms.screen == &P.s_loading_screen->super) {
                             P.s_loading_screen->set_next_screen(G);
                         } else if (_tms.screen != &G->super){
                             tms::set_screen(G);
                         }
+
+                        free(data);
                     }
-                    break;
+                } break;
 
-                case ACTION_STICKY:
-                    {
-                        if (G->selection.e && G->selection.e->g_id == 60){
-                            static_cast<sticky*>(G->selection.e)->update_text();
-                        }
-                        G->state.modified = true;
+                case ACTION_OPEN: {
+                    uint32_t id = VOID_TO_UINT32(data);
+                    G->resume_action = GAME_RESUME_OPEN;
+                    tms_debugf("ACTION_OPEN: %u", id);
+                    G->open_sandbox(LEVEL_LOCAL, id);
+
+                    if (_tms.screen == &P.s_loading_screen->super) {
+                        P.s_loading_screen->set_next_screen(G);
+                    } else if (_tms.screen != &G->super){
+                        tms::set_screen(G);
                     }
-                    break;
+                } break;
 
-                case ACTION_SET_STICKY_TEXT:
-                    {
-                        if (G->selection.e && G->selection.e->g_id == 60){
-                            static_cast<sticky*>(G->selection.e)->set_text((const char*)data);
-                        }
-                        G->state.modified = true;
+                case ACTION_STICKY: {
+                    if (G->selection.e && G->selection.e->g_id == O_STICKY_NOTE){
+                        static_cast<sticky*>(G->selection.e)->update_text();
                     }
-                    break;
+                    G->state.modified = true;
+                } break;
 
-                case ACTION_NEW_GENERATED_LEVEL:
-                    {
-                        int level_type = VOID_TO_INT(data);
-
-                        tms_debugf("ACTION_NEW_GENERATED_LEVEL: %u", level_type);
-                        G->create_level(level_type, false, false);
+                case ACTION_SET_STICKY_TEXT: {
+                    if (G->selection.e && G->selection.e->g_id == O_STICKY_NOTE){
+                        static_cast<sticky*>(G->selection.e)->set_text((const char*)data);
                     }
-                    break;
+                    G->state.modified = true;
+                } break;
 
-                case ACTION_NEW_LEVEL:
-                    {
-                        int level_type = VOID_TO_INT(data);
+                case ACTION_NEW_GENERATED_LEVEL: {
+                    int level_type = VOID_TO_INT(data);
 
-                        tms_debugf("ACTION_NEW_LEVEL: %u", level_type);
-                        G->create_level(level_type, true, false);
+                    tms_debugf("ACTION_NEW_GENERATED_LEVEL: %u", level_type);
+                    G->create_level(level_type, false, false);
+                } break;
+
+                case ACTION_NEW_LEVEL: {
+                    int level_type = VOID_TO_INT(data);
+
+                    tms_debugf("ACTION_NEW_LEVEL: %u", level_type);
+                    G->create_level(level_type, true, false);
+                } break;
+
+                case ACTION_RELOAD_GRAPHICS: {
+                    tms_debugf("Reloading graphics...");
+                    settings["is_very_shitty"]->v.b = false;
+                    if (_tms.screen == &G->super) {
+                        P.s_loading_screen->load(shader_loader, G);
+                        G->resume_action = GAME_RESUME_CONTINUE;
+                    } else if (_tms.screen == &P.s_menu_main->super) {
+                        P.s_loading_screen->load(shader_loader, P.s_menu_main);
+                    } else if (_tms.screen == &P.s_menu_create->super) {
+                        P.s_loading_screen->load(shader_loader, P.s_menu_create);
+                    } else if (_tms.screen == &P.s_menu_play->super) {
+                        P.s_loading_screen->load(shader_loader, P.s_menu_play);
                     }
-                    break;
-
-                case ACTION_RELOAD_GRAPHICS:
-                    {
-                        tms_debugf("Reloading graphics...");
-                        settings["is_very_shitty"]->v.b = false;
-                        if (_tms.screen == &G->super) {
-                            P.s_loading_screen->load(shader_loader, G);
-                            G->resume_action = GAME_RESUME_CONTINUE;
-                        } else if (_tms.screen == &P.s_menu_main->super) {
-                            P.s_loading_screen->load(shader_loader, P.s_menu_main);
-                        } else if (_tms.screen == &P.s_menu_create->super) {
-                            P.s_loading_screen->load(shader_loader, P.s_menu_create);
-                        } else if (_tms.screen == &P.s_menu_play->super) {
-                            P.s_loading_screen->load(shader_loader, P.s_menu_play);
-                        }
-                    }
-                    break;
+                } break;
 
                 case ACTION_SAVE:
                     if (G->save()) {
@@ -1152,6 +1115,7 @@ tproject_step(void)
                         ui::message("Unable to save level.");
                     }
                     break;
+
                 case ACTION_SAVE_COPY:
                     if (G->save_copy()) {
                         ui::message("Saved copy!");
@@ -1160,29 +1124,24 @@ tproject_step(void)
                     }
                     break;
 
-                case ACTION_UPGRADE_LEVEL:
-                    {
-                        /* make sure the chunk preloader has loaded all chunks */
-                        W->level.version = LEVEL_VERSION;
-                        G->save();
-                        G->open_sandbox(LEVEL_LOCAL, W->level.local_id);
-                        ui::message("level version upgraded!");
-                    }
-                    break;
+                case ACTION_UPGRADE_LEVEL: {
+                    /* make sure the chunk preloader has loaded all chunks */
+                    W->level.version = LEVEL_VERSION;
+                    G->save();
+                    G->open_sandbox(LEVEL_LOCAL, W->level.local_id);
+                    ui::message("level version upgraded!");
+                } break;
 
                 case ACTION_BACK:
                     G->back();
                     break;
 
-                case ACTION_RESELECT:
-                    {
-                        G->reselect();
-                        G->state.modified = true;
-                    }
-                    break;
+                case ACTION_RESELECT: {
+                    G->reselect();
+                    G->state.modified = true;
+                } break;
 
-                case ACTION_MAIN_MENU_PKG:
-                {
+                case ACTION_MAIN_MENU_PKG: {
                     int type = VOID_TO_INT(data);
                     if (type == 0) {
                         P.s_menu_pkg->set_pkg(LEVEL_MAIN, 7);
@@ -1191,31 +1150,26 @@ tproject_step(void)
                     }
 
                     tms::set_screen(P.s_menu_pkg);
-                }
-                break;
+                } break;
 
                 case ACTION_SET_MODE:
                     G->set_mode(VOID_TO_INT(data));
                     break;
 
-                case ACTION_HIGHLIGHT_SELECTED:
-                    {
-                        if (G->selection.e) {
-                            /* XXX: Should the highlight time be chosen from the optional userdata? */
-                            G->add_highlight(G->selection.e, false, 0.5f);
-                        }
+                case ACTION_HIGHLIGHT_SELECTED: {
+                    if (G->selection.e) {
+                        /* XXX: Should the highlight time be chosen from the optional userdata? */
+                        G->add_highlight(G->selection.e, false, 0.5f);
                     }
-                    break;
+                } break;
 
-                case ACTION_RESTART_LEVEL:
-                    {
-                        if (W->is_paused() && W->is_puzzle()) {
-                            G->open_play(W->level_id_type, W->level.local_id, G->state.pkg);
-                        } else {
-                            G->do_pause(); /* NOTE: for custom and adventure, do_pause will trigger do_play when done */
-                        }
+                case ACTION_RESTART_LEVEL: {
+                    if (W->is_paused() && W->is_puzzle()) {
+                        G->open_play(W->level_id_type, W->level.local_id, G->state.pkg);
+                    } else {
+                        G->do_pause(); /* NOTE: for custom and adventure, do_pause will trigger do_play when done */
                     }
-                    break;
+                } break;
 
                 case ACTION_WORLD_PAUSE:
                     G->do_pause();
@@ -1243,13 +1197,11 @@ tproject_step(void)
                     }
                     break;
 
-                case ACTION_WARP:
-                    {
-                        uint32_t id = VOID_TO_UINT32(data);
-                        tms_debugf("ACTION_WARP %u", id);
-                        G->open_play(G->state.pkg->type, id, G->state.pkg);
-                    }
-                    break;
+                case ACTION_WARP: {
+                    uint32_t id = VOID_TO_UINT32(data);
+                    tms_debugf("ACTION_WARP %u", id);
+                    G->open_play(G->state.pkg->type, id, G->state.pkg);
+                } break;
 
                 case ACTION_OPEN_PLAY:
                     ui::emit_signal(SIGNAL_PLAY_COMMUNITY_LEVEL);
@@ -1297,96 +1249,88 @@ tproject_step(void)
                     }
                     break;
 
-                case ACTION_REFRESH_HEADER_DATA:
-                    {
-                        pscreen::refresh_username();
-                        menu_shared::refresh_message();
+                case ACTION_REFRESH_HEADER_DATA: {
+                    pscreen::refresh_username();
+                    menu_shared::refresh_message();
 
-                        for (std::vector<pscreen*>::iterator it = P.screens.begin();
-                                it != P.screens.end(); ++it) {
-                            pscreen *ps = *it;
+                    for (std::vector<pscreen*>::iterator it = P.screens.begin();
+                            it != P.screens.end(); ++it) {
+                        pscreen *ps = *it;
 
-                            ps->refresh_widgets();
-                        }
+                        ps->refresh_widgets();
                     }
-                    break;
+                } break;
 
-                case ACTION_OPEN_MAIN_PUZZLE_SOLUTION:
-                    {
-                        tms_infof("action open puzzle sol");
-                        open_play_data *opd = static_cast<open_play_data*>(data);
+                case ACTION_OPEN_MAIN_PUZZLE_SOLUTION: {
+                    tms_infof("action open puzzle sol");
+                    open_play_data *opd = static_cast<open_play_data*>(data);
 
-                        G->open_play(opd->id_type, opd->id, opd->pkg, opd->test_playing, opd->is_main_puzzle);
-                        G->resume_action = GAME_RESUME_OPEN;
-                        tms::set_screen(G);
+                    G->open_play(opd->id_type, opd->id, opd->pkg, opd->test_playing, opd->is_main_puzzle);
+                    G->resume_action = GAME_RESUME_OPEN;
+                    tms::set_screen(G);
 
-                        delete opd;
-                    }
-                    break;
+                    delete opd;
+                } break;
 
-                case ACTION_CREATE_MAIN_PUZZLE_SOLUTION:
-                    {
-                        tms_infof("action create puzzle sol");
-                        open_play_data *opd = static_cast<open_play_data*>(data);
+                case ACTION_CREATE_MAIN_PUZZLE_SOLUTION: {
+                    tms_infof("action create puzzle sol");
+                    open_play_data *opd = static_cast<open_play_data*>(data);
 
-                        uint8_t pkg_type = opd->id_type;
-                        uint32_t level_id = opd->id;
+                    uint8_t pkg_type = opd->id_type;
+                    uint32_t level_id = opd->id;
 
-                        char main_filename[1024];
-                        snprintf(main_filename, 1023, "%s/%d.plvl", pkgman::get_level_path(LEVEL_MAIN), level_id);
+                    char main_filename[1024];
+                    snprintf(main_filename, 1023, "%s/%d.plvl", pkgman::get_level_path(LEVEL_MAIN), level_id);
 
-                        char filename[1024];
-                        snprintf(filename, 1023, "%s/7.%d.psol", pkgman::get_level_path(pkg_type), level_id);
+                    char filename[1024];
+                    snprintf(filename, 1023, "%s/7.%d.psol", pkgman::get_level_path(pkg_type), level_id);
 
-                        pkg_type = LEVEL_LOCAL;
+                    pkg_type = LEVEL_LOCAL;
 
-                        FILE_IN_ASSET(1);
+                    FILE_IN_ASSET(1);
 
-                        _FILE *fp = _fopen(main_filename, "rb");
+                    _FILE *fp = _fopen(main_filename, "rb");
 
-                        if (fp) {
-                            _fseek(fp, 0, SEEK_END);
-                            long size = _ftell(fp);
-                            _fseek(fp, 0, SEEK_SET);
+                    if (fp) {
+                        _fseek(fp, 0, SEEK_END);
+                        long size = _ftell(fp);
+                        _fseek(fp, 0, SEEK_SET);
 
-                            if (size > 8*1024*1024) {
-                                tms_fatalf("file too big");
-                            }
-
-                            char *buf = (char*)malloc(size);
-                            _fread(buf, 1, size, fp);
-
-                            _fclose(fp);
-
-                            FILE *ofp = fopen(filename, "wb");
-
-                            if (ofp) {
-                                fwrite(buf, 1, size, ofp);
-                                fclose(ofp);
-                            }
-
-                            free(buf);
+                        if (size > 8*1024*1024) {
+                            tms_fatalf("file too big");
                         }
 
-                        G->open_play(pkg_type, level_id, opd->pkg, opd->test_playing, opd->is_main_puzzle);
-                        G->resume_action = GAME_RESUME_OPEN;
-                        tms::set_screen(G);
+                        char *buf = (char*)malloc(size);
+                        _fread(buf, 1, size, fp);
 
-                        delete opd;
-                    }
-                    break;
+                        _fclose(fp);
 
-                case ACTION_OPEN_LATEST_STATE:
-                    {
-                        tms::screen *previous_screen = P.s_menu_main;
+                        FILE *ofp = fopen(filename, "wb");
 
-                        if (data) {
-                            previous_screen = static_cast<tms::screen*>(data);
+                        if (ofp) {
+                            fwrite(buf, 1, size, ofp);
+                            fclose(ofp);
                         }
 
-                        G->open_latest_state(false, previous_screen);
+                        free(buf);
                     }
-                    break;
+
+                    G->open_play(pkg_type, level_id, opd->pkg, opd->test_playing, opd->is_main_puzzle);
+                    G->resume_action = GAME_RESUME_OPEN;
+                    tms::set_screen(G);
+
+                    delete opd;
+                } break;
+
+                case ACTION_OPEN_LATEST_STATE: {
+                    tms::screen *previous_screen = P.s_menu_main;
+
+                    if (data) {
+                        previous_screen = static_cast<tms::screen*>(data);
+                    }
+
+                    G->open_latest_state(false, previous_screen);
+                } break;
 
                 case ACTION_OPEN_URL:
                     if (data) {
@@ -1486,18 +1430,6 @@ tproject_soft_pause(void)
 #endif
 
     /* TODO: Save current level as a backup */
-}
-
-void
-tproject_resume(void)
-{
-
-}
-
-void
-tproject_pause(void)
-{
-
 }
 
 /**
@@ -1894,8 +1826,8 @@ _download_pkg(void *_p)
 
     tms_debugf("save: %s", save_path);
 
-    char url[1024];
-    snprintf(url, 1023, "https://%s/internal/get_package?i=%d",
+    char url[256];
+    snprintf(url, 255, "https://%s/internal/get_package?i=%d",
             P.community_host,
             _play_pkg_id);
     long http_code = 0;
@@ -2035,8 +1967,8 @@ _download_level(void *p)
 
     const char *host = strlen(_community_host) > 0 ? _community_host : P.community_host;
 
-    char url[1024];
-    snprintf(url, 1023, "https://%s/internal/%s_level?i=%d&h=%u",
+    char url[256];
+    snprintf(url, 255, "https://%s/internal/%s_level?i=%d&h=%u",
             host,
             _play_download_for_pkg ? "get_package" :
                 (type == LEVEL_DB ? "get" :
@@ -2376,8 +2308,8 @@ _check_version_code(void *_unused)
     if (P.curl) {
         init_curl_defaults(P.curl);
 
-        char url[1024];
-        snprintf(url, 1023, "https://%s/internal/version_code", P.community_host);
+        char url[256];
+        snprintf(url, 255, "https://%s/internal/version_code", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
@@ -2459,11 +2391,11 @@ _get_featured_levels(void *_num)
     if (P.curl) {
         init_curl_defaults(P.curl);
 
-        char url[1024];
+        char url[256];
         if (fl_fetch_time && file_exists(featured_data_path)) {
-            snprintf(url, 1023, "https://%s/internal/get_featured?num=%" PRIu32 "&time=%d", P.community_host, num_featured_levels, fl_fetch_time);
+            snprintf(url, 255, "https://%s/internal/get_featured?num=%" PRIu32 "&time=%d", P.community_host, num_featured_levels, fl_fetch_time);
         } else {
-            snprintf(url, 1023, "https://%s/internal/get_featured?num=%" PRIu32, P.community_host, num_featured_levels);
+            snprintf(url, 255, "https://%s/internal/get_featured?num=%" PRIu32, P.community_host, num_featured_levels);
         }
 
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
@@ -2790,8 +2722,8 @@ _publish_pkg(void *_unused)
                     curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
 
 
-                    char url[1024];
-                    snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/upload_package.php", P.community_host);
+                    char url[256];
+                    snprintf(url, 255, "https://%s/internal/upload_package", P.community_host);
                     curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
                     curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
@@ -2799,10 +2731,6 @@ _publish_pkg(void *_unused)
                     curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
                     curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
                     curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
-
-                    struct curl_slist *headerlist = NULL;
-                    headerlist = curl_slist_append(headerlist, "Expect:");
-                    r = curl_easy_setopt(P.curl, CURLOPT_HTTPHEADER, headerlist);
 
                     tms_debugf("Publishing package..");
                     if ((r = curl_easy_perform(P.curl)) != CURLE_OK) {
@@ -2840,7 +2768,6 @@ _publish_pkg(void *_unused)
                         _publish_pkg_error = true;
                     }
 
-                    curl_slist_free_all(headerlist);
                     curl_mime_free(mime);
                 } else {
                     tms_errorf("lock_curl failed :3");
@@ -2919,21 +2846,15 @@ _publish_level(void *p)
         curl_mime_name(part, "level");
         curl_mime_filedata(part, level_path);
 
-        part = curl_mime_addpart(mime);
-        curl_mime_name(part, "key");
-        curl_mime_data(part, "cuddles", CURL_ZERO_TERMINATED);
+        CURL_CUDDLES;
 
-        char url[1024];
-        snprintf(url, 1023, "https://%s/internal/upload", P.community_host);
+        char url[256];
+        snprintf(url, 255, "https://%s/internal/upload", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
         curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
         curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
-
-        struct curl_slist *headerlist = NULL;
-        headerlist = curl_slist_append(headerlist, "Expect:");
-        r = curl_easy_setopt(P.curl, CURLOPT_HTTPHEADER, headerlist);
 
         tms_infof("Publishing level %d...", level_id);
         r = curl_easy_perform(P.curl);
@@ -2982,7 +2903,6 @@ _publish_level(void *p)
             _publish_lvl_uploading_error = true;
         }
 
-        curl_slist_free_all(headerlist);
         curl_mime_free(mime);
     }
     unlock_curl("publish_level");
@@ -3078,8 +2998,10 @@ _submit_score(void *p)
         curl_mime_name(part, "lvl_id");
         curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
 
-        char url[1024];
-        snprintf(url, 1023, "https://%s/internal/submit_score", P.community_host);
+        CURL_CUDDLES;
+
+        char url[256];
+        snprintf(url, 255, "https://%s/internal/submit_score", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
@@ -3087,10 +3009,6 @@ _submit_score(void *p)
         curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
 
         curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
-
-        struct curl_slist *headerlist = NULL;
-        headerlist = curl_slist_append(headerlist, "Expect:");
-        r = curl_easy_setopt(P.curl, CURLOPT_HTTPHEADER, headerlist);
 
         r = curl_easy_perform(P.curl);
         if (r == CURLE_OK) {
@@ -3138,7 +3056,6 @@ _submit_score(void *p)
         }
 
         curl_mime_free(mime);
-        curl_slist_free_all(headerlist);
     }
 
     _submit_score_done = true;
@@ -3158,10 +3075,6 @@ _login(void *p)
 
     CURLcode r;
 
-    struct MemoryStruct chunk;
-    chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */
-    chunk.size = 0;    /* no data at this point */
-
     lock_curl("login");
     if (P.curl) {
         struct header_data hd = {0};
@@ -3178,9 +3091,7 @@ _login(void *p)
         curl_mime_name(part, "password");
         curl_mime_data(part, data->password, CURL_ZERO_TERMINATED);
 
-        part = curl_mime_addpart(mime);
-        curl_mime_name(part, "key");
-        curl_mime_data(part, "cuddles", CURL_ZERO_TERMINATED);
+        CURL_CUDDLES;
 
         char url[256];
         snprintf(url, 255, "https://%s/internal/login", P.community_host);
@@ -3189,10 +3100,6 @@ _login(void *p)
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
         curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
         curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
-
-        struct curl_slist *headerlist = NULL;
-        headerlist = curl_slist_append(headerlist, "Expect:");
-        r = curl_easy_setopt(P.curl, CURLOPT_HTTPHEADER, headerlist);
 
         r = curl_easy_perform(P.curl);
         if (r == CURLE_OK) {
@@ -3240,110 +3147,68 @@ _register(void *p)
 
     CURLcode r;
 
-    struct MemoryStruct chunk;
-    chunk.memory = (char*)malloc(1);
-    chunk.size = 0;
-
     lock_curl("register");
-    do {
-        num_tries ++;
-        res = T_OK;
 
-        tms_debugf("register, attempt %d", num_tries);
+    if (P.curl) {
+        struct header_data hd = {0};
+        init_curl_defaults(P.curl);
 
-        if (P.curl) {
-            init_curl_defaults(P.curl);
+        curl_mime *mime = curl_mime_init(P.curl);
+        curl_mimepart *part;
 
-            curl_mime *mime = curl_mime_init(P.curl);
-            curl_mimepart *part;
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, "username");
+        curl_mime_data(part, data->username, CURL_ZERO_TERMINATED);
 
-            part = curl_mime_addpart(mime);
-            curl_mime_name(part, "username");
-            curl_mime_data(part, data->username, CURL_ZERO_TERMINATED);
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, "email");
+        curl_mime_data(part, data->email, CURL_ZERO_TERMINATED);
 
-            part = curl_mime_addpart(mime);
-            curl_mime_name(part, "email");
-            curl_mime_data(part, data->email, CURL_ZERO_TERMINATED);
+        part = curl_mime_addpart(mime);
+        curl_mime_name(part, "password");
+        curl_mime_data(part, data->password, CURL_ZERO_TERMINATED);
 
-            part = curl_mime_addpart(mime);
-            curl_mime_name(part, "password");
-            curl_mime_data(part, data->password, CURL_ZERO_TERMINATED);
+        CURL_CUDDLES;
 
-            char url[1024];
-            snprintf(url, 1023, "https://%s/" COMMUNITY_SECRET "/" REGISTER_ANDROID_FILE ".php", P.community_host);
-            curl_easy_setopt(P.curl, CURLOPT_URL, url);
+        char url[256];
+        snprintf(url, 255, "https://%s/internal/register", P.community_host);
+        curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
-            curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
+        curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
+        curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
+        curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
 
-            curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
-            curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
-            curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
+        r = curl_easy_perform(P.curl);
 
-            if ((r = curl_easy_perform(P.curl)) == CURLE_OK && chunk.size > 0) {
-                int notify_id = atoi(chunk.memory);
+        if (r == CURLE_OK) {
+            // Check for messages
+            if (hd.error_message) {
+                ui::message(hd.error_message);
+                ui::emit_signal(SIGNAL_REGISTER_FAILED);
 
-                switch (notify_id) {
-                    case REGISTER_SUCCESS:
-                        ui::message("Registered successfully!");
-                        ui::emit_signal(SIGNAL_REGISTER_SUCCESS);
-                        break;
-
-                    case REGISTER_ERROR:
-                        ui::message("An error occured when trying to register. If this problem persists, please send an email to support@bithack.se.");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-
-                    case REGISTER_USERNAME_BUSY:
-                        ui::message("This username is already taken.");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-
-                    case REGISTER_INVALID_USERNAME:
-                        ui::message("The username contains invalid characters (A-Za-z0-9-_ allowed).");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-
-                    case REGISTER_INVALID_PASSWORD:
-                        ui::message("The password is invalid.");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-
-                    case REGISTER_INVALID_EMAIL:
-                        ui::message("This email is invalid.");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-
-                    case REGISTER_EMAIL_BUSY:
-                        ui::message("This email is already in use.");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-
-                    case REGISTER_EMAIL_BANNED:
-                        ui::message("This email has been banned.");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-
-                    default:
-                        ui::message("Unknown error message.");
-                        ui::emit_signal(SIGNAL_REGISTER_FAILED);
-                        break;
-                }
-            } else {
-                if (r != CURLE_OK) {
-                    tms_errorf("curl_easy_perform failed: %s", curl_easy_strerror(r));
-                } else {
-                    tms_errorf("No data received.");
-                }
-                res = T_ERR;
+                free(hd.error_message);
             }
 
-            curl_mime_free(mime);
+            if (hd.notify_message) {
+                ui::message(hd.notify_message);
+                ui::emit_signal(SIGNAL_REGISTER_SUCCESS);
+
+                free(hd.notify_message);
+            }
         } else {
-            tms_errorf("CURL handle not initialized.");
+            if (r != CURLE_OK) {
+                tms_errorf("curl_easy_perform failed: %s", curl_easy_strerror(r));
+            } else {
+                tms_errorf("No data received.");
+            }
             res = T_ERR;
-            num_tries = 5;
         }
-    } while (res != T_OK && num_tries < 5);
+
+        curl_mime_free(mime);
+    } else {
+        tms_errorf("Unable to initialize curl handle.");
+        res = T_ERR;
+    }
 
     unlock_curl("register");
 
@@ -3867,8 +3732,8 @@ P_get_cookie_data(char **token)
     if (P.curl) {
         init_curl_defaults(P.curl);
 
-        char url[1024];
-        snprintf(url, 1023, "https://%s/internal/login", P.community_host);
+        char url[256];
+        snprintf(url, 255, "https://%s/internal/login", P.community_host);
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         struct curl_slist *cookies;

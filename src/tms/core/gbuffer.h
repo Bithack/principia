@@ -16,7 +16,7 @@
 #define TMS_GBUFFER_STREAM_COPY GL_STREAM_COPY
 #define TMS_GBUFFER_STREAM_READ GL_STREAM_READ
 
-/** 
+/**
  * Manage buffers on the graphics card
  **/
 struct tms_gbuffer {

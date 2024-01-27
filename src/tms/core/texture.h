@@ -4,7 +4,6 @@
 /** @relates tms_texture @{ */
 
 #include <tms/backend/opengl.h>
-#include <tms/util/util.h>
 
 #define TMS_FILTER_LINEAR GL_LINEAR
 #define TMS_FILTER_NEAREST GL_NEAREST
@@ -40,7 +39,7 @@ struct tms_texture {
     void (*buffer_fn)(struct tms_texture *tex);
 };
 
-TMS_STATIC_INLINE void tms_texture_set_buffer_fn(struct tms_texture *tex, void(*fn)(struct tms_texture *tex)){ tex->buffer_fn = fn; };
+static inline void tms_texture_set_buffer_fn(struct tms_texture *tex, void(*fn)(struct tms_texture *tex)){ tex->buffer_fn = fn; };
 struct tms_texture* tms_texture_alloc(void);
 void tms_texture_free(struct tms_texture *tex);
 unsigned char* tms_texture_alloc_buffer(struct tms_texture *tex, int width, int height, int num_channels);
@@ -62,17 +61,17 @@ void tms_texture_init(struct tms_texture *t);
 void tms_texture_set_filtering(struct tms_texture *tex, int filter);
 void tms_texture_render(struct tms_texture *t);
 
-TMS_STATIC_INLINE int tms_texture_get_width(struct tms_texture *tex)
+static inline int tms_texture_get_width(struct tms_texture *tex)
 {
     return tex->width;
 }
 
-TMS_STATIC_INLINE int tms_texture_get_height(struct tms_texture *tex)
+static inline int tms_texture_get_height(struct tms_texture *tex)
 {
     return tex->height;
 }
 
-TMS_STATIC_INLINE int tms_texture_get_num_channels(struct tms_texture *tex)
+static inline int tms_texture_get_num_channels(struct tms_texture *tex)
 {
     return tex->num_channels;
 }

@@ -94,7 +94,7 @@ tms_atlas_add_file(struct tms_atlas *t, const char *filename, int invert_y)
     return ret;
 }
 
-/** 
+/**
  * Add the given bitmap to the spritesheet and return a sprite object.
  *
  * @returns a tms_sprite mapping to the added bitmap in the atlas,

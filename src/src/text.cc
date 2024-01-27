@@ -395,8 +395,8 @@ p_text::create_texture()
         }
 
         if (prev_index && g->parent->index) {
-            FT_Vector delta; 
-            FT_Get_Kerning(this->font->get_face(), prev_index, g->parent->index, FT_KERNING_DEFAULT, &delta); 
+            FT_Vector delta;
+            FT_Get_Kerning(this->font->get_face(), prev_index, g->parent->index, FT_KERNING_DEFAULT, &delta);
             xstart += delta.x >> 6;
         }
 
@@ -416,7 +416,7 @@ p_text::create_texture()
                 continue;
             }
 
-            dst = (uint32_t*)texbuf + 
+            dst = (uint32_t*)texbuf +
                 (row+g->parent->yoffset) * pitch/4 +
                 xstart + g->parent->minx;
 

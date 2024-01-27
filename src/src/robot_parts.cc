@@ -933,7 +933,7 @@ robot_parts::weapon::make(int weapon_id, creature *c)
         case WEAPON_PIXEL_SWORD: w = new robot_parts::pixel_sword(c); break;
         case WEAPON_SERPENT_SWORD: w = new robot_parts::serpent_sword(c); break;
         case WEAPON_PICKAXE: w = new robot_parts::pickaxe(c); break;
-        default: 
+        default:
             tms_errorf("unhandled weapon %d", weapon_id);
             return 0;
     }
@@ -2345,7 +2345,7 @@ robot_parts::base_jetpack::add_to_world()
 
     if (W->is_playing()) {
         /* We use post_emit whenever an emit is necessary within add_to_world.
-         * This prevents the to_be_emitted vector to be invalidated due to 
+         * This prevents the to_be_emitted vector to be invalidated due to
          * changes being made while it's being iterated over. */
         G->post_emit(this->flames[0], this->r, this->r->get_smooth_velocity());
         G->post_emit(this->flames[1], this->r, this->r->get_smooth_velocity());
@@ -3204,7 +3204,7 @@ robot_parts::feet::handle_contact(b2Contact *contact, b2Fixture *rf, b2Fixture *
         return;
     }
 
-#if 0 
+#if 0
     if (!this->r->jumping) {
         if (this->r->j_feet[this->body_index]) {
             if (this->r->j_feet[this->body_index]->GetJointTranslation() < -.25f) {
@@ -4473,6 +4473,9 @@ robot_parts::base_spear::step()
             if (!this->active) {
                 this->state = SPEAR_RETRACTING;
             }
+            break;
+
+        case SPEAR_IDLE:
             break;
     }
 }

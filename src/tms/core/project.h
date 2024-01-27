@@ -18,8 +18,6 @@ void tproject_window_size_changed(void);
 
 void tproject_soft_resume();
 void tproject_soft_pause();
-void tproject_resume();
-void tproject_pause();
 void tproject_quit();
 
 void tproject_step();

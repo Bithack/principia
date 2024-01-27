@@ -1,40 +1,81 @@
 #!/bin/bash
 
 # Builds an AppImage using appimagetool.
-# You need to run this inside of a build directory.
+# You need to run this inside of a build directory in the source tree,
+# it will generate the build files and compile Principia for you.
+
+# This script should be run on Debian 11 Bullseye.
+
+# Download appimagetool
+if [ ! -f appimagetool ]; then
+	wget https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+	chmod +x appimagetool
+fi
 
 # Remove old appdir
 rm -rf AppDir
 
-mkdir -p AppDir
-
-DESTDIR="AppDir/" ninja install
+# Compile and install into AppDir
+cmake .. -G Ninja -DCMAKE_INSTALL_PREFIX=AppDir/
+ninja
+ninja install
 
 cd AppDir
 
+# Put desktop and icon at root
 ln -s share/applications/principia.desktop principia.desktop
 ln -s share/icons/hicolor/128x128/apps/principia.png principia.png
 ln -s principia.png .DirIcon
 
-cat > AppRun <<\EOF
+cat > AppRun <<\APPRUN
 #!/bin/sh
-PATH="$(dirname "$(readlink -f "${0}")")"
-export LD_LIBRARY_PATH="${PATH}"/lib/:"${LD_LIBRARY_PATH}"
-exec "${PATH}/bin/principia" "@$"
-EOF
+
+if ! command -v -- "xdg-mime" > /dev/null 2>&1; then
+	echo "Required XDG helper scripts required by Principia are not found."
+	echo "Please install 'xdg-utils' from your system's package manager."
+	exit 43
+fi
+
+# Register URL handler, which points at the AppImage executable itself ($APPIMAGE)
+
+URL_HANDLER=~/.local/share/applications/principia-url-handler.desktop
+mkdir -p ~/.local/share/applications/
+
+echo "[Desktop Entry]" > "$URL_HANDLER"
+echo "Name=Principia URL Handler" >> "$URL_HANDLER"
+echo "Exec=${APPIMAGE// /\\ } %u" >> "$URL_HANDLER" # Escape spaces if path has them
+echo "Type=Application" >> "$URL_HANDLER"
+echo "Terminal=false" >> "$URL_HANDLER"
+echo "NoDisplay=true" >> "$URL_HANDLER"
+echo "MimeType=x-scheme-handler/principia;" >> "$URL_HANDLER"
+
+xdg-mime default principia-url-handler.desktop x-scheme-handler/principia
+
+# Now launch it...
+
+APP_PATH="$(dirname "$(readlink -f "${0}")")"
+export LD_LIBRARY_PATH="${APP_PATH}"/lib/:"${LD_LIBRARY_PATH}"
+exec "${APP_PATH}/bin/principia" "$@"
+APPRUN
 chmod +x AppRun
 
-mkdir -p lib
+# List of libraries from the system that should be bundled in the AppImage.
+# We are very conservative with what is bundled, GTK3 is expected to be already
+# installed by the user and other libraries like libcurl and libfreetype are
+# expected to already exist on the system.
+INCLUDE_LIBS=(
+	libGLEW.so.2.1
+	libjpeg.so.62
+	libpng16.so.16
+	libSDL2-2.0.so.0
+	libXss.so.1
+)
 
-# Copy over libraries
-ldd bin/principia | awk 'NF == 4 { system("cp " $3 " lib/") }'
-
-cd lib/
-# Remove some libraries that break things
-rm libc.so.6 libdl.so.2 libdrm.so.2 libgcc_s.so.1 libGL.so.1 libGLdispatch.so.0 libGLX.so.0 libm.so.6 libOpenGL.so.0 libpthread.so.0 librt.so.1 libstdc++.so.6
-rm libresolv.so.2 libxcb.so.1 libX11.so.6 libasound.so.2 libgdk_pixbuf-2.0.so.0 libfontconfig.so.1 libthai.so.0 libfreetype.so.6 libharfbuzz.so.0 libcom_err.so.2 libexpat.so.1 libglib-2.0.so.0 libgpg-error.so.0 libkeyutils.so.1 libp11-kit.so.0 libuuid.so.1 libz.so.1
-cd ..
+mkdir -p lib/
+for i in "${INCLUDE_LIBS[@]}"; do
+	cp /usr/lib/x86_64-linux-gnu/$i lib/
+done
 
 # Actually build the appimage
 cd ..
-ARCH=x86_64 appimagetool AppDir/
+ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir/

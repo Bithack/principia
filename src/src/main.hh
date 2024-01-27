@@ -128,18 +128,6 @@ enum {
 #define MAX_ACTIONS 10
 #define MAX_FEATURED_LEVELS_FETCHED 16
 
-#define REGISTER_SUCCESS            110
-#define REGISTER_ERROR              111
-#define REGISTER_USERNAME_BUSY      112
-#define REGISTER_INVALID_USERNAME   113
-#define REGISTER_INVALID_PASSWORD   114
-#define REGISTER_INVALID_EMAIL      115
-#define REGISTER_EMAIL_BUSY         116
-#define REGISTER_EMAIL_BANNED       117
-
-#define COMMUNITY_SECRET        "apZodIaL1"
-#define REGISTER_ANDROID_FILE   "bppfoal2_"
-
 #define ERROR_ACTION_LOG_IN 1
 
 struct action {

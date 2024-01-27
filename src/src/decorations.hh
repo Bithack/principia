@@ -59,7 +59,7 @@ class decoration : public entity
     void set_decoration_type(uint32_t t);
 
     void update();
-    
+
     inline uint32_t get_decoration_type()
     {
         uint32_t t = this->properties[0].v.i;

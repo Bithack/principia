@@ -154,7 +154,7 @@ world::insert(entity *e)
     }
 }
 
-/** 
+/**
  * insert and call add_to_world
  **/
 void
@@ -217,7 +217,7 @@ world::erase(entity *e)
     }
 }
 
-/** 
+/**
  * Erase and call remove_from_world
  *
  * return true if we removed an emitted entity
@@ -1717,7 +1717,7 @@ world::init_level(bool soft)
 
 /**
  * - Make dynamic bodies connected to static bodies static, if the max force is inf
- * - Remove joints between static entities 
+ * - Remove joints between static entities
  **/
 void
 world::optimize_connections()
@@ -2274,7 +2274,7 @@ world::fill_buffer(lvlinfo *lvl, lvlbuf *buf,
         }
 
         if (this->is_paused()) {
-            /* if we're paused and saving, we recalculate the relative angles of 
+            /* if we're paused and saving, we recalculate the relative angles of
              * some connection types */
             (*i)->update_relative_angle(false);
         }
@@ -2289,7 +2289,7 @@ world::fill_buffer(lvlinfo *lvl, lvlbuf *buf,
     if (fill_unloaded) this->cwindow->preloader.write_connections(lvl, buf);
 }
 
-/** 
+/**
  * return true if the world has minimum 'count' number of entities with the given gid
  *
  * very slow function
@@ -2309,7 +2309,7 @@ world::has_num_entities_with_gid(uint32_t gid, int count)
     return false;
 }
 
-/** 
+/**
  * Save a partial set of entities from the world, including all related connections, groups and cables.
  * Used by game to save a multiselect.
  **/
@@ -2365,9 +2365,9 @@ world::save_partial(std::set<entity*> *entity_list, const char *name, uint32_t p
 
         /* special case for pivots, dampers, etc, YUCK! */
         connection *extra_conn = 0;
-        if (en->g_id == 16) extra_conn = &((pivot_1*)en)->dconn;
-        else if (en->g_id == 19) extra_conn = &((damper_1*)en)->dconn;
-        else if (en->g_id == 95) extra_conn = &((rubberband_1*)en)->dconn;
+        if (en->g_id == O_OPEN_PIVOT) extra_conn = &((pivot_1*)en)->dconn;
+        else if (en->g_id == O_DAMPER) extra_conn = &((damper_1*)en)->dconn;
+        else if (en->g_id == O_RUBBERBAND) extra_conn = &((rubberband_1*)en)->dconn;
 
         if (extra_conn) {
             connections.insert(extra_conn);
@@ -2489,7 +2489,7 @@ world::save(int save_type)
     switch (save_type) {
         case SAVE_TYPE_DEFAULT:
             if (this->level.local_id == 0) {
-                /* this level does not have a local id, 
+                /* this level does not have a local id,
                  * we need to retrieve a new id for it */
                 this->level.local_id = pkgman::get_next_level_id();
                 tms_infof("Assigned level ID: %d", this->level.local_id);
@@ -2830,43 +2830,6 @@ world::apply_puzzle_constraints()
                 (*i)->fixed = true;
             }
         }
-
-#if 0
-        /* set objects to non-moveable if they have a connection */
-        for (std::map<uint32_t, entity*>::iterator i = this->all_entities.begin();
-                i != this->all_entities.end(); i++) {
-            if (i->second->conn_ll) {
-                if (i->second->is_moveable() && (i->second->g_id == 19 || i->second->g_id == 69)) {
-                    damper_1 *d1 = 0;
-                    damper_2 *d2 = 0;
-                    entity *other = 0;
-
-                    if (i->second->g_id == 19) {
-                        d1 = static_cast<damper_1*>(i->second);
-                        other = d1->dconn.get_other(d1);
-                    } else {
-                        d2 = static_cast<damper_2*>(i->second);
-                        other = d2->get_property_entity();
-                    }
-
-                    connection *cc = i->second->conn_ll;
-
-                    do {
-                        if (cc->o == other) {
-                            tms_infof("skipping self");
-                            continue;
-                        }
-
-                        tms_debugf("XXXXXXXXXDisabling moveable on %s due to connections.", i->second->get_name());
-                        i->second->set_moveable(false);
-                    } while ((cc = cc->next[(cc->e == i->second) ? 0:1]));
-                } else {
-                    tms_debugf("Disabling moveable on %s due to connections.", i->second->get_name());
-                    i->second->set_moveable(false);
-                }
-            }
-        }
-#endif
     }
 }
 
@@ -2989,7 +2952,7 @@ world::b2_sleep_listener::OnSleep(b2Body *b)
         return;
     }
 
-    /* loop through all fixtures and decrement the num fixtures in the chunks their 
+    /* loop through all fixtures and decrement the num fixtures in the chunks their
      * contained in */
     b2Fixture *f, *my;
     entity *e;

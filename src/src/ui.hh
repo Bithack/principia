@@ -143,7 +143,7 @@ class ui
     static void message(const char *str, bool long_duration=false);
     static void messagef(const char *str, ...);
     static void open_dialog(int num, void *data=0);
-    static void open_help_dialog(const char *title, const char *description, bool enable_markup=true);
+    static void open_help_dialog(const char *title, const char *description);
     static void open_error_dialog(const char *error_string);
     static void open_sandbox_tips();
     static void open_url(const char *url);

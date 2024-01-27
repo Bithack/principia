@@ -110,7 +110,7 @@ trampoline::step()
     float factor = displ;
 
     displ *= this->k;
-    
+
     b2Vec2 force = b2Vec2(0.f,1.f);
     force *= displ;
 

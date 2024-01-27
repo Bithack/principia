@@ -142,11 +142,11 @@ class sidecheck_cb : public b2RayCastCallback
         entity *e = static_cast<entity*>(f->GetUserData());
 
         if (e && e != this->ignore && e->get_layer() == ignore->get_layer() && e->allow_connections()) {
-            if ((e->g_id == 95 || e->g_id == 96) &&
-                (this->ignore->g_id == 95 || this->ignore->g_id == 96)) {
+            if ((e->g_id == O_RUBBERBAND || e->g_id == O_RUBBERBAND_2) &&
+                (this->ignore->g_id == O_RUBBERBAND || this->ignore->g_id == O_RUBBERBAND_2)) {
                 entity *other = NULL;
 
-                if (e->g_id == 95) {
+                if (e->g_id == O_RUBBERBAND) {
                     rubberband_1 *r1 = static_cast<rubberband_1*>(e);
                     other = r1->dconn.get_other(r1);
                 } else {
@@ -488,12 +488,12 @@ entity::gather_connected_entities(std::set<entity*> *entities, bool include_cabl
     if (include_custom_conns) {
         entity *other = 0;
 
-        if (this->g_id == 16) other = ((pivot_1*)this)->dconn.o;
-        else if (this->g_id == 69) other = ((pivot_2*)this)->p1;
-        else if (this->g_id == 19) other = ((damper_1*)this)->dconn.o;
-        else if (this->g_id == 67) other = ((damper_2*)this)->d1;
-        else if (this->g_id == 95) other = ((rubberband_1*)this)->dconn.o;
-        else if (this->g_id == 96) other = ((rubberband_2*)this)->d1;
+        if (this->g_id == O_OPEN_PIVOT) other = ((pivot_1*)this)->dconn.o;
+        else if (this->g_id == O_OPEN_PIVOT_2) other = ((pivot_2*)this)->p1;
+        else if (this->g_id == O_DAMPER) other = ((damper_1*)this)->dconn.o;
+        else if (this->g_id == O_DAMPER_2) other = ((damper_2*)this)->d1;
+        else if (this->g_id == O_RUBBERBAND) other = ((rubberband_1*)this)->dconn.o;
+        else if (this->g_id == O_RUBBERBAND_2) other = ((rubberband_2*)this)->d1;
 
         if (other && entities->find(other) == entities->end()) {
             other->gather_connected_entities(entities, include_cables, include_custom_conns, include_static, select_through_layers, layer);
@@ -580,7 +580,7 @@ entity::remove_from_world()
  * Therefore, it is important that we ALWAYS make sure the data changed/set in
  * setup is also modified by restore() or read_state().
  *
- * read_state() is used to restore the state of an entity that is not yet added to 
+ * read_state() is used to restore the state of an entity that is not yet added to
  * the world, we need to keep important data in temporary variables until restore()
  * is called.
  *
@@ -1624,7 +1624,7 @@ entity::signal(int event)
     }
 }
 
-/** 
+/**
  * Reset any resettable flags in here
  **/
 void

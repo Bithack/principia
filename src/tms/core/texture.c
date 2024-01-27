@@ -11,7 +11,6 @@
 #include "SDL_image.h"
 
 #ifdef TMS_BACKEND_ANDROID
-#include <tms/util/packme.h>
 struct etc1_header {
     char tag[6];
     uint16_t format;
@@ -19,12 +18,10 @@ struct etc1_header {
     uint16_t height;
     uint16_t original_width;
     uint16_t original_height;
-} PACKED;
-#include <tms/util/unpackme.h>
+} __attribute__ ((__packed__));
 #endif
 
 #ifdef TMS_BACKEND_IOS
-#include <tms/util/packme.h>
 struct pvrtc_header {
     uint32_t header_length;
     uint32_t height;
@@ -39,8 +36,7 @@ struct pvrtc_header {
     uint32_t bitmask_a;
     uint32_t pvrtag;
     uint32_t numsurfs;
-} PACKED;
-#include <tms/util/unpackme.h>
+} __attribute__ ((__packed__));
 #endif
 
 struct tms_texture*

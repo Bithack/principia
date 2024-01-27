@@ -765,7 +765,6 @@ GtkLabel        *info_name;
 GtkLabel        *info_text;
 char            *_pass_info_descr;
 char            *_pass_info_name;
-bool             _pass_info_enable_markup;
 
 /** --Error Dialog **/
 GtkDialog       *error_dialog;
@@ -2584,19 +2583,9 @@ on_escript_show(GtkWidget *wdg, void *unused)
 gboolean
 on_escript_keypress(GtkWidget *w, GdkEventKey *event, gpointer unused)
 {
-    switch (event->keyval) {
-        case GDK_KEY_s:
-            if (event->state & GDK_CONTROL_MASK) {
-                on_escript_btn_click(GTK_WIDGET(escript_save), NULL, GINT_TO_POINTER(1));
-                return true;
-            }
-            break;
-
-        case GDK_KEY_c: // should we really use CTRL+C?
-            if (event->state & GDK_CONTROL_MASK) {
-                /* TODO: implement compilation check here */
-            }
-            break;
+    if (GDK_KEY_s && event->state & GDK_CONTROL_MASK) {
+        on_escript_btn_click(GTK_WIDGET(escript_save), NULL, GINT_TO_POINTER(1));
+        return true;
     }
 
     return false;
@@ -5280,13 +5269,8 @@ on_tips_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
 void
 on_info_show(GtkWidget *wdg, void *unused)
 {
-    if (_pass_info_enable_markup) {
-        gtk_label_set_markup(info_text, _pass_info_descr);
-        gtk_label_set_markup(info_name, _pass_info_name);
-    } else {
-        gtk_label_set_text(info_text, _pass_info_descr);
-        gtk_label_set_text(info_name, _pass_info_name);
-    }
+    gtk_label_set_text(info_text, _pass_info_descr);
+    gtk_label_set_text(info_name, _pass_info_name);
 }
 
 gboolean
@@ -5930,8 +5914,8 @@ on_login_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
             gtk_label_set_text(login_status, "Enter data into both fields.");
         }
     } else if (btn_pressed(w, login_btn_register, user_data)) {
-        char url[1024];
-        snprintf(url, 1023, "https://%s/register", P.community_host);
+        char url[256];
+        snprintf(url, 255, "https://%s/register", P.community_host);
         ui::open_url(url);
     }
 
@@ -6388,7 +6372,7 @@ void load_gtk_css() {
 
 int _gtk_loop(void *p)
 {
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG) && defined(VALGRIND_NO_UI)
+#ifdef VALGRIND_NO_UI
     if (RUNNING_ON_VALGRIND) return T_OK;
 #endif
 
@@ -11592,7 +11576,7 @@ _close_all_dialogs(gpointer unused)
 static gboolean
 _close_absolutely_all_dialogs(gpointer unused)
 {
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG) && defined(VALGRIND_NO_UI)
+#ifdef VALGRIND_NO_UI
     if (RUNNING_ON_VALGRIND) return false;
 #endif
 
@@ -11605,7 +11589,7 @@ _close_absolutely_all_dialogs(gpointer unused)
 
 static void wait_ui_ready()
 {
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG) && defined(VALGRIND_NO_UI)
+#ifdef VALGRIND_NO_UI
     if (RUNNING_ON_VALGRIND) return;
 #endif
 
@@ -11638,7 +11622,7 @@ void ui::open_url(const char *url)
 void
 ui::open_dialog(int num, void *data/*=0*/)
 {
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG) && defined(VALGRIND_NO_UI)
+#ifdef VALGRIND_NO_UI
     if (RUNNING_ON_VALGRIND) {
         /* Send default response to any prompt that pops up */
         if (num == DIALOG_PROMPT) {
@@ -11756,7 +11740,7 @@ ui::open_dialog(int num, void *data/*=0*/)
 
 void ui::open_sandbox_tips()
 {
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG) && defined(VALGRIND_NO_UI)
+#ifdef VALGRIND_NO_UI
     if (RUNNING_ON_VALGRIND) return;
 #endif
 
@@ -11768,9 +11752,9 @@ void ui::open_sandbox_tips()
 }
 
 void
-ui::open_help_dialog(const char *title, const char *description, bool enable_markup/*=true*/)
+ui::open_help_dialog(const char *title, const char *description)
 {
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG) && defined(VALGRIND_NO_UI)
+#ifdef VALGRIND_NO_UI
     if (RUNNING_ON_VALGRIND) return;
 #endif
 
@@ -11781,7 +11765,6 @@ ui::open_help_dialog(const char *title, const char *description, bool enable_mar
      * from any thread */
     _pass_info_name = const_cast<char*>(title);
     _pass_info_descr = const_cast<char*>(description);
-    _pass_info_enable_markup = enable_markup;
     gdk_threads_add_idle(_open_info_dialog, 0);
 
     gdk_display_flush(gdk_display_get_default());
@@ -11797,7 +11780,7 @@ ui::set_next_action(int action_id)
 void
 ui::emit_signal(int num, void *data/*=0*/)
 {
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG) && defined(VALGRIND_NO_UI)
+#ifdef VALGRIND_NO_UI
     if (RUNNING_ON_VALGRIND) return;
 #endif
 
@@ -11859,7 +11842,7 @@ ui::confirm(const char *text,
         struct confirm_data _confirm_data/*=none*/
         )
 {
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG) && defined(VALGRIND_NO_UI)
+#ifdef VALGRIND_NO_UI
     if (RUNNING_ON_VALGRIND) {
         P.add_action(action1.action_id, 0);
         return;

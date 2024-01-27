@@ -30,7 +30,7 @@ tms_varray_init(struct tms_varray *va, size_t num_attributes)
 }
 
 int
-tms_varray_map_attribute(struct tms_varray *va, const char *name, 
+tms_varray_map_attribute(struct tms_varray *va, const char *name,
                          int num_components, GLenum component_type,
                          struct tms_gbuffer *gbuf)
 {

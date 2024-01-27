@@ -164,7 +164,7 @@ ui::quit()
     }
 }
 
-void ui::open_help_dialog(const char *title, const char *description, bool enable_markup/*=true*/)
+void ui::open_help_dialog(const char *title, const char *description)
 {
     JNIEnv *env = Android_JNI_GetEnv();
     jclass cls = Android_JNI_GetActivityClass();

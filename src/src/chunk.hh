@@ -94,7 +94,7 @@ class level_chunk : public entity
         this->set_flag(ENTITY_ALLOW_CONNECTIONS, true);
         this->set_flag(ENTITY_IS_STATIC, true);
         this->set_flag(ENTITY_IS_ZAPPABLE, true);
-        this->g_id = 197;//O_CHUNK;
+        this->g_id = O_CHUNK;
         this->set_mesh((struct tms_mesh*)0);
         this->set_material(&m_tpixel);
         this->generate_phase = 0;
@@ -104,14 +104,6 @@ class level_chunk : public entity
         this->garbage = false;
         this->loaded_neighbours = false;
         memset(this->neighbours, 0, sizeof(this->neighbours));
-
-#if 0
-        if (x > 1000 || y > 1000 || x < -1000 || y < -1000) {
-            tms_trace();
-            tms_debugf("NOOOOOOOOO!");
-            tms_fatalf("NO!");
-        }
-#endif
 
         for (int x=0; x<3; x++) {
             tms_entity_init(&this->layer_entities[x]);

@@ -138,7 +138,7 @@ magsock::on_touch(b2Fixture *a, b2Fixture *b)
     if (a == this->sensor) {
         entity *e = (entity*)b->GetUserData();
 
-        if (e && e->g_id == 36) {
+        if (e && e->g_id == O_MAGNETIC_PLUG) {
             this->connected = b;
             this->plug = static_cast<magplug*>(e);
             this->plug->sock = this;

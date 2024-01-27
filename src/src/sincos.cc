@@ -3,7 +3,7 @@
 #include "main.hh"
 #include "game.hh"
 
-/** 
+/**
  * OUT0: Positive Y
  * OUT1: Positive X
  * OUT2: Negative Y

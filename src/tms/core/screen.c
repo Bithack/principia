@@ -8,7 +8,6 @@
 #include "event.h"
 #include "scene.h"
 #include "surface.h"
-#include "../util/util.h"
 
 struct tms_screen*
 tms_screen_alloc(struct tms_screen_spec *spec)
@@ -44,7 +43,7 @@ tms_sceen_free(struct tms_screen *s)
 }
     */
 
-/** 
+/**
  * Get the active surface of this screen.
  *
  * @relates tms_screen
@@ -54,7 +53,7 @@ struct tms_surface *tms_screen_get_surface(struct tms_screen *s)
     return s->surface;
 }
 
-/** 
+/**
  * Get the active scene of this screen.
  *
  * @relates tms_screen
@@ -64,7 +63,7 @@ struct tms_scene *tms_screen_get_scene(struct tms_screen *s)
     return s->scene;
 }
 
-/** 
+/**
  * Get the data that was allocated by the `tms_screen_spec`s `alloc_data` callback.
  *
  * @relates tms_screen
@@ -75,7 +74,7 @@ tms_screen_get_data(struct tms_screen *s)
     return s->data;
 }
 
-/** 
+/**
  * Set the screen' scene..
  * Only valid if the screen was not created with TMS_SCREEN_ALLOC_SCENE.
  *
@@ -86,7 +85,7 @@ tms_screen_get_data(struct tms_screen *s)
 int
 tms_screen_set_scene(struct tms_screen *s, struct tms_scene *scene)
 {
-    if (s->spec->flags & TMS_SCREEN_ALLOC_SCENE) 
+    if (s->spec->flags & TMS_SCREEN_ALLOC_SCENE)
         return T_INVALID_OPERATION;
 
     s->scene = scene;
@@ -94,7 +93,7 @@ tms_screen_set_scene(struct tms_screen *s, struct tms_scene *scene)
     return T_OK;
 }
 
-/** 
+/**
  * Set the screen's surface.
  * Can only be called if the screen did not allocate its own surface
  * according to the tms_screen_spec.
@@ -106,7 +105,7 @@ tms_screen_set_scene(struct tms_screen *s, struct tms_scene *scene)
 int
 tms_screen_set_surface(struct tms_screen *s, struct tms_surface *surf)
 {
-    if (s->spec->flags & TMS_SCREEN_ALLOC_SURFACE) 
+    if (s->spec->flags & TMS_SCREEN_ALLOC_SURFACE)
         return T_INVALID_OPERATION;
 
     s->surface = surf;
@@ -114,7 +113,7 @@ tms_screen_set_surface(struct tms_screen *s, struct tms_surface *surf)
     return T_OK;
 }
 
-/** 
+/**
  * Intermediate function between the specs input callback
  * and the internal input system.
  *
@@ -132,7 +131,7 @@ tms_screen_handle_input(struct tms_screen *s,
     return T_CONT;
 }
 
-/** 
+/**
  * @relates tms_screen
  **/
 int
@@ -144,7 +143,7 @@ tms_screen_end_frame(struct tms_screen *s)
     return T_OK;
 }
 
-/** 
+/**
  * @relates tms_screen
  **/
 int
@@ -156,7 +155,7 @@ tms_screen_begin_frame(struct tms_screen *s)
     return T_OK;
 }
 
-/** 
+/**
  * Called by tms_render each frame.
  * Will forward the rendering to the function defined by the screen's spec.
  *
@@ -177,7 +176,7 @@ tms_screen_render(struct tms_screen *s)
     return T_OK;
 }
 
-/** 
+/**
  * Called by tms_render each frame
  *
  * @relates tms_screen

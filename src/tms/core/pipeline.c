@@ -11,18 +11,15 @@ static struct tms_pipeline pipelines[TMS_NUM_PIPELINES] = {0};
 static int n_local_uniforms = 0;
 
 #if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
-#ifdef _MSC_VER
-#define TMS_GLAPIENTRY APIENTRY
-#else
-#define TMS_GLAPIENTRY
-#endif
 
-typedef void (TMS_GLAPIENTRY *TMS_UNIFORM_FN)(GLint, GLsizei, const GLfloat*);
-typedef void (TMS_GLAPIENTRY *TMS_UNIFORM_MAT_FN)(GLint, GLsizei, GLboolean, const GLfloat*);
+typedef void (*TMS_UNIFORM_FN)(GLint, GLsizei, const GLfloat*);
+typedef void (*TMS_UNIFORM_MAT_FN)(GLint, GLsizei, GLboolean, const GLfloat*);
 
 TMS_UNIFORM_FN uniform_fn[7];
 TMS_UNIFORM_MAT_FN uniform_mat_fn[5];
+
 #else
+
 void (*uniform_fn[])(GLint, GLsizei, void *) = {
     0,
     glUniform4fv,
@@ -40,6 +37,7 @@ void (*uniform_mat_fn[])(GLint, GLsizei, GLboolean, void *) = {
     glUniformMatrix4fv,
     glUniformMatrix4fv,
 };
+
 #endif
 
 struct tms_pipeline *tms_get_pipeline(int num)

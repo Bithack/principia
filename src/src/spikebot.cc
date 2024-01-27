@@ -105,7 +105,7 @@ spikebot::update()
         tmat4_scale(this->M, this->get_scale(), this->get_scale(), this->get_scale());
         tmat4_scale(this->e_body->M, this->get_scale(), this->get_scale(), this->get_scale());
     }
-    
+
     creature::update();
 }
 

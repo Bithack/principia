@@ -261,12 +261,12 @@ game::delete_entity(entity *e)
          * have selected. After that, we can move on to the regular
          * object deletion code.
          **/
-        if (e->g_id == 16 || e->g_id == 69) { /* Pivot */
+        if (e->g_id == O_OPEN_PIVOT || e->g_id == O_OPEN_PIVOT_2) { /* Pivot */
             pivot_1 *p1 = 0;
             pivot_2 *p2 = 0;
             entity *other = 0;
 
-            if (e->g_id == 16) {
+            if (e->g_id == O_OPEN_PIVOT) {
                 p1 = static_cast<pivot_1*>(e);
                 other = p1->dconn.o;
                 if (other && other != p1)
@@ -300,12 +300,12 @@ game::delete_entity(entity *e)
             delete p2;
 
             return 3;
-        } else if (e->g_id == 19 || e->g_id == 67) { /* Damper */
+        } else if (e->g_id == O_DAMPER || e->g_id == O_DAMPER_2) { /* Damper */
             damper_1 *d1 = 0;
             damper_2 *d2 = 0;
             entity *other = 0;
 
-            if (e->g_id == 19) {
+            if (e->g_id == O_DAMPER) {
                 d1 = static_cast<damper_1*>(e);
                 other = d1->dconn.o;
                 if (other && other != d1)
@@ -339,12 +339,12 @@ game::delete_entity(entity *e)
             delete d2;
 
             return 3;
-        } else if (e->g_id == 95 || e->g_id == 96) { /* Rubberband */
+        } else if (e->g_id == O_RUBBERBAND || e->g_id == O_RUBBERBAND_2) { /* Rubberband */
             rubberband_1 *r1 = 0;
             rubberband_2 *r2 = 0;
             entity *other = 0;
 
-            if (e->g_id == 95) {
+            if (e->g_id == O_RUBBERBAND) {
                 r1 = static_cast<rubberband_1*>(e);
                 other = r1->dconn.o;
                 if (other && other != r1)
@@ -1063,7 +1063,7 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                         ui::message("No description available for this level.");
                     }
                 } else {
-                    ui::open_help_dialog("Level description", W->level.descr, false);
+                    ui::open_help_dialog("Level description", W->level.descr);
                 }
             }
             return true;
@@ -1248,11 +1248,11 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             /* FIXME: Damper, Open pivot and Rubberband can't be moveable right now. fix sometime */
         case GW_TOGGLE_MOVEABLE:
             if (G->selection.e) {
-                if (G->selection.e->g_id == 16 || G->selection.e->g_id == 69) {
+                if (G->selection.e->g_id == O_OPEN_PIVOT || G->selection.e->g_id == O_OPEN_PIVOT_2) {
                     ui::message("Can't set the Pivot to moveable.");
-                } else if (G->selection.e->g_id == 19 || G->selection.e->g_id == 67) {
+                } else if (G->selection.e->g_id == O_DAMPER || G->selection.e->g_id == O_DAMPER_2) {
                     ui::message("Can't set the Damper to moveable.");
-                } else if (G->selection.e->g_id == 95 || G->selection.e->g_id == 96) {
+                } else if (G->selection.e->g_id == O_RUBBERBAND || G->selection.e->g_id == O_RUBBERBAND_2) {
                     ui::message("Can't set the Rubberband to moveable.");
                 } else {
                     G->selection.e->get_property_entity()->set_moveable(!G->selection.e->get_property_entity()->is_moveable());

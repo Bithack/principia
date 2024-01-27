@@ -4,7 +4,7 @@
 #include "main.hh"
 #include "game.hh"
 
-/** 
+/**
  * Sockets:
  * OUT0 = Angle
  * OUT1 = Velocity

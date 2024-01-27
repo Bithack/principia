@@ -45,7 +45,7 @@ void thash_free(struct thash *t)
     free(t);
 }
 
-TMS_STATIC_INLINE struct thash *
+static inline struct thash *
 thash_create(uint32_t tbl_sz)
 {
     struct thash *th = calloc(1, sizeof(struct thash));
@@ -64,7 +64,7 @@ thash_create(uint32_t tbl_sz)
     return th;
 }
 
-/** 
+/**
  * Create a hash table of pointers to data.
  *
  * @relates thash
@@ -81,7 +81,7 @@ thash_create_ptrdata_table(uint32_t tbl_sz)
     return th;
 }
 
-/** 
+/**
  * Create a hash table of pointers.
  * The added pointers will act as both value and key.
  *
@@ -99,7 +99,7 @@ thash_create_pointer_table(uint32_t tbl_sz)
     return th;
 }
 
-/** 
+/**
  * Create a hash table with 32 bit usigned integers
  * as keys.
  *
@@ -117,7 +117,7 @@ thash_create_uint32_table(uint32_t tbl_sz)
     return th;
 }
 
-/** 
+/**
  * Create a hash table with strings as keys
  *
  * @relates thash

@@ -86,21 +86,6 @@ static float  grad2( int hash, float x, float y ) {
     return ((h&1)? -u : u) + ((h&2)? -2.0f*v : 2.0f*v);
 }
 
-static float  grad3( int hash, float x, float y , float z ) {
-    int h = hash & 15;     /* Convert low 4 bits of hash code into 12 simple */
-    float u = h<8 ? x : y; /* gradient directions, and compute dot product. */
-    float v = h<4 ? y : h==12||h==14 ? x : z; /* Fix repeats at h = 12 to 15 */
-    return ((h&1)? -u : u) + ((h&2)? -v : v);
-}
-
-static float  grad4( int hash, float x, float y, float z, float t ) {
-    int h = hash & 31;      /* Convert low 5 bits of hash code into 32 simple */
-    float u = h<24 ? x : y; /* gradient directions, and compute dot product. */
-    float v = h<16 ? y : z;
-    float w = h<8 ? z : t;
-    return ((h&1)? -u : u) + ((h&2)? -v : v) + ((h&4)? -w : w);
-}
-
   /* A lookup table to traverse the simplex around a given point in 4D. */
   /* Details can be found where this table is used, in the 4D noise method. */
   /* TODO: This should not be required, backport it from Bill's GLSL code! */

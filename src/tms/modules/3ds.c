@@ -39,7 +39,7 @@ load_3ds_model(struct tms_model *model,
     filesz = SDL_RWtell(fp);
     SDL_RWseek(fp, 0, SEEK_SET);
 
-    tms_infof("3DS FILE SIZE: %d", (int)filesz);
+    tms_debugf("3DS FILE SIZE: %d", (int)filesz);
 
     while (SDL_RWtell(fp) < filesz) {
         SDL_RWread(fp, &chunk_id, 2, 1);
@@ -52,20 +52,18 @@ load_3ds_model(struct tms_model *model,
             case 0x3d3d:
                 break;
 
-            case 0x4000: /* object block */
-                {
-                    //tms_debugf("found object chunk");
-                    int x;
-                    for (x=0; x<NAME_MAX-1; x++) {
-                        SDL_RWread(fp, &object_name[x], 1, 1);
-                        //fread(&object_name[x], 1, 1, fp);
-                        if (object_name[x] == '\0')
-                            break;
-                    }
-                    object_name[x] = '\0';
-                    //tms_debugf("object name: %s", object_name);
+            case 0x4000: { /* object block */
+                //tms_debugf("found object chunk");
+                int x;
+                for (x=0; x<NAME_MAX-1; x++) {
+                    SDL_RWread(fp, &object_name[x], 1, 1);
+                    //fread(&object_name[x], 1, 1, fp);
+                    if (object_name[x] == '\0')
+                        break;
                 }
-                break;
+                object_name[x] = '\0';
+                //tms_debugf("object name: %s", object_name);
+            } break;
 
             case 0x4100:
                 break;

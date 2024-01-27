@@ -9,10 +9,10 @@ struct tms_program;
 
 #define TMS_FB_MAX_TEXTURES 4
 
-/** 
+/**
  * Used to render content off-screen.
  * When tms_fb_bind() is called, the currently bound framebuffer will be
- * remembered until unbind. Framebuffers will thus act like a stack, making it 
+ * remembered until unbind. Framebuffers will thus act like a stack, making it
  * safe to wrap screens in framebuffers even if the screen itself renders to its own
  * custom framebuffers.
  **/

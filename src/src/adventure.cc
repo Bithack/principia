@@ -328,6 +328,9 @@ handle_input_action(const tms::event *ev, const enum input_action ia)
             case IA_BTN_LAYER_DOWN:
                 G->handle_ingame_object_button(GW_LAYER_DOWN);
                 return EVENT_DONE;
+
+            default:
+                break;
         }
     } else if (ev->type == TMS_EV_KEY_DOWN) {
         static const float aim_mod = 0.0075;
@@ -354,6 +357,9 @@ handle_input_action(const tms::event *ev, const enum input_action ia)
                     adventure::player->get_weapon()->set_arm_angle_raw(cur_aim-aim_mod);
                 }
                 return EVENT_DONE;
+
+            default:
+                break;
         }
     } else if (ev->type == TMS_EV_KEY_UP || ev->type == TMS_EV_POINTER_UP) {
         switch (ia) {
@@ -393,6 +399,9 @@ handle_input_action(const tms::event *ev, const enum input_action ia)
 
             case IA_SELF_DESTRUCT:
                 adventure::kill_player = false;
+                break;
+
+            default:
                 break;
         }
     }

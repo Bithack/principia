@@ -10,11 +10,11 @@
 #define TMS_CAMERA_PERSPECTIVE 2 /**< Enable perspective camera. If unset, the camera is orthographic. */
 #define TMS_CAMERA_LOOKAT      4 /**< If set, the camera's direction is calculated from a point given to tms_camera_lookat, otherwise the camera's direction is set using tms_camera_set_direction */
 
-/** 
+/**
  * Perspective/ortho2d camera convenience stuff.
  *
  * tms_camera will generate projection and view matrices
- * for you. 
+ * for you.
  **/
 struct tms_camera {
     /* call tms_camera_calculate() before fetching these */

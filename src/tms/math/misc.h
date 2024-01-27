@@ -10,19 +10,19 @@ extern "C"
 {
 #endif
 
-TMS_STATIC_INLINE float tms_modf(float a, float b)
+static inline float tms_modf(float a, float b)
 {
     return a - b*(floorf(a/b));
 }
 
 #define RANDF_MAX 2147483647.f
 
-TMS_STATIC_INLINE float trandf(float min, float max)
+static inline float trandf(float min, float max)
 {
     return min+(float)(rand())/((float)(RANDF_MAX/(max-min)));
 }
 
-TMS_STATIC_INLINE float twrapf(float x, float min, float max)
+static inline float twrapf(float x, float min, float max)
 {
     float range = max - min;
 
@@ -39,28 +39,28 @@ TMS_STATIC_INLINE float twrapf(float x, float min, float max)
     return fmodf(x - min, range) + min;
 }
 
-TMS_STATIC_INLINE float tclampf(float x, float a, float b)
+static inline float tclampf(float x, float a, float b)
 {
     if (x < a) x = a;
     else if (x > b) x = b;
     return x;
 }
 
-TMS_STATIC_INLINE double tclamp(double x, double a, double b)
+static inline double tclamp(double x, double a, double b)
 {
     if (x < a) x = a;
     else if (x > b) x = b;
     return x;
 }
 
-TMS_STATIC_INLINE int tclampi(int x, int a, int b)
+static inline int tclampi(int x, int a, int b)
 {
     if (x < a) x = a;
     else if (x > b) x = b;
     return x;
 }
 
-TMS_STATIC_INLINE float tmath_adist(float a, float b)
+static inline float tmath_adist(float a, float b)
 {
     const float PI2 = M_PI*2.f;
 
@@ -97,13 +97,13 @@ static double tmath_log2(double n)
 #ifdef TMS_FAST_MATH
 void tmath_sincos(float x, float *r0, float *r1);
 float tmath_sin(float x);
-TMS_STATIC_INLINE float tmath_cos(float x){return tmath_sin(x+M_PI_2);};
+static inline float tmath_cos(float x){return tmath_sin(x+M_PI_2);};
 float tmath_pow(float x, float n);
 float tmath_atan2(float y, float x);
 float tmath_sqrt(float x);
 #else
 #if defined(TMS_BACKEND_IOS) || defined(TMS_BACKEND_ANDROID)
-TMS_STATIC_INLINE void tmath_sincos(float x, float *y, float *z) {
+static inline void tmath_sincos(float x, float *y, float *z) {
     *y = sinf(x);
     *z = cosf(x);
 }
@@ -119,14 +119,14 @@ TMS_STATIC_INLINE void tmath_sincos(float x, float *y, float *z) {
 #define tmath_sqrt(x) sqrtf(x)
 #endif
 
-TMS_STATIC_INLINE float tmath_atan2add(float y, float x)
+static inline float tmath_atan2add(float y, float x)
 {
     float a = tmath_atan2(y,x);
     if (a < 0.f) a += M_PI*2.f;
     return a;
 }
 
-TMS_STATIC_INLINE double tmath_logstep(double in, double min_value, double max_value)
+static inline double tmath_logstep(double in, double min_value, double max_value)
 {
     double min_position = 0.f;
     double max_position = 1.f;
@@ -140,7 +140,7 @@ TMS_STATIC_INLINE double tmath_logstep(double in, double min_value, double max_v
     return exp(min_value + scale*(in-min_position));
 }
 
-TMS_STATIC_INLINE double tmath_logstep_position(double value, double min_value, double max_value)
+static inline double tmath_logstep_position(double value, double min_value, double max_value)
 {
     double min_position = 0.f;
     double max_position = 1.f;

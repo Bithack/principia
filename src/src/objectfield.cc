@@ -158,7 +158,7 @@ void
 objectfield::on_touch(b2Fixture *my, b2Fixture *other)
 {
     entity *e;
-    if ((e = static_cast<entity*>(other->GetUserData())) && (!other->IsSensor() || e->g_id == 109 || e->g_id == 2 || e->g_id == 6)) {
+    if ((e = static_cast<entity*>(other->GetUserData())) && (!other->IsSensor() || e->g_id == O_INTERACTIVE_BALL || e->g_id == O_BALL || e->g_id == O_METAL_BALL)) {
         switch (this->object_type) {
             case OBJECT_FIELD_ID:
                 if (this->properties[2].v.i == e->id) {
@@ -196,7 +196,7 @@ objectfield::on_untouch(b2Fixture *my, b2Fixture *other)
     if (this->object_type == OBJECT_FIELD_TARGET_SETTER) return;
 
     entity *e;
-    if ((e = static_cast<entity*>(other->GetUserData())) && (!other->IsSensor() || e->g_id == 109 || e->g_id == 2 || e->g_id == 6)) {
+    if ((e = static_cast<entity*>(other->GetUserData())) && (!other->IsSensor() || e->g_id == O_INTERACTIVE_BALL || e->g_id == O_BALL || e->g_id == O_METAL_BALL)) {
         switch (this->object_type) {
             case OBJECT_FIELD_ID:
                 if (this->properties[2].v.i == e->id) {

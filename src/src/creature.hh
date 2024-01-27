@@ -5,67 +5,28 @@
 #include "resource.hh"
 #include "activator.hh"
 
-//#define VERBOSE_LAYERSWITCH
-//#define VERBOSE_CHECK_BLOCKED
-//#define VERBOSE_WALK
-//#define VERBOSE_GATHER
-//#define VERBOSE_JUMP
-//#define VERBOSE_UPDATE_DIR
-//#define VERBOSE_ROAM
-//#define VERBOSE_WANDER
-//#define VERBOSE_ATTACK
+// Define this for verbose robot AI debugging
+//#define VERBOSE_AI
 
-#if defined(VERBOSE_LAYERSWITCH) && defined(DEBUG)
-#define tms_debug_roam_ls(f, ...) fprintf(stdout, "Rls " f "\n", ##__VA_ARGS__);
+#if defined(VERBOSE_AI) && defined(DEBUG)
+#define tms_debug_roam_ls(f, ...) fprintf(stdout, "Rls " f "\n", ##__VA_ARGS__); // Layerswitch
+#define tms_debug_roam_cb(f, ...) fprintf(stdout, "Rcb " f "\n", ##__VA_ARGS__); // Check blocked
+#define tms_debug_roam_w(f, ...) fprintf(stdout, "Rw  " f "\n", ##__VA_ARGS__);  // Walk
+#define tms_debug_roam_g(f, ...) fprintf(stdout, "Rg  " f "\n", ##__VA_ARGS__);  // Gather
+#define tms_debug_roam_j(f, ...) fprintf(stdout, "Rj  " f "\n", ##__VA_ARGS__);  // Jump
+#define tms_debug_roam_ud(f, ...) fprintf(stdout, "Rud " f "\n", ##__VA_ARGS__); // Update direction
+#define tms_debug_roam_wa(f, ...) fprintf(stdout, "Rwa " f "\n", ##__VA_ARGS__); // Wander
+#define tms_debug_roam(f, ...) fprintf(stdout, "R   " f "\n", ##__VA_ARGS__);    // Roam
+#define tms_debug_roam_a(f, ...) fprintf(stdout, "Ra  " f "\n", ##__VA_ARGS__);  // Roam attack
 #else
 #define tms_debug_roam_ls(...)
-#endif
-
-#if defined(VERBOSE_CHECK_BLOCKED) && defined(DEBUG)
-#define tms_debug_roam_cb(f, ...) fprintf(stdout, "Rcb " f "\n", ##__VA_ARGS__);
-#else
 #define tms_debug_roam_cb(...)
-#endif
-
-#if defined(VERBOSE_WALK) && defined(DEBUG)
-#define tms_debug_roam_w(f, ...) fprintf(stdout, "Rw  " f "\n", ##__VA_ARGS__);
-#else
 #define tms_debug_roam_w(...)
-#endif
-
-#if defined(VERBOSE_GATHER) && defined(DEBUG)
-#define tms_debug_roam_g(f, ...) fprintf(stdout, "Rg  " f "\n", ##__VA_ARGS__);
-#else
 #define tms_debug_roam_g(...)
-#endif
-
-#if defined(VERBOSE_JUMP) && defined(DEBUG)
-#define tms_debug_roam_j(f, ...) fprintf(stdout, "Rj  " f "\n", ##__VA_ARGS__);
-#else
 #define tms_debug_roam_j(...)
-#endif
-
-#if defined(VERBOSE_UPDATE_DIR) && defined(DEBUG)
-#define tms_debug_roam_ud(f, ...) fprintf(stdout, "Rud " f "\n", ##__VA_ARGS__);
-#else
 #define tms_debug_roam_ud(...)
-#endif
-
-#if defined(VERBOSE_WANDER) && defined(DEBUG)
-#define tms_debug_roam_wa(f, ...) fprintf(stdout, "Rwa " f "\n", ##__VA_ARGS__);
-#else
 #define tms_debug_roam_wa(...)
-#endif
-
-#if defined(VERBOSE_ROAM) && defined(DEBUG)
-#define tms_debug_roam(f, ...) fprintf(stdout, "R   " f "\n", ##__VA_ARGS__);
-#else
 #define tms_debug_roam(...)
-#endif
-
-#if defined(VERBOSE_ATTACK) && defined(DEBUG)
-#define tms_debug_roam_a(f, ...) fprintf(stdout, "Ra  " f "\n", ##__VA_ARGS__);
-#else
 #define tms_debug_roam_a(...)
 #endif
 
@@ -220,7 +181,7 @@ class creature : public entity
   private:
     float   hp;
     float   max_hp;
-    float   attack_damage_modifier; /* multiplies the damage of bullets and other things this creature does to attack enemies */ 
+    float   attack_damage_modifier; /* multiplies the damage of bullets and other things this creature does to attack enemies */
 
     float   damage_accum[NUM_DAMAGE_TYPES];
     b2Vec2  velocity;

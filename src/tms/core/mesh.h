@@ -5,7 +5,6 @@
 
 #include <tms/core/settings.h>
 #include <tms/backend/opengl.h>
-#include <tms/util/util.h>
 
 #define TMS_TRIANGLE_FAN   GL_TRIANGLE_FAN
 #define TMS_TRIANGLES      GL_TRIANGLES
@@ -42,12 +41,12 @@ void      tms_mesh_free(struct tms_mesh *m);
 int       tms_mesh_render(struct tms_mesh *m, struct tms_program *program);
 int       tms_mesh_draw(struct tms_mesh *m);
 
-TMS_STATIC_INLINE void tms_mesh_set_primitive_type(struct tms_mesh *m, int type)
+static inline void tms_mesh_set_primitive_type(struct tms_mesh *m, int type)
 {
     m->primitive_type = type;
 }
 
-TMS_STATIC_INLINE void tms_mesh_set_autofree_buffers(struct tms_mesh *m, int f)
+static inline void tms_mesh_set_autofree_buffers(struct tms_mesh *m, int f)
 {
     m->autofree_bufs = f;
 }

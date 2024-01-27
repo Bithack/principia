@@ -73,7 +73,7 @@ treasure_chest::activate(creature *by)
 
     if (G->absorb(this)) {
         uint32_t quality = QUALITY_COMMON;
-        
+
         if (this->properties[0].v.s.len == 0) {
             quality = this->randomize_loot();
         }
@@ -559,7 +559,7 @@ treasure_chest::randomize_loot()
     }
 
     this->set_property(0, ss.str().c_str());
-    
+
     return quality;
 }
 

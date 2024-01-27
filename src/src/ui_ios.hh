@@ -579,7 +579,7 @@ ui::alert(const char *text, uint8_t alert_type/*=ALERT_INFORMATION*/)
 }
 void ui::open_url(const char *url){ui_open_url(url);};
 void ui::open_sandbox_tips(){ui_open_sandbox_tips();};
-void ui::open_help_dialog(const char *title, const char *description, bool enable_markup/*=true*/){ui_open_help_dialog(title,description);};
+void ui::open_help_dialog(const char *title, const char *description){ui_open_help_dialog(title,description);};
 void ui::emit_signal(int num, void *data/*=0*/){ui_emit_signal(num);};
 void ui::set_next_action(int action_id){/*TODO FIXME: implement this*/};
 void ui::quit(){exit(0);};

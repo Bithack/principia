@@ -168,18 +168,19 @@ menu_shared::step()
             P.add_action(ACTION_REFRESH_WIDGETS, 0);
             break;
 
-        case FL_ALPHA_IN:
-            {
-                menu_shared::fl_alpha += _tms.dt*1.f;
+        case FL_ALPHA_IN: {
+            menu_shared::fl_alpha += _tms.dt*1.f;
 
-                if (menu_shared::fl_alpha > 1.f) {
-                    menu_shared::fl_alpha = 1.f;
-                    menu_shared::fl_state = FL_DONE;
-                }
-
-                P.s_menu_main->get_wm()->areas[AREA_MENU_LEVELS].set_alpha(menu_shared::fl_alpha);
-                P.s_menu_main->get_wm()->areas[AREA_MENU_SUB_LEVELS].set_alpha(menu_shared::fl_alpha);
+            if (menu_shared::fl_alpha > 1.f) {
+                menu_shared::fl_alpha = 1.f;
+                menu_shared::fl_state = FL_DONE;
             }
+
+            P.s_menu_main->get_wm()->areas[AREA_MENU_LEVELS].set_alpha(menu_shared::fl_alpha);
+            P.s_menu_main->get_wm()->areas[AREA_MENU_SUB_LEVELS].set_alpha(menu_shared::fl_alpha);
+        } break;
+
+        default:
             break;
     }
 
@@ -193,8 +194,7 @@ menu_shared::step()
             }
             break;
 
-        case FL_ALPHA_IN:
-            {
+        case FL_ALPHA_IN: {
                 menu_shared::contest_alpha += _tms.dt*1.f;
 
                 if (menu_shared::contest_alpha > 1.f) {
@@ -205,8 +205,7 @@ menu_shared::step()
                 P.s_menu_create->get_wm()->areas[AREA_MENU_BOTTOM_LEFT].set_alpha(menu_shared::contest_alpha);
                 P.s_menu_create->get_wm()->areas[AREA_CREATE_CONTEST_TOP].set_alpha(menu_shared::contest_alpha);
                 P.s_menu_create->get_wm()->areas[AREA_CREATE_CONTEST_BOTTOM].set_alpha(menu_shared::contest_alpha);
-            }
-            break;
+        } break;
 
         default:
             break;
@@ -220,18 +219,16 @@ menu_shared::step()
             }
             break;
 
-        case FL_ALPHA_IN:
-            {
-                menu_shared::gs_alpha += _tms.dt*1.f;
+        case FL_ALPHA_IN: {
+            menu_shared::gs_alpha += _tms.dt*1.f;
 
-                if (menu_shared::gs_alpha > 1.f) {
-                    menu_shared::gs_alpha = 1.f;
-                    menu_shared::gs_state = FL_DONE;
-                }
-
-                P.s_menu_create->get_wm()->areas[AREA_MENU_RIGHT_HCENTER].set_alpha(menu_shared::gs_alpha);
+            if (menu_shared::gs_alpha > 1.f) {
+                menu_shared::gs_alpha = 1.f;
+                menu_shared::gs_state = FL_DONE;
             }
-            break;
+
+            P.s_menu_create->get_wm()->areas[AREA_MENU_RIGHT_HCENTER].set_alpha(menu_shared::gs_alpha);
+        } break;
 
         default:
             break;

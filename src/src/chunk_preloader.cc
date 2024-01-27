@@ -402,13 +402,8 @@ chunk_preloader::unload(level_chunk *chunk)
             terrain_coord coord(en->get_position().x, en->get_position().y);
 
             if ((chunk = W->cwindow->get_chunk(coord.chunk_x, coord.chunk_y, true))) {
-#if 1
-                if (!chunk->garbage) {
+                if (!chunk->garbage)
                     return false;
-                }
-#else
-                return false;
-#endif
             }
 
             if (en->gr) {
@@ -431,9 +426,9 @@ chunk_preloader::unload(level_chunk *chunk)
             }
 
             connection *extra_conn = 0;
-            if (en->g_id == 16) extra_conn = &((pivot_1*)en)->dconn;
-            else if (en->g_id == 19) extra_conn = &((damper_1*)en)->dconn;
-            else if (en->g_id == 95) extra_conn = &((rubberband_1*)en)->dconn;
+            if (en->g_id == O_OPEN_PIVOT) extra_conn = &((pivot_1*)en)->dconn;
+            else if (en->g_id == O_DAMPER) extra_conn = &((damper_1*)en)->dconn;
+            else if (en->g_id == O_RUBBERBAND) extra_conn = &((rubberband_1*)en)->dconn;
 
             if (extra_conn) {
                 connections.insert(extra_conn);
@@ -581,7 +576,7 @@ chunk_preloader::unload(level_chunk *chunk)
     return true;
 }
 
-/** 
+/**
  * Load all entities
  **/
 void
@@ -689,7 +684,7 @@ chunk_preloader::load_cable(uint32_t id)
         preload_info info = i->second;
         this->cables.erase(id);
         c = this->read_cable(info);
-    } else 
+    } else
         c = 0;
 
     return c;
@@ -794,8 +789,8 @@ chunk_preloader::load_entity(uint32_t id)
                     //tms_debugf("entity %u, force load of connection at %p", id, (void*)it->second);
                     connection *e = this->read_connection(it->second);
 
-                    /* XXX IMPORTANT: when this entity loads a connection, that connection 
-                     * might load other entities. This might cause the connection_rels 
+                    /* XXX IMPORTANT: when this entity loads a connection, that connection
+                     * might load other entities. This might cause the connection_rels
                      * map to change, invalidating the iterator we have. That is why we
                      * need to restart everything every time a connection is loaded.
                      */
@@ -921,7 +916,7 @@ chunk_preloader::read_chunk(preload_info i)
                     }
 
                     std::map<uint32_t, gentype*>::iterator i = this->gentypes.find(gt_id);
-                    
+
                     if (i != this->gentypes.end() && !i->second->lock) {
                         int _z = z;
                         if (i->second->sorting != z) {
@@ -1019,7 +1014,7 @@ chunk_preloader::read_chunks(lvlinfo *lvl, lvlbuf *lb)
                             for (int z=0; z<2; z++) {
                                 uint32_t gt_id = lb->r_uint32();
                                 std::map<uint32_t, gentype*>::iterator i = this->gentypes.find(gt_id);
-                                
+
                                 if (i != this->gentypes.end()) {
                                     c->genslots[x][y][z] = i->second;
                                 } else {
@@ -1183,7 +1178,7 @@ chunk_preloader::prepare_write()
 
 }
 
-/** 
+/**
  * Write all pending gentypes
  **/
 void
@@ -1238,7 +1233,7 @@ chunk_preloader::write_gentypes(lvlinfo *lvl, lvlbuf *lb)
     }
 }
 
-/** 
+/**
  * Read all gentypes
  **/
 void
@@ -1306,7 +1301,7 @@ chunk_preloader::read_gentypes(lvlinfo *lvl, lvlbuf *lb)
     }
 }
 
-/** 
+/**
  * Write all loaded and unloaded chunks
  **/
 void
@@ -1409,7 +1404,7 @@ chunk_preloader::require_chunk_neighbours(level_chunk *c)
     }
 }
 
-/** 
+/**
  * Always returns a valid chunk for the given chunk coordinates.
  * Will create an empty chunk and return it if the chunk hasn't been previously loaded
  *

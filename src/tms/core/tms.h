@@ -4,13 +4,13 @@
 #include <stdint.h>
 #include <stdio.h>
 
-/** 
+/**
  * @mainpage
  *
  * \section Basics
  *
  * \section Reference
- * 
+ *
  * \subsection Screens
  * \li tms_screen - Container of tms_scene and surfaces of tms_widget 's
  * \li tms_widget - Widgets for the 2D widget surface
@@ -43,16 +43,14 @@
 extern "C" {
 #endif
 
-/** 
- * Internal state 
+/**
+ * Internal state
  **/
 enum TMS_STATE {
     TMS_STATE_DEFAULT,
-    TMS_STATE_TRANSITIONING,
     TMS_STATE_QUITTING,
 };
 
-struct tms_transition;
 struct tms_screen;
 struct tms_fb;
 struct tms_model;
@@ -64,16 +62,16 @@ struct tms_mesh;
 #ifndef __cplusplus
 #define tms _tms
 #endif
-    
+
 #if !defined(TMS_BACKEND_IOS)
 #define opengl_width window_width
 #define opengl_height window_height
 #endif
 
 /**
- * Global singleton object that the project work against. 
+ * Global singleton object that the project work against.
  * tms is a global singleton that can be accessed from anywhere,
- * it contains data for the current "context", including window 
+ * it contains data for the current "context", including window
  * width and height.
  **/
 extern struct tms_singleton {
@@ -95,7 +93,6 @@ extern struct tms_singleton {
     struct tms_screen      *screen; /**< current screen */
     struct tms_screen      *active_screen;
     struct tms_screen      *next; /**< next screen (used if transitioning) */
-    struct tms_transition  *transition; /**< current transition, if state is TMS_STATE_TRANSITIONING */
     struct tms_fb *framebuffer; /**< pointer to the currently bound framebuffer */
     int                     state; /**< current state, see TMS_STATE */
     char *gl_extensions;
@@ -124,11 +121,10 @@ void tms_step(void);
 int tms_render(void);
 int tms_begin_frame(void);
 int tms_end_frame(void);
-int tms_begin_transition(struct tms_transition *trans, struct tms_screen *next);
 
 int tms_register_model_loader(struct tms_mesh * (*load_fn)(struct tms_model *, SDL_RWops *, int *), const char *ext);
 
-TMS_STATIC_INLINE void tms_convert_to_portrait(int *x, int *y)
+static inline void tms_convert_to_portrait(int *x, int *y)
 {
     int tmp_y = *y;
 

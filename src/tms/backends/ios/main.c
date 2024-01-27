@@ -246,7 +246,7 @@ T_intercept_input(SDL_Event ev)
             spec.data.motion.x = ((float)ev.tfinger.x / 65536.f)*(float)_tms.window_width;
             spec.data.motion.y = tms.window_height - ((float)ev.tfinger.y / 65536.f) * (float)_tms.window_height;
             break;
-        
+
         case SDL_TEXTINPUT:
             spec.type = TMS_EV_TEXT_INPUT;
             memcpy(spec.data.text.text, ev.text.text, 32);
@@ -261,9 +261,4 @@ T_intercept_input(SDL_Event ev)
 const char *tbackend_get_storage_path(void)
 {
     return "../Documents";
-}
-
-void
-tbackend_toggle_fullscreen(void)
-{
 }

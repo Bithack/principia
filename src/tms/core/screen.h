@@ -11,7 +11,7 @@ struct tms_event;
 struct tms_scene;
 struct tms_surface;
 
-/** 
+/**
  * Screen flags that will be chosen in the tms_screen_spec.
  **/
 enum {
@@ -29,7 +29,7 @@ enum {
     TMS_SCREEN_ALLOC_SURFACE = 1<<1,
 };
 
-/** 
+/**
  * A screen is a virtual render target where a scene is rendered.
  * The currently active screen will be responsible for rendering
  * to the framebuffer every frame, and handling input events.
@@ -56,13 +56,13 @@ struct tms_screen {
     struct tms_scene *scene;
 };
 
-/** 
+/**
  * Screen specification.
  * Send a spec to tms_screen_alloc() to create a screen. All screens
  * created using the same spec will share the same set of callback functions.
  **/
 struct tms_screen_spec {
-    /** 
+    /**
      * Called the first time the screen is started. This function should return custom data
      * that will be stored in the tms_screen's data variable.
      **/
@@ -79,7 +79,7 @@ struct tms_screen_spec {
     int (*begin_frame)(struct tms_screen *s);
     int (*end_frame)(struct tms_screen *s);
 
-    /** 
+    /**
      * Called once per frame, but not if the screen is currently being transitioned.
      **/
     int (*step)(struct tms_screen *s, double dt);

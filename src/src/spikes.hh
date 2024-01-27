@@ -26,6 +26,6 @@ class spikes : public entity_multiconnect
 
     const char *get_slider_label(int s) { return "Damage"; };
     float get_slider_snap(int s) { return 0.05f; };
-    float get_slider_value(int s) { return this->properties[s].v.f / 2.f; }; 
+    float get_slider_value(int s) { return this->properties[s].v.f / 2.f; };
     void on_slider_change(int s, float value);
 };

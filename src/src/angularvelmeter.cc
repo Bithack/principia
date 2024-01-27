@@ -4,7 +4,7 @@
 #include "main.hh"
 #include "game.hh"
 
-/** 
+/**
  * Sockets:
  * OUT0 = CCW
  * OUT1 = CW

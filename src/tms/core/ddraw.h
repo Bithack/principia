@@ -8,7 +8,7 @@ struct tms_sprite;
 
 /** @relates tms_ddraw @{ */
 
-/** 
+/**
  * A slow but very simple way of drawing primitives. Should only
  * be used for testing and debugging purposes.
  *

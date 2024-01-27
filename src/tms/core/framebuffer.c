@@ -892,11 +892,7 @@ tms_fb_add_texture(struct tms_fb *fb, int format,
         tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 14", ierr, x);
 
 		/* update draw buffers */
-#ifdef _MSC_VER
-		GLenum *bufs = malloc((fb->num_textures + 1)*sizeof(GLenum));
-#else
         GLenum bufs[fb->num_textures+1];
-#endif
 
 		for (int y = 0; y < fb->num_textures + 1; y++) {
 			bufs[y] = GL_COLOR_ATTACHMENT0 + y;
@@ -905,10 +901,6 @@ tms_fb_add_texture(struct tms_fb *fb, int format,
 #if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
         glDrawBuffers(fb->num_textures+1, &bufs);
         tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 15", ierr, x);
-#endif
-
-#ifdef _MSC_VER
-		free(bufs);
 #endif
     }
 
@@ -964,7 +956,7 @@ tms_fb_swap_blur3x3(struct tms_fb *f)
 }
 
 
-/** 
+/**
  * Swap the buffers
  **/
 void
@@ -1098,7 +1090,7 @@ tms_fb_unbind(struct tms_fb *f)
     return T_OK;
 }
 
-/** 
+/**
  * Render the framebuffer as a fullscreen textured
  * quad using the provided shader.
  **/

@@ -3,14 +3,6 @@
 
 #include <stdint.h>
 
-#ifndef TMS_STATIC_INLINE
-#if defined(_MSC_VER)
-#define TMS_STATIC_INLINE static __inline
-#else
-#define TMS_STATIC_INLINE static inline
-#endif
-#endif
-
 /* this header file will probably never be used outside tms,
  * thus no prefixes */
 
@@ -25,13 +17,11 @@
         } \
     } while (0);
 
-#define tfunction(ret, block) ({ret __ block __;})
-
-/** 
+/**
  * Round up to the nearest power of 2
  * works only on 32 bit integers
  **/
-TMS_STATIC_INLINE uint32_t tnpo2_uint32(uint32_t i)
+static inline uint32_t tnpo2_uint32(uint32_t i)
 {
     i--;
     i |= i >> 1;

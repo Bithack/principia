@@ -63,7 +63,7 @@ creature::creature()
     this->current_checkpoint = 0;
     this->circuits = 0u;
 
-    this->circuits_compat = 
+    this->circuits_compat =
          CREATURE_CIRCUIT_REGENERATION
        | CREATURE_CIRCUIT_ZOMBIE
         ;
@@ -154,8 +154,8 @@ creature::init()
     this->ladder_time = 0;
 }
 
-/** 
- * Make sure animal/robot_base call recalculate_effects 
+/**
+ * Make sure animal/robot_base call recalculate_effects
  * at the end of their setup() or restore()
  **/
 void
@@ -716,14 +716,14 @@ creature::activate_feet()
     if (this->feet) this->feet->set_on(true);
 }
 
-/** 
+/**
  * If the creature has feet, we need to make sure that the feet weigh
  * a specific ratio of the total weight for jump forces to work correctly
  **/
 void
 creature::recalculate_mass_distribution()
 {
-    b2Body *b; 
+    b2Body *b;
     b2MassData m;
 
     for (int x=0; x<this->get_num_bodies(); x++) {
@@ -734,7 +734,7 @@ creature::recalculate_mass_distribution()
 
     if (this->feet) {
         float total = this->get_upper_mass();
-        //total += .5f; /* weight of the feet, not really that important */ 
+        //total += .5f; /* weight of the feet, not really that important */
 
         int nf = this->feet->get_num_bodies();
 
@@ -874,7 +874,7 @@ creature::roam_check_blocked()
     }
 }
 
-/** 
+/**
  * Target got absorbed (if the target is an interactive item, it was destroyed)
  **/
 void
@@ -1166,7 +1166,7 @@ creature::roam_setup_target()
     }
 }
 
-void 
+void
 creature::on_release_playing()
 {
     this->recalculate_mass_distribution();
@@ -1762,7 +1762,7 @@ creature::pre_step()
         }
         this->lfront_tick ++;
     }
-    
+
     if (this->real_lback_count == 0 && this->lback_count > 0) {
         if (this->lback_tick >= 2) {
             this->lback_count = this->real_lback_count;
@@ -3310,7 +3310,7 @@ creature::set_checkpoint(checkpoint *c)
     }
 }
 
-/** 
+/**
  * Set this creature's tool to the given tool by id,
  * if a pointer to a tool is passed, that pointer is used instead.
  * This allows the robot to keep an inventory of many tools
@@ -3368,7 +3368,7 @@ creature::set_tool(int tool_id, robot_parts::tool *t/*=0*/)
     return true;
 }
 
-/** 
+/**
  * See the comment on ::set_tool() about the optional pointer argument
  **/
 bool
@@ -3622,7 +3622,7 @@ creature::detach()
     G->refresh_widgets();
 }
 
-/** 
+/**
  * Apply accumulated damages since the last step
  *
  * Because we need to differentiate between the separate damage types

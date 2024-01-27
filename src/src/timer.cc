@@ -6,7 +6,7 @@
 
 #include <sys/time.h>
 
-/** 
+/**
  * Sockets:
  * IN0 = Start
  * IN1 = Stop
@@ -143,7 +143,7 @@ timer::solve_electronics()
     return 0;
 }
 
-/** 
+/**
  * Sockets:
  * IN0 = Value
  * IN1 = Conditional
