@@ -4,6 +4,7 @@
 #include "imgui_stdlib.h"
 #include "imgui_impl_opengl3.h"
 #include "tms/core/event.h"
+#include "tms/core/err.h"
 
 static int tms_mouse_button_to_imgui(int btn) {
   switch (btn) {
@@ -152,6 +153,18 @@ static int event_handler(tms_event *event) {
   return T_CONT;
 }
 
-inline int ImGui_ImplTMS_InitEventHandler() {
+inline int ImGui_ImplTMS_Init_Platform() {
   return tms_event_register_raw(&event_handler);
+}
+
+//TODO tms-specific opengl impl
+// inline int ImGui_ImplTMS_Init_Gfx() {
+// }
+
+inline int ImGui_ImplTMS_Init() {
+  int result = ImGui_ImplTMS_Init_Platform();
+  if (result != T_OK) return result;
+  // result = ImGui_ImplTMS_Init_Gfx();
+  // if (result != T_OK) return result;
+  return T_OK;
 }
