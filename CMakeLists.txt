@@ -164,6 +164,13 @@ target_link_libraries(
 		${SDL2_LIBRARIES}
 		${ZLIB_LIBRARIES})
 
+if (NOT (SCREENSHOT_BUILD OR BACKEND_IMGUI))
+	target_link_libraries(
+		${PROJECT_NAME}
+		${GTK3_LIBRARIES}
+	)
+endif()
+
 if(NOT SCREENSHOT_BUILD)
 	target_link_libraries(
 		${PROJECT_NAME}
@@ -171,10 +178,10 @@ if(NOT SCREENSHOT_BUILD)
 			${GLEW_LIBRARIES})
 endif()
 
-if (NOT (SCREENSHOT_BUILD OR BACKEND_IMGUI))
+if (BACKEND_IMGUI)
 	target_link_libraries(
 		${PROJECT_NAME}
-		${GTK3_LIBRARIES}
+		${CMAKE_DL_LIBS}
 	)
 endif()
 
