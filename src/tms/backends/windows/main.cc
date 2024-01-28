@@ -376,6 +376,18 @@ tbackend_init_surface()
 
     PRINT_GL_INFO;
 
+    if (!GLEW_VERSION_1_2) {
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Principia",
+R"(Your graphics driver does not support OpenGL >1.1 and as such Principia will not start.
+Most likely this is because you do not have any graphics drivers installed and are using
+Windows' software rendering driver. Please install the necessary driver for your
+graphics card.
+
+If you are on a VM for testing purposes, then you can use Mesa's software renderer to
+get Principia running. (place the Mesa opengl32.dll library next to principia.exe))", 0);
+        exit(1);
+    }
+
     return T_OK;
 }
 
