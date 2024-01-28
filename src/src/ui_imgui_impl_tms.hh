@@ -157,7 +157,8 @@ inline int ImGui_ImplTMS_Init_Platform() {
   return tms_event_register_raw(&event_handler);
 }
 
-//TODO tms-specific opengl impl
+//TODO tms-specific opengl impl. While default opengl3 impl works just fine, it basically leads to code duplication.
+
 // inline int ImGui_ImplTMS_Init_Gfx() {
 // }
 

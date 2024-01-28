@@ -2793,6 +2793,7 @@ void ui::confirm(
   struct confirm_data _confirm_data
 ) {
   //TODO
+  UiMessage::open(text, MessageType::Message);
   P.add_action(action1.action_id, 0);
   tms_errorf("ui::confirm not implemented yet");
 }
