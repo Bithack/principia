@@ -96,9 +96,9 @@ static uint64_t __ref;
 #define REF_FALSE ((bool*) &(__ref = 0))
 
 //constants
-#define MODAL_FLAGS (ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize)
-#define POPUP_FLAGS (ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove)
-
+#define FRAME_FLAGS ImGuiWindowFlags_NoSavedSettings
+#define MODAL_FLAGS (FRAME_FLAGS | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize)
+#define POPUP_FLAGS (FRAME_FLAGS | ImGuiWindowFlags_NoMove)
 #define LEVEL_NAME_LEN_SOFT_LIMIT 250
 #define LEVEL_NAME_LEN_HARD_LIMIT 254
 #define LEVEL_NAME_PLACEHOLDER (const char*)"<no name>"
@@ -648,8 +648,8 @@ namespace UiLevelManager {
       ImGui::Separator();
 
       //Actual level list
-      ImGui::BeginChild("save_list_child", ImVec2(0., 500.), false, ImGuiWindowFlags_NoSavedSettings);
-      if (ImGui::BeginTable("save_list", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_NoSavedSettings)) {
+      ImGui::BeginChild("save_list_child", ImVec2(0., 500.), false, FRAME_FLAGS);
+      if (ImGui::BeginTable("save_list", 5, ImGuiTableFlags_NoSavedSettings | ImGuiWindowFlags_NavFlattened | ImGuiTableFlags_Borders)) {
         //Setup table columns
         ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);
@@ -1500,7 +1500,7 @@ namespace UiTips {
       ImVec2 content_region = ImGui::GetContentRegionMax();
 
       //TODO remove hardcoded size
-      if (ImGui::BeginChild("###tips-content-ctx", ImVec2(0, 115), false, ImGuiWindowFlags_NoSavedSettings)) {
+      if (ImGui::BeginChild("###tips-content-ctx", ImVec2(0, 115), false, FRAME_FLAGS)) {
         ImGui::TextWrapped("%s", tips[ctip]);
       }
       ImGui::EndChild();
@@ -2497,7 +2497,7 @@ namespace UiFrequency {
       }
 
       ImVec2 size = ImVec2(0., 133.);
-      if (ImGui::BeginChild(ImGui::GetID("###x-table-frame"), size, false, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NavFlattened)) {
+      if (ImGui::BeginChild(ImGui::GetID("###x-table-frame"), size, false, FRAME_FLAGS | ImGuiWindowFlags_NavFlattened)) {
         if (ImGui::BeginTable("###x-table", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_NoSavedSettings)) {
           ImGui::TableSetupColumn("###", ImGuiTableColumnFlags_WidthFixed);
           ImGui::TableSetupColumn("Object");
