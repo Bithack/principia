@@ -1108,6 +1108,7 @@ namespace UiSettings {
         if_done = IfDone::Nothing;
         read_settings();
       }
+
       if (ImGui::BeginTabBar("###settings-tabbbar")) {
         if (ImGui::BeginTabItem("Graphics")) {
           // ImGui::BeginTable("###graphics-settings", 2);
@@ -1190,6 +1191,8 @@ namespace UiSettings {
 
           ImGui::EndTabItem();
         }
+        ImGui::SetItemTooltip("Configure graphics settings");
+
         if (ImGui::BeginTabItem("Sound")) {
           ImGui::SeparatorText("Volume");
 
@@ -1220,6 +1223,8 @@ namespace UiSettings {
 
           ImGui::EndTabItem();
         }
+        ImGui::SetItemTooltip("Change volume and other sound settings");
+
         if (ImGui::BeginTabItem("Controls")) {
           ImGui::EndTabItem();
 
@@ -1258,6 +1263,8 @@ namespace UiSettings {
           ImGui::Checkbox("Emulate touch", (bool*) &local_settings["emulate_touch"]->v.b);
           ImGui::SetItemTooltip("Enable this if you use an external device other than a mouse to control Principia, such as a Wacom pad.");
         }
+        ImGui::SetItemTooltip("Mouse, keyboard and touchscreen settings");
+
         if (ImGui::BeginTabItem("Interface")) {
           ImGui::SeparatorText("UI");
 
@@ -1293,10 +1300,32 @@ namespace UiSettings {
 
           ImGui::EndTabItem();
         }
+        ImGui::SetItemTooltip("Change UI scaling, visibility options and other interface settings");
+
+        ImGui::BeginDisabled(true);
+
         if (ImGui::BeginTabItem("Gameplay")) {
-          ImGui::TextUnformatted("WIP");
+          ImGui::TextUnformatted("wip");
           ImGui::EndTabItem();
         }
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled)) {
+          ImGui::EndDisabled();
+          ImGui::SetTooltip("Placeholder\nThis item is work in progress");
+          ImGui::BeginDisabled(true);
+        }
+
+        if (ImGui::BeginTabItem("Online")) {
+          ImGui::TextUnformatted("wip");
+          ImGui::EndTabItem();
+        }
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled)) {
+          ImGui::EndDisabled();
+          ImGui::SetTooltip("Placeholder\nThis item is work in progress");
+          ImGui::BeginDisabled(true);
+        }
+
+        ImGui::EndDisabled();
+
         ImGui::EndTabBar();
 
         //This assumes separator height == 1. which results in actual height of 0
