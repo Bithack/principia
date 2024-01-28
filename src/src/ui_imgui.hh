@@ -2628,10 +2628,7 @@ static void principia_style() {
 static bool init_ready = false;
 
 void ui::init() {
-  if (init_ready) {
-    tms_errorf("ui::init called twice");
-    return;
-  }
+  tms_assertf(!init_ready, "ui::init called twice");
 
   //create context
 #ifdef DEBUG
@@ -2689,10 +2686,7 @@ void ui::init() {
 void ui::render() {
   if (settings["render_gui"]->is_false()) return;
 
-  if (!init_ready) {
-    tms_errorf("ui::render called before ui::init");
-    return;
-  }
+  tms_assertf(init_ready, "ui::render called before ui::init");
 
   ImGuiIO& io = ImGui::GetIO();
 
@@ -2733,6 +2727,7 @@ void ui::render() {
 }
 
 void ui::open_dialog(int num, void *data) {
+  tms_assertf(init_ready, "ui::open_dialog called before ui::init");
   switch (num) {
     //XXX: this gets called after opening the sandbox menu, closing it immediately
     case CLOSE_ABSOLUTELY_ALL_DIALOGS:
