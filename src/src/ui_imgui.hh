@@ -63,10 +63,14 @@
 #define UI_UISCALE_IMGUI true
 
 //Use TTF font instead of the default one
+//Required for font scaling to work properly (see UI_UISCALE_IMGUI)
 #define UI_USE_TTF_FONT true
+//Path to the main font file, used for most text
 #define UI_TTF_FONT "data-shared" SLASH "fonts" SLASH "Roboto-Bold.ttf"
+//Path to the monospace font file, used for the lua editor and other components that require a monospace font
 #define UI_TTF_FONT_MONO "data-shared" SLASH "fonts" SLASH "SourceCodePro-Medium.ttf"
-#define UI_BASE_FONT_SIZE 12.f /* only applies to ttf fonts! */
+//Base font size (in pixels), only applies to TTF fonts
+#define UI_BASE_FONT_SIZE 12.f
 
 //Load image assets
 //(For debugging issues with asset loading)
@@ -74,9 +78,12 @@
 #define DO_LOAD_IMAGE_ASSETS true
 
 //Should options related to broken puzzle mode be shown?
+//The options don't fit in the UI, and the puzzle mode itself is broken
+//so this is disabled by default, except debug builds
 #define SHOW_PUZZLE DEBUG
 
 //Should the "Online" tab be shown in settings?
+//Currently the tab itself does absolutely nothing and is just a placeholder
 #define UI_FUTUREPROF_ONLINE_SETTINGS true
 
 //--------------------------------------------
