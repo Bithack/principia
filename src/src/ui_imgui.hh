@@ -2625,7 +2625,14 @@ static void principia_style() {
   //colors[ImGuiCol_ScrollbarGrabActive] = rgba(0xb1b1b1);
 }
 
+static bool init_ready = false;
+
 void ui::init() {
+  if (init_ready) {
+    tms_errorf("ui::init called twice");
+    return;
+  }
+
   //create context
 #ifdef DEBUG
   IMGUI_CHECKVERSION();
@@ -2671,10 +2678,17 @@ void ui::init() {
 
   //call ui_init
   ui_init();
+
+  init_ready = true;
 }
 
 void ui::render() {
   if (settings["render_gui"]->is_false()) return;
+
+  if (!init_ready) {
+    tms_errorf("ui::render called before ui::init");
+    return;
+  }
 
   ImGuiIO& io = ImGui::GetIO();
 
@@ -2692,6 +2706,9 @@ void ui::render() {
   }
 
   //start frame
+  if (GImGui == NULL) {
+    tms_fatalf("gimgui is null. is imgui ready?");
+  }
   ImGui_ImplOpenGL3_NewFrame();
   ImGui::NewFrame();
 
