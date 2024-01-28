@@ -9,8 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 message(STATUS "*** Building Principia! ***")
 
 if (NOT CMAKE_BUILD_TYPE)
-    message(STATUS "No build type selected, default to Release")
-    set(CMAKE_BUILD_TYPE "Release")
+	message(STATUS "No build type selected, default to Release")
+	set(CMAKE_BUILD_TYPE "Release")
 endif()
 
 find_package(Freetype REQUIRED)
@@ -38,8 +38,6 @@ endif()
 include_directories(
 	src/
 	src/lua/
-	src/imgui/
-	src/imgui-texteditor/
 	src/SDL_image/
 	src/src/
 	${FREETYPE_INCLUDE_DIRS}
@@ -48,6 +46,13 @@ include_directories(
 	${PNG_INCLUDE_DIRS}
 	${SDL2_INCLUDE_DIRS}
 	${ZLIB_INCLUDE_DIRS})
+
+if(BACKEND_IMGUI)
+	include_directories(
+		src/imgui/
+		src/imgui-texteditor/
+	)
+endif()
 
 file(GLOB SRCS
 	src/tms/core/*.c
@@ -58,9 +63,6 @@ file(GLOB SRCS
 
 	src/lua/*.c
 	src/SDL_image/*.c
-
-	src/imgui/*.cpp
-	src/imgui-texteditor/*.cpp
 
 	src/src/*.cc
 	src/src/*.c
@@ -74,17 +76,30 @@ file(GLOB SRCS
 	src/src/Box2D/Particle/*.cc
 )
 
+if(BACKEND_IMGUI)
+	file(GLOB IMGUI_SRCS
+		src/imgui/*.cpp
+		src/imgui-texteditor/*.cpp
+	)
+	set(SRCS ${SRCS} ${IMGUI_SRCS})
+endif()
+
 if(NOT SCREENSHOT_BUILD)
 	find_package(PkgConfig REQUIRED)
-	pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+	if(NOT BACKEND_IMGUI)
+		pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+	endif()
 	find_package(CURL REQUIRED)
 	find_package(GLEW REQUIRED)
 
 	include_directories(
 		${CURL_INCLUDE_DIR}
 		${GLEW_INCLUDE_DIRS}
-		${GTK3_INCLUDE_DIRS}
-		src/SDL_mixer/)
+		src/SDL_mixer/
+	)
+	if(NOT BACKEND_IMGUI)
+		include_directories(${GTK3_INCLUDE_DIRS})
+	endif()
 
 	file(GLOB SDL_mixer_SRCS src/SDL_mixer/*.c)
 	set(SRCS ${SRCS} ${SDL_mixer_SRCS})
@@ -153,14 +168,21 @@ if(NOT SCREENSHOT_BUILD)
 	target_link_libraries(
 		${PROJECT_NAME}
 			${CURL_LIBRARIES}
-			${GLEW_LIBRARIES}
-			${GTK3_LIBRARIES})
+			${GLEW_LIBRARIES})
+endif()
+
+if (NOT (SCREENSHOT_BUILD OR BACKEND_IMGUI))
+	target_link_libraries(
+		${PROJECT_NAME}
+		${GTK3_LIBRARIES}
+	)
 endif()
 
 set(COMMON_FLAGS "${LUASOCKET_FLAGS} -DGL_GLEXT_PROTOTYPES -DTMS_BACKEND_PC -DTMS_FAST_MATH -DLUA_COMPAT_MODULE -D__STDC_FORMAT_MACROS=1 -DUNICODE")
 
 if((NOT SCREENSHOT_BUILD) AND BACKEND_IMGUI)
-	set(COMMON_FLAGS "${COMMON_FLAGS} -DPRINCIPIA_BACKEND_IMGUI -DIMGUI_DISABLE_OBSOLETE_KEYIO")
+	set(COMMON_FLAGS "${COMMON_FLAGS} -DPRINCIPIA_BACKEND_IMGUI -DIMGUI_DEFINE_MATH_OPERATORS -DIMGUI_DISABLE_OBSOLETE_KEYIO -DIMGUI_USE_WCHAR32")
+	set(IMGUI_FLAGS_DEBUG "-DIMGUI_DEBUG_PARANOID")
 	set(IMGUI_FLAGS_RELEASE "-DIMGUI_DISABLE_DEMO_WINDOWS -DIMGUI_DISABLE_DEBUG_TOOLS")
 else()
 	set(COMMON_FLAGS "${COMMON_FLAGS} -DIMGUI_DISABLE")
@@ -183,7 +205,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	set(COMMON_FLAGS "${COMMON_FLAGS} -Wno-error=incompatible-function-pointer-types -Wno-error=int-conversion")
 endif()
 
-set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1")
+set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} ${IMGUI_FLAGS_DEBUG} -O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1")
 set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} ${IMGUI_FLAGS_RELEASE} -DNDEBUG=1 -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections")
 
 set(CMAKE_C_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O1")
