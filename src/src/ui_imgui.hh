@@ -2673,8 +2673,12 @@ void ui::init() {
   tms_assertf(SDL_GL_GetCurrentContext() != NULL, "no gl ctx");
 
   //init
-  tms_assertf(ImGui_ImplOpenGL3_Init(), "gl impl init failed");
-  tms_assertf(ImGui_ImplTMS_Init() == T_OK, "tms impl init failed");
+  if (!ImGui_ImplOpenGL3_Init()) {
+    tms_fatalf("(imgui-backend) gl impl init failed");
+  }
+  if (ImGui_ImplTMS_Init() != T_OK) {
+    tms_fatalf("(imgui-backend) tms impl init failed");
+  }
 
   //call ui_init
   ui_init();
