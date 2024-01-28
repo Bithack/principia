@@ -76,6 +76,9 @@
 //Should options related to broken puzzle mode be shown?
 #define SHOW_PUZZLE DEBUG
 
+//Should the "Online" tab be shown in settings?
+#define UI_FUTUREPROF_ONLINE_SETTINGS true
+
 //--------------------------------------------
 
 //STUFF
@@ -1110,7 +1113,9 @@ namespace UiSettings {
       }
 
       if (ImGui::BeginTabBar("###settings-tabbbar")) {
-        if (ImGui::BeginTabItem("Graphics")) {
+        bool graphics_tab = ImGui::BeginTabItem("Graphics");
+        ImGui::SetItemTooltip("Configure graphics and display settings");
+        if (graphics_tab) {
           // ImGui::BeginTable("###graphics-settings", 2);
           // ImGui::TableNextColumn();
 
@@ -1191,9 +1196,10 @@ namespace UiSettings {
 
           ImGui::EndTabItem();
         }
-        ImGui::SetItemTooltip("Configure graphics settings");
 
-        if (ImGui::BeginTabItem("Sound")) {
+        bool sound_tab = ImGui::BeginTabItem("Sound");
+        ImGui::SetItemTooltip("Change volume and other sound settings");
+        if (sound_tab) {
           ImGui::SeparatorText("Volume");
 
           #ifndef ENABLE_SOUND
@@ -1223,9 +1229,10 @@ namespace UiSettings {
 
           ImGui::EndTabItem();
         }
-        ImGui::SetItemTooltip("Change volume and other sound settings");
 
-        if (ImGui::BeginTabItem("Controls")) {
+        bool controls_tab = ImGui::BeginTabItem("Controls");
+        ImGui::SetItemTooltip("Mouse, keyboard and touchscreen settings");
+        if (controls_tab) {
           ImGui::EndTabItem();
 
           ImGui::SeparatorText("Camera");
@@ -1263,10 +1270,11 @@ namespace UiSettings {
           ImGui::Checkbox("Emulate touch", (bool*) &local_settings["emulate_touch"]->v.b);
           ImGui::SetItemTooltip("Enable this if you use an external device other than a mouse to control Principia, such as a Wacom pad.");
         }
-        ImGui::SetItemTooltip("Mouse, keyboard and touchscreen settings");
 
-        if (ImGui::BeginTabItem("Interface")) {
-          ImGui::SeparatorText("UI");
+        bool interface_tab = ImGui::BeginTabItem("Interface");
+        ImGui::SetItemTooltip("Change UI scaling, visibility options and other interface settings");
+        if (interface_tab) {
+          ImGui::SeparatorText("Interface");
 
           ImGui::TextUnformatted("UI Scale (requires restart)");
           std::string display_value = string_format("%.01f", local_settings["uiscale"]->v.f);
@@ -1276,13 +1284,6 @@ namespace UiSettings {
           ImGui::SeparatorText("Help & Tips");
 
           ImGui::Checkbox("Do not show tips", (bool*) &local_settings["hide_tips"]->v.b);
-          //Should this be in debug?
-          ImGui::BeginDisabled((local_settings["tutorial"]->v.u32 & 0b1111111) == 0b1111111);
-          if (ImGui::Button("Skip tutorial")) {
-            local_settings["first_adventure"]->v.b = false;
-            local_settings["tutorial"]->v.u32 = 0xFFFFFFFF;
-          }
-          ImGui::EndDisabled();
 
           ImGui::SeparatorText("Advanced");
 
@@ -1300,31 +1301,40 @@ namespace UiSettings {
 
           ImGui::EndTabItem();
         }
-        ImGui::SetItemTooltip("Change UI scaling, visibility options and other interface settings");
 
-        ImGui::BeginDisabled(true);
+        bool gameplay_tab = ImGui::BeginTabItem("Gameplay");
+        ImGui::SetItemTooltip("Configure various gameplay settings");
+        if (gameplay_tab) {
+          //"Skip tutorial"
+          ImGui::SeparatorText("Adventure mode");
+          ImGui::BeginDisabled((local_settings["tutorial"]->v.u32 & 0b1111111) == 0b1111111);
+          if (ImGui::Button("Skip tutorial")) {
+            local_settings["first_adventure"]->v.b = false;
+            local_settings["tutorial"]->v.u32 = 0xFFFFFFFF;
+          }
+          ImGui::EndDisabled();
 
-        if (ImGui::BeginTabItem("Gameplay")) {
-          ImGui::TextUnformatted("wip");
           ImGui::EndTabItem();
         }
-        if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled)) {
-          ImGui::EndDisabled();
-          ImGui::SetTooltip("Placeholder\nThis item is work in progress");
-          ImGui::BeginDisabled(true);
-        }
 
-        if (ImGui::BeginTabItem("Online")) {
-          ImGui::TextUnformatted("wip");
-          ImGui::EndTabItem();
-        }
-        if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled)) {
-          ImGui::EndDisabled();
-          ImGui::SetTooltip("Placeholder\nThis item is work in progress");
+        #ifdef UI_FUTUREPROF_ONLINE_SETTINGS
+        if(UI_FUTUREPROF_ONLINE_SETTINGS) {
           ImGui::BeginDisabled(true);
-        }
 
-        ImGui::EndDisabled();
+          bool online_tab = ImGui::BeginTabItem("Online");
+          if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled)) {
+            ImGui::EndDisabled();
+            ImGui::SetTooltip("Placeholder\nThis item is work in progress");
+            ImGui::BeginDisabled(true);
+          }
+          if (online_tab) {
+            ImGui::TextUnformatted("wip");
+            ImGui::EndTabItem();
+          }
+
+          ImGui::EndDisabled();
+        }
+        #endif
 
         ImGui::EndTabBar();
 
