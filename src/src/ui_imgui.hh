@@ -2628,7 +2628,7 @@ void ui::init() {
 
   //init
   tms_assertf(ImGui_ImplOpenGL3_Init(), "gl impl init failed");
-  tms_assertf(ImGui_ImplTMS_Init() == T_OK, "tms impl init failed");
+  tms_assertf(ImGui_ImplTMS_InitEventHandler() == T_OK, "tms impl init failed");
 
   //call ui_init
   ui_init();

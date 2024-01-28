@@ -152,6 +152,6 @@ static int event_handler(tms_event *event) {
   return T_CONT;
 }
 
-inline int ImGui_ImplTMS_Init() {
+inline int ImGui_ImplTMS_InitEventHandler() {
   return tms_event_register_raw(&event_handler);
 }
