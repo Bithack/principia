@@ -158,7 +158,6 @@ inline int ImGui_ImplTMS_Init_Platform() {
 }
 
 //TODO tms-specific opengl impl. While default opengl3 impl works just fine, it basically leads to code duplication.
-
 // inline int ImGui_ImplTMS_Init_Gfx() {
 // }
 
@@ -167,5 +166,10 @@ inline int ImGui_ImplTMS_Init() {
   if (result != T_OK) return result;
   // result = ImGui_ImplTMS_Init_Gfx();
   // if (result != T_OK) return result;
+  return T_OK;
+}
+
+inline int ImGui_ImplTMS_Shutdown() {
+  //currently a no-op, will be used by the gfx impl
   return T_OK;
 }

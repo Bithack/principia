@@ -2773,6 +2773,7 @@ void ui::emit_signal(int num, void *data){
 
 void ui::quit() {
   ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplTMS_Shutdown();
   ImGui::DestroyContext();
 }
 
