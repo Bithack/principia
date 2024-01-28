@@ -206,6 +206,11 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	set(COMMON_FLAGS "${COMMON_FLAGS} -Wno-error=incompatible-function-pointer-types -Wno-error=int-conversion")
 endif()
 
+if(BACKEND_IMGUI)
+	# ImGui backend requires pthreads
+	set(COMMON_FLAGS "${COMMON_FLAGS} -pthread")
+endif()
+
 set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} ${IMGUI_FLAGS_DEBUG} -O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1")
 set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} ${IMGUI_FLAGS_RELEASE} -DNDEBUG=1 -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections")
 
@@ -213,9 +218,9 @@ set(CMAKE_C_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O1")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE} -g")
 set(CMAKE_C_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG}")
 
-set(CMAKE_CXX_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O2 -fvisibility-inlines-hidden -fno-rtti -pthread")
+set(CMAKE_CXX_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O2 -fvisibility-inlines-hidden -fno-rtti")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} -g")
-set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG} -pthread")
+set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG}")
 
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-O,-s,--gc-sections")
 set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "-Wl,-O,--gc-sections")
