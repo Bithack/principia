@@ -648,7 +648,7 @@ namespace UiLevelManager {
       ImGui::Separator();
 
       //Actual level list
-      ImGui::BeginChild("save_list_child", ImVec2(0., 500.), false, FRAME_FLAGS);
+      ImGui::BeginChild("save_list_child", ImVec2(0., 500.), false, FRAME_FLAGS | ImGuiWindowFlags_NavFlattened);
       if (ImGui::BeginTable("save_list", 5, ImGuiTableFlags_NoSavedSettings | ImGuiWindowFlags_NavFlattened | ImGuiTableFlags_Borders)) {
         //Setup table columns
         ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed);
