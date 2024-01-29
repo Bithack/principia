@@ -39,18 +39,13 @@ static inline int _fatal_exit() {
 
 #elif defined(TMS_BACKEND_WINDOWS)
 
-	#include <tms/util/glob.h>
-
-	#undef near
-	#undef far
-
 	extern FILE *_f_out;
 	extern FILE *_f_err;
 
-	#define tms_infof(f, ...) fprintf(_f_out, "III: " f "\n", ##__VA_ARGS__), fflush(_f_out);
-	#define tms_warnf(f, ...) fprintf(_f_err, "warning: " f "\n", ##__VA_ARGS__), fflush(_f_err);
-	#define tms_fatalf(f, ...) (fprintf(_f_err, "fatal error: " f "\n", ##__VA_ARGS__), fflush(_f_err), _fatal_exit())
-	#define tms_errorf(f, ...) fprintf(_f_err, "error: " f "\n", ##__VA_ARGS__), fflush(_f_err);
+	#define tms_infof(f, ...) fprintf(_f_out, "I: " f "\n", ##__VA_ARGS__), fflush(_f_out);
+	#define tms_warnf(f, ...) fprintf(_f_err, "W: " f "\n", ##__VA_ARGS__), fflush(_f_err);
+	#define tms_fatalf(f, ...) (fprintf(_f_err, "F: " f "\n", ##__VA_ARGS__), fflush(_f_err), _fatal_exit())
+	#define tms_errorf(f, ...) fprintf(_f_err, "E: " f "\n", ##__VA_ARGS__), fflush(_f_err);
 
 	static inline void
 	tms_set_log_file(FILE *out, FILE *err)
@@ -63,21 +58,21 @@ static inline int _fatal_exit() {
 	#define tms_progressf(f, ...) fprintf(_f_out, f, ##__VA_ARGS__); fflush(_f_out);
 
 	#if DEBUG
-		#define tms_debugf(f, ...) fprintf(_f_err, "(debug) %s(): " f "\n",  __func__, ##__VA_ARGS__), fflush(_f_err);
+		#define tms_debugf(f, ...) fprintf(_f_err, "D %s(): " f "\n",  __func__, ##__VA_ARGS__), fflush(_f_err);
 	#endif
 
 #else
 
 	// Every other platform (Linux, screenshotter...)
 
-	#define tms_infof(f, ...) fprintf(stdout, "III: " f "\n", ##__VA_ARGS__);
-	#define tms_warnf(f, ...) fprintf(stderr, "warning: " f "\n", ##__VA_ARGS__);
-	#define tms_fatalf(f, ...) (fprintf(stderr, "fatal error: " f "\n", ##__VA_ARGS__), _fatal_exit());
-	#define tms_errorf(f, ...) fprintf(stderr, "error: " f "\n", ##__VA_ARGS__);
+	#define tms_infof(f, ...) fprintf(stdout, "I: " f "\n", ##__VA_ARGS__);
+	#define tms_warnf(f, ...) fprintf(stderr, "W: " f "\n", ##__VA_ARGS__);
+	#define tms_fatalf(f, ...) (fprintf(stderr, "F: " f "\n", ##__VA_ARGS__), _fatal_exit());
+	#define tms_errorf(f, ...) fprintf(stderr, "E: " f "\n", ##__VA_ARGS__);
 	#define tms_progressf(f, ...) fprintf(stdout, f, ##__VA_ARGS__); fflush(stdout);
 
 	#ifdef DEBUG
-		#define tms_debugf(f, ...) fprintf(stderr, "(debug) %s(): " f "\n",  __func__, ##__VA_ARGS__);
+		#define tms_debugf(f, ...) fprintf(stderr, "D %s(): " f "\n",  __func__, ##__VA_ARGS__);
 	#endif
 
 #endif
