@@ -179,6 +179,8 @@ if(NOT SCREENSHOT_BUILD)
 endif()
 
 if (BACKEND_IMGUI)
+	# this is only required for ImGui's opengl3 backend
+	# (we should be able to remove this after implementing own rendering backend)
 	target_link_libraries(
 		${PROJECT_NAME}
 		${CMAKE_DL_LIBS}
