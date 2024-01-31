@@ -113,7 +113,7 @@ void ui::init(){};
 void ui::open_dialog(int num, void *data/*=0*/){}
 void ui::open_sandbox_tips(){};
 void ui::open_url(const char *url){};
-void ui::open_help_dialog(const char*, const char*, bool){};
+void ui::open_help_dialog(const char*, const char*){};
 void ui::emit_signal(int num, void *data/*=0*/){};
 void ui::quit(){};
 void ui::set_next_action(int action_id){};
