@@ -4,5 +4,4 @@ src/lua/*			linguist-vendored
 src/luasocket/*		linguist-vendored
 src/SDL_image/*		linguist-vendored
 src/SDL_mixer/*		linguist-vendored
-src/SDL_ttf/*		linguist-vendored
 src/SDL-mobile/*	linguist-vendored

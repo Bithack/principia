@@ -1,23 +1,18 @@
-# Common build files
+# CMake build folders. If you make new build folders in a format like
+# `build_clang` then it will be ignored by Git.
 build/
-build_ss/
-build_32/
-build_ucrt/
-build_debug/
+build_*/
 
 # Misc. development files
 .vscode/
 *.patch
 local_config.h
 opengl32.dll
-result/
-
-# Junk files for the old build system
-.deps/
-.dirstamp
-*.o
 
 # Model junk files
 *.blend1
 *.blend2
 *.blend3
+
+# Pro tip: Need to ignore any more specific files during development?
+# Use your local Git ignore file available at `~/.config/git/ignore`!
