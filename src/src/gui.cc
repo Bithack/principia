@@ -3,9 +3,10 @@
 #include "font.hh"
 #include "settings.hh"
 #include "misc.hh"
-#include "version.hh"
 #include <tms/bindings/cpp/cpp.hh>
 #include <deque>
+
+#define FONT_CACHE_VERSION 34
 
 static const char *FONT_PATH = "data-shared/fonts/Roboto-Bold.ttf";
 //static const char *FONT_PATH = "data-shared/fonts/DejaVuSans.ttf";
@@ -290,7 +291,7 @@ read_font_cache(lvlbuf *lb)
     uint8_t version = lb->r_uint8();
     float read_text_factor = lb->r_float();
 
-    if (version != PRINCIPIA_VERSION_CODE) {
+    if (version != FONT_CACHE_VERSION) {
         tms_errorf("Mismatching version code in model cache.");
         return false;
     }
@@ -386,7 +387,7 @@ read_cache(lvlbuf *lb)
     float read_text_factor = lb->r_float();
     uint32_t num_atlases = lb->r_uint32();
 
-    if (version != PRINCIPIA_VERSION_CODE) {
+    if (version != FONT_CACHE_VERSION) {
         tms_errorf("Mismatching version code in model cache.");
         return false;
     }
@@ -479,7 +480,7 @@ write_sprite(lvlbuf *lb, struct tms_sprite *s)
 static bool
 write_cache(lvlbuf *lb)
 {
-    lb->w_s_uint8(PRINCIPIA_VERSION_CODE);
+    lb->w_s_uint8(FONT_CACHE_VERSION);
     lb->w_s_float(gui_spritesheet::text_factor);
     lb->w_s_uint32(NUM_ATLASES);
 
@@ -598,7 +599,7 @@ write_font_cache(lvlbuf *lb)
 
     begin = SDL_GetTicks();
 
-    lb->w_s_uint8(PRINCIPIA_VERSION_CODE);
+    lb->w_s_uint8(FONT_CACHE_VERSION);
     /* equal required */
 
     lb->w_s_float(gui_spritesheet::text_factor);

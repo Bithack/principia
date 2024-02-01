@@ -1797,17 +1797,16 @@ init_curl_defaults(void *curl)
     curl_easy_setopt(P.curl, CURLOPT_SSL_VERIFYHOST, 0); /* XXX */
     curl_easy_setopt(P.curl, CURLOPT_SSL_VERIFYPEER, 0); /* XXX */
 
-    curl_easy_setopt(P.curl, CURLOPT_USERAGENT, PRINCIPIA_USERAGENT);
+    curl_easy_setopt(P.curl, CURLOPT_USERAGENT,
+        "Principia/" STR(PRINCIPIA_VERSION_CODE) " (" OS_STRING ") (" PRINCIPIA_VERSION_STRING ")");
 
     curl_easy_setopt(P.curl, CURLOPT_HEADERFUNCTION, _parse_headers);
 
     curl_easy_setopt(P.curl, CURLOPT_COOKIEFILE, cookie_file);
     curl_easy_setopt(P.curl, CURLOPT_COOKIEJAR, cookie_file);
 
-#ifndef TMS_BACKEND_LINUX_SS
     curl_easy_setopt(P.curl, CURLOPT_XFERINFOFUNCTION, progress_cb);
     curl_easy_setopt(P.curl, CURLOPT_NOPROGRESS, 0);
-#endif
 
 #ifdef DEBUG
     curl_easy_setopt(P.curl, CURLOPT_VERBOSE, 1);
