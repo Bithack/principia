@@ -2224,8 +2224,8 @@ namespace UiLevelProperties {
                 //available_bgs[x]
                 ImGuiStyle style = ImGui::GetStyle();
                 ImVec2 p = ImGui::GetCursorScreenPos() - style.FramePadding;
-                static const float content_height = 40.f;
-                static const float img_width = content_height * 2.66;
+                static const float content_height = 32.f;
+                static const float img_width = content_height * 2.3; //* 2.66;
                 if (ImGui::Selectable("###option", x == W->level.bg, 0, ImVec2(0, content_height))) {
                   W->level.bg = x;
                   P.add_action(ACTION_RELOAD_LEVEL, 0);
@@ -2233,7 +2233,7 @@ namespace UiLevelProperties {
                 ImDrawList* draw = ImGui::GetWindowDrawList();
                 ImVec4 image_uv = bg_idx_snippet_uv(x);
                 ImVec2 img_p_min = p + style.FramePadding;
-                ImVec2 img_p_max = p + ImVec2(content_height * 2.66, content_height) + style.FramePadding;
+                ImVec2 img_p_max = p + ImVec2(img_width, content_height) + style.FramePadding;
                 if (image_uv.x >= 0.) {
                   draw->AddImage(
                     ImGui_TmsImage_Id(ui_textures.background_snippets),
