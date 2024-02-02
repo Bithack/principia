@@ -356,8 +356,6 @@ static void ui_demo_layout() {
   if (show_demo) {
     ImGui::ShowDemoWindow(&show_demo);
   }
-  //ImGui::Image((void*)(size_t)ui_textures.adventure->gl_texture, ImVec2(ui_textures.adventure->width, ui_textures.adventure->height), ImVec2(0, 1), ImVec2(1, 0));
-  //ImGui_TmsImage(ui_textures.adventure);
 }
 #endif
 
@@ -2125,14 +2123,17 @@ namespace UiLevelProperties {
   static void layout() {
     handle_do_open(&do_open, "Level properties");
     ImGui_CenterNextWindow();
+    ImGui::SetNextWindowSizeConstraints(ImVec2(400., 500.), ImVec2(FLT_MAX, FLT_MAX));
     if (ImGui::BeginPopupModal("Level properties", REF_TRUE, MODAL_FLAGS)) {
       if (ImGui::BeginTabBar("MyTabBar")) {
         if (ImGui::BeginTabItem("Cucumber")) {
+          ImGui::SeparatorText("Metadata");
+
           std::string lvl_name(W->level.name, W->level.name_len);
           bool over_soft_limit = lvl_name.length() >= LEVEL_NAME_LEN_SOFT_LIMIT + 1;
           ImGui::BeginDisabled(over_soft_limit);
-          ImGui::TextUnformatted("Level name");
-          if (ImGui::InputTextWithHint("###LevelName", LEVEL_NAME_PLACEHOLDER, &lvl_name)) {
+          ImGui::TextUnformatted("Name");
+          if (ImGui::InputTextWithHint("##LevelName", LEVEL_NAME_PLACEHOLDER, &lvl_name)) {
             size_t to_copy = (size_t)(std::min)((int) lvl_name.length(), LEVEL_NAME_LEN_HARD_LIMIT);
             memcpy(&W->level.name, lvl_name.data(), to_copy);
             W->level.name_len = lvl_name.length();
@@ -2146,12 +2147,36 @@ namespace UiLevelProperties {
             W->level.descr_len = lvl_descr.length();
           }
 
-          ImGui::TextUnformatted("Type");
-          //ImGui::RadioButton("Adventure");
-          
+          ImGui::SeparatorText("Type");
+          if (ImGui::RadioButton("Adventure", W->level.type == LCAT_ADVENTURE)) {
+            P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_ADVENTURE);
+          }
+          if (ImGui::RadioButton("Custom", W->level.type == LCAT_CUSTOM)) {
+            P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_CUSTOM);
+          }
+          #ifdef SHOW_PUZZLE
+          if(SHOW_PUZZLE) {
+            if (ImGui::RadioButton("Puzzle", W->level.type == LCAT_PUZZLE)) {
+              P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_PUZZLE);
+            }
+          }
+          #endif
+          //ImGui::Radio;
+
           ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("World")) {
+          //Background
+          {
+            ImGui::SeparatorText("Background");
+            if (ImGui::BeginCombo("###BackgroundTy", ":3")) {
+              ImGui::EndCombo();
+            }
+            static ImVec4 demo_color = ImVec4(1,0,0,1);
+            ImGui::SameLine();
+            ImGui::ColorButton("Background color###bgc", (const ImVec4) demo_color);
+          }
+
           //Gravity
           {
             ImGui::SeparatorText("Gravity");
@@ -2173,7 +2198,7 @@ namespace UiLevelProperties {
             auto slider = [ix, &do_reload](const char *id, uint16_t *x, float flip, int flags = 0) {
               ImGui::PushItemWidth(ix);
               int xint = *x;
-              if (ImGui::DragInt(id, &xint, flip * 0.1f, 0, 0, "%d", flags)) { 
+              if (ImGui::DragInt(id, &xint, flip * 0.1f, 0, 0, "%d", flags)) {
                 *x = (std::max)(0, xint);
               }
               ImGui::PopItemWidth();
@@ -2732,6 +2757,9 @@ void ui::init() {
   //io.ConfigInputTrickleEventQueue = false;
   io.ConfigWindowsResizeFromEdges = true; //XXX: not active until custom cursors are implemented...
   io.ConfigDragClickToInputText = true;
+  //Disable saving state/logging
+  io.IniFilename = NULL;
+  io.LogFilename = NULL;
 
   //set PlatformHandleRaw
   ImGuiViewport* main_viewport = ImGui::GetMainViewport();
