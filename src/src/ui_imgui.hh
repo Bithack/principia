@@ -80,8 +80,8 @@
 
 //Should options related to broken puzzle mode be shown?
 //The options don't fit in the UI, and the puzzle mode itself is broken
-//so this is disabled by default, except debug builds
-#define SHOW_PUZZLE DEBUG
+//so this is disabled by default
+#define SHOW_PUZZLE false
 
 //Should the "Online" tab be shown in settings?
 //Currently the tab itself does absolutely nothing and is just a placeholder
@@ -2392,14 +2392,17 @@ namespace UiNewLevel {
         ui_textures.adventure
       );
 #ifdef SHOW_PUZZLE
-      option(
-        "###o-puzzle",
-        "Puzzle [DEBUG]",
-        "PUZZLE_DESCRIPTION\nPUZZLE_DESCRIPTION",
-        ACTION_NEW_LEVEL,
-        LCAT_PUZZLE,
-        ui_textures.placeholder_image
-      );
+      if(SHOW_PUZZLE) {
+        ImGui::SameLine();
+        option(
+          "###o-puzzle",
+          "Puzzle [DEBUG]",
+          "PUZZLE_DESCRIPTION\nPUZZLE_DESCRIPTION",
+          ACTION_NEW_LEVEL,
+          LCAT_PUZZLE,
+          ui_textures.placeholder_image
+        );
+      }
 #endif
       ImGui::EndPopup();
     }
