@@ -1,5 +1,3 @@
-#include "material.hh"
-#include "world.hh"
 #ifdef __UI_IMGUI_H_GUARD
 #error please do not include this file directly
 #endif
@@ -19,6 +17,9 @@
 #include "misc.hh"
 #include "speaker.hh"
 #include "object_factory.hh"
+#include "material.hh"
+#include "simplebg.hh"
+#include "world.hh"
 //---
 #include "tms/backend/print.h"
 #include "tms/core/texture.h"
@@ -113,6 +114,17 @@ static uint64_t __ref;
 #define IM_XYZW(V) (V).x, (V).y, (V).z, (V).w
 
 //HELPER FUNCTIONS
+
+// static void unpack_rgba(uint32_t color, float *r, float *g, float *b, float *a) {
+//   int _r = (color >> 24) & 0xFF;
+//   int _g = (color >> 16) & 0xFF;
+//   int _b = (color >>  8) & 0xFF;
+//   int _a = (color      ) & 0xFF;
+//   *r = _r / 255.f;
+//   *g = _g / 255.f;
+//   *b = _b / 255.f;
+//   *a = _a / 255.f;
+// }
 
 //I stole this one from some random SO post...
 template<typename ... Args>
@@ -2215,6 +2227,7 @@ namespace UiLevelProperties {
         if (ImGui::BeginTabItem("World")) {
           //Background
           {
+            //bool current_bg_colored = false;
             ImGui::SeparatorText("Background");
             //ImGui_TmsImage_Widget(ui_textures.background_snippets);
             int cbg = W->level.bg;
@@ -2243,13 +2256,21 @@ namespace UiLevelProperties {
                     ImVec2(IM_ZW(image_uv))
                   );
                 } else {
+                  //current_bg_colored = true;
+                  // float r,g,b,_a;
+                  // unpack_rgba(W->level.bg_color, &r, &g, &b, &_a);
+                  // draw->AddRectFilled(
+                  //   img_p_min,
+                  //   img_p_max,
+                  //   ImColor(r, g, b, 1.)
+                  // );
                   draw->AddRectFilledMultiColor(
                     img_p_min,
                     img_p_max,
+                    ImColor(255, 0, 0),
                     ImColor(255, 255, 0),
                     ImColor(0, 255, 255),
-                    ImColor(0, 0, 255),
-                    ImColor(255, 0, 255)
+                    ImColor(0, 0, 255)
                   );
                 }
                 draw->AddText(
@@ -2263,9 +2284,25 @@ namespace UiLevelProperties {
               }
               ImGui::EndCombo();
             }
-            static ImVec4 demo_color = ImVec4(1,0,0,1);
-            ImGui::SameLine();
-            ImGui::ColorButton("Background color###bgc", (const ImVec4) demo_color);
+            bool current_bg_colored = false;
+            for (const int *ptr = colored_bgs; ; ++ptr) {
+              if ((*ptr == -1) || (*ptr == W->level.bg)) {
+                current_bg_colored = *ptr != -1;
+                break;
+              }
+            }
+            if (current_bg_colored) {
+              float col[4];
+              unpack_rgba(W->level.bg_color, &col[0], &col[1], &col[2], &col[3]);
+              col[3] = 1.;
+              //ImGui::SameLine();
+              if (ImGui::ColorEdit4("###bgc", col, ImGuiColorEditFlags_NoAlpha)) {
+                W->level.bg_color = pack_rgba(col[0], col[1], col[2], 1.);
+              }
+              if (ImGui::IsItemDeactivatedAfterEdit()) {
+                P.add_action(ACTION_RELOAD_LEVEL, 0);
+              }
+            }
           }
 
           //Gravity
