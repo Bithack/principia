@@ -2154,6 +2154,9 @@ namespace UiLevelProperties {
   };
   static const uint8_t bg_snippet_count = 13;
 
+  static const float bgsel_content_height = 32.f;
+  static const float bgsel_img_width = bgsel_content_height * 2.3; //* 2.66;
+
   //Maps the bg index to the snippet index
   // >=0 = index of the image in the snippet atlas
   //  -1 = no snippet
@@ -2172,6 +2175,41 @@ namespace UiLevelProperties {
     return ImVec4(
       0., 1. - (snippet_idx / bg_snippet_count),
       1., 1. - ((snippet_idx + 1) / bg_snippet_count)
+    );
+  }
+
+  static void bg_draw_option(ImVec2 p, uint8_t x) {
+    if (x > num_bgs) return;
+
+    ImGuiStyle style = ImGui::GetStyle();
+    ImDrawList* draw = ImGui::GetWindowDrawList();
+    ImVec4 image_uv = bg_idx_snippet_uv(x);
+    ImVec2 img_p_min = p + style.FramePadding;
+    ImVec2 img_p_max = p + ImVec2(bgsel_img_width, bgsel_content_height) + style.FramePadding;
+    if (image_uv.x >= 0.) {
+      draw->AddImage(
+        ImGui_TmsImage_Id(ui_textures.background_snippets),
+        img_p_min,
+        img_p_max,
+        ImVec2(IM_XY(image_uv)),
+        ImVec2(IM_ZW(image_uv))
+      );
+    } else {
+      draw->AddRectFilledMultiColor(
+        img_p_min,
+        img_p_max,
+        ImColor(255, 0, 0),
+        ImColor(255, 255, 0),
+        ImColor(0, 255, 255),
+        ImColor(0, 0, 255)
+      );
+    }
+    draw->AddText(
+      p + style.FramePadding
+        + ImVec2(bgsel_img_width + style.FramePadding.x, 0)
+        + ImVec2(0, (bgsel_content_height - ImGui::GetTextLineHeight()) / 2),
+      ImColor(255, 255, 255),
+      available_bgs[x]
     );
   }
 
@@ -2227,62 +2265,39 @@ namespace UiLevelProperties {
         if (ImGui::BeginTabItem("World")) {
           //Background
           {
+            ImGuiStyle style = ImGui::GetStyle();
             //bool current_bg_colored = false;
             ImGui::SeparatorText("Background");
             //ImGui_TmsImage_Widget(ui_textures.background_snippets);
             int cbg = W->level.bg;
-            if (ImGui::BeginCombo("###BackgroundTy", (cbg < num_bgs) ? available_bgs[cbg] : ":3")) {
+            ImGui::SetNextWindowSizeConstraints(ImVec2(0., 0.), ImVec2(0., 12. * bgsel_content_height));
+            //HACK: make combo preview taller, there's no official way to do it as custom combobox previews are still experimental
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, style.FramePadding.y * 2 + (bgsel_content_height - ImGui::GetFontSize()) / 2));
+            bool is_combo = ImGui::BeginCombo("###BackgroundTy", NULL, ImGuiComboFlags_CustomPreview);
+            ImGui::PopStyleVar();
+            if (is_combo) {
               for (int x = 0; x < num_bgs; x++) {
                 ImGui::PushID(x);
                 //available_bgs[x]
-                ImGuiStyle style = ImGui::GetStyle();
+                //ImGuiStyle style = ImGui::GetStyle();
                 ImVec2 p = ImGui::GetCursorScreenPos() - style.FramePadding;
-                static const float content_height = 32.f;
-                static const float img_width = content_height * 2.3; //* 2.66;
-                if (ImGui::Selectable("###option", x == W->level.bg, 0, ImVec2(0, content_height))) {
+                if (ImGui::Selectable("###option", x == W->level.bg, 0, ImVec2(0, bgsel_content_height))) {
                   W->level.bg = x;
                   P.add_action(ACTION_RELOAD_LEVEL, 0);
                 }
-                ImDrawList* draw = ImGui::GetWindowDrawList();
-                ImVec4 image_uv = bg_idx_snippet_uv(x);
-                ImVec2 img_p_min = p + style.FramePadding;
-                ImVec2 img_p_max = p + ImVec2(img_width, content_height) + style.FramePadding;
-                if (image_uv.x >= 0.) {
-                  draw->AddImage(
-                    ImGui_TmsImage_Id(ui_textures.background_snippets),
-                    img_p_min,
-                    img_p_max,
-                    ImVec2(IM_XY(image_uv)),
-                    ImVec2(IM_ZW(image_uv))
-                  );
-                } else {
-                  //current_bg_colored = true;
-                  // float r,g,b,_a;
-                  // unpack_rgba(W->level.bg_color, &r, &g, &b, &_a);
-                  // draw->AddRectFilled(
-                  //   img_p_min,
-                  //   img_p_max,
-                  //   ImColor(r, g, b, 1.)
-                  // );
-                  draw->AddRectFilledMultiColor(
-                    img_p_min,
-                    img_p_max,
-                    ImColor(255, 0, 0),
-                    ImColor(255, 255, 0),
-                    ImColor(0, 255, 255),
-                    ImColor(0, 0, 255)
-                  );
+                if (ImGui::IsWindowAppearing() && (x == W->level.bg)) {
+                  ImGui::SetKeyboardFocusHere();
+                  ImGui::SetScrollHereY();
                 }
-                draw->AddText(
-                  p + style.FramePadding
-                    + ImVec2(img_width + style.FramePadding.x, 0)
-                    + ImVec2(0, (content_height - ImGui::GetTextLineHeight()) / 2),
-                  ImColor(255, 255, 255),
-                  available_bgs[x]
-                );
+                bg_draw_option(p, x);
                 ImGui::PopID();
               }
               ImGui::EndCombo();
+            }
+            if (ImGui::BeginComboPreview()) {
+              const ImVec2 p = ImGui::GetCursorScreenPos();
+              bg_draw_option(p, W->level.bg);
+              ImGui::EndComboPreview();
             }
             bool current_bg_colored = false;
             for (const int *ptr = colored_bgs; ; ++ptr) {
