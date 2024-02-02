@@ -2233,7 +2233,7 @@ namespace UiLevelProperties {
 
             ImGui::SetCursorPos(ImVec2(c.x + bs.x / 2 - ix / 2, c.y));
             slider("###y1", &W->level.size_y[1], 1., ImGuiSliderFlags_Vertical);
-            
+
             //Button right in the center
             // const char *btext = "FIT";
             // float bix = ImGui::CalcTextSize(btext).y + ImGui::GetStyle().FramePadding.x * 2.;
@@ -2252,7 +2252,7 @@ namespace UiLevelProperties {
           ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Gameplay")) {
-          
+          ImGui::TextUnformatted("TODO");
           ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
