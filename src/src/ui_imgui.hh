@@ -283,11 +283,11 @@ static tms_texture *load_texture(const char *path) {
 
 static void load_textures() {
   //ui_textures.null = load_texture_mem(nullptr, 0, 0);
-  ui_textures.adventure = load_texture("data-shared/textures/img/adventure.jpg");
-  ui_textures.adventure_empty = load_texture("data-shared/textures/img/adventure_empty.jpg");
-  ui_textures.custom = load_texture("data-shared/textures/img/custom.jpg");
-  ui_textures.ud = load_texture("data-shared/textures/img/ud.png");
-  ui_textures.placeholder_image = load_texture("data-shared/textures/img/placeholder_image.png");
+  ui_textures.adventure = load_texture("data-shared/imgui/adventure.jpg");
+  ui_textures.adventure_empty = load_texture("data-shared/imgui/adventure_empty.jpg");
+  ui_textures.custom = load_texture("data-shared/imgui/custom.jpg");
+  ui_textures.ud = load_texture("data-shared/imgui/ud.png");
+  ui_textures.placeholder_image = load_texture("data-shared/imgui/placeholder_image.png");
 }
 
 #define TIM_UV0 ImVec2(0.f, 1.f)
