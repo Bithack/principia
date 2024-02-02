@@ -446,13 +446,13 @@ namespace UiSandboxMenu {
             std::string item_name = string_format("%s (id: %d)", ment->get_name(), eid);
             bool activated = ImGui::MenuItem(item_name.c_str());
             ImGui::SetItemTooltip(
-              "Position: %.02f %.02f (layer %d)",
+              "Position: (%.02f, %.02f)\n(Layer %d)",
               // ment->get_name(),
               // ment->g_id,
               // eid,
               ment->get_position().x,
               ment->get_position().y,
-              ment->get_layer()
+              ment->get_layer() + 1
             );
             if (activated) {
               goto_entity(ment);
