@@ -251,6 +251,7 @@ struct PUiTextures {
   tms_texture *custom;
   tms_texture *ud;
   tms_texture *placeholder_image;
+  tms_texture *background_snippets;
 };
 static struct PUiTextures ui_textures;
 
@@ -286,8 +287,9 @@ static void load_textures() {
   ui_textures.adventure = load_texture("data-shared/imgui/adventure.jpg");
   ui_textures.adventure_empty = load_texture("data-shared/imgui/adventure_empty.jpg");
   ui_textures.custom = load_texture("data-shared/imgui/custom.jpg");
-  ui_textures.ud = load_texture("data-shared/imgui/ud.png");
+  ui_textures.ud = load_texture("data-shared/imgui/direction_arrows.png");
   ui_textures.placeholder_image = load_texture("data-shared/imgui/placeholder_image.png");
+  ui_textures.background_snippets = load_texture("data-shared/imgui/background_snippets.jpg");
 }
 
 #define TIM_UV0 ImVec2(0.f, 1.f)
