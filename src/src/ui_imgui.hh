@@ -1,3 +1,5 @@
+#include "material.hh"
+#include "world.hh"
 #ifdef __UI_IMGUI_H_GUARD
 #error please do not include this file directly
 #endif
@@ -105,6 +107,8 @@ static uint64_t __ref;
 #define LEVEL_NAME_PLACEHOLDER (const char*)"<no name>"
 
 //Unroll ImVec4 components
+#define IM_XY(V) (V).x, (V).y
+#define IM_ZW(V) (V).z, (V).w
 #define IM_XYZ(V) (V).x, (V).y, (V).z
 #define IM_XYZW(V) (V).x, (V).y, (V).z, (V).w
 
@@ -2118,6 +2122,47 @@ namespace UiObjColorPicker {
 namespace UiLevelProperties {
   static bool do_open = false;
 
+  //Maps the bg index to the index in the snippet image
+  static const std::array<int8_t, 15> bg_snippet_map = {
+    /* 0 = */ 0,
+    /* 1 = */ 1,
+    /* 2 = */ 2,
+    /* 3 = */ 3,
+    /* 4 = */ 4,
+    /* 5 = */ 12,
+    /* 6 = */ -1, //(colored)
+    /* 7 = */ -1, //(colored)
+    /* 8 = */ 5,
+    /* 9 = */ 6,
+    /* 10 = */ 7,
+    /* 11 = */ 8,
+    /* 12 = */ 9,
+    /* 13 = */ 10,
+    /* 14 = */ 11,
+  };
+  static const uint8_t bg_snippet_count = 13;
+
+  //Maps the bg index to the snippet index
+  // >=0 = index of the image in the snippet atlas
+  //  -1 = no snippet
+  static int8_t bg_idx_to_snippet_idx(uint8_t idx) {
+    if (idx < bg_snippet_map.size()) {
+      return bg_snippet_map[idx];
+    }
+    return -1;
+  }
+
+  static ImVec4 bg_idx_snippet_uv(uint8_t idx) {
+    float snippet_idx = (float) bg_idx_to_snippet_idx(idx);
+    if (snippet_idx < 0) {
+      return ImVec4(-1, -1, -1, -1);
+    }
+    return ImVec4(
+      0., 1. - (snippet_idx / bg_snippet_count),
+      1., 1. - ((snippet_idx + 1) / bg_snippet_count)
+    );
+  }
+
   static void open() {
     do_open = true;
   }
@@ -2171,7 +2216,51 @@ namespace UiLevelProperties {
           //Background
           {
             ImGui::SeparatorText("Background");
-            if (ImGui::BeginCombo("###BackgroundTy", ":3")) {
+            //ImGui_TmsImage_Widget(ui_textures.background_snippets);
+            int cbg = W->level.bg;
+            if (ImGui::BeginCombo("###BackgroundTy", (cbg < num_bgs) ? available_bgs[cbg] : ":3")) {
+              for (int x = 0; x < num_bgs; x++) {
+                ImGui::PushID(x);
+                //available_bgs[x]
+                ImGuiStyle style = ImGui::GetStyle();
+                ImVec2 p = ImGui::GetCursorScreenPos() - style.FramePadding;
+                static const float content_height = 40.f;
+                static const float img_width = content_height * 2.66;
+                if (ImGui::Selectable("###option", x == W->level.bg, 0, ImVec2(0, content_height))) {
+                  W->level.bg = x;
+                  P.add_action(ACTION_RELOAD_LEVEL, 0);
+                }
+                ImDrawList* draw = ImGui::GetWindowDrawList();
+                ImVec4 image_uv = bg_idx_snippet_uv(x);
+                ImVec2 img_p_min = p + style.FramePadding;
+                ImVec2 img_p_max = p + ImVec2(content_height * 2.66, content_height) + style.FramePadding;
+                if (image_uv.x >= 0.) {
+                  draw->AddImage(
+                    ImGui_TmsImage_Id(ui_textures.background_snippets),
+                    img_p_min,
+                    img_p_max,
+                    ImVec2(IM_XY(image_uv)),
+                    ImVec2(IM_ZW(image_uv))
+                  );
+                } else {
+                  draw->AddRectFilledMultiColor(
+                    img_p_min,
+                    img_p_max,
+                    ImColor(255, 255, 0),
+                    ImColor(0, 255, 255),
+                    ImColor(0, 0, 255),
+                    ImColor(255, 0, 255)
+                  );
+                }
+                draw->AddText(
+                  p + style.FramePadding
+                    + ImVec2(img_width + style.FramePadding.x, 0)
+                    + ImVec2(0, (content_height - ImGui::GetTextLineHeight()) / 2),
+                  ImColor(255, 255, 255),
+                  available_bgs[x]
+                );
+                ImGui::PopID();
+              }
               ImGui::EndCombo();
             }
             static ImVec4 demo_color = ImVec4(1,0,0,1);
