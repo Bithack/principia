@@ -9,6 +9,7 @@
 #include "ui.hh"
 #include "main.hh"
 #include "game.hh"
+#include "entity.hh"
 #include "pkgman.hh"
 #include "settings.hh"
 #include "soundmanager.hh"
@@ -363,6 +364,7 @@ static void ui_demo_layout() {
 namespace UiSandboxMenu {
   static bool do_open = false;
   static b2Vec2 sb_position = b2Vec2_zero;
+  static std::vector<uint32_t> bookmarks = {};
 
   static void open() {
     do_open = true;
@@ -396,6 +398,77 @@ namespace UiSandboxMenu {
 
       //Cursor:
       ImGui::Text("Cursor: (%.2f, %.2f)", sb_position.x, sb_position.y);
+
+      //Go to menu
+      if (ImGui::BeginMenu("Go to...")) {
+        float z = G->cam->_position.z;
+
+        auto goto_entity = [z](entity *ment) {
+          G->lock();
+          b2Vec2 xy = ment->get_position();
+          G->cam->set_position(xy.x, xy.y, z);
+          G->selection.select(ment);
+          G->unlock();
+          sb_position = xy;
+        };
+        auto goto_position = [z](b2Vec2 xy) {
+          G->lock();
+          G->cam->set_position(xy.x, xy.y, z);
+          //XXX: should we reset the selection here?
+          G->selection.disable();
+          G->unlock();
+          sb_position = xy;
+        };
+
+        if (ImGui::MenuItem("0, 0")) {
+          goto_position(b2Vec2_zero);
+        }
+        //TODO the rest of goto options
+        // if (ImGui::MenuItem("Player")) {
+        //
+        // }
+        // if (ImGui::MenuItem("Last created entity")) {
+        //
+        // }
+        // if (ImGui::MenuItem("Last camera position")) {
+        //
+        // }
+
+        ImGui::Separator();
+        if (bookmarks.size() > 0) {
+          for (uint32_t eid : bookmarks) {
+            //TODO: remove bookmark by right clicking
+            //XXX: maybe auto remove if id is no longer valid???
+            ImGui::PushID(eid);
+            entity* ment = W->get_entity_by_id(eid);
+            if (!ment) continue;
+            //ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+            std::string item_name = string_format("%s (id: %d)", ment->get_name(), eid);
+            bool activated = ImGui::MenuItem(item_name.c_str());
+            ImGui::SetItemTooltip(
+              "Position: %.02f %.02f (layer %d)",
+              // ment->get_name(),
+              // ment->g_id,
+              // eid,
+              ment->get_position().x,
+              ment->get_position().y,
+              ment->get_layer()
+            );
+            if (activated) {
+              goto_entity(ment);
+            }
+            //ImGui::PopItemFlag();
+            ImGui::PopID();
+          }
+        } else {
+          ImGui::BeginDisabled();
+          ImGui::TextUnformatted("<no bookmarks>");
+          ImGui::EndDisabled();
+        }
+
+        ImGui::EndMenu();
+      }
+
       ImGui::Separator();
 
       //Selected object info:
@@ -414,12 +487,19 @@ namespace UiSandboxMenu {
         // }
         ImGui::Separator();
 
-        ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
-        if (ImGui::MenuItem("Mark entity", "", REF_TRUE)) {
-          //TODO entity marking
+        //ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+        bool is_bookmarked = std::find(bookmarks.begin(), bookmarks.end(), sent->id) != bookmarks.end();
+        if (ImGui::MenuItem("Bookmark entity", NULL, &is_bookmarked)) {
+          ///XXX: this is UB if called multiple times with the same is_bookmarked value (which should never happen)
+          if (is_bookmarked) {
+            bookmarks.push_back(sent->id);
+          } else {
+            auto x = std::remove(bookmarks.begin(), bookmarks.end(), sent->id);
+            bookmarks.erase(x, bookmarks.end());
+          }
         }
-        ImGui::PopItemFlag();
-        ImGui::SetItemTooltip("(not implemented yet)");
+        //ImGui::PopItemFlag();
+        ImGui::SetItemTooltip("Save the entity to the 'Go to...' menu");
 
         ImGui::BeginDisabled(sent_pos.x == sb_position.x && sent_pos.y == sb_position.y);
         ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
