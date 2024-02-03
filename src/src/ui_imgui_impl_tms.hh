@@ -161,11 +161,10 @@ static int event_handler(tms_event *event) {
 
 //SDL2 impls:
 static const char* getcbt(void* _cbt) {
-  //XXX: this assumes that only a single instance of ImGui exists
   char* cbt = (char*)_cbt;
   if (cbt) SDL_free(cbt);
   cbt = SDL_GetClipboardText();
-  return (const char*) cbt;
+  return cbt;
 }
 inline static void setcbt(void*, const char* text) {
   SDL_SetClipboardText(text);
