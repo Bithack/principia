@@ -165,7 +165,7 @@ static const char* getcbt(void* _cbt) {
   char* cbt = (char*)_cbt;
   if (cbt) SDL_free(cbt);
   cbt = SDL_GetClipboardText();
-  return cbt;
+  return (const char*) cbt;
 }
 inline static void setcbt(void*, const char* text) {
   SDL_SetClipboardText(text);
