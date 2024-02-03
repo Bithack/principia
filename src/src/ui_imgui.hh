@@ -2392,6 +2392,10 @@ namespace UiLevelProperties {
 
           ImGui::EndTabItem();
         }
+        if (ImGui::BeginTabItem("Physics")) {
+          ImGui::TextUnformatted("TODO");
+          ImGui::EndTabItem();
+        }
         if (ImGui::BeginTabItem("Gameplay")) {
           ImGui::TextUnformatted("TODO");
           ImGui::EndTabItem();
