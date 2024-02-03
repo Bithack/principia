@@ -87,12 +87,18 @@
 //so this is disabled by default
 #define SHOW_PUZZLE false
 
-//Show level flags that only affect puzzle levels
-#define SHOW_PUZZLE_ONLY_FLAGS false
+//Disable to completely hide all level flags that only affect Puzzle mode levels
+//By default, they're only shown if SHOW_PUZZLE is enabled
+#define SHOW_PUZZLE_ONLY_FLAGS SHOW_PUZZLE
+
+//Don't allow modifying flags that don't affect the current mode (to prevent confusion)
+//For example, flags that only affect Adventure mode will be greyed out in Sandbox mode
+#define DISABLE_USELESS_FLAGS true
 
 //Should the "Online" tab be shown in settings?
+//(it will allow changing the community host and configuring online features in the future)
 //Currently the tab itself does absolutely nothing and is just a placeholder
-#define UI_FUTUREPROF_ONLINE_SETTINGS true
+#define UI_FUTUREPROOF_ONLINE_SETTINGS true
 
 //--------------------------------------------
 
@@ -1424,8 +1430,8 @@ namespace UiSettings {
           ImGui::EndTabItem();
         }
 
-        #ifdef UI_FUTUREPROF_ONLINE_SETTINGS
-        if(UI_FUTUREPROF_ONLINE_SETTINGS) {
+        #ifdef UI_FUTUREPROOF_ONLINE_SETTINGS
+        if(UI_FUTUREPROOF_ONLINE_SETTINGS) {
           ImGui::BeginDisabled(true);
 
           bool online_tab = ImGui::BeginTabItem("Online");
@@ -2431,7 +2437,11 @@ namespace UiLevelProperties {
         if (ImGui::BeginTabItem("Gameplay")) {
           auto lvl_flag_toggle = [](uint64_t flag, const char *label, const char *help, bool disabled = false) {
             bool x = (W->level.flags & flag) != 0;
-            if (disabled) ImGui::BeginDisabled();
+            #ifdef DISABLE_USELESS_FLAGS
+            if (DISABLE_USELESS_FLAGS && disabled) {
+              ImGui::BeginDisabled();
+            }
+            #endif
             if (ImGui::Checkbox(label, &x)) {
               if (x) {
                 W->level.flags |= flag;
@@ -2440,7 +2450,11 @@ namespace UiLevelProperties {
               }
               P.add_action(ACTION_RELOAD_LEVEL, 0);
             }
-            if (disabled) ImGui::EndDisabled();
+            #ifdef DISABLE_USELESS_FLAGS
+              if (DISABLE_USELESS_FLAGS && disabled) {
+                ImGui::EndDisabled();
+              }
+            #endif
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled)) {
               if (ImGui::BeginTooltip()) {
                 if ((help != 0) && (*help != 0)) {
