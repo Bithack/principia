@@ -87,6 +87,9 @@
 //so this is disabled by default
 #define SHOW_PUZZLE false
 
+//Show level flags that only affect puzzle levels
+#define SHOW_PUZZLE_ONLY_FLAGS false
+
 //Should the "Online" tab be shown in settings?
 //Currently the tab itself does absolutely nothing and is just a placeholder
 #define UI_FUTUREPROF_ONLINE_SETTINGS true
@@ -2457,7 +2460,13 @@ namespace UiLevelProperties {
             lvl_flag_toggle(
               LVL_DISABLE_LAYER_SWITCH,
               "Disable layer switch",
-              "In adventure mode, disable manual robot layer switching.\nIn puzzle mode, restrict layer switching for objects."
+              #ifdef SHOW_PUZZLE_ONLY_FLAGS
+                SHOW_PUZZLE_ONLY_FLAGS ?
+                "In adventure mode, disable manual robot layer switching.\nIn puzzle mode, restrict layer switching for objects."
+                :
+              #endif
+                "Disable manual robot layer switching\n(Adventure mode only)",
+              !((W->level.type == LCAT_PUZZLE) || (W->level.type == LCAT_ADVENTURE))
             );
             lvl_flag_toggle(
               LVL_DISABLE_INTERACTIVE,
@@ -2469,30 +2478,38 @@ namespace UiLevelProperties {
               "Disable fall damage",
               "Disable the damage robots take when they fall."
             );
-            lvl_flag_toggle(
-              LVL_DISABLE_CONNECTIONS,
-              "Disable connections",
-              "Disable the ability to create connections. (Puzzle mode only)"
-            );
-            lvl_flag_toggle(
-              LVL_DISABLE_STATIC_CONNS,
-              "Disable static connections",
-              "Disable connections to static objects such as platforms. (Puzzle mode only)"
-            );
+            #ifdef SHOW_PUZZLE_ONLY_FLAGS
+            if(SHOW_PUZZLE_ONLY_FLAGS) {
+              lvl_flag_toggle(
+                LVL_DISABLE_CONNECTIONS,
+                "Disable connections",
+                "Disable the ability to create connections\n(Puzzle mode only)",
+                W->level.type != LCAT_PUZZLE
+              );
+              lvl_flag_toggle(
+                LVL_DISABLE_STATIC_CONNS,
+                "Disable static connections",
+                "Disable connections to static objects such as platforms\n(Puzzle mode only)",
+                W->level.type != LCAT_PUZZLE
+              );
+            }
+            #endif
             lvl_flag_toggle(
               LVL_DISABLE_JUMP,
               "Disable jumping",
-              "Disable the robots ability to jump manually (Adventure mode only)"
+              "Disable the robots ability to jump manually\n(Adventure mode only)",
+              W->level.type != LCAT_ADVENTURE
             );
+            ///XXX: this applies to sandbox mode too, right?
             lvl_flag_toggle(
               LVL_DISABLE_ROBOT_HIT_SCORE,
               "Disable robot hit score",
-              "Disable score increase by shooting other robots."
+              "Do not award points for shooting other robots"
             );
             lvl_flag_toggle(
               LVL_DISABLE_ZOOM,
               "Disable zoom",
-              "Disable the players ability to zoom."
+              "Disable the player's ability to zoom."
             );
             lvl_flag_toggle(
               LVL_DISABLE_CAM_MOVEMENT,
@@ -2507,23 +2524,28 @@ namespace UiLevelProperties {
             lvl_flag_toggle(
               LVL_UNLIMITED_ENEMY_VISION,
               "Unlimited enemy vision",
-              "If enabled, enemy robots will see the player from any distance and through any obstacles, and always try to find a path to the player."
+              "If enabled, enemy robots will be able see their target from any distance and through obstacles, and will always try to find a path to it."
             );
             lvl_flag_toggle(
               LVL_ENABLE_INTERACTIVE_DESTRUCTION,
               "Interactive destruction",
-              "If enabled, interactive objects can be destroyed by shooting them a few times or blowing them up."
+              "If enabled, interactive objects can be destroyed by shooting or blowing them up."
             );
             lvl_flag_toggle(
               LVL_ABSORB_DEAD_ENEMIES,
               "Absorb dead enemies",
-              "If enabled, dead enemies will disappear from the game after a short interval after they die."
+              "If enabled, enemy corpses will despawn after a short amount of time."
             );
-            lvl_flag_toggle(
-              LVL_SNAP,
-              "Snap by default",
-              "For puzzle levels, when the player drags or rotates an object it will snap to a grid by default (good for easy beginner levels)."
-            );
+            #ifdef SHOW_PUZZLE_ONLY_FLAGS
+            if(SHOW_PUZZLE_ONLY_FLAGS) {
+              lvl_flag_toggle(
+                LVL_SNAP,
+                "Snap by default",
+                "When the player drags or rotates an object it will snap to a grid by default (good for easy beginner levels).\n(Puzzle mode only)",
+                W->level.type != LCAT_PUZZLE
+              );
+            }
+            #endif
             lvl_flag_toggle(
               LVL_NAIL_CONNS,
               "Hide beam connections",
@@ -2552,7 +2574,7 @@ namespace UiLevelProperties {
             lvl_flag_toggle(
               LVL_PORTRAIT_MODE,
               "Portrait mode",
-              "If enabled, the view will be set to portrait mode (vertical) during play."
+              "If enabled, the view will be set to portrait (vertical) mode during play."
             );
             lvl_flag_toggle(
               LVL_DISABLE_RC_CAMERA_SNAP,
@@ -2567,17 +2589,18 @@ namespace UiLevelProperties {
             lvl_flag_toggle(
               LVL_DO_NOT_REQUIRE_DRAGFIELD,
               "Do not require dragfield",
-              "If enabled, dragfields are no longer required in order to move interactive objects."
+              "If enabled, dragfields will not be required in order to move interactive objects."
             );
             lvl_flag_toggle(
               LVL_DISABLE_ROBOT_SPECIAL_ACTION,
               "Disable robot special action",
-              "If enabled, the adventure robot cannot perform it's special action."
+              "If enabled, the adventure robot won't be able to perform it's special action."
             );
             lvl_flag_toggle(
               LVL_DISABLE_ADVENTURE_MAX_ZOOM,
               "Disable adventure max zoom",
-              "If enabled, the zoom is no longer limited when following the adventure robot."
+              "If enabled, the zoom will no longer be limited while following the adventure robot.\n(Adventure mode only)",
+              W->level.type != LCAT_ADVENTURE
             );
             lvl_flag_toggle(
               LVL_DISABLE_ROAM_LAYER_SWITCH,
@@ -2587,7 +2610,7 @@ namespace UiLevelProperties {
             lvl_flag_toggle(
               LVL_CHUNKED_LEVEL_LOADING,
               "Chunked level loading",
-              ""
+              NULL
             );
             lvl_flag_toggle(
               LVL_DISABLE_CAVEVIEW,
@@ -2602,7 +2625,7 @@ namespace UiLevelProperties {
             lvl_flag_toggle(
               LVL_STORE_SCORE_ON_GAME_OVER,
               "Store high score on game over",
-              ""
+              NULL
             );
             lvl_flag_toggle(
               LVL_ALLOW_HIGH_SCORE_SUBMISSIONS,
