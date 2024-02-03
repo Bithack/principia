@@ -160,21 +160,21 @@ static int event_handler(tms_event *event) {
 }
 
 //SDL2 impls:
-static const char* getcbt(void* _cbt) {
+static const char* GetClipboardTextFn(void* _cbt) {
   char* cbt = (char*)_cbt;
   if (cbt) SDL_free(cbt);
   cbt = SDL_GetClipboardText();
   return cbt;
 }
-inline static void setcbt(void*, const char* text) {
+inline static void SetClipboardTextFn(void*, const char* text) {
   SDL_SetClipboardText(text);
 }
 
 inline int ImGui_ImplTMS_Init_Platform() {
   ImGuiIO& io = ImGui::GetIO();
   io.BackendPlatformName = "tms";
-  io.SetClipboardTextFn = setcbt;
-  io.GetClipboardTextFn = getcbt;
+  io.GetClipboardTextFn = GetClipboardTextFn;
+  io.SetClipboardTextFn = SetClipboardTextFn;
   io.ClipboardUserData = nullptr;
   return tms_event_register_raw(&event_handler);
 }
