@@ -1,3 +1,5 @@
+//ImGui Platform backend implementation for TMS+SDL2
+
 #pragma once
 
 #include <SDL.h>
@@ -9,6 +11,7 @@
 #include "imgui_stdlib.h"
 #include "imgui_impl_opengl3.h"
 
+#include "tms/core/tms.h"
 #include "tms/core/event.h"
 #include "tms/core/err.h"
 
@@ -172,13 +175,13 @@ inline static void SetClipboardTextFn(void*, const char* text) {
 }
 
 inline const void init_io() {
-  //set PlatformHandleRaw
   ImGuiIO& io = ImGui::GetIO();
   io.BackendPlatformName = "tms";
   io.ClipboardUserData = nullptr;
   io.GetClipboardTextFn = GetClipboardTextFn;
   io.SetClipboardTextFn = SetClipboardTextFn;
 
+  //set PlatformHandleRaw
   ImGuiViewport* main_viewport = ImGui::GetMainViewport();
   main_viewport->PlatformHandleRaw = nullptr;
 #if defined(TMS_BACKEND_WINDOWS)
@@ -209,4 +212,20 @@ inline int ImGui_ImplTMS_Init() {
 inline int ImGui_ImplTMS_Shutdown() {
   //currently a no-op, will be used by the gfx impl
   return T_OK;
+}
+
+///Call BEFORE ImGui_ImplOpenGL3_NewFrame
+inline int ImGui_ImplTms_NewFrame() {
+  ImGuiIO& io = ImGui::GetIO();
+
+  //update window size
+  if ((_tms.window_width > 0) && (_tms.window_height > 0)) {
+    io.DisplaySize = ImVec2((float) _tms.window_width, (float) _tms.window_height);
+    io.DisplayFramebufferScale = ImVec2(1., 1.);
+  } else {
+    tms_errorf("window size is 0");
+    return -1;
+  }
+
+  return 1;
 }

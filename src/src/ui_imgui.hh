@@ -3243,26 +3243,12 @@ void ui::render() {
   if (settings["render_gui"]->is_false()) return;
 
   tms_assertf(init_ready, "ui::render called before ui::init");
+  tms_assertf(GImGui != NULL, "gimgui is null. is imgui ready?");
 
   ImGuiIO& io = ImGui::GetIO();
 
-  //update window size
-  int w, h;
-  SDL_GetWindowSize((SDL_Window*) _tms._window, &w, &h);
-  if ((w != 0) && (h != 0)) {
-    int display_w, display_h;
-    SDL_GL_GetDrawableSize((SDL_Window*) _tms._window, &display_w, &display_h);
-    io.DisplaySize = ImVec2((float) w, (float) h);
-    io.DisplayFramebufferScale = ImVec2((float) display_w / w, (float) display_h / h);
-  } else {
-    tms_errorf("window size is 0");
-    return;
-  }
-
   //start frame
-  if (GImGui == NULL) {
-    tms_fatalf("gimgui is null. is imgui ready?");
-  }
+  if (ImGui_ImplTms_NewFrame() <= 0) return;
   ImGui_ImplOpenGL3_NewFrame();
   ImGui::NewFrame();
 
