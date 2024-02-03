@@ -2426,8 +2426,9 @@ namespace UiLevelProperties {
           ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Gameplay")) {
-          auto lvl_flag_toggle = [](uint64_t flag, const char *label, const char *help) {
+          auto lvl_flag_toggle = [](uint64_t flag, const char *label, const char *help, bool disabled = false) {
             bool x = (W->level.flags & flag) != 0;
+            if (disabled) ImGui::BeginDisabled();
             if (ImGui::Checkbox(label, &x)) {
               if (x) {
                 W->level.flags |= flag;
@@ -2436,13 +2437,18 @@ namespace UiLevelProperties {
               }
               P.add_action(ACTION_RELOAD_LEVEL, 0);
             }
-            if ((help != 0) && (*help != 0)) {
-              ImGui::SetItemTooltip("%s", help);
-            } else if (ImGui::BeginItemTooltip()) {
-              ImGui::BeginDisabled();
-              ImGui::TextUnformatted("<no help available>");
-              ImGui::EndDisabled();
-              ImGui::EndTooltip();
+            if (disabled) ImGui::EndDisabled();
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled)) {
+              if (ImGui::BeginTooltip()) {
+                if ((help != 0) && (*help != 0)) {
+                  ImGui::TextUnformatted(help);
+                } else {
+                  ImGui::BeginDisabled();
+                  ImGui::TextUnformatted("<no help available>");
+                  ImGui::EndDisabled();
+                }
+                ImGui::EndTooltip();
+              }
             }
           };
 
@@ -2451,7 +2457,7 @@ namespace UiLevelProperties {
             lvl_flag_toggle(
               LVL_DISABLE_LAYER_SWITCH,
               "Disable layer switch",
-              "If adventure mode, disable manual layer switching of the robots.\nIf puzzle mode, disable layer switching of objects."
+              "In adventure mode, disable manual robot layer switching.\nIn puzzle mode, restrict layer switching for objects."
             );
             lvl_flag_toggle(
               LVL_DISABLE_INTERACTIVE,
@@ -2466,17 +2472,17 @@ namespace UiLevelProperties {
             lvl_flag_toggle(
               LVL_DISABLE_CONNECTIONS,
               "Disable connections",
-              "Puzzle mode only, disable the ability to create connections."
+              "Disable the ability to create connections. (Puzzle mode only)"
             );
             lvl_flag_toggle(
               LVL_DISABLE_STATIC_CONNS,
               "Disable static connections",
-              "Puzzle mode only, disable connections to static objects such as platforms."
+              "Disable connections to static objects such as platforms. (Puzzle mode only)"
             );
             lvl_flag_toggle(
               LVL_DISABLE_JUMP,
               "Disable jumping",
-              "Adventure mode only, disable the robots ability to manually jump."
+              "Disable the robots ability to jump manually (Adventure mode only)"
             );
             lvl_flag_toggle(
               LVL_DISABLE_ROBOT_HIT_SCORE,
@@ -2521,7 +2527,7 @@ namespace UiLevelProperties {
             lvl_flag_toggle(
               LVL_NAIL_CONNS,
               "Hide beam connections",
-              "Use less visible nail-shaped connections for planks and beams. Existing connections will not be changed if this flag is changed."
+              "Use less visible nail-shaped connections for planks and beams.\nExisting connections will not be changed if this flag is modified."
             );
             lvl_flag_toggle(
               LVL_DISABLE_CONTINUE_BUTTON,
@@ -2541,7 +2547,7 @@ namespace UiLevelProperties {
             lvl_flag_toggle(
               LVL_DISABLE_3RD_LAYER,
               "Disable third layer",
-              "If enabled and puzzle mode, disable moving objects to the third layer."
+              "If enabled, prevents objects from being moved to the third layer."
             );
             lvl_flag_toggle(
               LVL_PORTRAIT_MODE,
@@ -2561,12 +2567,12 @@ namespace UiLevelProperties {
             lvl_flag_toggle(
               LVL_DO_NOT_REQUIRE_DRAGFIELD,
               "Do not require dragfield",
-              "If enabled, dragfields are not required to move interactive objects."
+              "If enabled, dragfields are no longer required in order to move interactive objects."
             );
             lvl_flag_toggle(
               LVL_DISABLE_ROBOT_SPECIAL_ACTION,
               "Disable robot special action",
-              "If enabled, the adventure robot cannot perform its special action."
+              "If enabled, the adventure robot cannot perform it's special action."
             );
             lvl_flag_toggle(
               LVL_DISABLE_ADVENTURE_MAX_ZOOM,
@@ -2576,7 +2582,7 @@ namespace UiLevelProperties {
             lvl_flag_toggle(
               LVL_DISABLE_ROAM_LAYER_SWITCH,
               "Disable roam layer switch",
-              "Disable the roaming robots ability to change layer."
+              "Disable the roaming robot's ability to change layers."
             );
             lvl_flag_toggle(
               LVL_CHUNKED_LEVEL_LOADING,
@@ -2586,12 +2592,12 @@ namespace UiLevelProperties {
             lvl_flag_toggle(
               LVL_DISABLE_CAVEVIEW,
               "Disable adventure caveview",
-              "Disable the caveview which appears when the adventure robot is in layer two, with terrain in front of him in layer three."
+              "Disable the caveview which appears when the adventure robot is in the second layer, with terrain in front of it in the third layer"
             );
             lvl_flag_toggle(
               LVL_DISABLE_ROCKET_TRIGGER_EXPLOSIVES,
               "Disable rocket triggering explosives",
-              "Disable the rocket from triggering any explosives when contact with its flames occurs."
+              "Prevent rockets from triggering any explosives when in contact"
             );
             lvl_flag_toggle(
               LVL_STORE_SCORE_ON_GAME_OVER,
@@ -2616,17 +2622,17 @@ namespace UiLevelProperties {
             lvl_flag_toggle(
               LVL_DISABLE_ENDSCREENS,
               "Disable end-screens",
-              "Disable any end-game sound or messages. Works well when Pause on WIN is disabled. Note that this also disabled the score submission button.\nTo submit highscore without the button you can use the luascript function game:submit_score()."
+              "Disable any end-game sound or messages. Works well when \"Pause on win\" is disabled.\nNote that this also disables the score submission button.\nYou can still use the `game:submit_score()` lua function in order to submit highscores."
             );
             lvl_flag_toggle(
               LVL_ALLOW_QUICKSAVING,
               "Allow quicksaving",
-              "If enabled, the player can save his progress at any time."
+              "If enabled, the player can save their progress at any time."
             );
             lvl_flag_toggle(
               LVL_ALLOW_RESPAWN_WITHOUT_CHECKPOINT,
               "Allow respawn without checkpoint",
-              "If disabled, robots cannot respawn if they are not connected to any checkpoint."
+              "If disabled, robots cannot respawn if they are not associated with any checkpoint."
             );
             lvl_flag_toggle(
               LVL_DEAD_CREATURE_DESTRUCTION,
