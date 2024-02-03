@@ -21,6 +21,9 @@
 #include "material.hh"
 #include "simplebg.hh"
 #include "world.hh"
+#include "creature.hh"
+#include "robot_base.hh"
+#include "faction.hh"
 //---
 #include "tms/backend/print.h"
 #include "tms/core/texture.h"
@@ -527,13 +530,30 @@ namespace UiSandboxMenu {
         //ImGui::PopItemFlag();
         ImGui::SetItemTooltip("Save the entity to the 'Go to...' menu");
 
-        ImGui::BeginDisabled(sent_pos.x == sb_position.x && sent_pos.y == sb_position.y);
+        bool already_at_cursor = sent_pos.x == sb_position.x && sent_pos.y == sb_position.y;
+        ImGui::BeginDisabled(already_at_cursor);
         ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
-        if (ImGui::MenuItem("Move to cursor")) {
+        if (ImGui::MenuItem("Move to cursor" /*, NULL, already_at_cursor*/)) {
           G->selection.e->set_position(sb_position);
         };
         ImGui::PopItemFlag();
         ImGui::EndDisabled();
+
+        if (sent->is_creature() && W->is_adventure()) {
+          int adventure_id = W->level.get_adventure_id();
+          ImGui::BeginDisabled(sent->id == adventure_id);
+          if (ImGui::MenuItem("Set as player", NULL, sent->id == adventure_id)) {
+            creature *player = static_cast<class creature*>(G->selection.e);
+            if (player->is_robot()) {
+              robot_base *r = static_cast<class robot_base*>(player);
+              r->set_faction(FACTION_FRIENDLY);
+            }
+            W->level.set_adventure_id(player->id);
+            G->state.adventure_id = player->id;
+            adventure::player = player;
+          }
+          ImGui::EndDisabled();
+        }
 
         ImGui::Separator();
       }
