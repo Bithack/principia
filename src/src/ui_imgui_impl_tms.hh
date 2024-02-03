@@ -1,8 +1,14 @@
 #pragma once
 
+#include <SDL.h>
+#include "SDL_clipboard.h"
+#include "SDL_stdinc.h"
+
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "imgui_stdlib.h"
 #include "imgui_impl_opengl3.h"
+
 #include "tms/core/event.h"
 #include "tms/core/err.h"
 
@@ -153,7 +159,24 @@ static int event_handler(tms_event *event) {
   return T_CONT;
 }
 
+//SDL2 impls:
+static const char* getcbt(void* _cbt) {
+  //XXX: this assumes that only a single instance of ImGui exists
+  char* cbt = (char*)_cbt;
+  if (cbt) SDL_free(cbt);
+  cbt = SDL_GetClipboardText();
+  return cbt;
+}
+inline static void setcbt(void*, const char* text) {
+  SDL_SetClipboardText(text);
+}
+
 inline int ImGui_ImplTMS_Init_Platform() {
+  ImGuiIO& io = ImGui::GetIO();
+  io.BackendPlatformName = "tms";
+  io.SetClipboardTextFn = setcbt;
+  io.GetClipboardTextFn = getcbt;
+  io.ClipboardUserData = nullptr;
   return tms_event_register_raw(&event_handler);
 }
 
