@@ -164,18 +164,33 @@ static const char* GetClipboardTextFn(void* _cbt) {
   char* cbt = (char*)_cbt;
   if (cbt) SDL_free(cbt);
   cbt = SDL_GetClipboardText();
+  if (*cbt == 0) return nullptr;
   return cbt;
 }
 inline static void SetClipboardTextFn(void*, const char* text) {
   SDL_SetClipboardText(text);
 }
 
-inline int ImGui_ImplTMS_Init_Platform() {
+inline const void init_io() {
+  //set PlatformHandleRaw
   ImGuiIO& io = ImGui::GetIO();
   io.BackendPlatformName = "tms";
+  io.ClipboardUserData = nullptr;
   io.GetClipboardTextFn = GetClipboardTextFn;
   io.SetClipboardTextFn = SetClipboardTextFn;
-  io.ClipboardUserData = nullptr;
+
+  ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+  main_viewport->PlatformHandleRaw = nullptr;
+#if defined(TMS_BACKEND_WINDOWS)
+  SDL_SysWMinfo info;
+  if (SDL_GetWindowWMInfo((SDL_Window*) _tms._window, &info)) {
+    main_viewport->PlatformHandleRaw = (void*)info.info.win.window;
+  }
+#endif
+}
+
+inline int ImGui_ImplTMS_Init_Platform() {
+  init_io();
   return tms_event_register_raw(&event_handler);
 }
 

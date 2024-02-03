@@ -3209,16 +3209,6 @@ void ui::init() {
   io.IniFilename = NULL;
   io.LogFilename = NULL;
 
-  //set PlatformHandleRaw
-  ImGuiViewport* main_viewport = ImGui::GetMainViewport();
-  main_viewport->PlatformHandleRaw = nullptr;
-#if defined(TMS_BACKEND_WINDOWS)
-  SDL_SysWMinfo info;
-  if (SDL_GetWindowWMInfo((SDL_Window*) _tms._window, &info)) {
-    main_viewport->PlatformHandleRaw = (void*)info.info.win.window;
-  }
-#endif
-
   //style
   principia_style();
 
