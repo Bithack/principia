@@ -1,3 +1,4 @@
+#include <cfloat>
 #ifdef __UI_IMGUI_H_GUARD
 #error please do not include this file directly
 #endif
@@ -2220,9 +2221,9 @@ namespace UiLevelProperties {
   static void layout() {
     handle_do_open(&do_open, "Level properties");
     ImGui_CenterNextWindow();
-    ImGui::SetNextWindowSizeConstraints(ImVec2(400., 500.), ImVec2(FLT_MAX, FLT_MAX));
+    ImGui::SetNextWindowSizeConstraints(ImVec2(450., 550.), ImVec2(FLT_MAX, FLT_MAX));
     if (ImGui::BeginPopupModal("Level properties", REF_TRUE, MODAL_FLAGS)) {
-      if (ImGui::BeginTabBar("MyTabBar")) {
+      if (ImGui::BeginTabBar("###lvlproptabbar")) {
         if (ImGui::BeginTabItem("Cucumber")) {
           ImGui::SeparatorText("Metadata");
 
@@ -2393,11 +2394,248 @@ namespace UiLevelProperties {
           ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Physics")) {
-          ImGui::TextUnformatted("TODO");
+          ImGui::TextUnformatted("These settings can affect simulation performance.\nyada yada yada this is a placeholder text\nfor the physics tab :3");
+
+          auto reload_if_changed = [](){
+            if (ImGui::IsItemDeactivatedAfterEdit()) {
+              P.add_action(ACTION_RELOAD_LEVEL, 0);
+            }
+          };
+          auto slider_uint8t = [](uint8_t* x) {
+            int tmp = (int)*x;
+            //HACK: use pointer as unique id
+            ImGui::PushID((size_t)x);
+            if (ImGui::SliderInt("###slider", &tmp, 0, 255)) {
+              *x = tmp & 0xff;
+            }
+            ImGui::PopID();
+          };
+
+          ImGui::SeparatorText("Iteration count");
+
+          ImGui::TextUnformatted("Position interations");
+          slider_uint8t(&W->level.position_iterations);
+          reload_if_changed();
+
+          ImGui::TextUnformatted("Velocity interations");
+          slider_uint8t(&W->level.velocity_iterations);
+          reload_if_changed();
+
+          //TODO add the rest of the physics settings
+
           ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Gameplay")) {
-          ImGui::TextUnformatted("TODO");
+          auto lvl_flag_toggle = [](uint64_t flag, const char *label, const char *help) {
+            bool x = (W->level.flags & flag) != 0;
+            if (ImGui::Checkbox(label, &x)) {
+              if (x) {
+                W->level.flags |= flag;
+              } else {
+                W->level.flags &= ~flag;
+              }
+              P.add_action(ACTION_RELOAD_LEVEL, 0);
+            }
+            if ((help != 0) && (*help != 0)) {
+              ImGui::SetItemTooltip("%s", help);
+            } else if (ImGui::BeginItemTooltip()) {
+              ImGui::BeginDisabled();
+              ImGui::TextUnformatted("<no help available>");
+              ImGui::EndDisabled();
+              ImGui::EndTooltip();
+            }
+          };
+
+          if (ImGui::BeginChild("###gameplay-scroll", ImVec2(0, ImGui::GetContentRegionAvail().y))) {
+            ImGui::SeparatorText("Flags");
+            lvl_flag_toggle(
+              LVL_DISABLE_LAYER_SWITCH,
+              "Disable layer switch",
+              "If adventure mode, disable manual layer switching of the robots.\nIf puzzle mode, disable layer switching of objects."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_INTERACTIVE,
+              "Disable interactive",
+              "Disable the ability to handle interactive objects."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_FALL_DAMAGE,
+              "Disable fall damage",
+              "Disable the damage robots take when they fall."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_CONNECTIONS,
+              "Disable connections",
+              "Puzzle mode only, disable the ability to create connections."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_STATIC_CONNS,
+              "Disable static connections",
+              "Puzzle mode only, disable connections to static objects such as platforms."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_JUMP,
+              "Disable jumping",
+              "Adventure mode only, disable the robots ability to manually jump."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_ROBOT_HIT_SCORE,
+              "Disable robot hit score",
+              "Disable score increase by shooting other robots."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_ZOOM,
+              "Disable zoom",
+              "Disable the players ability to zoom."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_CAM_MOVEMENT,
+              "Disable cam movement",
+              "Disable the players ability to manually move the camera."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_INITIAL_WAIT,
+              "Disable initial wait",
+              "Disable the waiting state when a level is started."
+            );
+            lvl_flag_toggle(
+              LVL_UNLIMITED_ENEMY_VISION,
+              "Unlimited enemy vision",
+              "If enabled, enemy robots will see the player from any distance and through any obstacles, and always try to find a path to the player."
+            );
+            lvl_flag_toggle(
+              LVL_ENABLE_INTERACTIVE_DESTRUCTION,
+              "Interactive destruction",
+              "If enabled, interactive objects can be destroyed by shooting them a few times or blowing them up."
+            );
+            lvl_flag_toggle(
+              LVL_ABSORB_DEAD_ENEMIES,
+              "Absorb dead enemies",
+              "If enabled, dead enemies will disappear from the game after a short interval after they die."
+            );
+            lvl_flag_toggle(
+              LVL_SNAP,
+              "Snap by default",
+              "For puzzle levels, when the player drags or rotates an object it will snap to a grid by default (good for easy beginner levels)."
+            );
+            lvl_flag_toggle(
+              LVL_NAIL_CONNS,
+              "Hide beam connections",
+              "Use less visible nail-shaped connections for planks and beams. Existing connections will not be changed if this flag is changed."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_CONTINUE_BUTTON,
+              "Disable continue button",
+              "If initial wait is disabled, this option disables the Continue button in the lower right corner. Use pkgwarp to go to the next level instead."
+            );
+            lvl_flag_toggle(
+              LVL_SINGLE_LAYER_EXPLOSIONS,
+              "Single-layer explosions",
+              "Enable this flag to prevent explosions from reaching objects in other layers."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_DAMAGE,
+              "Disable damage",
+              "Disable damage to any robot."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_3RD_LAYER,
+              "Disable third layer",
+              "If enabled and puzzle mode, disable moving objects to the third layer."
+            );
+            lvl_flag_toggle(
+              LVL_PORTRAIT_MODE,
+              "Portrait mode",
+              "If enabled, the view will be set to portrait mode (vertical) during play."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_RC_CAMERA_SNAP,
+              "Disable RC camera snap",
+              "If enabled, the camera won't move to any selected RC."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_PHYSICS,
+              "Disable physics",
+              "If enabled, physics simulation in the level will be disabled."
+            );
+            lvl_flag_toggle(
+              LVL_DO_NOT_REQUIRE_DRAGFIELD,
+              "Do not require dragfield",
+              "If enabled, dragfields are not required to move interactive objects."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_ROBOT_SPECIAL_ACTION,
+              "Disable robot special action",
+              "If enabled, the adventure robot cannot perform its special action."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_ADVENTURE_MAX_ZOOM,
+              "Disable adventure max zoom",
+              "If enabled, the zoom is no longer limited when following the adventure robot."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_ROAM_LAYER_SWITCH,
+              "Disable roam layer switch",
+              "Disable the roaming robots ability to change layer."
+            );
+            lvl_flag_toggle(
+              LVL_CHUNKED_LEVEL_LOADING,
+              "Chunked level loading",
+              ""
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_CAVEVIEW,
+              "Disable adventure caveview",
+              "Disable the caveview which appears when the adventure robot is in layer two, with terrain in front of him in layer three."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_ROCKET_TRIGGER_EXPLOSIVES,
+              "Disable rocket triggering explosives",
+              "Disable the rocket from triggering any explosives when contact with its flames occurs."
+            );
+            lvl_flag_toggle(
+              LVL_STORE_SCORE_ON_GAME_OVER,
+              "Store high score on game over",
+              ""
+            );
+            lvl_flag_toggle(
+              LVL_ALLOW_HIGH_SCORE_SUBMISSIONS,
+              "Allow high score submissions",
+              "Allow players to submit their high scores to be displayed on your levels community page."
+            );
+            lvl_flag_toggle(
+              LVL_LOWER_SCORE_IS_BETTER,
+              "Lower score is better",
+              "A lower score is considered better than a higher score."
+            );
+            lvl_flag_toggle(
+              LVL_AUTOMATICALLY_SUBMIT_SCORE,
+              "Automatically submit score on finish",
+              "Automatically submit score for the user when the level finishes."
+            );
+            lvl_flag_toggle(
+              LVL_DISABLE_ENDSCREENS,
+              "Disable end-screens",
+              "Disable any end-game sound or messages. Works well when Pause on WIN is disabled. Note that this also disabled the score submission button.\nTo submit highscore without the button you can use the luascript function game:submit_score()."
+            );
+            lvl_flag_toggle(
+              LVL_ALLOW_QUICKSAVING,
+              "Allow quicksaving",
+              "If enabled, the player can save his progress at any time."
+            );
+            lvl_flag_toggle(
+              LVL_ALLOW_RESPAWN_WITHOUT_CHECKPOINT,
+              "Allow respawn without checkpoint",
+              "If disabled, robots cannot respawn if they are not connected to any checkpoint."
+            );
+            lvl_flag_toggle(
+              LVL_DEAD_CREATURE_DESTRUCTION,
+              "Allow dead creature destruction",
+              "If enabled, creature corpses can be destroyed by shooting them."
+            );
+          }
+          ImGui::EndChild();
+
           ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
