@@ -1,1 +1,0 @@
-keytool -genkey -v -keystore principia-release-key.keystore -alias bithack -keyalg RSA -keysize 2048 -validity 10000

@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Principia (principia:// Protocol)
+Name=Principia URL Handler
 Exec=principia %u
 Type=Application
 Terminal=false

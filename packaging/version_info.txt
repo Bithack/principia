@@ -1,0 +1,3 @@
+# This file is used by set_version.lua to keep track of version info. DO NOT EDIT IT MANUALLY, USE THE SCRIPT!
+34
+1.5.2 Beta

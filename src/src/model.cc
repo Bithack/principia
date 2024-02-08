@@ -1,12 +1,13 @@
 #include "model.hh"
 #include "misc.hh"
 #include "pkgman.hh"
-#include "version.hh"
 #include "settings.hh"
 
 #define NUM_MISC_MODELS 3
 struct tms_model *model_misc[NUM_MISC_MODELS];
 int cur_model = 0;
+
+#define MODEL_CACHE_VERSION 34
 
 static int i1o1_shift_i = 1;
 static int i2o1_shift_i = 1;
@@ -394,7 +395,7 @@ read_cache(lvlbuf *lb)
     uint32_t num_meshes = lb->r_uint32();
     uint32_t num_models = lb->r_uint32();
 
-    if (version != PRINCIPIA_VERSION_CODE) {
+    if (version != MODEL_CACHE_VERSION) {
         tms_errorf("Mismatching version code in model cache.");
         return false;
     }
@@ -457,7 +458,7 @@ read_cache(lvlbuf *lb)
 static bool
 write_cache(lvlbuf *lb)
 {
-    lb->w_s_uint8(PRINCIPIA_VERSION_CODE);
+    lb->w_s_uint8(MODEL_CACHE_VERSION);
     lb->w_s_uint32(NUM_MODELS);
     lb->w_s_uint32(NUM_MISC_MODELS);
 
