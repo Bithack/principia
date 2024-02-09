@@ -30,7 +30,6 @@ static int T_intercept_input(SDL_Event ev);
 static char *_args[2] = {0,0};
 static char buf[1024];
 
-void tgen_init(void){};
 extern "C" int tbackend_init_surface();
 extern "C" const char *tbackend_get_storage_path(void);
 

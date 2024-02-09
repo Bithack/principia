@@ -40,7 +40,6 @@ static char *_storage_path = 0;
 
 static int T_intercept_input(SDL_Event ev);
 
-void tgen_init(void){};
 extern "C" int tbackend_init_surface();
 extern "C" const char *tbackend_get_storage_path(void);
 

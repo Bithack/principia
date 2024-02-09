@@ -15,9 +15,6 @@ int mouse_down[64];
 
 static int T_intercept_input(SDL_Event ev);
 
-void tgen_init(void){};
-void restore();
-
 int
 SDL_main(int argc, char **argv)
 {

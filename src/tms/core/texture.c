@@ -605,11 +605,11 @@ tms_texture_upload(struct tms_texture *tex)
                 tex->width, tex->height,
                 0, tex->buf_size, tex->data);
     } else if (tex->format == GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG_OES) {
-            //tms_infof("uploading compressed image");
-            glCompressedTexImage2D(GL_TEXTURE_2D, 0,
-                                   GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG_OES,
-                                   tex->width, tex->height,
-                                   0, tex->buf_size, tex->data);
+        //tms_infof("uploading compressed image");
+        glCompressedTexImage2D(GL_TEXTURE_2D, 0,
+                GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG_OES,
+                tex->width, tex->height,
+                0, tex->buf_size, tex->data);
     } else {
         glTexImage2D(GL_TEXTURE_2D, 0, format,
                 tex->width, tex->height,

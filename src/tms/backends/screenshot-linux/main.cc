@@ -13,9 +13,9 @@
 #include <tms/core/tms.h>
 
 #include <tms/backend/opengl.h>
+#include <tms/backends/common.h>
 
 #include "settings.hh"
-//#include "ui.hh"
 #include "game.hh"
 #include "main.hh"
 #include "menu_main.hh"
@@ -60,7 +60,6 @@ static FILE *state_fh = NULL;
 
 static uint32_t snap_step_num = 0;
 
-void tgen_init(void){};
 int screenshot(char *file_name, unsigned int x, unsigned int y, unsigned long width, unsigned long height);
 extern "C" int tbackend_init_surface();
 extern "C" const char *tbackend_get_storage_path(void);
@@ -149,13 +148,11 @@ main(int argc, char **argv)
         SDL_CreateThread(_pipe_listener, "_pipe_listener", 0);
     }
 
-    char buf[512];
-    readlink("/proc/self/exe", buf, 511);
-    dirname(buf);
-    tms_infof("chdirring to %s", buf);
-    chdir(buf);
+    CHDIR_EXE;
 
     mkdir(tbackend_get_storage_path(), S_IRWXU | S_IRWXG | S_IRWXO);
+
+    INIT_SDL;
 
     settings.init();
     settings.load();
@@ -361,11 +358,6 @@ main(int argc, char **argv)
 int
 tbackend_init_surface()
 {
-    /* Set up SDL, create a window */
-    tms_progressf("Initializing SDL... ");
-    SDL_Init(SDL_INIT_VIDEO);
-    tms_progressf("OK\n");
-
     _tms.window_width = 1280;
     _tms.window_height = 720;
 

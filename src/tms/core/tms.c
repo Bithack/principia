@@ -31,11 +31,9 @@ tms_init(void)
     tms.is_paused = 0;
     tms.state = TMS_STATE_DEFAULT;
 
-    tgen_init();
     tbackend_init_surface();
 
     tms.gl_extensions = glGetString(GL_EXTENSIONS);
-    //tms_infof("opengl extensions: %s", tms.gl_extensions);
 
     tmat4_set_ortho(tms.window_projection, 0, tms.window_width, 0, tms.window_height, 1, -1);
 

@@ -85,10 +85,8 @@ void debugdraw::DrawSegment(const b2Vec2 &p1, const b2Vec2 &p2, const b2Color &c
 
 void debugdraw::DrawTransform(const b2Transform &xf)
 {
-#ifndef PAJLADA
     tms_ddraw_set_color(this->ddraw, 0, 0, 0, 1.f);
     tms_ddraw_circle(this->ddraw, xf.p.x, xf.p.y, .1f, .1f);
-#endif
 }
 
 void debugdraw::DrawParticles(const b2Vec2 *p, float32 a, const b2ParticleColor *col, int32 i)

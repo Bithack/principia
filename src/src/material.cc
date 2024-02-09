@@ -1481,12 +1481,6 @@ material_factory::init_shaders(bool is_shitty)
         free(buf);
         buf = 0;
 
-        if ((sld->flags & SL_EXIT_ON_FAIL) && r == T_COMPILE_ERROR) {
-            ui::message("The settings was adjusted for your device.\nPlease restart Principia for the action to take effect.\nPlease contact principia@bithack.se if you still have trouble starting the game.", true);
-            SDL_Delay(10000);
-            tms_fatalf("Error compiling shader: %s.", sld->name);
-        }
-
         tms_debugf("Reading %s fragment shader...", sld->name);
         read_shader(sld, GL_FRAGMENT_SHADER, global_flags, &buf);
         if (!buf) {
@@ -1500,12 +1494,6 @@ material_factory::init_shaders(bool is_shitty)
         r = sh->compile(GL_FRAGMENT_SHADER, buf);
         free(buf);
         buf = 0;
-
-        if ((sld->flags & SL_EXIT_ON_FAIL) && r == T_COMPILE_ERROR) {
-            ui::message("The settings was adjusted for your device.\nPlease restart Principia for the action to take effect.\nPlease contact principia@bithack.se if you still have trouble starting the game.", true);
-            SDL_Delay(10000);
-            tms_fatalf("Error compiling shader: %s.", sld->name);
-        }
 
         *sld->shader = sh;
     }

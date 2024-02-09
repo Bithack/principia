@@ -1333,26 +1333,8 @@ game::init_camera()
     this->cam->up = (tvec3){0.f, 1.f, 0.f};
     this->cam->fov = 50;
 
-    //this->cam->set_direction(0, 0, -1);
-    //this->cam->width = _tms.window_width/50.f;
-    //this->cam->height = _tms.window_height/50.f;
-    this->cam->calculate();
-    /*
     this->cam->set_direction(0, 0, -1);
-    this->cam->set_position(0, 0, 3);
-    this->cam->fov = 45;
-    this->cam->near = 1.f;
-    this->cam->far = 40.f;
     this->cam->calculate();
-
-    float test[16];
-    tmat4_load_identity(test);
-    test[8] = .707f;
-    test[9] = .707f;
-    tmat4_multiply(this->cam->projection, test);
-    //this->cam->view[2] = -.707f;
-    //this->cam->combined[2] = .707;
-    */
 
     this->ao_cam = new tms::camera();
     this->ao_cam->width = 1024.f/50.f;

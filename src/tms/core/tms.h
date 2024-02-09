@@ -137,8 +137,6 @@ static inline void tms_convert_to_portrait(int *x, int *y)
     (*x) = _tms.window_width - tmp_y;
 }
 
-void tgen_init(void);
-
 #ifdef __cplusplus
 }
 #endif
