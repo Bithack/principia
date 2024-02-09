@@ -50,9 +50,6 @@ _settings::init()
 
 #endif
 
-    this->add("high_quality_trees", S_BOOL, false);
-
-
 #if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
     this->add("vsync",              S_BOOL,  false);
 #else

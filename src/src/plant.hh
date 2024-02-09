@@ -146,7 +146,6 @@ extern struct plant_predef {
 class plant : public entity_simpleconnect
 {
   public:
-    static bool high_quality;
     b2Body       *bodies[64];
     int           num_bodies;
 

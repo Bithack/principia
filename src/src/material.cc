@@ -161,7 +161,6 @@ m m_bg_colored;
 m m_rubber;
 m m_bedrock;
 m m_bark;
-m m_bark_contour;
 m m_field;
 m m_conveyor;
 m m_cpad;
@@ -183,7 +182,6 @@ static tms::texture *tex_tpixel = 0;
 static tms::texture *tex_grass = 0;
 static tms::texture *tex_rubber = 0;
 static tms::texture *tex_bark = 0;
-static tms::texture *tex_bark_contour = 0;
 static tms::texture *tex_reflection = 0;
 static tms::texture *tex_robot = 0;
 static tms::texture *tex_weapons = 0;
@@ -754,16 +752,6 @@ TEX_LAZYLOAD_FN(bark,
     tms_texture_free_buffer(tex_bark);
 )
 
-TEX_LAZYLOAD_FN(bark_contour,
-    tex_bark_contour->load("data-shared/textures/bark_contour.png");
-    tex_bark_contour->format = GL_RGBA;
-    tms_texture_set_filtering(tex_bark_contour, TMS_MIPMAP);
-    //tms_texture_set_filtering(tex_bark_contour, GL_LINEAR);
-    tex_bark_contour->gamma_correction = 0;
-    tex_bark_contour->upload();
-    tms_texture_free_buffer(tex_bark_contour);
-)
-
 TEX_LAZYLOAD_FN(rubber,
 #if defined(TMS_BACKEND_ANDROID)
     tex_rubber->load_etc1("data-mobile/textures/rubber.pkm");
@@ -1225,8 +1213,6 @@ material_factory::init_shaders(bool is_shitty)
         P.default_ambient = .55f;
         P.default_diffuse = 1.1f;
     }
-
-    plant::high_quality = settings["high_quality_trees"]->v.b;
 
     int ierr;
     char tmp[512];
@@ -1963,20 +1949,6 @@ material_factory::init_materials(bool is_shitty)
     m_bark.friction = .9f;
     m_bark.density = .75f*M_DENSITY;
     m_bark.restitution = .1f;
-
-    m_bark_contour.pipeline[0].program = shader_bark->get_program(0);
-    m_bark_contour.pipeline[1].program = shader_gi->get_program(1);
-    m_bark_contour.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    m_bark_contour.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_bark_contour);
-    m_bark_contour.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_bark_contour);
-    if (shadow_ao_combine) {
-        m_bark_contour.pipeline[3].program = shader_ao->get_program(3);
-    } else {
-        m_bark_contour.pipeline[3].program = shader_ao_norot->get_program(3);
-    }
-    m_bark_contour.friction = m_bark.friction;
-    m_bark_contour.density = m_bark.density;
-    m_bark_contour.restitution = m_bark.restitution;
 
     m_rubber.pipeline[0].program = shader_pv_textured->get_program(0);
     m_rubber.pipeline[1].program = shader_gi->get_program(1);

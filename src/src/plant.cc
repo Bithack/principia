@@ -13,8 +13,6 @@
 #define MAX_SECTIONS 36
 #define MAX_BRANCHES 300
 
-bool plant::high_quality = false;
-
 struct plant_predef plant_predefs[NUM_PLANT_PREDEFS] = {
     {
         "Tree",
@@ -168,13 +166,13 @@ static void _init()
     initialized = true;
 }
 
-/** 
+/**
  * properties:
  * max thickness
  * max length
  * randomness
  *
- * 
+ *
  **/
 plant::plant()
     : root_section(), root_branch()
@@ -895,7 +893,7 @@ plant_section::get_shift()
     return tclampf(this->shift * this->branch->section_width_multiplier, 0.1f, 1.f)*.5f*this->branch->section_width;
 }
 
-/** 
+/**
  * Get the displacement due to external obstacles
  **/
 float
@@ -1425,46 +1423,6 @@ plant::update_mesh(plant_section *s, struct vertex *v, int y, bool search_only)
 
             float width = s->get_width();
 
-            if (plant::high_quality) {
-                const float precision = .2f;
-                /* fill in extra sections */
-                float dist = b2Distance(s->get_start_point(), bp);
-                b2Vec2 o_axis = s->get_vector();
-                int steps = (int)floorf(dist/precision);
-                b2Vec2 cp = s->get_start_point();
-                for (int x=1; x<steps+1; x++) {
-                    float blend = (float)x/(float)steps;
-
-                    if (x == steps) {
-                        o_axis = s->get_end_point()-cp;
-                        o_axis.Normalize();
-                    } else {
-                        float noise = .04f/width;
-                        o_axis += b2Vec2(
-                                (float)(rand()%100) / 100.f * noise - (noise/2.f),
-                                (float)(rand()%100) / 100.f * noise - (noise/2.f));
-                        o_axis.Normalize();
-
-                    }
-                    cp += precision*o_axis;
-
-                    b2Vec2 a = blend * axis
-                             + (1.f-blend)*o_axis;
-                    b2Vec2 p = blend * bp
-                             + (1.f-blend) * cp;
-                             ;
-
-                             a = o_axis;
-                             p = cp;
-                             //+ b2Vec2((rand()%100) / 100.f * .125f - (.125f/2.f),(rand()%100) / 100.f * .125f - (.125f/2.f));
-                             //
-
-                    float w = blend*width + (1.f-blend)*prev_width;
-
-                    y = this->mesh_add_section(v, y, p, a, w);
-                }
-            }
-
             y = this->mesh_add_section(v, y, bp, axis, width);
             prev_axis = axis;
             prev_width = width;
@@ -1602,14 +1560,10 @@ plant::update_meshes(plant_branch *br)
     bool do_update = br->needs_update;
 
     if (!br->mesh) {
-        /* this branch does not have a mesh, we need to create one and allocate 
+        /* this branch does not have a mesh, we need to create one and allocate
          * a slot in the vertex buffer */
         tms_mesh_init(&br->_mesh, va, ibuf);
-        if (plant::high_quality) {
-            tms_entity_set_material(br, static_cast<struct tms_material*>(&m_bark_contour));
-        } else {
-            tms_entity_set_material(br, static_cast<struct tms_material*>(&m_bark));
-        }
+        tms_entity_set_material(br, static_cast<struct tms_material*>(&m_bark));
         br->mesh = &br->_mesh;
         br->prio = this->get_layer();
         do_update = true;
@@ -1707,7 +1661,7 @@ plant::grow_branch(plant_branch *br, float time)
         }
 
         if (!br->dead) {
-            if (fabsf(s->get_angle_displacement()) > PLANT_MAX_SECTION_ANGLE) { 
+            if (fabsf(s->get_angle_displacement()) > PLANT_MAX_SECTION_ANGLE) {
                 tms_debugf("section too bent, killing branch");
                 this->kill_branch(br);
                 break;
@@ -1826,7 +1780,7 @@ plant::tick()
         this->properties[12].v.f -= tstep;
     }
 
-#if 0 
+#if 0
     plant_section *s = this->root_branch.first;
     while (s) {
         tms_debugf("section %f %f %f %f %f", s->pos.x, s->pos.y, s->angle, s->growth, s->width_growth);

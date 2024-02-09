@@ -310,7 +310,6 @@ extern m m_border;
 extern m m_rubber;
 extern m m_bedrock;
 extern m m_bark;
-extern m m_bark_contour;
 extern m m_field;
 extern m m_conveyor;
 extern m m_cpad;
