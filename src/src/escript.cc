@@ -337,32 +337,30 @@ static void
 lua_dump_stack(lua_State *L)
 {
     int top = lua_gettop(L);
-    tms_progressf("Total in stack: %d\n", top);
+    tms_printf("Total in stack: %d\n", top);
 
     for (int i = 1; i <= top; ++i) {
         int t = lua_type(L, i);
-        tms_progressf("[%d] ", i);
+        tms_printf("[%d] ", i);
         switch (t) {
-            case LUA_TSTRING:
-                {
-                    lua_pushvalue(L, i);
-                    const char *str = lua_tostring(L, -1);
-                    lua_pop(L, 1);
-                    tms_progressf("string: '%s'\n", str);
-                }
-                break;
+            case LUA_TSTRING: {
+                lua_pushvalue(L, i);
+                const char *str = lua_tostring(L, -1);
+                lua_pop(L, 1);
+                tms_printf("string: '%s'\n", str);
+            } break;
             case LUA_TBOOLEAN:
-                tms_progressf("boolean %s\n",lua_toboolean(L, i) ? "true" : "false");
+                tms_printf("boolean %s\n",lua_toboolean(L, i) ? "true" : "false");
                 break;
             case LUA_TNUMBER:
-                tms_progressf("number: %g\n", lua_tonumber(L, i));
+                tms_printf("number: %g\n", lua_tonumber(L, i));
                 break;
             default:
-                tms_progressf("%s\n", lua_typename(L, t));
+                tms_printf("%s\n", lua_typename(L, t));
                 break;
         }
         if (i+1 <= top) {
-            tms_progressf("  ");
+            tms_printf("  ");
         }
     }
 }

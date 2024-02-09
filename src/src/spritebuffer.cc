@@ -65,7 +65,7 @@ spritebuffer::get_entity2()
 
 void spritebuffer::_init()
 {
-    tms_progressf("Initializing spritebuffer... ");
+    tms_infof("Initializing spritebuffer...");
 
     verts = new tms::gbuffer(4*SPRITEBUFFER_MAX*sizeof(struct vert));
     verts->usage = TMS_GBUFFER_STREAM_DRAW;
@@ -123,8 +123,6 @@ void spritebuffer::_init()
     };
 
     reset();
-
-    tms_progressf("OK\n");
 }
 
 void

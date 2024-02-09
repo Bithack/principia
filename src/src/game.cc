@@ -1209,56 +1209,46 @@ game::occupy_prompt_slot()
 void
 game::init_framebuffers()
 {
-    tms_progressf("Initializing game framebuffers ");
+    tms_infof("Initializing game framebuffers");
 
     if (!this->icon_fb) {
-        tms_progressf("+");
         this->icon_fb = tms_fb_alloc(512, 512, 0);
         tms_fb_add_texture(this->icon_fb, GL_RGB, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
         tms_fb_enable_depth(this->icon_fb, GL_DEPTH_COMPONENT16);
-        tms_progressf(".");
     }
 
     if (this->main_fb) {
-        tms_progressf("-");
         tms_fb_free(this->main_fb);
         this->main_fb = 0;
     }
 
     if (this->bloom_fb) {
-        tms_progressf("-");
         tms_fb_free(this->bloom_fb);
         this->bloom_fb = 0;
     }
 
 #ifdef TMS_BACKEND_PC
     if (settings["postprocess"]->v.b) {
+        tms_infof("Postprocess time");
         //this->main_fb = tms_fb_alloc(_tms.window_width/2., _tms.window_height/2., 0);
-        tms_progressf("+");
         this->main_fb = tms_fb_alloc(_tms.window_width, _tms.window_height, 0);
-        tms_progressf(".");
         tms_fb_add_texture(this->main_fb, GL_RGBA, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
         //tms_fb_add_texture(this->main_fb, GL_RGB, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
-        tms_progressf(".");
         tms_fb_enable_depth(this->main_fb, GL_DEPTH_COMPONENT16);
 
-        tms_progressf("+");
         this->bloom_fb = tms_fb_alloc(_tms.window_width, _tms.window_height, 1);
-        tms_progressf(".");
         tms_fb_add_texture(this->bloom_fb, GL_RGBA, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
     } else {
         this->main_fb = 0;
         this->bloom_fb = 0;
     }
 #endif
-
-    tms_progressf("OK\n");
 }
 
 void
 game::init_shaders()
 {
-    tms_progressf("Compiling shaders...");
+    tms_infof("Compiling shaders...");
 
     struct tms_shader *sh;
 
@@ -1279,14 +1269,12 @@ game::init_shaders()
     tms_shader_compile(sh, GL_VERTEX_SHADER, src_brightpass[0]);
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, src_brightpass[1]);
     prg_brightpass = tms_shader_get_program(sh, TMS_NO_PIPELINE);
-
-    tms_progressf("OK\n");
 }
 
 void
 game::init_graphs()
 {
-    tms_progressf("Loading graphs...");
+    tms_infof("Loading graphs...");
 
     this->graph = this->get_scene()->create_graph(0);
     this->graph->sorting[1] = TMS_SORT_PRIO;
@@ -1330,14 +1318,12 @@ game::init_graphs()
     this->outline_graph->sort_depth = 4;
     this->outline_graph->full_pipeline = 0;
     tms_graph_enable_culling(this->outline_graph, 0);
-
-    tms_progressf("OK\n");
 }
 
 void
 game::init_camera()
 {
-    tms_progressf("Loading camera...");
+    tms_infof("Loading camera...");
 
     this->cam = new tms::camera();
 
@@ -1380,8 +1366,6 @@ game::init_camera()
     this->gi_cam->height = 1024.f/50.f;
     this->gi_cam->near = 0.f - 2.f;
     this->gi_cam->far = LAYER_DEPTH*3 + .5f;// + .75f;
-
-    tms_progressf("OK\n");
 }
 
 void
@@ -7339,9 +7323,8 @@ game::save(bool create_icon/*=true*/, bool force/*=false*/)
     W->level.sandbox_cam_zoom = this->cam->_position.z;
 
     if (create_icon) {
-        tms_progressf("Creating level icon... ");
+        tms_infof("Creating level icon...");
         this->create_icon();
-        tms_progressf("OK\n");
     }
 
     return W->save();
@@ -11735,32 +11718,32 @@ game::apply_multiselection(entity *e)
     }
 }
 
-void
-game::print_screen_point_info(int x, int y)
+#ifdef DEBUG
+
+void game::print_screen_point_info(int x, int y)
 {
-#if defined(DEBUG) && !defined(PAJLADA)
     tvec3 tproj[3];
     for (int l=0; l<3; l++) { W->get_layer_point(this->cam, x, y, l, &tproj[l]); }
     terrain_coord coord(tproj[0].x, tproj[0].y);
 
     level_chunk *c = W->cwindow->get_chunk(coord.chunk_x,coord.chunk_y);
 
-    fprintf(stderr, "--- CLICK AT %d %d ---\n", x, y);
-    fprintf(stderr, "pt layer 0: %f %f\n", tproj[0].x, tproj[0].y);
-    fprintf(stderr, "pt layer 1: %f %f\n", tproj[1].x, tproj[1].y);
-    fprintf(stderr, "pt layer 2: %f %f\n", tproj[2].x, tproj[2].y);
-    fprintf(stderr, "chunk x: %d\n", coord.chunk_x);
-    fprintf(stderr, "chunk y: %d\n", coord.chunk_y);
-    fprintf(stderr, "chunk in active?: %d\n", (W->cwindow->preloader.active_chunks.find(chunk_pos(coord.chunk_x, coord.chunk_y)) != W->cwindow->preloader.active_chunks.end()));
-    fprintf(stderr, "chunk num_fixtures: %d\n", c->num_fixtures);
-    fprintf(stderr, "chunk num_dyn_fixtures: %d\n", c->num_dyn_fixtures);
-    fprintf(stderr, "chunk load phase: %d\n", c->load_phase);
-    fprintf(stderr, "chunk generate phase: %d\n", c->generate_phase);
-    fprintf(stderr, "chunk in wastebin?: %d\n", (W->cwindow->preloader.wastebin.find(chunk_pos(coord.chunk_x, coord.chunk_y)) != W->cwindow->preloader.wastebin.end()));
+    printf("--- CLICK AT %d %d ---\n", x, y);
+    printf("pt layer 0: %f %f\n", tproj[0].x, tproj[0].y);
+    printf("pt layer 1: %f %f\n", tproj[1].x, tproj[1].y);
+    printf("pt layer 2: %f %f\n", tproj[2].x, tproj[2].y);
+    printf("chunk x: %d\n", coord.chunk_x);
+    printf("chunk y: %d\n", coord.chunk_y);
+    printf("chunk in active?: %d\n", (W->cwindow->preloader.active_chunks.find(chunk_pos(coord.chunk_x, coord.chunk_y)) != W->cwindow->preloader.active_chunks.end()));
+    printf("chunk num_fixtures: %d\n", c->num_fixtures);
+    printf("chunk num_dyn_fixtures: %d\n", c->num_dyn_fixtures);
+    printf("chunk load phase: %d\n", c->load_phase);
+    printf("chunk generate phase: %d\n", c->generate_phase);
+    printf("chunk in wastebin?: %d\n", (W->cwindow->preloader.wastebin.find(chunk_pos(coord.chunk_x, coord.chunk_y)) != W->cwindow->preloader.wastebin.end()));
 
     if (c) {
-        fprintf(stderr, "chunk num fixtures: %d\n", c->num_fixtures);
-        fprintf(stderr, "chunk garbage: %d\n", c->num_fixtures);
+        printf("chunk num fixtures: %d\n", c->num_fixtures);
+        printf("chunk garbage: %d\n", c->num_fixtures);
 
         for (int x=0; x<8; x++) {
             if (c->neighbours[x]) {
@@ -11769,13 +11752,11 @@ game::print_screen_point_info(int x, int y)
             }
         }
     }
-#endif
+
 }
 
-void
-game::print_stats()
+void game::print_stats()
 {
-#ifdef DEBUG
     printf("--- CHUNK PRELOADER ---\n");
     printf("heap size:\t\t%" PRIu64 "/%" PRIu64 "\n", W->cwindow->preloader.heap.size, W->cwindow->preloader.heap.cap);
     printf("level size:\t\t%" PRIu64 "/%" PRIu64 "\n", W->cwindow->preloader.w_lb.size, W->cwindow->preloader.w_lb.cap);
@@ -11783,8 +11764,9 @@ game::print_stats()
     printf("wastebin:\t\t%u\n", (int)W->cwindow->preloader.wastebin.size());
     printf("gentypes:\t\t%u\n", (int)W->cwindow->preloader.gentypes.size());
     SDL_Delay(5000);
-#endif
 }
+
+#endif
 
 bool
 game::autosave_exists()

@@ -464,103 +464,60 @@ static const char *blur5x5h_256_sources[] = {
 
 static void init()
 {
-    tms_progressf("+");
     struct tms_varray *va = tms_varray_alloc(2);
-    tms_progressf("+");
     struct tms_gbuffer *v = tms_gbuffer_alloc_fill(verts, sizeof(verts));
-    tms_progressf(">");
     tms_gbuffer_upload(v);
-    tms_progressf("=");
     tms_varray_map_attribute(va, "position", 2, GL_FLOAT, v);
-    tms_progressf("=");
     tms_varray_map_attribute(va, "texcoord", 2, GL_FLOAT, v);
-    tms_progressf("+");
     quad = tms_mesh_alloc(va, 0);
     quad->primitive_type = TMS_TRIANGLE_FAN;
-    tms_progressf("-");
     tms_mesh_set_autofree_buffers(quad, 1);
 
 
     struct tms_shader *sh;
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur5x5h_256_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur5x5h_256_sources[1]);
-    tms_progressf(".");
     blur5x5h_256_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur5x5v_256_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur5x5v_256_sources[1]);
-    tms_progressf(".");
     blur5x5v_256_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur5x5h_512_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur5x5h_512_sources[1]);
-    tms_progressf(".");
     blur5x5h_512_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur5x5v_512_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur5x5v_512_sources[1]);
-    tms_progressf(".");
     blur5x5v_512_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur3x3_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur3x3_sources[1]);
-    tms_progressf(".");
     blur3x3_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur3x3_128_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur3x3_128_sources[1]);
-    tms_progressf(".");
     blur3x3_128_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur3x3h_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur3x3h_sources[1]);
-    tms_progressf(".");
     blur3x3h_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur3x3v_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur3x3v_sources[1]);
-    tms_progressf(".");
     blur3x3v_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, copy_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, copy_sources[1]);
-    tms_progressf(".");
     _tms_fb_copy_program = (copy_program = tms_shader_get_program(sh, TMS_NO_PIPELINE));
 
     _i = 1;

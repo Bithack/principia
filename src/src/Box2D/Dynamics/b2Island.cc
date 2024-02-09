@@ -27,8 +27,6 @@
 #include <Box2D/Common/b2StackAllocator.h>
 #include <Box2D/Common/b2Timer.h>
 
-#include <tms/backend/print.h>
-
 #include <stdio.h>
 
 /*

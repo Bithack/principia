@@ -908,7 +908,7 @@ widget_manager::refresh_areas()
 
         int32_t min_diff = 135 + MARGIN_Y + menu_shared::bar_height;
 
-        tms_infof("diff: %d < %d?", diff, min_diff);
+        tms_debugf("diff: %d < %d?", diff, min_diff);
 
         if (diff < min_diff) {
             this->areas[AREA_CREATE_CONTEST_TOP].enabled = false;

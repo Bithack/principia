@@ -24,8 +24,6 @@
 #include <Box2D/Dynamics/b2World.h>
 #include <Box2D/Common/b2StackAllocator.h>
 
-#include <tms/backend/print.h>
-
 #define B2_DEBUG_SOLVER 0
 
 struct b2ContactPositionConstraint

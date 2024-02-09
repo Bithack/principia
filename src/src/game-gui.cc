@@ -1472,22 +1472,19 @@ game::init_gui(void)
     }
 
     int ierr;
-    tms_progressf("Initializing GUI ");
+    tms_infof("Initializing GUI ");
 
     initialized = true;
 
     this->text_small = new p_text(font::small);
 
-    tms_progressf("+");
     this->texts = tms_atlas_alloc(1024, 1024, 4);
     this->texts->padding_x = 1;
     this->texts->padding_y = 1;
     this->texts->texture.filter = GL_LINEAR;
-    tms_progressf("-");
     tms_texture_clear_buffer(&this->texts->texture, 0);
 
     this->set_surface(new tms::surface());
-    tms_progressf(".");
     this->get_surface()->atlas = gui_spritesheet::atlas;
 
     menu_height = _tms.opengl_height;
@@ -1519,7 +1516,6 @@ game::init_gui(void)
     b_margin_y = .14f * menu_ydim;
     b_margin_x = .14f * menu_xdim;
 
-    tms_progressf("+");
     menu_graph = new tms::graph(2);
 
     menu_graph->sorting[0] = TMS_SORT_TEXTURE0;
@@ -1543,21 +1539,17 @@ game::init_gui(void)
 
     menu_cat_width = this->get_menu_width();
 
-    tms_progressf(".");
     int n=0;
     for (n=0; n<of::num_categories; n++) {
-        tms_progressf("+");
         catsprites[n] = this->text_small->add_to_atlas(this->texts, of::get_category_name(n));
 
         menu_cat_width += C_PADDING + catsprites[n]->width;
 
-        tms_progressf("+");
         catsprite_hints[n] = this->text_small->add_to_atlas(this->texts, of::get_category_hint(n));
 
         if (catsprites[n]->width > widest_catsprite) widest_catsprite = catsprites[n]->width;
         if (catsprites[n]->height > tallest_catsprite) tallest_catsprite = catsprites[n]->height;
     }
-    tms_progressf(".");
 
     betasprite = this->text_small->add_to_atlas(this->texts, "(BETA)");
     devsprite = this->text_small->add_to_atlas(this->texts, "(DEV)");
@@ -1567,9 +1559,7 @@ game::init_gui(void)
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 3", ierr);
     int num_objects = 0;
-    tms_progressf("*");
     for (int y=0; y<of::num_categories; y++) {
-        tms_progressf(".");
         for (int x=0; x<of::get_num_objects(y); x++) {
             int gid = of::get_gid(y, x);
             entity *e = of::create(gid);
@@ -1590,23 +1580,18 @@ game::init_gui(void)
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 4", ierr);
 
-    tms_progressf("+");
     struct tms_texture *tex = tms_texture_alloc();
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 5", ierr);
 
-    tms_progressf(".");
     tms_texture_upload(&this->texts->texture);
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 9", ierr);
 
-    tms_progressf("+");
     this->init_gearbox_edit();
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 11", ierr);
-    tms_progressf("+");
     this->init_sandbox_menu();
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 12", ierr);
 
-    tms_progressf(" OK\n");
     tms_infof("Number of objects in menu: %d", num_objects);
 
     this->wm = new widget_manager(this, false, true);
@@ -2014,7 +1999,6 @@ game::init_gui(void)
 
     this->selection.disable();
 
-    tms_progressf("+");
     this->init_panel_edit();
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 10", ierr);
 }

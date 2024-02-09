@@ -25,24 +25,4 @@ enum {
 
 #include <tms/backend/print.h>
 
-#ifndef tms_infof
-#error tms_infof() was not defined by backend
-#endif
-
-#ifndef tms_fatalf
-#error tms_fatalf() was not defined by backend
-#endif
-
-#ifndef tms_errorf
-#error tms_errorf() was not defined by backend
-#endif
-
-#ifndef tms_warnf
-#error tms_warnf() was not defined by backend
-#endif
-
-#ifndef tms_warnf
-#error tms_assertf() was not defined by backend
-#endif
-
 #endif

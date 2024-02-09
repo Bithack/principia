@@ -20,8 +20,6 @@
 #include <Box2D/Dynamics/b2Body.h>
 #include <Box2D/Dynamics/b2TimeStep.h>
 
-#include <tms/backend/print.h>
-
 // Linear constraint (point-to-line)
 // d = p2 - p1 = x2 + r2 - x1 - r1
 // C = dot(perp, d)

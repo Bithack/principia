@@ -194,7 +194,7 @@ print_cookies(CURL *curl)
     struct curl_slist *nc;
     int i;
 
-    tms_debugf("Cookies, curl knows:");
+    tms_infof("Cookies, curl knows:");
     res = curl_easy_getinfo(curl, CURLINFO_COOKIELIST, &cookies);
     if (res != CURLE_OK) {
         tms_errorf("Curl curl_easy_getinfo failed: %s", curl_easy_strerror(res));
@@ -203,13 +203,13 @@ print_cookies(CURL *curl)
 
     nc = cookies, i = 1;
     while (nc) {
-        tms_progressf("[%d]: %s\n", i, nc->data);
+        tms_infof("[%d]: %s", i, nc->data);
         nc = nc->next;
         i++;
     }
 
     if (i == 1) {
-        tms_debugf("(none)\n");
+        tms_infof("(none)\n");
     }
 
     curl_slist_free_all(cookies);
@@ -445,26 +445,22 @@ end(void)
 void
 init_framebuffers(void)
 {
-    tms_progressf("Initializing framebuffers ");
+    tms_infof("Initializing framebuffers ");
 
     if (gi_fb) {
-        tms_progressf("-");
         tms_fb_free(gi_fb);
         gi_fb = 0;
     }
 
     if (ao_fb) {
-        tms_progressf("-");
         tms_fb_free(ao_fb);
         ao_fb = 0;
     }
 
     if (settings["enable_shadows"]->v.b) {
-        tms_progressf("SM(%u,%u)", settings["shadow_map_resx"]->v.i,settings["shadow_map_resy"]->v.i);
-        tms_progressf("+");
+        tms_infof("SM(%u,%u)", settings["shadow_map_resx"]->v.i,settings["shadow_map_resy"]->v.i);
         gi_fb = tms_fb_alloc(settings["shadow_map_resx"]->v.i,settings["shadow_map_resy"]->v.i,  (settings["swap_shadow_map"]->v.b?1:0));
         /* XXX use RGB is only shadows, RGBA if shadows+gi */
-        tms_progressf(".");
         //tms_fb_add_texture(gi_fb, GL_RGB, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
         //tms_fb_add_texture(gi_fb, GL_RGB32F, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
         //
@@ -472,10 +468,8 @@ init_framebuffers(void)
         int shadow_map_precision = GL_RGB;
 
         if (settings["shadow_map_depth_texture"]->is_true()) {
-            tms_progressf("using depth texture");
             tms_fb_add_texture(gi_fb, GL_RGB, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
             tms_fb_enable_depth_texture(gi_fb, GL_DEPTH_COMPONENT16);
-            tms_progressf("OK\n");
         } else {
             if (settings["is_very_shitty"]->v.b || settings["shadow_map_precision"]->v.i == 0) {
                 shadow_map_precision = GL_RGB;
@@ -501,22 +495,16 @@ init_framebuffers(void)
     }
 
     if (settings["enable_ao"]->v.i) {
-        tms_progressf("AO");
+        tms_infof("AO!!!!!!");
         int res = settings["ao_map_res"]->v.i == 512 ? 512 : (
                   settings["ao_map_res"]->v.i == 256 ? 256 :
                   128);
-        tms_progressf("+");
         ao_fb = tms_fb_alloc(res, res, (settings["swap_ao_map"]->v.b?1:0));
-        tms_progressf(".");
         tms_fb_add_texture(ao_fb, GL_RGB, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
     }
 
-    tms_progressf("=");
     tms_pipeline_set_framebuffer(1, gi_fb);
-    tms_progressf("=");
     tms_pipeline_set_framebuffer(3, ao_fb);
-
-    tms_progressf(" OK\n");
 }
 
 /* called by TMS when we receive the initial command
@@ -688,7 +676,7 @@ tproject_init_pipelines(void)
 {
     init_framebuffers();
 
-    tms_progressf("Initializing pipelines... ");
+    tms_infof("Initializing pipelines...");
 
     tms_pipeline_init();
     tms_pipeline_declare(0, "M", TMS_MAT4, offsetof(struct tms_entity, M));
@@ -727,8 +715,6 @@ tproject_init_pipelines(void)
 
     tms_pipeline_set_begin_fn(3, ao_begin);
     tms_pipeline_set_end_fn(3, ao_end);
-
-    tms_progressf("OK\n");
 }
 
 void
@@ -1386,11 +1372,10 @@ tproject_soft_resume(void)
     lock_curl("tproject_soft_resume");
     CURLcode r = curl_global_init(CURL_GLOBAL_ALL);
     if (r != CURLE_OK) {
-        tms_progressf("ERR: %s\n", curl_easy_strerror(r));
+        tms_infof("ERR: %s", curl_easy_strerror(r));
         exit(1);
     }
     P.curl = curl_easy_init();
-    tms_progressf("OK v(%s)\n", LIBCURL_VERSION);
     unlock_curl("tproject_soft_resume");
 #endif
 
@@ -1409,12 +1394,11 @@ tproject_soft_pause(void)
     }
 
     tms_infof("SOFT PAUSE ---------------------");
-    tms_progressf("Saving settings...");
+
+    tms_infof("Saving settings...");
     settings.save();
-    tms_progressf(" OK\n");
-    tms_progressf("Saving progress...");
+    tms_infof("Saving progress...");
     progress::commit();
-    tms_progressf(" OK\n");
 
 #ifdef BUILD_CURL
     lock_curl("tproject_soft_pause");
@@ -1424,7 +1408,6 @@ tproject_soft_pause(void)
         P.curl = 0;
     }
     curl_global_cleanup();
-    tms_progressf("OK\n");
 
     unlock_curl("tproject_soft_pause");
 #endif
@@ -1442,30 +1425,24 @@ tproject_quit(void)
 
     tms_infof("tproject_quit");
 
-    tms_progressf("Saving settings...");
+    tms_infof("Saving settings...");
     settings.save();
-    tms_progressf(" OK\n");
-    tms_progressf("Saving progress...");
+    tms_infof("Saving progress...");
     progress::commit();
-    tms_progressf(" OK\n");
 
 #ifdef BUILD_CURL
-    tms_progressf("CURL easy cleanup[%p]... ", P.curl);
+    tms_infof("CURL easy cleanup...");
     lock_curl("tproject_quit");
     if (P.curl) {
         curl_easy_cleanup(P.curl);
         P.curl = 0;
     }
-    tms_progressf("OK\n");
-    tms_progressf("CURL global cleanup... ");
     curl_global_cleanup();
-    tms_progressf("OK\n");
     unlock_curl("tproject_quit");
 #endif
 
-    tms_progressf("Cleaning settings...");
+    tms_infof("Cleaning settings...");
     settings.clean();
-    tms_progressf(" OK\n");
 
     delete G;
 
@@ -1593,13 +1570,12 @@ tproject_init(void)
 
     P.focused = 1;
 
-    tms_progressf("Initializing curl... ");
+    tms_infof("Initializing curl (v" LIBCURL_VERSION ")...");
     CURLcode r = curl_global_init(CURL_GLOBAL_ALL);
     if (r != CURLE_OK) {
-        tms_progressf("ERR: %s\n", curl_easy_strerror(r));
+        tms_infof("ERR: %s", curl_easy_strerror(r));
         exit(1);
     }
-    tms_progressf("OK v(%s)\n", LIBCURL_VERSION);
 
     snprintf(cookie_file, 1024, "%s/c", tbackend_get_storage_path());
 #endif
@@ -1811,6 +1787,9 @@ init_curl_defaults(void *curl)
 #ifdef DEBUG
     curl_easy_setopt(P.curl, CURLOPT_VERBOSE, 1);
 #endif
+
+    // Note: this may put token cookie in the log output
+    //print_cookies(P.curl);
 }
 
 int
@@ -2739,8 +2718,6 @@ _publish_pkg(void *_unused)
                         _publish_pkg_error = true;
                         return 1;
                     }
-
-                    //print_cookies(P.curl);
 
                     if (chunk.size != 0) {
                         char *pch;

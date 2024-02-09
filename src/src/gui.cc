@@ -706,12 +706,10 @@ gui_spritesheet::init_atlas()
 #endif
     }
 
-    tms_progressf("Initialzing freetype... ");
+    tms_infof("Initialzing freetype...");
     if (FT_Init_FreeType(&gui_spritesheet::ft)) {
-        tms_progressf("ERROR\n");
         tms_fatalf("Unable to init freetype library");
     }
-    tms_progressf("OK\n");
 }
 
 static bool use_font_cache = true;

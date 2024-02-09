@@ -1005,12 +1005,11 @@ void
 sm::init()
 {
 #ifdef ENABLE_SOUND
-    tms_progressf("Initializing audio device... ");
+    tms_infof("Initializing audio device...");
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
-        tms_progressf("Error: %s\n", Mix_GetError());
+        tms_infof("Error: %s\n", Mix_GetError());
         sm::initialized = false;
     } else {
-        tms_progressf("OK\n");
         Mix_ChannelFinished(&channel_finished_cb);
         sm::initialized = true;
 
@@ -1039,7 +1038,7 @@ sm::init()
     }
 
     /* load all sound effects */
-    tms_progressf("Initializing sound effects... ");
+    tms_infof("Initializing sound effects... ");
 
     sm::click.min_repeat_ms = 80;
     sm::robot.min_repeat_ms = 40;
@@ -1056,8 +1055,6 @@ sm::init()
             data->sound_ptr->name = data->root_name;
         }
     }
-
-    tms_progressf("OK\n");
 #endif
 }
 

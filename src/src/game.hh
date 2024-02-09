@@ -874,13 +874,14 @@ class game : public pscreen
     void init_graphs();
     void init_camera();
     void init_gui();
-    void init_selection();
 
     void set_caveview_zoom_limits(bool update=false);
     void unset_caveview_zoom_limits();
 
+#ifdef DEBUG
     void print_stats();
     void print_screen_point_info(int x, int y);
+#endif
 
     int render();
     int post_render();

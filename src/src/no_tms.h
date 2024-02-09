@@ -15,7 +15,7 @@
 #define tms_warnf(...)
 #define tms_fatalf(...)
 #define tms_errorf(...)
-#define tms_progressf(f, ...) fprintf(stdout, f, ##__VA_ARGS__); fflush(stdout);
+#define tms_printf(f, ...) fprintf(stdout, f, ##__VA_ARGS__); fflush(stdout);
 #define tms_debugf(...)
 #define tms_assertf(expr, f, ...) {if (expr);else tms_fatalf(f, ##__VA_ARGS__);}
 

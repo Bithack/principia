@@ -43,7 +43,7 @@ fluidbuffer::get_entity()
 
 void fluidbuffer::_init()
 {
-    tms_progressf("Initializing fluidbuffer... ");
+    tms_infof("Initializing fluidbuffer...");
 
     verts = new tms::gbuffer(4*(FLUIDBUFFER_MAX)*sizeof(struct vert));
     verts->usage = TMS_GBUFFER_STREAM_DRAW;
@@ -88,8 +88,6 @@ void fluidbuffer::_init()
     };
 
     reset();
-
-    tms_progressf("OK\n");
 }
 
 void fluidbuffer::add(

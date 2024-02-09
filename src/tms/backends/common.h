@@ -19,9 +19,8 @@
     chdir(exedir);
 
 #define INIT_SDL \
-	tms_progressf("Initializing SDL... "); \
+	tms_infof("Initializing SDL..."); \
     SDL_Init(SDL_INIT_VIDEO); \
-    tms_progressf("OK\n"); \
     SDL_DisplayMode mode; \
     SDL_GetCurrentDisplayMode(0, &mode); \
 
@@ -39,17 +38,16 @@
 
 #define LOAD_SETTINGS \
 	settings.init(); \
-    tms_progressf("Loading settings... "); \
-    if (!settings.load()) { \
-        tms_progressf("ERROR\n"); \
-    } else \
-        tms_progressf("OK\n"); \
+    tms_infof("Loading settings..."); \
+    if (!settings.load()) \
+        tms_infof("ERROR!"); \
+\
     P.loaded_correctly_last_run = settings["loaded_correctly"]->v.b; \
- \
+\
     settings["is_very_shitty"]->v.b = (!settings["loaded_correctly"]->v.b || settings["is_very_shitty"]->v.b); \
     settings["loaded_correctly"]->v.b = false; \
     settings.save(); \
- \
+\
     tms_infof("Texture quality: %d", settings["texture_quality"]->v.i8); \
     tms_infof("Shadow quality: %d (%dx%d)", \
             settings["shadow_quality"]->v.i8, \
@@ -74,7 +72,7 @@
 // tbackend_init_surface()
 
 #define CUTE_ASCII_ART \
-	tms_progressf( \
+	tms_printf( \
 		"            _            _       _       \n"    \
 		" _ __  _ __(_)_ __   ___(_)_ __ (_) __ _ \n"    \
 		"| '_ \\| '__| | '_ \\ / __| | '_ \\| |/ _` |\n" \
@@ -89,14 +87,13 @@
     if (settings["window_maximized"]->v.b) \
         flags |= SDL_WINDOW_MAXIMIZED; \
  \
-    tms_progressf("Creating window... "); \
+    tms_infof("Creating window..."); \
     _window = SDL_CreateWindow("Principia", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, \
 		_tms.window_width, _tms.window_height, flags); \
     if (_window == NULL) { \
-        tms_progressf("ERROR: %s\n", SDL_GetError()); \
+        tms_infof("ERROR: %s", SDL_GetError()); \
         exit(1); \
-    } else \
-        tms_progressf("OK\n"); \
+    } \
  \
     _tms._window = _window;
 
@@ -113,35 +110,35 @@
 
 
 #define INIT_GLEW \
-	tms_progressf("Initializing GLEW... "); \
+	tms_infof("Initializing GLEW..."); \
     glewExperimental = GL_TRUE; \
     GLenum err = glewInit(); \
     if (err != GLEW_OK) { \
-        tms_progressf("ERROR: %s\n", glewGetErrorString(err)); \
+        tms_infof("ERROR: %s", glewGetErrorString(err)); \
         exit(1); \
     } \
-    tms_progressf("OK (v%s)\n", glewGetString(GLEW_VERSION));
+    tms_infof("GLEW init OK (v%s)", glewGetString(GLEW_VERSION));
 
 #define PRINT_GL_INFO \
 	tms_infof("GL Info: %s/%s/%s", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION)); \
     tms_infof("GLSL Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION)); \
-    tms_infof("Extensions: %s", glGetString(GL_EXTENSIONS)); \
+    tms_debugf("Extensions: %s", glGetString(GL_EXTENSIONS)); \
 \
-    tms_progressf("GL versions supported: "); \
-    if (GLEW_VERSION_4_6) tms_progressf("4.6,"); \
-    if (GLEW_VERSION_4_5) tms_progressf("4.5,"); \
-    if (GLEW_VERSION_4_4) tms_progressf("4.4,"); \
-    if (GLEW_VERSION_4_3) tms_progressf("4.3,"); \
-    if (GLEW_VERSION_4_2) tms_progressf("4.2,"); \
-    if (GLEW_VERSION_4_1) tms_progressf("4.1,"); \
-    if (GLEW_VERSION_3_3) tms_progressf("3.3,"); \
-    if (GLEW_VERSION_3_1) tms_progressf("3.1,"); \
-    if (GLEW_VERSION_3_0) tms_progressf("3.0,"); \
-    if (GLEW_VERSION_2_1) tms_progressf("2.1,"); \
-    if (GLEW_VERSION_2_0) tms_progressf("2.0,"); \
-    if (GLEW_VERSION_1_5) tms_progressf("1.5,"); \
-    if (GLEW_VERSION_1_4) tms_progressf("1.4,"); \
-    if (GLEW_VERSION_1_3) tms_progressf("1.3,"); \
-    if (GLEW_VERSION_1_2) tms_progressf("1.2,"); \
-    if (GLEW_VERSION_1_1) tms_progressf("1.1"); \
-	tms_progressf("\n");
+    tms_printf("GL versions supported: "); \
+    if (GLEW_VERSION_4_6) tms_printf("4.6,"); \
+    if (GLEW_VERSION_4_5) tms_printf("4.5,"); \
+    if (GLEW_VERSION_4_4) tms_printf("4.4,"); \
+    if (GLEW_VERSION_4_3) tms_printf("4.3,"); \
+    if (GLEW_VERSION_4_2) tms_printf("4.2,"); \
+    if (GLEW_VERSION_4_1) tms_printf("4.1,"); \
+    if (GLEW_VERSION_3_3) tms_printf("3.3,"); \
+    if (GLEW_VERSION_3_1) tms_printf("3.1,"); \
+    if (GLEW_VERSION_3_0) tms_printf("3.0,"); \
+    if (GLEW_VERSION_2_1) tms_printf("2.1,"); \
+    if (GLEW_VERSION_2_0) tms_printf("2.0,"); \
+    if (GLEW_VERSION_1_5) tms_printf("1.5,"); \
+    if (GLEW_VERSION_1_4) tms_printf("1.4,"); \
+    if (GLEW_VERSION_1_3) tms_printf("1.3,"); \
+    if (GLEW_VERSION_1_2) tms_printf("1.2,"); \
+    if (GLEW_VERSION_1_1) tms_printf("1.1"); \
+	tms_printf("\n");
