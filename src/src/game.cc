@@ -1423,8 +1423,7 @@ game::pause()
 int
 game::resume(void)
 {
-    char filename[1024];
-    snprintf(filename, 1023, "%s/.autosave", pkgman::get_level_path(LEVEL_LOCAL));
+    this->render_controls = false;
 
     if (this->resume_action == GAME_START_NEW_ADVENTURE) {
         tms_infof("Resume action: Start new adventure");
@@ -1441,17 +1440,7 @@ game::resume(void)
     } else if (this->resume_action == GAME_RESUME_NEW || this->resume_action == GAME_RESUME_NEW_EMPTY) {
         tms_infof("Resume action: New");
 
-        uint32_t level_type = settings["default_level_type"]->v.u8;
-        if (resume_level_type != -1) {
-            level_type = resume_level_type;
-        }
-
-        this->resume_level_type = -1;
-
-        /* Fall back to the custom level type if the user input something weird */
-        if (level_type > LCAT_CUSTOM) {
-            level_type = LCAT_CUSTOM;
-        }
+        uint32_t level_type = resume_level_type;
 
         this->create_level(level_type, this->resume_action == GAME_RESUME_NEW_EMPTY, false);
 
@@ -3939,53 +3928,52 @@ game::render_starred(void)
 void
 game::render_controls_help()
 {
-    if (this->render_controls) {
 #ifdef TMS_BACKEND_PC
-        if (!this->tex_controls) {
-            this->tex_controls = new tms::texture();
-            this->tex_controls->format = GL_RGBA;
-            this->tex_controls->load("data-pc/textures/controls.png");
-            this->tex_controls->upload();
-        }
-#else
-#warning "No controls fixed for this platform yet."
-        return;
-#endif
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        struct tms_sprite tmp;
-        tmp.bl = tvec2f(0.f, 0.f);
-        tmp.tr = tvec2f(1.f, 1.f);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, this->tex_controls->gl_texture);
-
-        int width = this->tex_controls->width;
-        int height = this->tex_controls->height;
-
-        if (this->tex_controls->width*1.25f >= _tms.window_width) {
-            float mod = _tms.window_width / (this->tex_controls->width*1.25f);
-            width *= mod;
-            height *= mod;
-        }
-
-        tms_ddraw_sprite(this->get_surface()->ddraw, &tmp,
-                _tms.window_width/2.f, _tms.window_height/2.f,
-                width, height);
-
-        this->add_text("Press <ESCAPE> or click anywhere on the screen to close this window.",
-                font::xmedium,
-                _tms.window_width/2.f, _tms.window_height/2.f + height/2.f + _tms.xppcm*0.1f,
-                TV_WHITE,
-                true,
-                ALIGN_CENTER, ALIGN_BOTTOM);
-    } else {
+    if (!this->render_controls) {
         if (this->tex_controls) {
             delete this->tex_controls;
             this->tex_controls = 0;
         }
+
+        return;
     }
+
+    if (!this->tex_controls) {
+        this->tex_controls = new tms::texture();
+        this->tex_controls->format = GL_RGBA;
+        this->tex_controls->load("data-pc/textures/controls.png");
+        this->tex_controls->upload();
+    }
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    struct tms_sprite tmp;
+    tmp.bl = tvec2f(0.f, 0.f);
+    tmp.tr = tvec2f(1.f, 1.f);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, this->tex_controls->gl_texture);
+
+    int width = this->tex_controls->width;
+    int height = this->tex_controls->height;
+
+    if (this->tex_controls->width*1.25f >= _tms.window_width) {
+        float mod = _tms.window_width / (this->tex_controls->width*1.25f);
+        width *= mod;
+        height *= mod;
+    }
+
+    tms_ddraw_sprite(this->get_surface()->ddraw, &tmp,
+            _tms.window_width/2.f, _tms.window_height/2.f,
+            width, height);
+
+    this->add_text("Press <ESCAPE> or click anywhere on the screen to close this window.",
+            font::xmedium,
+            _tms.window_width/2.f, _tms.window_height/2.f + height/2.f + _tms.xppcm*0.1f,
+            TV_WHITE,
+            true,
+            ALIGN_CENTER, ALIGN_BOTTOM);
+#endif
 }
 
 void
