@@ -57,7 +57,7 @@ dependencies {
 
 // get precompiled deps
 task downloadDeps(type: Download) {
-	src 'https://github.com/principia-preservation-project/principia_android_deps/releases/download/latest/deps.zip'
+	src 'https://github.com/principia-game/principia-android-deps/releases/download/latest/deps.zip'
 	dest new File(buildDir, 'deps.zip')
 	overwrite false
 }
