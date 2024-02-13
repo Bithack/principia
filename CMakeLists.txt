@@ -9,8 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 message(STATUS "*** Building Principia! ***")
 
 if (NOT CMAKE_BUILD_TYPE)
-    message(STATUS "No build type selected, default to Release")
-    set(CMAKE_BUILD_TYPE "Release")
+	message(STATUS "No build type selected, default to Release")
+	set(CMAKE_BUILD_TYPE "Release")
 endif()
 
 find_package(Freetype REQUIRED)
@@ -23,6 +23,7 @@ set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 
 option(SCREENSHOT_BUILD "Build screenshotter build (Linux only)" FALSE)
+option(BACKEND_IMGUI "Use ImGui as the UI backend (expreimental)" TRUE)
 
 if(WIN32)
 	set(TMS_BACKEND "windows")
@@ -46,6 +47,13 @@ include_directories(
 	${SDL2_INCLUDE_DIRS}
 	${ZLIB_INCLUDE_DIRS})
 
+if(BACKEND_IMGUI)
+	include_directories(
+		src/imgui/
+		src/imgui-texteditor/
+	)
+endif()
+
 file(GLOB SRCS
 	src/tms/core/*.c
 	src/tms/math/*.c
@@ -68,17 +76,30 @@ file(GLOB SRCS
 	src/src/Box2D/Particle/*.cc
 )
 
+if(BACKEND_IMGUI)
+	file(GLOB IMGUI_SRCS
+		src/imgui/*.cpp
+		src/imgui-texteditor/*.cpp
+	)
+	set(SRCS ${SRCS} ${IMGUI_SRCS})
+endif()
+
 if(NOT SCREENSHOT_BUILD)
 	find_package(PkgConfig REQUIRED)
-	pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+	if(NOT BACKEND_IMGUI)
+		pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+	endif()
 	find_package(CURL REQUIRED)
 	find_package(GLEW REQUIRED)
 
 	include_directories(
 		${CURL_INCLUDE_DIR}
 		${GLEW_INCLUDE_DIRS}
-		${GTK3_INCLUDE_DIRS}
-		src/SDL_mixer/)
+		src/SDL_mixer/
+	)
+	if(NOT BACKEND_IMGUI)
+		include_directories(${GTK3_INCLUDE_DIRS})
+	endif()
 
 	file(GLOB SDL_mixer_SRCS src/SDL_mixer/*.c)
 	set(SRCS ${SRCS} ${SDL_mixer_SRCS})
@@ -143,15 +164,38 @@ target_link_libraries(
 		${SDL2_LIBRARIES}
 		${ZLIB_LIBRARIES})
 
+if (NOT (SCREENSHOT_BUILD OR BACKEND_IMGUI))
+	target_link_libraries(
+		${PROJECT_NAME}
+		${GTK3_LIBRARIES}
+	)
+endif()
+
 if(NOT SCREENSHOT_BUILD)
 	target_link_libraries(
 		${PROJECT_NAME}
 			${CURL_LIBRARIES}
-			${GLEW_LIBRARIES}
-			${GTK3_LIBRARIES})
+			${GLEW_LIBRARIES})
+endif()
+
+if (BACKEND_IMGUI)
+	# this is only required for ImGui's opengl3 backend
+	# (we should be able to remove this after implementing own rendering backend)
+	target_link_libraries(
+		${PROJECT_NAME}
+		${CMAKE_DL_LIBS}
+	)
 endif()
 
 set(COMMON_FLAGS "${LUASOCKET_FLAGS} -DTMS_BACKEND_PC -DTMS_FAST_MATH -DLUA_COMPAT_MODULE")
+
+if((NOT SCREENSHOT_BUILD) AND BACKEND_IMGUI)
+	set(COMMON_FLAGS "${COMMON_FLAGS} -DPRINCIPIA_BACKEND_IMGUI -DIMGUI_DEFINE_MATH_OPERATORS -DIMGUI_DISABLE_OBSOLETE_KEYIO -DIMGUI_USE_WCHAR32")
+	set(IMGUI_FLAGS_DEBUG "-DIMGUI_DEBUG_PARANOID")
+	set(IMGUI_FLAGS_RELEASE "-DIMGUI_DISABLE_DEMO_WINDOWS -DIMGUI_DISABLE_DEBUG_TOOLS")
+else()
+	set(COMMON_FLAGS "${COMMON_FLAGS} -DIMGUI_DISABLE")
+endif()
 
 if(WIN32)
 	target_link_libraries(${PROJECT_NAME} ws2_32.lib version.lib shlwapi.lib winmm.lib)
@@ -171,16 +215,21 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	set(COMMON_FLAGS "${COMMON_FLAGS} -Wno-error=incompatible-function-pointer-types -Wno-error=int-conversion")
 endif()
 
-set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1")
-set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} -DNDEBUG=1 -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections")
+set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} ${IMGUI_FLAGS_DEBUG} -O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1")
+set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} ${IMGUI_FLAGS_RELEASE} -DNDEBUG=1 -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections")
 
 set(CMAKE_C_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O1")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE} -g")
 set(CMAKE_C_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG}")
 
-set(CMAKE_CXX_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O2 -fvisibility-inlines-hidden -fno-rtti")
+if(BACKEND_IMGUI)
+	# ImGui backend requires pthreads, needs to be the last arg
+	set(IM_CXX "-pthread")
+endif()
+
+set(CMAKE_CXX_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O2 -fvisibility-inlines-hidden -fno-rtti ${IM_CXX}")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} -g")
-set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG}")
+set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG} ${IM_CXX}")
 
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-O,-s,--gc-sections")
 set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "-Wl,-O,--gc-sections")

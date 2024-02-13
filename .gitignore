@@ -9,6 +9,8 @@ build_*/
 local_config.h
 opengl32.dll
 
+imgui.ini
+
 # Model junk files
 *.blend1
 *.blend2
