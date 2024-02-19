@@ -310,7 +310,7 @@ menu_create::step(double dt)
 int
 menu_create::render()
 {
-#if defined(TMS_BACKEND_LINUX_SS)
+#ifdef TMS_BACKEND_LINUX_SS
     return T_OK;
 #endif
 

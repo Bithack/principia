@@ -121,7 +121,7 @@ menu_main::pause(void)
 int
 menu_main::render(void)
 {
-#if defined(TMS_BACKEND_LINUX_SS)
+#ifdef TMS_BACKEND_LINUX_SS
     return T_OK;
 #endif
 
@@ -227,7 +227,7 @@ menu_main::step(double dt)
 {
     menu_base::step(dt);
 
-#if defined(TMS_BACKEND_LINUX_SS)
+#ifdef TMS_BACKEND_LINUX_SS
     SDL_Delay(150);
     return T_OK;
 #endif

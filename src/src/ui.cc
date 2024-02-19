@@ -107,7 +107,8 @@ ui::messagef(const char *format, ...)
     }
 }
 
-#if defined(NO_UI)
+#ifdef NO_UI
+
 int prompt_is_open = 0;
 void ui::init(){};
 void ui::open_dialog(int num, void *data/*=0*/){}

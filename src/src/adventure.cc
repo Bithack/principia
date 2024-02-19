@@ -1482,7 +1482,7 @@ adventure::render()
     adventure::num_weapons = 0;
     adventure::num_tools = 0;
 
-#if defined(NO_UI)
+#ifdef NO_UI
     return;
 #endif
     if (!adventure::player || settings["render_gui"]->is_false()) return;

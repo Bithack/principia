@@ -1999,9 +1999,6 @@ game::step(double dt)
 
     this->cam->far = this->cam->_position.z+1.f;
     this->cam->near = this->cam->_position.z-3*LAYER_DEPTH;
-#ifdef TMS_BACKEND_LINUX_SS
-    //this->cam->near = 1.f;
-#endif
 
     tvec3 l = this->light;
 

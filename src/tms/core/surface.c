@@ -124,7 +124,7 @@ tms_surface_render(struct tms_surface *s)
      **/
     int last_state = -100;
 
-#if !defined(NO_UI)
+#ifndef NO_UI
     for (int x=0; x<s->widget_count; x++) {
         if (s->widgets[x]->render) {
             float alpha = fmin(s->alpha, s->widgets[x]->alpha);

@@ -25,9 +25,7 @@ class pkginfo;
 
 #if defined(TMS_BACKEND_WINDOWS)
 #define OS_STRING "Windows"
-#elif defined(TMS_BACKEND_LINUX_SS)
-#define OS_STRING "Linux_SS"
-#elif defined(TMS_BACKEND_LINUX)
+#elif defined(TMS_BACKEND_LINUX) || defined(TMS_BACKEND_LINUX_SS)
 #define OS_STRING "Linux"
 #elif defined(TMS_BACKEND_ANDROID)
 # if defined(TMS_BACKEND_ANDROID_X86) || defined(TMS_BACKEND_ANDROID_X86_64)

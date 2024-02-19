@@ -267,7 +267,7 @@ menu_play::step(double dt)
 int
 menu_play::render()
 {
-#if defined(TMS_BACKEND_LINUX_SS)
+#ifdef TMS_BACKEND_LINUX_SS
     return T_OK;
 #endif
 
