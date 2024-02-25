@@ -27,7 +27,7 @@ static const char *_dir_names[] = {
 lvlbuf tmpbuf;
 lvlinfo tmplvl;
 
-#if defined TMS_BACKEND_ANDROID
+#ifdef TMS_BACKEND_ANDROID
 #include <SDL.h>
 
 #define _FILE void
@@ -942,7 +942,7 @@ pkgman::get_pkgs(int type)
         return 0;
 
     const char *path = pkgman::get_pkg_path(type);
-#if defined(TMS_BACKEND_WINDOWS)
+#ifdef TMS_BACKEND_WINDOWS
     wchar_t tmp[1024];
 #else
     char tmp[1024];
@@ -979,7 +979,7 @@ pkgman::get_pkgs(int type)
     return first;
 }
 
-#if defined(TMS_BACKEND_WINDOWS)
+#ifdef TMS_BACKEND_WINDOWS
 time_t
 filetime_to_timet(FILETIME & ft)
 {
@@ -1011,7 +1011,7 @@ pkgman::get_levels(int level_type)
     snprintf(ext, 6, ".%s", pkgman::get_level_ext(orig_level_type));
     const char *path = pkgman::get_level_path(orig_level_type);
 
-#if defined(TMS_BACKEND_WINDOWS)
+#ifdef TMS_BACKEND_WINDOWS
     wchar_t tmp[1024];
 #else
     char tmp[1024];
@@ -1051,7 +1051,7 @@ pkgman::get_levels(int level_type)
                 time_t mtime;
                 char date[21];
 
-#if defined(TMS_BACKEND_WINDOWS)
+#ifdef TMS_BACKEND_WINDOWS
                 WIN32_FILE_ATTRIBUTE_DATA data;
                 //wsnprintf(tmp, 1023, L"%hs" SLASH "%hs", path, ent->d_name);
                 wsprintf(tmp, L"%hs" SLASH "%hs", path, ent->d_name);

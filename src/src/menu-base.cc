@@ -136,7 +136,7 @@ menu_base::refresh_scale()
     if (_tms.window_width < 1000) {
         this->scale = (float)_tms.window_width / 1000.f;
     } else {
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
         if (_tms.window_width > 1200) {
             this->scale = (float)_tms.window_width / 1200.f;
         } else {

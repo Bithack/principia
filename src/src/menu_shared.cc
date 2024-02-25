@@ -39,7 +39,7 @@ menu_shared::init()
     {
         tms::texture *tex = new tms::texture();
 
-#if defined(TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
         tex->load_etc1("data-mobile/textures/menu/menu_bg.pkm");
 #elif defined(TMS_BACKEND_IOS)
         tex->load_pvrtc("data-ios/textures/menu_bg.pvr");

@@ -39,7 +39,7 @@
 #include <errno.h>
 #include <unistd.h>
 
-#if defined TMS_BACKEND_WINDOWS
+#ifdef TMS_BACKEND_WINDOWS
 #include <direct.h>
 #define mkdir(dirname, ...) _mkdir(dirname)
 #define create_dir(dirname, ...) _create_dir(dirname, 0)
@@ -1460,7 +1460,7 @@ setup_opengl_settings()
         settings["discard_framebuffer"]->v.b = ((bool)strstr(_tms.gl_extensions, "discard_framebuffer") ? 1 : 0);
     }
 
-#if defined TMS_BACKEND_ANDROID || defined TMS_BACKEND_IOS
+#ifdef TMS_BACKEND_MOBILE
     if (settings["shadow_map_precision"]->is_uninitialized()) {
         settings["shadow_map_precision"]->v.i = 0;
     }
@@ -1522,7 +1522,7 @@ tproject_init(void)
     tms_infof("tproject_init called");
     srand((unsigned)time(0));
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
     settings.init();
     settings.load();
     P.loaded_correctly_last_run = settings["loaded_correctly"]->v.b;
@@ -2094,7 +2094,7 @@ level_loader(int step)
             _play_downloading = false;
             _play_download_for_pkg = false;
             // For Linux SS manager we will always assume it has DB levels downloaded :)
-#if defined(BUILD_CURL)
+#ifdef BUILD_CURL
             if (_play_type == LEVEL_DB) {
                 _play_downloading = true;
                 create_thread(_download_level, "_download_level", 0);

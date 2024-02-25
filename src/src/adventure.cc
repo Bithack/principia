@@ -910,7 +910,7 @@ adventure::handle_input_playing(tms::event *ev, int action)
         /* minimum death time before we can respawn */
         if (adventure::death_wait <= 0) {
 
-#if defined TMS_BACKEND_ANDROID || defined TMS_BACKEND_IOS
+#ifdef TMS_BACKEND_MOBILE
             if (ev->type == TMS_EV_POINTER_DOWN) {
                 adventure::respawn();
                 adventure::player->respawn();
@@ -940,7 +940,7 @@ adventure::handle_input_playing(tms::event *ev, int action)
 
         for (int n=0; n<NUM_RESOURCES; ++n) {
             if (adventure::player->get_num_resources(n)
-#if defined TMS_BACKEND_ANDROID || TMS_BACKEND_IOS
+#ifdef TMS_BACKEND_MOBILE
                     && n == adventure::last_picked_up_resource
 #endif
                     ) {
@@ -1635,7 +1635,7 @@ adventure::render()
 
         glBindTexture(GL_TEXTURE_2D, gui_spritesheet::atlas->texture.gl_texture);
 
-#if defined TMS_BACKEND_PC
+#ifdef TMS_BACKEND_PC
         for (int x=0; x<adventure::num_weapons; x++) {
             G->render_num(adventure::weapon_icon_pos[x].x, adventure::weapon_icon_pos[x].y-_tms.yppcm*.075f,
                     0,
@@ -1653,7 +1653,7 @@ adventure::render()
 
         for (int n=0; n<NUM_RESOURCES; ++n) {
             if (adventure::player->get_num_resources(n)
-#if defined TMS_BACKEND_ANDROID || TMS_BACKEND_IOS
+#ifdef TMS_BACKEND_MOBILE
                     && n == adventure::last_picked_up_resource
 #endif
                     ) {

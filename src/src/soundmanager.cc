@@ -5,12 +5,10 @@
 #include "Box2D/Box2D.h"
 #include <inttypes.h>
 
-#if defined(TMS_BACKEND_IOS)
-#define SFX_PATH "data-ios/sfx"
-#elif defined(TMS_BACKEND_ANDROID)
-#define SFX_PATH "data-mobile/sfx"
+#ifdef TMS_BACKEND_MOBILE
+    #define SFX_PATH "data-mobile/sfx"
 #else
-#define SFX_PATH "data-pc/sfx"
+    #define SFX_PATH "data-pc/sfx"
 #endif
 
 sm_sound*

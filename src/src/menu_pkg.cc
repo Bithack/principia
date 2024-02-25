@@ -234,7 +234,7 @@ menu_pkg::resume(void)
     if (tex_overlay) tms_texture_free(tex_overlay);
 
     _tex_bg = tms_texture_alloc();
-#if defined(TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tms_texture_load_etc1(_tex_bg, "data-mobile/textures/pkgmenubg.pkm");
     tms_texture_set_filtering(_tex_bg, GL_LINEAR);
 #elif defined TMS_BACKEND_IOS

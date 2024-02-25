@@ -1573,7 +1573,7 @@ game::step(double dt)
         _tms.time_accum = 0;
     }
 
-#if defined TMS_BACKEND_PC
+#ifdef TMS_BACKEND_PC
     if (settings["rc_lock_cursor"]->v.b) {
         if ((this->active_hori_wdg && !this->active_hori_wdg->is_radial())
                 || (this->active_vert_wdg && !this->active_vert_wdg->is_radial())) {
@@ -5424,7 +5424,7 @@ game::apply_level_properties()
         this->set_architect_mode(false);
     }
 
-#if defined TMS_BACKEND_IOS || defined TMS_BACKEND_ANDROID
+#ifdef TMS_BACKEND_MOBILE
     if (W->level.flag_active(LVL_PORTRAIT_MODE)) {
 #else
     if (false) {
@@ -5993,7 +5993,7 @@ game::handle_input_playing(tms::event *ev, int action)
                 || ev->type == TMS_EV_KEY_PRESS) {
                 if (ev->type == TMS_EV_KEY_PRESS) {
                     switch (ev->data.key.keycode) {
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
                         case SDL_SCANCODE_AC_BACK:
 #endif
                         case TMS_KEY_B:
@@ -6130,7 +6130,7 @@ game::handle_input_playing(tms::event *ev, int action)
                 }
                 break;
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
             case SDL_SCANCODE_AC_BACK:
 #endif
             case TMS_KEY_B:
@@ -6173,7 +6173,7 @@ game::handle_input_playing(tms::event *ev, int action)
                 }
                 break;
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
             case SDL_SCANCODE_MENU:
                 ui::open_dialog(DIALOG_PLAY_MENU);
                 break;
@@ -6453,7 +6453,7 @@ game::handle_input_playing(tms::event *ev, int action)
             }
 
             if (!dragging[pid]
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
                     && td_mag > DRAG_DIST_MIN_EPS
 #endif
                     && (_tms.last_time - touch_time[pid] > DRAG_TIME_EPS
@@ -7642,8 +7642,8 @@ game::handle_input_paused(tms::event *ev, int action)
 
                 break;
             case TMS_KEY_V:
-#if defined DEBUG
-#if defined SINGLE_STEP_WORLD
+#ifdef DEBUG
+#ifdef SINGLE_STEP_WORLD
                 tms_debugf("STEPPING WORLD");
                 W->b2->Step(.001f, 20, 20);
 #endif
@@ -7911,7 +7911,7 @@ game::handle_input_paused(tms::event *ev, int action)
                 }
                 break;
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
             case SDL_SCANCODE_AC_BACK:
 #endif
             case TMS_KEY_B: this->back(); break;
@@ -8132,7 +8132,7 @@ game::handle_input_paused(tms::event *ev, int action)
                 }
                 break;
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
             case SDL_SCANCODE_MENU:
                 if (this->state.sandbox) {
                     ui::open_dialog(DIALOG_SANDBOX_MENU);
@@ -8452,7 +8452,7 @@ game::handle_input_paused(tms::event *ev, int action)
             */
 
             if (!dragging[pid]
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
                     && td_mag > DRAG_DIST_MIN_EPS
 #endif
                     && (_tms.last_time - touch_time[pid] > DRAG_TIME_EPS
@@ -8587,7 +8587,7 @@ game::handle_input_paused(tms::event *ev, int action)
                             simple_snap = !simple_snap;
                         }
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
                         /* On Android and iOS we include alternate snap-methods (holding a second finger down on the screen) */
                         if (snap[0] || snap[1]) {
                             simple_snap = !simple_snap;

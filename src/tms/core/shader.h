@@ -7,18 +7,12 @@
 #include <tms/math/vector.h>
 #include <tms/core/tms.h>
 
-#if defined TMS_BACKEND_ANDROID || defined TMS_BACKEND_IOS
+#ifdef TMS_BACKEND_MOBILE
 #define TMS_GLSL_HEADER\
     "#version 100\n"\
     "precision mediump float;"\
     "precision mediump int;"\
 "\n"
-#elif defined TMS_BACKEND_IOS
-#define TMS_GLSL_HEADER\
-    "#version 100\n"\
-    "precision highp float;"\
-    "precision mediump int;"\
-    "\n"
 #else
 #define TMS_GLSL_HEADER "#version 110\n"
 #endif

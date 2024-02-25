@@ -622,7 +622,7 @@ tms_texture_upload(struct tms_texture *tex)
     if (tex->filter == TMS_MIPMAP) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
         glGenerateMipmap(GL_TEXTURE_2D);
 
         int err = glGetError();

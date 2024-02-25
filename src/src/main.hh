@@ -39,11 +39,7 @@ class pkginfo;
 #define OS_STRING "unknown"
 #endif
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
 #define DRAG_TIME_EPS 100000
-#else
-#define DRAG_TIME_EPS 100000
-#endif
 #define DRAG_DIST_EPS 30.f
 #define DRAG_DIST_MIN_EPS 0.f
 

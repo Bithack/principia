@@ -659,7 +659,7 @@ tms_fb_enable_depth(struct tms_fb *fb, int format)
         //glRenderbufferStorage(GL_RENDERBUFFER, format, fb->width, fb->height);
         //
 
-#if defined TMS_BACKEND_ANDROID || defined TMS_BACKEND_IOS
+#ifdef TMS_BACKEND_MOBILE
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, fb->width, fb->height);
 #elif defined TMS_BACKEND_WINDOWS
         if (__glewRenderbufferStorage) {

@@ -63,7 +63,7 @@ struct tms_mesh;
 #define tms _tms
 #endif
 
-#if !defined(TMS_BACKEND_IOS)
+#ifndef TMS_BACKEND_IOS
 #define opengl_width window_width
 #define opengl_height window_height
 #endif
@@ -77,7 +77,7 @@ struct tms_mesh;
 extern struct tms_singleton {
     int window_width;
     int window_height;
-#if defined (TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_IOS
     int opengl_width;
     int opengl_height;
 #endif

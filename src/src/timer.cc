@@ -69,7 +69,7 @@ timer::refresh_time()
 {
     uint64_t curr_time, delta;
 
-#if defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_IOS
     curr_time = tms_IOS_get_time();
 #else
     struct timeval t;

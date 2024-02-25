@@ -1,5 +1,5 @@
 
-#if defined(TMS_BACKEND_LINUX) || defined(TMS_BACKEND_WINDOWS)
+#ifdef TMS_BACKEND_PC
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -8,7 +8,7 @@
 #include <gtksourceview/gtksource.h>
 #endif
 
-#if defined(TMS_BACKEND_WINDOWS)
+#ifdef TMS_BACKEND_WINDOWS
 #include <windows.h>
 #include <shellapi.h>
 #endif

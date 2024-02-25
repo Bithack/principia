@@ -38,21 +38,18 @@ _settings::init()
     this->add("fixed_uiscale",      S_BOOL,  false);
     this->add("blur_shadow_map",    S_BOOL,  false);
     this->add("swap_shadow_map",    S_BOOL,  false);
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
     int rw = (int)exp2(roundf(w2)) / 2;
     int rh = (int)exp2(roundf(h2)) / 2;
 
     this->add("shadow_map_resx",    S_INT32,   rw);
     this->add("shadow_map_resy",    S_INT32,   rh);
+
+    this->add("vsync",              S_BOOL,  false);
 #else
     this->add("shadow_map_resx",    S_INT32,   1280);
     this->add("shadow_map_resy",    S_INT32,   720);
 
-#endif
-
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
-    this->add("vsync",              S_BOOL,  false);
-#else
     this->add("vsync",              S_BOOL,  true);
 #endif
 
@@ -65,7 +62,7 @@ _settings::init()
 
     this->add("shadow_quality",     S_UINT8,  1);
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
     this->add("ao_map_res",         S_INT32,   256);
 #else
     this->add("ao_map_res",         S_INT32,   512);
@@ -76,7 +73,7 @@ _settings::init()
     this->add("shadow_map_precision",       S_BOOL, -1);
 
     this->add("swap_ao_map",        S_BOOL,  true);
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
     this->add("gamma_correct",      S_BOOL,  false);
 #else
     this->add("gamma_correct",      S_BOOL,  -1);
@@ -84,7 +81,7 @@ _settings::init()
     this->add("render_com",         S_BOOL,  false);
     this->add("enable_ao",          S_BOOL,  true);
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
     this->add("shadow_ao_combine",         S_BOOL, 0);
 #else
     this->add("shadow_ao_combine",         S_BOOL, 0);
@@ -135,7 +132,7 @@ _settings::init()
 
     this->add("emulate_touch",      S_BOOL, false);
 
-#if defined (TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
     this->add("touch_controls",     S_BOOL, true);
 #else
     this->add("touch_controls",     S_BOOL, false);

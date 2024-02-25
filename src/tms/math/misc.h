@@ -102,7 +102,7 @@ float tmath_pow(float x, float n);
 float tmath_atan2(float y, float x);
 float tmath_sqrt(float x);
 #else
-#if defined(TMS_BACKEND_IOS) || defined(TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_MOBILE
 static inline void tmath_sincos(float x, float *y, float *z) {
     *y = sinf(x);
     *z = cosf(x);

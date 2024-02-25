@@ -11,6 +11,12 @@ static struct tms_pipeline pipelines[TMS_NUM_PIPELINES] = {0};
 static int n_local_uniforms = 0;
 
 #if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+// Some things in the pipeline are different for Windows/Linux as compared to Android (GL/GLES differences? dunno)
+// The desktop pipeline is the "cool" pipeline as decided by me.
+#define TMS_COOL_PIPELINE
+#endif
+
+#ifdef TMS_COOL_PIPELINE
 
 typedef void (*TMS_UNIFORM_FN)(GLint, GLsizei, const GLfloat*);
 typedef void (*TMS_UNIFORM_MAT_FN)(GLint, GLsizei, GLboolean, const GLfloat*);
@@ -50,7 +56,7 @@ struct tms_pipeline *tms_get_pipeline(int num)
 void
 tms_pipeline_init()
 {
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_COOL_PIPELINE
     uniform_fn[0] = 0;
     uniform_fn[1] = glUniform4fv;
     uniform_fn[2] = glUniform3fv;
@@ -142,7 +148,7 @@ tms_pipeline_apply_combined_uniforms(int p,
         struct tms_rstate *state,
         struct tms_program *s, struct tms_entity *e)
 {
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_COOL_PIPELINE
     float mat[16];
     GLuint *locs = s->p_combined;
     for (int x=0; x<pipelines[p].num_combined; x++) {
@@ -209,7 +215,7 @@ tms_pipeline_apply_global_uniforms(int p,
         struct tms_rstate *state,
         struct tms_program *s)
 {
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_COOL_PIPELINE
     GLuint   loc;
     int x = (int64_t)(pipelines[p].num_global-1);
 
@@ -260,7 +266,7 @@ tms_pipeline_apply_local_uniforms(int p,
         struct tms_program *s,
         struct tms_entity *e)
 {
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_COOL_PIPELINE
     for (int x=0; x<pipelines[p].num_local; x++) {
         GLuint loc = s->p_local[x];
 

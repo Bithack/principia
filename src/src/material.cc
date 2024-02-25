@@ -616,7 +616,7 @@ material_factory::load_bg_texture(bool soft)
 
         default:
             {
-#if (defined TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
                 sprintf(bgname, "data-mobile/bg/%d.pkm", material_factory::background_id);
 
                 if (tex_bg->load_etc1(bgname) != T_OK) {
@@ -662,7 +662,7 @@ material_factory::load_bg_texture(bool soft)
       body }
 
 TEX_LAZYLOAD_FN(tpixel,
-#if defined TMS_BACKEND_ANDROID
+#ifdef TMS_BACKEND_ANDROID
     tex_tpixel->load_etc1("data-mobile/textures/tpixel.pkm");
 #elif defined TMS_BACKEND_IOS
     tex_tpixel->load_pvrtc("data-ios/textures/tpixel.pvr");
@@ -677,7 +677,7 @@ TEX_LAZYLOAD_FN(tpixel,
 )
 
 TEX_LAZYLOAD_FN(decoration,
-#if defined TMS_BACKEND_ANDROID
+#ifdef TMS_BACKEND_ANDROID
     tex_decoration->load_etc1("data-mobile/textures/decorations.pkm");
 #elif defined TMS_BACKEND_IOS
     tex_decoration->load_pvrtc("data-ios/textures/decorations.pvr");
@@ -719,7 +719,7 @@ TEX_LAZYLOAD_FN(animal,
 )
 
 TEX_LAZYLOAD_FN(wood,
-#if (defined TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_wood->load_etc1("data-mobile/textures/wood.pkm");
     tms_texture_set_filtering(tex_wood, GL_NEAREST);
 #elif defined TMS_BACKEND_IOS
@@ -736,7 +736,7 @@ TEX_LAZYLOAD_FN(wood,
 )
 
 TEX_LAZYLOAD_FN(bark,
-#if defined(TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_bark->load_etc1("data-mobile/textures/bark-2.pkm");
     tms_texture_set_filtering(tex_bark, GL_LINEAR);
 #elif defined TMS_BACKEND_IOS
@@ -753,7 +753,7 @@ TEX_LAZYLOAD_FN(bark,
 )
 
 TEX_LAZYLOAD_FN(rubber,
-#if defined(TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_rubber->load_etc1("data-mobile/textures/rubber.pkm");
     tms_texture_set_filtering(tex_rubber, GL_LINEAR);
 #elif defined TMS_BACKEND_IOS
@@ -770,7 +770,7 @@ TEX_LAZYLOAD_FN(rubber,
 )
 
 TEX_LAZYLOAD_FN(bedrock,
-#if defined(TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_bedrock->load_etc1("data-mobile/textures/bedrock.pkm");
     tms_texture_set_filtering(tex_bedrock, GL_LINEAR);
 #elif defined TMS_BACKEND_IOS
@@ -787,7 +787,7 @@ TEX_LAZYLOAD_FN(bedrock,
 )
 
 TEX_LAZYLOAD_FN(reflection,
-#if defined(TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_reflection->load_etc1("data-mobile/textures/reflection.pkm");
     tms_texture_set_filtering(tex_reflection, GL_LINEAR);
 #elif defined TMS_BACKEND_IOS
@@ -903,7 +903,7 @@ TEX_LAZYLOAD_FN(misc,
 )
 
 TEX_LAZYLOAD_FN(wmotor,
-#if defined(TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_wmotor->load_etc1("data-mobile/textures/wmotor.pkm");
     tms_texture_set_filtering(tex_wmotor, GL_LINEAR);
 #elif defined(TMS_BACKEND_IOS)
@@ -919,7 +919,7 @@ TEX_LAZYLOAD_FN(wmotor,
 )
 
 TEX_LAZYLOAD_FN(metal,
-#if (defined TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_metal->load_etc1("data-mobile/textures/metal.pkm");
     tms_texture_set_filtering(tex_metal, GL_LINEAR);
 #elif defined TMS_BACKEND_IOS
@@ -1036,7 +1036,7 @@ TEX_LAZYLOAD_FN(cpad,
 )
 
 TEX_LAZYLOAD_FN(breadboard,
-#if defined(TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_breadboard->load_etc1("data-mobile/textures/breadboard.pkm");
     tms_texture_set_filtering(tex_breadboard, GL_LINEAR);
 #elif defined(TMS_BACKEND_IOS)
@@ -1060,7 +1060,7 @@ TEX_LAZYLOAD_FN(cup_ao,
 )
 
 TEX_LAZYLOAD_FN(border,
-#if (defined TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_border->load_etc1("data-mobile/textures/border.pkm");
     tms_texture_set_filtering(tex_border, GL_LINEAR);
 #elif defined TMS_BACKEND_IOS
