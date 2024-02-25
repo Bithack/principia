@@ -12,6 +12,6 @@ void main(void)
 
     vec4 col = texture2D(tex_0, FS_uv.xy);
 
-    gl_FragColor = vec4(vec3(FS_uv.z), .33) * col * (shadow*.5+ambient*2.);
+    gl_FragColor = vec4(vec3(FS_uv.z), .75) * col * (shadow*.5+ambient*2.);
 }
 
