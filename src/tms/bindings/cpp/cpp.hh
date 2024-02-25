@@ -104,11 +104,6 @@ namespace tms
               return tms_texture_load_etc1(this, filename);
           }
 
-          inline int load_pvrtc(const char *filename)
-          {
-              return tms_texture_load_pvrtc_4bpp(this, filename);
-          }
-
           inline int load(const char *filename)
           {
               return tms_texture_load(this, filename);

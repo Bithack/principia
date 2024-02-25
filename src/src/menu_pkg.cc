@@ -229,16 +229,13 @@ menu_pkg::set_pkg(int type, uint32_t id)
 int
 menu_pkg::resume(void)
 {
-    tms_infof("RESUMEE MENUPK");
+    tms_infof("Resume menu_pkg");
     if (_tex_bg) tms_texture_free(_tex_bg);
     if (tex_overlay) tms_texture_free(tex_overlay);
 
     _tex_bg = tms_texture_alloc();
 #ifdef TMS_BACKEND_ANDROID
     tms_texture_load_etc1(_tex_bg, "data-mobile/textures/pkgmenubg.pkm");
-    tms_texture_set_filtering(_tex_bg, GL_LINEAR);
-#elif defined TMS_BACKEND_IOS
-    tms_texture_load_pvrtc_4bpp(_tex_bg, "data-ios/textures/pkgmenubg.pvr");
     tms_texture_set_filtering(_tex_bg, GL_LINEAR);
 #else
     tms_texture_load(_tex_bg, "data-pc/textures/pkgmenubg.png");

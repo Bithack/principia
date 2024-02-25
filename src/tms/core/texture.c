@@ -21,24 +21,6 @@ struct etc1_header {
 } __attribute__ ((__packed__));
 #endif
 
-#ifdef TMS_BACKEND_IOS
-struct pvrtc_header {
-    uint32_t header_length;
-    uint32_t height;
-    uint32_t width;
-    uint32_t num_mipmaps;
-    uint32_t flags;
-    uint32_t datalength;
-    uint32_t bpp;
-    uint32_t bitmask_r;
-    uint32_t bitmask_g;
-    uint32_t bitmask_b;
-    uint32_t bitmask_a;
-    uint32_t pvrtag;
-    uint32_t numsurfs;
-} __attribute__ ((__packed__));
-#endif
-
 struct tms_texture*
 tms_texture_alloc(void)
 {
@@ -153,56 +135,6 @@ int tms_texture_free_buffer(struct tms_texture *tex)
     tex->is_buffered = 0;
 
     return T_OK;
-}
-
-/**
- * Load pvrtc 4bbp image
- **/
-int
-tms_texture_load_pvrtc_4bpp(struct tms_texture *tex, const char *filename)
-{
-#ifdef TMS_BACKEND_IOS
-    SDL_RWops *rw = SDL_RWFromFile(filename, "rb");
-
-    tms_infof("Load PVRTC 4BPP: %s", filename);
-
-    if (rw) {
-        long size;
-        SDL_RWseek(rw, 0, SEEK_END);
-        size = SDL_RWtell(rw);
-        SDL_RWseek(rw, 0, SEEK_SET);
-
-        /* XXX free previous? */
-        if (size > 4*1024*1024 || size < sizeof(struct etc1_header) + 20)
-            tms_fatalf("invalid file size");
-
-        struct pvrtc_header header;
-        SDL_RWread(rw, &header, sizeof(struct pvrtc_header), 1);
-        tex->data = malloc(size - sizeof(struct pvrtc_header));
-        SDL_RWread(rw, tex->data, 1, size-sizeof(struct pvrtc_header));
-
-        //tex->width = ntohs(header.width);
-        //tex->height = ntohs(header.height);
-        tex->width = header.width;
-        tex->height = header.height;
-        tex->num_channels = 3;
-        tex->is_buffered = 1;
-        tex->gamma_correction = 0;
-        tex->format = GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG_OES;
-        tex->buf_size = size-sizeof(struct pvrtc_header);
-
-        if (tex->width <= 0 || tex->height <= 0)
-            tms_fatalf("invalid pvrtc texture dimensions");
-
-        SDL_RWclose(rw);
-
-        return T_OK;
-    } else
-        tms_errorf("Unable to open texture: '%s'", SDL_GetError());
-
-#endif
-
-    return T_COULD_NOT_OPEN;
 }
 
 /**
@@ -602,12 +534,6 @@ tms_texture_upload(struct tms_texture *tex)
         //tms_infof("uploading compressed image");
         glCompressedTexImage2D(GL_TEXTURE_2D, 0,
                 GL_ETC1_RGB8_OES,
-                tex->width, tex->height,
-                0, tex->buf_size, tex->data);
-    } else if (tex->format == GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG_OES) {
-        //tms_infof("uploading compressed image");
-        glCompressedTexImage2D(GL_TEXTURE_2D, 0,
-                GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG_OES,
                 tex->width, tex->height,
                 0, tex->buf_size, tex->data);
     } else {
