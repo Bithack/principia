@@ -52,7 +52,7 @@ simplebg::set_level_size(uint16_t left, uint16_t right, uint16_t down, uint16_t 
             {
                 //this->set_mesh((struct tms_mesh*)0);
                 this->set_material(&m_bg2);
-                m_bg2.pipeline[0].texture[0] = m_bedrock.pipeline[0].texture[0];
+                m_bg2.pipeline[0].texture[0] = m_breadboard.pipeline[0].texture[0];
 
                 m_border.pipeline[0].texture[0] = m_bedrock.pipeline[0].texture[0];
                 m_border.pipeline[1].program = 0;
