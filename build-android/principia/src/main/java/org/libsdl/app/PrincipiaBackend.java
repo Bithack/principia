@@ -33,7 +33,6 @@ public class PrincipiaBackend
             int shadow_map_resx,
             int shadow_map_resy,
             int ao_map_res,
-            int texture_quality,
             float uiscale,
             float cam_speed,
             float zoom_speed,

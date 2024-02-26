@@ -48,7 +48,6 @@
     settings["loaded_correctly"]->v.b = false; \
     settings.save(); \
 \
-    tms_infof("Texture quality: %d", settings["texture_quality"]->v.i8); \
     tms_infof("Shadow quality: %d (%dx%d)", \
             settings["shadow_quality"]->v.i8, \
             settings["shadow_map_resx"]->v.i, \

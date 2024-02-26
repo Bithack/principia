@@ -183,7 +183,6 @@ extern "C" {
     int ui_settings_get_shadow_quality();
     int ui_settings_get_ao_quality();
     int ui_settings_get_enable_ao();
-    int ui_settings_get_texture_quality();
     float ui_settings_get_ui_scale();
     float ui_settings_get_cam_speed();
     float ui_settings_get_zoom_speed();
@@ -196,7 +195,6 @@ extern "C" {
     void ui_settings_set_shadow_quality(int);
     void ui_settings_set_ao_quality(int v);
     void ui_settings_set_enable_ao(int v);
-    void ui_settings_set_texture_quality(int v);
     void ui_settings_set_ui_scale(float v);
     void ui_settings_set_cam_speed(float v);
     void ui_settings_set_zoom_speed(float v);

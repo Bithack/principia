@@ -569,9 +569,6 @@ Java_org_libsdl_app_PrincipiaBackend_getSettings(JNIEnv *env, jclass _jcls)
                 f = env->GetFieldID(cls, "enable_ao", "Z");
                 env->SetBooleanField(ret, f, settings["enable_ao"]->v.b);
 
-                f = env->GetFieldID(cls, "texture_quality", "I");
-                env->SetIntField(ret, f, settings["texture_quality"]->v.i);
-
                 f = env->GetFieldID(cls, "uiscale", "F");
                 env->SetFloatField(ret, f, settings["uiscale"]->v.f);
 
@@ -713,7 +710,7 @@ Java_org_libsdl_app_PrincipiaBackend_setSettings(JNIEnv *env, jclass _jcls,
         jboolean enable_shadows,
         jboolean enable_ao, jint shadow_quality,
         jint shadow_map_resx, jint shadow_map_resy, jint ao_map_res,
-        jint texture_quality, jfloat uiscale,
+        jfloat uiscale,
         jfloat cam_speed, jfloat zoom_speed,
         jboolean smooth_cam, jboolean smooth_zoom,
         jboolean border_scroll_enabled, jfloat border_scroll_speed,
@@ -740,8 +737,6 @@ Java_org_libsdl_app_PrincipiaBackend_setSettings(JNIEnv *env, jclass _jcls,
         do_reload_graphics = true;
     } else if (settings["ao_map_res"]->v.i != (int)ao_map_res) {
         do_reload_graphics = true;
-    } else if (settings["texture_quality"]->v.i != (int)texture_quality) {
-        do_reload_graphics = true;
     }
 
     if (do_reload_graphics) {
@@ -761,7 +756,6 @@ Java_org_libsdl_app_PrincipiaBackend_setSettings(JNIEnv *env, jclass _jcls,
     settings["shadow_map_resx"]->v.i = (int)shadow_map_resx;
     settings["shadow_map_resy"]->v.i = (int)shadow_map_resy;
     settings["ao_map_res"]->v.i = (int)ao_map_res;
-    settings["texture_quality"]->v.i = (int)texture_quality;
 
     if (settings["uiscale"]->set((float)uiscale)) {
         ui::message("You need to restart Principia before the UI scale change takes effect.");
@@ -795,8 +789,8 @@ Java_org_libsdl_app_PrincipiaBackend_setSettings(JNIEnv *env, jclass _jcls,
                 (int)ao_map_res, (int)ao_map_res);
     }
 
-    tms_debugf("Texture quality: %d. UI Scale: %.2f. Cam speed: %.2f. Zoom speed: %.2f",
-            (int)texture_quality, (float)uiscale, (float)cam_speed, (float)zoom_speed);
+    tms_debugf("UI Scale: %.2f. Cam speed: %.2f. Zoom speed: %.2f",
+            (float)uiscale, (float)cam_speed, (float)zoom_speed);
 
     settings.save();
 

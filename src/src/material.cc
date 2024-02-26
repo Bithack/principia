@@ -2067,7 +2067,7 @@ material_factory::init_materials(bool is_shitty)
     m_magnet.restitution = .0f;
     m_magnet.type = TYPE_METAL;
 
-    if (settings["texture_quality"]->v.u8 < 2 || is_shitty || !(m_gear.pipeline[0].program = shader_shiny->get_program(0)))
+    if (is_shitty || !(m_gear.pipeline[0].program = shader_shiny->get_program(0)))
         m_gear.pipeline[0].program = shader_pv_textured->get_program(0);
     m_gear.pipeline[1].program = shader_gi->get_program(1);
     m_gear.pipeline[2].program = shader_pv_textured_m->get_program(2);
@@ -2437,7 +2437,7 @@ material_factory::init_materials(bool is_shitty)
     m_rackhouse.pipeline[3].program = shader_ao->get_program(3);
     */
 
-    if (settings["texture_quality"]->v.u8 < 2 || is_shitty || !(m_rackhouse.pipeline[0].program = shader_shiny->get_program(0)))
+    if (is_shitty || !(m_rackhouse.pipeline[0].program = shader_shiny->get_program(0)))
         m_rackhouse.pipeline[0].program = shader_pv_textured->get_program(0);
     m_rackhouse.pipeline[1].program = shader_gi_tex->get_program(1);
     m_rackhouse.pipeline[2].program = shader_pv_textured_m->get_program(2);

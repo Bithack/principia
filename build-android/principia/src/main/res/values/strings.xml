@@ -169,7 +169,6 @@
     <string name="graph">Graph (may drain FPS)</string>
     <string name="shadow_res">Shadow resolution</string>
     <string name="shadow_softness">Shadow softness</string>
-    <string name="texture_quality">Texture quality</string>
     <string name="sharp">Sharp</string>
     <string name="soft">Soft</string>
     <string name="lowest">Lowest</string>

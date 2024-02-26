@@ -89,7 +89,6 @@ _settings::init()
 
     this->add("enable_bloom",       S_BOOL,  false);
     this->add("render_gui",         S_BOOL,  true);
-    this->add("texture_quality",    S_UINT8,  (this->_data["window_width"]->v.i < 1024 ? 0 : 2));
     this->add("render_edev_labels", S_BOOL,  true);
 
 
@@ -277,7 +276,6 @@ _settings::load(void)
         settings["enable_bloom"]->v.b = false;
         settings["enable_ao"]->v.b = false;
         settings["render_edev_labels"]->v.b = false;
-        settings["texture_quality"]->v.u8 = 0;
         settings["is_very_shitty"]->v.b = true;
         settings["hide_tips"]->v.b = true;
     }

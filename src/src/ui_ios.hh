@@ -191,10 +191,7 @@ void ui_set_property_float(int index, float val)
     {
         return settings["enable_ao"]->v.b;
     }
-    int ui_settings_get_texture_quality()
-    {
-        return settings["texture_quality"]->v.i;
-    }
+
     float ui_settings_get_ui_scale()
     {
         return settings["uiscale"]->v.f;
@@ -240,10 +237,7 @@ void ui_set_property_float(int index, float val)
     {
         settings["enable_ao"]->v.b = v;
     }
-    void ui_settings_set_texture_quality(int v)
-    {
-        settings["texture_quality"]->v.i = v;
-    }
+
     void ui_settings_set_ui_scale(float v)
     {
         settings["uiscale"]->v.f = v;
