@@ -39,13 +39,9 @@ menu_shared::init()
     {
         tms::texture *tex = new tms::texture();
 
-#ifdef TMS_BACKEND_ANDROID
-        tex->load_etc1("data-mobile/textures/menu/menu_bg.pkm");
-#else
         tex->gamma_correction = 0;
-        tex->load("data-pc/textures/menu/menu_bg.jpg");
+        tex->load("data-shared/textures/menu/menu_bg.jpg");
         tex->colors = GL_RGB;
-#endif
 
         tex->upload();
 

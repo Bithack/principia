@@ -234,14 +234,10 @@ menu_pkg::resume(void)
     if (tex_overlay) tms_texture_free(tex_overlay);
 
     _tex_bg = tms_texture_alloc();
-#ifdef TMS_BACKEND_ANDROID
-    tms_texture_load_etc1(_tex_bg, "data-mobile/textures/pkgmenubg.pkm");
-    tms_texture_set_filtering(_tex_bg, GL_LINEAR);
-#else
-    tms_texture_load(_tex_bg, "data-pc/textures/pkgmenubg.png");
+
+    tms_texture_load(_tex_bg, "data-shared/textures/pkgmenubg.png");
     _tex_bg->format = GL_RGBA;
     tms_texture_set_filtering(_tex_bg, GL_LINEAR);
-#endif
     tms_texture_upload(_tex_bg);
 
     tex_overlay = tms_texture_alloc();
