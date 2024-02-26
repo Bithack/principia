@@ -275,7 +275,7 @@ public class MultiSelectDialog implements OnSeekBarChangeListener, OnCheckedChan
             if (tab.view.getVisibility() == LinearLayout.VISIBLE) {
                 switch (x) {
                     case JOINT_STRENGTH:
-                        PrincipiaBackend.addActionAsInt(PrincipiaActivity.ACTION_MULTI_JOINT_STRENGTH, sb_joint_strength.getProgress());
+                        PrincipiaBackend.addActionAsInt(PrincipiaActivity.ACTION_MULTI_JOINT_STRENGTH, sb_joint_strength.getProgress()/10);
                         message = "Modified the strength of all joints.";
                         break;
 
