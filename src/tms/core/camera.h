@@ -30,6 +30,10 @@ struct tms_camera {
     uint32_t          _flags;
     float             fov;
     float             aspect;
+#ifdef TMS_BACKEND_WINDOWS
+#undef near
+#undef far
+#endif
     float             near;
     float             far;
     float             velocity_damping;
