@@ -100,7 +100,7 @@
 
 #define MAX_COPY_ENTITIES 10
 
-#define CSCONN_OFFSX .5f
+#define CSCONN_OFFSX .55f
 #define CSCONN_OFFSY .0f
 
 #define MAX_BTN 5
@@ -4047,9 +4047,9 @@ game::render_conn_types()
     float mv[16];
     float p[16];
 
-    if (this->cs_timer < 1.f) {
-        this->cs_timer += _tms.dt*10.f;
-        if (this->cs_timer > 1.f) this->cs_timer = 1.f;
+    if (this->cs_timer < 1.5f) {
+        this->cs_timer += _tms.dt*15.f;
+        if (this->cs_timer > 1.5f) this->cs_timer = 1.5f;
     }
 
     tmat4_copy(p, this->cam->projection);
