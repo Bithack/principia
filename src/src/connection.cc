@@ -7,7 +7,6 @@
 #include "gear.hh"
 #include "rack.hh"
 #include "game.hh"
-#include "main.hh"
 #include "spritebuffer.hh"
 
 void

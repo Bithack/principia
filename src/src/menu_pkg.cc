@@ -1,6 +1,5 @@
 #include "menu_pkg.hh"
 #include "gui.hh"
-#include "main.hh"
 #include "game.hh"
 #include "pkgman.hh"
 #include "progress.hh"

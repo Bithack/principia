@@ -11,7 +11,6 @@
 #include "conveyor.hh"
 #include "impact_sensor.hh"
 #include "ragdoll.hh"
-#include "main.hh"
 #include "game.hh"
 #include "explosive.hh"
 #include "pixel.hh"

@@ -1,6 +1,5 @@
 #include "sincos.hh"
 #include "model.hh"
-#include "main.hh"
 #include "game.hh"
 
 /**

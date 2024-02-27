@@ -83,7 +83,6 @@
 #define DIALOG_PUBLISH          300
 #define DIALOG_LOGIN            301
 
-/* XXX: This might conflict with main.hh codes, use a prefix? */
 #define SIGNAL_LOGIN_SUCCESS        100
 #define SIGNAL_LOGIN_FAILED         101
 #define SIGNAL_QUICKADD_REFRESH     200

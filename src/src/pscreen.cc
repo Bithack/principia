@@ -4,7 +4,6 @@
 #include "game-message.hh"
 #include "game-graph.hh"
 #include "text.hh"
-#include "main.hh"
 #include "settings.hh"
 #include "ui.hh"
 #include "soundman.hh"

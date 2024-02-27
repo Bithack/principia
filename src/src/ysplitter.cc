@@ -3,7 +3,6 @@
 #include "world.hh"
 #include "model.hh"
 #include "settings.hh"
-#include "main.hh"
 #include "game.hh"
 
 edevice*

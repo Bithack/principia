@@ -1,5 +1,4 @@
 #include "chunk.hh"
-#include "main.hh"
 #include "game.hh"
 #include "model.hh"
 #include "group.hh"

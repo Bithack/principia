@@ -1,7 +1,6 @@
 #include "tiltmeter.hh"
 #include "model.hh"
 #include "material.hh"
-#include "main.hh"
 #include "game.hh"
 
 tiltmeter::tiltmeter()

@@ -1,7 +1,6 @@
 #include "SDL.h"
 #include <tms/core/tms.h>
 #include "settings.hh"
-#include "main.hh"
 #include <cmath>
 #include "game.hh"
 

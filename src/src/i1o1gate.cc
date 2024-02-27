@@ -3,7 +3,6 @@
 #include "material.hh"
 #include "ledbuffer.hh"
 #include "world.hh"
-#include "main.hh"
 #include "game.hh"
 #include "soundmanager.hh"
 #include "settings.hh"

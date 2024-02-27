@@ -3,7 +3,6 @@
 #include "model.hh"
 #include "world.hh"
 #include "game.hh"
-#include "main.hh"
 #include "impact_sensor.hh"
 #include "soundmanager.hh"
 #include "robot_base.hh"

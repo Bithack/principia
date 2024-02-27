@@ -1,7 +1,6 @@
 #include "robot_base.hh"
 #include "material.hh"
 #include "model.hh"
-#include "main.hh"
 #include "game.hh"
 #include "world.hh"
 #include "fxemitter.hh"

@@ -1,6 +1,5 @@
 #include "item.hh"
 #include "model.hh"
-#include "main.hh"
 #include "game.hh"
 #include "robot_parts.hh"
 #include "settings.hh"

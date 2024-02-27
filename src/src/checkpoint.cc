@@ -1,7 +1,6 @@
 #include "checkpoint.hh"
 #include "model.hh"
 #include "material.hh"
-#include "main.hh"
 #include "game.hh"
 
 checkpoint::checkpoint()

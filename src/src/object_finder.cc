@@ -1,6 +1,5 @@
 #include "object_finder.hh"
 #include "model.hh"
-#include "main.hh"
 #include "game.hh"
 
 object_finder::object_finder()

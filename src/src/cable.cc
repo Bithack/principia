@@ -6,7 +6,6 @@
 #include "world.hh"
 #include "settings.hh"
 #include "ifdevice.hh"
-#include "main.hh"
 
 #include <cstdlib>
 

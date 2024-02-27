@@ -3,7 +3,6 @@
 #include "model.hh"
 #include "world.hh"
 #include "game.hh"
-#include "main.hh"
 #include "soundmanager.hh"
 #include "explosive.hh"
 #include "fxemitter.hh"

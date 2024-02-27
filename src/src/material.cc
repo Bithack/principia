@@ -2,7 +2,6 @@
 #include "sticky.hh"
 #include "settings.hh"
 #include "robot.hh"
-#include "main.hh"
 #include "ui.hh"
 #include "simplebg.hh"
 #include "gui.hh"

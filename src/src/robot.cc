@@ -1,6 +1,5 @@
 #include "robot.hh"
 #include "model.hh"
-#include "main.hh"
 #include "game.hh"
 #include "soundmanager.hh"
 #include "adventure.hh"

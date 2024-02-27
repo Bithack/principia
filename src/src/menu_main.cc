@@ -2,7 +2,6 @@
 #include "menu_main.hh"
 #include "menu_pkg.hh"
 #include "menu_create.hh"
-#include "main.hh"
 #include "misc.hh"
 #include "settings.hh"
 #include "ui.hh"

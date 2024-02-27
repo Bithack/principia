@@ -1,5 +1,4 @@
 #include "creature.hh"
-#include "main.hh"
 #include "game.hh"
 #include "world.hh"
 #include "anchor.hh"

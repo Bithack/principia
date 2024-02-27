@@ -1,5 +1,4 @@
 #include "decorations.hh"
-#include "main.hh"
 #include "game.hh"
 #include "settings.hh"
 #include "ui.hh"

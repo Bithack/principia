@@ -4,7 +4,6 @@
 #include "object_factory.hh"
 #include "tpixel.hh"
 #include "soundman.hh"
-#include "main.hh"
 #include "game.hh"
 #include "item.hh"
 #include "ledbuffer.hh"

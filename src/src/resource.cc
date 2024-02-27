@@ -2,7 +2,6 @@
 #include "model.hh"
 #include "world.hh"
 #include "game.hh"
-#include "main.hh"
 #include "settings.hh"
 #include "ui.hh"
 

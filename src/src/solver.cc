@@ -3,7 +3,6 @@
 #include "edevice.hh"
 #include "ball.hh"
 #include "gear.hh"
-#include "main.hh"
 #include "game.hh"
 #include <tms/bindings/cpp/cpp.hh>
 

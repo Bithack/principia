@@ -1,5 +1,4 @@
 #include "i2o1gate.hh"
-#include "main.hh"
 #include "game.hh"
 #include "material.hh"
 #include "robot_base.hh"

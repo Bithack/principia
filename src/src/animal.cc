@@ -1,7 +1,6 @@
 #include "animal.hh"
 #include "world.hh"
 #include "model.hh"
-#include "main.hh"
 #include "game.hh"
 #include "ui.hh"
 #include "robot_base.hh"

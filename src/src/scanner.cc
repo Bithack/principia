@@ -1,7 +1,6 @@
 #include "scanner.hh"
 #include "model.hh"
 #include "material.hh"
-#include "main.hh"
 #include "game.hh"
 #include "linebuffer.hh"
 #include "spritebuffer.hh"

@@ -23,22 +23,6 @@ class pkginfo;
 #define STR1(x) #x
 #define STR(x) STR1(x)
 
-#if defined(TMS_BACKEND_WINDOWS)
-#define OS_STRING "Windows"
-#elif defined(TMS_BACKEND_LINUX) || defined(TMS_BACKEND_LINUX_SS)
-#define OS_STRING "Linux"
-#elif defined(TMS_BACKEND_ANDROID)
-# if defined(TMS_BACKEND_ANDROID_X86) || defined(TMS_BACKEND_ANDROID_X86_64)
-#  define OS_STRING "Android x86"
-# else
-#  define OS_STRING "Android"
-# endif
-#elif defined(TMS_BACKEND_IOS)
-#define OS_STRING "iOS"
-#else
-#define OS_STRING "unknown"
-#endif
-
 #define DRAG_TIME_EPS 100000
 #define DRAG_DIST_EPS 30.f
 #define DRAG_DIST_MIN_EPS 0.f

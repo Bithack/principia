@@ -1,5 +1,4 @@
 #include "timer.hh"
-#include "main.hh"
 #include "game.hh"
 #include "model.hh"
 #include "ui.hh"

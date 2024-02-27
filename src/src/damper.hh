@@ -1,7 +1,6 @@
 #pragma once
 
 #include "composable.hh"
-#include "main.hh"
 
 class damper : public composable,
                public b2RayCastCallback,

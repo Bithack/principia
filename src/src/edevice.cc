@@ -1,6 +1,5 @@
 #include "edevice.hh"
 #include "world.hh"
-#include "main.hh"
 #include "game.hh"
 #include "mini_transmitter.hh"
 

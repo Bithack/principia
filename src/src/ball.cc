@@ -3,7 +3,6 @@
 #include "world.hh"
 #include "model.hh"
 #include "game.hh"
-#include "main.hh"
 
 #include "Box2D/Box2D.h"
 

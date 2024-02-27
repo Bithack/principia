@@ -11,13 +11,23 @@
 
 #include <tms/core/err.h>
 
+#if defined(TMS_BACKEND_WINDOWS)
+	#define OS_STRING "Windows"
+#elif defined(TMS_BACKEND_LINUX) || defined(TMS_BACKEND_LINUX_SS)
+	#define OS_STRING "Linux"
+#elif defined(TMS_BACKEND_ANDROID)
+	#define OS_STRING "Android"
+#elif defined(TMS_BACKEND_IOS)
+	#define OS_STRING "iOS"
+#else
+	#define OS_STRING "unknown"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 struct tms_context;
-
-extern const char *T_B_strings[]; /* backends.c */
 
 int tbackend_init_surface(void);
 

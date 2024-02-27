@@ -2,7 +2,6 @@
 #include "display.hh"
 #include "model.hh"
 #include "material.hh"
-#include "main.hh"
 #include "game.hh"
 #include "textbuffer.hh"
 #include "world.hh"

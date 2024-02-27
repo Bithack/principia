@@ -1,7 +1,6 @@
 #include "menu-play.hh"
 #include "menu_shared.hh"
 #include "menu_pkg.hh"
-#include "main.hh"
 #include "misc.hh"
 #include "settings.hh"
 #include "ui.hh"

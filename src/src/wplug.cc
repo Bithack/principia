@@ -1,6 +1,5 @@
 #include "wplug.hh"
 #include "world.hh"
-#include "main.hh"
 #include "game.hh"
 #include "settings.hh"
 #include "textbuffer.hh"

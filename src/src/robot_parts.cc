@@ -2,7 +2,6 @@
 #include "robot_base.hh"
 #include "robot.hh"
 #include "model.hh"
-#include "main.hh"
 #include "world.hh"
 #include "game.hh"
 #include "soundman.hh"

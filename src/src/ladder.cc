@@ -2,7 +2,6 @@
 #include "material.hh"
 #include "model.hh"
 #include "game.hh"
-#include "main.hh"
 #include "world.hh"
 
 ladder::ladder()

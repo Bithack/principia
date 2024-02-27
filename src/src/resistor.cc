@@ -1,5 +1,4 @@
 #include "resistor.hh"
-#include "main.hh"
 #include "game.hh"
 
 resistor::resistor()

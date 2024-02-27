@@ -1,7 +1,6 @@
 #include "stabilizer.hh"
 #include "material.hh"
 #include "model.hh"
-#include "main.hh"
 #include "game.hh"
 
 #define DAMPING_MUL 100.f

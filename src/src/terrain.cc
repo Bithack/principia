@@ -2,7 +2,6 @@
 #include "terrain.hh"
 #include "chunk.hh"
 #include "object_factory.hh"
-#include "main.hh"
 #include "game.hh"
 #include "robot.hh"
 #include "faction.hh"

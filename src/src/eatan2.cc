@@ -1,6 +1,5 @@
 #include "eatan2.hh"
 #include "model.hh"
-#include "main.hh"
 #include "game.hh"
 
 edevice*

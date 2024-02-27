@@ -5,9 +5,7 @@
 #include <tms/bindings/cpp/cpp.hh>
 #include <set>
 #include <map>
-#include <deque>
 #include "gui.hh"
-#include "main.hh"
 #include "adventure.hh"
 #include "chunk.hh"
 #include "object_factory.hh"

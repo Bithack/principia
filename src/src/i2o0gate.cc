@@ -1,6 +1,5 @@
 #include "i2o0gate.hh"
 #include "model.hh"
-#include "main.hh"
 #include "game.hh"
 #include "material.hh"
 #include "soundmanager.hh"
@@ -75,7 +74,7 @@ var_setter::write_quickinfo(char *out)
 bool
 var_setter::compatible_with(entity *o)
 {
-    return (this->num_properties == o->num_properties && 
+    return (this->num_properties == o->num_properties &&
             (o->g_id == O_VAR_GETTER || o->g_id == O_VAR_SETTER));
 }
 
