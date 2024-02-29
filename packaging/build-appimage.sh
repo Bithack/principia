@@ -30,7 +30,7 @@ cp usr/share/icons/hicolor/128x128/apps/principia.png principia.png
 ln -s principia.png .DirIcon
 
 cat > AppRun <<\APPRUN
-#!/bin/sh
+#!/bin/bash
 
 if ! command -v -- "xdg-mime" > /dev/null 2>&1; then
 	echo "Required XDG helper scripts required by Principia are not found."
