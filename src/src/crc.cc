@@ -5,9 +5,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#ifdef _NO_TMS
-#include "no_tms.h"
-#else
+#ifndef _NO_TMS
 #include "tms/backend/print.h"
 #endif
 
@@ -36,9 +34,11 @@ crc32_uint32(uint32_t crc, uint32_t data)
 uint32_t
 crc32_level(const lvlinfo &lvl, const lvlbuf &lb, uint32_t timestamp, uint32_t last_score, int method)
 {
+#ifndef _NO_TMS
     tms_assertf(method < 5, "only 5 methods of crc32_level are implemented.");
 
     tms_infof("Using lastscore %" PRIu32 "in crc32_level.", last_score);
+#endif
 
     unsigned char crc_buf[CRC_BUFFER_SIZE];
     size_t crc_buf_len;

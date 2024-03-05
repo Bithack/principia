@@ -6,8 +6,9 @@ build_*/
 # Misc. development files
 .vscode/
 *.patch
-local_config.h
 opengl32.dll
+.cache/
+compile_commands.json
 
 # Model junk files
 *.blend1

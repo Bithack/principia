@@ -9,10 +9,20 @@
 #include "rand.h"
 
 /* for lvledit command line tool */
-#ifndef _NO_TMS
-#include <tms/bindings/cpp/cpp.hh>
+#ifdef _NO_TMS
+    #include <stdlib.h>
+    #include <stdio.h>
+
+    #define tms_infof(...)
+    #define tms_warnf(...)
+    #define tms_fatalf(...)
+    #define tms_errorf(...)
+
+    static const char *tbackend_get_storage_path() {
+        return "/tmp/";
+    }
 #else
-#include "no_tms.h"
+    #include <tms/bindings/cpp/cpp.hh>
 #endif
 
 static const char *_level_path[4];
@@ -480,7 +490,6 @@ lvlinfo::read(lvlbuf *lb, bool skip_description)
 
         if (this->version >= LEVEL_VERSION_1_5) {
             this->seed = lb->r_uint64();
-            tms_debugf("read seed: %" PRIu64, this->seed);
             this->adventure_id = lb->r_uint32();
             this->linear_damping = lb->r_float();
             this->angular_damping = lb->r_float();
