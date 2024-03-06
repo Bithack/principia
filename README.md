@@ -80,14 +80,14 @@ pacman -S mingw-w64-ucrt-x86_64-nsis
 For making Windows release builds you would run the `packaging/windows_release.sh` script, which will bundle necessary DLLs and other files to make the game run, and builds the installer.
 
 ### Linux
-If you just want to play Principia on Linux, there are packages available for Arch-based and Debian-based distros as well as NixOS. See the [principia-web downloads page](https://principia-web.se/download) for more info.
+*If you just want to play Principia on Linux, there is an AppImage build available as well as packages for various Linux distributions. See the [principia-web downloads page](https://principia-web.se/download) for more info.*
 
 Install dependencies.
 
 **Debian-based distros:**
 
 ```bash
-sudo apt install --no-install-recommends cmake ninja-build libgtk-3-dev libgl-dev libglew-dev libasound2-dev libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev libsdl2-dev
+sudo apt install --no-install-recommends cmake ninja-build libgtk-3-dev libgl-dev libglew-dev libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev libsdl2-dev
 ```
 
 **For Arch-based distros:**
@@ -107,8 +107,6 @@ sudo dnf install @development-tools cmake ninja gcc-c++ freetype-devel libcurl-d
 ```bash
 doas apk add build-base cmake ninja mesa-dev glew-dev gtk+3.0-dev libpng-dev jpeg-dev curl-dev freetype-dev zlib-dev sdl2-dev
 ```
-
-**For NixOS**, Follow the instructions [here](./nix/README.md).
 
 Generate the build files using CMake and start compilation:
 
