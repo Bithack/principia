@@ -18,8 +18,6 @@ Principia runs on anything with a recent enough version of Windows, Linux or And
 
 * Discord server: https://principia-web.se/discord
 
-* Matrix room: https://principia-web.se/matrix
-
 ## Binary builds
 Every now and then new beta builds for 1.5.2 are made whenever things are stable enough on the `master` branch. These are available for download on the [principia-web downloads page](https://principia-web.se/download).
 
@@ -28,7 +26,7 @@ There are also nightly build artifacts for Windows and Android that get automati
 ## Getting involved
 Feel free to fork this project and send in your pull requests. This is a community project and the community decides how the project evolves.
 
-Most of our discussion and development happens in the `#development` channel of the [Principia Discord server](https://principia-web.se/discord) (also bridged to [Matrix](https://principia-web.se/matrix)), make sure to join it if you want to discuss and participate in the development of the game.
+Most of our discussion and development happens in the `#development` channel of the [Principia Discord server](https://principia-web.se/discord), make sure to join it if you want to discuss and participate in the development of the game.
 
 Also be sure to follow [@principia](https://fosstodon.org/@principia) on Fosstodon for more updates about the project.
 
