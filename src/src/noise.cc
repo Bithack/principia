@@ -1,7 +1,6 @@
 #include "noise.h"
 #include "rand.h"
 #include <limits.h>
-#include <stdint.h>
 #include <sys/types.h>
 #define FASTFLOOR(x) ( ((x)>0) ? ((int)x) : (((int)x)-1) )
 

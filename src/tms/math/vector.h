@@ -2,7 +2,6 @@
 #define _TMATH_VECTOR__H_
 
 #include <math.h>
-#include <tms/util/util.h>
 
 /**
  * 2D vector.

@@ -1,8 +1,4 @@
 #include "ysplitter.hh"
-#include "material.hh"
-#include "world.hh"
-#include "model.hh"
-#include "settings.hh"
 #include "game.hh"
 
 edevice*

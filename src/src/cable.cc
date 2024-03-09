@@ -4,7 +4,6 @@
 #include "material.hh"
 #include "model.hh"
 #include "world.hh"
-#include "settings.hh"
 #include "ifdevice.hh"
 
 #include <cstdlib>

@@ -1,6 +1,4 @@
 #include "simplebg.hh"
-#include "settings.hh"
-#include "world.hh"
 #include "model.hh"
 #include "material.hh"
 

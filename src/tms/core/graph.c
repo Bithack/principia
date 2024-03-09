@@ -1,6 +1,6 @@
 #include <tms/core/glob.h>
 #include <tms/math/glob.h>
-#include <tms/util/glob.h>
+#include "util.h"
 
 #include <tms/backend/opengl.h>
 

@@ -4,7 +4,6 @@
 #include "connection.hh"
 #include "object_factory.hh"
 #include "fxemitter.hh"
-#include "textbuffer.hh"
 
 #include <set>
 

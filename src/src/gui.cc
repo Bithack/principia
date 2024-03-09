@@ -182,7 +182,7 @@ static struct atlas_layout cache_atlases[NUM_ATLASES] = {
         4,
         0,
         0,
-        TMS_FILTER_LINEAR,
+        GL_LINEAR,
     },
     {
         &gui_spritesheet::atlas_text,
@@ -191,7 +191,7 @@ static struct atlas_layout cache_atlases[NUM_ATLASES] = {
         ATLAS_TEXT_NUM_CHANS,
         1,
         1,
-        TMS_FILTER_LINEAR,
+        GL_LINEAR,
     },
 };
 

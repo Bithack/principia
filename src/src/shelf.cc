@@ -1,6 +1,5 @@
 #include "shelf.hh"
 #include "material.hh"
-#include "world.hh"
 #include "model.hh"
 #include "game.hh"
 

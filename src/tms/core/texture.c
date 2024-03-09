@@ -2,11 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "err.h"
+#include "backend.h"
 #include "texture.h"
 #include "framebuffer.h"
 #include "tms.h"
-#include "../util/hash.h"
 
 #include "SDL_image.h"
 
@@ -45,7 +44,7 @@ tms_texture_init(struct tms_texture *t)
     t->gamma_correction = 0;
     t->is_uploaded = 0;
     t->is_buffered = 0;
-    t->filter = TMS_FILTER_LINEAR;
+    t->filter = GL_LINEAR;
     t->buffer_fn = 0;
 }
 
@@ -240,7 +239,7 @@ tms_texture_load(struct tms_texture *tex, const char *filename)
         return T_OK;
     }
 
-    return T_UNSUPPORTED_FILE_FORMAT;
+    return T_COULD_NOT_OPEN;
 }
 
 /**
@@ -459,24 +458,8 @@ tms_texture_upload(struct tms_texture *tex)
 
     switch (tex->num_channels) {
         case 1:
-//#ifdef TMS_BACKEND_ANDROID
-#if 1
-            //tms_fatalf("unsupported texture format");
             colors = GL_LUMINANCE;
             format = GL_LUMINANCE;
-#else
-            colors = GL_RED;
-            format = GL_RED;
-#endif
-            break;
-
-        case 2:
-#if defined TMS_BACKEND_ANDROID || defined TMS_BACKEND_IOS
-            tms_fatalf("unsupported texture format");
-#else
-            colors = GL_RG;
-            format = GL_RG;
-#endif
             break;
 
         case 3:
@@ -507,21 +490,10 @@ tms_texture_upload(struct tms_texture *tex)
             break;
     }
 
-    /*
-    if (tex->format != 0)
-        format = tex->format;
-    if (tex->colors != 0)
-        colors = tex->colors;
-        */
-
     if (0 && tex->gamma_correction && !tex->gamma_corrected)
         inv_gamma_correction(tex);
 
-    //tms_infof("error 1: %d", glGetError());
-
     glBindTexture(GL_TEXTURE_2D, tex->gl_texture);
-
-    //tms_infof("error 2: %d", glGetError());
 
 #if !defined(TMS_BACKEND_ANDROID) && !defined(TMS_BACKEND_IOS)
     glEnable(GL_TEXTURE_2D);
@@ -531,7 +503,6 @@ tms_texture_upload(struct tms_texture *tex)
 #endif
 
     if (tex->format == GL_ETC1_RGB8_OES) {
-        //tms_infof("uploading compressed image");
         glCompressedTexImage2D(GL_TEXTURE_2D, 0,
                 GL_ETC1_RGB8_OES,
                 tex->width, tex->height,
@@ -563,8 +534,6 @@ tms_texture_upload(struct tms_texture *tex)
     }
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, tex->wrap);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tex->wrap);
-
-    //tms_infof("error 4: %d", glGetError());
 
     return T_OK;
 }

@@ -1,12 +1,10 @@
 #include <string.h>
 #include <stdlib.h>
-#include <assert.h>
 
 #include "err.h"
 #include "entity.h"
 #include "scene.h"
 #include "program.h"
-#include "shader.h"
 #include "mesh.h"
 #include "material.h"
 #include "pipeline.h"

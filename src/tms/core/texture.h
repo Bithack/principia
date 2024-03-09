@@ -5,9 +5,6 @@
 
 #include <tms/backend/opengl.h>
 
-#define TMS_FILTER_LINEAR GL_LINEAR
-#define TMS_FILTER_NEAREST GL_NEAREST
-
 #define TMS_MIPMAP -1
 
 #define GL_ETC1_RGB8_OES 0x8D64

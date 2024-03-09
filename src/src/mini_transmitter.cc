@@ -1,6 +1,5 @@
 #include "mini_transmitter.hh"
 #include "receiver.hh"
-#include "settings.hh"
 #include "material.hh"
 #include "model.hh"
 #include "world.hh"

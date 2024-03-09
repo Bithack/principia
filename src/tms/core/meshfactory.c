@@ -1,11 +1,9 @@
 #include "meshfactory.h"
 #include "mesh.h"
 #include "gbuffer.h"
-#include "err.h"
 #include "varray.h"
 
-#include <tms/math/glob.h>
-
+#include <tms/math/vector.h>
 #include <tms/backend/opengl.h>
 
 #define SPHERE_QUALITY 40

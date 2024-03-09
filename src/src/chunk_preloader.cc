@@ -9,10 +9,6 @@
 #include "damper.hh"
 #include "rubberband.hh"
 
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG)
-#include <csignal>
-#endif
-
 static size_t _conn_id = 0;
 
 chunk_preloader::chunk_preloader()

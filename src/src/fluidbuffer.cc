@@ -1,5 +1,5 @@
 #include "fluidbuffer.hh"
-#include "game.hh"
+#include "world.hh"
 
 static tms::gbuffer *verts;
 static tms::gbuffer *indices;

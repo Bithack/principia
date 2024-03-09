@@ -6,8 +6,8 @@
 #include "wdg.h"
 #include "texture.h"
 #include "atlas.h"
+#include "util.h"
 
-#include "../util/glob.h"
 #include "../math/glob.h"
 
 #include <tms/backend/opengl.h>

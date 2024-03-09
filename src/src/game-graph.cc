@@ -4,9 +4,7 @@
 #include "settings.hh"
 
 #include <tms/bindings/cpp/cpp.hh>
-#include <tms/util/glob.h>
 #include <tms/core/tms.h>
-#include <tms/backend/print.h>
 #include <tms/core/ddraw.h>
 
 #include <limits>

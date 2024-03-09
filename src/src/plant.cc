@@ -3,7 +3,6 @@
 #include "model.hh"
 #include "game.hh"
 #include "world.hh"
-#include "settings.hh"
 #include "font.hh"
 #include "textbuffer.hh"
 #include "spritebuffer.hh"

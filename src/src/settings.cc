@@ -1,4 +1,3 @@
-#include "SDL.h"
 #include <tms/core/tms.h>
 #include "settings.hh"
 #include <cmath>

@@ -1,7 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <assert.h>
 #include <unistd.h>
 
 #include <tms/math/matrix.h>
@@ -9,8 +8,6 @@
 #include <tms/core/shader.h>
 #include <tms/core/program.h>
 #include <tms/core/pipeline.h>
-
-#include <tms/util/hash.h>
 
 #include <tms/backend/opengl.h>
 
@@ -292,7 +289,7 @@ tms_shader_compile(struct tms_shader *s,
         for (int x=0; x<s->num_vs_defines; x++) {
             tms_errorf("vs define[%d/%d]: '%s'", x+1, s->num_vs_defines, s->vs_defines[x]);
         }
-        return T_COMPILE_ERROR;
+        return T_ERR;
     }
 
     switch (shader_type) {

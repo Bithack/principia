@@ -7,7 +7,6 @@
 #include "menu_shared.hh"
 #include "menu_main.hh"
 #include "menu_create.hh"
-#include "menu_pkg.hh"
 #include "menu-play.hh"
 #include "settings.hh"
 #include "soundmanager.hh"

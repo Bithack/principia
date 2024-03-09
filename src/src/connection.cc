@@ -1,6 +1,5 @@
 #include "connection.hh"
 #include "model.hh"
-#include "settings.hh"
 #include "material.hh"
 #include "world.hh"
 #include "object_factory.hh"
@@ -24,7 +23,7 @@ connection::update(void)
     this->sublayer_dist = this->e->sublayer_dist(this->o);
 }
 
-/** 
+/**
  * Updates the relative angle between the bodies
  **/
 void
@@ -44,7 +43,7 @@ connection::update_relative_angle(bool force)
     this->relative_angle = -(this->o->get_angle(this->f[1]) - this->e->get_angle(this->f[0]));
 }
 
-/** 
+/**
  * Apply is called the first time the connection is created
  **/
 void

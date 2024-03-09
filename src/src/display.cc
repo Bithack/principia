@@ -1,8 +1,6 @@
 #include "display.hh"
 #include "model.hh"
 #include "material.hh"
-#include "world.hh"
-#include "object_factory.hh"
 #include "ui.hh"
 
 #define RSIZE .08f

@@ -1,8 +1,24 @@
 
-#include <tms/core/err.h>
 #include "hash.h"
-#include "util.h"
 #include <string.h>
+#include <tms/backend/print.h>
+
+/**
+ * Round up to the nearest power of 2
+ * works only on 32 bit integers
+ **/
+static inline uint32_t tnpo2_uint32(uint32_t i)
+{
+    i--;
+    i |= i >> 1;
+    i |= i >> 2;
+    i |= i >> 4;
+    i |= i >> 8;
+    i |= i >> 16;
+    i ++;
+
+    return i;
+}
 
 static int add_string(struct thash *h, char* key, size_t key_len, void *data);
 static int rm_string(struct thash *h, char* key, size_t key_len);

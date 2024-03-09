@@ -1,5 +1,4 @@
 #include "rocket.hh"
-#include "spritebuffer.hh"
 #include "model.hh"
 #include "world.hh"
 #include "game.hh"

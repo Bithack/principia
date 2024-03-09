@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <vector>
+#include <cstdint>
 
 #ifndef _NO_TMS
 #include <tms/math/vector.h>
@@ -22,7 +23,7 @@
 
 #else
 #define _FILE FILE
-#define FILE_IN_ASSET(x) 
+#define FILE_IN_ASSET(x)
 #define _fopen fopen
 #define _fclose fclose
 #define _fread fread

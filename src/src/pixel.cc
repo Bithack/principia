@@ -5,8 +5,6 @@
 #include "transmitter.hh"
 #include "ui.hh"
 
-#include <cstdlib>
-
 static bool initialized = false;
 static bool _modified = false;
 
@@ -260,14 +258,14 @@ void
 pixel::mstep()
 {
     this->alpha = 1.f-this->pending_value;
-    
+
     if (fabsf(this->alpha - this->last_size) > .01f) {
         this->update_fixture();
         this->last_size = this->alpha;
         G->force_static_update = 1;
     }
     this->reset_recv_value();
-    
+
 #if 0
     if (!this->dynamic) {
 

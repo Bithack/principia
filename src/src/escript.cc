@@ -5,8 +5,6 @@
 #include "linebuffer.hh"
 #include "receiver.hh"
 #include "ui.hh"
-#include "simplebg.hh"
-#include "misc.hh"
 #include "robotman.hh"
 #include "robot_base.hh"
 

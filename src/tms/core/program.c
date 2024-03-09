@@ -1,6 +1,5 @@
 #include <tms/core/glob.h>
-#include <tms/util/glob.h>
-#include <tms/util/hash.h>
+#include "hash.h"
 
 void
 tms_program_init(struct tms_program *p)

@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include <tms/util/util.h>
 
 #ifdef __cplusplus
 extern "C"

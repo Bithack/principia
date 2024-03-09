@@ -1,6 +1,4 @@
 #include "timectrl.hh"
-#include "model.hh"
-#include "material.hh"
 #include "game.hh"
 
 timectrl::timectrl()

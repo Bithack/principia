@@ -1,4 +1,5 @@
-#include "glob.h"
+#include "atlas.h"
+#include "backend.h"
 
 struct tms_atlas *
 tms_atlas_alloc(int width, int height, int num_channels)

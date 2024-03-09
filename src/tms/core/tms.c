@@ -10,8 +10,7 @@
 #include "backend.h"
 #include "shader.h"
 #include "project.h"
-
-#include "../util/glob.h"
+#include "hash.h"
 
 struct tms_singleton _tms = {
     .in_frame = 0,

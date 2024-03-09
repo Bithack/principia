@@ -2,11 +2,9 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <dirent.h>
-#include <errno.h>
 #include <inttypes.h>
 
 #include "zlib.h"
-#include "rand.h"
 
 /* for lvledit command line tool */
 #ifdef _NO_TMS

@@ -1,5 +1,5 @@
 #include "glob.h"
-#include "../util/hash.h"
+#include "hash.h"
 
 struct vertex {
     tvec3 pos;

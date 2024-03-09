@@ -19,7 +19,6 @@
 #include "textbuffer.hh"
 #include "fluidbuffer.hh"
 #include "linebuffer.hh"
-#include "rubberband.hh"
 #include "sticky.hh"
 #include "rope.hh"
 #include "polygon.hh"
@@ -54,7 +53,6 @@
 #endif
 
 #include <sys/stat.h>
-#include <set>
 
 #include <tms/core/tms.h>
 #include <tms/core/framebuffer.h>

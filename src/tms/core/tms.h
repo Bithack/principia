@@ -37,7 +37,6 @@
 #include <tms/math/vector.h>
 #include <tms/core/settings.h>
 #include <tms/math/matrix.h>
-#include <tms/util/util.h>
 
 #ifdef __cplusplus
 extern "C" {

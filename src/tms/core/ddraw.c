@@ -1,7 +1,5 @@
 #include <math.h>
 #include <stdlib.h>
-#include <string.h>
-#include <assert.h>
 
 #include <tms/core/tms.h>
 #include <tms/core/ddraw.h>

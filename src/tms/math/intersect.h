@@ -5,7 +5,6 @@
 /** @relates tintersect @{ */
 
 #include <tms/math/vector.h>
-#include <tms/util/util.h>
 
 /**
  * Misc intersection functions.
