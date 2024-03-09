@@ -903,7 +903,7 @@ level_chunk::merge(int _x, int _y, int _z, int _w, int _h, int _d)
                     int ssx = flp2(min_sx);
 
                     int ss = ssy < ssx ? ssy : ssx;
-                    int size = (int)floorf(tmath_log2(ss));
+                    int size = (int)floorf(log2(ss));
 
                     /* mark pixels as taken */
                     for (sy=0; sy<ss; sy++) {
