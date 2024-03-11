@@ -13,14 +13,31 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
+
+# Find core dependencies
+# ----------------------
+
+if(ANDROID)
+	cmake_minimum_required(VERSION 3.20)
+	include(PrincipiaAndroidLibs)
+
+else()
+	find_package(SDL2 REQUIRED)
+
+	set(OpenGL_GL_PREFERENCE GLVND)
+	find_package(OpenGL REQUIRED)
+endif()
+
 find_package(Freetype REQUIRED)
 find_package(JPEG REQUIRED)
 find_package(PNG REQUIRED)
-find_package(SDL2 REQUIRED)
 find_package(ZLIB REQUIRED)
 
-set(OpenGL_GL_PREFERENCE GLVND)
-find_package(OpenGL REQUIRED)
+
+# Determine platform and backend
+# ------------------------------
 
 if(LINUX)
 	option(SCREENSHOT_BUILD "Build screenshotter build (Linux only)" FALSE)
@@ -30,6 +47,8 @@ endif()
 
 if(WIN32)
 	set(TMS_BACKEND "windows")
+elseif(ANDROID)
+	set(TMS_BACKEND "android")
 elseif(SCREENSHOT_BUILD)
 	set(TMS_BACKEND "screenshot-linux")
 elseif(HAIKU)
@@ -38,6 +57,10 @@ else()
 	set(TMS_BACKEND "linux")
 endif()
 
+
+# Include dirs and main source files
+# ----------------------------------
+
 include_directories(
 	src/
 	src/lua/
@@ -45,9 +68,7 @@ include_directories(
 	src/src/
 	${FREETYPE_INCLUDE_DIRS}
 	${JPEG_INCLUDE_DIRS}
-	${OPENGL_INCLUDE_DIRS}
 	${PNG_INCLUDE_DIRS}
-	${SDL2_INCLUDE_DIRS}
 	${ZLIB_INCLUDE_DIRS})
 
 file(GLOB SRCS
@@ -72,27 +93,76 @@ file(GLOB SRCS
 	src/src/Box2D/Particle/*.cc
 )
 
-if(NOT SCREENSHOT_BUILD)
-	find_package(PkgConfig REQUIRED)
-	pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
-	find_package(CURL REQUIRED)
-	find_package(GLEW REQUIRED)
+if(ANDROID)
+	# Vendored SDL2 for Android
 
 	include_directories(
-		${CURL_INCLUDE_DIR}
-		${GLEW_INCLUDE_DIRS}
-		${GTK3_INCLUDE_DIRS}
-		src/SDL_mixer/)
+		src/SDL-mobile/include/)
+
+	file(GLOB SDL_SRCS
+		src/SDL-mobile/src/main/android/SDL_android_main.cc
+		src/SDL-mobile/src/*.c
+		src/SDL-mobile/src/atomic/*.c
+		src/SDL-mobile/src/audio/*.c
+		src/SDL-mobile/src/audio/android/*.c
+		src/SDL-mobile/src/core/android/*.cc
+		src/SDL-mobile/src/cpuinfo/*.c
+		src/SDL-mobile/src/events/*.c
+		src/SDL-mobile/src/file/*.c
+		src/SDL-mobile/src/haptic/*.c
+		src/SDL-mobile/src/haptic/dummy/*.c
+		src/SDL-mobile/src/joystick/*.c
+		src/SDL-mobile/src/joystick/android/*.c
+		src/SDL-mobile/src/loadso/dlopen/*.c
+		src/SDL-mobile/src/render/*.c
+		src/SDL-mobile/src/render/*/*.c
+		src/SDL-mobile/src/stdlib/*.c
+		src/SDL-mobile/src/thread/*.c
+		src/SDL-mobile/src/thread/pthread/*.c
+		src/SDL-mobile/src/timer/*.c
+		src/SDL-mobile/src/timer/unix/*.c
+		src/SDL-mobile/src/video/*.c
+		src/SDL-mobile/src/video/android/*.c)
+	set(SRCS ${SRCS} ${SDL_SRCS})
+else()
+
+	# For non-Android, system SDL2 and OpenGL include dirs
+	include_directories(
+		${SDL2_INCLUDE_DIRS}
+		${OPENGL_INCLUDE_DIRS})
+endif()
+
+# Optional dependencies not found on Android or in the screenshot build
+if(NOT SCREENSHOT_BUILD)
+	if(NOT ANDROID)
+		find_package(PkgConfig REQUIRED)
+		pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+
+		find_package(GLEW REQUIRED)
+
+		include_directories(
+			${GLEW_INCLUDE_DIRS}
+			${GTK3_INCLUDE_DIRS})
+	endif()
+
+	find_package(CURL REQUIRED)
 
 	file(GLOB SDL_mixer_SRCS src/SDL_mixer/*.c)
 	set(SRCS ${SRCS} ${SDL_mixer_SRCS})
 
+	include_directories(
+		${CURL_INCLUDE_DIR}
+		src/SDL_mixer/)
+endif()
+
+# Optional luasocket functionality
+
+if(NOT SCREENSHOT_BUILD AND NOT ANDROID)
 	option(USE_LUASOCKET "Build with Luasocket support" TRUE)
 else()
 	set(USE_LUASOCKET false)
 endif()
 
-# Luasocket
 if(USE_LUASOCKET)
 	set(LUASOCKET_FLAGS "-DBUILD_LUASOCKET -DLUASOCKET_INET_PTON")
 
@@ -119,9 +189,15 @@ if(USE_LUASOCKET)
 		${LUASOCKET_PLAT_SRC})
 endif()
 
-set(SRCS ${SRCS} src/tms/backends/${TMS_BACKEND}/main.cc)
+
+if(ANDROID)
+	set(SRCS ${SRCS} src/tms/backends/android/main.c)
+else()
+	set(SRCS ${SRCS} src/tms/backends/${TMS_BACKEND}/main.cc)
+endif()
 
 if(WIN32)
+	# Windows manifest (resource and icon) for Windows builds
 	set(WINRESOURCE_FILE "packaging/principia.rc")
 	set(WINMANIFEST_FILE "packaging/principia.manifest")
 
@@ -137,37 +213,70 @@ if(WIN32)
 	set(SRCS ${SRCS} ${CMAKE_CURRENT_BINARY_DIR}/principia.rc.o)
 endif()
 
-add_executable(${PROJECT_NAME} ${SRCS})
+
+# Add executable (or library for Android)
+# ---------------------------------------
+
+if(ANDROID)
+	add_library(${PROJECT_NAME} SHARED ${SRCS})
+else()
+	add_executable(${PROJECT_NAME} ${SRCS})
+endif()
+
+
+# Link libraries against executable
+# ---------------------------------
+
 target_link_libraries(
 	${PROJECT_NAME}
 		${FREETYPE_LIBRARIES}
 		${JPEG_LIBRARIES}
-		${OPENGL_LIBRARIES}
 		${PNG_LIBRARIES}
-		${SDL2_LIBRARIES}
 		${ZLIB_LIBRARIES})
 
 if(NOT SCREENSHOT_BUILD)
-	target_link_libraries(
-		${PROJECT_NAME}
-			${CURL_LIBRARIES}
-			${GLEW_LIBRARIES}
-			${GTK3_LIBRARIES})
+	target_link_libraries(${PROJECT_NAME} ${CURL_LIBRARIES})
+
+	if(NOT ANDROID)
+		target_link_libraries(
+			${PROJECT_NAME}
+				${GLEW_LIBRARIES}
+				${GTK3_LIBRARIES})
+	endif()
 endif()
 
-set(COMMON_FLAGS "${LUASOCKET_FLAGS} -DTMS_BACKEND_PC -DTMS_FAST_MATH -DLUA_COMPAT_MODULE")
+if(NOT ANDROID)
+	target_link_libraries(
+		${PROJECT_NAME}
+			${OPENGL_LIBRARIES}
+			${SDL2_LIBRARIES})
+endif()
 
-if(WIN32)
-	target_link_libraries(${PROJECT_NAME} ws2_32.lib version.lib shlwapi.lib winmm.lib)
 
-	set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_WINDOWS -D_WIN32_WINNT=0x0501 -Dsrandom=srand -Drandom=rand -DUNICODE")
-elseif(SCREENSHOT_BUILD)
-	# Screenshot build doesn't use GLEW
-	set(COMMON_FLAGS "${COMMON_FLAGS} -DGL_GLEXT_PROTOTYPES -DNO_UI -DTMS_BACKEND_LINUX_SS")
-elseif(HAIKU)
-	set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_HAIKU")
+# Compiler flags
+# --------------
+
+set(COMMON_FLAGS "${LUASOCKET_FLAGS} -DLUA_COMPAT_MODULE")
+
+if(ANDROID)
+	target_link_libraries(${PROJECT_NAME} -landroid -lz -ldl -lGLESv1_CM -lGLESv2 -llog)
+
+	set(COMMON_FLAGS "${COMMON_FLAGS} -DGL_GLEXT_PROTOTYPES -DHAVE_GCC_ATOMICS -DTMS_BACKEND_ANDROID -DTMS_BACKEND_MOBILE")
 else()
-	set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_LINUX")
+	set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_PC -DTMS_FAST_MATH")
+
+	if(WIN32)
+		target_link_libraries(${PROJECT_NAME} ws2_32.lib version.lib shlwapi.lib winmm.lib)
+
+		set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_WINDOWS -D_WIN32_WINNT=0x0501 -Dsrandom=srand -Drandom=rand -DUNICODE")
+	elseif(SCREENSHOT_BUILD)
+		# Screenshot build doesn't use GLEW
+		set(COMMON_FLAGS "${COMMON_FLAGS} -DGL_GLEXT_PROTOTYPES -DNO_UI -DTMS_BACKEND_LINUX_SS")
+	elseif(HAIKU)
+		set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_HAIKU")
+	else()
+		set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_LINUX")
+	endif()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -176,7 +285,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif()
 
 set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1")
-set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} -DNDEBUG=1 -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections")
+set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} -DNDEBUG=1 -fomit-frame-pointer -fdata-sections -ffunction-sections")
 
 set(CMAKE_C_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O1")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE} -g")
@@ -194,7 +303,9 @@ if(WIN32)
 	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-mwindows")
 endif()
 
+
 # Installation
+# ------------
 
 if(UNIX)
 	include(GNUInstallDirs)
