@@ -7,8 +7,8 @@
 #include <jni.h>
 #include <tms/backend/opengl.h>
 
-#include "SDL/src/video/android/SDL_androidvideo.h"
-#include "SDL/src/core/android/SDL_android.h"
+#include "SDL-mobile/src/video/android/SDL_androidvideo.h"
+#include "SDL-mobile/src/core/android/SDL_android.h"
 
 SDL_Window *_window;
 

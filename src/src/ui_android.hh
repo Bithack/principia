@@ -1,7 +1,7 @@
 
 #if defined(TMS_BACKEND_ANDROID)
 
-#include "SDL/src/core/android/SDL_android.h"
+#include "SDL-mobile/src/core/android/SDL_android.h"
 #include <sstream>
 
 void ui::init(){};
