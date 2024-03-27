@@ -378,7 +378,7 @@ on_entity_remove(entity *self, void *userdata)
 
 static const char* ignore[] = {
     "_VERSION", "assert", "collectgarbage", "coroutine", "debug", "dofile",
-    "error", "gcinfo", "getfenv", "getmetatable", "io", "ipairs", "load",
+    "error", "gcinfo" "getfenv", "getmetatable", "io", "ipairs", "load",
     "loadfile", "loadstring", "math", "module", "newproxy", "next", "os",
     "package", "pairs", "pcall", "print", "rawequal", "rawget", "rawset",
     "rawlen", "require", "select", "setfenv", "setmetatable", "table",
