@@ -757,7 +757,7 @@ GtkWindow *quickadd_window;
 GtkEntry  *quickadd_entry;
 
 /** --Color Chooser (for Plastic beam & Pixel) **/
-GtkColorChooserDialog *beam_color_dialog;
+GtkColorSelectionDialog *beam_color_dialog;
 
 /** --Info Dialog **/
 GtkWindow       *info_dialog;
@@ -8350,13 +8350,15 @@ int _gtk_loop(void *p)
 
     /** --Color Chooser (for Plastic beam & Pixel) **/
     {
-        beam_color_dialog = GTK_COLOR_CHOOSER_DIALOG(gtk_color_chooser_dialog_new("Color", NULL));
-        GtkColorChooser *sel = GTK_COLOR_CHOOSER(beam_color_dialog);
+        beam_color_dialog = GTK_COLOR_SELECTION_DIALOG(gtk_color_selection_dialog_new("Color"));
+        GtkColorSelectionDialog *sel = GTK_COLOR_SELECTION_DIALOG(beam_color_dialog);
 
         gtk_window_set_position(GTK_WINDOW(beam_color_dialog), GTK_WIN_POS_CENTER);
         //gtk_window_set_keep_above(GTK_WINDOW(beam_color_dialog), TRUE);
 
-        gtk_color_chooser_set_use_alpha(sel, false);
+        gtk_color_selection_set_has_opacity_control(
+            GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(
+                GTK_COLOR_SELECTION_DIALOG(sel))), false);
 
         g_signal_connect(beam_color_dialog, "delete-event", G_CALLBACK(on_window_close), 0);
 
@@ -10198,10 +10200,9 @@ _open_quickadd(gpointer unused)
 static gboolean
 _open_beam_color(gpointer unused)
 {
-    GtkColorChooser *sel = 0;
-
     /* set current chooser to beam/pixel current color */
-    sel = GTK_COLOR_CHOOSER(beam_color_dialog);
+    GtkColorSelection *sel = GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(beam_color_dialog));
+
     entity *e = G->selection.e;
     if (e) {
         GdkRGBA color;
@@ -10209,17 +10210,14 @@ _open_beam_color(gpointer unused)
         color.red   = c.r;
         color.green = c.g;
         color.blue  = c.b;
-        color.alpha = (double)(e->properties[4].v.i8) / 255.0;
-        //color.alpha = (double)((guint16) e->properties[4].v.i8 * 257) / 65535.;
-
-        gtk_color_chooser_set_rgba(sel, &color);
-
         if (e->g_id == O_PIXEL) {
-            gtk_color_chooser_set_rgba(sel, &color);
-            gtk_color_chooser_set_use_alpha(sel, true);
+            color.alpha = (double)(e->properties[4].v.i8) / 255.0;
+            gtk_color_selection_set_has_opacity_control(sel, true);
         } else {
-            gtk_color_chooser_set_use_alpha(sel, false);
+            color.alpha = 1.;
+            gtk_color_selection_set_has_opacity_control(sel, false);
         }
+        gtk_color_selection_set_current_rgba(sel, &color);
     } else if (W->is_adventure() && adventure::player && adventure::is_player_alive()) {
         robot_parts::tool *t = adventure::player->get_tool();
         if (t && t->get_arm_type() == TOOL_PAINTER) {
@@ -10237,11 +10235,12 @@ _open_beam_color(gpointer unused)
     }
 
     if (gtk_dialog_run(GTK_DIALOG(beam_color_dialog)) == GTK_RESPONSE_OK) {
-        sel = GTK_COLOR_CHOOSER(beam_color_dialog);
-        entity *e = G->selection.e;
+        //GtkColorSelection *sel = GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(beam_color_dialog)));
 
         GdkRGBA color;
-        gtk_color_chooser_get_rgba(sel, &color);
+        gtk_color_selection_get_current_rgba(sel, &color);
+        
+        entity *e = G->selection.e;
 
         if (e) {
             e->set_color4(color.red, color.green, color.blue);
