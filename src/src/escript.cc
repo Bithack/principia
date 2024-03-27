@@ -385,7 +385,7 @@ static const char* ignore[] = {
     "tonumber", "tostring", "type", "unpack", "wl", "xpcall", "string",
     "_", "set_textdomain", "get_build_id", "ngettext", "_ENV",
     "game", "this", "socket", "step", "world", "cam", "math", "_G",
-    "init", "include", "world.___persist_entity", 0
+    "init", "include", "world.___persist_entity", "bit32", 0
 };
 
 static void
