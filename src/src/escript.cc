@@ -378,14 +378,14 @@ on_entity_remove(entity *self, void *userdata)
 
 static const char* ignore[] = {
     "_VERSION", "assert", "collectgarbage", "coroutine", "debug", "dofile",
-    "error", "gcinfo" "getfenv", "getmetatable", "io", "ipairs", "load",
+    "error", "gcinfo", "getfenv", "getmetatable", "io", "ipairs", "load",
     "loadfile", "loadstring", "math", "module", "newproxy", "next", "os",
     "package", "pairs", "pcall", "print", "rawequal", "rawget", "rawset",
     "rawlen", "require", "select", "setfenv", "setmetatable", "table",
     "tonumber", "tostring", "type", "unpack", "wl", "xpcall", "string",
     "_", "set_textdomain", "get_build_id", "ngettext", "_ENV",
     "game", "this", "socket", "step", "world", "cam", "math", "_G",
-    "init", "include", "world.___persist_entity", 0
+    "init", "include", "world.___persist_entity", "bit32", 0
 };
 
 static void
