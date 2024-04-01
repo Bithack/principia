@@ -24,6 +24,8 @@
 
 #include "../SDL_sysvideo.h"
 
+#include "../../core/android/SDL_android.h"
+
 #include "SDL_androidvideo.h"
 #include "SDL_androidwindow.h"
 
