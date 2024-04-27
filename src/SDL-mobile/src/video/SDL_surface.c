@@ -23,7 +23,6 @@
 #include "SDL_video.h"
 #include "SDL_sysvideo.h"
 #include "SDL_blit.h"
-#include "SDL_RLEaccel_c.h"
 #include "SDL_pixels_c.h"
 
 
@@ -177,10 +176,6 @@ SDL_SetColorKey(SDL_Surface * surface, int flag, Uint32 key)
 
     if (!surface) {
         return -1;
-    }
-
-    if (flag & SDL_RLEACCEL) {
-        SDL_SetSurfaceRLE(surface, 1);
     }
 
     flags = surface->map->info.flags;
@@ -461,13 +456,13 @@ SDL_GetClipRect(SDL_Surface * surface, SDL_Rect * rect)
     }
 }
 
-/* 
+/*
  * Set up a blit between two surfaces -- split into three parts:
- * The upper part, SDL_UpperBlit(), performs clipping and rectangle 
+ * The upper part, SDL_UpperBlit(), performs clipping and rectangle
  * verification.  The lower part is a pointer to a low level
  * accelerated blitting function.
  *
- * These parts are separated out and each used internally by this 
+ * These parts are separated out and each used internally by this
  * library in the optimimum places.  They are exported so that if
  * you know exactly what you are doing, you can optimize your code
  * by calling the one(s) you need.
@@ -723,14 +718,6 @@ SDL_LowerBlitScaled(SDL_Surface * src, SDL_Rect * srcrect,
 int
 SDL_LockSurface(SDL_Surface * surface)
 {
-    if (!surface->locked) {
-        /* Perform the lock */
-        if (surface->flags & SDL_RLEACCEL) {
-            SDL_UnRLESurface(surface, 1);
-            surface->flags |= SDL_RLEACCEL;     /* save accel'd state */
-        }
-    }
-
     /* Increment the surface lock count, for recursive locks */
     ++surface->locked;
 
@@ -748,15 +735,9 @@ SDL_UnlockSurface(SDL_Surface * surface)
     if (!surface->locked || (--surface->locked > 0)) {
         return;
     }
-
-    /* Update RLE encoded surface with new data */
-    if ((surface->flags & SDL_RLEACCEL) == SDL_RLEACCEL) {
-        surface->flags &= ~SDL_RLEACCEL;        /* stop lying */
-        SDL_RLESurface(surface);
-    }
 }
 
-/* 
+/*
  * Convert a surface into the specified pixel format.
  */
 SDL_Surface *
@@ -839,9 +820,6 @@ SDL_ConvertSurface(SDL_Surface * surface, SDL_PixelFormat * format,
         (copy_flags & (SDL_COPY_COLORKEY|SDL_COPY_MODULATE_ALPHA))) {
         SDL_SetSurfaceBlendMode(convert, SDL_BLENDMODE_BLEND);
     }
-    if ((copy_flags & SDL_COPY_RLE_DESIRED) || (flags & SDL_RLEACCEL)) {
-        SDL_SetSurfaceRLE(convert, SDL_RLEACCEL);
-    }
 
     /* We're ready to go! */
     return (convert);
@@ -867,7 +845,7 @@ SDL_ConvertSurfaceFormat(SDL_Surface * surface, Uint32 pixel_format,
  */
 static __inline__ SDL_bool
 SDL_CreateSurfaceOnStack(int width, int height, Uint32 pixel_format,
-                         void * pixels, int pitch, SDL_Surface * surface, 
+                         void * pixels, int pitch, SDL_Surface * surface,
                          SDL_PixelFormat * format, SDL_BlitMap * blitmap)
 {
     if (SDL_ISPIXELFORMAT_INDEXED(pixel_format)) {
@@ -979,9 +957,7 @@ SDL_FreeSurface(SDL_Surface * surface)
     while (surface->locked > 0) {
         SDL_UnlockSurface(surface);
     }
-    if (surface->flags & SDL_RLEACCEL) {
-        SDL_UnRLESurface(surface, 0);
-    }
+
     if (surface->format) {
         SDL_SetSurfacePalette(surface, NULL);
         SDL_FreeFormat(surface->format);

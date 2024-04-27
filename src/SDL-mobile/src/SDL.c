@@ -26,7 +26,6 @@
 #include "SDL_revision.h"
 #include "SDL_fatal.h"
 #include "SDL_assert_c.h"
-#include "haptic/SDL_haptic_c.h"
 #include "joystick/SDL_joystick_c.h"
 
 /* Initialization/Cleanup routines */
@@ -113,20 +112,6 @@ SDL_InitSubSystem(Uint32 flags)
     }
 #endif
 
-#if !SDL_HAPTIC_DISABLED
-    /* Initialize the haptic subsystem */
-    if ((flags & SDL_INIT_HAPTIC) && !(SDL_initialized & SDL_INIT_HAPTIC)) {
-        if (SDL_HapticInit() < 0) {
-            return (-1);
-        }
-        SDL_initialized |= SDL_INIT_HAPTIC;
-    }
-#else
-    if (flags & SDL_INIT_HAPTIC) {
-        SDL_SetError("SDL not built with haptic (force feedback) support");
-        return (-1);
-    }
-#endif
     return (0);
 }
 
@@ -167,12 +152,6 @@ SDL_QuitSubSystem(Uint32 flags)
     if ((flags & SDL_initialized & SDL_INIT_JOYSTICK)) {
         SDL_JoystickQuit();
         SDL_initialized &= ~SDL_INIT_JOYSTICK;
-    }
-#endif
-#if !SDL_HAPTIC_DISABLED
-    if ((flags & SDL_initialized & SDL_INIT_HAPTIC)) {
-        SDL_HapticQuit();
-        SDL_initialized &= ~SDL_INIT_HAPTIC;
     }
 #endif
 #if !SDL_AUDIO_DISABLED

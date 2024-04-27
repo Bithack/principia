@@ -109,13 +109,10 @@ if(ANDROID)
 		src/SDL-mobile/src/cpuinfo/*.c
 		src/SDL-mobile/src/events/*.c
 		src/SDL-mobile/src/file/*.c
-		src/SDL-mobile/src/haptic/*.c
-		src/SDL-mobile/src/haptic/dummy/*.c
 		src/SDL-mobile/src/joystick/*.c
 		src/SDL-mobile/src/joystick/android/*.c
 		src/SDL-mobile/src/loadso/dlopen/*.c
 		src/SDL-mobile/src/render/*.c
-		src/SDL-mobile/src/render/*/*.c
 		src/SDL-mobile/src/stdlib/*.c
 		src/SDL-mobile/src/thread/*.c
 		src/SDL-mobile/src/thread/pthread/*.c

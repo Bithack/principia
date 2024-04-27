@@ -25,46 +25,6 @@
 #include "SDL_stdinc.h"
 #include "SDL_endian.h"
 
-#ifdef HAVE_ICONV
-
-/* Depending on which standard the iconv() was implemented with,
-   iconv() may or may not use const char ** for the inbuf param.
-   If we get this wrong, it's just a warning, so no big deal.
-*/
-#if defined(_XGP6) || defined(__APPLE__) || \
-    (defined(__GLIBC__) && ((__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2)))
-#define ICONV_INBUF_NONCONST
-#endif
-
-#include <errno.h>
-
-size_t
-SDL_iconv(SDL_iconv_t cd,
-          const char **inbuf, size_t * inbytesleft,
-          char **outbuf, size_t * outbytesleft)
-{
-    size_t retCode;
-#ifdef ICONV_INBUF_NONCONST
-    retCode = iconv(cd, (char **) inbuf, inbytesleft, outbuf, outbytesleft);
-#else
-    retCode = iconv(cd, inbuf, inbytesleft, outbuf, outbytesleft);
-#endif
-    if (retCode == (size_t) - 1) {
-        switch (errno) {
-        case E2BIG:
-            return SDL_ICONV_E2BIG;
-        case EILSEQ:
-            return SDL_ICONV_EILSEQ;
-        case EINVAL:
-            return SDL_ICONV_EINVAL;
-        default:
-            return SDL_ICONV_ERROR;
-        }
-    }
-    return retCode;
-}
-
-#else
 
 /* Lots of useful information on Unicode at:
 	http://www.cl.cam.ac.uk/~mgk25/unicode.html
@@ -810,8 +770,6 @@ SDL_iconv_close(SDL_iconv_t cd)
     }
     return 0;
 }
-
-#endif /* !HAVE_ICONV */
 
 char *
 SDL_iconv_string(const char *tocode, const char *fromcode, const char *inbuf,

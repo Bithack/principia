@@ -23,10 +23,8 @@
 #include "SDL_video.h"
 #include "SDL_sysvideo.h"
 #include "SDL_blit.h"
-#include "SDL_blit_auto.h"
 #include "SDL_blit_copy.h"
 #include "SDL_blit_slow.h"
-#include "SDL_RLEaccel_c.h"
 #include "SDL_pixels_c.h"
 
 /* The general purpose software blit routine */
@@ -99,31 +97,6 @@ SDL_SoftBlit(SDL_Surface * src, SDL_Rect * srcrect,
     return (okay ? 0 : -1);
 }
 
-#ifdef __MACOSX__
-#include <sys/sysctl.h>
-
-static SDL_bool
-SDL_UseAltivecPrefetch()
-{
-    const char key[] = "hw.l3cachesize";
-    u_int64_t result = 0;
-    size_t typeSize = sizeof(result);
-
-    if (sysctlbyname(key, &result, &typeSize, NULL, 0) == 0 && result > 0) {
-        return SDL_TRUE;
-    } else {
-        return SDL_FALSE;
-    }
-}
-#else
-static SDL_bool
-SDL_UseAltivecPrefetch()
-{
-    /* Just guess G4 */
-    return SDL_TRUE;
-}
-#endif /* __MACOSX__ */
-
 static SDL_BlitFunc
 SDL_ChooseBlitFunc(Uint32 src_format, Uint32 dst_format, int flags,
                    SDL_BlitFuncEntry * entries)
@@ -154,11 +127,7 @@ SDL_ChooseBlitFunc(Uint32 src_format, Uint32 dst_format, int flags,
                 features |= SDL_CPU_SSE2;
             }
             if (SDL_HasAltiVec()) {
-                if (SDL_UseAltivecPrefetch()) {
-                    features |= SDL_CPU_ALTIVEC_PREFETCH;
-                } else {
-                    features |= SDL_CPU_ALTIVEC_NOPREFETCH;
-                }
+                features |= SDL_CPU_ALTIVEC_PREFETCH;
             }
         }
     }
@@ -220,42 +189,17 @@ SDL_CalculateBlit(SDL_Surface * surface)
     SDL_Surface *dst = map->dst;
 
     /* Clean everything out to start */
-    if ((surface->flags & SDL_RLEACCEL) == SDL_RLEACCEL) {
-        SDL_UnRLESurface(surface, 1);
-    }
     map->blit = SDL_SoftBlit;
     map->info.src_fmt = surface->format;
     map->info.src_pitch = surface->pitch;
     map->info.dst_fmt = dst->format;
     map->info.dst_pitch = dst->pitch;
 
-    /* See if we can do RLE acceleration */
-    if (map->info.flags & SDL_COPY_RLE_DESIRED) {
-        if (SDL_RLESurface(surface) == 0) {
-            return 0;
-        }
-    }
-
     /* Choose a standard blit function */
     if (map->identity && !(map->info.flags & ~SDL_COPY_RLE_DESIRED)) {
         blit = SDL_BlitCopy;
-    } else if (surface->format->BitsPerPixel < 8) {
-        blit = SDL_CalculateBlit0(surface);
-    } else if (surface->format->BytesPerPixel == 1) {
-        blit = SDL_CalculateBlit1(surface);
-    } else if (map->info.flags & SDL_COPY_BLEND) {
-        blit = SDL_CalculateBlitA(surface);
-    } else {
-        blit = SDL_CalculateBlitN(surface);
     }
-    if (blit == NULL) {
-        Uint32 src_format = surface->format->format;
-        Uint32 dst_format = dst->format->format;
 
-        blit =
-            SDL_ChooseBlitFunc(src_format, dst_format, map->info.flags,
-                               SDL_GeneratedBlitFuncTable);
-    }
 #ifndef TEST_SLOW_BLIT
     if (blit == NULL)
 #endif

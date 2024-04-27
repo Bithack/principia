@@ -61,7 +61,7 @@ SDL_InstallParachute(void)
 {
     /* Set a handler for any fatal signal not already handled */
     int i;
-#ifdef HAVE_SIGACTION
+
     struct sigaction action;
 
     for (i = 0; SDL_fatal_signals[i]; ++i) {
@@ -79,16 +79,7 @@ SDL_InstallParachute(void)
         sigaction(SIGALRM, &action, NULL);
     }
 #endif
-#else
-    void (*ohandler) (int);
 
-    for (i = 0; SDL_fatal_signals[i]; ++i) {
-        ohandler = signal(SDL_fatal_signals[i], SDL_Parachute);
-        if (ohandler != SIG_DFL) {
-            signal(SDL_fatal_signals[i], ohandler);
-        }
-    }
-#endif /* HAVE_SIGACTION */
     return;
 }
 
@@ -97,7 +88,7 @@ SDL_UninstallParachute(void)
 {
     /* Remove a handler for any fatal signal handled */
     int i;
-#ifdef HAVE_SIGACTION
+
     struct sigaction action;
 
     for (i = 0; SDL_fatal_signals[i]; ++i) {
@@ -107,16 +98,6 @@ SDL_UninstallParachute(void)
             sigaction(SDL_fatal_signals[i], &action, NULL);
         }
     }
-#else
-    void (*ohandler) (int);
-
-    for (i = 0; SDL_fatal_signals[i]; ++i) {
-        ohandler = signal(SDL_fatal_signals[i], SIG_DFL);
-        if (ohandler != SDL_Parachute) {
-            signal(SDL_fatal_signals[i], ohandler);
-        }
-    }
-#endif /* HAVE_SIGACTION */
 }
 
 #else

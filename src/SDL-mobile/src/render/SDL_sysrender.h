@@ -25,7 +25,6 @@
 
 #include "SDL_render.h"
 #include "SDL_events.h"
-#include "SDL_yuv_sw_c.h"
 
 /* The SDL 2D rendering system */
 
@@ -47,7 +46,6 @@ struct SDL_Texture
 
     /* Support for formats not supported directly by the renderer */
     SDL_Texture *native;
-    SDL_SW_YUVTexture *yuv;
     void *pixels;
     int pitch;
     SDL_Rect locked_rect;

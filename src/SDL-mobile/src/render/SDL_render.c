@@ -26,7 +26,6 @@
 #include "SDL_log.h"
 #include "SDL_render.h"
 #include "SDL_sysrender.h"
-#include "software/SDL_render_sw_c.h"
 
 
 #define SDL_WINDOWRENDERDATA    "_SDL_WindowRenderData"
@@ -45,27 +44,7 @@
 
 
 static const SDL_RenderDriver *render_drivers[] = {
-#if !SDL_RENDER_DISABLED
-#if SDL_VIDEO_RENDER_D3D
-    &D3D_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_OGL
-    &GL_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_OGL_ES2
-    &GLES2_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_OGL_ES
-    &GLES_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_DIRECTFB
-    &DirectFB_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_NDS
-    &NDS_RenderDriver,
-#endif
-    &SW_RenderDriver
-#endif /* !SDL_RENDER_DISABLED */
+
 };
 static char renderer_magic;
 static char texture_magic;
@@ -394,11 +373,7 @@ SDL_CreateTexture(SDL_Renderer * renderer, Uint32 format, int access, int w, int
         }
 
         if (SDL_ISPIXELFORMAT_FOURCC(texture->format)) {
-            texture->yuv = SDL_SW_CreateYUVTexture(format, w, h);
-            if (!texture->yuv) {
-                SDL_DestroyTexture(texture);
-                return NULL;
-            }
+            return NULL;
         } else if (access == SDL_TEXTUREACCESS_STREAMING) {
             /* The pitch is 4 byte aligned */
             texture->pitch = (((w * SDL_BYTESPERPIXEL(format)) + 3) & ~3);
@@ -624,53 +599,6 @@ SDL_GetTextureBlendMode(SDL_Texture * texture, SDL_BlendMode *blendMode)
 }
 
 static int
-SDL_UpdateTextureYUV(SDL_Texture * texture, const SDL_Rect * rect,
-                     const void *pixels, int pitch)
-{
-    SDL_Texture *native = texture->native;
-    SDL_Rect full_rect;
-
-    if (SDL_SW_UpdateYUVTexture(texture->yuv, rect, pixels, pitch) < 0) {
-        return -1;
-    }
-
-    full_rect.x = 0;
-    full_rect.y = 0;
-    full_rect.w = texture->w;
-    full_rect.h = texture->h;
-    rect = &full_rect;
-
-    if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
-        /* We can lock the texture and copy to it */
-        void *native_pixels;
-        int native_pitch;
-
-        if (SDL_LockTexture(native, rect, &native_pixels, &native_pitch) < 0) {
-            return -1;
-        }
-        SDL_SW_CopyYUVToRGB(texture->yuv, rect, native->format,
-                            rect->w, rect->h, native_pixels, native_pitch);
-        SDL_UnlockTexture(native);
-    } else {
-        /* Use a temporary buffer for updating */
-        void *temp_pixels;
-        int temp_pitch;
-
-        temp_pitch = (((rect->w * SDL_BYTESPERPIXEL(native->format)) + 3) & ~3);
-        temp_pixels = SDL_malloc(rect->h * temp_pitch);
-        if (!temp_pixels) {
-            SDL_OutOfMemory();
-            return -1;
-        }
-        SDL_SW_CopyYUVToRGB(texture->yuv, rect, native->format,
-                            rect->w, rect->h, temp_pixels, temp_pitch);
-        SDL_UpdateTexture(native, rect, temp_pixels, temp_pitch);
-        SDL_free(temp_pixels);
-    }
-    return 0;
-}
-
-static int
 SDL_UpdateTextureNative(SDL_Texture * texture, const SDL_Rect * rect,
                         const void *pixels, int pitch)
 {
@@ -725,21 +653,12 @@ SDL_UpdateTexture(SDL_Texture * texture, const SDL_Rect * rect,
         rect = &full_rect;
     }
 
-    if (texture->yuv) {
-        return SDL_UpdateTextureYUV(texture, rect, pixels, pitch);
-    } else if (texture->native) {
+    if (texture->native) {
         return SDL_UpdateTextureNative(texture, rect, pixels, pitch);
     } else {
         renderer = texture->renderer;
         return renderer->UpdateTexture(renderer, texture, rect, pixels, pitch);
     }
-}
-
-static int
-SDL_LockTextureYUV(SDL_Texture * texture, const SDL_Rect * rect,
-                   void **pixels, int *pitch)
-{
-    return SDL_SW_LockYUVTexture(texture->yuv, rect, pixels, pitch);
 }
 
 static int
@@ -776,9 +695,7 @@ SDL_LockTexture(SDL_Texture * texture, const SDL_Rect * rect,
         rect = &full_rect;
     }
 
-    if (texture->yuv) {
-        return SDL_LockTextureYUV(texture, rect, pixels, pitch);
-    } else if (texture->native) {
+    if (texture->native) {
         return SDL_LockTextureNative(texture, rect, pixels, pitch);
     } else {
         renderer = texture->renderer;
@@ -786,26 +703,6 @@ SDL_LockTexture(SDL_Texture * texture, const SDL_Rect * rect,
     }
 }
 
-static void
-SDL_UnlockTextureYUV(SDL_Texture * texture)
-{
-    SDL_Texture *native = texture->native;
-    void *native_pixels;
-    int native_pitch;
-    SDL_Rect rect;
-
-    rect.x = 0;
-    rect.y = 0;
-    rect.w = texture->w;
-    rect.h = texture->h;
-
-    if (SDL_LockTexture(native, &rect, &native_pixels, &native_pitch) < 0) {
-        return;
-    }
-    SDL_SW_CopyYUVToRGB(texture->yuv, &rect, native->format,
-                        rect.w, rect.h, native_pixels, native_pitch);
-    SDL_UnlockTexture(native);
-}
 
 static void
 SDL_UnlockTextureNative(SDL_Texture * texture)
@@ -838,9 +735,8 @@ SDL_UnlockTexture(SDL_Texture * texture)
     if (texture->access != SDL_TEXTUREACCESS_STREAMING) {
         return;
     }
-    if (texture->yuv) {
-        SDL_UnlockTextureYUV(texture);
-    } else if (texture->native) {
+
+    if (texture->native) {
         SDL_UnlockTextureNative(texture);
     } else {
         renderer = texture->renderer;
@@ -1246,7 +1142,7 @@ SDL_RenderCopyEx(SDL_Renderer * renderer, SDL_Texture * texture,
         SDL_SetError("Renderer does not support RenderCopyEx");
         return -1;
     }
-    
+
     real_srcrect.x = 0;
     real_srcrect.y = 0;
     real_srcrect.w = texture->w;
@@ -1350,9 +1246,7 @@ SDL_DestroyTexture(SDL_Texture * texture)
     if (texture->native) {
         SDL_DestroyTexture(texture->native);
     }
-    if (texture->yuv) {
-        SDL_SW_DestroyYUVTexture(texture->yuv);
-    }
+
     if (texture->pixels) {
         SDL_free(texture->pixels);
     }

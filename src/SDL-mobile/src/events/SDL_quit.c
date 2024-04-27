@@ -46,7 +46,6 @@ SDL_HandleSIG(int sig)
 int
 SDL_QuitInit(void)
 {
-#ifdef HAVE_SIGACTION
     struct sigaction action;
     sigaction(SIGINT, NULL, &action);
 #ifdef HAVE_SA_SIGACTION
@@ -67,17 +66,6 @@ SDL_QuitInit(void)
         action.sa_handler = SDL_HandleSIG;
         sigaction(SIGTERM, &action, NULL);
     }
-#elif HAVE_SIGNAL_H
-    void (*ohandler) (int);
-
-    /* Both SIGINT and SIGTERM are translated into quit interrupts */
-    ohandler = signal(SIGINT, SDL_HandleSIG);
-    if (ohandler != SIG_DFL)
-        signal(SIGINT, ohandler);
-    ohandler = signal(SIGTERM, SDL_HandleSIG);
-    if (ohandler != SIG_DFL)
-        signal(SIGTERM, ohandler);
-#endif /* HAVE_SIGNAL_H */
 
     /* That's it! */
     return (0);
@@ -86,7 +74,6 @@ SDL_QuitInit(void)
 void
 SDL_QuitQuit(void)
 {
-#ifdef HAVE_SIGACTION
     struct sigaction action;
     sigaction(SIGINT, NULL, &action);
     if ( action.sa_handler == SDL_HandleSIG ) {
@@ -98,16 +85,6 @@ SDL_QuitQuit(void)
         action.sa_handler = SIG_DFL;
         sigaction(SIGTERM, &action, NULL);
     }
-#elif HAVE_SIGNAL_H
-    void (*ohandler) (int);
-
-    ohandler = signal(SIGINT, SIG_DFL);
-    if (ohandler != SDL_HandleSIG)
-        signal(SIGINT, ohandler);
-    ohandler = signal(SIGTERM, SIG_DFL);
-    if (ohandler != SDL_HandleSIG)
-        signal(SIGTERM, ohandler);
-#endif /* HAVE_SIGNAL_H */
 }
 
 /* This function returns 1 if it's okay to close the application window */
