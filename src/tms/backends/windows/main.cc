@@ -171,8 +171,14 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
 
         // How about now?
         if (stat("data-shared", &st) != 0) {
-            // We're doomed, better just fail.
-            tms_fatalf("Could not find data directories.");
+            // If that doesn't work we're assuming a system install.
+            tms_infof("chdirring to ./share/principia/");
+            chdir("./share/principia/");
+
+            if (stat("data-shared", &st) != 0) {
+                // We're doomed, better just fail.
+                tms_fatalf("Could not find data directories.");
+            }
         }
     } else {
         // Switch to portable if ./portable.txt exists next to exe
