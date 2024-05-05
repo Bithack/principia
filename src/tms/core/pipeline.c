@@ -10,7 +10,7 @@
 static struct tms_pipeline pipelines[TMS_NUM_PIPELINES] = {0};
 static int n_local_uniforms = 0;
 
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX) || defined(TMS_BACKEND_HAIKU)
+#if defined(TMS_BACKEND_PC) || !defined(TMS_BACKEND_LINUX_SS)
 // Some things in the pipeline are different for Windows/Linux as compared to Android (GL/GLES differences? dunno)
 // The desktop pipeline is the "cool" pipeline as decided by me.
 #define TMS_COOL_PIPELINE
