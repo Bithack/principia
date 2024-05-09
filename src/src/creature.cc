@@ -160,7 +160,7 @@ creature::init()
 void
 creature::setup()
 {
-    tms_debugf("creature setup %" PRIu32, this->id);
+    tms_debugf("creature setup %u", this->id);
     entity::setup();
 
     this->max_armour = ROBOT_MAX_ARMOUR;

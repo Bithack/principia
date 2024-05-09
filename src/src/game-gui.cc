@@ -1448,7 +1448,7 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                     return true;
                 }
 
-                tms_errorf("Unhandled GW: %" PRIu8, button_id);
+                tms_errorf("Unhandled GW: %u", button_id);
             }
             break;
     }
@@ -2575,7 +2575,7 @@ game::create_sandbox_menu()
             entity *e = menu_objects[n].e;
 
             char override_path[512];
-            snprintf(override_path, 512, "../data-src/override/%" PRIu32 ".png", e->g_id);
+            snprintf(override_path, 512, "../data-src/override/%u.png", e->g_id);
 
             if (!file_exists(override_path)) {
                 cam->width = 2.0f * 1.f/e->menu_scale;
@@ -2604,7 +2604,7 @@ game::create_sandbox_menu()
                 menu_objects[n].image.width  = SIZE_PER_MENU_ITEM;
                 menu_objects[n].image.height = SIZE_PER_MENU_ITEM;
 
-                tms_infof("%" PRIu32 " (%s) at %.2f/%.2f.", menu_objects[n].e->g_id, menu_objects[n].e->get_name(), VEC2_INLINE(menu_objects[n].image.bl));
+                tms_infof("%u (%s) at %.2f/%.2f.", menu_objects[n].e->g_id, menu_objects[n].e->get_name(), VEC2_INLINE(menu_objects[n].image.bl));
 
                 /* object */
                 tms_graph_add_entity_with_children(menu_graph, menu_objects[n].e);
@@ -2614,7 +2614,7 @@ game::create_sandbox_menu()
                 menu_graph->render(cam, this);
                 tms_graph_remove_entity_with_children(menu_graph, menu_objects[n].e);
             } else {
-                tms_infof("%" PRIu32 " (%s) is being overridden", menu_objects[n].e->g_id, menu_objects[n].e->get_name());
+                tms_infof("%u (%s) is being overridden", menu_objects[n].e->g_id, menu_objects[n].e->get_name());
             }
 
             n++;
@@ -2640,7 +2640,7 @@ game::create_sandbox_menu()
             entity *e = menu_objects[n].e;
 
             char override_path[512];
-            snprintf(override_path, 512, "../data-src/override/%" PRIu32 ".png", e->g_id);
+            snprintf(override_path, 512, "../data-src/override/%u.png", e->g_id);
 
             if (file_exists(override_path)) {
                 struct tms_texture tex;

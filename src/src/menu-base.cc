@@ -57,7 +57,7 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             {
                 uint32_t id = VOID_TO_UINT32(w->data3);
                 char tmp[1024];
-                snprintf(tmp, 1023, "https://%s/level/%" PRIu32, P.community_host, id);
+                snprintf(tmp, 1023, "https://%s/level/%u", P.community_host, id);
                 ui::open_url(tmp);
             }
             break;
@@ -66,7 +66,7 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             {
                 uint32_t id = VOID_TO_UINT32(w->data3);
                 char tmp[1024];
-                snprintf(tmp, 1023, "https://%s/contest/%" PRIu32, P.community_host, id);
+                snprintf(tmp, 1023, "https://%s/contest/%u", P.community_host, id);
                 ui::open_url(tmp);
             }
             break;

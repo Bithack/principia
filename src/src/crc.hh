@@ -5,7 +5,6 @@
 #include "pkgman.hh"
 
 #include "zlib.h"
-#include <inttypes.h>
 
 uint32_t crc32_uint64(uint32_t crc, uint64_t data);
 

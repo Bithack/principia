@@ -415,7 +415,7 @@ subscribe_to_entity(lua_State *L, const int index, void *userdata)
         entity *e = *(static_cast<entity**>(p));
         std::set<entity*>::iterator it = es->subscriptions.find(e);
         if (it == es->subscriptions.end()) {
-            tms_debugf("Luascript with id %" PRIu32 " subscribing to entity with id %" PRIu32 " %s",
+            tms_debugf("Luascript with id %u subscribing to entity with id %u %s",
                     es->id,
                     e->id,
                     e->get_name());
@@ -1033,7 +1033,7 @@ extern "C" {
     {
         uint32_t id = lua_tounsigned(L, lua_upvalueindex(1));
 
-        tms_debugf("Attempting to entity userdata with id %" PRIu32, id);
+        tms_debugf("Attempting to entity userdata with id %u", id);
         entity *e = W->get_entity_by_id(id);
 
         entity **ee = static_cast<entity**>(lua_newuserdata(L, sizeof(entity*)));
@@ -3474,7 +3474,7 @@ timelimit_cb(lua_State *L, lua_Debug *d)
 {
     const uint32_t cur_time = SDL_GetTicks() - start_tick;
 
-    tms_debugf("Cur time: %" PRIu32, cur_time);
+    tms_debugf("Cur time: %u", cur_time);
 
     if (is_first_run) {
         if (cur_time > FIRST_RUN_TIMELIMIT) {
@@ -4468,7 +4468,7 @@ escript::read_state(lvlinfo *lvl, lvlbuf *lb)
         lb->r_buf((char*)this->static_draw->texture->data, buf_sz);
 
         uint32_t num_static_sprites = lb->r_uint32();
-        tms_debugf("num static sprites: %" PRIu32, num_static_sprites);
+        tms_debugf("num static sprites: %u", num_static_sprites);
         for (uint32_t i=0; i<num_static_sprites; ++i) {
             struct escript_sprite s;
             s.x = lb->r_float();

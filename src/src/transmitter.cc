@@ -14,7 +14,6 @@
 uint32_t
 frequency_solver_old(uint32_t base, float extra)
 {
-    //tms_debugf("frequency_solver_old(%lu, %f)", base, extra);
     return (base + (uint32_t)roundf(extra * 10.f));
 }
 
@@ -23,7 +22,6 @@ frequency_solver_old(uint32_t base, float extra)
 uint32_t
 frequency_solver_new(uint32_t base, float extra)
 {
-    //tms_debugf("frequency_solver_new(%lu, %f)", base, extra);
     float v = extra;
     if (v == 1.f) v -= 0.001f;
     double offset_d = (double)v * 10.0;
@@ -139,8 +137,8 @@ void
 transmitter::write_quickinfo(char *out)
 {
     if (G && G->state.sandbox && settings["display_object_id"]->v.b) {
-        sprintf(out, "%s (f:%" PRIu32 ", id:%" PRIu32 ", g_id:%" PRIu8 ")", this->get_name(), this->properties[0].v.i, this->id, this->g_id);
+        sprintf(out, "%s (f:%u, id:%u, g_id:%u)", this->get_name(), this->properties[0].v.i, this->id, this->g_id);
     } else {
-        sprintf(out, "%s (f:%" PRIu32 ")", this->get_name(), this->properties[0].v.i);
+        sprintf(out, "%s (f:%u)", this->get_name(), this->properties[0].v.i);
     }
 }

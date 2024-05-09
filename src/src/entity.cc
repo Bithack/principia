@@ -732,7 +732,7 @@ void entity::create_circle(b2BodyType type,
 void entity::create_rect(b2BodyType type,
         float width, float height, m *m, b2Fixture **fixture_out /* = NULL */)
 {
-    tms_assertf(!this->is_composable(), "error: create_rect() called on composable object (g_id: %" PRIu8 ")", this->g_id);
+    tms_assertf(!this->is_composable(), "error: create_rect() called on composable object (g_id: %u)", this->g_id);
 
     if (!this->body) {
         if (type == b2_staticBody && fixture_out == 0) {
@@ -1581,7 +1581,7 @@ entity::write_quickinfo(char *out)
 {
     if (G->state.sandbox && settings["display_object_id"]->v.b) {
     /* XXX GID XXX */
-        sprintf(out, "%s\nid:%" PRIu32 ", g_id:%" PRIu8, this->get_name(), this->id, this->g_id);
+        sprintf(out, "%s\nid:%u, g_id:%u", this->get_name(), this->id, this->g_id);
     } else {
         sprintf(out, "%s", this->get_name());
     }

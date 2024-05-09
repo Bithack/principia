@@ -149,9 +149,9 @@ wireless_plug::write_quickinfo(char *out)
     tms_assertf(G, "if game is not initialized when write_quickinfo is called, something strange is up!");
 
     if (G->state.sandbox && settings["display_object_id"]->v.b) {
-        sprintf(out, "%s (f:%" PRIu32 ", id:%" PRIu32 ", g_id:%" PRIu8 ")", this->get_name(), this->properties[0].v.i, this->id, this->g_id);
+        sprintf(out, "%s (f:%u, id:%u, g_id:%u)", this->get_name(), this->properties[0].v.i, this->id, this->g_id);
     } else {
-        sprintf(out, "%s (f:%" PRIu32 ")", this->get_name(), this->properties[0].v.i);
+        sprintf(out, "%s (f:%u)", this->get_name(), this->properties[0].v.i);
     }
 }
 
@@ -163,7 +163,7 @@ wireless_plug::update_effects()
 
     if (W->is_paused() && G->state.sandbox && G->get_zoom() < 9.f && settings["display_wireless_frequency"]->v.b) {
         char val_str[64];
-        sprintf(val_str, "%" PRIu32, this->properties[0].v.i);
+        sprintf(val_str, "%u", this->properties[0].v.i);
         textbuffer::add_text(val_str, font::medium,
                 p.x, p.y, z,
                 0.f, 0.f, 0.f, 1.f,

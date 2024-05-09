@@ -22,8 +22,6 @@
 #include "faction.hh"
 #include "display.hh"
 
-#include <inttypes.h>
-
 #define ROCKET_VELOCITY 2.f
 #define BOMBER_CHAMBER_ROTATION 65
 
@@ -1293,7 +1291,7 @@ robot_parts::compressor::step()
                     break;
 
                 default:
-                    tms_errorf("Unhandled compressor item emit: %" PRIu32 " - %" PRIu32,
+                    tms_errorf("Unhandled compressor item emit: %u - %u",
                             ci.g_id, ci.sub_id);
                     break;
             }

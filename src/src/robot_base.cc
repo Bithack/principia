@@ -1087,7 +1087,7 @@ robot_base::init_adventure()
 {
     creature::init_adventure();
 
-    tms_debugf("init_adventure called on %" PRIu32, this->id);
+    tms_debugf("init_adventure called on %u", this->id);
 
     this->set_faction(FACTION_FRIENDLY);
 
@@ -1335,7 +1335,7 @@ void
 robot_base::write_quickinfo(char *out)
 {
     if (G->state.sandbox && settings["display_object_id"]->v.b) {
-        sprintf(out, "%s, %sroaming\nid:%" PRIu32 ", g_id:%" PRIu8, this->get_name(), this->properties[2].v.i8 == 1 ? "":"not ", this->id, this->g_id);
+        sprintf(out, "%s, %sroaming\nid:%u, g_id:%u", this->get_name(), this->properties[2].v.i8 == 1 ? "":"not ", this->id, this->g_id);
     } else {
         sprintf(out, "%s, %sroaming\n", this->get_name(), this->properties[2].v.i8 == 1 ? "":"not ");
     }

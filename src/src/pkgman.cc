@@ -2,7 +2,6 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <dirent.h>
-#include <inttypes.h>
 
 #include "zlib.h"
 
@@ -855,7 +854,7 @@ void
 pkgman::get_cache_full_path(int level_type, uint32_t id, uint32_t save_id, char *output)
 {
     if (level_type >= LEVEL_LOCAL_STATE) {
-        snprintf(output, 1023, "%s/%s.%" PRIu32 ".%" PRIu32 ".pcache",
+        snprintf(output, 1023, "%s/%s.%u.%u.pcache",
                 pkgman::get_cache_path(level_type),
                 pkgman::get_state_prefix(level_type),
                 id,
@@ -1431,33 +1430,33 @@ lvlinfo::print() const
 {
     printf("Level headers:\n");
 
-    printf("Level version:       %" PRIu8 "\t(%s)\n",
+    printf("Level version:       %u\t(%s)\n",
             this->version, level_version_string(this->version));
 
-    printf("Level type:          %" PRIu8 "\t(%s)\n",
+    printf("Level type:          %u\t(%s)\n",
             this->type, level_type_string(this->type));
 
     if (this->type != LCAT_PARTIAL) {
-        printf("Community ID:        %" PRIu32 "\n",
+        printf("Community ID:        %u\n",
                 this->community_id);
 
         if (this->version >= LEVEL_VERSION_1_5) {
-            printf("Autosave ID:         %" PRIu32 "\n",
+            printf("Autosave ID:         %u\n",
                     this->autosave_id);
         }
 
-        printf("Revision:            %" PRIu32 "\n",
+        printf("Revision:            %u\n",
                 this->revision);
 
-        printf("Parent ID:           %" PRIu32 "\n",
+        printf("Parent ID:           %u\n",
                 this->parent_id);
     }
 
-    printf("Name len:            %" PRIu8 "\n",
+    printf("Name len:            %u\n",
             this->name_len);
 
     if (this->type != LCAT_PARTIAL) {
-        printf("Description len:     %" PRIu16 "\n",
+        printf("Description len:     %u\n",
                 this->descr_len);
 
         printf("Allow derivatives:   %s\n",
@@ -1466,7 +1465,7 @@ lvlinfo::print() const
         printf("Visibility:          %s\n",
                 level_visibility_string(this->visibility));
 
-        printf("Visibility:          %" PRIu32 "\n",
+        printf("Visibility:          %u\n",
                 this->parent_revision);
 
         printf("Pause on finish:     %s\n",
@@ -1475,33 +1474,33 @@ lvlinfo::print() const
         printf("Show score:          %s\n",
                 this->show_score ? "yes" : "no");
 
-        printf("Background ID:       %" PRIu8 "\n",
+        printf("Background ID:       %u\n",
                 this->bg);
 
         if (this->version >= LEVEL_VERSION_1_5) {
-            printf("Background color:    %" PRIu32 "\n",
+            printf("Background color:    %u\n",
                     this->bg_color);
         }
 
-        printf("Border left:         %" PRIu16 "\n",
+        printf("Border left:         %u\n",
                 this->size_x[0]);
 
-        printf("Border right:        %" PRIu16 "\n",
+        printf("Border right:        %u\n",
                 this->size_x[1]);
 
-        printf("Border down:         %" PRIu16 "\n",
+        printf("Border down:         %u\n",
                 this->size_y[0]);
 
-        printf("Border up:           %" PRIu16 "\n",
+        printf("Border up:           %u\n",
                 this->size_y[1]);
 
-        printf("Vel iterations:      %" PRIu8 "\n",
+        printf("Vel iterations:      %u\n",
                 this->velocity_iterations);
 
-        printf("Pos iterations:      %" PRIu8 "\n",
+        printf("Pos iterations:      %u\n",
                 this->position_iterations);
 
-        printf("Final score:         %" PRIu32 "\n",
+        printf("Final score:         %u\n",
                 this->final_score);
 
         printf("Sandbox cam X:       %f\n",
@@ -1573,25 +1572,25 @@ lvlinfo::print() const
         }
     }
 
-    printf("Num groups:          %" PRIu32 "\n",
+    printf("Num groups:          %u\n",
             this->num_groups);
 
-    printf("Num entities:        %" PRIu32 "\n",
+    printf("Num entities:        %u\n",
             this->num_entities);
 
-    printf("Num connections:     %" PRIu32 "\n",
+    printf("Num connections:     %u\n",
             this->num_connections);
 
-    printf("Num chunks:          %" PRIu32 "\n",
+    printf("Num chunks:          %u\n",
             this->num_chunks);
 
-    printf("Num gentypes:        %" PRIu32 "\n",
+    printf("Num gentypes:        %u\n",
             this->num_gentypes);
 
-    printf("State size:          %" PRIu32 "\n",
+    printf("State size:          %u\n",
             this->state_size);
 
-    printf("Num cables:          %" PRIu32 "\n",
+    printf("Num cables:          %u\n",
             this->num_cables);
 }
 

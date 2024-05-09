@@ -301,7 +301,7 @@ chunk_preloader::preload_connection()
     this->connection_rels.insert(std::make_pair(e_id, conn_id));
     this->connection_rels.insert(std::make_pair(o_id, conn_id));
 
-    tms_debugf("preloaded connection %" PRIu32 " <-> %" PRIu32 " @ %" PRIu32, e_id, o_id, (uint32_t)ptr);
+    tms_debugf("preloaded connection %u <-> %u @ %u", e_id, o_id, (uint32_t)ptr);
 }
 
 void

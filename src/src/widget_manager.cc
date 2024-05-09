@@ -955,7 +955,7 @@ principia_wdg*
 widget_manager::get_widget(enum WidgetArea area_id, uint8_t id)
 {
     if (area_id >= NUM_AREAS) {
-        tms_errorf("Invalid area %" PRIu8, area_id);
+        tms_errorf("Invalid area %u", area_id);
         return 0;
     }
 

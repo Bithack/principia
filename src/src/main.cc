@@ -2369,9 +2369,9 @@ _get_featured_levels(void *_num)
 
         char url[256];
         if (fl_fetch_time && file_exists(featured_data_path)) {
-            snprintf(url, 255, "https://%s/internal/get_featured?num=%" PRIu32 "&time=%d", P.community_host, num_featured_levels, fl_fetch_time);
+            snprintf(url, 255, "https://%s/internal/get_featured?num=%u&time=%d", P.community_host, num_featured_levels, fl_fetch_time);
         } else {
-            snprintf(url, 255, "https://%s/internal/get_featured?num=%" PRIu32, P.community_host, num_featured_levels);
+            snprintf(url, 255, "https://%s/internal/get_featured?num=%u", P.community_host, num_featured_levels);
         }
 
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
@@ -2566,7 +2566,7 @@ _get_featured_levels(void *_num)
 
     uint32_t num_getting_started_links = lb.r_uint32();
 
-    tms_infof("Num getting started links: %" PRIu32, num_getting_started_links);
+    tms_infof("Num getting started links: %u", num_getting_started_links);
 
     menu_shared::gs_entries.clear();
 
@@ -2938,7 +2938,7 @@ _submit_score(void *p)
 
         lp->last_score = more_data[(x+highscore_level_offset)%5];
 
-        tms_infof("Last score: %" PRIu32, lp->last_score);
+        tms_infof("Last score: %u", lp->last_score);
     }
 
     for (int x=0; x<5; ++x) {
@@ -2966,7 +2966,7 @@ _submit_score(void *p)
         curl_mime_filedata(part, data_path);
 
         char tmp[32];
-        sprintf(tmp, "%" PRIu32, W->level.community_id);
+        sprintf(tmp, "%u", W->level.community_id);
 
         part = curl_mime_addpart(mime);
         curl_mime_name(part, "lvl_id");
@@ -3627,7 +3627,7 @@ initial_loader(int step)
                     total += loader_times[x];
                 }
 
-                tms_infof("%27s: %" PRIu32, "Total", total);
+                tms_infof("%27s: %u", "Total", total);
 
                 ui::emit_signal(SIGNAL_QUICKADD_REFRESH);
             }

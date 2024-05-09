@@ -2233,7 +2233,7 @@ freq_range_value_changed(GtkSpinButton *btn, gpointer unused)
 
     char tmp[256];
 
-    snprintf(tmp, 255, "Frequencies: %" PRIu32 " - %" PRIu32, begin, end);
+    snprintf(tmp, 255, "Frequencies: %u - %u", begin, end);
     gtk_label_set_text(freq_range_info, tmp);
 }
 
@@ -2248,7 +2248,7 @@ freq_range_value_text_changed(GtkEditable *editable, gpointer unused)
 
     char tmp[256];
 
-    snprintf(tmp, 255, "Frequencies: %" PRIu32 " - %" PRIu32, begin, end);
+    snprintf(tmp, 255, "Frequencies: %u - %u", begin, end);
     gtk_label_set_text(freq_range_info, tmp);
 }
 
@@ -10117,7 +10117,7 @@ _open_sandbox_menu(gpointer unused)
         char tmp[256];
 
         if (G->selection.e) {
-            snprintf(tmp, 255, "- id:%" PRIu32 ", g_id:%" PRIu8 ", pos:%.2f/%.2f, angle:%.2f -",
+            snprintf(tmp, 255, "- id:%u, g_id:%u, pos:%.2f/%.2f, angle:%.2f -",
                     G->selection.e->id, G->selection.e->g_id,
                     G->selection.e->get_position().x,
                     G->selection.e->get_position().y,
@@ -11186,7 +11186,7 @@ _open_key_listener(gpointer unused)
 
                 uint32_t key = g_value_get_uint(&val);
 
-                tms_debugf("Key: %" PRIu32 ": %s", key, key_names[key]);
+                tms_debugf("Key: %u: %s", key, key_names[key]);
 
                 e->properties[0].v.i = key;
                 P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);

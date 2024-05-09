@@ -7168,7 +7168,7 @@ game::open_state(int id_type, uint32_t id, uint32_t save_id)
         id_type += LEVEL_LOCAL_STATE;
     }
 
-    tms_infof("opening state %" PRIu32 " of %d level %" PRIu32, save_id, id_type, id);
+    tms_infof("opening state %u of %d level %u", save_id, id_type, id);
 
     bool test = this->state.test_playing;
 
@@ -7534,7 +7534,7 @@ game::numkey_pressed(uint8_t key)
         }
     } else {
         if (key > MAX_COPY_ENTITIES) {
-            tms_errorf("handle_slot called with slot %" PRIu8 ", even though the max number of copy entities is %d", key, MAX_COPY_ENTITIES);
+            tms_errorf("handle_slot called with slot %u, even though the max number of copy entities is %d", key, MAX_COPY_ENTITIES);
             return;
         }
 
@@ -9194,8 +9194,8 @@ game::check_select_object(int x, int y, int pid)
                         entity *e = this->sel_p_ent;
                         snprintf(msg, 2047,
                                       BOLD_BEGIN "Name:" BOLD_END " %s\n"
-                                      BOLD_BEGIN "ID:" BOLD_END " %" PRIu32 "\n"
-                                      BOLD_BEGIN "Type ID (g_id):" BOLD_END " %" PRIu8 "\n"
+                                      BOLD_BEGIN "ID:" BOLD_END " %u\n"
+                                      BOLD_BEGIN "Type ID (g_id):" BOLD_END " %u\n"
                                       BOLD_BEGIN "Position:" BOLD_END " %.2f/%.2f\n"
                                       BOLD_BEGIN "Angle:" BOLD_END " %.2f\n",
                                       e->get_name(),
@@ -9500,7 +9500,7 @@ game::check_select_object(int x, int y, int pid)
                     down[pid] = false;
                     if (this->sel_p_ent && this->sel_p_ent != rm && this->sel_p_ent->id != 0) {
                         if (this->sel_p_ent->flag_active(ENTITY_IS_ROBOT)) {
-                            ui::messagef("Managing robot with id %" PRIu32 ".", this->sel_p_ent->id);
+                            ui::messagef("Managing robot with id %u.", this->sel_p_ent->id);
                             rm->properties[0].v.i = this->sel_p_ent->id;
                         }
                         this->add_highlight(this->sel_p_ent, false);
@@ -11543,9 +11543,9 @@ game::clamp_entities()
 
     W->groups = new_groups;
 
-    tms_debugf("Done in %" PRIu32 " ticks", SDL_GetTicks()-ss);
-    tms_debugf("Old biggest id: %" PRIu32 ". New: %" PRIu32, prev_biggest, id-1);
-    tms_debugf("Entities: %" PRIu32 ", Cables: %" PRIu32 ", Groups: %" PRIu32,
+    tms_debugf("Done in %u ticks", SDL_GetTicks()-ss);
+    tms_debugf("Old biggest id: %u. New: %u", prev_biggest, id-1);
+    tms_debugf("Entities: %u, Cables: %u, Groups: %u",
                num_entities, num_cables, num_groups);
 
     of::_id = id;

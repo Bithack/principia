@@ -303,22 +303,22 @@ _settings::save(void)
             it != this->_data.end(); ++it) {
         switch (it->second->type) {
             case S_INT8:
-                fprintf(fh, "%s=%" PRId8 "\n", it->first, it->second->v.i8);
+                fprintf(fh, "%s=%d\n", it->first, it->second->v.i8);
                 break;
             case S_INT32:
-                fprintf(fh, "%s=%" PRId32 "\n", it->first, it->second->v.i);
+                fprintf(fh, "%s=%d\n", it->first, it->second->v.i);
                 break;
             case S_UINT8:
-                fprintf(fh, "%s=%" PRIu8 "\n", it->first, it->second->v.u8);
+                fprintf(fh, "%s=%u\n", it->first, it->second->v.u8);
                 break;
             case S_UINT32:
-                fprintf(fh, "%s=%" PRIu32 "\n", it->first, it->second->v.u32);
+                fprintf(fh, "%s=%u\n", it->first, it->second->v.u32);
                 break;
             case S_FLOAT:
                 fprintf(fh, "%s=%f\n", it->first, it->second->v.f);
                 break;
             case S_BOOL:
-                fprintf(fh, "%s=%" PRId8 "\n", it->first, it->second->v.b);
+                fprintf(fh, "%s=%d\n", it->first, it->second->v.b);
                 break;
             default:
                 tms_fatalf("Unknown setting type: %d", it->second->type);

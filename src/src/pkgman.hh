@@ -92,7 +92,6 @@ static const char *level_version_strings[] = {
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include <inttypes.h>
 
 #ifdef __cplusplus
 

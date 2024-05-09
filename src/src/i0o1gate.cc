@@ -213,7 +213,7 @@ void
 var_getter::write_quickinfo(char *out)
 {
     if (G && G->state.sandbox && settings["display_object_id"]->v.b) {
-        snprintf(out, 255, "%s (%s, id:%" PRIu32 ", g_id:%" PRIu8 ")", this->get_name(), this->properties[0].v.s.buf, this->id, this->g_id);
+        snprintf(out, 255, "%s (%s, id:%u, g_id:%u)", this->get_name(), this->properties[0].v.s.buf, this->id, this->g_id);
     } else {
         snprintf(out, 255, "%s (%s)", this->get_name(), this->properties[0].v.s.buf);
     }

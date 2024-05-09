@@ -1951,7 +1951,7 @@ world::load_cable(lvlbuf *buf, int version, uint64_t flags, uint32_t id_modifier
         }
 
         if (e != 0) {
-            //tms_infof("%p, %p(%s)(%"PRIu32"), %d", c->p[x], e->get_edevice(), e->get_name(), e->id, s_index);
+            //tms_infof("%p, %p(%s)(%u), %d", c->p[x], e->get_edevice(), e->get_name(), e->id, s_index);
             bool ret = c->connect(c->p[x], e->get_edevice(), s_index);
 
             if (!ret) {
@@ -2188,13 +2188,13 @@ world::fill_buffer(lvlinfo *lvl, lvlbuf *buf,
             buf->w_uint8(c->is_moveable());
         }
 
-        tms_debugf("cable plug 0 is connected? %d %" PRIu32, c->p[0]->is_connected(), c->p[0]->is_connected() ? c->p[0]->plugged_edev->get_entity()->id : 0);
+        tms_debugf("cable plug 0 is connected? %d %u", c->p[0]->is_connected(), c->p[0]->is_connected() ? c->p[0]->plugged_edev->get_entity()->id : 0);
         buf->w_uint32((c->p[0]->is_connected() ? c->p[0]->plugged_edev->get_entity()->id + id_modifier: 0));
         buf->w_uint8(c->p[0]->get_socket_index());
         buf->w_float(p0.x);
         buf->w_float(p0.y);
 
-        tms_debugf("cable plug 1 is connected? %d %" PRIu32, c->p[1]->is_connected(), c->p[1]->is_connected() ? c->p[1]->plugged_edev->get_entity()->id : 0);
+        tms_debugf("cable plug 1 is connected? %d %u", c->p[1]->is_connected(), c->p[1]->is_connected() ? c->p[1]->plugged_edev->get_entity()->id : 0);
         buf->w_uint32((c->p[1]->is_connected() ? c->p[1]->plugged_edev->get_entity()->id + id_modifier: 0));
         buf->w_uint8(c->p[1]->get_socket_index());
         buf->w_float(p1.x);
@@ -2593,7 +2593,7 @@ world::load_partial_from_buffer(lvlbuf *lb, b2Vec2 position,
     /* XXX: There is probably a more simple way to increment the ID, this increases the ID by a bit too much for some reason. */
     uint32_t id_modifier = of::get_next_id();
 
-    tms_infof("loading buffer with id modifier %" PRIu32 ", version %" PRIu8, id_modifier, tmp.version);
+    tms_infof("loading buffer with id modifier %u, version %u", id_modifier, tmp.version);
 
     uint8_t old_version = W->level.version;
     W->level.version = tmp.version;
@@ -2713,7 +2713,7 @@ world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_i
         } else {
 #if defined(HEAVY_LEVEL_DEBUG) && defined(DEBUG)
             tms_debugf("Successfully read level");
-            tms_debugf("Version: %" PRIu8, this->level.version);
+            tms_debugf("Version: %u", this->level.version);
 #endif
         }
 

@@ -15,8 +15,6 @@
 #include "faction.hh"
 #include "text.hh"
 
-#include <inttypes.h>
-
 static std::vector<struct factory_object> generic_objects;
 static std::vector<struct factory_object> armory_objects;
 static std::vector<struct factory_object> robot_objects;

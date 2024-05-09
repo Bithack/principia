@@ -37,7 +37,7 @@ crc32_level(const lvlinfo &lvl, const lvlbuf &lb, uint32_t timestamp, uint32_t l
 #ifndef _NO_TMS
     tms_assertf(method < 5, "only 5 methods of crc32_level are implemented.");
 
-    tms_infof("Using lastscore %" PRIu32 "in crc32_level.", last_score);
+    tms_infof("Using lastscore %u in crc32_level.", last_score);
 #endif
 
     unsigned char crc_buf[CRC_BUFFER_SIZE];
