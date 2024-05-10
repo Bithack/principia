@@ -1483,6 +1483,41 @@ extern "C" {
         return 0;
     }
 
+    /* entity:set_fixed_rotation(bool) */
+    static int l_entity_set_fixed_rotation(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "entity:set_fixed_rotation", "1.5.1", LEVEL_VERSION_1_5_1);
+
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+
+        bool is_fixed = lua_toboolean(L, 2);
+
+        b2Body *b = e->get_body(0);
+
+        if (b) {
+            b->SetFixedRotation(is_fixed);
+        }
+
+        return 0;
+    }
+
+    /* entity:is_fixed_rotation() */
+    static int l_entity_is_fixed_rotation(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "entity:is_fixed_rotation", "1.5.1", LEVEL_VERSION_1_5_1);
+
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+
+        b2Body *b = e->get_body(0);
+
+        if (b) {
+            lua_pushboolean(L, b->IsFixedRotation());
+            return 1;
+        }
+
+        return 0;
+    }
+
     /* vel_x, vel_y = entity:get_velocity() */
     static int l_entity_get_velocity(lua_State *L)
     {
@@ -3516,8 +3551,8 @@ static const luaL_Reg entity_methods[] = {
     LUA_REG(get_position),
     LUA_REG(get_angle),
     LUA_REG(set_angle),
-    //LUA_REG(set_fixed_rotation),
-    //LUA_REG(is_fixed_rotation),
+    LUA_REG(set_fixed_rotation),
+    LUA_REG(is_fixed_rotation),
     LUA_REG(get_velocity),
     LUA_REG(get_angular_velocity),
     LUA_REG(get_bbox),
