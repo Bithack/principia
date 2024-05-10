@@ -1689,6 +1689,27 @@ extern "C" {
         return 0;
     }
 
+    /* entity:apply_force(x, y) */
+    static int l_entity_apply_force(lua_State *L)
+    {
+        ESCRIPT_VERSION_ERROR(L, "entity:apply_force", "1.5.1", LEVEL_VERSION_1_5_1);
+
+        entity *e = *(static_cast<entity**>(luaL_checkudata(L, 1, "EntityMT")));
+        float x = luaL_checknumber(L, 2);
+        float y = luaL_checknumber(L, 3);
+
+        b2Vec2 force(x, y);
+
+        for (uint32_t x = 0; x < e->get_num_bodies(); ++x) {
+            b2Body *b = e->get_body(x);
+
+            if (b)
+                b->ApplyForceToCenter(force);
+        }
+
+        return 0;
+    }
+
     /* entity:set_velocity(x, y) */
     static int l_entity_set_velocity(lua_State *L)
     {
@@ -3565,8 +3586,8 @@ static const luaL_Reg entity_methods[] = {
     LUA_REG(is_static),
     LUA_REG(absorb),
     LUA_REG(apply_torque),
+    LUA_REG(apply_force),
     LUA_REG(set_velocity),
-    //LUA_REG(apply_force),
     LUA_REG(warp),
     LUA_REG(show),
     LUA_REG(hide),
