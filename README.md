@@ -1,9 +1,9 @@
 # Principia Open Source Project
 ![Principia](https://raw.githubusercontent.com/Bithack/principia/master/data-src/github-image0.gif)
 
-Principia is a sandbox physics game originally released in November 2013. It is the successor to the 2011 Android hit game "Apparatus". In August of 2022 Principia was released as open source, and is now being developed as an open source project.
+Principia is a sandbox physics game originally released in November 2013. It is the successor to the 2011 Android hit game "Apparatus". In August of 2022 Principia was released as open source, and is now being developed as an open source project by the Principia community.
 
-Principia runs on anything with a recent enough version of Windows, Linux or Android. There exists code to compile for iOS, but is currently not functional. (See [#85](https://github.com/Bithack/principia/issues/85)) An incomplete port to Haiku OS is also available, and work to port Principia to other platforms are very welcome.
+Principia runs on anything with a recent enough version of Windows, Linux or Android. Experimental ports to Haiku OS and macOS are also available, and work to port Principia to other platforms are very welcome.
 
 ## Useful Links
 * New community site: https://principia-web.se
@@ -17,6 +17,10 @@ Principia runs on anything with a recent enough version of Windows, Linux or And
 * Forum: https://principia-web.se/forum/
 
 * Discord server: https://principia-web.se/discord
+
+* Codeberg mirror: https://codeberg.org/principia/principia
+
+* Mastodon: https://fosstodon.org/@principia
 
 ## Binary builds
 Binary builds of Principia for Windows, Android and Linux are available on the [downloads page](https://principia-web.se/download).
