@@ -283,6 +283,9 @@ endif()
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	# Downgrade some errors to warnings when building with Clang
 	set(COMMON_FLAGS "${COMMON_FLAGS} -Wno-error=incompatible-function-pointer-types -Wno-error=int-conversion")
+else()
+	# Do the same for GCC
+	set(COMMON_FLAGS "${COMMON_FLAGS} -Wno-error=incompatible-pointer-types -Wno-error=int-conversion")
 endif()
 
 set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1")
