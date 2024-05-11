@@ -314,7 +314,20 @@ endif()
 # Installation
 # ------------
 
-if(UNIX)
+if(APPLE)
+	set(BUNDLE_NAME ${PROJECT_NAME}.app)
+	set(BUNDLE_PATH "${BUNDLE_NAME}")
+
+	set(BINDIR ${BUNDLE_NAME}/Contents/MacOS)
+	set(SHAREDIR ${BUNDLE_NAME}/Contents/Resources)
+
+	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data-pc" DESTINATION "${SHAREDIR}")
+	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data-shared" DESTINATION "${SHAREDIR}")
+
+	install(FILES "packaging/principia.icns" DESTINATION "${SHAREDIR}")
+	install(FILES "packaging/Info.plist" DESTINATION "${BUNDLE_PATH}/Contents")
+
+else()
 	include(GNUInstallDirs)
 	set(SHAREDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}")
 	set(BINDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
@@ -328,6 +341,23 @@ if(UNIX)
 	install(FILES "packaging/principia.png" DESTINATION "${SHAREDIR}/icons/hicolor/128x128/apps")
 
 	install(FILES "packaging/se.principia_web.principia.metainfo.xml" DESTINATION "${SHAREDIR}/metainfo")
+endif()
 
-	install(TARGETS ${PROJECT_NAME} DESTINATION ${BINDIR})
+install(TARGETS ${PROJECT_NAME}
+	RUNTIME DESTINATION ${BINDIR}
+	LIBRARY DESTINATION ${BINDIR}
+	ARCHIVE DESTINATION ${BINDIR}
+	BUNDLE DESTINATION .
+)
+
+if(APPLE)
+	set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)
+	set(CPACK_GENERATOR ZIP)
+	include(CPack)
+
+	install(CODE "
+		set(BU_CHMOD_BUNDLE_ITEMS ON)
+		include(BundleUtilities)
+		fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/${BUNDLE_PATH}\" \"\" \"\${CMAKE_INSTALL_PREFIX}/${BINDIR}\")
+	" COMPONENT Runtime)
 endif()
