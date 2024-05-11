@@ -1,0 +1,42 @@
+name: linux
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'data-*/**'
+      - 'packaging/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/linux.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'data-*/**'
+      - 'packaging/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/linux.yml'
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bullseye
+      env: { LANG: "C.UTF-8" }
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          apt-get update
+          apt-get install -y g++ libgtk-3-dev libgl-dev libglew-dev libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev libsdl2-dev cmake ninja-build desktop-file-utils ca-certificates wget file --no-install-recommends
+
+      - name: Build
+        run: |
+          mkdir build; cd build
+          ../packaging/build-appimage.sh
+
+      - name: Upload output as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Principia-x86_64.AppImage
+          path: build/Principia-x86_64.AppImage

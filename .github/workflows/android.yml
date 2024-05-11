@@ -1,0 +1,41 @@
+name: build
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'build-android/**'
+      - 'data-*/**'
+      - 'packaging/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/android.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'build-android/**'
+      - 'data-*/**'
+      - 'packaging/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/android.yml'
+
+jobs:
+  android:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends openjdk-11-jdk-headless
+
+      - name: Build with gradle
+        run: |
+          cd build-android
+          ./gradlew assemblerelease
+
+      - name: Save apk artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: principia-release-unsigned.apk
+          path: build-android/principia/build/outputs/apk/release/principia-release-unsigned.apk
