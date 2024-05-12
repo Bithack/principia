@@ -820,6 +820,7 @@ class entity : public tms::entity
 
     virtual void write_tooltip(char *out);
     virtual void write_quickinfo(char *out);
+    virtual void write_object_id(char *out);
 
     virtual void pre_write(void);
     virtual void post_write(void){};

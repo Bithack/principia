@@ -136,9 +136,5 @@ transmitter::solve_electronics()
 void
 transmitter::write_quickinfo(char *out)
 {
-    if (G && G->state.sandbox && settings["display_object_id"]->v.b) {
-        sprintf(out, "%s (f:%u, id:%u, g_id:%u)", this->get_name(), this->properties[0].v.i, this->id, this->g_id);
-    } else {
-        sprintf(out, "%s (f:%u)", this->get_name(), this->properties[0].v.i);
-    }
+    sprintf(out, "%s (f:%u)", this->get_name(), this->properties[0].v.i);
 }

@@ -212,11 +212,7 @@ var_getter::compatible_with(entity *o)
 void
 var_getter::write_quickinfo(char *out)
 {
-    if (G && G->state.sandbox && settings["display_object_id"]->v.b) {
-        snprintf(out, 255, "%s (%s, id:%u, g_id:%u)", this->get_name(), this->properties[0].v.s.buf, this->id, this->g_id);
-    } else {
-        snprintf(out, 255, "%s (%s)", this->get_name(), this->properties[0].v.s.buf);
-    }
+    snprintf(out, 255, "%s (%s)", this->get_name(), this->properties[0].v.s.buf);
 }
 
 key_listener::key_listener()

@@ -146,13 +146,7 @@ wplug::create_body()
 void
 wireless_plug::write_quickinfo(char *out)
 {
-    tms_assertf(G, "if game is not initialized when write_quickinfo is called, something strange is up!");
-
-    if (G->state.sandbox && settings["display_object_id"]->v.b) {
-        sprintf(out, "%s (f:%u, id:%u, g_id:%u)", this->get_name(), this->properties[0].v.i, this->id, this->g_id);
-    } else {
-        sprintf(out, "%s (f:%u)", this->get_name(), this->properties[0].v.i);
-    }
+    sprintf(out, "%s (f:%u)", this->get_name(), this->properties[0].v.i);
 }
 
 void

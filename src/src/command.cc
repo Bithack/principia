@@ -318,7 +318,6 @@ command::write_quickinfo(char *out)
             sprintf(out, "%s (%s)", this->get_name(), command_strings[this->cmd]);
         else
             sprintf(out, "%s (%s %.2f)", this->get_name(), command_strings[this->cmd], .5f+this->properties[1].v.f);
-    } else {
+    } else
         sprintf(out, "%s", this->get_name());
-    }
 }

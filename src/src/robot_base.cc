@@ -495,7 +495,7 @@ robot_base::on_death()
     G->unlock();
 }
 
-/** 
+/**
  * Apply default motion specials, when no other thing is involved
  * called when motion is MOTION_DEFAULT
  **/
@@ -581,7 +581,7 @@ robot_base::apply_default_motion()
 void
 robot_base::apply_climbing_motion()
 {
-    /* XXX currently only the adventure robot can climb ladders */ 
+    /* XXX currently only the adventure robot can climb ladders */
     entity *la = W->get_entity_by_id(this->ladder_id);
 
     if (la) {
@@ -1334,11 +1334,7 @@ robot_base::consume(item *c, bool silent, bool first/*=false*/)
 void
 robot_base::write_quickinfo(char *out)
 {
-    if (G->state.sandbox && settings["display_object_id"]->v.b) {
-        sprintf(out, "%s, %sroaming\nid:%u, g_id:%u", this->get_name(), this->properties[2].v.i8 == 1 ? "":"not ", this->id, this->g_id);
-    } else {
-        sprintf(out, "%s, %sroaming\n", this->get_name(), this->properties[2].v.i8 == 1 ? "":"not ");
-    }
+    sprintf(out, "%s, %sroaming", this->get_name(), this->properties[2].v.i8 == 1 ? "":"not ");
 }
 
 bool
@@ -1624,7 +1620,7 @@ robot_base::roam_gather_sight()
 }
 
 /**
- * Default target picker can target robots only, minibot replaces this with 
+ * Default target picker can target robots only, minibot replaces this with
  * a target picker that picks scrap and dead robots
  **/
 bool

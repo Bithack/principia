@@ -509,8 +509,5 @@ decoration::add_to_world()
 void
 decoration::write_quickinfo(char *out)
 {
-    if (G->state.sandbox && settings["display_object_id"]->v.b) {
-        sprintf(out, "%s (id:%u, g_id:%u)", decorations[this->get_decoration_type()].name, this->id, this->g_id);
-    } else
-        sprintf(out, "%s", decorations[this->get_decoration_type()].name);
+    sprintf(out, "%s", decorations[this->get_decoration_type()].name);
 }

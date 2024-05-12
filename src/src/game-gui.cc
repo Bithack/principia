@@ -2015,6 +2015,13 @@ game::refresh_info_label()
             char tmp[256];
             e->write_quickinfo(tmp);
 
+            if (G->state.sandbox && settings["display_object_id"]->v.b) {
+                char tmp2[256];
+                e->write_object_id(tmp2);
+
+                strcat(tmp, tmp2);
+            }
+
             this->info_label->set_text(tmp);
             this->info_label->active = true;
             if (adventure_playing) {

@@ -1788,11 +1788,7 @@ item::update_effects()
 void
 item::write_quickinfo(char *out)
 {
-    if (G && G->state.sandbox && settings["display_object_id"]->v.b) {
-        sprintf(out, "%s\nid:%u, g_id:%u", item_options[this->get_item_type()].name, this->id, this->g_id);
-    } else {
-        sprintf(out, "%s", item_options[this->get_item_type()].name);
-    }
+    sprintf(out, "%s", item_options[this->get_item_type()].name);
 }
 
 void
