@@ -124,9 +124,7 @@ scup::step()
         }
     }
 
-
     if (this->strength_mod > 0.f) {
-        b2Vec2 scup_position = this->get_position();
         b2Vec2 from[SCUP_NUM_JOINTS];
         b2Vec2 to[SCUP_NUM_JOINTS];
 

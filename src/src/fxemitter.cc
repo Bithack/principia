@@ -4,7 +4,6 @@
 #include "spritebuffer.hh"
 #include "linebuffer.hh"
 #include "soundmanager.hh"
-#include "soundman.hh"
 #include "ledbuffer.hh"
 #include "ui.hh"
 #include "item.hh"

@@ -56,34 +56,35 @@ static inline tvec3 tvec3f(float x, float y, float z)
 
     return r;
     //return (tvec3){x,y,z};
-};
+}
 
 static inline void tvec3_add(tvec3 *a, tvec3 *b)
 {
     a->x += b->x;
     a->y += b->y;
     a->z += b->z;
-};
+}
 
 static inline void tvec3_sub(tvec3 *a, tvec3 *b)
 {
     a->x -= b->x;
     a->y -= b->y;
     a->z -= b->z;
-};
+}
 
 static inline void tvec3_copy(tvec3 *a, tvec3 *b)
 {
     a->x = b->x;
     a->y = b->y;
     a->z = b->z;
-};
+}
+
 static inline void tvec3_mul(tvec3 *a, float m)
 {
     a->x*=m;
     a->y*=m;
     a->z*=m;
-};
+}
 
 static inline tvec3
 tvec3_lerp(tvec3 a, tvec3 b, float f)
@@ -104,7 +105,7 @@ tvec3_lerp(tvec3 a, tvec3 b, float f)
         f*a.z + fi*b.z
     };
     */
-};
+}
 
 static inline void tvec3_normalize(tvec3 *v)
 {
@@ -114,12 +115,12 @@ static inline void tvec3_normalize(tvec3 *v)
     v->x = v->x/a;
     v->y = v->y/a;
     v->z = v->z/a;
-};
+}
 
 static inline float tvec3_magnitude(tvec3 *v)
 {
     return sqrt(tvec3_dot(v,v));
-};
+}
 
 static inline void tvec3_cross(tvec3 *r, tvec3 v1, tvec3 v2)
 {
@@ -131,7 +132,7 @@ static inline void tvec3_cross(tvec3 *r, tvec3 v1, tvec3 v2)
     r->x = tmp.x;
     r->y = tmp.y;
     r->z = tmp.z;
-};
+}
 
 static inline float tvec3_dot(tvec3 *v1, tvec3 *v2)
 {

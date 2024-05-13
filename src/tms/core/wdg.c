@@ -373,7 +373,6 @@ btn_radial_render(struct tms_wdg *w, struct tms_surface *s)
     tvec4 col = s->ddraw->color;
 
     float px = w->pos.x, py = w->pos.y;
-    float sx = 1.f, sy = 0.f;
     float r = 0.f;
 
     if (_tms.emulating_portrait) {
@@ -382,7 +381,6 @@ btn_radial_render(struct tms_wdg *w, struct tms_surface *s)
         px = (float)xx;
         py = (float)yy;
 
-        sx = 0.f; sy = 1.f;
         r = -90.f;
     }
 
@@ -400,8 +398,6 @@ btn_radial_render(struct tms_wdg *w, struct tms_surface *s)
     tms_ddraw_sprite_r(s->ddraw, w->s[0], px, py, w->size.x, w->size.y, r - rotation_offset);
 
     float a =  w->value[0] * 2.f * M_PI + (_tms.emulating_portrait ? M_PI/2.f : 0.f);
-    float cs = cosf(a);
-    float sn = sinf(a);
 
     float button_w = w->size.x/1.5f;
     float button_h = w->size.y/1.5f;
@@ -565,7 +561,6 @@ static void
 render(struct tms_wdg *w, struct tms_surface *s)
 {
     float px = w->pos.x, py = w->pos.y;
-    float sx = 1.f, sy = 0.f;
     float r = 0.f;
 
     if (_tms.emulating_portrait) {
@@ -574,7 +569,6 @@ render(struct tms_wdg *w, struct tms_surface *s)
         px = (float)xx;
         py = (float)yy;
 
-        sx = 0.f; sy = 1.f;
         r = -90.f;
     }
 

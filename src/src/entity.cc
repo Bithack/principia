@@ -3,15 +3,11 @@
 #include "group.hh"
 #include "gear.hh"
 #include "game.hh"
-#include "connection.hh"
-#include "rack.hh"
 #include "rubberband.hh"
 #include "pivot.hh"
 #include "damper.hh"
-#include "pixel.hh"
 #include "model.hh"
 #include "world.hh"
-#include "settings.hh"
 #include "ui.hh"
 
 entity::entity()

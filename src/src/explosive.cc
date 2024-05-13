@@ -1,11 +1,7 @@
 #include "explosive.hh"
-#include "spritebuffer.hh"
 #include "model.hh"
 #include "world.hh"
 #include "game.hh"
-#include "impact_sensor.hh"
-#include "soundmanager.hh"
-#include "robot_base.hh"
 #include "fxemitter.hh"
 #include "game.hh"
 

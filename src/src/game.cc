@@ -716,8 +716,6 @@ render_next_prio(struct tms_rstate *state, void *value)
 {
     int val = VOID_TO_INT(value);
 
-    game *g = static_cast<game*>(state->data);
-
     switch (val) {
         case 2:
             G->tmp_ao_mask = (tvec3){.0f, 0.f, 0.0f};
@@ -751,8 +749,6 @@ int
 render_hidden_prio(struct tms_rstate *rstate, void *value)
 {
     int val = VOID_TO_INT(value);
-
-    game *g = static_cast<game*>(rstate->data);
 
     switch (val) {
         case 2: G->tmp_ao_mask = (tvec3){.0f, 0.f, 0.0f}; break;
@@ -875,6 +871,7 @@ post_fn(struct tms_rstate *state)
 void
 ao_post_fn(struct tms_rstate *state)
 {
+    /// XXX: what?
     return;
     if (W->level.type == LCAT_ADVENTURE && adventure::player) {
         glColorMask(0,0,1,0);
@@ -902,8 +899,6 @@ ao_post_fn(struct tms_rstate *state)
 int ao_mask_color(struct tms_rstate *state, void *value)
 {
     int val = VOID_TO_INT(value);
-
-    game *g = static_cast<game*>(state->data);
 
     switch (val) {
         case 2:
@@ -3257,7 +3252,7 @@ game::render()
 
             if (error->e && error->alpha > 0.1f) {
                 tms_ddraw_set_color(this->dd, 1.0f, 1.0f, 1.0f, error->alpha);
-                double x = (double)_tms.last_time/100000.;
+
                 error->alpha -= _tms.dt * this->get_time_mul();
                 entity *e = error->e;
 
@@ -3567,8 +3562,6 @@ game::render()
     std::vector<entity*> hp_occurences;
 
     for (int x=0; x<NUM_HP; x++) {
-        float mv[16];
-
         struct hp *h = &this->hps[x];
         if (h->time <= 0.f || !h->e) {
             continue;
@@ -7240,8 +7233,6 @@ game::save_state()
 bool
 game::autosave()
 {
-    char tmp[1024];
-
     if (!this->state.sandbox) {
         tms_debugf("Can't save while outside the sandbox.");
         return false;
@@ -7259,8 +7250,6 @@ game::autosave()
 bool
 game::save(bool create_icon/*=true*/, bool force/*=false*/)
 {
-    char tmp[1024];
-
     if (!this->state.sandbox && !force) {
         tms_debugf("Can't save while outside the sandbox.");
         return false;
@@ -10941,10 +10930,7 @@ game::say_goodbye(b2Joint *j)
         if ((ji = (joint_info*)j->GetUserData())) {
             switch (ji->type) {
                 case JOINT_TYPE_CONN:
-                    {
-                        //tms_trace();
-                        //tms_debugf("say goodbye conn joint");
-                    }
+                    //tms_debugf("say goodbye conn joint");
                     break;
 
                 case JOINT_TYPE_CABLE:

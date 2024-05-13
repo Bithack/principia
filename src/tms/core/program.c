@@ -18,9 +18,8 @@ tms_program_free(struct tms_program *p)
 GLuint
 tms_program_get_uniform(struct tms_program *p, const char *name)
 {
-#ifdef DEBUG
     tms_assertf(name[0] != '~', "oops! tried to fetch a gamma-corrected uniform");
-#endif
+
     return glGetUniformLocation(p->id, name);
 }
 
@@ -138,12 +137,12 @@ tms_program_load_uniforms(struct tms_program *p)
 void
 tms_program_load_attributes(struct tms_program *p)
 {
+#if 0
     int x, n;
     GLint size;
     GLenum type;
     char name[256];
 
-    /*
     glGetProgramiv(p->id, GL_ACTIVE_ATTRIBUTES, (GLint*)&p->num_attributes);
 
     if (n = p->num_attributes) {
@@ -162,7 +161,7 @@ tms_program_load_attributes(struct tms_program *p)
             int loc =
         }
     }
-    */
+#endif
 }
 
 int*

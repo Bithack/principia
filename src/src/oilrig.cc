@@ -3,7 +3,6 @@
 #include "model.hh"
 #include "object_factory.hh"
 #include "tpixel.hh"
-#include "soundman.hh"
 #include "game.hh"
 #include "item.hh"
 #include "ledbuffer.hh"

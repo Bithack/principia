@@ -8,7 +8,6 @@
 #include "object_factory.hh"
 #include "i1o1gate.hh"
 #include "ui.hh"
-#include "soundmanager.hh"
 #include "adventure.hh"
 #include "motor.hh"
 #include "rubberband.hh"
@@ -66,10 +65,8 @@ static float category_selector_alpha = 0.f;
 static int category_selector_x = 0;
 static float menu_highlight = 0.f;
 static int menu_height = 0;
-static int menu_margin = 0;
 static float menu_cam_vel = 0.f;
 static int menu_cam_target = -1;
-static float menu_cam_y = 0.f;
 static tms::graph *menu_graph = 0;
 static tms::camera *menu_cam = 0;
 static float menu_depth = 0.f;
@@ -109,27 +106,6 @@ std::vector<struct menu_obj> menu_objects;
 std::vector<int> menu_objects_cat[of::num_categories];
 
 int gid_to_menu_pos[256];
-
-static tvec2 screen_to_menu(float x, float y)
-{
-    tvec2 r;
-    r.x = x - (_tms.window_width - _menu_width);
-    r.y = y;
-    return r;
-}
-
-static tvec2 menu_to_screen(float x, float y)
-{
-    tvec2 r;
-    r.x = x + (_tms.window_width - _menu_width);
-    r.y = y;
-    return r;
-}
-
-static float get_bmenu_topy()
-{
-    return b_y + b_h/2.f;
-}
 
 float
 game::get_bmenu_x()
@@ -3217,16 +3193,6 @@ game::render_edev_labels()
     }
     tmat4_copy(mv, this->cam->view);
     tms_ddraw_set_matrices(this->dd, mv, this->cam->projection);
-}
-
-static int get_sep_pos(int y)
-{
-    int py = 0;
-    int n = 0;
-    for (int x=0; x<y; x ++)
-        n+= of::get_num_objects(x);
-
-    return n*s_size;
 }
 
 struct tms_texture*

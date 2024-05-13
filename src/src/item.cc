@@ -2,13 +2,10 @@
 #include "model.hh"
 #include "game.hh"
 #include "robot_parts.hh"
-#include "settings.hh"
 #include "spritebuffer.hh"
 #include "fxemitter.hh"
 #include "crane.hh"
 #include "ui.hh"
-#include "progress.hh"
-#include "soundmanager.hh"
 
 #define ROCKET_FORCE_MULT 40.f
 #define ROCKET_FALLOFF 0.9f

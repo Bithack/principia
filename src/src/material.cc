@@ -5,7 +5,6 @@
 #include "ui.hh"
 #include "simplebg.hh"
 #include "gui.hh"
-#include "plant.hh"
 #include "misc.hh"
 
 #include <locale.h>

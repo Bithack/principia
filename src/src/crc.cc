@@ -40,9 +40,6 @@ crc32_level(const lvlinfo &lvl, const lvlbuf &lb, uint32_t timestamp, uint32_t l
     tms_infof("Using lastscore %u in crc32_level.", last_score);
 #endif
 
-    unsigned char crc_buf[CRC_BUFFER_SIZE];
-    size_t crc_buf_len;
-
     uint32_t crc = crc32(0L, Z_NULL, 0);
 
     switch (method) {

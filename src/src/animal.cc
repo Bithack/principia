@@ -3,7 +3,6 @@
 #include "model.hh"
 #include "game.hh"
 #include "ui.hh"
-#include "robot_base.hh"
 
 #define ANIMAL_AGING_SPEED 0.00001f
 
@@ -405,7 +404,6 @@ animal::create_head_joint()
         this->j_head = (b2RevoluteJoint*)this->body->GetWorld()->CreateJoint(&rjd);
         tms_debugf("ANIMAL created head joint. %d", this->j_head->GetType());
     } else {
-        tms_trace();
         tms_debugf("no head???? Body: %p. Head: %p", this->body, this->equipments[EQUIPMENT_HEAD]);
         if (this->equipments[EQUIPMENT_HEAD]) {
             tms_debugf("head body: %p", this->equipments[EQUIPMENT_HEAD]->body);

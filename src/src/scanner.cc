@@ -4,9 +4,7 @@
 #include "game.hh"
 #include "linebuffer.hh"
 #include "spritebuffer.hh"
-#include "robot_base.hh"
 #include "explosive.hh"
-#include "settings.hh"
 
 mirror::mirror()
 {

@@ -1,6 +1,4 @@
 #include "pkgwarp.hh"
-#include "model.hh"
-#include "material.hh"
 #include "game.hh"
 #include "pkgman.hh"
 #include "ui.hh"

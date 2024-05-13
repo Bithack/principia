@@ -1,9 +1,5 @@
 #include "basepixel.hh"
-#include "material.hh"
-#include "model.hh"
-#include "game.hh"
 #include "object_factory.hh"
-#include "tpixel.hh"
 
 #define USE_NEW_SEARCH
 #define PIXEL_GRID .5f
@@ -83,7 +79,7 @@ basepixel::ReportFixture(b2Fixture *f)
     if (e && (e->g_id == O_PIXEL || e->g_id == O_TPIXEL) && e != this && e->get_layer() == this->get_layer()) {
         float angle_mod = std::abs(fmodf(e->_angle, M_PI/2.));
         if (angle_mod < (M_PI/2.)-.05 && angle_mod > .05) return true;
-        b2Vec2 pos = e->get_position();
+
         b2Vec2 cur_pos(this->start_x, this->start_y);
         double min_x, min_y;
         b2PolygonShape *s = static_cast<b2PolygonShape*>(f->GetShape());
@@ -101,22 +97,26 @@ basepixel::ReportFixture(b2Fixture *f)
         b2Vec2 rpos(min_x-cur_pos.x, min_y-cur_pos.y);
         double before_round_x = (rpos.x / .5);
         double before_round_y = (rpos.y / .5);
-        double before_grid_x = roundf(before_round_x);
-        double before_grid_y = roundf(before_round_y);
         int grid_x = roundf(rpos.x / PIXEL_GRID);
         int grid_y = roundf(rpos.y / PIXEL_GRID);
-        int grid2_x = roundf(min_x / PIXEL_GRID);
-        int grid2_y = roundf(min_y / PIXEL_GRID);
         int base_x = this->search_width / 2;
         int base_y = this->search_width / 2;
         int side = 1;
+
         switch (e->properties[0].v.i8) {
             case 0: side = 1; break;
             case 1: side = 2; break;
             case 2: side = 4; break;
             case 3: side = 8; break;
         }
+
 #ifdef PIXEL_DEBUG
+        b2Vec2 pos = e->get_position();
+        double before_grid_x = roundf(before_round_x);
+        double before_grid_y = roundf(before_round_y);
+        int grid2_x = roundf(min_x / PIXEL_GRID);
+        int grid2_y = roundf(min_y / PIXEL_GRID);
+
         tms_debugf("pixel id: %u", e->id);
         tms_debugf("pos_x: %f", pos.x);
         tms_debugf("pos_y: %f", pos.y);

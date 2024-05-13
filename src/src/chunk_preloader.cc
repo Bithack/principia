@@ -892,7 +892,6 @@ chunk_preloader::read_chunk(preload_info i)
 
 #ifdef DEBUG_SPECIFIC_CHUNK
     if (c->pos_x == DEBUG_CHUNK_X && c->pos_y == DEBUG_CHUNK_Y) {
-        tms_trace();
         tms_debugf("(chunk %d,%d) reading chunk, phase: %d",
                 c->pos_x, c->pos_y,
                 c->generate_phase);
@@ -995,7 +994,6 @@ chunk_preloader::read_chunks(lvlinfo *lvl, lvlbuf *lb)
             if (c) {
 #ifdef DEBUG_SPECIFIC_CHUNK
                 if (c->pos_x == DEBUG_CHUNK_X && c->pos_y == DEBUG_CHUNK_Y) {
-                    tms_trace();
                     tms_debugf("(chunk %d, %d) reading chunk, phase: %d, read phase: %d",
                             c->pos_x, c->pos_y,
                             c->generate_phase, generate_phase);
@@ -1048,7 +1046,6 @@ chunk_preloader::read_chunks(lvlinfo *lvl, lvlbuf *lb)
 
 #ifdef DEBUG_SPECIFIC_CHUNK
                 if (cp.x == DEBUG_CHUNK_X && cp.y == DEBUG_CHUNK_Y) {
-                    tms_trace();
                     tms_debugf("(chunk %d,%d) preloading chunk, phase: %d", cp.x, cp.y, generate_phase);
                 }
 #endif

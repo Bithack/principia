@@ -3,7 +3,6 @@
 #include "model.hh"
 #include "game.hh"
 #include "ui.hh"
-#include "group.hh"
 
 class beam_ray_cb : public b2RayCastCallback
 {

@@ -1,6 +1,4 @@
 #include "angularvelmeter.hh"
-#include "model.hh"
-#include "material.hh"
 #include "game.hh"
 
 /**

@@ -64,7 +64,6 @@ int
 main(int argc, char **argv)
 {
     SDL_Event  ev;
-    int        done = 0;
 
     int status = mkfifo("/tmp/principia.run", S_IWUSR | S_IRUSR);
     int skip_pipe = 0;

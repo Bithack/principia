@@ -1,8 +1,6 @@
 #pragma once
 
 #include <tms/bindings/cpp/cpp.hh>
-#include "resource.hh"
-#include "tpixel.hh"
 #include "text.hh"
 #include "const.hh"
 

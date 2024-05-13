@@ -4,14 +4,10 @@
 #include "model.hh"
 #include "world.hh"
 #include "game.hh"
-#include "soundman.hh"
 #include "soundmanager.hh"
 #include "linebuffer.hh"
-#include "scanner.hh"
 #include "explosive.hh"
 #include "adventure.hh"
-#include "beam.hh"
-#include "pixel.hh"
 #include "fxemitter.hh"
 #include "spritebuffer.hh"
 #include "entity.hh"
@@ -19,8 +15,6 @@
 #include "creature.hh"
 #include "item.hh"
 #include "fxemitter.hh"
-#include "faction.hh"
-#include "display.hh"
 
 #define ROCKET_VELOCITY 2.f
 #define BOMBER_CHAMBER_ROTATION 65
@@ -2118,7 +2112,6 @@ robot_parts::head_base::on_dir_change()
     int new_dir = (int)roundf(this->r->i_dir);
 
     //tms_debugf("dir change head base");
-    //tms_trace();
 
     if (this->r->recreate_head_on_dir_change) {
         this->remove_from_world();

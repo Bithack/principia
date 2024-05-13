@@ -129,7 +129,6 @@ static uint8_t       _publish_lvl_pkg_index = 0;
 static bool          _publish_lvl_lock = false;
 static volatile bool _publish_lvl_uploading = false;
 static bool          _publish_lvl_uploading_error = false;
-static char          _publish_lvl_error_msg[512];
 
 /* Publish PKG variables */
 static uint32_t      _publish_pkg_id;
@@ -2904,8 +2903,6 @@ _submit_score(void *p)
 
     const char *storage = tbackend_get_storage_path();
     snprintf(data_path, 1023, "%s/data.bin", storage);
-
-    uint32_t highscore_level_id = BASE_HIGHSCORE_LEVEL_ID;
 
     int highscore_level_offset = highscore_offset(W->level.community_id);
 

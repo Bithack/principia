@@ -330,7 +330,6 @@ level_chunk::occupy_pixel(int local_x, int local_y, gentype *gt)
         if (i != previous->genslots.end()) {
             previous->genslots.erase(i);
         } else {
-            tms_trace();
             tms_warnf("what? previous gentype did not have a genslot for this");
         }
 #endif
@@ -338,7 +337,6 @@ level_chunk::occupy_pixel(int local_x, int local_y, gentype *gt)
 
 #ifdef DEBUG_SPECIFIC_CHUNK
     if (this->pos_x == DEBUG_CHUNK_X && this->pos_y == DEBUG_CHUNK_Y) {
-        tms_trace();
         tms_debugf("(chunk %d,%d) occupied slot %d %d, sorting %d",
                 DEBUG_CHUNK_X, DEBUG_CHUNK_Y,
                 cisx, cisy, gt->sorting);

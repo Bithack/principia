@@ -1,6 +1,5 @@
 #include "cursorfield.hh"
 #include "ui.hh"
-#include "model.hh"
 #include "world.hh"
 
 cursorfield::cursorfield()

@@ -35,7 +35,11 @@ struct tms_texture {
     void (*buffer_fn)(struct tms_texture *tex);
 };
 
-static inline void tms_texture_set_buffer_fn(struct tms_texture *tex, void(*fn)(struct tms_texture *tex)){ tex->buffer_fn = fn; };
+static inline void tms_texture_set_buffer_fn(struct tms_texture *tex, void(*fn)(struct tms_texture *tex))
+{
+    tex->buffer_fn = fn;
+}
+
 struct tms_texture* tms_texture_alloc(void);
 void tms_texture_free(struct tms_texture *tex);
 unsigned char* tms_texture_alloc_buffer(struct tms_texture *tex, int width, int height, int num_channels);

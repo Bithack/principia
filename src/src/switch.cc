@@ -2,7 +2,6 @@
 #include "material.hh"
 #include "model.hh"
 #include "ledbuffer.hh"
-#include "world.hh"
 
 switcher::switcher()
     : n_out(0)

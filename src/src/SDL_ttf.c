@@ -346,7 +346,6 @@ static FT_Error Load_Glyph(TTF_Font* font, Uint16 ch, c_glyph* cached, int want)
 
     if (((want & CACHED_BITMAP) && !(cached->stored & CACHED_BITMAP)) ||
          ((want & CACHED_PIXMAP) && !(cached->stored & CACHED_PIXMAP))) {
-        int mono = (want & CACHED_BITMAP);
         int i;
         FT_Bitmap* src;
         FT_Bitmap* dst;

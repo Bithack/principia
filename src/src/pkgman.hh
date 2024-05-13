@@ -98,7 +98,7 @@ static const char *level_version_strings[] = {
 #include "progress.hh"
 #include "const.hh"
 
-static const char *level_version_string(int level_version)
+inline const char *level_version_string(int level_version)
 {
     const char *ret = level_version_strings[level_version];
 
@@ -107,6 +107,8 @@ static const char *level_version_string(int level_version)
     else
         return "N/A";
 }
+
+#ifdef DEBUG
 
 static const char *level_type_string(uint8_t level_type)
 {
@@ -128,6 +130,8 @@ static const char *level_visibility_string(uint8_t level_visibility)
         default:                return "Unknown";
     }
 }
+
+#endif
 
 class lvlbuf;
 class pkginfo;

@@ -1,7 +1,6 @@
 #include "menu_shared.hh"
 #include "menu_main.hh"
 #include "menu_create.hh"
-#include "settings.hh"
 #include "text.hh"
 #include "gui.hh"
 #include "widget_manager.hh"

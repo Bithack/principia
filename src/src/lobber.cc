@@ -1,7 +1,6 @@
 #include "lobber.hh"
 #include "model.hh"
 #include "game.hh"
-#include "soundman.hh"
 #include "explosive.hh"
 
 #define SHOOT_VELOCITY 10.f

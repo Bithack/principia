@@ -4,7 +4,6 @@
 #include "settings.hh"
 #include "misc.hh"
 #include <tms/bindings/cpp/cpp.hh>
-#include <deque>
 
 #define FONT_CACHE_VERSION 34
 

@@ -1,10 +1,7 @@
 #include "robot.hh"
 #include "model.hh"
 #include "game.hh"
-#include "soundmanager.hh"
 #include "adventure.hh"
-#include "item.hh"
-#include "faction.hh"
 
 #define HEAD_SPEED_UP 2.f
 #define HEAD_SPEED_DOWN -2.f

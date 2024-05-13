@@ -8,7 +8,6 @@
 #include "misc.hh"
 #include "main.hh"
 #include "game.hh"
-#include "soundmanager.hh"
 #include "version.hh"
 
 extern struct tms_program *menu_bg_program;

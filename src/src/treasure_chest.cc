@@ -5,7 +5,6 @@
 #include "item.hh"
 #include "resource.hh"
 #include "ui.hh"
-#include "soundman.hh"
 
 #include <sstream>
 

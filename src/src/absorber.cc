@@ -3,7 +3,6 @@
 #include "model.hh"
 #include "game.hh"
 #include "adventure.hh"
-#include "soundman.hh"
 
 #include "object_factory.hh"
 

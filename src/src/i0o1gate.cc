@@ -3,7 +3,6 @@
 #include "world.hh"
 #include "game.hh"
 #include "object_factory.hh"
-#include "settings.hh"
 #include "ui.hh"
 
 #define STEPS_PER_FREQUENCY 125

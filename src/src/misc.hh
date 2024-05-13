@@ -77,7 +77,7 @@ static tvec3 TV_MENU_BLACK = MENU_BLACK_F;
 static tvec3 TV_MENU_GRAY  = MENU_GRAY_F;
 #endif
 
-static bool
+inline bool
 file_exists(const char *path)
 {
     struct stat s;
@@ -102,7 +102,7 @@ chunk_mat_to_tpixel_mat(uint8_t mat)
 
 std::vector<char*> p_split(const char *str, size_t len, const char *delim);
 
-static int
+inline int
 highscore_offset(uint32_t community_id)
 {
     int offset = 0;

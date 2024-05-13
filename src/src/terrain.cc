@@ -3,10 +3,7 @@
 #include "chunk.hh"
 #include "object_factory.hh"
 #include "game.hh"
-#include "robot.hh"
-#include "faction.hh"
 #include "noise.h"
-#include "box.hh"
 #include "plant.hh"
 #include "gentype.hh"
 #include "decorations.hh"
@@ -153,7 +150,6 @@ terrain_transaction::apply()
 
 #ifdef DEBUG_SPECIFIC_CHUNK
         if (chunk->pos_x == DEBUG_CHUNK_X && chunk->pos_y == DEBUG_CHUNK_Y) {
-            tms_trace();
             tms_debugf("applying gentype in chunk %d %d", DEBUG_CHUNK_X, DEBUG_CHUNK_Y);
         }
 #endif
@@ -204,7 +200,6 @@ terrain_transaction::apply()
 
         if (chunk->generate_phase >= 5) {
             /* XXX XXX XXX */
-            tms_trace();
             tms_fatalf("this should never happen, chunk xy: %d %d, dist: %d %d", chunk->pos_x, chunk->pos_y, this->start_x-chunk->pos_x, this->start_y-chunk->pos_y);
 #if 1
             chunk->remerge();
@@ -307,7 +302,6 @@ chunk_window::set_seed(uint64_t seed)
 {
     this->seed = seed;
     tms_infof("chunk window set seed to %" PRIu64, seed);
-    tms_trace();
     _noise_init_perm(seed & 0xffffffff);
 }
 
@@ -323,7 +317,6 @@ chunk_window::generate_heightmap(int chunk_x, bool search)
         float *heights = (float*)malloc(16*sizeof(float));
 
 #if 0
-        tms_trace();
         tms_debugf("generate heightmap for chunk x %d", chunk_x);
 #endif
 
@@ -361,7 +354,6 @@ level_chunk::generate(chunk_window *win, int up_to_phase/*=5*/)
 
 #ifdef DEBUG_SPECIFIC_CHUNK
     if (up_to_phase > this->generate_phase && this->pos_x == DEBUG_CHUNK_X && this->pos_y == DEBUG_CHUNK_Y) {
-        tms_trace();
         tms_debugf("(chunk %d,%d) generate phase %d->%d %p", DEBUG_CHUNK_X, DEBUG_CHUNK_Y,
                 this->generate_phase, up_to_phase, this);
     }
@@ -563,7 +555,6 @@ level_chunk::generate_phase2(chunk_window *win)
         }
 
         if (curr_y > 500) {
-            tms_trace();
             tms_fatalf("No! %f %f", (curr_y)*8.f, heights[0]);
             break;
         }
@@ -769,7 +760,6 @@ level_chunk::generate_phase4(chunk_window *win)
 
 #ifdef DEBUG_SPECIFIC_CHUNK
     if (this->pos_x == DEBUG_CHUNK_X && this->pos_y == DEBUG_CHUNK_Y) {
-        tms_trace();
         tms_debugf("(chunk %d,%d) apply gentypes", this->pos_x, this->pos_y);
     }
 #endif
@@ -785,7 +775,6 @@ level_chunk::generate_phase5(chunk_window *win)
 {
 #if 0
     if (this->generate_phase < 5) {
-        tms_trace();
         tms_debugf("GENERATE PHASE 5 for %d %d", this->pos_x, this->pos_y);
     }
 #endif
@@ -862,7 +851,6 @@ level_chunk::remerge()
 
 #ifdef DEBUG_SPECIFIC_CHUNK
     if (this->pos_x == DEBUG_CHUNK_X && this->pos_y == DEBUG_CHUNK_Y) {
-        tms_trace();
         tms_debugf("(chunk %d,%d) REMERGE created [%p] %d %d %d",
                 this->pos_x, this->pos_y,
                 this, this->num_merged[0], this->num_merged[1],this->num_merged[2]);

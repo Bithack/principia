@@ -4,10 +4,7 @@
 #include "model.hh"
 #include "world.hh"
 #include "game.hh"
-#include "transmitter.hh"
-#include "settings.hh"
 #include "ui.hh"
-#include "textbuffer.hh"
 
 mini_transmitter::mini_transmitter()
     : wireless_plug(CABLE_OUT)

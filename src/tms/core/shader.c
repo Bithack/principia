@@ -16,8 +16,6 @@
 static const char *unknown = "<unknown>";
 static char infolog[INFOLOG_SIZE];
 static GLsizei infolog_length;
-static int load_uniforms(struct tms_shader *s);
-static int load_attributes(struct tms_shader *s);
 
 /* dummy shader used for global defines */
 struct tms_shader _tms_global_shader = {0};

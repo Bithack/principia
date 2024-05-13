@@ -2,7 +2,6 @@
 #include "material.hh"
 #include "game.hh"
 #include "model.hh"
-#include "settings.hh"
 
 generator::generator()
     : voltage(3.f)

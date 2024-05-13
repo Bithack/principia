@@ -1,6 +1,4 @@
 #include "prompt.hh"
-#include "model.hh"
-#include "material.hh"
 #include "world.hh"
 #include "game.hh"
 #include "ui.hh"

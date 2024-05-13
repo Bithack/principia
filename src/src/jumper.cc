@@ -1,5 +1,4 @@
 #include "jumper.hh"
-#include "settings.hh"
 #include "material.hh"
 #include "model.hh"
 #include "world.hh"

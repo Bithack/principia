@@ -26,7 +26,6 @@
 #include "factory.hh"
 #include "gravityman.hh"
 #include "faction.hh"
-#include "simplebg.hh"
 #include "robot_base.hh"
 #include "impact_sensor.hh"
 #include "animal.hh"
@@ -1988,8 +1987,6 @@ world::load_connection(lvlbuf *buf, int version, uint64_t flags, uint32_t id_mod
     uint32_t _o_id = buf->r_uint32();
     uint32_t chunk_pos_x = 0;
     uint32_t chunk_pos_y = 0;
-    uint32_t e_data = 0;
-    uint32_t o_data = 0;
 
     c.e = this->get_entity_by_id(_e_id);
 
@@ -3072,6 +3069,8 @@ world::raycast(b2RayCastCallback *callback,
 #endif
 }
 
+#ifdef DEBUG
+
 static struct game_debug_line*
 create_gdl(float x1, float y1, float x2, float y2, float r, float g, float b, int64_t life)
 {
@@ -3089,6 +3088,8 @@ create_gdl(float x1, float y1, float x2, float y2, float r, float g, float b, in
 
     return gdl;
 }
+
+#endif
 
 void
 world::query_aabb(b2QueryCallback *callback,

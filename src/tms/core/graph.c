@@ -7,7 +7,6 @@
 #pragma GCC push_options
 #pragma GCC optimize ("O0")
 
-static int dummy(struct tms_rstate *state, void *unused);
 static int flat(struct tms_rstate *state, void *);
 static int enable_blending(struct tms_rstate *state, void *blend);
 static int bind_texture0(struct tms_rstate *state, struct tms_texture *texture);
@@ -535,13 +534,6 @@ tms_graph_render(struct tms_graph *g, struct tms_camera *cam, void *pipeline_dat
 }
 
 /**  sorting functions **/
-
-static int
-dummy(struct tms_rstate *state,
-      void *unused)
-{
-    return T_OK;
-}
 
 static int
 flat(struct tms_rstate *state,

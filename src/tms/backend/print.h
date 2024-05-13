@@ -4,9 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static void tms_trace(void) {}
-
-static inline int _fatal_exit() {
+static inline int _fatal_exit(void) {
     exit(1);
     return 0;
 }

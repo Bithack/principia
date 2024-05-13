@@ -20,7 +20,6 @@ companion::companion()
 void
 companion::roam_update_dir()
 {
-    b2Vec2 r = this->get_position();
     b2Vec2 target_pos = this->roam_target->get_position();
 
     if (this->target_dist > 2.f) {

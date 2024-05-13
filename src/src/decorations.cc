@@ -1,7 +1,6 @@
 #include "decorations.hh"
-#include "game.hh"
-#include "settings.hh"
 #include "ui.hh"
+#include "world.hh"
 
 struct decoration_info decorations[NUM_DECORATIONS] = {
     {

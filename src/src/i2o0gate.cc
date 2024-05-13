@@ -4,7 +4,6 @@
 #include "material.hh"
 #include "soundmanager.hh"
 #include "object_factory.hh"
-#include "settings.hh"
 #include "ui.hh"
 
 i2o0gate::i2o0gate()

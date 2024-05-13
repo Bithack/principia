@@ -56,18 +56,6 @@ menu_pkg_render(struct tms_wdg *w, struct tms_surface *s)
     }
 }
 
-static const char *opkgs[] = {
-    "Puzzle",
-    "Puzzle Adventure",
-    "Minigames",
-
-    "Atanasoff's Nightmare",
-    "World's Most Annoying Level Pack",
-    "Helicopter",
-    "Apparatus",
-    "More Minigames"
-};
-
 static bool                down[MAX_P];
 static tvec2               touch_pos[MAX_P];
 static uint64_t            touch_time[MAX_P];

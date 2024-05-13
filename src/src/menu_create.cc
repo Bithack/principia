@@ -233,12 +233,6 @@ menu_create::pause(void)
     return T_OK;
 }
 
-static inline bool
-clicked_within(float x, float y, float x1, float y1, float x2, float y2)
-{
-    return (x > x1 && x < x2 && y > y1 && y < y2);
-}
-
 int
 menu_create::handle_input(tms::event *ev, int action)
 {

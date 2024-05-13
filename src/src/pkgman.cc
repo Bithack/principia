@@ -948,11 +948,6 @@ pkgman::get_pkgs(int type)
         return 0;
 
     const char *path = pkgman::get_pkg_path(type);
-#ifdef TMS_BACKEND_WINDOWS
-    wchar_t tmp[1024];
-#else
-    char tmp[1024];
-#endif
 
     DIR *dir;
     struct dirent *ent;
@@ -1425,6 +1420,8 @@ lvledit::save_to_path(const char *path)
     return false;
 }
 
+#ifdef DEBUG
+
 void
 lvlinfo::print() const
 {
@@ -1593,6 +1590,8 @@ lvlinfo::print() const
     printf("Num cables:          %u\n",
             this->num_cables);
 }
+
+#endif
 
 void
 lvlbuf::ensure(uint64_t s)

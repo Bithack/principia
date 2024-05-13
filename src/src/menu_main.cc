@@ -1,9 +1,7 @@
 #include "menu_shared.hh"
 #include "menu_main.hh"
-#include "menu_pkg.hh"
 #include "menu_create.hh"
 #include "misc.hh"
-#include "settings.hh"
 #include "ui.hh"
 #include "game.hh"
 #include "widget_manager.hh"
@@ -138,12 +136,6 @@ menu_main::render(void)
             _tms.opengl_width, _tms.opengl_height);
 
     return T_OK;
-}
-
-static inline bool
-clicked_within(float x, float y, float x1, float y1, float x2, float y2)
-{
-    return (x > x1 && x < x2 && y > y1 && y < y2);
 }
 
 int

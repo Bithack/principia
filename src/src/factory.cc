@@ -7,13 +7,9 @@
 #include "object_factory.hh"
 #include "item.hh"
 #include "adventure.hh"
-#include "fxemitter.hh"
 #include "soundmanager.hh"
-#include "soundman.hh"
-#include "beam.hh"
 #include "robot_base.hh"
 #include "faction.hh"
-#include "text.hh"
 
 static std::vector<struct factory_object> generic_objects;
 static std::vector<struct factory_object> armory_objects;
@@ -644,7 +640,6 @@ game::render_factory(void)
     int a_x = 0.f;
     int a_y = 0.f;
     int base_a_y = 0.f;
-    struct tms_sprite *tmp;
     int iw = _tms.xppcm*.25f;
     int ih = _tms.yppcm*.25f;
 

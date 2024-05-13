@@ -6,9 +6,7 @@
 #include "text.hh"
 #include "settings.hh"
 #include "ui.hh"
-#include "soundman.hh"
 #include "soundmanager.hh"
-#include "item.hh"
 #include "game.hh"
 
 p_text *pscreen::text_username;

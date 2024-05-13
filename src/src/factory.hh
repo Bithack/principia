@@ -1,7 +1,6 @@
 #pragma once
 
 #include "edevice.hh"
-#include "resource.hh"
 #include "item.hh"
 
 #include <vector>

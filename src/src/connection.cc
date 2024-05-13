@@ -6,7 +6,6 @@
 #include "gear.hh"
 #include "rack.hh"
 #include "game.hh"
-#include "spritebuffer.hh"
 
 void
 connection::update(void)

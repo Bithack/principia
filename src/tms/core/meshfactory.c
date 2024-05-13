@@ -140,32 +140,6 @@ short cube_indices[] = {
 static struct tms_mesh *square;
 static struct tms_mesh *cube;
 static struct tms_mesh *cylinder;
-static struct tms_mesh *sphere;
-
-/*
-struct tms_mesh *tms_meshfactory_get_sphere(void)
-{
-    if (meshes.sphere == 0) {
-        meshes.sphere = tms_mesh_alloc(3, "position", 3, "normal", 3);
-        meshes.sphere->primitive_type = GL_TRIANGLES;
-
-        double ystep = M_PI/(SPHERE_QUALITY/2.);
-        double xstep = M_PI/(SPHERE_QUALITY);
-
-        for (int y=0; y<SPHERE_QUALITY; y++) {
-            for (int x=0; x<SPHERE_QUALITY; x++) {
-
-            }
-        }
-
-        tms_mesh_set_vertices(meshes.cube, cube_verts, sizeof(cube_verts)/sizeof(float));
-        tms_mesh_set_indices(meshes.cube, cube_indices, sizeof(cube_indices)/sizeof(short));
-        tms_mesh_upload(meshes.cube);
-    }
-
-    return meshes.sphere;
-}
-*/
 
 #define CQ 12
 

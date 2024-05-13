@@ -2,26 +2,7 @@
 #include "model.hh"
 #include "game.hh"
 #include "material.hh"
-#include "ledbuffer.hh"
-#include "soundman.hh"
 #include "font.hh"
-
-static const char*
-int2bin(uint32_t i, size_t len=4)
-{
-    size_t bits = len * CHAR_BIT;
-
-    char * str = (char*)malloc(bits + 1);
-    if (!str) return NULL;
-    str[bits] = 0;
-
-    // type punning because signed shift is implementation-defined
-    unsigned u = *(unsigned *)&i;
-    for(; bits--; u >>= 1)
-        str[bits] = u & 1 ? '1' : '0';
-
-    return str;
-}
 
 static void
 panel_post_render(struct tms_wdg *w, struct tms_surface *s)

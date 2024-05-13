@@ -1,12 +1,8 @@
 #include "i1o0gate.hh"
 #include "model.hh"
 #include "material.hh"
-#include "ledbuffer.hh"
 #include "world.hh"
 #include "game.hh"
-#include "soundmanager.hh"
-#include "settings.hh"
-#include "ui.hh"
 
 i1o0gate::i1o0gate()
 {

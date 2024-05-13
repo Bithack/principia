@@ -293,20 +293,6 @@ struct vert {
     tvec4 color;
 };
 
-static int
-lua_table_len(lua_State *L, const int index)
-{
-    int n = 0;
-
-    lua_pushnil(L);
-    while (lua_next(L, index) != 0) {
-        ++n;
-        lua_pop(L, 1);
-    }
-
-    return n;
-}
-
 static char error_message[1024];
 
 static const char* lua_pop_error(lua_State *L, const char *prefix="Lua error: ")
@@ -1416,6 +1402,7 @@ extern "C" {
 
     /* ENTITY */
 
+#if 0
     static int create_entity(lua_State *L)
     {
         double val = lua_tonumber(L, lua_upvalueindex(1));
@@ -1424,6 +1411,7 @@ extern "C" {
         lua_replace(L, lua_upvalueindex(1));  /* update upvalue */
         return 1;
     }
+#endif
 
     static int l_entity_persist(lua_State *L)
     {

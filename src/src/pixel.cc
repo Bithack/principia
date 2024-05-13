@@ -2,7 +2,6 @@
 #include "material.hh"
 #include "model.hh"
 #include "game.hh"
-#include "transmitter.hh"
 #include "ui.hh"
 
 static bool initialized = false;

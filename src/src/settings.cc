@@ -10,8 +10,6 @@
 #include <errno.h>
 
 struct shadow_res {int x; int y;};
-static struct shadow_res shadow_resolutions[10];
-static int num_shadow_resolutions;
 
 _settings settings;
 

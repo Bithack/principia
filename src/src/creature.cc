@@ -3320,7 +3320,6 @@ creature::set_tool(int tool_id, robot_parts::tool *t/*=0*/)
 {
     if (!this->has_feature(CREATURE_FEATURE_TOOLS)) {
         tms_debugf("entity %u with gid %u does not support tools", this->id, this->g_id);
-        tms_trace();
         return false;
     }
 
@@ -3375,7 +3374,6 @@ creature::set_weapon(int weapon_id, robot_parts::weapon *w/*=0*/)
 {
     if (!this->has_feature(CREATURE_FEATURE_WEAPONS)) {
         tms_debugf("entity %u with gid %u does not support weapons", this->id, this->g_id);
-        tms_trace();
         return false;
     }
 

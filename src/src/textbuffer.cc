@@ -1,5 +1,4 @@
 #include "textbuffer.hh"
-#include "gui.hh"
 
 static tms::gbuffer *verts;
 static tms::gbuffer *verts2;

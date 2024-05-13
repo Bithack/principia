@@ -1,6 +1,5 @@
 #include "timer.hh"
 #include "game.hh"
-#include "model.hh"
 #include "ui.hh"
 
 #include <sys/time.h>

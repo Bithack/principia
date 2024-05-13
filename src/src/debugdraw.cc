@@ -1,6 +1,5 @@
 #include "debugdraw.hh"
 #include "entity.hh"
-#include "world.hh"
 
 debugdraw::debugdraw()
 {

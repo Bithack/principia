@@ -228,7 +228,6 @@ chunk_window::load_slot(int s, level_chunk *c)
 
 #ifdef DEBUG_SPECIFIC_CHUNK
     if (c->pos_x == DEBUG_CHUNK_X && c->pos_y == DEBUG_CHUNK_Y) {
-        tms_trace();
         tms_debugf("(chunk %d,%d) ADDING TO WORLD: %d %p", c->pos_x, c->pos_y, c->generate_phase, c);
     }
 #endif
@@ -397,9 +396,6 @@ chunk_window::load_slot(int s, level_chunk *c)
             int base = (num*vertices_per_tpixel);
             struct vertex *v = v_first + base;
 
-            static const float NOISE_FREQ = 3.354643765;
-            static const float NOISE_SCALE = .1f;
-
             //float as = .5f;//tp->get_size()*2.f;
             float rs = (3.f - size)*(.125f);
             float as = (float)(1 << size)*.25f*2.f;
@@ -411,9 +407,6 @@ chunk_window::load_slot(int s, level_chunk *c)
                     _rv[n].p.y * as + (y)*.5 + offs,
                     _rv[n].p.z * zs
                 );
-
-                //v[n].pos.y += NOISE_SCALE*_noise1((_rv[n].p.x*as + offs + c->pos_x*8.f + x*.5f)*NOISE_FREQ);
-                //v[n].pos.x += NOISE_SCALE*_noise1((_rv[n].p.y*as + offs + c->pos_y*8.f + y*.5f)*NOISE_FREQ);
 
                 v[n].nor = (tvec3){
                     _rv[n].n.x,

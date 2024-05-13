@@ -2,7 +2,6 @@
 #include "text.hh"
 #include "game.hh"
 #include "gui.hh"
-#include "ui.hh"
 #include "misc.hh"
 #include "menu_shared.hh"
 #include "menu_main.hh"

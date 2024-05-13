@@ -4,8 +4,6 @@
 #include "ledbuffer.hh"
 #include "world.hh"
 #include "game.hh"
-#include "soundmanager.hh"
-#include "settings.hh"
 #include "ui.hh"
 
 i1o1gate::i1o1gate()
