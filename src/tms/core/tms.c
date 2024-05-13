@@ -25,7 +25,6 @@ struct tms_singleton _tms = {
 int
 tms_init(void)
 {
-    tms.model_loaders = thash_create_string_table(8);
     tms.framebuffer = 0;
     tms.is_paused = 0;
     tms.state = TMS_STATE_DEFAULT;
@@ -49,18 +48,6 @@ tms_init(void)
     tproject_init_pipelines();
     tproject_initialize();
 
-    return T_OK;
-}
-
-/**
- * Register a 3D model filetype loader
- * @relates tms
- **/
-int
-tms_register_model_loader(struct tms_mesh* (*load_fn)(struct tms_model *, SDL_RWops *, int *), const char *ext)
-{
-    thash_add(tms.model_loaders, ext, strlen(ext), load_fn);
-    tms_debugf("registered model loader (%p) for \"%s\"", load_fn, ext);
     return T_OK;
 }
 

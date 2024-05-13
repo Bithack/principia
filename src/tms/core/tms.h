@@ -96,8 +96,6 @@ extern struct tms_singleton {
     int                     state; /**< current state, see TMS_STATE */
     char *gl_extensions;
 
-    struct thash *model_loaders;
-
     double gamma;
 
     int is_paused;
@@ -120,8 +118,6 @@ void tms_step(void);
 int tms_render(void);
 int tms_begin_frame(void);
 int tms_end_frame(void);
-
-int tms_register_model_loader(struct tms_mesh * (*load_fn)(struct tms_model *, SDL_RWops *, int *), const char *ext);
 
 static inline void tms_convert_to_portrait(int *x, int *y)
 {

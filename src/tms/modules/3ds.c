@@ -9,15 +9,7 @@ struct vertex {
     tvec2 uv;
 };
 
-static struct tms_mesh * load_3ds_model(struct tms_model *model, SDL_RWops *fp, int *status);
-
-void
-tmod_3ds_init(void)
-{
-    tms_register_model_loader(load_3ds_model, ".3ds");
-}
-
-static struct tms_mesh *
+struct tms_mesh *
 load_3ds_model(struct tms_model *model,
                SDL_RWops *fp, int *status)
 {

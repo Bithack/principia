@@ -76,8 +76,6 @@
 
 #endif
 
-extern "C" void tmod_3ds_init(void);
-
 enum {
     DOWNLOAD_GENERIC_ERROR              = 1,
     DOWNLOAD_WRITE_ERROR                = 2,
@@ -3476,7 +3474,6 @@ initial_loader(int step)
             /* initialize worker threads */
             w_init();
 
-            tmod_3ds_init();
             of::init();
 
             P.s_loading_screen->set_text("Loading materials...");

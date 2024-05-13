@@ -6,9 +6,9 @@
 
 struct thash {
     void **tbl;
-    int (*add)(struct thash *, ...);
-    int (*rm)(struct thash *, ...);
-    void* (*get)(struct thash *, ...);
+    int (*add)(struct thash *, void *, void *);
+    int (*rm)(struct thash *, void *);
+    void* (*get)(struct thash *, void *);
     uint32_t size;
     uint32_t mask;
 
@@ -39,10 +39,7 @@ struct thash_entry_pointer {
     void *next;
 };
 
-struct thash *thash_create_pointer_table(uint32_t tbl_sz);
 struct thash *thash_create_ptrdata_table(uint32_t tbl_sz);
-struct thash *thash_create_string_table(uint32_t tbl_sz);
-struct thash *thash_create_uint32_table(uint32_t tbl_sz);
 void thash_set_hash_fn(struct thash *h, uint32_t (*fn)(void *, uint32_t sz));
 void thash_free(struct thash *h);
 
