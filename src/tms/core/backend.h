@@ -14,7 +14,7 @@
 #elif defined(TMS_BACKEND_MACOS)
 	#define OS_STRING "macOS"
 #else
-	#error Undefined platform, please add a TMS backend for it
+	#error Undefined platform, please add a check for it
 #endif
 
 #if !defined TMS_BACKEND_PC \

@@ -1,3 +1,5 @@
+// Android backend
+
 #include <unistd.h>
 #include <sys/time.h>
 
@@ -48,28 +50,23 @@ SDL_main(int argc, char **argv)
 
         while (SDL_PollEvent(&ev)) {
             switch (ev.type) {
-                case SDL_WINDOWEVENT:
-                    {
-                        switch (ev.window.event) {
-                            case SDL_WINDOWEVENT_MINIMIZED:
-                                tms_infof("MINIMIZED, SOFT PAUSE");
-                                tproject_soft_pause();
-                                do_step = 0;
-                                break;
+                case SDL_WINDOWEVENT: {
+                    switch (ev.window.event) {
+                        case SDL_WINDOWEVENT_MINIMIZED:
+                            tproject_soft_pause();
+                            do_step = 0;
+                            break;
 
-                            case SDL_WINDOWEVENT_RESTORED:
-                                tms_infof("WINDOW RESTORED, SOFT RESUME");
-                                tproject_soft_resume();
-                                do_step = 1;
-                                break;
-                        }
+                        case SDL_WINDOWEVENT_RESTORED:
+                            tproject_soft_resume();
+                            do_step = 1;
+                            break;
                     }
-                    break;
+                } break;
 
                 case SDL_QUIT:
                     tproject_quit();
                     tms.state = TMS_STATE_QUITTING;
-                    tms_infof("QUIT  ---------------");
                     //done = 1;
                     break;
 
@@ -129,9 +126,8 @@ tbackend_init_surface()
             mode.w, mode.h,
             SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN);
 
-    if (_window == NULL) {
+    if (_window == NULL)
         tms_fatalf("Could not create SDL Window: %s", SDL_GetError());
-    }
 
     SDL_SetWindowFullscreen(_window, SDL_TRUE);
     SDL_GetWindowSize(_window, &_tms.window_width, &_tms.window_height);
@@ -153,7 +149,6 @@ tbackend_init_surface()
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
     */
-    //SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
     SDL_GL_CreateContext(_window);
 

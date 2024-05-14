@@ -1,3 +1,5 @@
+// Linux screenshot build backend
+
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -13,24 +15,16 @@
 #include <tms/core/tms.h>
 
 #include <tms/backend/opengl.h>
-#include <tms/backends/common.h>
 
 #include "settings.hh"
 #include "game.hh"
 #include "main.hh"
-#include "menu_main.hh"
 #include "pkgman.hh"
 #include "screenshot_marker.hh"
 
 #include <png.h>
 
-#include <iterator>
-#include <iostream>
 #include "tms/bindings/cpp/cpp.hh"
-
-#ifdef DEBUG
-#include <fenv.h>
-#endif
 
 #define STEP_QUIT       -1
 
@@ -148,11 +142,16 @@ main(int argc, char **argv)
         SDL_CreateThread(_pipe_listener, "_pipe_listener", 0);
     }
 
-    CHDIR_EXE;
+    char* exedir = SDL_GetBasePath();
+    tms_infof("chdirring to %s", exedir);
+    chdir(exedir);
 
     mkdir(tbackend_get_storage_path(), S_IRWXU | S_IRWXG | S_IRWXO);
 
-    INIT_SDL;
+    tms_infof("Initializing SDL...");
+    SDL_Init(SDL_INIT_VIDEO);
+    SDL_DisplayMode mode;
+    SDL_GetCurrentDisplayMode(0, &mode);
 
     settings.init();
     settings.load();

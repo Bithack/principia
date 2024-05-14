@@ -1,41 +1,52 @@
-#include <stdlib.h>
-#include <sys/time.h>
-#include <windows.h>
-#include <windowsx.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <unistd.h>
-#include <fcntl.h>
+// Unified backend used for most platforms (Linux, Windows...)
+
+#include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/stat.h>
-#include <clocale>
-#include "shlwapi.h"
+#include <sys/file.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <tms/core/project.h>
 #include <tms/core/event.h>
 #include <tms/core/tms.h>
 
 #include <tms/backend/opengl.h>
-#include <tms/backends/common.h>
 
 #include "settings.hh"
-#include "menu_main.hh"
-
 #include "main.hh"
 #include "version.hh"
+
+#ifdef TMS_BACKEND_WINDOWS
+
+#include <windows.h>
+#include <windowsx.h>
+#include <signal.h>
+
+#include <clocale>
+#include "shlwapi.h"
 
 #define SDL_WINDOW_FULLSCREEN_DESKTOP (SDL_WINDOW_FULLSCREEN | 0x00001000)
 
 #include "SDL_syswm.h"
 
-SDL_Window *_window;
-
 FILE *_f_out = stdout;
 FILE *_f_err = stderr;
 
+static int _storage_type = 0;
+
+#else
+
+#include <pwd.h>
+
+#endif
+
+SDL_Window *_window;
+
 int keys[235];
 int mouse_down;
-static int _storage_type = 0;
 static char *_storage_path = 0;
 
 static int T_intercept_input(SDL_Event ev);
@@ -43,12 +54,19 @@ static int T_intercept_input(SDL_Event ev);
 extern "C" int tbackend_init_surface();
 extern "C" const char *tbackend_get_storage_path(void);
 
+#ifdef TMS_BACKEND_WINDOWS
 char *_tmp[]={0,0};
 static HANDLE pipe_h;
 static uint8_t buf[512];
+#else
+static char *_args[2] = {0,0};
+static int pipe_h;
+static char buf[1024];
+#endif
 
 int _pipe_listener(void *p)
 {
+#ifdef TMS_BACKEND_WINDOWS
     DWORD num_read;
 
     while (ConnectNamedPipe(pipe_h, 0) || GetLastError() == ERROR_PIPE_CONNECTED) {
@@ -74,7 +92,40 @@ int _pipe_listener(void *p)
     CloseHandle(pipe_h);
 
     return T_OK;
+
+#elif defined(TMS_BACKEND_HAIKU)
+
+    // Unimplemented
+
+#else
+
+    ssize_t sz;
+
+    while (1) {
+        tms_infof("attempting to open /tmp/principia.run O_RDONLY");
+        while ((pipe_h = open("/tmp/principia.run", O_RDONLY)) == -1) {
+            if (errno != EINTR)
+                return 1;
+        }
+
+        while ((sz = read(pipe_h, buf, 1023)) > 0) {
+            //tms_infof("read %d bytes", sz);
+
+            if (sz > 0) {
+                buf[sz] = '\0';
+                _args[1] = buf;
+                tproject_set_args(2, _args);
+            }
+        }
+
+        close(pipe_h);
+    }
+
+    tms_infof("Pipe listener EXITING");
+#endif
 }
+
+#ifdef TMS_BACKEND_WINDOWS
 
 static void
 _catch_signal(int signal)
@@ -87,14 +138,17 @@ _catch_signal(int signal)
     exit(1);
 }
 
-int CALLBACK
-WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
+int CALLBACK WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
+#else
+int main(int argc, char **argv)
+#endif
 {
     SDL_Event  ev;
     int        done = 0;
 
-    setlocale(LC_ALL, "C");
+#ifdef TMS_BACKEND_WINDOWS
     signal(SIGSEGV, _catch_signal);
+    setlocale(LC_ALL, "C");
 
     pipe_h = CreateNamedPipe(
             L"\\\\.\\pipe\\principia-process",
@@ -160,7 +214,54 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
         SDL_CreateThread(_pipe_listener, "_pipe_listener", 0);
     }
 
-    CHDIR_EXE;
+#elif defined(TMS_BACKEND_HAIKU)
+
+    // Unimplemented
+
+
+#else
+    int status = mkfifo("/tmp/principia.run", S_IWUSR | S_IRUSR);
+    int skip_pipe = 0;
+
+    if (status == 0) {
+        tms_infof("Created fifo");
+    } else {
+        if (errno != EEXIST) {
+            tms_errorf("could not create fifo pipe!");
+            skip_pipe = 1;
+        }
+    }
+
+    if (!skip_pipe) {
+        if ((pipe_h = open("/tmp/principia.run", O_WRONLY | O_NONBLOCK)) == -1) {
+            if (errno != ENXIO) {
+                skip_pipe = 1;
+                tms_infof("error: %s", strerror(errno));
+            }
+        } else {
+            if (argc > 1) {
+                /* open the fifo for writing instead */
+                tms_infof("sending arg: %s", argv[1]);
+
+                write(pipe_h, argv[1], strlen(argv[1]));
+            } else {
+                tms_infof("principia already running");
+            }
+
+            close(pipe_h);
+            exit(0);
+        }
+    }
+
+    if (!skip_pipe) {
+        tms_infof("Starting fifo listener thread");
+        SDL_CreateThread(_pipe_listener, "_pipe_listener", 0);
+    }
+#endif
+
+    char* exedir = SDL_GetBasePath();
+    tms_infof("chdirring to %s", exedir);
+    chdir(exedir);
 
     // Check if we're in the right place
     struct stat st{};
@@ -180,28 +281,66 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
                 tms_fatalf("Could not find data directories.");
             }
         }
-    } else {
+    }
+#ifdef TMS_BACKEND_WINDOWS
+    else {
         // Switch to portable if ./portable.txt exists next to exe
         if (access("portable.txt", F_OK) == 0) {
             tms_infof("We're becoming portable!");
             _storage_type = 1;
         }
     }
+#endif
 
+#ifdef TMS_BACKEND_WINDOWS
     mkdir(tbackend_get_storage_path());
+#else
+    mkdir(tbackend_get_storage_path(), S_IRWXU | S_IRWXG | S_IRWXO);
+#endif
 
-    INIT_SDL;
+    tms_infof("Initializing SDL...");
+    SDL_Init(SDL_INIT_VIDEO);
+    SDL_DisplayMode mode;
+    SDL_GetCurrentDisplayMode(0, &mode);
 
-    RESIZE_WINDOW;
+    _tms.window_width = 1280;
 
-    LOAD_SETTINGS;
+    if (mode.w <= 1280)
+        _tms.window_width = (int)((double)mode.w * .9);
+    else if (mode.w >= 2100 && mode.h > 1100)
+        _tms.window_width = 1920;
 
+    _tms.window_height = (int)((double)_tms.window_width * .5625);
+
+    tms_infof("set initial res to %dx%d", _tms.window_width, _tms.window_height);
+
+    settings.init();
+    tms_infof("Loading settings...");
+    if (!settings.load())
+        tms_infof("ERROR!");
+
+    P.loaded_correctly_last_run = settings["loaded_correctly"]->v.b;
+
+    settings["is_very_shitty"]->v.b = (!settings["loaded_correctly"]->v.b || settings["is_very_shitty"]->v.b);
+    settings["loaded_correctly"]->v.b = false;
+    settings.save();
+
+    tms_infof("Shadow quality: %d (%dx%d)",
+            settings["shadow_quality"]->v.i8,
+            settings["shadow_map_resx"]->v.i,
+            settings["shadow_map_resy"]->v.i);
+
+#ifdef TMS_BACKEND_WINDOWS
     _tmp[1] = cl;
     tproject_set_args(2, _tmp);
-
+#else
+    tproject_set_args(argc, argv);
+#endif
     tms_init();
 
+#ifdef TMS_BACKEND_WINDOWS
     SDL_EventState(SDL_SYSWMEVENT, settings["emulate_touch"]->is_true() ? SDL_ENABLE : SDL_DISABLE);
+#endif
 
     if (_tms.screen == 0)
         tms_fatalf("context has no initial screen, bailing out");
@@ -238,7 +377,16 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
                 case SDL_WINDOWEVENT:
                     switch (ev.window.event) {
                         case SDL_WINDOWEVENT_RESIZED: {
-                            WINDOW_RESIZED;
+                            tms_infof("Window %d resized to %dx%d",
+                                    ev.window.windowID, ev.window.data1,
+                                    ev.window.data2);
+                            int w = ev.window.data1;
+                            int h = ev.window.data2;
+
+                            _tms.window_width  = _tms.opengl_width  = w;
+                            _tms.window_height = _tms.opengl_height = h;
+
+                            tproject_window_size_changed();
                         } break;
                         case SDL_WINDOWEVENT_MAXIMIZED:
                             settings["window_maximized"]->v.b = true;
@@ -267,6 +415,7 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
                 } break;
 
                 // XXX: is this necessary
+#ifdef TMS_BACKEND_WINDOWS
                 case SDL_SYSWMEVENT: {
                     SDL_SysWMmsg *msg = (SDL_SysWMmsg*)ev.syswm.msg;
 
@@ -328,6 +477,7 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
                         } break;
                     }
                 } break;
+#endif
 
                 case SDL_TEXTINPUT:
                     T_intercept_input(ev);
@@ -359,13 +509,22 @@ WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
 
     tproject_quit();
 
+    SDL_Quit();
+
     return 0;
 }
 
 int
 tbackend_init_surface()
 {
-    CUTE_ASCII_ART;
+    tms_printf( \
+		"            _            _       _       \n"
+		" _ __  _ __(_)_ __   ___(_)_ __ (_) __ _ \n"
+		"| '_ \\| '__| | '_ \\ / __| | '_ \\| |/ _` |\n"
+		"| |_) | |  | | | | | (__| | |_) | | (_| |\n"
+		"| .__/|_|  |_|_| |_|\\___|_| .__/|_|\\__,_|\n"
+		"|_|                       |_|            \n"
+		"Version: %d. " __DATE__ "/" __TIME__ "\n", PRINCIPIA_VERSION_CODE);
 
     _tms.window_width = settings["window_width"]->v.i;
     _tms.window_height = settings["window_height"]->v.i;
@@ -373,13 +532,64 @@ tbackend_init_surface()
     _tms.xppcm = 108.f/2.54f * 1.5f;
     _tms.yppcm = 107.f/2.54f * 1.5f;
 
-    CREATE_SDL_WINDOW;
+    uint32_t flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
 
-    CREATE_GL_CONTEXT;
+    if (settings["window_maximized"]->v.b)
+        flags |= SDL_WINDOW_MAXIMIZED;
 
-    INIT_GLEW;
+    tms_infof("Creating window..."); \
+    _window = SDL_CreateWindow("Principia", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		_tms.window_width, _tms.window_height, flags);
 
-    PRINT_GL_INFO;
+    if (_window == NULL) {
+        tms_infof("ERROR: %s", SDL_GetError());
+        exit(1);
+    }
+
+    _tms._window = _window;
+
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+
+    SDL_GLContext gl_context = SDL_GL_CreateContext(_window);
+
+    if (gl_context == NULL)
+        tms_fatalf("Error creating GL Context: %s", SDL_GetError());
+
+    tms_infof("Initializing GLEW...");
+    glewExperimental = GL_TRUE;
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
+        tms_infof("ERROR: %s", glewGetErrorString(err));
+        exit(1);
+    }
+    tms_infof("GLEW init OK (v%s)", glewGetString(GLEW_VERSION));
+
+    tms_infof("GL Info: %s/%s/%s", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
+    tms_infof("GLSL Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+    /*tms_debugf("Extensions: %s", glGetString(GL_EXTENSIONS));*/
+
+    tms_printf("GL versions supported: ");
+    if (GLEW_VERSION_4_6) tms_printf("4.6,");
+    if (GLEW_VERSION_4_5) tms_printf("4.5,");
+    if (GLEW_VERSION_4_4) tms_printf("4.4,");
+    if (GLEW_VERSION_4_3) tms_printf("4.3,");
+    if (GLEW_VERSION_4_2) tms_printf("4.2,");
+    if (GLEW_VERSION_4_1) tms_printf("4.1,");
+    if (GLEW_VERSION_3_3) tms_printf("3.3,");
+    if (GLEW_VERSION_3_1) tms_printf("3.1,");
+    if (GLEW_VERSION_3_0) tms_printf("3.0,");
+    if (GLEW_VERSION_2_1) tms_printf("2.1,");
+    if (GLEW_VERSION_2_0) tms_printf("2.0,");
+    if (GLEW_VERSION_1_5) tms_printf("1.5,");
+    if (GLEW_VERSION_1_4) tms_printf("1.4,");
+    if (GLEW_VERSION_1_3) tms_printf("1.3,");
+    if (GLEW_VERSION_1_2) tms_printf("1.2,");
+    if (GLEW_VERSION_1_1) tms_printf("1.1");
+	tms_printf("\n");
+
+#ifdef TMS_BACKEND_WINDOWS
 
     if (!GLEW_VERSION_1_2) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Principia",
@@ -392,6 +602,8 @@ If you are on a VM for testing purposes, then you can use Mesa's software render
 get Principia running. (place the Mesa opengl32.dll library next to principia.exe))", 0);
         exit(1);
     }
+
+#endif
 
     return T_OK;
 }
@@ -410,9 +622,9 @@ mouse_button_to_pointer_id(int button)
 
 #define MAX_P 10
 
-static DWORD finger_ids[MAX_P];
+static int finger_ids[MAX_P];
 
-static int finger_to_pointer(DWORD finger, bool create)
+static int finger_to_pointer(int finger, bool create)
 {
     for (int x=0; x<MAX_P; x++) {
         if ((finger_ids[x] == 0 && create) || finger_ids[x] == finger) {
@@ -571,6 +783,7 @@ T_intercept_input(SDL_Event ev)
 const char *tbackend_get_storage_path(void)
 {
     if (!_storage_path) {
+#ifdef TMS_BACKEND_WINDOWS
         char *path = (char*)malloc(512);
 
         if (_storage_type == 0) { // System (Installed)
@@ -581,6 +794,15 @@ const char *tbackend_get_storage_path(void)
         }
 
         _storage_path = path;
+#else
+        char *path = (char*)malloc(512);
+        struct passwd *pw = getpwuid(getuid());
+
+        strcpy(path, pw->pw_dir);
+        strcat(path, "/.principia");
+
+        _storage_path = path;
+#endif
     }
     return _storage_path;
 }
@@ -588,5 +810,10 @@ const char *tbackend_get_storage_path(void)
 void
 tbackend_toggle_fullscreen(void)
 {
-    TOGGLE_FULLSCREEN;
+    uint32_t flags = SDL_GetWindowFlags(_window);
+
+    if (flags & SDL_WINDOW_FULLSCREEN)
+        SDL_SetWindowFullscreen(_window, SDL_FALSE);
+    else
+        SDL_SetWindowFullscreen(_window, SDL_TRUE);
 }

@@ -4,10 +4,9 @@
 #if defined(TMS_BACKEND_ANDROID)
 
     #define GL_GLEXT_PROTOTYPES 1
+
     #include <GLES2/gl2.h>
     #include "SDL.h"
-
-    #define GLchar char
 
 #elif defined(TMS_BACKEND_IOS)
 
@@ -19,6 +18,8 @@
 #elif defined(TMS_BACKEND_LINUX_SS)
 
     // Screenshotter doesn't use GLEW
+
+    #define GL_GLEXT_PROTOTYPES 1
 
     #include <GL/gl.h>
     #include <GL/glext.h>

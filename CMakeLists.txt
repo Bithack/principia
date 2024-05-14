@@ -45,18 +45,20 @@ else()
 	set(SCREENSHOT_BUILD FALSE)
 endif()
 
+set(TMS_FORMFACTOR "PC")
 if(WIN32)
-	set(TMS_BACKEND "windows")
+	set(TMS_BACKEND "WINDOWS")
 elseif(ANDROID)
-	set(TMS_BACKEND "android")
+	set(TMS_BACKEND "ANDROID")
+	set(TMS_FORMFACTOR "MOBILE")
 elseif(SCREENSHOT_BUILD)
-	set(TMS_BACKEND "screenshot-linux")
+	set(TMS_BACKEND "LINUX_SS")
 elseif(HAIKU)
-	set(TMS_BACKEND "haiku")
+	set(TMS_BACKEND "HAIKU")
 elseif(APPLE)
-	set(TMS_BACKEND "macos")
+	set(TMS_BACKEND "MACOS")
 else()
-	set(TMS_BACKEND "linux")
+	set(TMS_BACKEND "LINUX")
 endif()
 
 
@@ -154,6 +156,7 @@ if(NOT SCREENSHOT_BUILD)
 		src/SDL_mixer/)
 endif()
 
+
 # Optional luasocket functionality
 
 if(NOT SCREENSHOT_BUILD AND NOT ANDROID)
@@ -190,10 +193,15 @@ endif()
 
 
 if(ANDROID)
-	set(SRCS ${SRCS} src/tms/backends/android/main.c)
+	set(BACKEND_SRC main_android.c)
+elseif(SCREENSHOT_BUILD)
+	set(BACKEND_SRC main_screenshotter.cc)
 else()
-	set(SRCS ${SRCS} src/tms/backends/${TMS_BACKEND}/main.cc)
+	set(BACKEND_SRC main.cc)
 endif()
+
+set(SRCS ${SRCS} src/tms/backend/${BACKEND_SRC})
+
 
 if(WIN32)
 	# Windows manifest (resource and icon) for Windows builds
@@ -258,27 +266,22 @@ endif()
 set(COMMON_FLAGS "${LUASOCKET_FLAGS} -DLUA_COMPAT_MODULE")
 
 if(ANDROID)
-	target_link_libraries(${PROJECT_NAME} -landroid -lz -ldl -lGLESv1_CM -lGLESv2 -llog)
+	target_link_libraries(${PROJECT_NAME} -landroid -ldl -lGLESv2 -llog)
 
-	set(COMMON_FLAGS "${COMMON_FLAGS} -DGL_GLEXT_PROTOTYPES -DHAVE_GCC_ATOMICS -DTMS_BACKEND_ANDROID -DTMS_BACKEND_MOBILE")
+	set(COMMON_FLAGS "${COMMON_FLAGS} -DHAVE_GCC_ATOMICS")
 else()
-	set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_PC -DTMS_FAST_MATH")
+	set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_FAST_MATH")
 
 	if(WIN32)
 		target_link_libraries(${PROJECT_NAME} ws2_32.lib version.lib shlwapi.lib winmm.lib)
 
-		set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_WINDOWS -D_WIN32_WINNT=0x0501 -Dsrandom=srand -Drandom=rand -DUNICODE")
+		set(COMMON_FLAGS "${COMMON_FLAGS} -D_WIN32_WINNT=0x0501 -DUNICODE")
 	elseif(SCREENSHOT_BUILD)
-		# Screenshot build doesn't use GLEW
-		set(COMMON_FLAGS "${COMMON_FLAGS} -DGL_GLEXT_PROTOTYPES -DNO_UI -DTMS_BACKEND_LINUX_SS")
-	elseif(HAIKU)
-		set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_HAIKU")
-	elseif(APPLE)
-		set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_MACOS")
-	else()
-		set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_LINUX")
+		set(COMMON_FLAGS "${COMMON_FLAGS} -DNO_UI")
 	endif()
 endif()
+
+set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_${TMS_FORMFACTOR} -DTMS_BACKEND_${TMS_BACKEND}")
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	# Downgrade some errors to warnings when building with Clang

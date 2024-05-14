@@ -1,3 +1,6 @@
+// iOS backend
+// (we have absolutely no idea if this still works)
+
 #include <unistd.h>
 #include <sys/time.h>
 
