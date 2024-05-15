@@ -16,7 +16,7 @@
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:padding="15dp"
                 android:text="@string/effect_1" />
@@ -24,7 +24,7 @@
             <Spinner
                 android:id="@+id/fx_1"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
                 android:layout_weight="4"
                 android:entries="@array/effects" />
         </TableRow>
@@ -35,7 +35,7 @@
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:padding="15dp"
                 android:text="@string/effect_2" />
@@ -43,7 +43,7 @@
             <Spinner
                 android:id="@+id/fx_2"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
                 android:layout_weight="4"
                 android:entries="@array/effects" />
         </TableRow>
@@ -54,7 +54,7 @@
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:padding="15dp"
                 android:text="@string/effect_3" />
@@ -62,7 +62,7 @@
             <Spinner
                 android:id="@+id/fx_3"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
                 android:layout_weight="4"
                 android:entries="@array/effects" />
         </TableRow>
@@ -73,7 +73,7 @@
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:padding="15dp"
                 android:text="@string/effect_4" />
@@ -81,7 +81,7 @@
             <Spinner
                 android:id="@+id/fx_4"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
                 android:layout_weight="4"
                 android:entries="@array/effects" />
         </TableRow>

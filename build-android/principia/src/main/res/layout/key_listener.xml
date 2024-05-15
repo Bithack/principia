@@ -11,7 +11,7 @@
         <Spinner
             android:id="@+id/kl_keys"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_weight="1" />
 
     </LinearLayout>

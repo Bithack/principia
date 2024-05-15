@@ -10,7 +10,6 @@
     android:padding="15dp" >
 
     <LinearLayout
-        android:id="@+id/cam_targeter_ll_buttons"
         style="@style/ButtonBar"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

@@ -5,14 +5,12 @@
     android:layout_height="fill_parent" >
 
     <LinearLayout
-        android:id="@+id/linearLayout1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="40dp">
 
         <TextView
-            android:id="@+id/textView1"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:padding="15dp"
             android:text="@string/command" />
@@ -20,7 +18,7 @@
         <Spinner
             android:id="@+id/command"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_weight="1"
             android:entries="@array/commands" />
 

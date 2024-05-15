@@ -15,11 +15,11 @@
         <EditText
             android:id="@+id/publish_name"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:ems="10"
             android:hint="@string/title"
             android:imeOptions="actionDone"
-            android:inputType="textCapSentences" >
+            android:inputType="textCapSentences">
 
             <requestFocus />
         </EditText>
@@ -34,14 +34,6 @@
             android:inputType="textCapSentences|textMultiLine"
             android:lines="3" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="-5dp"
-            android:layout_marginTop="10dp"
-            android:text="@string/allow_derivatives_description"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
         <CheckBox
             android:id="@+id/publish_allow_derivatives"
             android:layout_width="wrap_content"
@@ -51,9 +43,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="-5dp"
-            android:layout_marginTop="10dp"
-            android:text="@string/locked_description"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/allow_derivatives_description"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <CheckBox
@@ -61,6 +53,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/locked" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="-5dp"
+            android:text="@string/locked_description"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
 
     </LinearLayout>
 </ScrollView>
