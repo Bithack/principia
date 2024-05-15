@@ -57,8 +57,6 @@
         <item>Break</item>
     </string-array>
 
-    <string name="community">Community</string>
-
     <string name="initial_dir">Initial Direction</string>
     <string name="dir_right">Right</string>
     <string name="random">Random</string>
@@ -83,9 +81,7 @@
     <string name="effect_4">Effect 4</string>
     <string name="level_id">Level ID</string>
     <string name="initial_position">Initial Position</string>
-    <string name="symbols">Symbols</string>
     <string name="wrap_around">Wrap around</string>
-    <string name="add">Add</string>
     <string name="remove">Remove</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
@@ -112,7 +108,6 @@
     <string name="level_type">Level type</string>
     <string name="level_type_adventure">Adventure</string>
     <string name="level_type_custom">Custom</string>
-    <string name="level_type_puzzle">Puzzle</string>
     <string name="disable_layer_switch">Disable layer switch</string>
     <string name="disable_interactive">Disable interactive</string>
     <string name="pause_on_win">Pause on win</string>
@@ -145,8 +140,6 @@
     <string name="position_iterations">Position iterations</string>
     <string name="velocity_iterations">Velocity iterations</string>
     <string name="iterations_warning">It is recommended that you set the number of iterations as low as possible, as it will allow players with less powerful devices to play your level.</string>
-    <string name="physics_description">This section allows you to tweak the physics simulation to fine tune the performance of your level. Lesser iterations improves performance at the cost of accuracy. The amount of position iterations primarily affects dynamic objects, while tuning velocity iterations affects motors and connections.</string>
-    <string name="final_score_description">Set a final score to determine when the game is finished. Set to 0 to disable the score system. Read more about level completion in the object description of the Game Manager object.</string>
     <string name="autofit_borders">Auto-fit borders</string>
     <string name="seconds">Seconds</string>
     <string name="milliseconds">Milliseconds</string>
@@ -156,11 +149,9 @@
     <string name="count">Count</string>
     <string name="interval">Interval</string>
     <string name="high">High</string>
-    <string name="ultra">Ultra</string>
     <string name="presets">Presets</string>
     <string name="medium">Medium</string>
     <string name="low">Low</string>
-    <string name="advanced">Advanced</string>
     <string name="ambient_occlusion">Ambient occlusion</string>
     <string name="enable_shadows">Enable shadows</string>
     <string name="NA">N/A</string>
@@ -171,7 +162,6 @@
     <string name="shadow_softness">Shadow softness</string>
     <string name="sharp">Sharp</string>
     <string name="soft">Soft</string>
-    <string name="lowest">Lowest</string>
     <string name="allow_derivatives">Allow derivatives</string>
     <string name="locked">Locked</string>
     <string name="allow_derivatives_description">Allow other players to download, edit your level and publish it as their own.</string>
@@ -203,12 +193,9 @@
     <string name="reset_all_variables">Reset all variables</string>
     <string name="sound_effect">Sound effect</string>
     <string name="base_frequency">Base frequency</string>
-    <string name="freq_vibrato">Freq vibrato</string>
     <string name="peak_frequency">Peak frequency</string>
-    <string name="volume_vibrato">Volume vibrato</string>
     <string name="waveform">Waveform</string>
     <string name="bitcrushing">Bitcrushing</string>
-    <string name="global">Global</string>
     <string name="global_sound">Global sound</string>
     <string name="disable_physics">Disable physics</string>
     <string name="pulse_width">Pulse width</string>
@@ -237,14 +224,12 @@
 
     <string name="enable_border_scroll">Enable border scrolling</string>
     <string name="border_scroll_speed">Border scroll speed</string>
-    <string name="app_id">119988168195668</string>
     <string name="code">insert_code_here();</string>
     <string name="save">Save</string>
     <string name="quickadd">Object name (will add to center of screen)</string>
     <string name="confirm_level_upgrade"><b>Are you sure you want to upgrade the version of this level?</b>\n\nTo get access to new features the version associated with this level must be upgraded. This action can not be undone. Please save a copy before upgrading your level.\n\nBy upgrading this level, some object properties such as density, restitution, friction and applied forces might differ from earlier versions and affect how your level is simulated.</string>
     <string name="confirm_cancel_script_dialog">Are you sure you want to cancel the LuaScript dialog? Any unsaved changes will be lost!</string>
     <string name="close">Close</string>
-    <string name="consumable">Consumable</string>
     <string name="restitution">Restitution</string>
     <string name="friction">Friction</string>
     <string name="display_object_id">Display object IDs</string>
@@ -257,12 +242,10 @@
     <string name="left">Left</string>
     <string name="down">Down</string>
     <string name="shape_extruder">Shape Extruder</string>
-    <string name="libraries">Libraries</string>
     <string name="disable_robot_special_action">Disable robot boxing</string>
     <string name="disable_adventure_max_zoom">Disable adventure zoom constraints</string>
     <string name="reload">Reload</string>
     <string name="disable_roam_layer_switch">Disable roam layer switch</string>
-    <string name="flags">Flags</string>
     <string name="use_system_time">Use system time</string>
     <string name="chunked_level_loading">Chunked level loading</string>
     <string name="disable_caveview">Disable caveview</string>
@@ -271,14 +254,11 @@
     <string name="color">Color</string>
     <string name="recipes">Recipes</string>
     <string name="resources">Resources</string>
-    <string name="factory">Factory</string>
     <string name="recipe_explanation">This is the list of recipes that you can craft via the factory inputs.</string>
-    <string name="resource_type">Resource type</string>
     <string name="display_grapher_value">Display grapher value</string>
     <string name="display_wireless_frequency">Display wireless frequency</string>
     <string name="mute_all_sound">Mute all sounds</string>
     <string name="volume">Volume</string>
-    <string name="back">Back</string>
     <string name="open_save">Open save</string>
     <string name="restart_level">Restart level</string>
     <string name="back_to_main_menu">Back to main menu</string>

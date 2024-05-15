@@ -237,7 +237,7 @@ _w_do_collide(struct worker *w)
         if (c->m_flags & b2Contact::e_filterFlag)
         {
             // Should these bodies collide?
-            if (bodyB->ShouldCollide(bodyA) == false)
+            if (!bodyB->ShouldCollide(bodyA))
             {
                 _collide_destroy(c);
                 c = _collide_get_next(c);
@@ -245,7 +245,7 @@ _w_do_collide(struct worker *w)
             }
 
             // Check user filtering.
-            if (man->m_contactFilter && man->m_contactFilter->ShouldCollide(fixtureA, fixtureB) == false)
+            if (man->m_contactFilter && !man->m_contactFilter->ShouldCollide(fixtureA, fixtureB))
             {
                 _collide_destroy(c);
                 c = _collide_get_next(c);
@@ -260,7 +260,7 @@ _w_do_collide(struct worker *w)
         bool activeB = bodyB->IsAwake() && bodyB->m_type != b2_staticBody;
 
         // At least one body must be awake and it must be dynamic or kinematic.
-        if (activeA == false && activeB == false)
+        if (!activeA && !activeB)
         {
             c = _collide_get_next(c);
             continue;
@@ -271,7 +271,7 @@ _w_do_collide(struct worker *w)
         bool overlap = man->m_broadPhase.TestOverlap(proxyIdA, proxyIdB);
 
         // Here we destroy contacts that cease to overlap in the broad-phase.
-        if (overlap == false)
+        if (!overlap)
         {
             _collide_destroy(c);
             c = _collide_get_next(c);

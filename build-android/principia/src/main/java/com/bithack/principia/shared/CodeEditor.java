@@ -12,7 +12,6 @@ import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.widget.EditText;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -204,9 +203,7 @@ public class CodeEditor extends androidx.appcompat.widget.AppCompatEditText
     private Editable highlight( Editable e )
     {
         last_edit = SystemClock.uptimeMillis();
-        if (true) {
-            //return e;
-        }
+
         Log.v("Principia", "highlight begin");
         try
         {
@@ -263,7 +260,7 @@ public class CodeEditor extends androidx.appcompat.widget.AppCompatEditText
     {
         // remove foreground color spans
         {
-            ForegroundColorSpan spans[] = e.getSpans(
+            ForegroundColorSpan[] spans = e.getSpans(
                 0,
                 e.length(),
                 ForegroundColorSpan.class );

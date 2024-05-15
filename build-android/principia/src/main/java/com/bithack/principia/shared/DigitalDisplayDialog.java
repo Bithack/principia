@@ -312,7 +312,7 @@ public class DigitalDisplayDialog {
                 }
             }
             symbols.add(sb.toString());
-            Log.v("Principia", "Got a cool symbol: "+sb.toString());
+            Log.v("Principia", "Got a cool symbol: "+ sb);
         }
 
         cur_symbol = initial_position - 1;

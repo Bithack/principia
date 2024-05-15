@@ -24,7 +24,7 @@ velmeter::velmeter()
 edevice*
 velmeter::solve_electronics()
 {
-    float force = 0.f;
+    float force;
     b2Vec2 vel(0,0);
 
     if (this->get_body(0)) {

@@ -1841,7 +1841,7 @@ world::load_entity(lvlbuf *buf, int version, uint32_t id_modifier, b2Vec2 displa
     entity *e = of::read(buf, version, id_modifier, displacement, affected_chunks);
 
     if (e) {
-        e->on_load(false, e->state_size ? true : false);
+        e->on_load(false, e->state_size != 0);
 
         if (e->state_size) {
             size_t rp = buf->rp;
@@ -1890,7 +1890,7 @@ world::load_group(lvlbuf *buf, int version, uint32_t id_modifier, b2Vec2 displac
             g->set_moveable(false);
         }
 
-        g->on_load(false, g->state_size ? true : false);
+        g->on_load(false, g->state_size != 0);
 
         if (g->state_size) {
             size_t rp = buf->rp;
@@ -2001,8 +2001,8 @@ world::load_connection(lvlbuf *buf, int version, uint64_t flags, uint32_t id_mod
     }
 
 
-    c.owned = (int)buf->r_uint8() == 1 ? true : false;
-    c.fixed = (int)buf->r_uint8() == 1 ? true : false;
+    c.owned = (int)buf->r_uint8() == 1;
+    c.fixed = (int)buf->r_uint8() == 1;
     c.o_index = buf->r_uint8();
     c.p.x = buf->r_float(); /* local coordinates, no need to add displacement */
     c.p.y = buf->r_float();

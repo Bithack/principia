@@ -8,9 +8,6 @@
 
 #include <sstream>
 
-#define OFF_RARITY 3.4f
-#define OFF_QUANTITY 1.2f
-
 #define QUALITY_COMMON   (1UL << 0)
 #define QUALITY_UNCOMMON (1UL << 1)
 #define QUALITY_RARE     (1UL << 2)

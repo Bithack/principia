@@ -111,7 +111,7 @@ transmitter::solve_electronics()
                     ) {
 
                 if (i->first >= freq && i->first <= freq_max) {
-                    if (i->second->no_broadcast == false)
+                    if (!i->second->no_broadcast)
                         i->second->pending_value = this->pending_value;
                     i++;
                 } else

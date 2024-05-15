@@ -2,7 +2,6 @@ package org.libsdl.app;
 
 import javax.microedition.khronos.egl.*;
 
-import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
 import com.bithack.principia.shared.AutosaveDialog;
 import com.bithack.principia.shared.CamTargeterDialog;
@@ -62,12 +61,11 @@ import com.bithack.principia.shared.SoundManDialog;
 import com.bithack.principia.shared.MultiSelectDialog;
 import com.bithack.principia.shared.VendorDialog;
 
+import android.annotation.SuppressLint;
 import android.app.*;
 import android.content.*;
 import android.content.DialogInterface.OnKeyListener;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.view.*;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -87,7 +85,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.net.Uri;
 import android.os.*;
-import android.provider.Settings.Secure;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.graphics.*;
@@ -95,16 +92,7 @@ import android.media.*;
 import android.hardware.*;
 import android.widget.ArrayAdapter;
 
-import androidx.core.view.WindowInsetsControllerCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -196,10 +184,6 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
         this.mHolder = mSurface.getHolder();
 
         this.handle_intent(this.getIntent());
-
-        // Try to use more data here. ANDROID_ID is a single point of attack.
-        String deviceId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
-        Log.v("Principia", "did: "+deviceId);
 
         SDLActivity.open_adapter = new ArrayAdapter<Level>(SDLActivity.mSingleton,
                 android.R.layout.select_dialog_item);
@@ -457,7 +441,7 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
                 SDLActivity.createEGLSurface();
 
             } catch(Exception e) {
-                Log.v("SDL", e + "");
+                Log.v("SDL", String.valueOf(e));
                 for (StackTraceElement s : e.getStackTrace()) {
                     Log.v("SDL", s.toString());
                 }
@@ -717,6 +701,7 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
         });
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     public void init_webview()
     {
         SDLActivity.wv_dialog = new Dialog(this, android.R.style.Theme_NoTitleBar_Fullscreen) {
@@ -1285,7 +1270,7 @@ public class SDLActivity extends Activity implements DialogInterface.OnDismissLi
         }
 
         if (d != null) {
-            Log.v("Principia", "Adding dialog: "+d.toString());
+            Log.v("Principia", "Adding dialog: "+ d);
             //this.open_dialogs.add(d);
             if (d.getWindow() != null) {
                 d.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);

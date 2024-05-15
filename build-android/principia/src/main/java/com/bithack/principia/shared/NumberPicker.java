@@ -386,7 +386,7 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
            String result = String.valueOf(dest.subSequence(0, dstart))
                    + filtered
                    + dest.subSequence(dend, dest.length());
-           String str = String.valueOf(result).toLowerCase(Locale.US);
+           String str = result.toLowerCase(Locale.US);
            for (String val : mDisplayedValues) {
                val = val.toLowerCase(Locale.US);
                if (val.startsWith(str)) {

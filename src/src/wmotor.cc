@@ -80,7 +80,7 @@ wmotor::update()
 void
 wmotor::add_to_world()
 {
-    this->set_flag(ENTITY_IS_STATIC, W->level.type == LCAT_PUZZLE ? false : true);
+    this->set_flag(ENTITY_IS_STATIC, !(W->level.type == LCAT_PUZZLE));
     this->create_circle(b2_staticBody, .375f, this->material);
     this->body->GetFixtureList()[0].SetSensor(true);
 }

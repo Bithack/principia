@@ -1207,22 +1207,22 @@ widget_manager::rearrange()
         if (!w->surface || w->draggable) continue;
 
         switch (w->area->horizontal_align) {
-            case ALIGN_LEFT:
-                /* Do nothing, default behaviour. */
-                break;
-
             case ALIGN_CENTER:
                 w->area->x += ((w->size.x + w->padding.x) * -w->area->modx) / 2.f;
+                break;
+
+            default:
+                /* Do nothing, default behaviour. */
                 break;
         }
 
         switch (w->area->vertical_align) {
-            case ALIGN_TOP:
-                /* Do nothing, default behavior. */
-                break;
-
             case ALIGN_CENTER:
                 w->area->y += ((w->size.y + w->padding.y) * -w->area->mody) / 2.f;
+                break;
+
+            default:
+                /* Do nothing, default behavior. */
                 break;
         }
     }

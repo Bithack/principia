@@ -1,15 +1,5 @@
 package com.bithack.principia.shared;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import org.libsdl.app.PrincipiaBackend;
-
-import com.bithack.principia.PrincipiaActivity;
-import com.bithack.principia.R;
-import com.bithack.principia.shared.ConfirmDialog.OnOptionSelectedListener;
-
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -17,33 +7,28 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.Spinner;
-import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.ToggleButton;
 
+import com.bithack.principia.PrincipiaActivity;
+import com.bithack.principia.R;
+
+import org.libsdl.app.PrincipiaBackend;
+
+import java.util.ArrayList;
+
 public class MultiSelectDialog implements OnSeekBarChangeListener, OnCheckedChangeListener {
-    public static final int NUM_TABS = 3;
     static Dialog _dialog;
 
     static View view;
@@ -73,7 +58,7 @@ public class MultiSelectDialog implements OnSeekBarChangeListener, OnCheckedChan
             this.view_id = view_id;
             this.title = title;
         }
-    };
+    }
 
     static ArrayList<Tab> tabs = new ArrayList<Tab>();
 
@@ -153,8 +138,8 @@ public class MultiSelectDialog implements OnSeekBarChangeListener, OnCheckedChan
                 ll_tabs.addView(tb);
             }
 
-            btn_apply = (Button)view.findViewById(R.id.btn_apply);
-            btn_close = (Button)view.findViewById(R.id.btn_close);
+            btn_apply = view.findViewById(R.id.btn_apply);
+            btn_close = view.findViewById(R.id.btn_close);
 
             btn_apply.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -296,7 +281,7 @@ public class MultiSelectDialog implements OnSeekBarChangeListener, OnCheckedChan
 
                     case CONNECTION_RENDER_TYPE:
                         {
-                            int t = 0; // CONN_RENDER_DEFAULT
+                            int t; // CONN_RENDER_DEFAULT
                             switch (render_type.getCheckedRadioButtonId()) {
                                 case R.id.rb_small:
                                     t = 1; // CONN_RENDER_SMALL

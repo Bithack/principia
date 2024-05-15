@@ -1945,7 +1945,7 @@ _download_level(void *p)
             host,
             _play_download_for_pkg ? "get_package" :
                 (type == LEVEL_DB ? "get" :
-                    (derive == true ? "derive" : "edit")),
+                    (derive ? "derive" : "edit")),
             _play_id, r);
 
     tms_infof("url: %s", url);

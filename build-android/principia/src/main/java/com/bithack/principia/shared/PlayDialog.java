@@ -6,16 +6,12 @@ import java.util.List;
 import org.libsdl.app.PrincipiaBackend;
 import org.libsdl.app.SDLActivity;
 
-import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.ViewGroup.LayoutParams;
 
 public class PlayDialog
 {
