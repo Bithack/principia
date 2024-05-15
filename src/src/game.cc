@@ -1576,77 +1576,75 @@ game::step(double dt)
     */
 
 #ifdef TMS_BACKEND_PC
-    if ((W->is_paused() && settings["ingame_tooltips"]->v.b) || (W->is_playing() && settings["ingame_tooltips_playing"]->v.b)) {
-        uint64_t diff = _tms.last_time - move_time;
-        if (((this->hov_text->active && diff > HOVER_TIME_ACTIVE) || (this->hov_text->active == false && diff > HOVER_TIME)) && !move_queried) {
-            move_queried = true;
+    uint64_t diff = _tms.last_time - move_time;
+    if (((this->hov_text->active && diff > HOVER_TIME_ACTIVE) || (this->hov_text->active == false && diff > HOVER_TIME)) && !move_queried) {
+        move_queried = true;
 
-            b2Body *_b;
-            tvec2 _o;
-            uint8_t _f;
+        b2Body *_b;
+        tvec2 _o;
+        uint8_t _f;
 
-            W->query(this->cam, (int)move_pos.x, (int)move_pos.y, &this->hov_ent, &_b, &_o, &_f, this->layer_vis, false, 0, true);
+        W->query(this->cam, (int)move_pos.x, (int)move_pos.y, &this->hov_ent, &_b, &_o, &_f, this->layer_vis, false, 0, true);
 
-            hov_fadeout = true;
-            if (this->hov_ent && this->hov_ent->g_id != O_CHUNK) {
-                char tooltip_text[512];
-                tooltip_text[0] = '\0';
-                this->hov_ent->write_tooltip(tooltip_text);
-                if (strlen(tooltip_text)) {
-                    hov_fadeout = false;
-                    if (!this->hov_text->active) {
-                        hov_time = _tms.last_time;
-                    }
-                    this->hov_text->active = true;
-                    this->hov_text->set_text(tooltip_text);
+        hov_fadeout = true;
+        if (this->hov_ent && this->hov_ent->g_id != O_CHUNK) {
+            char tooltip_text[512];
+            tooltip_text[0] = '\0';
+            this->hov_ent->write_tooltip(tooltip_text);
+            if (strlen(tooltip_text)) {
+                hov_fadeout = false;
+                if (!this->hov_text->active) {
+                    hov_time = _tms.last_time;
                 }
-            } else {
-                this->hov_ent = 0;
+                this->hov_text->active = true;
+                this->hov_text->set_text(tooltip_text);
+            }
+        } else {
+            this->hov_ent = 0;
 
-                if (this->hov_text->active && !hov_fadeout) {
-                    hov_fadeout = true;
-                    hov_fadeout_time = _tms.last_time + 175000;
-                }
+            if (this->hov_text->active && !hov_fadeout) {
+                hov_fadeout = true;
+                hov_fadeout_time = _tms.last_time + 175000;
             }
         }
+    }
 
-        if (this->hov_text->active) {
-            float alpha = 0.f;
-            float h = this->hov_text->get_num_lines() * this->hov_text->get_max_height();
+    if (this->hov_text->active) {
+        float alpha = 0.f;
+        float h = this->hov_text->get_num_lines() * this->hov_text->get_max_height();
 
-            if (hov_fadeout) {
-                const float x = 1.f-(float)((int64_t)_tms.last_time - (int64_t)hov_fadeout_time) / 175000.f;
-                alpha = tclampf(x, 0.f, 1.f);
-                this->hov_text->color.a = alpha;
-                this->hov_text->outline_color.a = alpha;
+        if (hov_fadeout) {
+            const float x = 1.f-(float)((int64_t)_tms.last_time - (int64_t)hov_fadeout_time) / 175000.f;
+            alpha = tclampf(x, 0.f, 1.f);
+            this->hov_text->color.a = alpha;
+            this->hov_text->outline_color.a = alpha;
 
-                if (alpha <= 0.05f) {
-                    this->hov_text->active = false;
-                    tms_debugf("remove entirely");
-                    hov_fadeout = false;
-                }
-            } else {
-                if (this->hov_ent) {
-                    float x = this->hov_ent->get_position().x;
-                    float y = this->hov_ent->get_position().y + (this->hov_ent->height * 1.2f);
+            if (alpha <= 0.05f) {
+                this->hov_text->active = false;
+                tms_debugf("remove entirely");
+                hov_fadeout = false;
+            }
+        } else {
+            if (this->hov_ent) {
+                float x = this->hov_ent->get_position().x;
+                float y = this->hov_ent->get_position().y + (this->hov_ent->height * 1.2f);
 
-                    tvec3 dd = tms_camera_project(this->cam, x, y, this->hov_ent->get_layer()*LAYER_DEPTH);
-                    this->hov_text->set_position(dd.x, dd.y + this->wm->get_margin_y());
-                }
-
-                alpha = tclampf((float)(_tms.last_time - hov_time) / 175000.f, 0.f, 1.f);
-                this->hov_text->color.a = alpha;
-                this->hov_text->outline_color.a = alpha;
+                tvec3 dd = tms_camera_project(this->cam, x, y, this->hov_ent->get_layer()*LAYER_DEPTH);
+                this->hov_text->set_position(dd.x, dd.y + this->wm->get_margin_y());
             }
 
-            this->add_rounded_square(
-                    this->hov_text->get_x(),
-                    this->hov_text->get_y() + (this->hov_text->get_height() / 2.f),
-                    this->hov_text->get_width(),
-                    h * 1.05f,
-                    tvec4f(.2f, .2f, .2f, alpha*0.65f),
-                    2.f);
+            alpha = tclampf((float)(_tms.last_time - hov_time) / 175000.f, 0.f, 1.f);
+            this->hov_text->color.a = alpha;
+            this->hov_text->outline_color.a = alpha;
         }
+
+        this->add_rounded_square(
+                this->hov_text->get_x(),
+                this->hov_text->get_y() + (this->hov_text->get_height() / 2.f),
+                this->hov_text->get_width(),
+                h * 1.05f,
+                tvec4f(.2f, .2f, .2f, alpha*0.65f),
+                2.f);
     }
 #endif
 
@@ -3529,17 +3527,6 @@ game::render()
                         tms_ddraw_line3d(this->dd, r.x, r.y, l, dir.x, dir.y, l);
                     }
                 } break;
-            }
-        }
-
-        // Render straight lines for socket connections of the selected object
-        if (settings["render_com"]->v.b) {
-            tms_ddraw_set_color(this->dd, 0.3f, 0.3f, 1.f, 1.f);
-            for (std::map<uint32_t, group*>::iterator i = W->groups.begin();
-                    i != W->groups.end(); i++) {
-                b2Vec2 p = i->second->get_body(0)->GetWorldCenter();
-                tms_ddraw_line(this->dd, p.x-.25f, p.y+.25f, p.x+.25f, p.y-.25f);
-                tms_ddraw_line(this->dd, p.x-.25f, p.y-.25f, p.x+.25f, p.y+.25f);
             }
         }
     }

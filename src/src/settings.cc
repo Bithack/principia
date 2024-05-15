@@ -29,7 +29,6 @@ _settings::init()
 
     this->add("uiscale",            S_FLOAT, 1.3f);
 
-    this->add("fixed_uiscale",      S_BOOL,  false);
     this->add("blur_shadow_map",    S_BOOL,  false);
     this->add("swap_shadow_map",    S_BOOL,  false);
 #ifdef TMS_BACKEND_MOBILE
@@ -72,7 +71,6 @@ _settings::init()
 #else
     this->add("gamma_correct",      S_BOOL,  -1);
 #endif
-    this->add("render_com",         S_BOOL,  false);
     this->add("enable_ao",          S_BOOL,  true);
 
 #ifdef TMS_BACKEND_MOBILE
@@ -105,11 +103,6 @@ _settings::init()
     this->add("widget_control_sensitivity", S_FLOAT, 1.5f);
     this->add("rc_lock_cursor",     S_BOOL,  false);
     this->add("control_type",       S_UINT8,  1);
-#if defined(TMS_BACKEND_PC)
-    this->add("default_level_type", S_INT32,   LCAT_ADVENTURE);
-#else
-    this->add("default_level_type", S_INT32,   LCAT_CUSTOM);
-#endif
 
     /** -Audio **/
     this->add("volume", S_FLOAT,    1.0f,   true);
@@ -119,9 +112,6 @@ _settings::init()
     this->add("display_object_id",          S_BOOL, false);
     this->add("display_grapher_value",      S_BOOL, false);
     this->add("display_wireless_frequency", S_BOOL, true);
-
-    this->add("ingame_tooltips",            S_BOOL, true);
-    this->add("ingame_tooltips_playing",    S_BOOL, true);
 
     this->add("emulate_touch",      S_BOOL, false);
 
