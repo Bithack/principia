@@ -251,7 +251,7 @@ menu_main::refresh_widgets()
     }
 
     if (!P.loaded_correctly_last_run) {
-        this->wdg_shitty->add();
+        //this->wdg_shitty->add();
     }
 
     if (menu_shared::fl_state == FL_INIT) {

@@ -86,7 +86,7 @@ _settings::init()
     this->add("render_edev_labels", S_BOOL,  true);
 
 
-    this->add("fv",                 S_INT32,   1); /* settings file version */
+    this->add("fv",                 S_INT32,   2); /* settings file version */
     this->add("jail_cursor",        S_BOOL,  false);
     this->add("smooth_cam",         S_BOOL,  false);
     this->add("cam_speed_modifier", S_FLOAT, 1.f);
@@ -293,7 +293,7 @@ _settings::save(void)
     FILE *fh = fopen(filename, "w+");
 
     if (!fh) {
-        //tms_errorf("An error occured when attempting to open settings file.");
+        tms_errorf("An error occured when attempting to open settings file.");
         return false;
     }
 

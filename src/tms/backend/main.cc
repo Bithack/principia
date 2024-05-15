@@ -314,22 +314,6 @@ int main(int argc, char **argv)
 
     tms_infof("set initial res to %dx%d", _tms.window_width, _tms.window_height);
 
-    settings.init();
-    tms_infof("Loading settings...");
-    if (!settings.load())
-        tms_infof("ERROR!");
-
-    P.loaded_correctly_last_run = settings["loaded_correctly"]->v.b;
-
-    settings["is_very_shitty"]->v.b = (!settings["loaded_correctly"]->v.b || settings["is_very_shitty"]->v.b);
-    settings["loaded_correctly"]->v.b = false;
-    settings.save();
-
-    tms_infof("Shadow quality: %d (%dx%d)",
-            settings["shadow_quality"]->v.i8,
-            settings["shadow_map_resx"]->v.i,
-            settings["shadow_map_resy"]->v.i);
-
 #ifdef TMS_BACKEND_WINDOWS
     _tmp[1] = cl;
     tproject_set_args(2, _tmp);

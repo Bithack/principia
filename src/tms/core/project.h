@@ -10,6 +10,7 @@
 extern "C" {
 #endif
 
+void tproject_preinit();
 void tproject_init(void);
 void *tproject_initialize(void);
 void tproject_init_pipelines(void);

@@ -1505,6 +1505,28 @@ setup_opengl_settings()
 }
 
 void
+tproject_preinit(void)
+{
+    settings.init();
+    tms_infof("Loading settings...");
+    if (!settings.load())
+        tms_infof("ERROR!");
+
+    P.loaded_correctly_last_run = settings["loaded_correctly"]->v.b;
+
+    is_very_shitty = (!settings["loaded_correctly"]->v.b || settings["is_very_shitty"]->v.b);
+    settings["loaded_correctly"]->v.b = false;
+    settings["is_very_shitty"]->v.b = is_very_shitty;
+
+    settings.save();
+
+    tms_infof("Shadow quality: %d (%dx%d)",
+        settings["shadow_quality"]->v.i8,
+        settings["shadow_map_resx"]->v.i,
+        settings["shadow_map_resy"]->v.i);
+}
+
+void
 tproject_init(void)
 {
     P.username = 0;
@@ -1516,30 +1538,6 @@ tproject_init(void)
 
     tms_infof("tproject_init called");
     srand((unsigned)time(0));
-
-#ifdef TMS_BACKEND_MOBILE
-    settings.init();
-    settings.load();
-    P.loaded_correctly_last_run = settings["loaded_correctly"]->v.b;
-    if (!settings["fixed_uiscale"]->v.b && settings["uiscale"]->v.f == 1.f) {
-        settings["uiscale"]->v.f = 1.3f;
-    }
-
-    /* TODO: Move this into a settings function. settings.post_load? */
-    if (settings["fv"]->v.i == 1) {
-        settings["fv"]->v.i = 2;
-        settings["cam_speed_modifier"]->v.f = 1.f;
-        settings["menu_speed"]->v.f = 1.f;
-        settings["smooth_zoom"]->v.b = false;
-        settings["smooth_cam"]->v.b = false;
-        tms_infof("Modified cam settings.");
-    }
-    settings["fixed_uiscale"]->v.b = true;
-    is_very_shitty = (!settings["loaded_correctly"]->v.b || settings["is_very_shitty"]->v.b);
-    settings["loaded_correctly"]->v.b = false;
-    settings["is_very_shitty"]->v.b = is_very_shitty;
-
-#endif
 
     setup_opengl_settings();
     settings.save();

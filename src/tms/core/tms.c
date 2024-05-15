@@ -29,6 +29,8 @@ tms_init(void)
     tms.is_paused = 0;
     tms.state = TMS_STATE_DEFAULT;
 
+    tproject_preinit();
+
     tbackend_init_surface();
 
     tms.gl_extensions = glGetString(GL_EXTENSIONS);
