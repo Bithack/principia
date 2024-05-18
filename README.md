@@ -27,6 +27,8 @@ Binary builds of Principia for Windows, Android and Linux are available on the [
 
 There are also nightly build artifacts for Windows, Android and Linux that get automatically built by GitHub CI on each commit, see [Actions](https://github.com/Bithack/principia/actions). Keep in mind these may be broken at times during development, and you are recommended to use the release builds instead.
 
+The Android version is available on F-Droid [here](https://f-droid.org/packages/com.bithack.principia/).
+
 ## Getting involved
 Feel free to fork this project and send in your pull requests. This is a community project and the community decides how the project evolves.
 
