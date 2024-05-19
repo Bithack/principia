@@ -327,7 +327,7 @@ int main(int argc, char **argv)
 #endif
 
     if (_tms.screen == 0)
-        tms_fatalf("context has no initial screen, bailing out");
+        tms_fatalf("Context has no initial screen!");
 
     do {
         int i;

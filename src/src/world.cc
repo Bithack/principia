@@ -2632,7 +2632,7 @@ world::load_partial(uint32_t id, b2Vec2 position,
         _fseek(fp, 0, SEEK_SET);
 
         if (size > 8*1024*1024)
-            tms_fatalf("file too big");
+            tms_fatalf("Partial too big");
 
         this->lb.reset();
         this->lb.size = 0;
@@ -2688,7 +2688,8 @@ world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_i
         _fseek(fp, 0, SEEK_SET);
 
         if (size > 8*1024*1024) {
-            tms_fatalf("file too big");
+            // XXX: Is this necessary? can we support larger levels
+            tms_fatalf("Level file too big");
         }
 
         this->lb.reset();

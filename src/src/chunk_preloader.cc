@@ -210,7 +210,7 @@ chunk_preloader::preload_entity()
         uint8_t type = w_lb.r_uint8();
         switch (type) {
             default:
-                tms_fatalf("invalid property type");
+                tms_fatalf("Invalid property type");
             case P_INT8: w_lb.rp += sizeof(uint8_t); break;
             case P_ID: case P_FLT: case P_INT:
                  w_lb.rp+=sizeof(uint32_t);
@@ -511,7 +511,7 @@ chunk_preloader::unload(level_chunk *chunk)
             entity *e = i->second;
 
             if (e->type == ENTITY_CABLE) {
-                tms_fatalf("THIS SHOULD NEVER HAPPEN, CALL FBI");
+                tms_fatalf("This should never happen!");
             }
 
             /* this will destroy all joints created by connections and cables */

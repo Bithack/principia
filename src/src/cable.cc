@@ -602,7 +602,7 @@ plug::plug(cable *c)
         case CABLE_RED: this->set_material(&m_cable_red); break;
         case CABLE_BLACK: this->set_material(&m_cable_black); break;
         case CABLE_BLUE: this->set_material(&m_cable_blue); break;
-        default: tms_fatalf("invalid cable type %d", c->ctype);
+        default: tms_fatalf("Invalid cable type %d", c->ctype);
     }
 }
 

@@ -477,7 +477,7 @@ my_writer(lua_State *L, const void *contents, size_t size, void *ud)
 
     d->buf = (char*)realloc(d->buf, d->size + size + 1);
     if (d->buf == NULL) {
-        tms_fatalf("Ran out of memory while writing lua state");
+        tms_fatalf("Ran out of memory while writing Lua state");
         return 0;
     }
 

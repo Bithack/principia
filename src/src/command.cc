@@ -288,7 +288,7 @@ command::on_slider_change(int s, float value)
             break;
 
         default:
-            tms_fatalf("not implemented (%d)", this->cmd);
+            tms_fatalf("Command pad not implemented (%d)", this->cmd);
             break;
     }
 }

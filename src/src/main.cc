@@ -1275,7 +1275,7 @@ tproject_step(void)
                         _fseek(fp, 0, SEEK_SET);
 
                         if (size > 8*1024*1024) {
-                            tms_fatalf("file too big");
+                            tms_fatalf("Puzzle solution file too big");
                         }
 
                         char *buf = (char*)malloc(size);
@@ -2243,7 +2243,7 @@ write_memory_cb(void *contents, size_t size, size_t nmemb, void *userp)
 
     mem->memory = (char*)realloc(mem->memory, mem->size + realsize + 1);
     if (mem->memory == NULL) {
-        tms_fatalf("wmc out of memory!");
+        tms_fatalf("write_memory_cb out of memory!");
         return 0;
     }
 

@@ -4805,11 +4805,7 @@ save_setting_row(struct table_setting_row *r)
             break;
 
         default:
-#ifdef DEBUG
-            tms_fatalf("Unknown row type: %d", row.type);
-#else
             tms_errorf("Unknown row type: %d", row.type);
-#endif
             break;
     }
 }
@@ -4829,11 +4825,7 @@ load_setting_row(struct table_setting_row *r)
             break;
 
         default:
-#ifdef DEBUG
-            tms_fatalf("Unknown row type: %d", row.type);
-#else
             tms_errorf("Unknown row type: %d", row.type);
-#endif
             break;
     }
 }
@@ -4853,11 +4845,7 @@ create_setting_row_widget(struct table_setting_row *r)
             break;
 
         default:
-            #ifdef DEBUG
-                tms_fatalf("Unknown row type: %d", row.type);
-            #else
-                tms_errorf("Unknown row type: %d", row.type);
-            #endif
+            tms_errorf("Unknown row type: %d", row.type);
             break;
     }
 }
@@ -11502,7 +11490,7 @@ static void wait_ui_ready()
     SDL_LockMutex(ui_lock);
     if (!ui_ready) {
         SDL_CondWaitTimeout(ui_cond, ui_lock, 4000);
-        if (!ui_ready) tms_fatalf("could not initialize game");
+        if (!ui_ready) tms_fatalf("Could not initialise game (GTK not ready)");
     }
     SDL_UnlockMutex(ui_lock);
 }

@@ -411,11 +411,10 @@ read_cache(lvlbuf *lb)
         uint8_t num_channels = lb->r_uint8();
 
         if (width != al->width || height != al->height || num_channels != al->num_channels) {
-            tms_errorf("Mismatching atlas in texture cache");
             tms_infof("%d != %d?", width, al->width);
             tms_infof("%d != %d?", height, al->height);
             tms_infof("%d != %d?", num_channels, al->num_channels);
-            tms_fatalf("a");
+            tms_fatalf("Mismatching atlas in texture cache");
             return false;
         }
 

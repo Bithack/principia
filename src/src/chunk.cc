@@ -210,7 +210,7 @@ level_chunk::init_chunk_neighbours()
             if (this->neighbours[x]) {
                 this->neighbours[x]->neighbours[7-x] = this;
             } else {
-                //tms_fatalf("DAAAMN NIGGA");
+                //tms_fatalf("DAAAMN CUTIE");
             }
         }
     }

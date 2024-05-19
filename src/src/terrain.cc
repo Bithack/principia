@@ -200,7 +200,7 @@ terrain_transaction::apply()
 
         if (chunk->generate_phase >= 5) {
             /* XXX XXX XXX */
-            tms_fatalf("this should never happen, chunk xy: %d %d, dist: %d %d", chunk->pos_x, chunk->pos_y, this->start_x-chunk->pos_x, this->start_y-chunk->pos_y);
+            tms_fatalf("This should never happen, chunk xy: %d %d, dist: %d %d", chunk->pos_x, chunk->pos_y, this->start_x-chunk->pos_x, this->start_y-chunk->pos_y);
 #if 1
             chunk->remerge();
 
@@ -555,7 +555,7 @@ level_chunk::generate_phase2(chunk_window *win)
         }
 
         if (curr_y > 500) {
-            tms_fatalf("No! %f %f", (curr_y)*8.f, heights[0]);
+            tms_fatalf("This shouldn't happen! (terrain generation) %f %f", (curr_y)*8.f, heights[0]);
             break;
         }
 
