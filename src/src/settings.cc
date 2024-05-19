@@ -94,8 +94,6 @@ _settings::init()
     this->add("border_scroll_enabled",  S_BOOL,  true);
     this->add("border_scroll_speed",    S_FLOAT, 1.f);
     this->add("menu_speed",         S_FLOAT, 1.f);
-    this->add("loaded_correctly",   S_BOOL,  true);
-    this->add("is_very_shitty",     S_BOOL,  false);
     this->add("always_reload_data", S_BOOL,  false);
     /* TODO: Add setting for enabling or disabling menu sliding */
 
@@ -260,7 +258,6 @@ _settings::load(void)
         settings["enable_bloom"]->v.b = false;
         settings["enable_ao"]->v.b = false;
         settings["render_edev_labels"]->v.b = false;
-        settings["is_very_shitty"]->v.b = true;
         settings["hide_tips"]->v.b = true;
     }
 #endif

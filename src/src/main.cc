@@ -91,8 +91,6 @@ static char          featured_data_time_path[1024];
 static char          cookie_file[1024];
 static char          username[256];
 
-static bool          is_very_shitty = false;
-
 struct header_data {
     char *error_message;
     char *notify_message;
@@ -466,7 +464,7 @@ init_framebuffers(void)
             tms_fb_add_texture(gi_fb, GL_RGB, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
             tms_fb_enable_depth_texture(gi_fb, GL_DEPTH_COMPONENT16);
         } else {
-            if (settings["is_very_shitty"]->v.b || settings["shadow_map_precision"]->v.i == 0) {
+            if (settings["shadow_map_precision"]->v.i == 0) {
                 shadow_map_precision = GL_RGB;
             } else if (settings["shadow_map_precision"]->v.i == 1) {
 #ifdef TMS_BACKEND_ANDROID
@@ -1075,7 +1073,6 @@ tproject_step(void)
 
                 case ACTION_RELOAD_GRAPHICS: {
                     tms_debugf("Reloading graphics...");
-                    settings["is_very_shitty"]->v.b = false;
                     if (_tms.screen == &G->super) {
                         P.s_loading_screen->load(shader_loader, G);
                         G->resume_action = GAME_RESUME_CONTINUE;
@@ -1512,12 +1509,6 @@ tproject_preinit(void)
     if (!settings.load())
         tms_infof("ERROR!");
 
-    P.loaded_correctly_last_run = settings["loaded_correctly"]->v.b;
-
-    is_very_shitty = (!settings["loaded_correctly"]->v.b || settings["is_very_shitty"]->v.b);
-    settings["loaded_correctly"]->v.b = false;
-    settings["is_very_shitty"]->v.b = is_very_shitty;
-
     settings.save();
 
     tms_infof("Shadow quality: %d (%dx%d)",
@@ -1590,8 +1581,8 @@ shader_loader(int step)
         case 2: tms_scene_clear_graphs(G->get_scene()); break;
         case 3: material_factory::free_shaders(); break;
         case 4:
-            material_factory::init_shaders(false);
-            material_factory::init_materials(false);
+            material_factory::init_shaders();
+            material_factory::init_materials();
             break;
         case 5: init_framebuffers(); G->init_framebuffers(); break;
         case 6: tms_scene_fill_graphs(G->get_scene()); break;
@@ -3475,8 +3466,7 @@ initial_loader(int step)
             break;
 
         case 5:
-            material_factory::init(is_very_shitty || settings["is_very_shitty"]->v.b);
-
+            material_factory::init();
             P.s_loading_screen->set_text("Allocating models...");
             break;
 
@@ -3583,7 +3573,6 @@ initial_loader(int step)
 #endif
 
                 P.loaded = true;
-                settings["loaded_correctly"]->v.b = true;
                 settings.save();
 
 #ifndef TMS_BACKEND_LINUX_SS

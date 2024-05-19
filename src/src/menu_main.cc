@@ -15,10 +15,6 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
     }
 
     switch (button_id) {
-        case BTN_SHITTY:
-            ui::open_url("https://principia-web.se/wiki/Bad_Graphics");
-            break;
-
         case BTN_PLAY:
             P.add_action(ACTION_GOTO_PLAY, 1);
             break;
@@ -57,12 +53,6 @@ menu_main::menu_main()
             BTN_UPDATE, AREA_TOP_LEFT);
     this->wdg_update_available->set_label("Update available!");
     this->wdg_update_available->priority = 900;
-
-    this->wdg_shitty = this->wm->create_widget(
-            this->get_surface(), TMS_WDG_LABEL,
-            BTN_SHITTY, AREA_TOP_LEFT);
-    this->wdg_shitty->set_label("\nSafe mode enabled. Click here to read more.");
-    this->wdg_shitty->priority = 500;
 
     this->wdg_play = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
@@ -244,14 +234,9 @@ menu_main::refresh_widgets()
     menu_base::refresh_widgets();
 
     this->wdg_update_available->remove();
-    this->wdg_shitty->remove();
 
     if (P.new_version_available) {
         this->wdg_update_available->add();
-    }
-
-    if (!P.loaded_correctly_last_run) {
-        //this->wdg_shitty->add();
     }
 
     if (menu_shared::fl_state == FL_INIT) {

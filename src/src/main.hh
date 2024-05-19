@@ -180,7 +180,6 @@ extern class principia
     char *message;
 
     bool new_version_available;
-    bool loaded_correctly_last_run;
 
     SDL_mutex *action_mutex;
     bool       can_reload_graphics;

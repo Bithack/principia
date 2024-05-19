@@ -186,12 +186,8 @@
 #define C_STONE_STONE           (TYPE_STONE | TYPE_STONE_STONE)
 
 #define SL_SHARED       (1UL << 0)
-#define SL_HAS_SIMPLE   (1UL << 1)
-#define SL_NO_SIMPLE    (1UL << 2)
-#define SL_EXIT_ON_FAIL (1UL << 3)
 #define SL_REQUIRE_GI   (1UL << 4)
 
-#define GF_IS_SHITTY    (1UL << 0)
 #define GF_ENABLE_GI    (1UL << 1)
 
 struct shader_load_data {
@@ -210,9 +206,9 @@ class material_factory {
 
     static void upload_all();
     static void free_shaders();
-    static void init(bool is_shitty=false);
-    static void init_shaders(bool is_shitty);
-    static void init_materials(bool is_shitty);
+    static void init();
+    static void init_shaders();
+    static void init_materials();
     static void load_bg_texture(bool soft=false);
 
     static int background_id;

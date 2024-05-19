@@ -13,7 +13,6 @@ enum {
     BTN_CONTEST,
 
     BTN_UPDATE,
-    BTN_SHITTY,
     BTN_PLAY,
     BTN_CREATE,
     BTN_BROWSE_COMMUNITY,

@@ -153,8 +153,6 @@ main(int argc, char **argv)
     SDL_DisplayMode mode;
     SDL_GetCurrentDisplayMode(0, &mode);
 
-    P.loaded_correctly_last_run = true;
-
     tproject_set_args(argc, argv);
     tms_init();
 
