@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <sys/stat.h>
 #include <sys/file.h>
 #include <sys/time.h>
@@ -23,7 +24,6 @@
 
 #include <windows.h>
 #include <windowsx.h>
-#include <signal.h>
 
 #include <clocale>
 #include "shlwapi.h"
@@ -125,19 +125,28 @@ int _pipe_listener(void *p)
 #endif
 }
 
-#ifdef TMS_BACKEND_WINDOWS
-
-static void
-_catch_signal(int signal)
+static void _catch_signal(int signal)
 {
-    tms_infof("SIGSEGV");
+    tms_errorf("Segmentation fault!");
+
+#ifdef TMS_BACKEND_WINDOWS
     if (_f_out != stdout) {
         fflush(_f_out);
         fclose(_f_out);
     }
+#endif
+
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Principia",
+R"(An unrecoverable error has occurred and Principia will now close.
+
+Please report this crash to the issue tracker with the relevant steps
+to reproduce it, if possible.
+)", 0);
+
     exit(1);
 }
 
+#ifdef TMS_BACKEND_WINDOWS
 int CALLBACK WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cl, int cs)
 #else
 int main(int argc, char **argv)
@@ -146,8 +155,9 @@ int main(int argc, char **argv)
     SDL_Event  ev;
     int        done = 0;
 
-#ifdef TMS_BACKEND_WINDOWS
     signal(SIGSEGV, _catch_signal);
+
+#ifdef TMS_BACKEND_WINDOWS
     setlocale(LC_ALL, "C");
 
     pipe_h = CreateNamedPipe(
