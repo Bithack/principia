@@ -35,13 +35,13 @@
 FILE *_f_out = stdout;
 FILE *_f_err = stderr;
 
-static int _storage_type = 0;
-
 #else
 
 #include <pwd.h>
 
 #endif
+
+static int _storage_type = 0;
 
 SDL_Window *_window;
 
@@ -273,6 +273,18 @@ int main(int argc, char **argv)
     tms_infof("chdirring to %s", exedir);
     chdir(exedir);
 
+    // Switch to portable if ./portable.txt exists next to binary
+    if (access("portable.txt", F_OK) == 0) {
+        tms_infof("We're becoming portable!");
+        _storage_type = 1;
+    }
+
+#ifdef TMS_BACKEND_WINDOWS
+    mkdir(tbackend_get_storage_path());
+#else
+    mkdir(tbackend_get_storage_path(), S_IRWXU | S_IRWXG | S_IRWXO);
+#endif
+
     // Check if we're in the right place
     struct stat st{};
     if (stat("data-shared", &st) != 0) {
@@ -292,21 +304,6 @@ int main(int argc, char **argv)
             }
         }
     }
-#ifdef TMS_BACKEND_WINDOWS
-    else {
-        // Switch to portable if ./portable.txt exists next to exe
-        if (access("portable.txt", F_OK) == 0) {
-            tms_infof("We're becoming portable!");
-            _storage_type = 1;
-        }
-    }
-#endif
-
-#ifdef TMS_BACKEND_WINDOWS
-    mkdir(tbackend_get_storage_path());
-#else
-    mkdir(tbackend_get_storage_path(), S_IRWXU | S_IRWXG | S_IRWXO);
-#endif
 
     tms_infof("Initializing SDL...");
     SDL_Init(SDL_INIT_VIDEO);
@@ -552,7 +549,6 @@ tbackend_init_surface()
         tms_fatalf("Error creating GL Context: %s", SDL_GetError());
 
     tms_infof("Initializing GLEW...");
-    glewExperimental = GL_TRUE;
     GLenum err = glewInit();
     if (err != GLEW_OK) {
         tms_infof("ERROR: %s", glewGetErrorString(err));
@@ -777,26 +773,28 @@ T_intercept_input(SDL_Event ev)
 const char *tbackend_get_storage_path(void)
 {
     if (!_storage_path) {
-#ifdef TMS_BACKEND_WINDOWS
         char *path = (char*)malloc(512);
 
         if (_storage_type == 0) { // System (Installed)
+#ifdef TMS_BACKEND_WINDOWS
+            #define DIRSEP "\\"
             strcpy(path, getenv("USERPROFILE"));
             strcat(path, "\\Principia");
+#else
+            #define DIRSEP "/"
+            struct passwd *pw = getpwuid(getuid());
+            strcpy(path, pw->pw_dir);
+            strcat(path, "/.principia");
+#endif
         } else if (_storage_type == 1) { // Portable
-            strcpy(path, ".\\userdata\\");
+            char* exedir = SDL_GetBasePath();
+            strcpy(path, exedir);
+            strcat(path, DIRSEP "userdata");
         }
 
         _storage_path = path;
-#else
-        char *path = (char*)malloc(512);
-        struct passwd *pw = getpwuid(getuid());
 
-        strcpy(path, pw->pw_dir);
-        strcat(path, "/.principia");
-
-        _storage_path = path;
-#endif
+        tms_infof("Storage path: %s", path);
     }
     return _storage_path;
 }
