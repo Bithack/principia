@@ -32,14 +32,13 @@
 
 #include "SDL_syswm.h"
 
-FILE *_f_out = stdout;
-FILE *_f_err = stderr;
-
 #else
 
 #include <pwd.h>
 
 #endif
+
+FILE *_f_out = stdout;
 
 static int _storage_type = 0;
 
@@ -144,6 +143,17 @@ to reproduce it, if possible.
 )", 0);
 
     exit(1);
+}
+
+void print_log_header() {
+    tms_printf( \
+        "            _            _       _       \n"
+        " _ __  _ __(_)_ __   ___(_)_ __ (_) __ _ \n"
+        "| '_ \\| '__| | '_ \\ / __| | '_ \\| |/ _` |\n"
+        "| |_) | |  | | | | | (__| | |_) | | (_| |\n"
+        "| .__/|_|  |_|_| |_|\\___|_| .__/|_|\\__,_|\n"
+        "|_|                       |_|            \n"
+        "Version %d, built " __DATE__ " " __TIME__ "\n", PRINCIPIA_VERSION_CODE);
 }
 
 #ifdef TMS_BACKEND_WINDOWS
@@ -284,6 +294,21 @@ int main(int argc, char **argv)
 #else
     mkdir(tbackend_get_storage_path(), S_IRWXU | S_IRWXG | S_IRWXO);
 #endif
+
+#ifndef DEBUG
+    char logfile[1024];
+    snprintf(logfile, 1023, "%s/run.log", tbackend_get_storage_path());
+
+    tms_infof("Redirecting log output to %s", logfile);
+    FILE *log = fopen(logfile, "w+");
+    if (log) {
+        _f_out = log;
+    } else {
+        tms_errorf("Could not open log file for writing! Nevermind.");
+    }
+#endif
+
+    print_log_header();
 
     // Check if we're in the right place
     struct stat st{};
@@ -508,15 +533,6 @@ int main(int argc, char **argv)
 int
 tbackend_init_surface()
 {
-    tms_printf( \
-		"            _            _       _       \n"
-		" _ __  _ __(_)_ __   ___(_)_ __ (_) __ _ \n"
-		"| '_ \\| '__| | '_ \\ / __| | '_ \\| |/ _` |\n"
-		"| |_) | |  | | | | | (__| | |_) | | (_| |\n"
-		"| .__/|_|  |_|_| |_|\\___|_| .__/|_|\\__,_|\n"
-		"|_|                       |_|            \n"
-		"Version: %d. " __DATE__ "/" __TIME__ "\n", PRINCIPIA_VERSION_CODE);
-
     _tms.window_width = settings["window_width"]->v.i;
     _tms.window_height = settings["window_height"]->v.i;
 
@@ -777,11 +793,9 @@ const char *tbackend_get_storage_path(void)
 
         if (_storage_type == 0) { // System (Installed)
 #ifdef TMS_BACKEND_WINDOWS
-            #define DIRSEP "\\"
             strcpy(path, getenv("USERPROFILE"));
             strcat(path, "\\Principia");
 #else
-            #define DIRSEP "/"
             struct passwd *pw = getpwuid(getuid());
             strcpy(path, pw->pw_dir);
             strcat(path, "/.principia");
@@ -789,7 +803,7 @@ const char *tbackend_get_storage_path(void)
         } else if (_storage_type == 1) { // Portable
             char* exedir = SDL_GetBasePath();
             strcpy(path, exedir);
-            strcat(path, DIRSEP "userdata");
+            strcat(path, "userdata");
         }
 
         _storage_path = path;

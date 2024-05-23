@@ -506,41 +506,6 @@ init_framebuffers(void)
 void
 tproject_set_args(int argc, char **argv)
 {
-#if defined(TMS_BACKEND_WINDOWS) && !defined(DEBUG)
-    static bool has_set_log = false;
-    if (!has_set_log) {
-        has_set_log = true;
-        char logfile[1024];
-        snprintf(logfile, 1023, "%s" SLASH "run.log", tbackend_get_storage_path());
-
-        if (file_exists(logfile)) {
-            char backup_logfile[1024];
-            snprintf(backup_logfile, 1023, "%s" SLASH "bkp.run.log", tbackend_get_storage_path());
-
-            if (file_exists(backup_logfile)) {
-                unlink(backup_logfile);
-            }
-
-            tms_infof("Copying log file from %s to %s", logfile, backup_logfile);
-            int r = rename(logfile, backup_logfile);
-
-            if (r == 0) {
-                tms_infof("Success!");
-            } else {
-                tms_infof("Error copying log file.. :(");
-            }
-        }
-
-        tms_infof("changing log file to %s", logfile);
-        FILE *log = fopen(logfile, "w+"); // XXX: why "w+" instead of "w"?
-        if (log) {
-            tms_set_log_file(log, log);
-        } else {
-            tms_infof("could not open log file for writing!");
-        }
-    }
-#endif
-
     if (argc > 1) {
 
         char *s = argv[1];

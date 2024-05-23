@@ -28,42 +28,19 @@ static inline int _fatal_exit(void) {
 	// todo
 	#error "NYI"
 
-#elif defined(TMS_BACKEND_WINDOWS)
+#else
 
 	extern FILE *_f_out;
-	extern FILE *_f_err;
 
 	#define tms_infof(f, ...) fprintf(_f_out, "I: " f "\n", ##__VA_ARGS__), fflush(_f_out);
-	#define tms_warnf(f, ...) fprintf(_f_err, "W: " f "\n", ##__VA_ARGS__), fflush(_f_err);
-	#define tms_fatalf(f, ...) (fprintf(_f_err, "F: " f "\n", ##__VA_ARGS__), fflush(_f_err), _fatal_exit())
-	#define tms_errorf(f, ...) fprintf(_f_err, "E: " f "\n", ##__VA_ARGS__), fflush(_f_err);
-
-	static inline void
-	tms_set_log_file(FILE *out, FILE *err)
-	{
-		tms_infof("Log file changing!");
-		_f_out = out;
-		_f_err = err;
-	};
+	#define tms_warnf(f, ...) fprintf(_f_out, "W: " f "\n", ##__VA_ARGS__), fflush(_f_out);
+	#define tms_fatalf(f, ...) (fprintf(_f_out, "F: " f "\n", ##__VA_ARGS__), fflush(_f_out), _fatal_exit())
+	#define tms_errorf(f, ...) fprintf(_f_out, "E: " f "\n", ##__VA_ARGS__), fflush(_f_out);
 
 	#define tms_printf(f, ...) fprintf(_f_out, f, ##__VA_ARGS__); fflush(_f_out);
 
 	#if DEBUG
-		#define tms_debugf(f, ...) fprintf(_f_err, "D: " f "\n", ##__VA_ARGS__), fflush(_f_err);
-	#endif
-
-#else
-
-	// Every other platform (Linux, screenshotter...)
-
-	#define tms_infof(f, ...) fprintf(stdout, "I: " f "\n", ##__VA_ARGS__);
-	#define tms_warnf(f, ...) fprintf(stderr, "W: " f "\n", ##__VA_ARGS__);
-	#define tms_fatalf(f, ...) (fprintf(stderr, "F: " f "\n", ##__VA_ARGS__), _fatal_exit());
-	#define tms_errorf(f, ...) fprintf(stderr, "E: " f "\n", ##__VA_ARGS__);
-	#define tms_printf(f, ...) fprintf(stdout, f, ##__VA_ARGS__); fflush(stdout);
-
-	#ifdef DEBUG
-		#define tms_debugf(f, ...) fprintf(stderr, "D: " f "\n", ##__VA_ARGS__);
+		#define tms_debugf(f, ...) fprintf(_f_out, "D: " f "\n", ##__VA_ARGS__), fflush(_f_out);
 	#endif
 
 #endif

@@ -36,6 +36,8 @@
 #define STATE_IDLE    0
 #define STATE_WORKING 1
 
+FILE *_f_out = stdout;
+
 SDL_Window *_window;
 
 int keys[235];
