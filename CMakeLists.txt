@@ -281,7 +281,7 @@ else()
 	endif()
 endif()
 
-set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_${TMS_FORMFACTOR} -DTMS_BACKEND_${TMS_BACKEND}")
+set(COMMON_FLAGS "${COMMON_FLAGS} -ffast-math -DTMS_BACKEND_${TMS_FORMFACTOR} -DTMS_BACKEND_${TMS_BACKEND}")
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	# Downgrade some errors to warnings when building with Clang
@@ -291,26 +291,24 @@ else()
 	set(COMMON_FLAGS "${COMMON_FLAGS} -Wno-error=incompatible-pointer-types -Wno-error=int-conversion")
 endif()
 
-set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1")
-set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} -DNDEBUG=1 -fomit-frame-pointer -fdata-sections -ffunction-sections")
+set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -DDEBUG=1")
+set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} -DNDEBUG=1 -fomit-frame-pointer")
 
 set(CMAKE_C_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O1")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE} -g")
 set(CMAKE_C_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG}")
 
-set(CMAKE_CXX_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O2 -fvisibility-inlines-hidden -fno-rtti")
+set(CMAKE_CXX_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O2 -fno-rtti")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} -g")
 set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG}")
 
 # macOS Clang's linker doesn't like these flags
 if(NOT APPLE)
-	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-O,-s,--gc-sections")
-	set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "-Wl,-O,--gc-sections")
-	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "")
-endif()
-
-if(WIN32)
-	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-mwindows")
+	if(WIN32)
+		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-mwindows -Wl,-s")
+	else()
+		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-s")
+	endif()
 endif()
 
 
