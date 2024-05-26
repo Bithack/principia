@@ -3343,6 +3343,30 @@ generate_paths()
     snprintf(featured_data_time_path, 1023, "%s/fl.time", tbackend_get_storage_path());
 }
 
+static void
+populate_community_host()
+{
+    P.community_host = "principia-web.se";
+
+    char path[1024];
+    snprintf(path, 1023, "%s/community_host.txt", tbackend_get_storage_path());
+    FILE *fh = fopen(path, "r");
+
+    if (!fh) return;
+
+    static char buf[256];
+    fgets(buf, 256, fh);
+
+    for (size_t i = 0; i < 255; i++) {
+        if (buf[i] == '\n')
+            buf[i] = 0x0;
+    }
+
+    tms_infof("Overriding community host: %s", buf);
+
+    P.community_host = buf;
+}
+
 static int
 initial_loader(int step)
 {
@@ -3355,7 +3379,7 @@ initial_loader(int step)
     switch (step) {
         case 0:
             {
-                P.community_host = "principia-web.se";
+                populate_community_host();
 
                 static const char *s_dirs[]={
                     "",
