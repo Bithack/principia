@@ -50,7 +50,7 @@ menu_main::menu_main()
 
     this->wdg_update_available = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
-            BTN_UPDATE, AREA_TOP_LEFT);
+            BTN_UPDATE, AREA_TOP_CENTER);
     this->wdg_update_available->set_label("Update available!");
     this->wdg_update_available->priority = 900;
 
