@@ -29,9 +29,8 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                     pscreen::refresh_username();
                     P.add_action(ACTION_REFRESH_WIDGETS, 0);
 
-                    char tmp[1024];
-                    snprintf(tmp, 1023, "https://%s/user/%s", P.community_host, P.username);
-                    ui::open_url(tmp);
+                    COMMUNITY_URL("user/%s", P.username);
+                    ui::open_url(url);
                 } else {
                     ui::open_dialog(DIALOG_LOGIN);
                 }
@@ -39,8 +38,7 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             break;
 
         case BTN_MESSAGE: {
-            char url[256];
-            snprintf(url, 255, "https://%s/version-redir", P.community_host);
+            COMMUNITY_URL("version-redir");
             ui::open_url(url);
 	    } break;
 
@@ -55,18 +53,16 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
         case BTN_ENTITY:
             {
                 uint32_t id = VOID_TO_UINT32(w->data3);
-                char tmp[1024];
-                snprintf(tmp, 1023, "https://%s/level/%u", P.community_host, id);
-                ui::open_url(tmp);
+                COMMUNITY_URL("level/%u", id);
+                ui::open_url(url);
             }
             break;
 
         case BTN_CONTEST:
             {
                 uint32_t id = VOID_TO_UINT32(w->data3);
-                char tmp[1024];
-                snprintf(tmp, 1023, "https://%s/contest/%u", P.community_host, id);
-                ui::open_url(tmp);
+                COMMUNITY_URL("contest/%u", id);
+                ui::open_url(url);
             }
             break;
 

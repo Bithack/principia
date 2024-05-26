@@ -198,10 +198,9 @@ ui::open_sandbox_tips()
 extern "C" jstring
 Java_org_libsdl_app_PrincipiaBackend_getLevelPage(JNIEnv *env, jclass jcls)
 {
-    char tmp[1024];
-    snprintf(tmp, 1023, "https://%s/level/%d", P.community_host, W->level.community_id);
+    COMMUNITY_URL("level/%d", W->level.community_id);
 
-    return env->NewStringUTF(tmp);
+    return env->NewStringUTF(url);
 }
 
 extern "C" jstring
@@ -957,10 +956,9 @@ Java_org_libsdl_app_PrincipiaBackend_setConsumableType(JNIEnv *env, jclass _jcls
 extern "C" jstring
 Java_org_libsdl_app_PrincipiaBackend_getCurrentCommunityUrl(JNIEnv *env, jclass _jcls)
 {
-    char tmp[1024];
-    snprintf(tmp, 1023, "https://%s/level/%d", P.community_host, W->level.community_id);
+    COMMUNITY_URL("level/%d", W->level.community_id);
 
-    return env->NewStringUTF(tmp);
+    return env->NewStringUTF(url);
 }
 
 extern "C" void

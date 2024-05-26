@@ -470,8 +470,7 @@ void ui_cb_set_event(int n)
 void
 ui_cb_back_to_community(void)
 {
-    char tmp[1024];
-    snprintf(tmp, 1023, "https://%s/level/%d", P.community_host, W->level.community_id);
+    COMMUNITY_URL("level/%d", W->level.community_id);
 
     ui::open_url(tmp);
 }

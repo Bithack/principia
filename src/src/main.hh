@@ -20,6 +20,10 @@ class p_text;
 
 class pkginfo;
 
+#define COMMUNITY_URL(uri, ...) \
+    char url[256]; \
+    snprintf(url, 255, "https://%s/" uri, P.community_host, ##__VA_ARGS__);
+
 #define STR1(x) #x
 #define STR(x) STR1(x)
 

@@ -5815,8 +5815,7 @@ on_login_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
             gtk_label_set_text(login_status, "Enter data into both fields.");
         }
     } else if (btn_pressed(w, login_btn_register, user_data)) {
-        char url[256];
-        snprintf(url, 255, "https://%s/register", P.community_host);
+        COMMUNITY_URL("register");
         ui::open_url(url);
     }
 
@@ -10555,10 +10554,8 @@ _open_published(gpointer unused)
     gint result = gtk_dialog_run(published_dialog);
 
     if (result == GTK_RESPONSE_ACCEPT) {
-        char tmp[256];
-        snprintf(tmp, 255, "https://%s/level/%d", P.community_host, W->level.community_id);
-
-        ui::open_url(tmp);
+        COMMUNITY_URL("level/%d", W->level.community_id);
+        ui::open_url(url);
     }
 
     gtk_widget_hide(GTK_WIDGET(published_dialog));

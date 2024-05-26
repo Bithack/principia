@@ -1381,13 +1381,13 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             if (P.username) {
                 P.add_action(ACTION_AUTOSAVE, 0);
                 P.num_unread_messages = 0;
-                char tmp[256];
-                snprintf(tmp, 255, "https://%s/user/%s", P.community_host, P.username);
-                ui::open_url(tmp);
+                COMMUNITY_URL("user/%s", P.username);
+                ui::open_url(url);
 
-                snprintf(tmp, 255, "%s", P.username);
+                char username[256];
+                snprintf(username, 255, "%s", P.username);
 
-                w->set_label(tmp);
+                w->set_label(username);
             } else {
                 ui::open_dialog(DIALOG_LOGIN);
             }

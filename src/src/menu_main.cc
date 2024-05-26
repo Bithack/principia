@@ -23,18 +23,15 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             P.add_action(ACTION_GOTO_CREATE, 1);
             break;
 
-        case BTN_BROWSE_COMMUNITY:
-            {
-                ui::emit_signal(SIGNAL_CLICK_DISCOVER);
-                char tmp[128];
-                snprintf(tmp, 127, "https://%s/", P.community_host);
-                ui::open_url(tmp);
-            }
-            break;
+        case BTN_BROWSE_COMMUNITY: {
+            COMMUNITY_URL("");
+            ui::open_url(url);
+        } break;
 
-        case BTN_UPDATE:
-            ui::open_url("https://principia-web.se/");
-            break;
+        case BTN_UPDATE: {
+            COMMUNITY_URL("download");
+            ui::open_url(url);
+        } break;
 
         default: return false;
     }

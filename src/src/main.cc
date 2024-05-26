@@ -1753,10 +1753,7 @@ _download_pkg(void *_p)
 
     tms_debugf("save: %s", save_path);
 
-    char url[256];
-    snprintf(url, 255, "https://%s/internal/get_package?i=%d",
-            P.community_host,
-            _play_pkg_id);
+    COMMUNITY_URL("internal/get_package?i=%d", _play_pkg_id);
     long http_code = 0;
 
     struct level_write save_data = {
@@ -2235,8 +2232,7 @@ _check_version_code(void *_unused)
     if (P.curl) {
         init_curl_defaults(P.curl);
 
-        char url[256];
-        snprintf(url, 255, "https://%s/internal/version_code", P.community_host);
+        COMMUNITY_URL("internal/version_code");
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
@@ -2649,8 +2645,7 @@ _publish_pkg(void *_unused)
                     curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
 
 
-                    char url[256];
-                    snprintf(url, 255, "https://%s/internal/upload_package", P.community_host);
+                    COMMUNITY_URL("internal/upload_package");
                     curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
                     curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
@@ -2773,8 +2768,7 @@ _publish_level(void *p)
 
         CURL_CUDDLES;
 
-        char url[256];
-        snprintf(url, 255, "https://%s/internal/upload", P.community_host);
+        COMMUNITY_URL("internal/upload");
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
@@ -2923,8 +2917,7 @@ _submit_score(void *p)
 
         CURL_CUDDLES;
 
-        char url[256];
-        snprintf(url, 255, "https://%s/internal/submit_score", P.community_host);
+        COMMUNITY_URL("internal/submit_score");
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
@@ -3016,8 +3009,7 @@ _login(void *p)
 
         CURL_CUDDLES;
 
-        char url[256];
-        snprintf(url, 255, "https://%s/internal/login", P.community_host);
+        COMMUNITY_URL("internal/login");
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
@@ -3093,8 +3085,7 @@ _register(void *p)
 
         CURL_CUDDLES;
 
-        char url[256];
-        snprintf(url, 255, "https://%s/internal/register", P.community_host);
+        COMMUNITY_URL("internal/register");
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
@@ -3676,8 +3667,7 @@ P_get_cookie_data(char **token)
     if (P.curl) {
         init_curl_defaults(P.curl);
 
-        char url[256];
-        snprintf(url, 255, "https://%s/internal/login", P.community_host);
+        COMMUNITY_URL("internal/login");
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         struct curl_slist *cookies;
