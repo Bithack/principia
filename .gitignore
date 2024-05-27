@@ -10,6 +10,10 @@ opengl32.dll
 .cache/
 compile_commands.json
 
+# Doxygen documentation
+doc/doxy/
+doc/doxygen-awesome.css
+
 # Model junk files
 *.blend1
 *.blend2
