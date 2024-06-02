@@ -11497,14 +11497,6 @@ void ui::open_url(const char *url)
 #if SDL_VERSION_ATLEAST(2,0,14)
     tms_infof("open url (SDL): %s", url);
     SDL_OpenURL(url);
-#elif defined(TMS_BACKEND_LINUX)
-    // Fallback for old Linux distros that don't contain SDL2 2.0.14
-    tms_infof("open url (Fallback): %s", url);
-
-    if (fork() == 0) {
-        execlp("xdg-open", "xdg-open", url, NULL);
-        _exit(0);
-    }
 #else
     #error "SDL2 2.0.14+ is required for this platform"
 #endif
