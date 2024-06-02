@@ -1,0 +1,38 @@
+name: linux_ss
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'data-*/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/linux_ss.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'data-*/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/linux_ss.yml'
+
+jobs:
+  linux_ss:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ libgl-dev libpng-dev libjpeg-dev libfreetype6-dev libsdl2-dev cmake ninja-build --no-install-recommends
+
+      - name: Build
+        run: |
+          mkdir build; cd build
+          cmake .. -DSCREENSHOT_BUILD=ON -G Ninja
+          ninja -j4
+
+      - name: Upload output as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshotter_artifact
+          path: build/principia
