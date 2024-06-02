@@ -330,6 +330,16 @@ int main(int argc, char **argv)
         }
     }
 
+    SDL_version compiled;
+    SDL_VERSION(&compiled);
+    tms_infof("Compiled against SDL v%u.%u.%u",
+        compiled.major, compiled.minor, compiled.patch);
+
+    SDL_version linked;
+    SDL_GetVersion(&linked);
+    tms_infof("Linked against SDL v%u.%u.%u",
+        linked.major, linked.minor, linked.patch);
+
     tms_infof("Initializing SDL...");
     SDL_Init(SDL_INIT_VIDEO);
     SDL_DisplayMode mode;

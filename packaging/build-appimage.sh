@@ -69,14 +69,15 @@ INCLUDE_LIBS=(
 	libGLEW.so.2.1
 	libjpeg.so.62
 	libpng16.so.16
-	libSDL2-2.0.so.0
-	libXss.so.1
 )
 
 mkdir -p usr/lib/
 for i in "${INCLUDE_LIBS[@]}"; do
 	cp /usr/lib/x86_64-linux-gnu/$i usr/lib/
 done
+
+# Copy our own built SDL2
+cp /usr/lib/libSDL2-2.0.so.0 usr/lib/
 
 # Actually build the appimage
 cd ..
