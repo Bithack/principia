@@ -2000,7 +2000,7 @@ _download_level(void *p)
              * This should have been set when the level was published but it is possible
              * for the publisher to alter the id stored in the level file using tools
              * such as wireshark */
-            if (type == LEVEL_LOCAL && e.lvl.allow_derivatives && derive) {
+            if (type == LEVEL_LOCAL && derive) {
                 tms_debugf("setting derive properties");
                 e.lvl.community_id = 0;
                 e.lvl.parent_id = old_id;

@@ -162,9 +162,7 @@
     <string name="shadow_softness">Shadow softness</string>
     <string name="sharp">Sharp</string>
     <string name="soft">Soft</string>
-    <string name="allow_derivatives">Allow derivatives</string>
     <string name="locked">Locked</string>
-    <string name="allow_derivatives_description">Allow other players to download, edit your level and publish it as their own.</string>
     <string name="locked_description">Disallow players from seeing or playing this level outside of packages.</string>
     <string name="password">Password</string>
     <string name="username">Username</string>

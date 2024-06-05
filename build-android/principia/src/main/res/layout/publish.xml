@@ -35,28 +35,14 @@
             android:lines="3" />
 
         <CheckBox
-            android:id="@+id/publish_allow_derivatives"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/allow_derivatives" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
-            android:layout_marginBottom="10dp"
-            android:text="@string/allow_derivatives_description"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <CheckBox
             android:id="@+id/publish_locked"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="128dp"
+            android:layout_height="48dp"
             android:text="@string/locked" />
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="46dp"
             android:layout_marginTop="0dp"
             android:layout_marginBottom="-5dp"
             android:text="@string/locked_description"

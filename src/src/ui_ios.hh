@@ -78,19 +78,9 @@ void ui_cb_update_rubber()
     P.add_action(ACTION_RESELECT, 0);
 }
 
-void ui_cb_set_allow_derivatives(int v)
-{
-    W->level.allow_derivatives = v;
-}
-
 void ui_cb_set_locked(int v)
 {
     W->level.visibility = v ? LEVEL_LOCKED : LEVEL_VISIBLE;
-}
-
-int ui_cb_get_allow_derivatives()
-{
-    return W->level.allow_derivatives;
 }
 
 int ui_cb_get_locked()

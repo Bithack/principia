@@ -2121,16 +2121,6 @@ Java_org_libsdl_app_PrincipiaBackend_setStickyStuff(
 }
 
 extern "C" void
-Java_org_libsdl_app_PrincipiaBackend_setLevelAllowDerivatives(
-        JNIEnv *env, jclass _jcls,
-        jboolean allow_derivatives)
-{
-    lvlinfo *l = &W->level;
-
-    l->allow_derivatives = (bool)allow_derivatives;
-}
-
-extern "C" void
 Java_org_libsdl_app_PrincipiaBackend_setLevelLocked(
         JNIEnv *env, jclass _jcls,
         jboolean locked)

@@ -228,9 +228,7 @@ extern "C" {
     void ui_cb_reset_all_variables();
     void ui_cb_set_robot_dir(int dir);
     void ui_cb_set_level_type(int type);
-    void ui_cb_set_allow_derivatives(int v);
     void ui_cb_set_locked(int v);
-    int ui_cb_get_allow_derivatives();
     int ui_cb_get_locked();
     int ui_cb_get_level_type();
     char *ui_cb_get_level_title();

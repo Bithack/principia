@@ -80,7 +80,7 @@ lvlinfo::create(int type, uint64_t seed/*=0*/, uint32_t version/*=0*/)
     this->pause_on_finish = true;
     this->show_score = (type == LCAT_ADVENTURE);
     this->descr_len = 0;
-    this->allow_derivatives = false;
+    this->allow_derivatives = true;
     this->visibility = LEVEL_VISIBLE;
 
     static const int random_bgs[] = {
@@ -405,7 +405,8 @@ lvlinfo::read(lvlbuf *lb, bool skip_description)
 
     if (this->type != LCAT_PARTIAL) {
         this->descr_len = lb->r_uint16();
-        this->allow_derivatives = (bool)lb->r_uint8();
+        // XXX: Get rid of this value in next level version (allow_derivatives)
+        (void)lb->r_uint8();
         if (this->version >= 3)
             this->visibility = lb->r_uint8();
         else
@@ -1455,9 +1456,6 @@ lvlinfo::print() const
     if (this->type != LCAT_PARTIAL) {
         printf("Description len:     %u\n",
                 this->descr_len);
-
-        printf("Allow derivatives:   %s\n",
-                this->allow_derivatives ? "yes" : "no");
 
         printf("Visibility:          %s\n",
                 level_visibility_string(this->visibility));
