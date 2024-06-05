@@ -278,9 +278,7 @@ read_shader(struct shader_load_data *sld, GLenum type, uint32_t global_flags, ch
     snprintf(path, 1023, "data-shared/shaders/%s.%s",
             sld->name, type == GL_VERTEX_SHADER ? "vp" : "fp");
 
-#ifdef TMS_BACKEND_ANDROID
     FILE_IN_ASSET(1);
-#endif
 
     _FILE *fh = _fopen(path, "rb");
     if (fh) {

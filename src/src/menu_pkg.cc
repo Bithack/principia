@@ -171,7 +171,7 @@ menu_pkg::set_pkg(int type, uint32_t id)
         uint32_t lvl_id = this->pkg.levels[x];
         memset(info.icon, 0, sizeof(info.icon));
 
-        snprintf(filename, 1023, "%s" SLASH "%d.plvl", pkgman::get_level_path(this->pkg.type), lvl_id);
+        snprintf(filename, 1023, "%s/%d.plvl", pkgman::get_level_path(this->pkg.type), lvl_id);
 
         FILE_IN_ASSET(this->pkg.type == LEVEL_MAIN);
         FILE *fp = _fopen(filename, "rb");

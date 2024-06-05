@@ -82,12 +82,6 @@ static const char *level_version_strings[] = {
 #define LEVEL_NAME_MAX_LEN 256
 #define LEVEL_DESCR_MAX_LEN (1024*1024*12)
 
-#ifdef TMS_BACKEND_WINDOWS
-#define SLASH "\\"
-#else
-#define SLASH "/"
-#endif
-
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>

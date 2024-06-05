@@ -4,6 +4,7 @@
 #include <dirent.h>
 
 #include "zlib.h"
+#include "misc.hh"
 
 /* for lvledit command line tool */
 #ifdef _NO_TMS
@@ -33,29 +34,6 @@ static const char *_dir_names[] = {
 
 lvlbuf tmpbuf;
 lvlinfo tmplvl;
-
-#ifdef TMS_BACKEND_ANDROID
-#include <SDL.h>
-
-#define _FILE void
-#define _fopen(x,y) (FILE*)(file_in_asset ? (void*)SDL_RWFromFile(x,y) : (void*)fopen(x,y))
-#define _fclose(x) (file_in_asset ? SDL_RWclose((SDL_RWops*)x) : fclose((FILE*)x))
-#define _fread(x,y,z,a) (file_in_asset ? SDL_RWread((SDL_RWops*)a,x,y,z) : fread(x,y,z,(FILE*)a))
-#define _fwrite(x,y,z,a) (file_in_asset ? SDL_RWwrite((SDL_RWops*)a,x,y,z) : fwrite(x,y,z,(FILE*)a))
-#define _fseek(x,y,z) (file_in_asset ? SDL_RWseek((SDL_RWops*)x,y,z) : fseek((FILE*)x,y,z))
-#define _ftell(x) (file_in_asset ? SDL_RWtell((SDL_RWops*)x) : ftell((FILE*)x))
-#define FILE_IN_ASSET(x) int file_in_asset = (x);
-
-#else
-#define _FILE FILE
-#define FILE_IN_ASSET(x)
-#define _fopen fopen
-#define _fclose fclose
-#define _fread fread
-#define _fwrite fwrite
-#define _fseek fseek
-#define _ftell ftell
-#endif
 
 /* create a new level */
 void
@@ -556,7 +534,7 @@ pkgman::get_next_pkg_id()
     struct stat s;
 
     for (uint32_t x=1; x<100000; x++) {
-        snprintf(path, 1023, "%s" SLASH "%d.ppkg", storage, x);
+        snprintf(path, 1023, "%s/%d.ppkg", storage, x);
         int i = stat(path, &s);
 
         if (i == -1)
@@ -574,7 +552,7 @@ pkgman::get_next_level_id()
     struct stat s;
 
     for (uint32_t x=1; x<100000; x++) {
-        snprintf(path, 1023, "%s" SLASH "%d.plvl", storage, x);
+        snprintf(path, 1023, "%s/%d.plvl", storage, x);
         int i = stat(path, &s);
 
         if (i == -1)
@@ -592,7 +570,7 @@ pkgman::get_next_object_id()
     struct stat s;
 
     for (uint32_t x=1; x<100000; x++) {
-        snprintf(path, 1023, "%s" SLASH "%d.pobj", storage, x);
+        snprintf(path, 1023, "%s/%d.pobj", storage, x);
         int i = stat(path, &s);
 
         if (i == -1)
@@ -612,29 +590,27 @@ pkginfo::save()
 
     char path[1024];
     char *storage = (char*)pkgman::get_pkg_path(this->type);
-    snprintf(path, 1023, "%s" SLASH "%d.ppkg", storage, this->id);
+    snprintf(path, 1023, "%s/%d.ppkg", storage, this->id);
 
-    FILE_IN_ASSET(this->type == LEVEL_MAIN);
-
-    FILE *fp = _fopen(path, "wb");
+    FILE *fp = fopen(path, "wb");
 
     if (fp) {
         /* always update the version to the latest on save */
         this->version = PKG_VERSION;
 
-        _fwrite(&this->version, 1, 1, fp);
-        _fwrite(&this->community_id, 1, sizeof(uint32_t), fp);
-        _fwrite(this->name, 1, 255, fp);
-        _fwrite(&this->unlock_count, 1, sizeof(uint8_t), fp);
-        _fwrite(&this->first_is_menu, 1, sizeof(uint8_t), fp);
-        _fwrite(&this->return_on_finish, 1, sizeof(uint8_t), fp);
-        _fwrite(&this->num_levels, 1, sizeof(uint8_t), fp);
+        fwrite(&this->version, 1, 1, fp);
+        fwrite(&this->community_id, 1, sizeof(uint32_t), fp);
+        fwrite(this->name, 1, 255, fp);
+        fwrite(&this->unlock_count, 1, sizeof(uint8_t), fp);
+        fwrite(&this->first_is_menu, 1, sizeof(uint8_t), fp);
+        fwrite(&this->return_on_finish, 1, sizeof(uint8_t), fp);
+        fwrite(&this->num_levels, 1, sizeof(uint8_t), fp);
 
         for (int x=0; x<this->num_levels; x++) {
-            _fwrite(&this->levels[x], 1, sizeof(uint32_t), fp);
+            fwrite(&this->levels[x], 1, sizeof(uint32_t), fp);
         }
 
-        _fclose(fp);
+        fclose(fp);
     } else {
         tms_errorf("could not open: %s", path);
         return false;
@@ -653,7 +629,7 @@ pkginfo::open(int type, uint32_t id)
 
     char path[1024];
     char *storage = (char*)pkgman::get_pkg_path(type);
-    snprintf(path, 1023, "%s" SLASH "%d.ppkg", storage, id);
+    snprintf(path, 1023, "%s/%d.ppkg", storage, id);
 
     this->type = type;
     this->id = id;
@@ -715,10 +691,10 @@ pkgman::get_pkg_path(int type)
 
         if (type == LEVEL_MAIN) {
             /* main levels are stored internally in data/ */
-            snprintf((char*)_pkg_path[type], 1023, "data-shared" SLASH "pkg" SLASH "%s",
+            snprintf((char*)_pkg_path[type], 1023, "data-shared/pkg/%s",
                     _dir_names[type]);
         } else {
-            snprintf((char*)_pkg_path[type], 1023, "%s" SLASH "pkg" SLASH "%s",
+            snprintf((char*)_pkg_path[type], 1023, "%s/pkg/%s",
                     tbackend_get_storage_path(),
                     _dir_names[type]);
         }
@@ -744,7 +720,7 @@ pkgman::get_level_path(int level_type)
         if (!_state_path) {
             _state_path = (char*)malloc(1024); /* XXX free this somewhere */
             snprintf((char*)_state_path, 1023,
-                    "%s" SLASH "sav",
+                    "%s/sav",
                      tbackend_get_storage_path());
         }
 
@@ -762,11 +738,11 @@ pkgman::get_level_path(int level_type)
         if (level_type == LEVEL_MAIN) {
             /* main levels are stored internally in data/ */
             snprintf((char*)_level_path[level_type], 1023,
-                    "data-shared" SLASH "lvl" SLASH "%s",
+                    "data-shared/lvl/%s",
                     _dir_names[level_type]);
         } else {
             snprintf((char*)_level_path[level_type], 1023,
-                    "%s" SLASH "lvl" SLASH "%s",
+                    "%s/lvl/%s",
                     tbackend_get_storage_path(),
                     _dir_names[level_type]);
         }
@@ -809,7 +785,7 @@ pkgman::get_cache_path(int level_type)
             _cache_state_path = (char*)malloc(1024);
 
             snprintf((char*)_cache_state_path, 1023,
-                    "%s" SLASH "cache" SLASH "sav",
+                    "%s/cache/sav",
                     tbackend_get_storage_path());
         }
 
@@ -825,7 +801,7 @@ pkgman::get_cache_path(int level_type)
         _cache_path[level_type] = (char*)malloc(1024); /* XXX free this somewhere */
 
         snprintf((char*)_cache_path[level_type], 1023,
-                "%s" SLASH "cache" SLASH "%s",
+                "%s/cache/%s",
                 tbackend_get_storage_path(),
                 _dir_names[level_type]);
     }
@@ -837,14 +813,14 @@ void
 pkgman::get_level_full_path(int level_type, uint32_t id, uint32_t save_id, char *output)
 {
     if (level_type >= LEVEL_LOCAL_STATE) {
-        snprintf(output, 1023, "%s" SLASH "%s.%d.%u.%s",
+        snprintf(output, 1023, "%s/%s.%d.%u.%s",
                 pkgman::get_level_path(level_type),
                 pkgman::get_state_prefix(level_type),
                 id,
                 save_id,
                 pkgman::get_level_ext(level_type));
     } else {
-        snprintf(output, 1023, "%s" SLASH "%d.%s",
+        snprintf(output, 1023, "%s/%d.%s",
                 pkgman::get_level_path(level_type),
                 id,
                 pkgman::get_level_ext(level_type));
@@ -1055,8 +1031,7 @@ pkgman::get_levels(int level_type)
 
 #ifdef TMS_BACKEND_WINDOWS
                 WIN32_FILE_ATTRIBUTE_DATA data;
-                //wsnprintf(tmp, 1023, L"%hs" SLASH "%hs", path, ent->d_name);
-                wsprintf(tmp, L"%hs" SLASH "%hs", path, ent->d_name);
+                wsprintf(tmp, L"%hs\\%hs", path, ent->d_name);
 
                 GetFileAttributesEx((LPCWSTR)(tmp), GetFileExInfoStandard, &data);
 
@@ -1068,7 +1043,7 @@ pkgman::get_levels(int level_type)
                 snprintf(date, 20, "%04d-%02d-%02d %02d:%02d:%02d", local_time.wYear, local_time.wMonth, local_time.wDay, local_time.wHour, local_time.wMinute, local_time.wSecond);
                 mtime = filetime_to_timet(time);
 #else
-                snprintf(tmp, 1023, "%s" SLASH "%s", path, ent->d_name);
+                snprintf(tmp, 1023, "%s/%s", path, ent->d_name);
                 struct stat st;
                 stat(tmp, &st);
                 strftime(date, 20, "%Y-%m-%d %H:%M:%S", gmtime((time_t*)&(st.st_mtime)));
@@ -1210,13 +1185,12 @@ lvledit::open(int lvl_type, uint32_t lvl_id)
 bool
 lvledit::open_from_path(const char *path)
 {
-    FILE_IN_ASSET(0);
-    FILE *fp = _fopen(path, "rb");
+    FILE *fp = fopen(path, "rb");
 
     if (fp) {
-        _fseek(fp, 0, SEEK_END);
-        long size = _ftell(fp);
-        _fseek(fp, 0, SEEK_SET);
+        fseek(fp, 0, SEEK_END);
+        long size = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
 
         if (size > 2*1024*1024) {
             tms_fatalf("file too big");
@@ -1226,9 +1200,9 @@ lvledit::open_from_path(const char *path)
         this->lb.size = 0;
         this->lb.ensure((int)size);
 
-        _fread(this->lb.buf, 1, size, fp);
+        fread(this->lb.buf, 1, size, fp);
 
-        _fclose(fp);
+        fclose(fp);
 
         this->lb.size = size;
         bool r = this->lvl.read(&this->lb);
@@ -1369,12 +1343,11 @@ lvledit::save(void)
     char filename[1024];
     snprintf(filename, 1023, "%s/%d.%s", pkgman::get_level_path(this->lvl_type), this->lvl_id, pkgman::get_level_ext(this->lvl_type));
 
-    FILE_IN_ASSET(this->lvl_type == LEVEL_MAIN);
-    FILE *fp = _fopen(filename, "wb");
+    FILE *fp = fopen(filename, "wb");
 
     if (fp) {
-        _fwrite(this->lb.buf, 1, this->lb.size, fp);
-        _fclose(fp);
+        fwrite(this->lb.buf, 1, this->lb.size, fp);
+        fclose(fp);
 
         return true;
     }
@@ -1407,12 +1380,11 @@ lvledit::save_to_path(const char *path)
     this->lvl.write(&this->lb);
     this->lb.size = saved_size;
 
-    FILE_IN_ASSET(0);
-    FILE *fp = _fopen(path, "wb");
+    FILE *fp = fopen(path, "wb");
 
     if (fp) {
-        _fwrite(this->lb.buf, 1, this->lb.size, fp);
-        _fclose(fp);
+        fwrite(this->lb.buf, 1, this->lb.size, fp);
+        fclose(fp);
 
         return true;
     }

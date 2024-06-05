@@ -17,7 +17,6 @@
 #define _fopen(x,y) (FILE*)(file_in_asset ? (void*)SDL_RWFromFile(x,y) : (void*)fopen(x,y))
 #define _fclose(x) (file_in_asset ? SDL_RWclose((SDL_RWops*)x) : fclose((FILE*)x))
 #define _fread(x,y,z,a) (file_in_asset ? SDL_RWread((SDL_RWops*)a,x,y,z) : fread(x,y,z,(FILE*)a))
-#define _fwrite(x,y,z,a) (file_in_asset ? SDL_RWwrite((SDL_RWops*)a,x,y,z) : fwrite(x,y,z,(FILE*)a))
 #define _fseek(x,y,z) (file_in_asset ? SDL_RWseek((SDL_RWops*)x,y,z) : fseek((FILE*)x,y,z))
 #define _ftell(x) (file_in_asset ? SDL_RWtell((SDL_RWops*)x) : ftell((FILE*)x))
 
@@ -27,7 +26,6 @@
 #define _fopen fopen
 #define _fclose fclose
 #define _fread fread
-#define _fwrite fwrite
 #define _fseek fseek
 #define _ftell ftell
 #endif

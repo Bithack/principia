@@ -2424,14 +2424,13 @@ world::save_partial(std::set<entity*> *entity_list, const char *name, uint32_t p
     char filename[1024];
     snprintf(filename, 1023, "%s/%d.pobj", pkgman::get_level_path(LEVEL_LOCAL), partial_id);
 
-    FILE_IN_ASSET(0);
-    _FILE *fp = _fopen(filename, "wb");
+    FILE *fp = fopen(filename, "wb");
 
     tms_infof("saving partial: %s", filename);
 
     if (fp) {
-        _fwrite(this->lb.buf, 1, this->lb.size, fp);
-        _fclose(fp);
+        fwrite(this->lb.buf, 1, this->lb.size, fp);
+        fclose(fp);
     } else {
         tms_errorf("could not open file '%s' for writing", filename);
         /* TODO: report to user */
@@ -2559,16 +2558,15 @@ world::save(int save_type)
 bool
 world::write_level(const char *filename, lvlbuf *out_lb)
 {
-    FILE_IN_ASSET(0);
-    _FILE *fp = _fopen(filename, "wb");
+    FILE *fp = fopen(filename, "wb");
 
     tms_infof("saving level: %s", filename);
     tms_infof("with name: '%s'", this->level.name);
     tms_infof("size: %" PRIu64, out_lb->size);
 
     if (fp) {
-        _fwrite(out_lb->buf, 1, out_lb->size, fp);
-        _fclose(fp);
+        fwrite(out_lb->buf, 1, out_lb->size, fp);
+        fclose(fp);
     } else {
         tms_errorf("could not open file '%s' for writing", filename);
         return false;
@@ -2623,13 +2621,12 @@ world::load_partial(uint32_t id, b2Vec2 position,
 
     tms_infof("Opening partial: %s", filename);
 
-    FILE_IN_ASSET(0);
-    _FILE *fp = _fopen(filename, "rb");
+    FILE *fp = fopen(filename, "rb");
 
     if (fp) {
-        _fseek(fp, 0, SEEK_END);
-        long size = _ftell(fp);
-        _fseek(fp, 0, SEEK_SET);
+        fseek(fp, 0, SEEK_END);
+        long size = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
 
         if (size > 8*1024*1024)
             tms_fatalf("Partial too big");
@@ -2638,9 +2635,9 @@ world::load_partial(uint32_t id, b2Vec2 position,
         this->lb.size = 0;
         this->lb.ensure((int)size);
 
-        _fread(this->lb.buf, 1, size, fp);
+        fread(this->lb.buf, 1, size, fp);
 
-        _fclose(fp);
+        fclose(fp);
 
         this->lb.size = size;
         tms_infof("read file of size: %lu", size);
@@ -2703,16 +2700,12 @@ world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_i
         this->lb.size = size;
         tms_infof("read file of size: %lu", size);
 
-#define HEAVY_LEVEL_DEBUG
-
         if (!this->level.read(&this->lb)) {
             ui::message("You need to update Principia to play this level.", true);
             return false;
         } else {
-#if defined(HEAVY_LEVEL_DEBUG) && defined(DEBUG)
             tms_debugf("Successfully read level");
             tms_debugf("Version: %u", this->level.version);
-#endif
         }
 
         if (!this->read_cache(id_type, id, save_id)) {
