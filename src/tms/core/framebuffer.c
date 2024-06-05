@@ -27,8 +27,6 @@ static struct tms_program *blur5x5v_512_program;
 static struct tms_program *blur5x5h_512_program;
 static struct tms_program *blur5x5v_256_program;
 static struct tms_program *blur5x5h_256_program;
-static struct tms_program *blur5x5v_128_program;
-static struct tms_program *blur5x5h_128_program;
 
 static struct tms_program *blur3x3v_program;
 static struct tms_program *blur3x3h_program;
@@ -548,12 +546,12 @@ tms_fb_init(struct tms_fb* fb)
     tms_assertf((ierr = glGetError()) == 0, "gl error %d before tms_fb_init", ierr);
 #ifdef TMS_BACKEND_WINDOWS
     if (__glewGenFramebuffers) {
-        __glewGenFramebuffers(fb->double_buffering ? 2 : 1, &fb->fb_o);
+        __glewGenFramebuffers(fb->double_buffering ? 2 : 1, fb->fb_o);
     } else {
-        __glewGenFramebuffersEXT(fb->double_buffering ? 2 : 1, &fb->fb_o);
+        __glewGenFramebuffersEXT(fb->double_buffering ? 2 : 1, fb->fb_o);
     }
 #else
-    glGenFramebuffers(fb->double_buffering ? 2 : 1, &fb->fb_o);
+    glGenFramebuffers(fb->double_buffering ? 2 : 1, fb->fb_o);
 #endif
     tms_assertf((ierr = glGetError()) == 0, "gl error %d after tms_fb_init", ierr);
 }
@@ -569,7 +567,7 @@ tms_fb_free(struct tms_fb *fb)
             glDeleteTextures(1, &fb->fb_texture[x][y]);
     }
 
-    glDeleteFramebuffers(fb->double_buffering ? 2 : 1, &fb->fb_o);
+    glDeleteFramebuffers(fb->double_buffering ? 2 : 1, fb->fb_o);
 
     free(fb);
 }
@@ -856,7 +854,7 @@ tms_fb_add_texture(struct tms_fb *fb, int format,
 		}
 
 #if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
-        glDrawBuffers(fb->num_textures+1, &bufs);
+        glDrawBuffers(fb->num_textures+1, bufs);
         tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 15", ierr, x);
 #endif
     }

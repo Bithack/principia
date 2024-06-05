@@ -192,54 +192,48 @@ tms_texture_load_etc1(struct tms_texture *tex,
 int
 tms_texture_load(struct tms_texture *tex, const char *filename)
 {
-    const char *ext = strrchr(filename, '.')+1;
+    int status;
 
-    if (ext != 1) {
-        int status;
+    SDL_RWops *rw = SDL_RWFromFile(filename,"rb");
 
-        SDL_RWops *rw = SDL_RWFromFile(filename,"rb");
-
-        if (!rw) {
-            tms_infof("file not found: '%s'", SDL_GetError());
-            return T_COULD_NOT_OPEN;
-        }
-
-        SDL_Surface *s = IMG_Load_RW(rw, 1);
-
-        if (!s) {
-            tms_errorf("could not open file: %s", filename);
-            return T_COULD_NOT_OPEN;
-        }
-
-        tex->is_buffered = 1;
-        tex->filename = strdup(filename);
-        tex->gamma_corrected = 0;
-        tex->width = s->w;
-        tex->height = s->h;
-        //tex->num_channels = 3 + s->format->Amask?1:0;
-        tex->num_channels = s->format->BytesPerPixel;
-
-        //tms_infof("bpp %d", s->format->BytesPerPixel);
-
-        //tms_assertf(tex->num_channels == s->format->BytesPerPixel, "unsupported texture type BLAH");
-
-        tex->data = malloc(tex->width*tex->height*tex->num_channels);
-
-        for (int y=0; y<s->h; y++) {
-            for (int x=0; x<s->w*tex->num_channels; x++) {
-                int o = y*s->pitch;
-                ((unsigned char*)tex->data)[(s->h-y-1)*s->w*tex->num_channels+x] =
-                    ((unsigned char*)s->pixels)[o+x];
-            }
-        }
-
-        SDL_FreeSurface(s);
-        //SDL_RWclose(rw);
-
-        return T_OK;
+    if (!rw) {
+        tms_infof("file not found: '%s'", SDL_GetError());
+        return T_ERR;
     }
 
-    return T_COULD_NOT_OPEN;
+    SDL_Surface *s = IMG_Load_RW(rw, 1);
+
+    if (!s) {
+        tms_errorf("could not open file: %s", filename);
+        return T_ERR;
+    }
+
+    tex->is_buffered = 1;
+    tex->filename = strdup(filename);
+    tex->gamma_corrected = 0;
+    tex->width = s->w;
+    tex->height = s->h;
+    //tex->num_channels = 3 + s->format->Amask?1:0;
+    tex->num_channels = s->format->BytesPerPixel;
+
+    //tms_infof("bpp %d", s->format->BytesPerPixel);
+
+    //tms_assertf(tex->num_channels == s->format->BytesPerPixel, "unsupported texture type BLAH");
+
+    tex->data = malloc(tex->width*tex->height*tex->num_channels);
+
+    for (int y=0; y<s->h; y++) {
+        for (int x=0; x<s->w*tex->num_channels; x++) {
+            int o = y*s->pitch;
+            ((unsigned char*)tex->data)[(s->h-y-1)*s->w*tex->num_channels+x] =
+                ((unsigned char*)s->pixels)[o+x];
+        }
+    }
+
+    SDL_FreeSurface(s);
+    //SDL_RWclose(rw);
+
+    return T_OK;
 }
 
 /**

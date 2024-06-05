@@ -174,7 +174,7 @@ static GLint compile(struct tms_shader *sh, GLenum st, const char *src)
 
     tms_assertf(s != -1, "glCreateShader() failed");
 
-    glShaderSource(s, num_src+1, sources, 0);
+    glShaderSource(s, num_src+1, (const GLchar *const *)sources, 0);
     glCompileShader(s);
 
     glGetShaderiv(s, GL_COMPILE_STATUS, &success);

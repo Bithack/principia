@@ -60,10 +60,10 @@ tms_pipeline_init()
     uniform_fn[0] = 0;
     uniform_fn[1] = glUniform4fv;
     uniform_fn[2] = glUniform3fv;
-    uniform_fn[3] = glUniform1iv;
+    uniform_fn[3] = (TMS_UNIFORM_FN)glUniform1iv;
     uniform_fn[4] = glUniform2fv;
     uniform_fn[5] = glUniform1fv;
-    uniform_fn[6] = glUniform1iv;
+    uniform_fn[6] = (TMS_UNIFORM_FN)glUniform1iv;
 
     uniform_mat_fn[0] = glUniformMatrix4fv;
     uniform_mat_fn[1] = glUniformMatrix3fv;
@@ -148,7 +148,6 @@ tms_pipeline_apply_combined_uniforms(int p,
         struct tms_rstate *state,
         struct tms_program *s, struct tms_entity *e)
 {
-#ifdef TMS_COOL_PIPELINE
     float mat[16];
     GLuint *locs = s->p_combined;
     for (int x=0; x<pipelines[p].num_combined; x++) {
@@ -157,6 +156,7 @@ tms_pipeline_apply_combined_uniforms(int p,
         if (loc == -1)
             continue;
 
+#ifdef TMS_COOL_PIPELINE
         if (pipelines[p].combined[x].type1 == TMS_MAT4 && pipelines[p].combined[x].type2 == TMS_MAT4) {
 
             float *m1 = (float*)(((char*)(state->data)) + pipelines[p].combined[x].offs1);
@@ -167,16 +167,7 @@ tms_pipeline_apply_combined_uniforms(int p,
 
             glUniformMatrix4fv(loc, 1, 0, mat);
         }
-    }
 #else
-    float mat[16];
-    GLuint *locs = s->p_combined;
-    for (int x=0; x<pipelines[p].num_combined; x++) {
-        GLuint loc = locs[x];
-
-        if (loc == -1)
-            continue;
-
         struct uniform_combined *u = &pipelines[p].combined[x];
 
         if (u->type1 == TMS_MAT4 && u->type2 == TMS_MAT4) {
@@ -189,8 +180,8 @@ tms_pipeline_apply_combined_uniforms(int p,
 
             glUniformMatrix4fv(loc, 1, 0, mat);
         }
-    }
 #endif
+    }
 }
 
 void apply_global_uniform(struct tms_pipeline *p, int x, struct tms_rstate *state, GLuint loc)
@@ -202,9 +193,9 @@ void apply_global_uniform(struct tms_pipeline *p, int x, struct tms_rstate *stat
     if (p->global[x].type == TMS_P) {
         glUniformMatrix4fv(loc, 1, 0, state->projection);
     } else if (p->global[x].type >= 128)
-        (uniform_mat_fn[p->global[x].type - 128])(loc, 1, 0, ((char*)(state->data))+p->global[x].offs);
+        (uniform_mat_fn[p->global[x].type - 128])(loc, 1, 0, (const GLfloat *)(((char*)(state->data))+p->global[x].offs));
     else {
-        (uniform_fn[p->global[x].type])(loc, 1, ((char*)(state->data))+p->global[x].offs);
+        (uniform_fn[p->global[x].type])(loc, 1, (const GLfloat *)(((char*)(state->data))+p->global[x].offs));
     }
 
     return;
@@ -216,28 +207,17 @@ tms_pipeline_apply_global_uniforms(int p,
         struct tms_program *s)
 {
 #ifdef TMS_COOL_PIPELINE
-    GLuint   loc;
-    int x = (int64_t)(pipelines[p].num_global-1);
+
+    GLuint loc;
+    int x = pipelines[p].num_global - 1;
 
     struct tms_pipeline *pl = tms_get_pipeline(p);
 
-    static int cooltable[] = {-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32};
-
-fuckgcc1:
-    if (x < 0) {
-        goto fuckgcc3;
+    while (x >= 0) {
+        loc = s->p_global[x];
+        apply_global_uniform(pl, x, state, loc);
+        x--;
     }
-
-    loc = s->p_global[x];
-
-    apply_global_uniform(pl, x, state, loc);
-
-fuckgcc2:
-    x = cooltable[x];
-    goto fuckgcc1;
-
-fuckgcc3:
-    return;
 
 #else
     GLuint *locs = s->p_global;
@@ -269,38 +249,17 @@ tms_pipeline_apply_local_uniforms(int p,
 #ifdef TMS_COOL_PIPELINE
     for (int x=0; x<pipelines[p].num_local; x++) {
         GLuint loc = s->p_local[x];
-
-        if (loc == -1)
-            continue;
-
-        n_local_uniforms ++;
-
-        if (pipelines[p].local[x].type == TMS_MV) {
-            glUniformMatrix4fv(loc, 1, 0, state->modelview);
-        } else if (pipelines[p].local[x].type == TMS_MVP) {
-            float tmp[16];
-            tmat4_copy(tmp, state->projection);
-            tmat4_multiply(tmp, state->modelview);
-            glUniformMatrix4fv(loc, 1, 0, tmp);
-        } else if (pipelines[p].local[x].type >= 128) {
-            if (pipelines[p].local[x].type == 129)
-                glUniformMatrix3fv(loc, 1, 0, ((char*)(e))+(pipelines[p].local[x].offs));
-            else
-                glUniformMatrix4fv(loc, 1, 0, ((char*)(e))+(pipelines[p].local[x].offs));
-        } else
-            (uniform_fn[pipelines[p].local[x].type])(loc, 1, ((char*)(e))+pipelines[p].local[x].offs);
-    }
 #else
     GLuint *locs = s->p_local;
 
     for (int x=0; x<pipelines[p].num_local; x++) {
         GLuint loc = locs[x];
+#endif
 
         if (loc == -1)
             continue;
 
         struct uniform *u = &pipelines[p].local[x];
-
         //tms_infof("applying %s", u->name);
 
         n_local_uniforms ++;
@@ -313,12 +272,18 @@ tms_pipeline_apply_local_uniforms(int p,
             tmat4_multiply(tmp, state->modelview);
             glUniformMatrix4fv(loc, 1, 0, tmp);
 
-        } else if (u->type >= 128)
-            (uniform_mat_fn[u->type - 128])(loc, 1, 0, ((char*)(e))+u->offs);
-        else
-            (uniform_fn[u->type])(loc, 1, ((char*)(e))+u->offs);
-    }
+        } else if (u->type >= 128) {
+#ifdef TMS_COOL_PIPELINE
+            if (u->type == TMS_MAT3)
+                glUniformMatrix3fv(loc, 1, 0, (const GLfloat *)((char *)(e) + (u->offs)));
+            else
+                glUniformMatrix4fv(loc, 1, 0, (const GLfloat *)((char *)(e) + (u->offs)));
+#else
+            (uniform_mat_fn[u->type - 128])(loc, 1, 0, (const GLfloat *)((char *)(e) + (u->offs)));
 #endif
+        } else
+            (uniform_fn[u->type])(loc, 1, (const GLfloat *)((char*)(e))+u->offs);
+    }
 }
 
 void

@@ -219,7 +219,6 @@ class break_effect : public base_effect
   private:
     struct piece pieces[3];
     b2Vec2 trigger_point;
-    bool   played_sound;
 
   public:
     break_effect(b2Vec2 pos, int layer);

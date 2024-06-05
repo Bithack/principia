@@ -18,10 +18,6 @@ _settings::init()
 {
     this->_data.clear();
 
-    /* calculate "optimal" shadow map resolution */
-    double w2 = log2((double)_tms.window_width);
-    double h2 = log2((double)_tms.window_height);
-
     /** -Graphics **/
     this->add("debug",              S_BOOL,  false);
     this->add("postprocess",        S_BOOL,  false);
@@ -32,6 +28,10 @@ _settings::init()
     this->add("blur_shadow_map",    S_BOOL,  false);
     this->add("swap_shadow_map",    S_BOOL,  false);
 #ifdef TMS_BACKEND_MOBILE
+    /* calculate "optimal" shadow map resolution */
+    double w2 = log2((double)_tms.window_width);
+    double h2 = log2((double)_tms.window_height);
+
     int rw = (int)exp2(roundf(w2)) / 2;
     int rh = (int)exp2(roundf(h2)) / 2;
 
@@ -161,7 +161,6 @@ _settings::load(void)
         return false;
     }
 
-    int r;
     char buf[256];
 
     while (fgets(buf, 256, fh) != NULL) {
@@ -174,8 +173,6 @@ _settings::load(void)
         bool on_key = true;
 
         for (int i = 0; i < sz; ++i) {
-            char *c = &buf[i];
-
             if (buf[i] == '\n' || buf[i] == ' ') continue;
 
             if (k == 62) {

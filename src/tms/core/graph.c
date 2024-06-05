@@ -7,33 +7,34 @@
 #pragma GCC push_options
 #pragma GCC optimize ("O0")
 
-static int flat(struct tms_rstate *state, void *);
 static int enable_blending(struct tms_rstate *state, void *blend);
+static int bind_program(struct tms_rstate *state, struct tms_program *program);
 static int bind_texture0(struct tms_rstate *state, struct tms_texture *texture);
 static int bind_texture1(struct tms_rstate *state, struct tms_texture *texture);
 static int bind_texture2(struct tms_rstate *state, struct tms_texture *texture);
 static int bind_texture3(struct tms_rstate *state, struct tms_texture *texture);
 static int bind_varray(struct tms_rstate *state, struct tms_varray *va);
 static int bind_mesh(struct tms_rstate *state, struct tms_gbuffer *m);
-static int bind_program(struct tms_rstate *state, struct tms_program *program) /*__attribute__((optimize("O0")))*/;
+static int flat(struct tms_rstate *state, void *);
 static int bind_prio(struct tms_rstate *state, void *val);
+
 static int render_entities(struct tms_rstate *state, struct tms_entity **ee, int count);
-static int render_branch(struct tms_rstate *s, struct _branch *b, int *sort_v, int depth) /*__attribute__((optimize("O0")))*/;
+static int render_branch(struct tms_rstate *s, struct _branch *b, int *sort_v, int depth);
 static void branch_remove_entity(struct tms_graph *g, struct _branch *b, struct tms_entity *e);
 static inline struct _branch * get_branch(struct tms_graph *g, struct tms_entity *e);
 
 static const int (*sort_fns[])(void*, void*) = {
-    enable_blending,
-    bind_program,
-    bind_texture0,
-    bind_texture1,
-    bind_texture2,
-    bind_texture3,
-    bind_varray,
-    bind_mesh,
-    flat,
-    bind_prio,
-    bind_prio,
+    (const int (*)(void*, void*)) enable_blending,
+    (const int (*)(void*, void*)) bind_program,
+    (const int (*)(void*, void*)) bind_texture0,
+    (const int (*)(void*, void*)) bind_texture1,
+    (const int (*)(void*, void*)) bind_texture2,
+    (const int (*)(void*, void*)) bind_texture3,
+    (const int (*)(void*, void*)) bind_varray,
+    (const int (*)(void*, void*)) bind_mesh,
+    (const int (*)(void*, void*)) flat,
+    (const int (*)(void*, void*)) bind_prio,
+    (const int (*)(void*, void*)) bind_prio,
 };
 
 /* 1 or 0 depending on whether the sorting
@@ -95,7 +96,7 @@ void
 tms_graph_set_sort_callback(struct tms_graph *g, int sort,
         int (*fun)(struct tms_rstate* rstate, void* value))
 {
-    g->sort_fns[sort] = fun;
+    g->sort_fns[sort] = (int (*)(void *, void *))fun;
 }
 
 int
@@ -175,7 +176,7 @@ get_branch(struct tms_graph *g, struct tms_entity *e)
                 br->nodes.as_branch[0].next = calloc(1, sizeof(struct _branch));
                 br->nodes.as_branch[0].val = 0;
                 br->nodes.as_branch[1].next = calloc(1, sizeof(struct _branch));
-                br->nodes.as_branch[1].val = 1;
+                br->nodes.as_branch[1].val = (void *)(intptr_t)1;
                 br->fixed = 1;
                 br->num_nodes = 2;
             }
@@ -190,9 +191,9 @@ get_branch(struct tms_graph *g, struct tms_entity *e)
                 case TMS_SORT_TEXTURE3: refval = e->material->pipeline[g->p].texture[3]; break;
                 case TMS_SORT_VARRAY: refval = e->mesh->vertex_array; break;
                 case TMS_SORT_MESH: refval = e->mesh->indices; break;
-                case TMS_SORT_PRIO: refval = e->prio; break;
-                case TMS_SORT_PRIO_BIASED: refval = e->prio+e->prio_bias; break;
-                case TMS_SORT_BLENDING: refval = e->material->pipeline[g->p].blend_mode; break;
+                case TMS_SORT_PRIO: refval = (void *)(intptr_t)e->prio; break;
+                case TMS_SORT_PRIO_BIASED: refval = (void *)(intptr_t)e->prio+e->prio_bias; break;
+                case TMS_SORT_BLENDING: refval = (void *)(intptr_t)e->material->pipeline[g->p].blend_mode; break;
                 default: tms_fatalf("invalid scene sorting");
             }
 

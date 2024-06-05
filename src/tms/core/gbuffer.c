@@ -27,15 +27,7 @@ tms_gbuffer_init(struct tms_gbuffer *b, size_t size)
     b->usize = 0;
     b->target = GL_ARRAY_BUFFER;
 
-#ifdef TMS_BACKEND_WINDOWS
-    if (GLEW_VERSION_1_5) {
-        glGenBuffers(1, &b->vbo);
-    } else {
-        glGenBuffersARB(1, &b->vbo);
-    }
-#else
-    glGenBuffers(1, &b->vbo);
-#endif
+   glGenBuffers(1, &b->vbo);
 }
 
 struct tms_gbuffer*
@@ -66,66 +58,36 @@ tms_gbuffer_set_usage(struct tms_gbuffer *b, int usage)
 int
 tms_gbuffer_upload(struct tms_gbuffer *b)
 {
-#ifdef TMS_BACKEND_WINDOWS
-    if (GLEW_VERSION_1_5) {
-        glBindBuffer(b->target, b->vbo);
-        glBufferData(b->target, b->size, b->buf, b->usage);
-    } else {
-        glBindBufferARB(b->target, b->vbo);
-        glBufferDataARB(b->target, b->size, b->buf, b->usage);
-    }
-#else
-     glBindBuffer(b->target, b->vbo);
-     glBufferData(b->target, b->size, b->buf, b->usage);
-#endif
+    glBindBuffer(b->target, b->vbo);
+    glBufferData(b->target, b->size, b->buf, b->usage);
 
-     b->usize = b->size;
+    b->usize = b->size;
 
-     //if (b->size > 24) {
-         //tms_infof("uploading : %d", b->size);
-     //}
+    //if (b->size > 24) {
+        //tms_infof("uploading : %d", b->size);
+    //}
 
-     return T_OK;
+    return T_OK;
 }
 
 int
 tms_gbuffer_upload_partial(struct tms_gbuffer *b, size_t size)
 {
-#ifdef TMS_BACKEND_WINDOWS
-    if (GLEW_VERSION_1_5) {
-         glBindBuffer(b->target, b->vbo);
-         glBufferData(b->target, size, b->buf, b->usage);
-    } else {
-        glBindBufferARB(b->target, b->vbo);
-        glBufferDataARB(b->target, size, b->buf, b->usage);
-    }
-#else
-     glBindBuffer(b->target, b->vbo);
-     glBufferData(b->target, size, b->buf, b->usage);
-#endif
+    glBindBuffer(b->target, b->vbo);
+    glBufferData(b->target, size, b->buf, b->usage);
 
-     b->usize = size;
+    b->usize = size;
 
-     return T_OK;
+    return T_OK;
 }
 
 int
 tms_gbuffer_update(struct tms_gbuffer *b, size_t start_offs, size_t num_bytes)
 {
-#ifdef TMS_BACKEND_WINDOWS
-    if (GLEW_VERSION_1_5) {
-        glBindBuffer(b->target, b->vbo);
-        glBufferData(b->target, start_offs, num_bytes, b->buf+start_offs);
-    } else {
-        glBindBufferARB(b->target, b->vbo);
-        glBufferDataARB(b->target, start_offs, num_bytes, b->buf+start_offs);
-    }
-#else
-     glBindBuffer(b->target, b->vbo);
-     glBufferData(b->target, start_offs, num_bytes, b->buf+start_offs);
-#endif
+    glBindBuffer(b->target, b->vbo);
+    glBufferData(b->target, num_bytes, b->buf + start_offs, GL_DYNAMIC_DRAW);
 
-     return T_OK;
+    return T_OK;
 }
 
 void

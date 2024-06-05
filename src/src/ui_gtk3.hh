@@ -1,6 +1,10 @@
 
 #ifdef TMS_BACKEND_PC
 
+// fuckgtk3
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
@@ -572,7 +576,7 @@ struct gtk_level_property gtk_level_properties[] = {
       "Disable the roaming robots ability to change layer." },
     { LVL_CHUNKED_LEVEL_LOADING,
       "Chunked level loading",
-      "" },
+      "Splits up the level into chunks, leading to better performance for large levels." },
     { LVL_DISABLE_CAVEVIEW,
       "Disable adventure caveview",
       "Disable the caveview which appears when the adventure robot is in layer two, with terrain in front of him in layer three." },
@@ -581,7 +585,7 @@ struct gtk_level_property gtk_level_properties[] = {
       "Disable the rocket from triggering any explosives when contact with its flames occurs." },
     { LVL_STORE_SCORE_ON_GAME_OVER,
       "Store high score on game over",
-      "" },
+      "Allow players to submit a high score even if they did not win the level." },
     { LVL_ALLOW_HIGH_SCORE_SUBMISSIONS,
       "Allow high score submissions",
       "Allow players to submit their high scores to be displayed on your levels community page." },
@@ -11760,5 +11764,7 @@ ui::alert(const char *text, uint8_t alert_type/*=ALERT_INFORMATION*/)
 
     gdk_display_flush(gdk_display_get_default());
 }
+
+#pragma GCC diagnostic pop
 
 #endif

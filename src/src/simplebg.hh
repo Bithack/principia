@@ -2,7 +2,7 @@
 
 #include "entity.hh"
 
-static uint32_t
+static inline uint32_t
 pack_rgba(float _r, float _g, float _b, float _a)
 {
     int r = _r * 255.f;
@@ -13,7 +13,7 @@ pack_rgba(float _r, float _g, float _b, float _a)
     return (uint32_t)(r << 24 | g << 16 | b << 8 | a);
 }
 
-static void
+static inline void
 unpack_rgba(uint32_t color, float *r, float *g, float *b, float *a)
 {
     int _r = (color >> 24) & 0xFF;

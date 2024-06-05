@@ -1269,10 +1269,10 @@ lvledit::print_gids()
             state_size = lb.r_uint32(); /* state size */
         }
 
-        float posx = lb.r_float(); /* pos.x */
-        float posy = lb.r_float(); /* pos.y */
-        float angle = lb.r_float(); /* angle */
-        uint8_t layer = (int)lb.r_uint8(); /* layer */
+        (void)lb.r_float(); /* pos.x */
+        (void)lb.r_float(); /* pos.y */
+        (void)lb.r_float(); /* angle */
+        (void)lb.r_uint8(); /* layer */
 
         if (this->lvl.version >= LEVEL_VERSION_1_5) {
             lb.r_uint64(); /* state flags */
@@ -1286,9 +1286,9 @@ lvledit::print_gids()
             /* skip state buffer */
             lb.rp += state_size;
         } else {
-            (bool)lb.r_uint8(); /* axisrot */
+            (void)lb.r_uint8(); /* axisrot */
             if (this->lvl.version >= 10) {
-                (bool)lb.r_uint8(); /* moveable */
+                (void)lb.r_uint8(); /* moveable */
             }
         }
 

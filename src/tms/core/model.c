@@ -68,11 +68,11 @@ tms_model_shift_mesh_uv(struct tms_model *m,
     tms_gbuffer_realloc(m->indices, m->indices->size + mesh->i_count*sizeof(uint16_t));
     tms_gbuffer_realloc(m->vertices, m->vertices->size + mesh->v_count*sizeof(struct vertex));
 
-    struct vertex *v = m->vertices->buf+mesh->v_start;
-    uint16_t *i = m->indices->buf+mesh->i_start*sizeof(uint16_t);
+    struct vertex *v = (struct vertex *)(m->vertices->buf + mesh->v_start);
+    uint16_t *i = (uint16_t *)(m->indices->buf + mesh->i_start * sizeof(uint16_t));
 
-    struct vertex *nv = m->vertices->buf+vsz;
-    uint16_t *ni = m->indices->buf+osz;
+    struct vertex *nv = (struct vertex *)(m->vertices->buf + vsz);
+    uint16_t *ni = (uint16_t *)(m->indices->buf + osz);
 
     for (int x=0; x<mesh->i_count; x++) {
         ni[x] = (i[x] - last_base) + base;

@@ -11442,6 +11442,8 @@ update_entity_id_changed(uint32_t old_id, uint32_t new_id, std::map<uint32_t, en
     }
 }
 
+#ifdef DEBUG
+
 void
 game::clamp_entities()
 {
@@ -11523,6 +11525,8 @@ game::clamp_entities()
 
     of::_id = id;
 }
+
+#endif
 
 int
 game::post_render()

@@ -264,16 +264,7 @@ endif()
 
 add_definitions(-DTMS_BACKEND_${TMS_FORMFACTOR} -DTMS_BACKEND_${TMS_BACKEND})
 
-# Downgrade int-conversion and incompatible(-function)-pointer-types, which are errors
-# in both GCC and Clang now, into regular warnings.
-
-set(COMMON_FLAGS "-ffast-math -Wno-error=int-conversion")
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	set(COMMON_FLAGS "${COMMON_FLAGS} -Wno-error=incompatible-function-pointer-types")
-else()
-	set(COMMON_FLAGS "${COMMON_FLAGS} -Wno-error=incompatible-pointer-types")
-endif()
+set(COMMON_FLAGS "-ffast-math")
 
 set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -DDEBUG=1")
 set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} -DNDEBUG=1 -fomit-frame-pointer")

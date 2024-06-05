@@ -93,7 +93,7 @@ rm_ptrdata(struct thash *h, void *key)
 static void*
 get_ptrdata(struct thash *h, void *key)
 {
-    struct thash_entry_ptrdata **tbl = h->tbl;
+    struct thash_entry_ptrdata **tbl = (struct thash_entry_ptrdata **)h->tbl;
     uint32_t hash = h->hash_fn(&key, sizeof(void*)) & h->mask;
     struct thash_entry_ptrdata *e = tbl[hash];
 
@@ -109,7 +109,7 @@ get_ptrdata(struct thash *h, void *key)
 static int
 add_ptrdata(struct thash *h, void *key, void *data)
 {
-    struct thash_entry_ptrdata **tbl = h->tbl;
+    struct thash_entry_ptrdata **tbl = (struct thash_entry_ptrdata **)h->tbl;
 
     uint32_t hash = h->hash_fn(&key, sizeof(void*)) & h->mask;
     struct thash_entry_ptrdata *e = tbl[hash];

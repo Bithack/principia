@@ -1,5 +1,6 @@
 #include "game.hh"
 #include "main.hh"
+#include "tms/core/err.h"
 #include "version.hh"
 #include "loading_screen.hh"
 #include "soundmanager.hh"
@@ -89,7 +90,6 @@ static struct tms_fb *ao_fb;
 static char          featured_data_path[1024];
 static char          featured_data_time_path[1024];
 static char          cookie_file[1024];
-static char          username[256];
 
 struct header_data {
     char *error_message;
@@ -123,15 +123,17 @@ static uint32_t      _publish_lvl_community_id;
 static uint32_t      _publish_lvl_id;
 static bool          _publish_lvl_with_pkg = false;
 static bool          _publish_lvl_set_locked = false;
-static uint8_t       _publish_lvl_pkg_index = 0;
 static bool          _publish_lvl_lock = false;
 static volatile bool _publish_lvl_uploading = false;
 static bool          _publish_lvl_uploading_error = false;
 
+#ifdef BUILD_PKGMGR
 /* Publish PKG variables */
+static uint8_t       _publish_lvl_pkg_index = 0;
 static uint32_t      _publish_pkg_id;
 static volatile bool _publish_pkg_done = false;
 static bool          _publish_pkg_error = false;
+#endif
 
 /* Submit score variables */
 static bool         _submit_score_done = false;
@@ -314,7 +316,9 @@ static int edit_loader(int step);
 static int pkg_loader(int step);
 static int publish_loader(int step);
 static int submit_score_loader(int step);
+#ifdef BUILD_PKGMGR
 static int publish_pkg_loader(int step);
+#endif
 static int _publish_level(void *p);
 static int _download_level(void *p);
 static int _check_version_code(void *_unused);
@@ -1841,8 +1845,6 @@ _download_level(void *p)
     _play_header_data.error_action = 0;
 
     CURLcode res;
-    uint32_t crc=0;
-    struct stat file_stat;
 
     int arg = (intptr_t)p;
     int type = LEVEL_DB;
@@ -2221,7 +2223,6 @@ write_memory_cb(void *contents, size_t size, size_t nmemb, void *userp)
 static int
 _check_version_code(void *_unused)
 {
-    int res = T_OK;
     CURLcode r;
 
     struct MemoryStruct chunk;
@@ -2258,11 +2259,9 @@ _check_version_code(void *_unused)
             }
         } else {
             tms_errorf("could not check for latest version: %s", curl_easy_strerror(r));
-            res = 1;
-        }
+         }
     } else {
         tms_errorf("unable to initialize curl handle!");
-        res = 1;
     }
     unlock_curl("check_version_code");
 
@@ -2719,7 +2718,6 @@ _publish_level(void *p)
 {
     uint32_t level_id = _publish_lvl_id;
     int community_id    = 0;
-    int error           = 0;
 
     _publish_lvl_community_id = 0;
     _publish_lvl_uploading_error = false;
@@ -2842,8 +2840,6 @@ static int
 _submit_score(void *p)
 {
     tms_assertf(W->is_playing(), "submit score called when the level was paused");
-
-    int error = 0;
 
     CURLcode r;
 
@@ -3058,7 +3054,6 @@ _register(void *p)
 {
     struct register_data *data = static_cast<struct register_data*>(p);
     int res = T_OK;
-    int num_tries = 0;
 
     CURLcode r;
 
@@ -3275,7 +3270,6 @@ submit_score_loader(int step)
 #endif
 
 static Uint32 loader_times[32] = {0,};
-static Uint32 total_load = 0;
 
 static const char *load_step_name[] = {
     /* 0  */ "Initialize atlases",
@@ -3364,7 +3358,6 @@ initial_loader(int step)
     static uint32_t last_time = SDL_GetTicks();
 
     char tmp[512];
-    Uint32 ss = SDL_GetTicks();
     int retval = LOAD_CONT;
 
     switch (step) {
