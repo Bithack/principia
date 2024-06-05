@@ -166,29 +166,12 @@ else()
 endif()
 
 if(USE_LUASOCKET)
-	set(LUASOCKET_FLAGS "-DBUILD_LUASOCKET -DLUASOCKET_INET_PTON")
+	add_definitions(-DBUILD_LUASOCKET)
 
-	if(WIN32)
-		set(LUASOCKET_PLAT_SRC src/luasocket/wsocket.c)
-	else()
-		set(LUASOCKET_PLAT_SRC
-			src/luasocket/usocket.c
-			src/luasocket/unix.c)
-	endif()
-	set(SRCS ${SRCS}
-		src/luasocket/auxiliar.c
-		src/luasocket/buffer.c
-		src/luasocket/except.c
-		src/luasocket/inet.c
-		src/luasocket/io.c
-		src/luasocket/luasocket.c
-		src/luasocket/mime.c
-		src/luasocket/options.c
-		src/luasocket/select.c
-		src/luasocket/tcp.c
-		src/luasocket/timeout.c
-		src/luasocket/udp.c
-		${LUASOCKET_PLAT_SRC})
+	file(GLOB LUASOCKET_SRCS
+		src/luasocket/*.c)
+
+	set(SRCS ${SRCS} ${LUASOCKET_SRCS})
 endif()
 
 
@@ -263,32 +246,33 @@ endif()
 # Compiler flags
 # --------------
 
-set(COMMON_FLAGS "${LUASOCKET_FLAGS} -DLUA_COMPAT_MODULE")
-
 if(ANDROID)
 	target_link_libraries(${PROJECT_NAME} -landroid -ldl -lGLESv2 -llog)
 
-	set(COMMON_FLAGS "${COMMON_FLAGS} -DHAVE_GCC_ATOMICS")
+	add_definitions(-DHAVE_GCC_ATOMICS)
 else()
-	set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_FAST_MATH")
+	add_definitions(-DTMS_FAST_MATH)
 
 	if(WIN32)
 		target_link_libraries(${PROJECT_NAME} ws2_32.lib version.lib shlwapi.lib winmm.lib)
 
-		set(COMMON_FLAGS "${COMMON_FLAGS} -D_WIN32_WINNT=0x0501 -DUNICODE")
+		add_definitions(-D_WIN32_WINNT=0x0501 -DUNICODE)
 	elseif(SCREENSHOT_BUILD)
-		set(COMMON_FLAGS "${COMMON_FLAGS} -DNO_UI")
+		add_definitions(-DNO_UI)
 	endif()
 endif()
 
-set(COMMON_FLAGS "${COMMON_FLAGS} -ffast-math -DTMS_BACKEND_${TMS_FORMFACTOR} -DTMS_BACKEND_${TMS_BACKEND}")
+add_definitions(-DTMS_BACKEND_${TMS_FORMFACTOR} -DTMS_BACKEND_${TMS_BACKEND})
+
+# Downgrade int-conversion and incompatible(-function)-pointer-types, which are errors
+# in both GCC and Clang now, into regular warnings.
+
+set(COMMON_FLAGS "-ffast-math -Wno-error=int-conversion")
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	# Downgrade some errors to warnings when building with Clang
-	set(COMMON_FLAGS "${COMMON_FLAGS} -Wno-error=incompatible-function-pointer-types -Wno-error=int-conversion")
+	set(COMMON_FLAGS "${COMMON_FLAGS} -Wno-error=incompatible-function-pointer-types")
 else()
-	# Do the same for GCC
-	set(COMMON_FLAGS "${COMMON_FLAGS} -Wno-error=incompatible-pointer-types -Wno-error=int-conversion")
+	set(COMMON_FLAGS "${COMMON_FLAGS} -Wno-error=incompatible-pointer-types")
 endif()
 
 set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -DDEBUG=1")
