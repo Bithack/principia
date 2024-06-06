@@ -77,7 +77,7 @@ load_3ds_model(struct tms_model *model,
                 }
                 //tms_infof("base index:%d", base_index);
                 tms_gbuffer_realloc(model->vertices, sz + num_items * sizeof(struct vertex));
-                vertex_buf = (struct vertex *)model->vertices->buf+sz;
+                vertex_buf = (struct vertex *)(model->vertices->buf+sz);
 
                 for (int x=0; x<num_items; x++) {
                     SDL_RWread(fp, &vertex_buf[x].pos, 4, 3);
