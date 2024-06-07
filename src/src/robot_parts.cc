@@ -108,6 +108,10 @@ robot_parts::head_base::update()
                     tmat4_scale(this->M, this->r->get_scale(), this->r->get_scale(), this->r->get_scale());
                 }
                 return;
+
+            default:
+                // nothing
+                break;
         }
     }
 
@@ -3941,7 +3945,8 @@ shape_tester::ReportFixture(b2Fixture *fx)
     }
 
     if (!world::fixture_in_layer(fx, layer, sublayer)) {
-        return -1.f;
+        // XXX
+        return false;
     }
 
     b2Body  *fx_body = fx->GetBody();

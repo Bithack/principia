@@ -187,6 +187,10 @@ tile_factory::init()
                         }
                     }
                     break;
+
+                case SECTION_TILESETS:
+                case SECTION_NONE:
+                    break;
             }
         }
 

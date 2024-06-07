@@ -448,7 +448,7 @@ Java_org_libsdl_app_PrincipiaBackend_getObjects(JNIEnv *env, jclass _jcls)
 {
     std::stringstream b("", std::ios_base::app | std::ios_base::out);
 
-    tms_infof("menu_objects size: %d", menu_objects.size());
+    tms_infof("menu_objects size: %d", (int)menu_objects.size());
     for (int x=0; x<menu_objects.size(); x++) {
         const char *n = menu_objects[x].e->get_name();
         if (x != 0) b << ',';
@@ -2226,13 +2226,13 @@ Java_org_libsdl_app_PrincipiaBackend_setLevelFlag(
 
     uint32_t flag = (uint32_t)_flag;
 
-    tms_infof("x: %d", flag);
+    //tms_infof("x: %d", flag);
     uint64_t f = (uint64_t)(1ULL << flag);
-    tms_infof("f: %llu", f);
+    //tms_infof("f: %llu", f);
 
-    tms_infof("Flags before: %llu", l->flags);
+    //tms_infof("Flags before: %llu", l->flags);
     l->flags |= f;
-    tms_infof("Flags after: %llu", l->flags);
+    //tms_infof("Flags after: %llu", l->flags);
 }
 
 extern "C" jboolean

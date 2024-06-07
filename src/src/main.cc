@@ -646,12 +646,15 @@ tproject_init_pipelines(void)
     tms_pipeline_declare(0, "MVP", TMS_MVP, 0);
     tms_pipeline_declare(0, "N", TMS_MAT3, offsetof(struct tms_entity, N));
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Winvalid-offsetof"
     tms_pipeline_declare_global(0, "ao_layer", TMS_INT, offsetof(game, tmp_ao_layer));
     tms_pipeline_declare_global(0, "ao_mask", TMS_VEC3, offsetof(game, tmp_ao_mask));
     tms_pipeline_declare_global(0, "SMVP", TMS_MAT4, offsetof(game, SMVP));
     tms_pipeline_declare_global(0, "AOMVP", TMS_MAT4, offsetof(game, AOMVP));
 
     tms_pipeline_declare_global(0, "_AMBIENTDIFFUSE", TMS_VEC2, offsetof(game, tmp_ambientdiffuse));
+#pragma GCC diagnostic pop
 
     tms_pipeline_set_begin_fn(0, begin);
     tms_pipeline_set_end_fn(0, end);

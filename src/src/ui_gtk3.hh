@@ -6566,7 +6566,7 @@ int _gtk_loop(void *p)
         pkg_name_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
                 "Create new package",
                 0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                NULL));
+                NULL, NULL));
 
         apply_dialog_defaults(pkg_name_dialog);
 
@@ -6917,7 +6917,7 @@ int _gtk_loop(void *p)
         properties_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
             "Level properties",
             0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-            NULL
+            NULL, NULL
         ));
 
         apply_dialog_defaults(properties_dialog);
@@ -8073,7 +8073,7 @@ int _gtk_loop(void *p)
         dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
                 "Cam targeter properties",
                 0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                NULL));
+                NULL, NULL));
 
         apply_dialog_defaults(dialog);
 
@@ -8381,7 +8381,7 @@ int _gtk_loop(void *p)
         dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
                 "Confirm",
                 0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-                NULL));
+                NULL, NULL));
 
         apply_dialog_defaults(dialog);
 
@@ -9001,7 +9001,7 @@ int _gtk_loop(void *p)
         confirm_quit_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
             "Confirm Quit",
             0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-            NULL
+            NULL, NULL
         ));
 
         apply_dialog_defaults(confirm_quit_dialog);
@@ -9263,7 +9263,7 @@ int _gtk_loop(void *p)
         jumper_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
             "Jumper",
             0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-            NULL
+            NULL, NULL
         ));
 
         apply_dialog_defaults(jumper_dialog);

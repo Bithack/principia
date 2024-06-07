@@ -35,7 +35,7 @@ void
 tms_shader_init(struct tms_shader *s)
 {
     memset(s, 0, sizeof(struct tms_shader));
-    s->name = unknown;
+    s->name = (char *)unknown;
     /*
     s->vertex = 0;
     s->fragment = 0;
@@ -163,7 +163,7 @@ static GLint compile(struct tms_shader *sh, GLenum st, const char *src)
             sources[1+sh->num_defines+sh->num_fs_defines+_tms_global_shader.num_defines+x] = _tms_global_shader.fs_defines[x];
     }
 
-    sources[num_src] = src;
+    sources[num_src] = (char *)src;
 
     /*
     tms_infof("-- shader compile (%s)", type);

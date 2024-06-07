@@ -21,7 +21,6 @@
 #if defined(_WIN32)
 
 float64 b2Timer::s_invFrequency = 0.0f;
-#define NOMINMAX
 #include <windows.h>
 
 b2Timer::b2Timer()

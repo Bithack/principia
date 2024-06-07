@@ -94,7 +94,7 @@ extern struct tms_singleton {
     struct tms_screen      *next; /**< next screen (used if transitioning) */
     struct tms_fb *framebuffer; /**< pointer to the currently bound framebuffer */
     int                     state; /**< current state, see TMS_STATE */
-    char *gl_extensions;
+    const char *gl_extensions;
 
     double gamma;
 

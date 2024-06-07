@@ -9,9 +9,9 @@ on:
   push:
     paths:
       - '.github/workflows/doxygen_deploy.yml'
-      - 'doc/'
-      - 'src/src/'
-      - 'src/tms/'
+      - 'doc/**'
+      - 'src/src/**'
+      - 'src/tms/**'
     branches:
       - master
 

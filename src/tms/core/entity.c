@@ -227,7 +227,7 @@ add_uniform(struct tms_entity *e,
         || tms_fatalf("out of mem (e_au)");
     e->num_uniforms++;
     e->uniforms[e->num_uniforms-1].type = type;
-    e->uniforms[e->num_uniforms-1].name = name;
+    e->uniforms[e->num_uniforms-1].name = (char*)name;
     memset(&e->uniforms[e->num_uniforms-1].val, 0, sizeof(e->uniforms[e->num_uniforms-1].val));
 
     if (*name == '_') {

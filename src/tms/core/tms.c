@@ -33,7 +33,7 @@ tms_init(void)
 
     tbackend_init_surface();
 
-    tms.gl_extensions = glGetString(GL_EXTENSIONS);
+    tms.gl_extensions = (const char*)glGetString(GL_EXTENSIONS);
 
     tmat4_set_ortho(tms.window_projection, 0, tms.window_width, 0, tms.window_height, 1, -1);
 

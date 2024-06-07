@@ -127,11 +127,11 @@ tms_varray_bind_attributes(struct tms_varray *va,
 #if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
             if (m->component_type == GL_UNSIGNED_INT || m->component_type == GL_INT)
                 glVertexAttribIPointer(locations[x], m->num_components, m->component_type,
-                                      bufdata->vsize, (void*)m->offset);
+                                      bufdata->vsize, (void*)(uintptr_t)m->offset);
             else
 #endif
                 glVertexAttribPointer(locations[x], m->num_components, m->component_type,
-                                      0, bufdata->vsize, (void*)m->offset);
+                                      0, bufdata->vsize, (void*)(uintptr_t)m->offset);
 
             if (locations[x] > last_amax || last_amax == 0)
                 glEnableVertexAttribArray(locations[x]);

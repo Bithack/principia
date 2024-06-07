@@ -1,7 +1,7 @@
 #include <tms/core/glob.h>
 #include <tms/math/glob.h>
 
-#define NAME_MAX 32
+#define OBJ_NAME_MAX 32
 
 struct vertex {
     tvec3 pos;
@@ -16,7 +16,7 @@ load_3ds_model(struct tms_model *model,
     uint16_t chunk_id;
     uint32_t chunk_len;
     uint16_t num_items;
-    char object_name[NAME_MAX];
+    char object_name[OBJ_NAME_MAX];
 
     struct vertex *vertex_buf = 0;
     uint16_t *index_buf = 0;
@@ -47,9 +47,9 @@ load_3ds_model(struct tms_model *model,
             case 0x4000: { /* object block */
                 //tms_debugf("found object chunk");
                 int x;
-                for (x=0; x<NAME_MAX-1; x++) {
+                for (x=0; x<OBJ_NAME_MAX-1; x++) {
                     SDL_RWread(fp, &object_name[x], 1, 1);
-                    //fread(&object_name[x], 1, 1, fp);
+
                     if (object_name[x] == '\0')
                         break;
                 }

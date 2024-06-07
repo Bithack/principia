@@ -26,10 +26,10 @@ struct tms_texture {
     int format;
     int colors;
 
-    int gamma_corrected:1;
-    int gamma_correction:1;
-    int is_buffered:1;
-    int is_uploaded:1;
+    unsigned int gamma_corrected:1;
+    unsigned int gamma_correction:1;
+    unsigned int is_buffered:1;
+    unsigned int is_uploaded:1;
     int num_channels;
 
     void (*buffer_fn)(struct tms_texture *tex);

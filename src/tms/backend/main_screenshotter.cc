@@ -45,8 +45,6 @@ int mouse_down;
 static char *_storage_path = 0;
 static int pipe_h;
 
-static int T_intercept_input(SDL_Event ev);
-
 static char *_args[2] = {0,0};
 static char buf[1024];
 static int  step = STEP_IDLE;
@@ -146,7 +144,7 @@ main(int argc, char **argv)
 
     char* exedir = SDL_GetBasePath();
     tms_infof("chdirring to %s", exedir);
-    chdir(exedir);
+    (void)chdir(exedir);
 
     mkdir(tbackend_get_storage_path(), S_IRWXU | S_IRWXG | S_IRWXO);
 
@@ -388,11 +386,6 @@ tbackend_init_surface()
     SDL_GL_SetSwapInterval(0);
 
     return T_OK;
-}
-
-int
-T_intercept_input(SDL_Event ev)
-{
 }
 
 const char *tbackend_get_storage_path(void)
