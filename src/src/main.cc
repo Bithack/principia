@@ -471,14 +471,14 @@ init_framebuffers(void)
             if (settings["shadow_map_precision"]->v.i == 0) {
                 shadow_map_precision = GL_RGB;
             } else if (settings["shadow_map_precision"]->v.i == 1) {
-#ifdef TMS_BACKEND_ANDROID
+#ifdef TMS_USE_GLES
                 /* Android does not seem to have either GL_RGB16F or GL_RGBA16F defined */
                 shadow_map_precision = GL_RGB;
 #else
                 shadow_map_precision = GL_RGB16F;
 #endif
             } else if (settings["shadow_map_precision"]->v.i == 2) {
-#ifdef TMS_BACKEND_ANDROID
+#ifdef TMS_USE_GLES
                 /* Android does not seem to have either GL_RGB32F or GL_RGBA32F defined */
                 shadow_map_precision = GL_RGB;
 #else
@@ -3551,7 +3551,8 @@ initial_loader(int step)
                 P.loaded = true;
                 settings.save();
 
-#ifndef TMS_BACKEND_LINUX_SS
+#ifdef BUILD_CURL
+
                 /* do not start version check if we have an initial action like ACTION_OPEN_PLAY */
                 if (P.num_actions == 0) {
                     create_thread(_check_version_code,"_version_check",  (void*)0);

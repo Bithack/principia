@@ -125,7 +125,7 @@ static GLint compile(struct tms_shader *sh, GLenum st, const char *src)
     GLint s = glCreateShader(st);
     GLint success;
     const char *type = st == GL_VERTEX_SHADER ? "vertex shader"
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
+#ifndef TMS_USE_GLES
         : st == GL_TESS_CONTROL_SHADER ? "tessellation control shader"
         : st == GL_TESS_EVALUATION_SHADER ? "tessellation evaluation shader"
         : st == GL_GEOMETRY_SHADER ? "geometry shader"
@@ -239,7 +239,7 @@ tms_shader_get_program(struct tms_shader *s, int pipeline)
     glAttachShader(p->id, s->vertex);
         tms_assertf(glGetError() == 0, "vafan 2 ");
     glAttachShader(p->id, s->fragment);
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
+#ifndef TMS_USE_GLES
     if (s->tess_control) glAttachShader(p->id, s->tess_control);
     if (s->tess_eval) glAttachShader(p->id, s->tess_eval);
     if (s->geometry) glAttachShader(p->id, s->geometry);
@@ -293,7 +293,7 @@ tms_shader_compile(struct tms_shader *s,
     switch (shader_type) {
         case GL_VERTEX_SHADER: s->vertex = shader; break;
         case GL_FRAGMENT_SHADER: s->fragment = shader; break;
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
+#ifndef TMS_USE_GLES
         case GL_TESS_CONTROL_SHADER: s->tess_control = shader; break;
         case GL_TESS_EVALUATION_SHADER: s->tess_eval = shader; break;
         case GL_GEOMETRY_SHADER: s->geometry = shader; break;

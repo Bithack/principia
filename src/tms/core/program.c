@@ -59,7 +59,7 @@ tms_program_load_uniforms(struct tms_program *p)
         }
 
         switch (type) {
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
+#ifndef TMS_USE_GLES
             case GL_SAMPLER_1D:
             case GL_SAMPLER_3D:
             case GL_SAMPLER_1D_SHADOW:

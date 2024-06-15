@@ -37,7 +37,7 @@ tms_init(void)
 
     tmat4_set_ortho(tms.window_projection, 0, tms.window_width, 0, tms.window_height, 1, -1);
 
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
+#ifndef TMS_USE_GLES
     tms_shader_global_define_vs("lowp", "");
     tms_shader_global_define_fs("lowp", "");
     tms_shader_global_define_vs("mediump", "");

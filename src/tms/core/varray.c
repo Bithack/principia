@@ -124,7 +124,7 @@ tms_varray_bind_attributes(struct tms_varray *va,
                 ;
             }
 
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
+#ifndef TMS_USE_GLES
             if (m->component_type == GL_UNSIGNED_INT || m->component_type == GL_INT)
                 glVertexAttribIPointer(locations[x], m->num_components, m->component_type,
                                       bufdata->vsize, (void*)(uintptr_t)m->offset);

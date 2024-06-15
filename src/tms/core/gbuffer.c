@@ -27,7 +27,7 @@ tms_gbuffer_init(struct tms_gbuffer *b, size_t size)
     b->usize = 0;
     b->target = GL_ARRAY_BUFFER;
 
-   glGenBuffers(1, &b->vbo);
+    glGenBuffers(1, &b->vbo);
 }
 
 struct tms_gbuffer*

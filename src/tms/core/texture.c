@@ -460,7 +460,7 @@ tms_texture_upload(struct tms_texture *tex)
             colors = GL_RGB;
             format = GL_RGB;
 
-#ifndef TMS_BACKEND_MOBILE
+#ifndef TMS_USE_GLES
             if (tex->gamma_correction) {
                 format = GL_SRGB;
             }
@@ -471,7 +471,7 @@ tms_texture_upload(struct tms_texture *tex)
             colors = GL_RGBA;
             format = GL_RGBA;
 
-#ifndef TMS_BACKEND_MOBILE
+#ifndef TMS_USE_GLES
             if (tex->gamma_correction) {
                 format = GL_SRGB8_ALPHA8;
             }
@@ -489,7 +489,7 @@ tms_texture_upload(struct tms_texture *tex)
 
     glBindTexture(GL_TEXTURE_2D, tex->gl_texture);
 
-#if !defined(TMS_BACKEND_ANDROID) && !defined(TMS_BACKEND_IOS)
+#ifndef TMS_USE_GLES
     glEnable(GL_TEXTURE_2D);
     if (tex->filter == TMS_MIPMAP) {
         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
@@ -513,7 +513,7 @@ tms_texture_upload(struct tms_texture *tex)
     if (tex->filter == TMS_MIPMAP) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-#ifdef TMS_BACKEND_MOBILE
+#ifdef TMS_USE_GLES
         glGenerateMipmap(GL_TEXTURE_2D);
 
         int err = glGetError();

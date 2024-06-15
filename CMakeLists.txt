@@ -61,6 +61,16 @@ else()
 	set(TMS_BACKEND "LINUX")
 endif()
 
+if(LINUX)
+	option(USE_GLES "Use OpenGL ES on Linux (Experimental)" FALSE)
+endif()
+
+if(USE_GLES OR ANDROID OR EMSCRIPTEN)
+	set(SHOULD_USE_GLES TRUE)
+else()
+	set(SHOULD_USE_GLES FALSE)
+endif()
+
 
 # Include dirs and main source files
 # ----------------------------------
@@ -197,17 +207,18 @@ if(NOT SCREENSHOT_BUILD)
 	target_link_libraries(${PROJECT_NAME} ${CURL_LIBRARIES})
 
 	if(NOT ANDROID)
-		target_link_libraries(
-			${PROJECT_NAME}
-				${GLEW_LIBRARIES}
-				${GTK3_LIBRARIES})
+		target_link_libraries(${PROJECT_NAME} ${GTK3_LIBRARIES})
+	endif()
+
+	if(NOT SHOULD_USE_GLES)
+		target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARIES})
 	endif()
 endif()
 
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
 
-if(ANDROID)
-	target_link_libraries(${PROJECT_NAME} -lGLESv2 -lOpenSLES)
+if(SHOULD_USE_GLES)
+	target_link_libraries(${PROJECT_NAME} -lGLESv2)
 else()
 	target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 endif()
@@ -216,8 +227,12 @@ endif()
 # Compiler flags
 # --------------
 
+if(SHOULD_USE_GLES)
+	add_definitions(-DTMS_USE_GLES)
+endif()
+
 if(ANDROID)
-	target_link_libraries(${PROJECT_NAME} -landroid -ldl -llog)
+	target_link_libraries(${PROJECT_NAME} -landroid -ldl -llog -lOpenSLES)
 
 	add_definitions(-DHAVE_GCC_ATOMICS)
 else()

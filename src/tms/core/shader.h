@@ -7,7 +7,7 @@
 #include <tms/math/vector.h>
 #include <tms/core/tms.h>
 
-#ifdef TMS_BACKEND_MOBILE
+#ifdef TMS_USE_GLES
 #define TMS_GLSL_HEADER\
     "#version 100\n"\
     "precision mediump float;"\

@@ -565,6 +565,20 @@ tbackend_init_surface()
 
     _tms._window = _window;
 
+#ifdef TMS_USE_GLES
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+
+    SDL_GL_CreateContext(_window);
+
+    SDL_GL_SetSwapInterval(0);
+
+#else
+
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
@@ -618,6 +632,8 @@ If you are on a VM for testing purposes, then you can use Mesa's software render
 get Principia running. (place the Mesa opengl32.dll library next to principia.exe))", 0);
         exit(1);
     }
+
+#endif
 
 #endif
 

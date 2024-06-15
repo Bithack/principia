@@ -657,7 +657,7 @@ tms_fb_enable_depth(struct tms_fb *fb, int format)
         //glRenderbufferStorage(GL_RENDERBUFFER, format, fb->width, fb->height);
         //
 
-#ifdef TMS_BACKEND_MOBILE
+#ifdef TMS_USE_GLES
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, fb->width, fb->height);
 #elif defined TMS_BACKEND_WINDOWS
         if (__glewRenderbufferStorage) {
@@ -784,7 +784,7 @@ tms_fb_add_texture(struct tms_fb *fb, int format,
         glBindTexture(GL_TEXTURE_2D, fb->fb_texture[x][fb->num_textures]);
         tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 3", ierr, x);
 
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
+#ifndef TMS_USE_GLES
         if (format == GL_R32F) {
             //glTexImage2D(GL_TEXTURE_2D, 0, format, fb->width, fb->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
             glTexImage2D(GL_TEXTURE_2D, 0, format, fb->width, fb->height, 0, GL_RED, GL_FLOAT, 0);
@@ -853,7 +853,7 @@ tms_fb_add_texture(struct tms_fb *fb, int format,
 			bufs[y] = GL_COLOR_ATTACHMENT0 + y;
 		}
 
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
+#ifndef TMS_USE_GLES
         glDrawBuffers(fb->num_textures+1, bufs);
         tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 15", ierr, x);
 #endif
