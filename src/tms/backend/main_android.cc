@@ -6,16 +6,19 @@
 #include <tms/core/project.h>
 #include <tms/core/event.h>
 #include <tms/core/tms.h>
-#include <jni.h>
 #include <tms/backend/opengl.h>
 
-#include "SDL-mobile/src/video/android/SDL_androidvideo.h"
-#include "SDL-mobile/src/core/android/SDL_android.h"
+#include "SDL.h"
+#include <jni.h>
+//#include "SDL_androidvideo.h"
 
 SDL_Window *_window;
 
 int keys[235];
 int mouse_down[64];
+
+extern "C" int tbackend_init_surface();
+extern "C" const char *tbackend_get_storage_path(void);
 
 static int T_intercept_input(SDL_Event ev);
 
@@ -26,11 +29,9 @@ SDL_main(int argc, char **argv)
     int        done = 0;
     int do_step = 1;
 
-    //Android_JNI_SetupThread();
-
     tms_init();
 
-    if (tms.screen == 0)
+    if (_tms.screen == 0)
         tms_fatalf("context has no initial screen, bailing out");
 
     do {
@@ -66,7 +67,7 @@ SDL_main(int argc, char **argv)
 
                 case SDL_QUIT:
                     tproject_quit();
-                    tms.state = TMS_STATE_QUITTING;
+                    _tms.state = TMS_STATE_QUITTING;
                     //done = 1;
                     break;
 
@@ -83,9 +84,6 @@ SDL_main(int argc, char **argv)
                 case SDL_FINGERMOTION:
                 case SDL_FINGERDOWN:
                 case SDL_FINGERUP:
-                    T_intercept_input(ev);
-                    break;
-
                 case SDL_TEXTINPUT:
                     T_intercept_input(ev);
                     break;
@@ -105,9 +103,11 @@ SDL_main(int argc, char **argv)
         } else {
             SDL_Delay(100);
         }
-    } while (tms.state != TMS_STATE_QUITTING);
+    } while (_tms.state != TMS_STATE_QUITTING);
 
-    SDL_DestroyWindow(tms._window);
+    SDL_DestroyWindow(_window);
+
+    SDL_Quit();
 
     return 0;
 }
@@ -120,35 +120,33 @@ tbackend_init_surface()
 
     SDL_Init(SDL_INIT_VIDEO);
     SDL_DisplayMode mode;
-    SDL_GetDesktopDisplayMode(0, &mode);
+    SDL_GetCurrentDisplayMode(0, &mode);
 
     _window = SDL_CreateWindow("Principia", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-            mode.w, mode.h,
+            0, 0,
             SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN);
 
     if (_window == NULL)
         tms_fatalf("Could not create SDL Window: %s", SDL_GetError());
 
     SDL_SetWindowFullscreen(_window, SDL_TRUE);
-    SDL_GetWindowSize(_window, &_tms.window_width, &_tms.window_height);
+    SDL_GL_GetDrawableSize(_window, &_tms.window_width, &_tms.window_height);
 
-    tms._window = _window;
-    tms.xppcm = Android_ScreenDensityX / 2.54f;
-    tms.yppcm = Android_ScreenDensityY / 2.54f;
+    _tms._window = _window;
+    float density_x, density_y;
+    SDL_GetDisplayDPI(0, NULL, &density_x, &density_y);
+    _tms.xppcm = density_x / 2.54f;
+    _tms.yppcm = density_y / 2.54f;
 
     tms_infof("Device dimensions: %d %d", _tms.window_width, _tms.window_height);
-    tms_infof("Device PPCM: %f %f", tms.xppcm, tms.yppcm);
+    tms_infof("Device PPCM: %f %f", _tms.xppcm, _tms.yppcm);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-    //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    //
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    /*
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
-    */
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 
     SDL_GL_CreateContext(_window);
 
@@ -183,24 +181,22 @@ T_intercept_input(SDL_Event ev)
         case SDL_FINGERDOWN:
             spec.type = TMS_EV_POINTER_DOWN;
             spec.data.button.pointer_id = ev.tfinger.fingerId;
-            //tms_infof("event: %d %d", ev.tfinger.x, ev.tfinger.y);
-            spec.data.button.x = ((float)ev.tfinger.x / 32768.f)*(float)_tms.window_width;
-            spec.data.button.y = tms.window_height - ((float)ev.tfinger.y / 32768.f) * (float)_tms.window_height;
-            //tms_infof("event: %f %f", spec.data.button.x, spec.data.button.y);
+            spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
+            spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
             break;
 
         case SDL_FINGERUP:
             spec.type = TMS_EV_POINTER_UP;
             spec.data.button.pointer_id = ev.tfinger.fingerId;
-            spec.data.button.x = ((float)ev.tfinger.x / 32768.f)*(float)_tms.window_width;
-            spec.data.button.y = tms.window_height - ((float)ev.tfinger.y / 32768.f) * (float)_tms.window_height;
+            spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
+            spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
             break;
 
         case SDL_FINGERMOTION:
             spec.type = TMS_EV_POINTER_DRAG;
             spec.data.button.pointer_id = ev.tfinger.fingerId;
-            spec.data.motion.x = ((float)ev.tfinger.x / 32768.f)*(float)_tms.window_width;
-            spec.data.motion.y = tms.window_height - ((float)ev.tfinger.y / 32768.f) * (float)_tms.window_height;
+            spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
+            spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
             break;
 
         case SDL_TEXTINPUT:
@@ -218,20 +214,21 @@ static char storage_path[1024];
 static const char*
 _JNI_get_storage_path()
 {
-    JNIEnv *mEnv = Android_JNI_GetEnv();
-    jclass cls = Android_JNI_GetActivityClass();
+    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+    jobject activity = (jobject)SDL_AndroidGetActivity();
+    jclass cls = env->GetObjectClass(activity);
 
-    jmethodID mid = (*mEnv)->GetStaticMethodID(mEnv, cls, "get_storage_path", "()Ljava/lang/String;");
+    jmethodID mid = env->GetStaticMethodID(cls, "get_storage_path", "()Ljava/lang/String;");
     if (mid) {
-        jstring s = (*mEnv)->CallStaticObjectMethod(mEnv, cls, mid);
+        jstring s = (jstring)env->CallStaticObjectMethod(cls, mid);
 
-        const char *tmp = (*mEnv)->GetStringUTFChars(mEnv, s, 0);
+        const char *tmp = env->GetStringUTFChars(s, 0);
 
         tms_infof("Storage path: %s", tmp ? tmp : "<NULL>");
 
         strcpy(storage_path, tmp);
 
-        (*mEnv)->ReleaseStringUTFChars(mEnv, s, tmp);
+        env->ReleaseStringUTFChars(s, tmp);
     } else {
         strcpy(storage_path, "");
     }

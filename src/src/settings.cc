@@ -27,24 +27,14 @@ _settings::init()
 
     this->add("blur_shadow_map",    S_BOOL,  false);
     this->add("swap_shadow_map",    S_BOOL,  false);
-#ifdef TMS_BACKEND_MOBILE
-    /* calculate "optimal" shadow map resolution */
-    double w2 = log2((double)_tms.window_width);
-    double h2 = log2((double)_tms.window_height);
 
-    int rw = (int)exp2(roundf(w2)) / 2;
-    int rh = (int)exp2(roundf(h2)) / 2;
-
-    this->add("shadow_map_resx",    S_INT32,   rw);
-    this->add("shadow_map_resy",    S_INT32,   rh);
-
-    this->add("vsync",              S_BOOL,  false);
-#else
+    // XXX: see git history
     this->add("shadow_map_resx",    S_INT32,   1280);
     this->add("shadow_map_resy",    S_INT32,   720);
 
+#ifndef TMS_BACKEND_ANDROID
+    // vsync is managed by the OS on Android
     this->add("vsync",              S_BOOL,  true);
-#endif
 
     this->add("window_width",       S_INT32,   _tms.window_width);
     this->add("window_height",      S_INT32,   _tms.window_height);
@@ -52,6 +42,7 @@ _settings::init()
 
     // False for now to allow for resetting the screensize if resizing somehow breaks it.
     this->add("autosave_screensize",S_BOOL,  false);
+#endif
 
     this->add("shadow_quality",     S_UINT8,  1);
 

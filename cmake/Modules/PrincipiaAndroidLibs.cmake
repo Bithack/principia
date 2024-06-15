@@ -9,3 +9,5 @@ set(JPEG_INCLUDE_DIR ${DEPS}/libjpeg/include)
 set(JPEG_LIBRARY ${DEPS}/libjpeg/libjpeg.a)
 set(PNG_PNG_INCLUDE_DIR ${DEPS}/libpng/include) #what
 set(PNG_LIBRARY ${DEPS}/libpng/libpng.a)
+set(SDL2_LIBRARIES ${DEPS}/SDL2/libSDL2.a)
+set(SDL2_INCLUDE_DIRS ${DEPS}/SDL2/include/SDL2)
