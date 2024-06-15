@@ -473,6 +473,8 @@ menu_pkg::handle_input(tms::event *ev, int action)
                     bool test_playing = false;
                     G->screen_back = this;
                     if (this->pkg.type == LEVEL_MAIN && this->pkg.id == 7) {
+                        // XXX: causes segfaults on android
+#ifndef TMS_BACKEND_ANDROID
                         char filename[1024];
                         snprintf(filename, 1023, "%s/7.%d.psol", pkgman::get_level_path(LEVEL_LOCAL), level_id);
 
@@ -482,7 +484,9 @@ menu_pkg::handle_input(tms::event *ev, int action)
                                     "Yes",    principia_action(ACTION_OPEN_MAIN_PUZZLE_SOLUTION, opd),
                                     "No",     principia_action(ACTION_CREATE_MAIN_PUZZLE_SOLUTION, opd),
                                     "Cancel", principia_action(ACTION_IGNORE, 0));
-                        } else {
+                        } else
+#endif
+                        {
                             P.add_action(ACTION_CREATE_MAIN_PUZZLE_SOLUTION, new open_play_data(LEVEL_LOCAL, level_id, &pkg, false, 1));
                         }
 
