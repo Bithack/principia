@@ -526,58 +526,38 @@ lvlinfo::read(lvlbuf *lb, bool skip_description)
     return true;
 }
 
-uint32_t
-pkgman::get_next_pkg_id()
-{
+uint32_t get_next_id(const char *storage, const char *ext) {
     char path[1024];
-    const char *storage = pkgman::get_pkg_path(LEVEL_LOCAL);
     struct stat s;
 
-    for (uint32_t x=1; x<100000; x++) {
-        snprintf(path, 1023, "%s/%d.ppkg", storage, x);
+    // Check IDs up to 2 billion. Ought to be enough for everyone.
+    for (uint32_t x = 1; x < 2e9; x++) {
+        snprintf(path, 1023, "%s/%d.%s", storage, x, ext);
         int i = stat(path, &s);
 
         if (i == -1)
             return x;
     }
 
-    return 0; /* XXX what to do here???? */
+    return 0;
+}
+
+uint32_t
+pkgman::get_next_pkg_id()
+{
+    return get_next_id(pkgman::get_pkg_path(LEVEL_LOCAL), "ppkg");
 }
 
 uint32_t
 pkgman::get_next_level_id()
 {
-    char path[1024];
-    const char *storage = pkgman::get_level_path(LEVEL_LOCAL);
-    struct stat s;
-
-    for (uint32_t x=1; x<100000; x++) {
-        snprintf(path, 1023, "%s/%d.plvl", storage, x);
-        int i = stat(path, &s);
-
-        if (i == -1)
-            return x;
-    }
-
-    return 0; /* XXX what to do here???? */
+    return get_next_id(pkgman::get_level_path(LEVEL_LOCAL), "plvl");
 }
 
 uint32_t
 pkgman::get_next_object_id()
 {
-    char path[1024];
-    char *storage = (char*)pkgman::get_level_path(LEVEL_LOCAL);
-    struct stat s;
-
-    for (uint32_t x=1; x<100000; x++) {
-        snprintf(path, 1023, "%s/%d.pobj", storage, x);
-        int i = stat(path, &s);
-
-        if (i == -1)
-            return x;
-    }
-
-    return 0; /* XXX what to do here???? */
+    return get_next_id(pkgman::get_level_path(LEVEL_LOCAL), "pobj");
 }
 
 bool
