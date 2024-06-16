@@ -364,6 +364,7 @@ class pkginfo
 #define LVL_ALLOW_RESPAWN_WITHOUT_CHECKPOINT    (1ULL << 34)
 #define LVL_DEAD_CREATURE_DESTRUCTION           (1ULL << 35)
 #define LVL_AUTOMATICALLY_SUBMIT_SCORE          (1ULL << 36)
+#define LVL_ENABLE_LUASOCKET                    (1ULL << 37)
 
 /* level format */
 class lvlinfo

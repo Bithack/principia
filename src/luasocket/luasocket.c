@@ -92,12 +92,7 @@ int luaL_typerror (lua_State *L, int narg, const char *tname) {
 static int base_open(lua_State *L) {
     if (socket_open()) {
         /* export functions (and leave namespace table on top of stack) */
-#if LUA_VERSION_NUM > 501 && !defined(LUA_COMPAT_MODULE)
-        lua_newtable(L);
-        luaL_setfuncs(L, func, 0);
-#else
         luaL_openlib(L, "socket", func, 0);
-#endif
 #ifdef LUASOCKET_DEBUG
         lua_pushstring(L, "_DEBUG");
         lua_pushboolean(L, 1);
