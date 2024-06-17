@@ -105,7 +105,7 @@ ui::messagef(const char *format, ...)
     }
 }
 
-#ifdef NO_UI
+#if defined(NO_UI) || defined(TMS_BACKEND_EMSCRIPTEN)
 
 int prompt_is_open = 0;
 void ui::init(){};

@@ -13,6 +13,8 @@
 	#define OS_STRING "Haiku"
 #elif defined(TMS_BACKEND_MACOS)
 	#define OS_STRING "macOS"
+#elif defined(TMS_BACKEND_EMSCRIPTEN)
+	#define OS_STRING "Web"
 #else
 	#error Undefined platform, please add a check for it
 #endif

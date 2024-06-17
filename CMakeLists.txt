@@ -24,7 +24,11 @@ if(ANDROID)
 	include(PrincipiaAndroidLibs)
 
 else()
-	find_package(SDL2 REQUIRED)
+	if(NOT EMSCRIPTEN)
+		find_package(SDL2 REQUIRED)
+	else()
+		include(PrincipiaEmscriptenLibs)
+	endif()
 
 	set(OpenGL_GL_PREFERENCE GLVND)
 	find_package(OpenGL REQUIRED)
@@ -57,6 +61,8 @@ elseif(HAIKU)
 	set(TMS_BACKEND "HAIKU")
 elseif(APPLE)
 	set(TMS_BACKEND "MACOS")
+elseif(EMSCRIPTEN)
+	set(TMS_BACKEND "EMSCRIPTEN")
 else()
 	set(TMS_BACKEND "LINUX")
 endif()
@@ -114,7 +120,7 @@ include_directories(
 
 # Optional dependencies not found on Android or in the screenshot build
 if(NOT SCREENSHOT_BUILD)
-	if(NOT ANDROID)
+	if(NOT ANDROID AND NOT EMSCRIPTEN)
 		find_package(PkgConfig REQUIRED)
 		pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
 
@@ -138,7 +144,7 @@ endif()
 
 # Optional luasocket functionality
 
-if(NOT SCREENSHOT_BUILD AND NOT ANDROID)
+if(NOT SCREENSHOT_BUILD AND NOT ANDROID AND NOT EMSCRIPTEN)
 	option(USE_LUASOCKET "Build with Luasocket support" TRUE)
 else()
 	set(USE_LUASOCKET false)
@@ -158,6 +164,9 @@ if(ANDROID)
 	set(BACKEND_SRC main_android.cc)
 elseif(SCREENSHOT_BUILD)
 	set(BACKEND_SRC main_screenshotter.cc)
+elseif(EMSCRIPTEN)
+	set(CMAKE_EXECUTABLE_SUFFIX ".html")
+	set(BACKEND_SRC main_emscripten.cc)
 else()
 	set(BACKEND_SRC main.cc)
 endif()
@@ -215,7 +224,9 @@ if(NOT SCREENSHOT_BUILD)
 	endif()
 endif()
 
-target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
+if(NOT EMSCRIPTEN)
+	target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
+endif()
 
 if(SHOULD_USE_GLES)
 	target_link_libraries(${PROJECT_NAME} -lGLESv2)
@@ -274,6 +285,11 @@ endif()
 
 # Installation
 # ------------
+
+if(EMSCRIPTEN)
+	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "--preload-file ../data-pc/ --preload-file ../data-shared/")
+	target_link_libraries(${PROJECT_NAME} -lemsocket -lssl -lcrypto)
+endif()
 
 if(APPLE)
 	set(BUNDLE_NAME ${PROJECT_NAME}.app)
