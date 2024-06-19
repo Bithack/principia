@@ -745,10 +745,11 @@ Java_org_libsdl_app_PrincipiaBackend_setSettings(JNIEnv *env, jclass _jcls,
         P.can_set_settings = false;
         P.add_action(ACTION_RELOAD_GRAPHICS, 0);
 
+        /* XXX: causes infinite loops on certain devices e.g. nexus 7 (WTF?)
         while (!P.can_set_settings) {
             tms_debugf("waiting for can set settings");
             SDL_Delay(5);
-        }
+        }*/
     }
 
     settings["enable_shadows"]->v.b = (bool)enable_shadows;
