@@ -169,6 +169,7 @@ elseif(EMSCRIPTEN)
 	set(BACKEND_SRC main_emscripten.cc)
 else()
 	set(BACKEND_SRC main.cc)
+	set(SRCS ${SRCS} src/tms/backend/pipe.cc)
 endif()
 
 set(SRCS ${SRCS} src/tms/backend/${BACKEND_SRC})
