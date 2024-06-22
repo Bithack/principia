@@ -362,6 +362,9 @@ tbackend_init_surface()
     if (settings["window_maximized"]->v.b)
         flags |= SDL_WINDOW_MAXIMIZED;
 
+    if (settings["window_fullscreen"]->v.b)
+        flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+
     tms_infof("Creating window..."); \
     _window = SDL_CreateWindow("Principia", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		_tms.window_width, _tms.window_height, flags);
@@ -643,15 +646,4 @@ const char *tbackend_get_storage_path(void)
         tms_infof("Storage path: %s", path);
     }
     return _storage_path;
-}
-
-void
-tbackend_toggle_fullscreen(void)
-{
-    uint32_t flags = SDL_GetWindowFlags(_window);
-
-    if (flags & SDL_WINDOW_FULLSCREEN)
-        SDL_SetWindowFullscreen(_window, SDL_FALSE);
-    else
-        SDL_SetWindowFullscreen(_window, SDL_TRUE);
 }

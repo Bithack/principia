@@ -109,7 +109,7 @@ extern struct tms_singleton {
     int dt_count;
     uint64_t last_time;
 
-    void *_window;
+    SDL_Window *_window;
 } _tms;
 
 int tms_init(void);

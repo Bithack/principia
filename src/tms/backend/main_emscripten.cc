@@ -264,9 +264,3 @@ const char *tbackend_get_storage_path(void)
     }
     return _storage_path;
 }
-
-void
-tbackend_toggle_fullscreen(void)
-{
-
-}

@@ -9,8 +9,6 @@
 
 #define GL_ETC1_RGB8_OES 0x8D64
 
-struct tms_context;
-
 struct tms_texture {
     char *filename;
     unsigned char *data;

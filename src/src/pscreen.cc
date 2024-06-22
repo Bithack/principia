@@ -9,6 +9,8 @@
 #include "soundmanager.hh"
 #include "game.hh"
 
+#include <SDL.h>
+
 p_text *pscreen::text_username;
 game_message *pscreen::message;
 game_graph pscreen::fps_graph("FPS");
@@ -238,6 +240,17 @@ pscreen::handle_input(tms::event *ev, int action)
 
                     ++ snd_counter;
                 }
+                break;
+
+            case TMS_KEY_F11:
+                uint32_t flags = SDL_GetWindowFlags(_tms._window);
+
+                if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP)
+                    SDL_SetWindowFullscreen(_tms._window, 0);
+                else
+                    SDL_SetWindowFullscreen(_tms._window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+
+                settings["window_fullscreen"]->v.b = (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == 0;
                 break;
         }
     } else if (ev->type == TMS_EV_POINTER_UP) {

@@ -30,13 +30,9 @@
 extern "C" {
 #endif
 
-struct tms_context;
-
 int tbackend_init_surface(void);
 
 const char *tbackend_get_storage_path();
-
-void tbackend_toggle_fullscreen(void);
 
 #ifdef __cplusplus
 }

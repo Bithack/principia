@@ -39,6 +39,7 @@ _settings::init()
     this->add("window_width",       S_INT32,   _tms.window_width);
     this->add("window_height",      S_INT32,   _tms.window_height);
     this->add("window_maximized",   S_BOOL,  0);
+    this->add("window_fullscreen",  S_BOOL, false);
 
     // False for now to allow for resetting the screensize if resizing somehow breaks it.
     this->add("autosave_screensize",S_BOOL,  false);
