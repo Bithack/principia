@@ -530,6 +530,7 @@ tproject_set_args(int argc, char **argv)
             }
 
             strncpy(_community_host, s, n);
+            _community_host[n] = '\0';
             s += n;
 
             if (*s == '\0') {
