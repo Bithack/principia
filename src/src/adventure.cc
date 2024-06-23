@@ -1490,10 +1490,10 @@ adventure::render()
     margin_x = _tms.xppcm / 15.f;
     margin_y = _tms.yppcm / 15.f;
     static float base_x = margin_x + (.5f * _tms.xppcm)/2.f;// + (icon_width / 2.f);
-    static float base_y = _tms.window_height - G->wm->get_margin_y() - (1.0f * _tms.yppcm)/2.f;
+    float base_y = _tms.window_height - G->wm->get_margin_y() - (1.0f * _tms.yppcm)/2.f;
 
     /* calculate how much space we have to work with */
-    static int num_icons_per_column = floorf(((_tms.window_width/2.f) - ((_tms.xppcm*2.f)/2.f) - margin_x - icon_width/2.f) / (icon_width + margin_x));
+    int num_icons_per_column = floorf(((_tms.window_width/2.f) - ((_tms.xppcm*2.f)/2.f) - margin_x - icon_width/2.f) / (icon_width + margin_x));
     int col = 0;
     int row = 0;
 
