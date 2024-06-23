@@ -1,7 +1,6 @@
 #include "group.hh"
 #include "world.hh"
 #include "game.hh"
-#include "settings.hh"
 #include "material.hh"
 #include "model.hh"
 #include "object_factory.hh"
@@ -298,7 +297,6 @@ group::create_mesh(void)
             //}
             p.z *= zs;
 
-            b2Vec2 test = c->p;
             ///b2Vec2 lp = this->body->GetLocalPoint(c->e->local_to_world(c->p, 0));
             b2Vec2 lp = c->e->local_to_body(c->p, 0);
             //tms_infof("c->p:%f,%f, %p", c->p.x, c->p.y, &c->p);
@@ -490,7 +488,7 @@ group::recreate_all_entity_joints(bool hard)
         this->recreate_entity_joints(*i, hard);
 }
 
-/** 
+/**
  * Recreate all of the given entity's joints
  **/
 void
@@ -514,7 +512,7 @@ group::recreate_entity_joints(composable *e, bool hard)
     }
 }
 
-/** 
+/**
  * Set the world center to the mass centre,
  * and save the offset between the real origo
  * and the mass centre
@@ -592,7 +590,7 @@ group::reset_origo(bool hard_recreate)
     this->recreate_all_entity_joints(hard_recreate);
 }
 
-/** 
+/**
  * Called in the editor when a group is expanded to contain
  * one more composable.
  **/
@@ -602,7 +600,7 @@ group::add_entity(composable *e)
     //tms_infof("adding entity: %p", e);
     if (this->entities.size() == 0) {
         //tms_infof("%p stealing body pointer %p", this, e->body);
-        /* for the first body, we simply take steal the body pointer */ 
+        /* for the first body, we simply take steal the body pointer */
 
         this->body = e->body;
         e->body = 0;
@@ -786,7 +784,7 @@ group::rebuild()
                 }
 
                 /* why isnt it added to the scene?
-                 * one reason would be because the entity's mesh 
+                 * one reason would be because the entity's mesh
                  * was either wooden or plastic, so it was added to the big mesh.
                  *
                  * must we check for that case, or is it safe to always assume that
@@ -849,7 +847,7 @@ group::finalize()
     tms_debugf("Group %p finalize", this);
 
     if (this->body) {
-        /* look through the list of joints, if any joint is 
+        /* look through the list of joints, if any joint is
          * to a static body, we change the type of this body to static too */
 
         for (b2JointEdge *je = this->body->GetJointList();

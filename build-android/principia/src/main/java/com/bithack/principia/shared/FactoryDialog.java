@@ -218,8 +218,7 @@ public class FactoryDialog {
         for (int x=0; x<resource_list.length; ++x) {
             try {
                 np_resources.get(x).setValue(Integer.parseInt(resource_list[x]));
-            } catch (NumberFormatException e) {
-                continue;
+            } catch (NumberFormatException ignored) {
             }
         }
 
@@ -250,7 +249,7 @@ public class FactoryDialog {
                     sb.append(";");
                 }
 
-                sb.append(Integer.toString(r.id));
+                sb.append(r.id);
 
                 first = false;
             }
@@ -267,7 +266,7 @@ public class FactoryDialog {
             }
         }
 
-        Log.v("Principia", "ZZZ: '" + sb.toString() + "'");
+        Log.v("Principia", "ZZZ: '" + sb + "'");
 
         PrincipiaBackend.setPropertyString(0, sb.toString());
     }

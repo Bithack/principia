@@ -82,7 +82,7 @@ linebuffer::get_entity2()
 
 void linebuffer::_init()
 {
-    tms_progressf("Initializing linebuffer ");
+    tms_infof("Initializing linebuffer");
 
     verts = new tms::gbuffer(4*LINEBUFFER_MAX*sizeof(struct vert));
     verts->usage = TMS_GBUFFER_STREAM_DRAW;
@@ -119,8 +119,6 @@ void linebuffer::_init()
     indices->upload();
 
     reset();
-
-    tms_progressf(" OK\n");
 }
 
 void linebuffer::add(

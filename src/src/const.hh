@@ -67,13 +67,6 @@ enum {
 #define ES_SLEEPING             (1ULL << 3)
 #define ES_DISABLE_UNLOADING    (1ULL << 4)
 
-/* Identifying data */
-#define IDD_IN_SANDBOX              (1ULL << 0)
-#define IDD_IN_ADVENTURE            (1ULL << 1)
-#define IDD_IN_MAIN_PUZZLE          (1ULL << 2)
-#define IDD_PLAYING_COMMUNITY_LEVEL (1ULL << 3)
-#define IDD_IN_MENU                 (1ULL << 4)
-
 #define NUM_LAYERS 3
 #define LAYER_DEPTH 1.f
 

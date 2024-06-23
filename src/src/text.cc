@@ -435,10 +435,6 @@ p_text::create_texture()
         prev_index = g->parent->index;
     }
 
-    if (strcmp(this->text, "Basic") == 0) {
-        //tms_fatalf("asd");
-    }
-
     //tex->flip_y();
     tex->upload();
 

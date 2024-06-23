@@ -1,5 +1,4 @@
 #include "speaker.hh"
-#include "material.hh"
 #include "model.hh"
 #include "game.hh"
 #include "ui.hh"

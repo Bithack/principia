@@ -4,7 +4,6 @@
 #include "material.hh"
 #include "game.hh"
 #include "robot_base.hh"
-#include "robot.hh"
 #include "adventure.hh"
 #include "faction.hh"
 

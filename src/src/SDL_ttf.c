@@ -19,7 +19,6 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -347,7 +346,6 @@ static FT_Error Load_Glyph(TTF_Font* font, Uint16 ch, c_glyph* cached, int want)
 
     if (((want & CACHED_BITMAP) && !(cached->stored & CACHED_BITMAP)) ||
          ((want & CACHED_PIXMAP) && !(cached->stored & CACHED_PIXMAP))) {
-        int mono = (want & CACHED_BITMAP);
         int i;
         FT_Bitmap* src;
         FT_Bitmap* dst;
@@ -429,6 +427,8 @@ void TTF_CloseFont(TTF_Font* font)
     }
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverflow"
 
 static Uint16 *UTF8_to_UNICODE(Uint16 *unicode, const char *utf8, int len)
 {
@@ -437,27 +437,29 @@ static Uint16 *UTF8_to_UNICODE(Uint16 *unicode, const char *utf8, int len)
 
     for (i=0, j=0; i < len; ++i, ++j) {
         ch = ((const unsigned char *)utf8)[i];
+
         if (ch >= 0xF0) {
             ch  =  (Uint16)(utf8[i]&0x07) << 18;
             ch |=  (Uint16)(utf8[++i]&0x3F) << 12;
             ch |=  (Uint16)(utf8[++i]&0x3F) << 6;
             ch |=  (Uint16)(utf8[++i]&0x3F);
-        } else
-        if (ch >= 0xE0) {
+        } else if (ch >= 0xE0) {
             ch  =  (Uint16)(utf8[i]&0x0F) << 12;
             ch |=  (Uint16)(utf8[++i]&0x3F) << 6;
             ch |=  (Uint16)(utf8[++i]&0x3F);
-        } else
-        if (ch >= 0xC0) {
+        } else if (ch >= 0xC0) {
             ch  =  (Uint16)(utf8[i]&0x1F) << 6;
             ch |=  (Uint16)(utf8[++i]&0x3F);
         }
+
         unicode[j] = ch;
     }
     unicode[j] = 0;
 
     return unicode;
 }
+
+#pragma GCC diagnostic pop
 
 int TTF_FontLineSkip(const TTF_Font *font)
 {

@@ -1,6 +1,7 @@
 #include "levelman.hh"
 #include "model.hh"
 #include "game.hh"
+#include "main.hh"
 
 levelman::levelman()
 {

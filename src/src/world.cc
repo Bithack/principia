@@ -26,7 +26,6 @@
 #include "factory.hh"
 #include "gravityman.hh"
 #include "faction.hh"
-#include "simplebg.hh"
 #include "robot_base.hh"
 #include "impact_sensor.hh"
 #include "animal.hh"
@@ -1842,7 +1841,7 @@ world::load_entity(lvlbuf *buf, int version, uint32_t id_modifier, b2Vec2 displa
     entity *e = of::read(buf, version, id_modifier, displacement, affected_chunks);
 
     if (e) {
-        e->on_load(false, e->state_size ? true : false);
+        e->on_load(false, e->state_size != 0);
 
         if (e->state_size) {
             size_t rp = buf->rp;
@@ -1891,7 +1890,7 @@ world::load_group(lvlbuf *buf, int version, uint32_t id_modifier, b2Vec2 displac
             g->set_moveable(false);
         }
 
-        g->on_load(false, g->state_size ? true : false);
+        g->on_load(false, g->state_size != 0);
 
         if (g->state_size) {
             size_t rp = buf->rp;
@@ -1951,7 +1950,7 @@ world::load_cable(lvlbuf *buf, int version, uint64_t flags, uint32_t id_modifier
         }
 
         if (e != 0) {
-            //tms_infof("%p, %p(%s)(%"PRIu32"), %d", c->p[x], e->get_edevice(), e->get_name(), e->id, s_index);
+            //tms_infof("%p, %p(%s)(%u), %d", c->p[x], e->get_edevice(), e->get_name(), e->id, s_index);
             bool ret = c->connect(c->p[x], e->get_edevice(), s_index);
 
             if (!ret) {
@@ -1988,8 +1987,6 @@ world::load_connection(lvlbuf *buf, int version, uint64_t flags, uint32_t id_mod
     uint32_t _o_id = buf->r_uint32();
     uint32_t chunk_pos_x = 0;
     uint32_t chunk_pos_y = 0;
-    uint32_t e_data = 0;
-    uint32_t o_data = 0;
 
     c.e = this->get_entity_by_id(_e_id);
 
@@ -2004,8 +2001,8 @@ world::load_connection(lvlbuf *buf, int version, uint64_t flags, uint32_t id_mod
     }
 
 
-    c.owned = (int)buf->r_uint8() == 1 ? true : false;
-    c.fixed = (int)buf->r_uint8() == 1 ? true : false;
+    c.owned = (int)buf->r_uint8() == 1;
+    c.fixed = (int)buf->r_uint8() == 1;
     c.o_index = buf->r_uint8();
     c.p.x = buf->r_float(); /* local coordinates, no need to add displacement */
     c.p.y = buf->r_float();
@@ -2188,13 +2185,13 @@ world::fill_buffer(lvlinfo *lvl, lvlbuf *buf,
             buf->w_uint8(c->is_moveable());
         }
 
-        tms_debugf("cable plug 0 is connected? %d %" PRIu32, c->p[0]->is_connected(), c->p[0]->is_connected() ? c->p[0]->plugged_edev->get_entity()->id : 0);
+        tms_debugf("cable plug 0 is connected? %d %u", c->p[0]->is_connected(), c->p[0]->is_connected() ? c->p[0]->plugged_edev->get_entity()->id : 0);
         buf->w_uint32((c->p[0]->is_connected() ? c->p[0]->plugged_edev->get_entity()->id + id_modifier: 0));
         buf->w_uint8(c->p[0]->get_socket_index());
         buf->w_float(p0.x);
         buf->w_float(p0.y);
 
-        tms_debugf("cable plug 1 is connected? %d %" PRIu32, c->p[1]->is_connected(), c->p[1]->is_connected() ? c->p[1]->plugged_edev->get_entity()->id : 0);
+        tms_debugf("cable plug 1 is connected? %d %u", c->p[1]->is_connected(), c->p[1]->is_connected() ? c->p[1]->plugged_edev->get_entity()->id : 0);
         buf->w_uint32((c->p[1]->is_connected() ? c->p[1]->plugged_edev->get_entity()->id + id_modifier: 0));
         buf->w_uint8(c->p[1]->get_socket_index());
         buf->w_float(p1.x);
@@ -2427,14 +2424,13 @@ world::save_partial(std::set<entity*> *entity_list, const char *name, uint32_t p
     char filename[1024];
     snprintf(filename, 1023, "%s/%d.pobj", pkgman::get_level_path(LEVEL_LOCAL), partial_id);
 
-    FILE_IN_ASSET(0);
-    _FILE *fp = _fopen(filename, "wb");
+    FILE *fp = fopen(filename, "wb");
 
     tms_infof("saving partial: %s", filename);
 
     if (fp) {
-        _fwrite(this->lb.buf, 1, this->lb.size, fp);
-        _fclose(fp);
+        fwrite(this->lb.buf, 1, this->lb.size, fp);
+        fclose(fp);
     } else {
         tms_errorf("could not open file '%s' for writing", filename);
         /* TODO: report to user */
@@ -2562,16 +2558,15 @@ world::save(int save_type)
 bool
 world::write_level(const char *filename, lvlbuf *out_lb)
 {
-    FILE_IN_ASSET(0);
-    _FILE *fp = _fopen(filename, "wb");
+    FILE *fp = fopen(filename, "wb");
 
     tms_infof("saving level: %s", filename);
     tms_infof("with name: '%s'", this->level.name);
     tms_infof("size: %" PRIu64, out_lb->size);
 
     if (fp) {
-        _fwrite(out_lb->buf, 1, out_lb->size, fp);
-        _fclose(fp);
+        fwrite(out_lb->buf, 1, out_lb->size, fp);
+        fclose(fp);
     } else {
         tms_errorf("could not open file '%s' for writing", filename);
         return false;
@@ -2593,7 +2588,7 @@ world::load_partial_from_buffer(lvlbuf *lb, b2Vec2 position,
     /* XXX: There is probably a more simple way to increment the ID, this increases the ID by a bit too much for some reason. */
     uint32_t id_modifier = of::get_next_id();
 
-    tms_infof("loading buffer with id modifier %" PRIu32 ", version %" PRIu8, id_modifier, tmp.version);
+    tms_infof("loading buffer with id modifier %u, version %u", id_modifier, tmp.version);
 
     uint8_t old_version = W->level.version;
     W->level.version = tmp.version;
@@ -2626,24 +2621,23 @@ world::load_partial(uint32_t id, b2Vec2 position,
 
     tms_infof("Opening partial: %s", filename);
 
-    FILE_IN_ASSET(0);
-    _FILE *fp = _fopen(filename, "rb");
+    FILE *fp = fopen(filename, "rb");
 
     if (fp) {
-        _fseek(fp, 0, SEEK_END);
-        long size = _ftell(fp);
-        _fseek(fp, 0, SEEK_SET);
+        fseek(fp, 0, SEEK_END);
+        long size = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
 
         if (size > 8*1024*1024)
-            tms_fatalf("file too big");
+            tms_fatalf("Partial too big");
 
         this->lb.reset();
         this->lb.size = 0;
         this->lb.ensure((int)size);
 
-        _fread(this->lb.buf, 1, size, fp);
+        fread(this->lb.buf, 1, size, fp);
 
-        _fclose(fp);
+        fclose(fp);
 
         this->lb.size = size;
         tms_infof("read file of size: %lu", size);
@@ -2691,7 +2685,8 @@ world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_i
         _fseek(fp, 0, SEEK_SET);
 
         if (size > 8*1024*1024) {
-            tms_fatalf("file too big");
+            // XXX: Is this necessary? can we support larger levels
+            tms_fatalf("Level file too big");
         }
 
         this->lb.reset();
@@ -2705,16 +2700,12 @@ world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_i
         this->lb.size = size;
         tms_infof("read file of size: %lu", size);
 
-#define HEAVY_LEVEL_DEBUG
-
         if (!this->level.read(&this->lb)) {
             ui::message("You need to update Principia to play this level.", true);
             return false;
         } else {
-#if defined(HEAVY_LEVEL_DEBUG) && defined(DEBUG)
             tms_debugf("Successfully read level");
-            tms_debugf("Version: %" PRIu8, this->level.version);
-#endif
+            tms_debugf("Version: %u", this->level.version);
         }
 
         if (!this->read_cache(id_type, id, save_id)) {
@@ -3072,6 +3063,8 @@ world::raycast(b2RayCastCallback *callback,
 #endif
 }
 
+#ifdef DEBUG
+
 static struct game_debug_line*
 create_gdl(float x1, float y1, float x2, float y2, float r, float g, float b, int64_t life)
 {
@@ -3089,6 +3082,8 @@ create_gdl(float x1, float y1, float x2, float y2, float r, float g, float b, in
 
     return gdl;
 }
+
+#endif
 
 void
 world::query_aabb(b2QueryCallback *callback,

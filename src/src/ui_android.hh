@@ -1,7 +1,8 @@
 
 #if defined(TMS_BACKEND_ANDROID)
 
-#include "SDL/src/core/android/SDL_android.h"
+#include "SDL.h"
+#include <jni.h>
 #include <sstream>
 
 void ui::init(){};
@@ -46,8 +47,9 @@ void ui::emit_signal(int signal_id, void *data/*=0*/)
         default:
             {
                 /* By default, passthrough the signal to the Java part */
-                JNIEnv *env = Android_JNI_GetEnv();
-                jclass cls = Android_JNI_GetActivityClass();
+                JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+                jobject activity = (jobject)SDL_AndroidGetActivity();
+                jclass cls = env->GetObjectClass(activity);
 
                 jmethodID mid = env->GetStaticMethodID(cls, "emit_signal", "(I)V");
 
@@ -63,8 +65,9 @@ void ui::emit_signal(int signal_id, void *data/*=0*/)
 
 void ui::open_url(const char *url)
 {
-    JNIEnv *env = Android_JNI_GetEnv();
-    jclass cls = Android_JNI_GetActivityClass();
+    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+    jobject activity = (jobject)SDL_AndroidGetActivity();
+    jclass cls = env->GetObjectClass(activity);
 
     jmethodID mid = env->GetStaticMethodID(cls, "open_url", "(Ljava/lang/String;)V");
 
@@ -82,8 +85,9 @@ ui::confirm(const char *text,
         struct confirm_data _confirm_data/*=none*/
         )
 {
-    JNIEnv *env = Android_JNI_GetEnv();
-    jclass cls = Android_JNI_GetActivityClass();
+    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+    jobject activity = (jobject)SDL_AndroidGetActivity();
+    jclass cls = env->GetObjectClass(activity);
 
     jmethodID mid = env->GetStaticMethodID(cls, "confirm", "(Ljava/lang/String;Ljava/lang/String;IJLjava/lang/String;IJLjava/lang/String;IJZ)V");
 
@@ -106,8 +110,9 @@ ui::confirm(const char *text,
 void
 ui::alert(const char *text, uint8_t alert_type/*=ALERT_INFORMATION*/)
 {
-    JNIEnv *env = Android_JNI_GetEnv();
-    jclass cls = Android_JNI_GetActivityClass();
+    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+    jobject activity = (jobject)SDL_AndroidGetActivity();
+    jclass cls = env->GetObjectClass(activity);
 
     jmethodID mid = env->GetStaticMethodID(cls, "alert", "(Ljava/lang/String;I)V");
 
@@ -125,8 +130,9 @@ ui::alert(const char *text, uint8_t alert_type/*=ALERT_INFORMATION*/)
 void
 ui::open_error_dialog(const char *error_msg)
 {
-    JNIEnv *env = Android_JNI_GetEnv();
-    jclass cls = Android_JNI_GetActivityClass();
+    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+    jobject activity = (jobject)SDL_AndroidGetActivity();
+    jclass cls = env->GetObjectClass(activity);
 
     jmethodID mid = env->GetStaticMethodID(cls, "showErrorDialog", "(Ljava/lang/String;)V");
 
@@ -141,8 +147,9 @@ ui::open_error_dialog(const char *error_msg)
 void
 ui::open_dialog(int num, void *data/*=0*/)
 {
-    JNIEnv *env = Android_JNI_GetEnv();
-    jclass cls = Android_JNI_GetActivityClass();
+    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+    jobject activity = (jobject)SDL_AndroidGetActivity();
+    jclass cls = env->GetObjectClass(activity);
 
     jmethodID mid = env->GetStaticMethodID(cls, "open_dialog", "(IZ)V");
 
@@ -154,20 +161,14 @@ ui::open_dialog(int num, void *data/*=0*/)
 void
 ui::quit()
 {
-    JNIEnv *env = Android_JNI_GetEnv();
-    jclass cls = Android_JNI_GetActivityClass();
-
-    jmethodID mid = env->GetStaticMethodID(cls, "cleanQuit", "()V");
-
-    if (mid) {
-        env->CallStaticVoidMethod(cls, mid, "");
-    }
+    _tms.state = TMS_STATE_QUITTING;
 }
 
 void ui::open_help_dialog(const char *title, const char *description)
 {
-    JNIEnv *env = Android_JNI_GetEnv();
-    jclass cls = Android_JNI_GetActivityClass();
+    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+    jobject activity = (jobject)SDL_AndroidGetActivity();
+    jclass cls = env->GetObjectClass(activity);
 
     jmethodID mid = env->GetStaticMethodID(cls, "showHelpDialog", "(Ljava/lang/String;Ljava/lang/String;)V");
 
@@ -182,8 +183,9 @@ void ui::open_help_dialog(const char *title, const char *description)
 void
 ui::open_sandbox_tips()
 {
-    JNIEnv *env = Android_JNI_GetEnv();
-    jclass cls = Android_JNI_GetActivityClass();
+    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+    jobject activity = (jobject)SDL_AndroidGetActivity();
+    jclass cls = env->GetObjectClass(activity);
 
     jmethodID mid = env->GetStaticMethodID(cls, "showSandboxTips", "()V");
 
@@ -198,10 +200,9 @@ ui::open_sandbox_tips()
 extern "C" jstring
 Java_org_libsdl_app_PrincipiaBackend_getLevelPage(JNIEnv *env, jclass jcls)
 {
-    char tmp[1024];
-    snprintf(tmp, 1023, "https://%s/level/%d", P.community_host, W->level.community_id);
+    COMMUNITY_URL("level/%d", W->level.community_id);
 
-    return env->NewStringUTF(tmp);
+    return env->NewStringUTF(url);
 }
 
 extern "C" jstring
@@ -449,7 +450,7 @@ Java_org_libsdl_app_PrincipiaBackend_getObjects(JNIEnv *env, jclass _jcls)
 {
     std::stringstream b("", std::ios_base::app | std::ios_base::out);
 
-    tms_infof("menu_objects size: %d", menu_objects.size());
+    tms_infof("menu_objects size: %d", (int)menu_objects.size());
     for (int x=0; x<menu_objects.size(); x++) {
         const char *n = menu_objects[x].e->get_name();
         if (x != 0) b << ',';
@@ -568,9 +569,6 @@ Java_org_libsdl_app_PrincipiaBackend_getSettings(JNIEnv *env, jclass _jcls)
 
                 f = env->GetFieldID(cls, "enable_ao", "Z");
                 env->SetBooleanField(ret, f, settings["enable_ao"]->v.b);
-
-                f = env->GetFieldID(cls, "texture_quality", "I");
-                env->SetIntField(ret, f, settings["texture_quality"]->v.i);
 
                 f = env->GetFieldID(cls, "uiscale", "F");
                 env->SetFloatField(ret, f, settings["uiscale"]->v.f);
@@ -713,7 +711,7 @@ Java_org_libsdl_app_PrincipiaBackend_setSettings(JNIEnv *env, jclass _jcls,
         jboolean enable_shadows,
         jboolean enable_ao, jint shadow_quality,
         jint shadow_map_resx, jint shadow_map_resy, jint ao_map_res,
-        jint texture_quality, jfloat uiscale,
+        jfloat uiscale,
         jfloat cam_speed, jfloat zoom_speed,
         jboolean smooth_cam, jboolean smooth_zoom,
         jboolean border_scroll_enabled, jfloat border_scroll_speed,
@@ -740,8 +738,6 @@ Java_org_libsdl_app_PrincipiaBackend_setSettings(JNIEnv *env, jclass _jcls,
         do_reload_graphics = true;
     } else if (settings["ao_map_res"]->v.i != (int)ao_map_res) {
         do_reload_graphics = true;
-    } else if (settings["texture_quality"]->v.i != (int)texture_quality) {
-        do_reload_graphics = true;
     }
 
     if (do_reload_graphics) {
@@ -749,10 +745,11 @@ Java_org_libsdl_app_PrincipiaBackend_setSettings(JNIEnv *env, jclass _jcls,
         P.can_set_settings = false;
         P.add_action(ACTION_RELOAD_GRAPHICS, 0);
 
+        /* XXX: causes infinite loops on certain devices e.g. nexus 7 (WTF?)
         while (!P.can_set_settings) {
             tms_debugf("waiting for can set settings");
             SDL_Delay(5);
-        }
+        }*/
     }
 
     settings["enable_shadows"]->v.b = (bool)enable_shadows;
@@ -761,7 +758,6 @@ Java_org_libsdl_app_PrincipiaBackend_setSettings(JNIEnv *env, jclass _jcls,
     settings["shadow_map_resx"]->v.i = (int)shadow_map_resx;
     settings["shadow_map_resy"]->v.i = (int)shadow_map_resy;
     settings["ao_map_res"]->v.i = (int)ao_map_res;
-    settings["texture_quality"]->v.i = (int)texture_quality;
 
     if (settings["uiscale"]->set((float)uiscale)) {
         ui::message("You need to restart Principia before the UI scale change takes effect.");
@@ -795,8 +791,8 @@ Java_org_libsdl_app_PrincipiaBackend_setSettings(JNIEnv *env, jclass _jcls,
                 (int)ao_map_res, (int)ao_map_res);
     }
 
-    tms_debugf("Texture quality: %d. UI Scale: %.2f. Cam speed: %.2f. Zoom speed: %.2f",
-            (int)texture_quality, (float)uiscale, (float)cam_speed, (float)zoom_speed);
+    tms_debugf("UI Scale: %.2f. Cam speed: %.2f. Zoom speed: %.2f",
+            (float)uiscale, (float)cam_speed, (float)zoom_speed);
 
     settings.save();
 
@@ -963,10 +959,9 @@ Java_org_libsdl_app_PrincipiaBackend_setConsumableType(JNIEnv *env, jclass _jcls
 extern "C" jstring
 Java_org_libsdl_app_PrincipiaBackend_getCurrentCommunityUrl(JNIEnv *env, jclass _jcls)
 {
-    char tmp[1024];
-    snprintf(tmp, 1023, "https://%s/level/%d", P.community_host, W->level.community_id);
+    COMMUNITY_URL("level/%d", W->level.community_id);
 
-    return env->NewStringUTF(tmp);
+    return env->NewStringUTF(url);
 }
 
 extern "C" void
@@ -2129,16 +2124,6 @@ Java_org_libsdl_app_PrincipiaBackend_setStickyStuff(
 }
 
 extern "C" void
-Java_org_libsdl_app_PrincipiaBackend_setLevelAllowDerivatives(
-        JNIEnv *env, jclass _jcls,
-        jboolean allow_derivatives)
-{
-    lvlinfo *l = &W->level;
-
-    l->allow_derivatives = (bool)allow_derivatives;
-}
-
-extern "C" void
 Java_org_libsdl_app_PrincipiaBackend_setLevelLocked(
         JNIEnv *env, jclass _jcls,
         jboolean locked)
@@ -2244,13 +2229,13 @@ Java_org_libsdl_app_PrincipiaBackend_setLevelFlag(
 
     uint32_t flag = (uint32_t)_flag;
 
-    tms_infof("x: %d", flag);
+    //tms_infof("x: %d", flag);
     uint64_t f = (uint64_t)(1ULL << flag);
-    tms_infof("f: %llu", f);
+    //tms_infof("f: %llu", f);
 
-    tms_infof("Flags before: %llu", l->flags);
+    //tms_infof("Flags before: %llu", l->flags);
     l->flags |= f;
-    tms_infof("Flags after: %llu", l->flags);
+    //tms_infof("Flags after: %llu", l->flags);
 }
 
 extern "C" jboolean

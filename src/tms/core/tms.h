@@ -37,7 +37,6 @@
 #include <tms/math/vector.h>
 #include <tms/core/settings.h>
 #include <tms/math/matrix.h>
-#include <tms/util/util.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,7 +62,7 @@ struct tms_mesh;
 #define tms _tms
 #endif
 
-#if !defined(TMS_BACKEND_IOS)
+#ifndef TMS_BACKEND_IOS
 #define opengl_width window_width
 #define opengl_height window_height
 #endif
@@ -77,7 +76,7 @@ struct tms_mesh;
 extern struct tms_singleton {
     int window_width;
     int window_height;
-#if defined (TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_IOS
     int opengl_width;
     int opengl_height;
 #endif
@@ -95,9 +94,7 @@ extern struct tms_singleton {
     struct tms_screen      *next; /**< next screen (used if transitioning) */
     struct tms_fb *framebuffer; /**< pointer to the currently bound framebuffer */
     int                     state; /**< current state, see TMS_STATE */
-    char *gl_extensions;
-
-    struct thash *model_loaders;
+    const char *gl_extensions;
 
     double gamma;
 
@@ -112,7 +109,7 @@ extern struct tms_singleton {
     int dt_count;
     uint64_t last_time;
 
-    void *_window;
+    SDL_Window *_window;
 } _tms;
 
 int tms_init(void);
@@ -121,8 +118,6 @@ void tms_step(void);
 int tms_render(void);
 int tms_begin_frame(void);
 int tms_end_frame(void);
-
-int tms_register_model_loader(struct tms_mesh * (*load_fn)(struct tms_model *, SDL_RWops *, int *), const char *ext);
 
 static inline void tms_convert_to_portrait(int *x, int *y)
 {
@@ -136,8 +131,6 @@ static inline void tms_convert_to_portrait(int *x, int *y)
 
     (*x) = _tms.window_width - tmp_y;
 }
-
-void tgen_init(void);
 
 #ifdef __cplusplus
 }

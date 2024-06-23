@@ -3,8 +3,6 @@
 #include "material.hh"
 #include "world.hh"
 #include "model.hh"
-#include "settings.hh"
-#include "main.hh"
 #include "game.hh"
 #include "ui.hh"
 
@@ -290,7 +288,7 @@ command::on_slider_change(int s, float value)
             break;
 
         default:
-            tms_fatalf("not implemented (%d)", this->cmd);
+            tms_fatalf("Command pad not implemented (%d)", this->cmd);
             break;
     }
 }
@@ -320,7 +318,6 @@ command::write_quickinfo(char *out)
             sprintf(out, "%s (%s)", this->get_name(), command_strings[this->cmd]);
         else
             sprintf(out, "%s (%s %.2f)", this->get_name(), command_strings[this->cmd], .5f+this->properties[1].v.f);
-    } else {
+    } else
         sprintf(out, "%s", this->get_name());
-    }
 }

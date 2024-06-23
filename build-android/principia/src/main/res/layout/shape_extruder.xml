@@ -14,8 +14,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginRight="8dp" >
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="20dp">
 
             <TextView
                 android:id="@+id/shape_right_tv2"
@@ -25,6 +25,7 @@
                 android:layout_centerVertical="true"
                 android:text="@string/right"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
+
             <SeekBar
                 android:id="@+id/shape_right_sb"
                 android:layout_width="wrap_content"
@@ -44,12 +45,14 @@
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
         </RelativeLayout>
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginRight="8dp" >
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="20dp">
+
             <TextView
                 android:id="@+id/shape_up_tv2"
                 android:layout_width="100dp"
@@ -58,6 +61,7 @@
                 android:layout_centerVertical="true"
                 android:text="@string/up"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
+
             <SeekBar
                 android:id="@+id/shape_up_sb"
                 android:layout_width="wrap_content"
@@ -77,12 +81,14 @@
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
         </RelativeLayout>
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginRight="8dp" >
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="20dp">
+
             <TextView
                 android:id="@+id/shape_left_tv2"
                 android:layout_width="100dp"
@@ -91,6 +97,7 @@
                 android:layout_centerVertical="true"
                 android:text="@string/left"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
+
             <SeekBar
                 android:id="@+id/shape_left_sb"
                 android:layout_width="wrap_content"
@@ -110,11 +117,13 @@
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
         </RelativeLayout>
+
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp" >
+            android:layout_marginRight="8dp">
+
             <TextView
                 android:id="@+id/shape_down_tv2"
                 android:layout_width="100dp"
@@ -123,6 +132,7 @@
                 android:layout_centerVertical="true"
                 android:text="@string/down"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
+
             <SeekBar
                 android:id="@+id/shape_down_sb"
                 android:layout_width="wrap_content"

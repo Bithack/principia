@@ -1,6 +1,5 @@
 #include "soundman.hh"
 #include "model.hh"
-#include "main.hh"
 #include "game.hh"
 #include "soundmanager.hh"
 #include "ui.hh"

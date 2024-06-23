@@ -1,6 +1,5 @@
 #include "menu_pkg.hh"
 #include "gui.hh"
-#include "main.hh"
 #include "game.hh"
 #include "pkgman.hh"
 #include "progress.hh"
@@ -56,18 +55,6 @@ menu_pkg_render(struct tms_wdg *w, struct tms_surface *s)
         tms_ddraw_sprite_r(s->ddraw, w->s[1], px, py, w->size.x/2.f, w->size.y/2.f,r);
     }
 }
-
-static const char *opkgs[] = {
-    "Puzzle",
-    "Puzzle Adventure",
-    "Minigames",
-
-    "Atanasoff's Nightmare",
-    "World's Most Annoying Level Pack",
-    "Helicopter",
-    "Apparatus",
-    "More Minigames"
-};
 
 static bool                down[MAX_P];
 static tvec2               touch_pos[MAX_P];
@@ -184,7 +171,7 @@ menu_pkg::set_pkg(int type, uint32_t id)
         uint32_t lvl_id = this->pkg.levels[x];
         memset(info.icon, 0, sizeof(info.icon));
 
-        snprintf(filename, 1023, "%s" SLASH "%d.plvl", pkgman::get_level_path(this->pkg.type), lvl_id);
+        snprintf(filename, 1023, "%s/%d.plvl", pkgman::get_level_path(this->pkg.type), lvl_id);
 
         FILE_IN_ASSET(this->pkg.type == LEVEL_MAIN);
         FILE *fp = _fopen(filename, "rb");
@@ -229,22 +216,15 @@ menu_pkg::set_pkg(int type, uint32_t id)
 int
 menu_pkg::resume(void)
 {
-    tms_infof("RESUMEE MENUPK");
+    tms_infof("Resume menu_pkg");
     if (_tex_bg) tms_texture_free(_tex_bg);
     if (tex_overlay) tms_texture_free(tex_overlay);
 
     _tex_bg = tms_texture_alloc();
-#if defined(TMS_BACKEND_ANDROID)
-    tms_texture_load_etc1(_tex_bg, "data-mobile/textures/pkgmenubg.pkm");
-    tms_texture_set_filtering(_tex_bg, GL_LINEAR);
-#elif defined TMS_BACKEND_IOS
-    tms_texture_load_pvrtc_4bpp(_tex_bg, "data-ios/textures/pkgmenubg.pvr");
-    tms_texture_set_filtering(_tex_bg, GL_LINEAR);
-#else
-    tms_texture_load(_tex_bg, "data-pc/textures/pkgmenubg.png");
+
+    tms_texture_load(_tex_bg, "data-shared/textures/pkgmenubg.png");
     _tex_bg->format = GL_RGBA;
     tms_texture_set_filtering(_tex_bg, GL_LINEAR);
-#endif
     tms_texture_upload(_tex_bg);
 
     tex_overlay = tms_texture_alloc();
@@ -493,6 +473,8 @@ menu_pkg::handle_input(tms::event *ev, int action)
                     bool test_playing = false;
                     G->screen_back = this;
                     if (this->pkg.type == LEVEL_MAIN && this->pkg.id == 7) {
+                        // XXX: causes segfaults on android
+#ifndef TMS_BACKEND_ANDROID
                         char filename[1024];
                         snprintf(filename, 1023, "%s/7.%d.psol", pkgman::get_level_path(LEVEL_LOCAL), level_id);
 
@@ -502,7 +484,9 @@ menu_pkg::handle_input(tms::event *ev, int action)
                                     "Yes",    principia_action(ACTION_OPEN_MAIN_PUZZLE_SOLUTION, opd),
                                     "No",     principia_action(ACTION_CREATE_MAIN_PUZZLE_SOLUTION, opd),
                                     "Cancel", principia_action(ACTION_IGNORE, 0));
-                        } else {
+                        } else
+#endif
+                        {
                             P.add_action(ACTION_CREATE_MAIN_PUZZLE_SOLUTION, new open_play_data(LEVEL_LOCAL, level_id, &pkg, false, 1));
                         }
 

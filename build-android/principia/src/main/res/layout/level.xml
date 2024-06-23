@@ -399,7 +399,6 @@
                     android:layout_height="wrap_content" >
 
                     <Button
-                        android:id="@+id/btn_autofit_borders"
                         android:layout_width="match_parent"
                         android:layout_weight="3"
                         android:text="@string/autofit_borders"
@@ -705,7 +704,6 @@
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <Button
-                        android:id="@+id/btn_level_upgrade"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                 </TableRow>

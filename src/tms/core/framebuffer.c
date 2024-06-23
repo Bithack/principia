@@ -27,8 +27,6 @@ static struct tms_program *blur5x5v_512_program;
 static struct tms_program *blur5x5h_512_program;
 static struct tms_program *blur5x5v_256_program;
 static struct tms_program *blur5x5h_256_program;
-static struct tms_program *blur5x5v_128_program;
-static struct tms_program *blur5x5h_128_program;
 
 static struct tms_program *blur3x3v_program;
 static struct tms_program *blur3x3h_program;
@@ -464,103 +462,60 @@ static const char *blur5x5h_256_sources[] = {
 
 static void init()
 {
-    tms_progressf("+");
     struct tms_varray *va = tms_varray_alloc(2);
-    tms_progressf("+");
     struct tms_gbuffer *v = tms_gbuffer_alloc_fill(verts, sizeof(verts));
-    tms_progressf(">");
     tms_gbuffer_upload(v);
-    tms_progressf("=");
     tms_varray_map_attribute(va, "position", 2, GL_FLOAT, v);
-    tms_progressf("=");
     tms_varray_map_attribute(va, "texcoord", 2, GL_FLOAT, v);
-    tms_progressf("+");
     quad = tms_mesh_alloc(va, 0);
     quad->primitive_type = TMS_TRIANGLE_FAN;
-    tms_progressf("-");
     tms_mesh_set_autofree_buffers(quad, 1);
 
 
     struct tms_shader *sh;
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur5x5h_256_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur5x5h_256_sources[1]);
-    tms_progressf(".");
     blur5x5h_256_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur5x5v_256_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur5x5v_256_sources[1]);
-    tms_progressf(".");
     blur5x5v_256_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur5x5h_512_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur5x5h_512_sources[1]);
-    tms_progressf(".");
     blur5x5h_512_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur5x5v_512_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur5x5v_512_sources[1]);
-    tms_progressf(".");
     blur5x5v_512_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur3x3_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur3x3_sources[1]);
-    tms_progressf(".");
     blur3x3_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur3x3_128_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur3x3_128_sources[1]);
-    tms_progressf(".");
     blur3x3_128_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur3x3h_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur3x3h_sources[1]);
-    tms_progressf(".");
     blur3x3h_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, blur3x3v_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, blur3x3v_sources[1]);
-    tms_progressf(".");
     blur3x3v_program = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    tms_progressf("+");
     sh = tms_shader_alloc();
-    tms_progressf(".");
     tms_shader_compile(sh, GL_VERTEX_SHADER, copy_sources[0]);
-    tms_progressf(".");
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, copy_sources[1]);
-    tms_progressf(".");
     _tms_fb_copy_program = (copy_program = tms_shader_get_program(sh, TMS_NO_PIPELINE));
 
     _i = 1;
@@ -591,12 +546,12 @@ tms_fb_init(struct tms_fb* fb)
     tms_assertf((ierr = glGetError()) == 0, "gl error %d before tms_fb_init", ierr);
 #ifdef TMS_BACKEND_WINDOWS
     if (__glewGenFramebuffers) {
-        __glewGenFramebuffers(fb->double_buffering ? 2 : 1, &fb->fb_o);
+        __glewGenFramebuffers(fb->double_buffering ? 2 : 1, fb->fb_o);
     } else {
-        __glewGenFramebuffersEXT(fb->double_buffering ? 2 : 1, &fb->fb_o);
+        __glewGenFramebuffersEXT(fb->double_buffering ? 2 : 1, fb->fb_o);
     }
 #else
-    glGenFramebuffers(fb->double_buffering ? 2 : 1, &fb->fb_o);
+    glGenFramebuffers(fb->double_buffering ? 2 : 1, fb->fb_o);
 #endif
     tms_assertf((ierr = glGetError()) == 0, "gl error %d after tms_fb_init", ierr);
 }
@@ -612,7 +567,7 @@ tms_fb_free(struct tms_fb *fb)
             glDeleteTextures(1, &fb->fb_texture[x][y]);
     }
 
-    glDeleteFramebuffers(fb->double_buffering ? 2 : 1, &fb->fb_o);
+    glDeleteFramebuffers(fb->double_buffering ? 2 : 1, fb->fb_o);
 
     free(fb);
 }
@@ -702,7 +657,7 @@ tms_fb_enable_depth(struct tms_fb *fb, int format)
         //glRenderbufferStorage(GL_RENDERBUFFER, format, fb->width, fb->height);
         //
 
-#if defined TMS_BACKEND_ANDROID || defined TMS_BACKEND_IOS
+#ifdef TMS_USE_GLES
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, fb->width, fb->height);
 #elif defined TMS_BACKEND_WINDOWS
         if (__glewRenderbufferStorage) {
@@ -829,7 +784,7 @@ tms_fb_add_texture(struct tms_fb *fb, int format,
         glBindTexture(GL_TEXTURE_2D, fb->fb_texture[x][fb->num_textures]);
         tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 3", ierr, x);
 
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
+#ifndef TMS_USE_GLES
         if (format == GL_R32F) {
             //glTexImage2D(GL_TEXTURE_2D, 0, format, fb->width, fb->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
             glTexImage2D(GL_TEXTURE_2D, 0, format, fb->width, fb->height, 0, GL_RED, GL_FLOAT, 0);
@@ -898,8 +853,8 @@ tms_fb_add_texture(struct tms_fb *fb, int format,
 			bufs[y] = GL_COLOR_ATTACHMENT0 + y;
 		}
 
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
-        glDrawBuffers(fb->num_textures+1, &bufs);
+#ifndef TMS_USE_GLES
+        glDrawBuffers(fb->num_textures+1, bufs);
         tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 15", ierr, x);
 #endif
     }

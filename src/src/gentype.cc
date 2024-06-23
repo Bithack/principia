@@ -1,18 +1,17 @@
 #include "gentype.hh"
 #include "game.hh"
 #include "object_factory.hh"
-#include "world.hh" 
-#include "animal.hh" 
-#include "item.hh" 
-#include "faction.hh" 
-#include "robot.hh" 
+#include "world.hh"
+#include "animal.hh"
+#include "item.hh"
+#include "faction.hh"
+#include "robot.hh"
 #include "noise.h"
 #include "ladder.hh"
-#include "spikebot.hh"
 #include "tiles.hh"
 #include "factory.hh"
 
-/** 
+/**
  * NOTES copies from terrain.cc
  *
  * random by chunk x:
@@ -45,7 +44,7 @@
  *   - factories
  * - in mines
  *   - materials and oils
- *   
+ *
  * entry types
  * an entry is an opening from the ground into a mine, underground base or hideout
  * - hatch
@@ -60,7 +59,7 @@
  * - robot eating enemies
  *   - small thing that looks like a stone
  *   - big robot eater
- * 
+ *
  **/
 
 uint32_t _gentype_id = 1;
@@ -87,7 +86,6 @@ gentype::~gentype()
 
 #ifdef DEBUG_SPECIFIC_CHUNK
         if (g.chunk_x == DEBUG_CHUNK_X && g.chunk_y == DEBUG_CHUNK_Y) {
-            tms_trace();
             tms_debugf("clearing genslot in %d %d", DEBUG_CHUNK_X, DEBUG_CHUNK_Y);
         }
 #endif
@@ -179,33 +177,6 @@ static inline bool check_depth_range(int chunk_y, float *heights, float min_y, f
     max_y += h;
 
     return (b > min_y && t < max_y);
-}
-
-static inline float chunk_angle(float *heights)
-{
-    return atan2(heights[15]-heights[0], 8.f);
-}
-
-static void
-fill_circle(gentype *gt, terrain_coord &c, int radius, const terrain_edit &e)
-{
-    c.step(-radius, 0);
-
-    int y, x;
-
-    for (y = -radius; y<=radius; y++) {
-        for (x = -radius; x<=radius; x++) {
-            if (x*x+y*y <= radius*radius) {
-                gt->transaction.add(c, e);
-            }
-
-            c.step(1, 0);
-        }
-
-        c.step(-x*2+1, -1);
-    }
-
-    c.step(radius, 0);
 }
 
 struct enemy_random_equipment
@@ -518,8 +489,8 @@ class nomad_hideout : public gentype
     }
 
   public:
-    void write_state(lvlinfo *lvl, lvlbuf *lb){tms_trace();tms_fatalf("unimplemented");};
-    void read_state(lvlinfo *lvl, lvlbuf *lb){tms_trace();tms_fatalf("unimplemented");};
+    void write_state(lvlinfo *lvl, lvlbuf *lb){tms_fatalf("unimplemented");};
+    void read_state(lvlinfo *lvl, lvlbuf *lb){tms_fatalf("unimplemented");};
     static gentype* allocate(){return new nomad_hideout();};
 
     static gentype*
@@ -667,7 +638,7 @@ static struct atype {
         ANIMAL_TYPE_OSTRICH,
         1, 2,
         2,
-    }, 
+    },
 };
 
 class animals : public gentype
@@ -884,7 +855,7 @@ class enemies : public gentype
 
             if (chunk->find_ground(&c, 1, &ground, 0, 1)) {
                 b2Vec2 pos(ground.get_world_x(), ground.get_world_y()+1.f);
-                entity *e = this->create_enemy(this->enemy_type, pos, 1, FACTION_ENEMY);
+                this->create_enemy(this->enemy_type, pos, 1, FACTION_ENEMY);
             }
         }
     }
@@ -908,11 +879,11 @@ class linegen : public gentype
     }
 
     void draw_line(int x0, int y0, int x1, int y1, float w)
-    { 
+    {
         terrain_coord c;
 
-        int dx = abs(x1-x0), sx = x0 < x1 ? 1 : -1; 
-        int dy = abs(y1-y0), sy = y0 < y1 ? 1 : -1; 
+        int dx = abs(x1-x0), sx = x0 < x1 ? 1 : -1;
+        int dy = abs(y1-y0), sy = y0 < y1 ? 1 : -1;
         int err = dx-dy, e2, x2, y2;
         float ed = dx+dy == 0 ? 1 : sqrt((float)dx*dx+(float)dy*dy);
 
@@ -930,8 +901,8 @@ class linegen : public gentype
                 }
                 e2 = err;
                 err -= dy;
-                x0 += sx; 
-            } 
+                x0 += sx;
+            }
 
             if (2*e2 <= dy) {
                 for (e2 = dx-e2; e2 < ed*w && (x1 != x2 || dx < dy); e2 += dy) {
@@ -941,7 +912,7 @@ class linegen : public gentype
                     break;
                 }
                 err += dx;
-                y0 += sy; 
+                y0 += sy;
             }
         }
     }
@@ -1805,8 +1776,8 @@ class testtest : public gentype
     testtest(){};
 
   public:
-    void write_state(lvlinfo *lvl, lvlbuf *lb){tms_trace();tms_fatalf("unimplemented");};
-    void read_state(lvlinfo *lvl, lvlbuf *lb){tms_trace();tms_fatalf("unimplemented");};
+    void write_state(lvlinfo *lvl, lvlbuf *lb){tms_fatalf("unimplemented");};
+    void read_state(lvlinfo *lvl, lvlbuf *lb){tms_fatalf("unimplemented");};
     static gentype* allocate(){return new testtest();};
     static gentype*
     occupy(struct gentype_data data)
@@ -2025,7 +1996,7 @@ class gravething : public gentype
 
             this->entities.insert(std::make_pair(e->id, e));
         }
-        
+
         {
             item *e = of::create_item(ITEM_PIONEER_FRONT);
             e->set_layer(1);
@@ -2046,7 +2017,7 @@ class gravething : public gentype
     }
 };
 
-/** 
+/**
  * Things that can be generated
  **/
 struct gentype_generator gentype::gentypes[NUM_GENTYPES] = {
@@ -2236,7 +2207,7 @@ gentype::add_to_world()
 void
 gentype::generate(level_chunk *c)
 {
-    /** 
+    /**
      * gentype slots
      *
      * allocate slots above ground, slot below ground
@@ -2285,7 +2256,7 @@ gentype::generate(level_chunk *c)
 
             if (x >= 0) {
                 if (last_v >= GENTYPE_THRESHOLD && v < GENTYPE_THRESHOLD) {
-                    data.base_x = c->pos_x * 8.f + (x*(8.f/4.f) + 8.f/8.f); 
+                    data.base_x = c->pos_x * 8.f + (x*(8.f/4.f) + 8.f/8.f);
                     data.base_y = c->pos_y * 8.f + 4.f;
                     data.update_coord();
 
@@ -2295,7 +2266,6 @@ gentype::generate(level_chunk *c)
                         int previous_y = data.coord.chunk_y;
 #endif
                         data.move_to_surface(0.f);
-                        tms_trace();
 #ifdef DEBUG_PRELOADER_SANITY
                         tms_assertf(abs(data.coord.chunk_x) < 1000 && abs(data.coord.chunk_y) < 1000, "suspicious chunk pos %d,%d after move_to_surface, previous was %d,%d", data.coord.chunk_x, data.coord.chunk_y, previous_x, previous_y);
 #endif

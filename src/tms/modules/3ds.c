@@ -1,7 +1,7 @@
 #include <tms/core/glob.h>
 #include <tms/math/glob.h>
 
-#define NAME_MAX 32
+#define OBJ_NAME_MAX 32
 
 struct vertex {
     tvec3 pos;
@@ -9,22 +9,14 @@ struct vertex {
     tvec2 uv;
 };
 
-static struct tms_mesh * load_3ds_model(struct tms_model *model, SDL_RWops *fp, int *status);
-
-void
-tmod_3ds_init(void)
-{
-    tms_register_model_loader(load_3ds_model, ".3ds");
-}
-
-static struct tms_mesh *
+struct tms_mesh *
 load_3ds_model(struct tms_model *model,
                SDL_RWops *fp, int *status)
 {
     uint16_t chunk_id;
     uint32_t chunk_len;
     uint16_t num_items;
-    char object_name[NAME_MAX];
+    char object_name[OBJ_NAME_MAX];
 
     struct vertex *vertex_buf = 0;
     uint16_t *index_buf = 0;
@@ -55,9 +47,9 @@ load_3ds_model(struct tms_model *model,
             case 0x4000: { /* object block */
                 //tms_debugf("found object chunk");
                 int x;
-                for (x=0; x<NAME_MAX-1; x++) {
+                for (x=0; x<OBJ_NAME_MAX-1; x++) {
                     SDL_RWread(fp, &object_name[x], 1, 1);
-                    //fread(&object_name[x], 1, 1, fp);
+
                     if (object_name[x] == '\0')
                         break;
                 }
@@ -85,7 +77,7 @@ load_3ds_model(struct tms_model *model,
                 }
                 //tms_infof("base index:%d", base_index);
                 tms_gbuffer_realloc(model->vertices, sz + num_items * sizeof(struct vertex));
-                vertex_buf = model->vertices->buf+sz;
+                vertex_buf = (struct vertex *)(model->vertices->buf+sz);
 
                 for (int x=0; x<num_items; x++) {
                     SDL_RWread(fp, &vertex_buf[x].pos, 4, 3);
@@ -101,7 +93,7 @@ load_3ds_model(struct tms_model *model,
 
                 sz = model->indices->size;
                 tms_gbuffer_realloc(model->indices, sz+ num_indices * sizeof(uint16_t));
-                index_buf = model->indices->buf+(sz);
+                index_buf = (uint16_t *)(model->indices->buf + sz);
 
                 for (int x=0; x<num_items; x++) {
                     uint16_t _i[4];

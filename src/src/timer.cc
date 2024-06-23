@@ -1,7 +1,5 @@
 #include "timer.hh"
-#include "main.hh"
 #include "game.hh"
-#include "model.hh"
 #include "ui.hh"
 
 #include <sys/time.h>
@@ -69,7 +67,7 @@ timer::refresh_time()
 {
     uint64_t curr_time, delta;
 
-#if defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_IOS
     curr_time = tms_IOS_get_time();
 #else
     struct timeval t;

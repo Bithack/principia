@@ -4,9 +4,7 @@
 #include "material.hh"
 #include "model.hh"
 #include "world.hh"
-#include "settings.hh"
 #include "ifdevice.hh"
-#include "main.hh"
 
 #include <cstdlib>
 
@@ -83,7 +81,6 @@ cable::_init(void)
         tmat4_load_identity(_e->M);
         tmat3_load_identity(_e->N);
 
-        struct vertex *v = static_cast<struct vertex*>(buf->get_buffer());
         uint16_t *id = (uint16_t*)ibuf->get_buffer();
 
         int num_i = 0;
@@ -351,8 +348,6 @@ cable::destroy_joint()
 void
 cable::create_joint()
 {
-    bool interacting = false;
-
     this->destroy_joint();
 
     //b2RopeJointDef rjd;
@@ -368,11 +363,6 @@ cable::create_joint()
         if (this->p[x]->is_connected()) {
             entity *e = this->p[x]->plugged_edev->get_entity();
             entities[x] = e;
-
-#if 0
-            if (G->interacting_with(e) == 2)
-                interacting = true;
-#endif
 
             if (e->get_body(0)) {
                 //tms_infof("%d entity body ------", x);
@@ -550,8 +540,6 @@ cable::update(void)
     }
 
     for (int y=0; y<num_p; y++) {
-        float step = (M_PI*2.f) / (float)QUALITY;
-
         int _p0 = y - 1;
         int _p1 = y;
         if (_p0 < 0) {_p0 = 0; _p1=1;};
@@ -614,7 +602,7 @@ plug::plug(cable *c)
         case CABLE_RED: this->set_material(&m_cable_red); break;
         case CABLE_BLACK: this->set_material(&m_cable_black); break;
         case CABLE_BLUE: this->set_material(&m_cable_blue); break;
-        default: tms_fatalf("invalid cable type %d", c->ctype);
+        default: tms_fatalf("Invalid cable type %d", c->ctype);
     }
 }
 

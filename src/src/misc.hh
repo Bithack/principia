@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <vector>
+#include <cstdint>
 
 #ifndef _NO_TMS
 #include <tms/math/vector.h>
@@ -16,17 +17,15 @@
 #define _fopen(x,y) (FILE*)(file_in_asset ? (void*)SDL_RWFromFile(x,y) : (void*)fopen(x,y))
 #define _fclose(x) (file_in_asset ? SDL_RWclose((SDL_RWops*)x) : fclose((FILE*)x))
 #define _fread(x,y,z,a) (file_in_asset ? SDL_RWread((SDL_RWops*)a,x,y,z) : fread(x,y,z,(FILE*)a))
-#define _fwrite(x,y,z,a) (file_in_asset ? SDL_RWwrite((SDL_RWops*)a,x,y,z) : fwrite(x,y,z,(FILE*)a))
 #define _fseek(x,y,z) (file_in_asset ? SDL_RWseek((SDL_RWops*)x,y,z) : fseek((FILE*)x,y,z))
 #define _ftell(x) (file_in_asset ? SDL_RWtell((SDL_RWops*)x) : ftell((FILE*)x))
 
 #else
 #define _FILE FILE
-#define FILE_IN_ASSET(x) 
+#define FILE_IN_ASSET(x)
 #define _fopen fopen
 #define _fclose fclose
 #define _fread fread
-#define _fwrite fwrite
 #define _fseek fseek
 #define _ftell ftell
 #endif
@@ -76,7 +75,7 @@ static tvec3 TV_MENU_BLACK = MENU_BLACK_F;
 static tvec3 TV_MENU_GRAY  = MENU_GRAY_F;
 #endif
 
-static bool
+inline bool
 file_exists(const char *path)
 {
     struct stat s;
@@ -101,7 +100,7 @@ chunk_mat_to_tpixel_mat(uint8_t mat)
 
 std::vector<char*> p_split(const char *str, size_t len, const char *delim);
 
-static int
+inline int
 highscore_offset(uint32_t community_id)
 {
     int offset = 0;

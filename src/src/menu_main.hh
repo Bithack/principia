@@ -12,7 +12,6 @@ class menu_main : public menu_base
   public:
     /** Widgets **/
     principia_wdg *wdg_update_available;
-    principia_wdg *wdg_shitty;
 
     principia_wdg *wdg_play;
     principia_wdg *wdg_create;

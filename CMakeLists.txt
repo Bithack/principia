@@ -13,27 +13,75 @@ if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
+
+# Find core dependencies
+# ----------------------
+
+if(ANDROID)
+	cmake_minimum_required(VERSION 3.20)
+	include(PrincipiaAndroidLibs)
+
+else()
+	if(NOT EMSCRIPTEN)
+		find_package(SDL2 REQUIRED)
+	else()
+		include(PrincipiaEmscriptenLibs)
+	endif()
+
+	set(OpenGL_GL_PREFERENCE GLVND)
+	find_package(OpenGL REQUIRED)
+endif()
+
 find_package(Freetype REQUIRED)
 find_package(JPEG REQUIRED)
 find_package(PNG REQUIRED)
-find_package(SDL2 REQUIRED)
 find_package(ZLIB REQUIRED)
 
-set(OpenGL_GL_PREFERENCE GLVND)
-find_package(OpenGL REQUIRED)
 
-option(SCREENSHOT_BUILD "Build screenshotter build (Linux only)" FALSE)
+# Determine platform and backend
+# ------------------------------
+
+if(LINUX)
+	option(SCREENSHOT_BUILD "Build screenshotter build (Linux only)" FALSE)
+else()
+	set(SCREENSHOT_BUILD FALSE)
+endif()
+
 option(BACKEND_IMGUI "Use ImGui as the UI backend (expreimental)" TRUE)
 
+set(TMS_FORMFACTOR "PC")
 if(WIN32)
-	set(TMS_BACKEND "windows")
+	set(TMS_BACKEND "WINDOWS")
+elseif(ANDROID)
+	set(TMS_BACKEND "ANDROID")
+	set(TMS_FORMFACTOR "MOBILE")
+elseif(SCREENSHOT_BUILD)
+	set(TMS_BACKEND "LINUX_SS")
+elseif(HAIKU)
+	set(TMS_BACKEND "HAIKU")
+elseif(APPLE)
+	set(TMS_BACKEND "MACOS")
+elseif(EMSCRIPTEN)
+	set(TMS_BACKEND "EMSCRIPTEN")
 else()
-	if(SCREENSHOT_BUILD)
-		set(TMS_BACKEND "screenshot-linux")
-	else()
-		set(TMS_BACKEND "linux")
-	endif()
+	set(TMS_BACKEND "LINUX")
 endif()
+
+if(LINUX)
+	option(USE_GLES "Use OpenGL ES on Linux (Experimental)" FALSE)
+endif()
+
+if(USE_GLES OR ANDROID OR EMSCRIPTEN)
+	set(SHOULD_USE_GLES TRUE)
+else()
+	set(SHOULD_USE_GLES FALSE)
+endif()
+
+
+# Include dirs and main source files
+# ----------------------------------
 
 include_directories(
 	src/
@@ -42,9 +90,7 @@ include_directories(
 	src/src/
 	${FREETYPE_INCLUDE_DIRS}
 	${JPEG_INCLUDE_DIRS}
-	${OPENGL_INCLUDE_DIRS}
 	${PNG_INCLUDE_DIRS}
-	${SDL2_INCLUDE_DIRS}
 	${ZLIB_INCLUDE_DIRS})
 
 if(BACKEND_IMGUI)
@@ -84,61 +130,77 @@ if(BACKEND_IMGUI)
 	set(SRCS ${SRCS} ${IMGUI_SRCS})
 endif()
 
+# For non-Android, system SDL2 and OpenGL include dirs
+include_directories(
+	${SDL2_INCLUDE_DIRS}
+	${OPENGL_INCLUDE_DIRS})
+
+# Optional dependencies not found on Android or in the screenshot build
 if(NOT SCREENSHOT_BUILD)
-	find_package(PkgConfig REQUIRED)
-	if(NOT BACKEND_IMGUI)
-		pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+	if(NOT ANDROID AND NOT EMSCRIPTEN)
+		if(NOT BACKEND_IMGUI)
+			find_package(PkgConfig REQUIRED)
+			pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+		endif()
+
+		find_package(GLEW REQUIRED)
+
+		include_directories(
+			${GLEW_INCLUDE_DIRS})
+		
+		if(NOT BACKEND_IMGUI)
+			include_directories(${GTK3_INCLUDE_DIRS})
+		endif()
 	endif()
+
 	find_package(CURL REQUIRED)
-	find_package(GLEW REQUIRED)
+
+	file(GLOB SDL_mixer_SRCS src/SDL_mixer/*.c)
+	set(SRCS ${SRCS} ${SDL_mixer_SRCS})
 
 	include_directories(
 		${CURL_INCLUDE_DIR}
 		${GLEW_INCLUDE_DIRS}
 		src/SDL_mixer/
 	)
-	if(NOT BACKEND_IMGUI)
-		include_directories(${GTK3_INCLUDE_DIRS})
-	endif()
+endif()
 
-	file(GLOB SDL_mixer_SRCS src/SDL_mixer/*.c)
-	set(SRCS ${SRCS} ${SDL_mixer_SRCS})
 
+# Optional luasocket functionality
+
+if(NOT SCREENSHOT_BUILD AND NOT ANDROID AND NOT EMSCRIPTEN)
 	option(USE_LUASOCKET "Build with Luasocket support" TRUE)
 else()
 	set(USE_LUASOCKET false)
 endif()
 
-# Luasocket
 if(USE_LUASOCKET)
-	set(LUASOCKET_FLAGS "-DBUILD_LUASOCKET -DLUASOCKET_INET_PTON")
+	add_definitions(-DBUILD_LUASOCKET)
 
-	if(WIN32)
-		set(LUASOCKET_PLAT_SRC src/luasocket/wsocket.c)
-	else()
-		set(LUASOCKET_PLAT_SRC
-			src/luasocket/usocket.c
-			src/luasocket/unix.c)
-	endif()
-	set(SRCS ${SRCS}
-		src/luasocket/auxiliar.c
-		src/luasocket/buffer.c
-		src/luasocket/except.c
-		src/luasocket/inet.c
-		src/luasocket/io.c
-		src/luasocket/luasocket.c
-		src/luasocket/mime.c
-		src/luasocket/options.c
-		src/luasocket/select.c
-		src/luasocket/tcp.c
-		src/luasocket/timeout.c
-		src/luasocket/udp.c
-		${LUASOCKET_PLAT_SRC})
+	file(GLOB LUASOCKET_SRCS
+		src/luasocket/*.c)
+
+	set(SRCS ${SRCS} ${LUASOCKET_SRCS})
 endif()
 
-set(SRCS ${SRCS} src/tms/backends/${TMS_BACKEND}/main.cc)
+
+if(ANDROID)
+	set(BACKEND_SRC main_android.cc)
+elseif(SCREENSHOT_BUILD)
+	set(BACKEND_SRC main_screenshotter.cc)
+elseif(EMSCRIPTEN)
+	set(CMAKE_EXECUTABLE_SUFFIX ".html")
+	set(BACKEND_SRC main_emscripten.cc)
+else()
+	set(BACKEND_SRC main.cc)
+	set(SRCS ${SRCS} src/tms/backend/pipe.cc)
+endif()
+
+set(SRCS ${SRCS} src/tms/backend/${BACKEND_SRC})
+
 
 if(WIN32)
+	# Windows manifest (resource and icon) for Windows builds
 	set(WINRESOURCE_FILE "packaging/principia.rc")
 	set(WINMANIFEST_FILE "packaging/principia.manifest")
 
@@ -154,14 +216,25 @@ if(WIN32)
 	set(SRCS ${SRCS} ${CMAKE_CURRENT_BINARY_DIR}/principia.rc.o)
 endif()
 
-add_executable(${PROJECT_NAME} ${SRCS})
+
+# Add executable (or library for Android)
+# ---------------------------------------
+
+if(ANDROID)
+	add_library(${PROJECT_NAME} SHARED ${SRCS})
+else()
+	add_executable(${PROJECT_NAME} ${SRCS})
+endif()
+
+
+# Link libraries against executable
+# ---------------------------------
+
 target_link_libraries(
 	${PROJECT_NAME}
 		${FREETYPE_LIBRARIES}
 		${JPEG_LIBRARIES}
-		${OPENGL_LIBRARIES}
 		${PNG_LIBRARIES}
-		${SDL2_LIBRARIES}
 		${ZLIB_LIBRARIES})
 
 if (NOT (SCREENSHOT_BUILD OR BACKEND_IMGUI))
@@ -172,22 +245,65 @@ if (NOT (SCREENSHOT_BUILD OR BACKEND_IMGUI))
 endif()
 
 if(NOT SCREENSHOT_BUILD)
-	target_link_libraries(
-		${PROJECT_NAME}
-			${CURL_LIBRARIES}
-			${GLEW_LIBRARIES})
+	target_link_libraries(${PROJECT_NAME} ${CURL_LIBRARIES})
+
+	if(NOT ANDROID)
+		target_link_libraries(${PROJECT_NAME} ${GTK3_LIBRARIES})
+	endif()
+
+	if(NOT SHOULD_USE_GLES)
+		target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARIES})
+	endif()
 endif()
 
-if (BACKEND_IMGUI)
-	# this is only required for ImGui's opengl3 backend
-	# (we should be able to remove this after implementing own rendering backend)
-	target_link_libraries(
-		${PROJECT_NAME}
-		${CMAKE_DL_LIBS}
-	)
+if(NOT EMSCRIPTEN)
+	target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
 endif()
 
-set(COMMON_FLAGS "${LUASOCKET_FLAGS} -DTMS_BACKEND_PC -DTMS_FAST_MATH -DLUA_COMPAT_MODULE")
+if(SHOULD_USE_GLES)
+	target_link_libraries(${PROJECT_NAME} -lGLESv2)
+else()
+	target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
+endif()
+
+
+# Compiler flags
+# --------------
+
+if(SHOULD_USE_GLES)
+	add_definitions(-DTMS_USE_GLES)
+endif()
+
+if(ANDROID)
+	target_link_libraries(${PROJECT_NAME} -landroid -ldl -llog -lOpenSLES)
+
+	add_definitions(-DHAVE_GCC_ATOMICS)
+else()
+	add_definitions(-DTMS_FAST_MATH)
+
+	if(WIN32)
+		target_link_libraries(${PROJECT_NAME} ws2_32.lib version.lib shlwapi.lib winmm.lib)
+
+		add_definitions(-D_WIN32_WINNT=0x0501 -DUNICODE)
+	elseif(SCREENSHOT_BUILD)
+		add_definitions(-DNO_UI)
+	endif()
+endif()
+
+add_definitions(-DTMS_BACKEND_${TMS_FORMFACTOR} -DTMS_BACKEND_${TMS_BACKEND})
+
+set(COMMON_FLAGS "-ffast-math")
+
+set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -DDEBUG=1")
+set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} -DNDEBUG=1 -fomit-frame-pointer")
+
+set(CMAKE_C_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O1")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE} -g")
+set(CMAKE_C_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG}")
+
+set(CMAKE_CXX_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O2 -fno-rtti")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} -g")
+set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG} ${IM_CXX}")
 
 if((NOT SCREENSHOT_BUILD) AND BACKEND_IMGUI)
 	set(COMMON_FLAGS "${COMMON_FLAGS} -DPRINCIPIA_BACKEND_IMGUI -DIMGUI_DEFINE_MATH_OPERATORS -DIMGUI_DISABLE_OBSOLETE_KEYIO -DIMGUI_USE_WCHAR32")
@@ -197,64 +313,68 @@ else()
 	set(COMMON_FLAGS "${COMMON_FLAGS} -DIMGUI_DISABLE")
 endif()
 
-if(WIN32)
-	target_link_libraries(${PROJECT_NAME} ws2_32.lib version.lib shlwapi.lib winmm.lib)
-
-	set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_WINDOWS -D_WIN32_WINNT=0x0501 -Dsrandom=srand -Drandom=rand -DUNICODE")
-else()
-	if(SCREENSHOT_BUILD)
-		# Screenshot build doesn't use GLEW
-		set(COMMON_FLAGS "${COMMON_FLAGS} -DGL_GLEXT_PROTOTYPES -DNO_UI -DTMS_BACKEND_LINUX_SS")
+# macOS Clang's linker doesn't like these flags
+if(NOT APPLE)
+	if(WIN32)
+		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-mwindows -Wl,-s")
 	else()
-		set(COMMON_FLAGS "${COMMON_FLAGS} -DTMS_BACKEND_LINUX")
+		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-s")
 	endif()
 endif()
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	# Downgrade some errors to warnings when building with Clang
-	set(COMMON_FLAGS "${COMMON_FLAGS} -Wno-error=incompatible-function-pointer-types -Wno-error=int-conversion")
-endif()
-
-set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} ${IMGUI_FLAGS_DEBUG} -O0 -ggdb -ffast-math -Werror=return-type -DDEBUG=1")
-set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} ${IMGUI_FLAGS_RELEASE} -DNDEBUG=1 -fomit-frame-pointer -fvisibility=hidden -fdata-sections -ffunction-sections")
-
-set(CMAKE_C_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O1")
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE} -g")
-set(CMAKE_C_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG}")
-
-if(BACKEND_IMGUI)
-	# ImGui backend requires pthreads, needs to be the last arg
-	set(IM_CXX "-pthread")
-endif()
-
-set(CMAKE_CXX_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O2 -fvisibility-inlines-hidden -fno-rtti ${IM_CXX}")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} -g")
-set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG} ${IM_CXX}")
-
-set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-O,-s,--gc-sections")
-set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "-Wl,-O,--gc-sections")
-set(CMAKE_EXE_LINKER_FLAGS_DEBUG "")
-
-if(WIN32)
-	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-mwindows")
-endif()
 
 # Installation
+# ------------
 
-if(UNIX)
-	include(GNUInstallDirs)
-	set(SHAREDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}")
-	set(BINDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
-	set(APPS_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/applications")
-	set(ICONDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/icons")
+if(EMSCRIPTEN)
+	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "--preload-file ../data-pc/ --preload-file ../data-shared/")
+	target_link_libraries(${PROJECT_NAME} -lemsocket -lssl -lcrypto)
+endif()
+
+if(APPLE)
+	set(BUNDLE_NAME ${PROJECT_NAME}.app)
+	set(BUNDLE_PATH "${BUNDLE_NAME}")
+
+	set(BINDIR ${BUNDLE_NAME}/Contents/MacOS)
+	set(SHAREDIR ${BUNDLE_NAME}/Contents/Resources)
 
 	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data-pc" DESTINATION "${SHAREDIR}")
 	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data-shared" DESTINATION "${SHAREDIR}")
 
-	install(FILES "packaging/principia.desktop" DESTINATION "${APPS_DIR}")
-	install(FILES "packaging/principia-url-handler.desktop" DESTINATION "${APPS_DIR}")
+	install(FILES "packaging/principia.icns" DESTINATION "${SHAREDIR}")
+	install(FILES "packaging/Info.plist" DESTINATION "${BUNDLE_PATH}/Contents")
 
-	install(FILES "packaging/principia.png" DESTINATION "${ICONDIR}/hicolor/128x128/apps")
+else()
+	include(GNUInstallDirs)
+	set(SHAREDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}")
+	set(BINDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
 
-	install(TARGETS ${PROJECT_NAME} DESTINATION ${BINDIR})
+	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data-pc" DESTINATION "${SHAREDIR}/principia")
+	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data-shared" DESTINATION "${SHAREDIR}/principia")
+
+	install(FILES "packaging/principia.desktop" DESTINATION "${SHAREDIR}/applications")
+	install(FILES "packaging/principia-url-handler.desktop" DESTINATION "${SHAREDIR}/applications")
+
+	install(FILES "packaging/principia.png" DESTINATION "${SHAREDIR}/icons/hicolor/128x128/apps")
+
+	install(FILES "packaging/se.principia_web.principia.metainfo.xml" DESTINATION "${SHAREDIR}/metainfo")
+endif()
+
+install(TARGETS ${PROJECT_NAME}
+	RUNTIME DESTINATION ${BINDIR}
+	LIBRARY DESTINATION ${BINDIR}
+	ARCHIVE DESTINATION ${BINDIR}
+	BUNDLE DESTINATION .
+)
+
+if(APPLE)
+	set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)
+	set(CPACK_GENERATOR ZIP)
+	include(CPack)
+
+	install(CODE "
+		set(BU_CHMOD_BUNDLE_ITEMS ON)
+		include(BundleUtilities)
+		fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/${BUNDLE_PATH}\" \"\" \"\${CMAKE_INSTALL_PREFIX}/${BINDIR}\")
+	" COMPONENT Runtime)
 endif()

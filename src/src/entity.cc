@@ -3,15 +3,11 @@
 #include "group.hh"
 #include "gear.hh"
 #include "game.hh"
-#include "connection.hh"
-#include "rack.hh"
 #include "rubberband.hh"
 #include "pivot.hh"
 #include "damper.hh"
-#include "pixel.hh"
 #include "model.hh"
 #include "world.hh"
-#include "settings.hh"
 #include "ui.hh"
 
 entity::entity()
@@ -732,7 +728,7 @@ void entity::create_circle(b2BodyType type,
 void entity::create_rect(b2BodyType type,
         float width, float height, m *m, b2Fixture **fixture_out /* = NULL */)
 {
-    tms_assertf(!this->is_composable(), "error: create_rect() called on composable object (g_id: %" PRIu8 ")", this->g_id);
+    tms_assertf(!this->is_composable(), "error: create_rect() called on composable object (g_id: %u)", this->g_id);
 
     if (!this->body) {
         if (type == b2_staticBody && fixture_out == 0) {
@@ -1579,12 +1575,13 @@ entity::write_tooltip(char *out)
 void
 entity::write_quickinfo(char *out)
 {
-    if (G->state.sandbox && settings["display_object_id"]->v.b) {
-    /* XXX GID XXX */
-        sprintf(out, "%s\nid:%" PRIu32 ", g_id:%" PRIu8, this->get_name(), this->id, this->g_id);
-    } else {
-        sprintf(out, "%s", this->get_name());
-    }
+    sprintf(out, "%s", this->get_name());
+}
+
+void
+entity::write_object_id(char *out)
+{
+    sprintf(out, "\nid: %u, g_id: %u", this->id, this->g_id);
 }
 
 void

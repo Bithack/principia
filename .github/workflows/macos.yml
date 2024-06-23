@@ -1,0 +1,54 @@
+name: macos
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'data-*/**'
+      - 'packaging/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/macos.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'data-*/**'
+      - 'packaging/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/macos.yml'
+
+jobs:
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+          export HOMEBREW_NO_INSTALL_CLEANUP=1
+          brew update --auto-update
+          brew install cmake ninja glew libpng libjpeg-turbo freetype sdl2 gtk+3
+
+          patch /opt/homebrew/include/GL/glew.h < packaging/glew_macos_fix.patch
+
+      - name: Compile
+        run: |
+          mkdir build; cd build
+          cmake .. -G Ninja \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 \
+            -DCMAKE_FIND_FRAMEWORK=LAST \
+            -DCMAKE_INSTALL_PREFIX=../build/macos/ \
+            -DCMAKE_EXE_LINKER_FLAGS="-L/opt/homebrew/lib/" \
+            -DGLEW_LIBRARY_RELEASE=/opt/homebrew/lib/libGLEW.dylib
+          ninja
+
+      - name: Package
+        run: |
+          cd build
+          ninja package
+
+      - name: Upload output as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: principia-macos
+          path: build/*.zip

@@ -215,8 +215,10 @@ zoomer::solve_electronics()
     if (!this->s_in[0].is_ready()) return this->s_in[0].get_connected_edevice();
 
     if (this->s_in[0].p == 0 || (bool)roundf(this->s_in[0].get_value())) {
+#ifndef TMS_BACKEND_LINUX_SS
         G->cam->_position.z = this->properties[0].v.f * (this->properties[1].v.f)
                                     + G->cam->_position.z * (1.f - this->properties[1].v.f);
+#endif
     }
 
     return 0;

@@ -540,7 +540,6 @@ void b2Body::SetAngularDamping(float32 angularDamping)
 }
 
 #include <stdio.h>
-#include <tms/backend/print.h>
 
 void b2Body::SetAwake(bool flag)
 {

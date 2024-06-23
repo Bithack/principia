@@ -7,7 +7,6 @@
 #include "checkpoint.hh"
 #include "object_factory.hh"
 #include "panel.hh"
-#include "soundman.hh"
 #include "tpixel.hh"
 #include "fxemitter.hh"
 #include "robot.hh"
@@ -763,8 +762,6 @@ adventure::step()
 
                 robot_parts::tool *t = adventure::player->get_tool();
                 if (t) {
-                    b2Vec2 r = player_pos;
-
                     /* XXX: We should probably turn the robot around, but right now he's twitching
                     if (adventure::player->get_tangent_distance(b2Vec2(mining_pos.x, mining_pos.y)) < 0.f)
                         adventure::player->look(-1);
@@ -910,7 +907,7 @@ adventure::handle_input_playing(tms::event *ev, int action)
         /* minimum death time before we can respawn */
         if (adventure::death_wait <= 0) {
 
-#if defined TMS_BACKEND_ANDROID || defined TMS_BACKEND_IOS
+#ifdef TMS_BACKEND_MOBILE
             if (ev->type == TMS_EV_POINTER_DOWN) {
                 adventure::respawn();
                 adventure::player->respawn();
@@ -929,7 +926,6 @@ adventure::handle_input_playing(tms::event *ev, int action)
     }
 
     if (ev->type == TMS_EV_POINTER_DOWN) {
-        int pid = ev->data.motion.pointer_id;
         tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
         float x_left = G->get_bmenu_x() - ((icon_width / 2.f) * 1.125f);
         float x_right = x_left + (icon_width * 3.f);
@@ -940,7 +936,7 @@ adventure::handle_input_playing(tms::event *ev, int action)
 
         for (int n=0; n<NUM_RESOURCES; ++n) {
             if (adventure::player->get_num_resources(n)
-#if defined TMS_BACKEND_ANDROID || TMS_BACKEND_IOS
+#ifdef TMS_BACKEND_MOBILE
                     && n == adventure::last_picked_up_resource
 #endif
                     ) {
@@ -1482,7 +1478,7 @@ adventure::render()
     adventure::num_weapons = 0;
     adventure::num_tools = 0;
 
-#if defined(NO_UI)
+#ifdef NO_UI
     return;
 #endif
     if (!adventure::player || settings["render_gui"]->is_false()) return;
@@ -1635,7 +1631,7 @@ adventure::render()
 
         glBindTexture(GL_TEXTURE_2D, gui_spritesheet::atlas->texture.gl_texture);
 
-#if defined TMS_BACKEND_PC
+#ifdef TMS_BACKEND_PC
         for (int x=0; x<adventure::num_weapons; x++) {
             G->render_num(adventure::weapon_icon_pos[x].x, adventure::weapon_icon_pos[x].y-_tms.yppcm*.075f,
                     0,
@@ -1653,7 +1649,7 @@ adventure::render()
 
         for (int n=0; n<NUM_RESOURCES; ++n) {
             if (adventure::player->get_num_resources(n)
-#if defined TMS_BACKEND_ANDROID || TMS_BACKEND_IOS
+#ifdef TMS_BACKEND_MOBILE
                     && n == adventure::last_picked_up_resource
 #endif
                     ) {

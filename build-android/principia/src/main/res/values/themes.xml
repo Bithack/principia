@@ -7,9 +7,7 @@
     <style name="ScrollViewBody" parent="@android:style/Widget.ScrollView">
         <item name="android:padding">8dp</item>
     </style>
-    <style name="RelativeLayoutBody">
-        <item name="android:padding">8dp</item>
-    </style>
+
     <style name="TinyDialog" parent="@style/Theme.AppCompat.Dialog">
         <!-- Fill the screen -->
         <item name="android:layout_width">fill_parent</item>
@@ -20,34 +18,7 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">false</item>
     </style>
-    <style name="FullDialog" parent="@style/Theme.AppCompat.Dialog">
-        <!-- Fill the screen -->
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
 
-        <!-- No titles or window float -->
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowIsFloating">false</item>
-    </style>
-    <style name="WebDialog" parent="@style/Theme.AppCompat.Dialog">
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowIsFloating">false</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
-
-        <item name="android:windowNoTitle">true</item>
-    </style>
-    <style name="CodeDialog" parent="@style/Theme.AppCompat.Dialog">
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowIsFloating">false</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
-
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowSoftInputMode">stateVisible|adjustResize</item>
-    </style>
     <style name="DialogNoAnimation">
 	    <item name="android:windowEnterAnimation">@anim/enter</item>
 	    <item name="android:windowExitAnimation">@anim/exit</item>

@@ -1,5 +1,4 @@
 #include "glob.h"
-#include "../util/hash.h"
 
 struct vertex {
     tvec3 pos;
@@ -69,11 +68,11 @@ tms_model_shift_mesh_uv(struct tms_model *m,
     tms_gbuffer_realloc(m->indices, m->indices->size + mesh->i_count*sizeof(uint16_t));
     tms_gbuffer_realloc(m->vertices, m->vertices->size + mesh->v_count*sizeof(struct vertex));
 
-    struct vertex *v = m->vertices->buf+mesh->v_start;
-    uint16_t *i = m->indices->buf+mesh->i_start*sizeof(uint16_t);
+    struct vertex *v = (struct vertex *)(m->vertices->buf + mesh->v_start);
+    uint16_t *i = (uint16_t *)(m->indices->buf + mesh->i_start * sizeof(uint16_t));
 
-    struct vertex *nv = m->vertices->buf+vsz;
-    uint16_t *ni = m->indices->buf+osz;
+    struct vertex *nv = (struct vertex *)(m->vertices->buf + vsz);
+    uint16_t *ni = (uint16_t *)(m->indices->buf + osz);
 
     for (int x=0; x<mesh->i_count; x++) {
         ni[x] = (i[x] - last_base) + base;
@@ -96,32 +95,23 @@ tms_model_shift_mesh_uv(struct tms_model *m,
     return ret;
 }
 
+extern struct tms_mesh * load_3ds_model(struct tms_model *model, SDL_RWops *fp, int *status);
+
 struct tms_mesh *
 tms_model_load(struct tms_model *m, const char *filename, int *status)
 {
-    const char *ext = strrchr(filename, '.');
     struct tms_mesh *ret = 0;
 
     *status = T_ERR;
 
-    if (ext) {
-        struct tms_mesh * (*loader)(struct tms_model *, SDL_RWops *, int *)
-            = thash_get(tms.model_loaders, ext, strlen(ext));
+    SDL_RWops *fp = SDL_RWFromFile(filename,"rb");
 
-        if (!loader) {
-            tms_fatalf("unsupported model format: %s", ext);
-        }
+    if (!fp)
+        tms_fatalf("Could not open model file: %s", filename);
 
-        SDL_RWops *fp = SDL_RWFromFile(filename,"rb");
+    ret = load_3ds_model(m, fp, status);
 
-        if (!fp) {
-            tms_fatalf("could not open model file: %s", filename);
-        }
-
-        ret = loader(m, fp, status);
-
-        SDL_RWclose(fp);
-    }
+    SDL_RWclose(fp);
 
     return ret;
 }

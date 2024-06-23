@@ -19,7 +19,8 @@
             android:ems="10"
             android:hint="@string/username"
             android:imeOptions="actionNext"
-            android:inputType="text" >
+            android:inputType="text"
+            android:autofillHints="username">
 
             <requestFocus />
         </EditText>
@@ -32,7 +33,8 @@
             android:ems="10"
             android:hint="@string/password"
             android:imeOptions="actionDone"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:autofillHints="password" />
 
         <TextView
             android:layout_width="wrap_content"

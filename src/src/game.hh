@@ -5,9 +5,7 @@
 #include <tms/bindings/cpp/cpp.hh>
 #include <set>
 #include <map>
-#include <deque>
 #include "gui.hh"
-#include "main.hh"
 #include "adventure.hh"
 #include "chunk.hh"
 #include "object_factory.hh"
@@ -874,13 +872,14 @@ class game : public pscreen
     void init_graphs();
     void init_camera();
     void init_gui();
-    void init_selection();
 
     void set_caveview_zoom_limits(bool update=false);
     void unset_caveview_zoom_limits();
 
+#ifdef DEBUG
     void print_stats();
     void print_screen_point_info(int x, int y);
+#endif
 
     int render();
     int post_render();
@@ -1151,6 +1150,7 @@ class game : public pscreen
 
 #ifdef DEBUG
     std::set<game_debug_line*> debug_lines;
+    void clamp_entities();
 #endif
 
     void render_num(float x, float y, int iw, int ih, float num, int precision=2, float extra_scale=0.f, bool render_background=true);
@@ -1163,7 +1163,6 @@ class game : public pscreen
     void restart_level();
     void submit_score();
     void destroy_possible_mover(entity *e);
-    void clamp_entities();
 
     void render_help_icon(const std::set<entity*> &set, float off_x, float off_y);
     bool check_click_help_icon(const std::set<entity*> &set, float off_x, float off_y, b2Vec2 click_pos, struct principia_action click_action);

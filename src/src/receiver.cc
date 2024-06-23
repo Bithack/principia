@@ -2,10 +2,7 @@
 #include "model.hh"
 #include "world.hh"
 #include "game.hh"
-#include "transmitter.hh"
 #include "receiver.hh"
-#include "settings.hh"
-#include "text.hh"
 #include "ui.hh"
 
 receiver::receiver()

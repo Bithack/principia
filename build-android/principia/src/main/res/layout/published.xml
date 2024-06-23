@@ -13,7 +13,6 @@
         android:padding="10dp" >
 
         <TextView
-            android:id="@+id/tv_published_successfully_p1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="7dp"
@@ -21,7 +20,6 @@
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <TextView
-            android:id="@+id/tv_published_successfully_p2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/published_successfully_message_p2"

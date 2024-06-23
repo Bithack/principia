@@ -1,13 +1,9 @@
 package com.bithack.principia.shared;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
 import com.bithack.principia.shared.ConfirmDialog.OnOptionSelectedListener;
 import com.bithack.principia.shared.CustomLinearLayout.OnKeyboardStateChangedListener;
-import com.bithack.principia.shared.MultiSpinner.MultiSpinnerListener;
 
 import org.libsdl.app.PrincipiaBackend;
 
@@ -17,7 +13,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -63,10 +58,8 @@ public class ScriptDialog {
             code.setHorizontallyScrolling(true);
             int ime_options = code.getImeOptions();
             save = (Button)view.findViewById(R.id.script_save);
-            if (android.os.Build.VERSION.SDK_INT >= 16) {
-                ime_options |= 0x80000000; // force ascii
-                code.setImeOptions(ime_options);
-            }
+            ime_options |= 0x80000000; // force ascii
+            code.setImeOptions(ime_options);
             cancel = (Button)view.findViewById(R.id.script_cancel);
 
             save.setOnClickListener(new View.OnClickListener() {

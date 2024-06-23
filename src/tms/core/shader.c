@@ -1,7 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <assert.h>
 #include <unistd.h>
 
 #include <tms/math/matrix.h>
@@ -10,8 +9,6 @@
 #include <tms/core/program.h>
 #include <tms/core/pipeline.h>
 
-#include <tms/util/hash.h>
-
 #include <tms/backend/opengl.h>
 
 #define INFOLOG_SIZE 2048
@@ -19,8 +16,6 @@
 static const char *unknown = "<unknown>";
 static char infolog[INFOLOG_SIZE];
 static GLsizei infolog_length;
-static int load_uniforms(struct tms_shader *s);
-static int load_attributes(struct tms_shader *s);
 
 /* dummy shader used for global defines */
 struct tms_shader _tms_global_shader = {0};
@@ -40,7 +35,7 @@ void
 tms_shader_init(struct tms_shader *s)
 {
     memset(s, 0, sizeof(struct tms_shader));
-    s->name = unknown;
+    s->name = (char *)unknown;
     /*
     s->vertex = 0;
     s->fragment = 0;
@@ -130,7 +125,7 @@ static GLint compile(struct tms_shader *sh, GLenum st, const char *src)
     GLint s = glCreateShader(st);
     GLint success;
     const char *type = st == GL_VERTEX_SHADER ? "vertex shader"
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
+#ifndef TMS_USE_GLES
         : st == GL_TESS_CONTROL_SHADER ? "tessellation control shader"
         : st == GL_TESS_EVALUATION_SHADER ? "tessellation evaluation shader"
         : st == GL_GEOMETRY_SHADER ? "geometry shader"
@@ -168,7 +163,7 @@ static GLint compile(struct tms_shader *sh, GLenum st, const char *src)
             sources[1+sh->num_defines+sh->num_fs_defines+_tms_global_shader.num_defines+x] = _tms_global_shader.fs_defines[x];
     }
 
-    sources[num_src] = src;
+    sources[num_src] = (char *)src;
 
     /*
     tms_infof("-- shader compile (%s)", type);
@@ -179,7 +174,7 @@ static GLint compile(struct tms_shader *sh, GLenum st, const char *src)
 
     tms_assertf(s != -1, "glCreateShader() failed");
 
-    glShaderSource(s, num_src+1, sources, 0);
+    glShaderSource(s, num_src+1, (const GLchar *const *)sources, 0);
     glCompileShader(s);
 
     glGetShaderiv(s, GL_COMPILE_STATUS, &success);
@@ -244,7 +239,7 @@ tms_shader_get_program(struct tms_shader *s, int pipeline)
     glAttachShader(p->id, s->vertex);
         tms_assertf(glGetError() == 0, "vafan 2 ");
     glAttachShader(p->id, s->fragment);
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
+#ifndef TMS_USE_GLES
     if (s->tess_control) glAttachShader(p->id, s->tess_control);
     if (s->tess_eval) glAttachShader(p->id, s->tess_eval);
     if (s->geometry) glAttachShader(p->id, s->geometry);
@@ -292,13 +287,13 @@ tms_shader_compile(struct tms_shader *s,
         for (int x=0; x<s->num_vs_defines; x++) {
             tms_errorf("vs define[%d/%d]: '%s'", x+1, s->num_vs_defines, s->vs_defines[x]);
         }
-        return T_COMPILE_ERROR;
+        return T_ERR;
     }
 
     switch (shader_type) {
         case GL_VERTEX_SHADER: s->vertex = shader; break;
         case GL_FRAGMENT_SHADER: s->fragment = shader; break;
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
+#ifndef TMS_USE_GLES
         case GL_TESS_CONTROL_SHADER: s->tess_control = shader; break;
         case GL_TESS_EVALUATION_SHADER: s->tess_eval = shader; break;
         case GL_GEOMETRY_SHADER: s->geometry = shader; break;

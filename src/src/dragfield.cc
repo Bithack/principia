@@ -2,7 +2,7 @@
 #include "material.hh"
 #include "model.hh"
 #include "spritebuffer.hh"
-#include "game.hh"
+#include "world.hh"
 
 #include "Box2D/Box2D.h"
 

@@ -1,0 +1,39 @@
+# Project properties
+PROJECT_NAME           = Principia
+PROJECT_LOGO           = packaging/principia.png
+
+# Parsing
+JAVADOC_AUTOBRIEF      = YES
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+SORT_MEMBERS_CTORS_1ST = YES
+WARN_IF_UNDOCUMENTED   = NO
+BUILTIN_STL_SUPPORT    = YES
+
+# Input
+RECURSIVE              = YES
+STRIP_FROM_PATH        = src
+INPUT                  = doc/main_page.dox \
+                         src/src/ src/tms/
+EXCLUDE                = src/src/Box2D/
+
+# Dot graphs
+HAVE_DOT               = YES
+CALL_GRAPH             = YES
+CALLER_GRAPH           = YES
+MAX_DOT_GRAPH_DEPTH    = 3
+DOT_MULTI_TARGETS      = YES
+DOT_IMAGE_FORMAT       = svg
+
+# Output
+OUTPUT_DIRECTORY       = doc/doxy/  # /tmp/doxy/
+GENERATE_LATEX         = NO
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
+SEARCHENGINE           = YES
+DISABLE_INDEX          = YES
+GENERATE_TREEVIEW      = YES
+HTML_DYNAMIC_SECTIONS  = YES
+HTML_TIMESTAMP         = YES
+HTML_EXTRA_STYLESHEET  = doc/doxygen-awesome.css

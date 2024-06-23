@@ -8,7 +8,9 @@
 
 # Download appimagetool
 if [ ! -f appimagetool ]; then
-	wget https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+	wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+	# Newer appimagetool uses Zstd compression which appimagelauncher doesn't support. :/
+	#wget https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
 	chmod +x appimagetool
 fi
 
@@ -16,19 +18,19 @@ fi
 rm -rf AppDir
 
 # Compile and install into AppDir
-cmake .. -G Ninja -DCMAKE_INSTALL_PREFIX=AppDir/
+cmake .. -G Ninja -DCMAKE_INSTALL_PREFIX=AppDir/usr/
 ninja
 ninja install
 
 cd AppDir
 
 # Put desktop and icon at root
-ln -s share/applications/principia.desktop principia.desktop
-ln -s share/icons/hicolor/128x128/apps/principia.png principia.png
+cp usr/share/applications/principia.desktop principia.desktop
+cp usr/share/icons/hicolor/128x128/apps/principia.png principia.png
 ln -s principia.png .DirIcon
 
 cat > AppRun <<\APPRUN
-#!/bin/sh
+#!/bin/bash
 
 if ! command -v -- "xdg-mime" > /dev/null 2>&1; then
 	echo "Required XDG helper scripts required by Principia are not found."
@@ -54,8 +56,8 @@ xdg-mime default principia-url-handler.desktop x-scheme-handler/principia
 # Now launch it...
 
 APP_PATH="$(dirname "$(readlink -f "${0}")")"
-export LD_LIBRARY_PATH="${APP_PATH}"/lib/:"${LD_LIBRARY_PATH}"
-exec "${APP_PATH}/bin/principia" "$@"
+export LD_LIBRARY_PATH="${APP_PATH}"/usr/lib/:"${LD_LIBRARY_PATH}"
+exec "${APP_PATH}/usr/bin/principia" "$@"
 APPRUN
 chmod +x AppRun
 
@@ -67,15 +69,17 @@ INCLUDE_LIBS=(
 	libGLEW.so.2.1
 	libjpeg.so.62
 	libpng16.so.16
-	libSDL2-2.0.so.0
-	libXss.so.1
 )
 
-mkdir -p lib/
+mkdir -p usr/lib/
 for i in "${INCLUDE_LIBS[@]}"; do
-	cp /usr/lib/x86_64-linux-gnu/$i lib/
+	cp /usr/lib/x86_64-linux-gnu/$i usr/lib/
 done
+
+# Copy our own built SDL2
+cp /usr/lib/libSDL2-2.0.so.0 usr/lib/
 
 # Actually build the appimage
 cd ..
-ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir/
+# LZMA compression since appimagelauncher doesn't support Zstd
+ARCH=x86_64 ./appimagetool --appimage-extract-and-run --comp xz AppDir/

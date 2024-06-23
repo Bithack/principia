@@ -1,6 +1,5 @@
 #include "game-message.hh"
 #include "text.hh"
-#include "misc.hh"
 #include "pscreen.hh"
 
 #include <tms/core/glob.h>

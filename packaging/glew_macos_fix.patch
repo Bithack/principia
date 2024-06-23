@@ -1,0 +1,21 @@
+--- glew.h	2022-11-15 14:16:27.000000000 +0100
++++ glew_mod.h	2024-05-11 17:12:43.597037795 +0200
+@@ -220,13 +220,13 @@
+  */
+ 
+ #if defined(__APPLE__) || defined(__linux__)
+-#  if defined(__cplusplus)
+-#    include <cstddef>
+-#    include <cstdint>
+-#  else
++//#  if defined(__cplusplus)
++//#    include <cstddef>
++//#    include <cstdint>
++//#  else
+ #    include <stddef.h>
+ #    include <stdint.h>
+-#  endif
++//#  endif
+ #else
+ 
+ # include <stddef.h>

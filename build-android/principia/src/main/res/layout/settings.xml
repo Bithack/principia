@@ -215,33 +215,6 @@
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:text="@string/texture_quality"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <RadioGroup
-                android:id="@+id/tex_quality"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" >
-
-                <RadioButton
-                    android:id="@+id/tex_low"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:text="@string/low" />
-
-                <RadioButton
-                    android:id="@+id/tex_high"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/high" />
-            </RadioGroup>
-
-            <TextView
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/uiscale"
                 android:textAppearance="?android:attr/textAppearanceMedium" />

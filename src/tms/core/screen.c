@@ -78,7 +78,7 @@ tms_screen_get_data(struct tms_screen *s)
  * Set the screen' scene..
  * Only valid if the screen was not created with TMS_SCREEN_ALLOC_SCENE.
  *
- * @returns T_INVALID_OPERATION on error, T_OK otherwise.
+ * @returns T_ERR on error, T_OK otherwise.
  *
  * @relates tms_screen
  **/
@@ -86,7 +86,7 @@ int
 tms_screen_set_scene(struct tms_screen *s, struct tms_scene *scene)
 {
     if (s->spec->flags & TMS_SCREEN_ALLOC_SCENE)
-        return T_INVALID_OPERATION;
+        return T_ERR;
 
     s->scene = scene;
 
@@ -98,7 +98,7 @@ tms_screen_set_scene(struct tms_screen *s, struct tms_scene *scene)
  * Can only be called if the screen did not allocate its own surface
  * according to the tms_screen_spec.
  *
- * @returns T_INVALID_OPERATION if the spec's flags include TMS_SCREEN_ALLOC_SURFACE. T_OK otherwise.
+ * @returns T_ERR if the spec's flags include TMS_SCREEN_ALLOC_SURFACE. T_OK otherwise.
  *
  * @relates tms_screen
  **/
@@ -106,7 +106,7 @@ int
 tms_screen_set_surface(struct tms_screen *s, struct tms_surface *surf)
 {
     if (s->spec->flags & TMS_SCREEN_ALLOC_SURFACE)
-        return T_INVALID_OPERATION;
+        return T_ERR;
 
     s->surface = surf;
 

@@ -763,7 +763,6 @@ LUALIB_API const char *luaL_tolstring (lua_State *L, int idx, size_t *len) {
 ** Compatibility with 5.1 module functions
 ** =======================================================
 */
-#if defined(LUA_COMPAT_MODULE)
 
 static const char *luaL_findtable (lua_State *L, int idx,
                                    const char *fname, int szhint) {
@@ -838,7 +837,6 @@ LUALIB_API void luaL_openlib (lua_State *L, const char *libname,
     lua_pop(L, nup);  /* remove upvalues */
 }
 
-#endif
 /* }====================================================== */
 
 /*

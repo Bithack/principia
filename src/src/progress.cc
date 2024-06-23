@@ -6,7 +6,8 @@
 #include <cstdlib>
 
 #ifdef _NO_TMS
-#include "no_tms.h"
+#define tms_infof(...)
+#define tms_errorf(...)
 #else
 #include <tms/bindings/cpp/cpp.hh>
 #endif
@@ -49,8 +50,12 @@ progress::init(char *custom_path/*=0*/)
     if (custom_path) {
         strcpy(tmp, custom_path);
     } else {
+#ifdef _NO_TMS
+        return;
+#else
         const char *storage = tbackend_get_storage_path();
         snprintf(tmp, 1023, "%s/data.bin", storage);
+#endif
     }
 
     long crc_pos[4]={0,0,0,0};
@@ -218,6 +223,8 @@ err:
 void
 progress::commit()
 {
+#ifndef _NO_TMS
+
     if (!initialized) {
         return;
     }
@@ -340,4 +347,5 @@ progress::commit()
     } else {
         tms_errorf("Error: could not save progress %s", filename);
     }
+#endif
 }

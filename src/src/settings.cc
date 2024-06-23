@@ -1,7 +1,5 @@
-#include "SDL.h"
 #include <tms/core/tms.h>
 #include "settings.hh"
-#include "main.hh"
 #include <cmath>
 #include "game.hh"
 
@@ -12,10 +10,6 @@
 #include <errno.h>
 
 struct shadow_res {int x; int y;};
-static struct shadow_res shadow_resolutions[10];
-static int num_shadow_resolutions;
-
-#define log2(x) (log(x) / log(2.0))
 
 _settings settings;
 
@@ -24,10 +18,6 @@ _settings::init()
 {
     this->_data.clear();
 
-    /* calculate "optimal" shadow map resolution */
-    double w2 = log2((double)_tms.window_width);
-    double h2 = log2((double)_tms.window_height);
-
     /** -Graphics **/
     this->add("debug",              S_BOOL,  false);
     this->add("postprocess",        S_BOOL,  false);
@@ -35,40 +25,29 @@ _settings::init()
 
     this->add("uiscale",            S_FLOAT, 1.3f);
 
-    this->add("fixed_uiscale",      S_BOOL,  false);
     this->add("blur_shadow_map",    S_BOOL,  false);
     this->add("swap_shadow_map",    S_BOOL,  false);
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
-    int rw = (int)exp2(roundf(w2)) / 2;
-    int rh = (int)exp2(roundf(h2)) / 2;
 
-    this->add("shadow_map_resx",    S_INT32,   rw);
-    this->add("shadow_map_resy",    S_INT32,   rh);
-#else
+    // XXX: see git history
     this->add("shadow_map_resx",    S_INT32,   1280);
     this->add("shadow_map_resy",    S_INT32,   720);
 
-#endif
-
-    this->add("high_quality_trees", S_BOOL, false);
-
-
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
-    this->add("vsync",              S_BOOL,  false);
-#else
+#ifndef TMS_BACKEND_ANDROID
+    // vsync is managed by the OS on Android
     this->add("vsync",              S_BOOL,  true);
-#endif
 
     this->add("window_width",       S_INT32,   _tms.window_width);
     this->add("window_height",      S_INT32,   _tms.window_height);
     this->add("window_maximized",   S_BOOL,  0);
+    this->add("window_fullscreen",  S_BOOL, false);
 
     // False for now to allow for resetting the screensize if resizing somehow breaks it.
     this->add("autosave_screensize",S_BOOL,  false);
+#endif
 
     this->add("shadow_quality",     S_UINT8,  1);
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
     this->add("ao_map_res",         S_INT32,   256);
 #else
     this->add("ao_map_res",         S_INT32,   512);
@@ -79,15 +58,14 @@ _settings::init()
     this->add("shadow_map_precision",       S_BOOL, -1);
 
     this->add("swap_ao_map",        S_BOOL,  true);
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
     this->add("gamma_correct",      S_BOOL,  false);
 #else
     this->add("gamma_correct",      S_BOOL,  -1);
 #endif
-    this->add("render_com",         S_BOOL,  false);
     this->add("enable_ao",          S_BOOL,  true);
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
     this->add("shadow_ao_combine",         S_BOOL, 0);
 #else
     this->add("shadow_ao_combine",         S_BOOL, 0);
@@ -95,11 +73,10 @@ _settings::init()
 
     this->add("enable_bloom",       S_BOOL,  false);
     this->add("render_gui",         S_BOOL,  true);
-    this->add("texture_quality",    S_UINT8,  (this->_data["window_width"]->v.i < 1024 ? 0 : 2));
     this->add("render_edev_labels", S_BOOL,  true);
 
 
-    this->add("fv",                 S_INT32,   1); /* settings file version */
+    this->add("fv",                 S_INT32,   2); /* settings file version */
     this->add("jail_cursor",        S_BOOL,  false);
     this->add("smooth_cam",         S_BOOL,  false);
     this->add("cam_speed_modifier", S_FLOAT, 1.f);
@@ -109,8 +86,6 @@ _settings::init()
     this->add("border_scroll_enabled",  S_BOOL,  true);
     this->add("border_scroll_speed",    S_FLOAT, 1.f);
     this->add("menu_speed",         S_FLOAT, 1.f);
-    this->add("loaded_correctly",   S_BOOL,  true);
-    this->add("is_very_shitty",     S_BOOL,  false);
     this->add("always_reload_data", S_BOOL,  false);
     /* TODO: Add setting for enabling or disabling menu sliding */
 
@@ -118,11 +93,6 @@ _settings::init()
     this->add("widget_control_sensitivity", S_FLOAT, 1.5f);
     this->add("rc_lock_cursor",     S_BOOL,  false);
     this->add("control_type",       S_UINT8,  1);
-#if defined(TMS_BACKEND_PC)
-    this->add("default_level_type", S_INT32,   LCAT_ADVENTURE);
-#else
-    this->add("default_level_type", S_INT32,   LCAT_CUSTOM);
-#endif
 
     /** -Audio **/
     this->add("volume", S_FLOAT,    1.0f,   true);
@@ -133,12 +103,9 @@ _settings::init()
     this->add("display_grapher_value",      S_BOOL, false);
     this->add("display_wireless_frequency", S_BOOL, true);
 
-    this->add("ingame_tooltips",            S_BOOL, true);
-    this->add("ingame_tooltips_playing",    S_BOOL, true);
-
     this->add("emulate_touch",      S_BOOL, false);
 
-#if defined (TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
     this->add("touch_controls",     S_BOOL, true);
 #else
     this->add("touch_controls",     S_BOOL, false);
@@ -186,7 +153,6 @@ _settings::load(void)
         return false;
     }
 
-    int r;
     char buf[256];
 
     while (fgets(buf, 256, fh) != NULL) {
@@ -199,8 +165,6 @@ _settings::load(void)
         bool on_key = true;
 
         for (int i = 0; i < sz; ++i) {
-            char *c = &buf[i];
-
             if (buf[i] == '\n' || buf[i] == ' ') continue;
 
             if (k == 62) {
@@ -283,8 +247,6 @@ _settings::load(void)
         settings["enable_bloom"]->v.b = false;
         settings["enable_ao"]->v.b = false;
         settings["render_edev_labels"]->v.b = false;
-        settings["texture_quality"]->v.u8 = 0;
-        settings["is_very_shitty"]->v.b = true;
         settings["hide_tips"]->v.b = true;
     }
 #endif
@@ -307,7 +269,7 @@ _settings::save(void)
     FILE *fh = fopen(filename, "w+");
 
     if (!fh) {
-        //tms_errorf("An error occured when attempting to open settings file.");
+        tms_errorf("An error occured when attempting to open settings file.");
         return false;
     }
 
@@ -315,22 +277,22 @@ _settings::save(void)
             it != this->_data.end(); ++it) {
         switch (it->second->type) {
             case S_INT8:
-                fprintf(fh, "%s=%" PRId8 "\n", it->first, it->second->v.i8);
+                fprintf(fh, "%s=%d\n", it->first, it->second->v.i8);
                 break;
             case S_INT32:
-                fprintf(fh, "%s=%" PRId32 "\n", it->first, it->second->v.i);
+                fprintf(fh, "%s=%d\n", it->first, it->second->v.i);
                 break;
             case S_UINT8:
-                fprintf(fh, "%s=%" PRIu8 "\n", it->first, it->second->v.u8);
+                fprintf(fh, "%s=%u\n", it->first, it->second->v.u8);
                 break;
             case S_UINT32:
-                fprintf(fh, "%s=%" PRIu32 "\n", it->first, it->second->v.u32);
+                fprintf(fh, "%s=%u\n", it->first, it->second->v.u32);
                 break;
             case S_FLOAT:
                 fprintf(fh, "%s=%f\n", it->first, it->second->v.f);
                 break;
             case S_BOOL:
-                fprintf(fh, "%s=%" PRId8 "\n", it->first, it->second->v.b);
+                fprintf(fh, "%s=%d\n", it->first, it->second->v.b);
                 break;
             default:
                 tms_fatalf("Unknown setting type: %d", it->second->type);
@@ -355,5 +317,3 @@ _settings::~_settings()
         delete it->second;
     }
 }
-
-#undef log2

@@ -1,12 +1,10 @@
 #include <string.h>
 #include <stdlib.h>
-#include <assert.h>
 
 #include "err.h"
 #include "entity.h"
 #include "scene.h"
 #include "program.h"
-#include "shader.h"
 #include "mesh.h"
 #include "material.h"
 #include "pipeline.h"
@@ -229,7 +227,7 @@ add_uniform(struct tms_entity *e,
         || tms_fatalf("out of mem (e_au)");
     e->num_uniforms++;
     e->uniforms[e->num_uniforms-1].type = type;
-    e->uniforms[e->num_uniforms-1].name = name;
+    e->uniforms[e->num_uniforms-1].name = (char*)name;
     memset(&e->uniforms[e->num_uniforms-1].val, 0, sizeof(e->uniforms[e->num_uniforms-1].val));
 
     if (*name == '_') {

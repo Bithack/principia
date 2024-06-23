@@ -8,7 +8,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.widget.Toast;
 
 public class ToolDialog
 {

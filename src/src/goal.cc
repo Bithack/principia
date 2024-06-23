@@ -3,7 +3,6 @@
 #include "creature.hh"
 #include "material.hh"
 #include "model.hh"
-#include "main.hh"
 #include "game.hh"
 
 goal::goal()

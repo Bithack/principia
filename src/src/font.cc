@@ -1,6 +1,5 @@
 #include "font.hh"
 #include "gui.hh"
-#include <tms/backend/print.h>
 
 p_font *font::small = 0;
 p_font *font::medium = 0;

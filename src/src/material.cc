@@ -2,11 +2,9 @@
 #include "sticky.hh"
 #include "settings.hh"
 #include "robot.hh"
-#include "main.hh"
 #include "ui.hh"
 #include "simplebg.hh"
 #include "gui.hh"
-#include "plant.hh"
 #include "misc.hh"
 
 #include <locale.h>
@@ -161,7 +159,6 @@ m m_bg_colored;
 m m_rubber;
 m m_bedrock;
 m m_bark;
-m m_bark_contour;
 m m_field;
 m m_conveyor;
 m m_cpad;
@@ -183,7 +180,6 @@ static tms::texture *tex_tpixel = 0;
 static tms::texture *tex_grass = 0;
 static tms::texture *tex_rubber = 0;
 static tms::texture *tex_bark = 0;
-static tms::texture *tex_bark_contour = 0;
 static tms::texture *tex_reflection = 0;
 static tms::texture *tex_robot = 0;
 static tms::texture *tex_weapons = 0;
@@ -272,11 +268,6 @@ static const char *menu_bgsources[] = {
 static void
 read_shader(struct shader_load_data *sld, GLenum type, uint32_t global_flags, char **out)
 {
-    if ((global_flags & GF_IS_SHITTY) && (sld->flags & SL_NO_SIMPLE)) {
-        *out = 0;
-        return;
-    }
-
     if (!(global_flags & GF_ENABLE_GI) && (sld->flags & SL_REQUIRE_GI)) {
         *out = 0;
         return;
@@ -284,15 +275,10 @@ read_shader(struct shader_load_data *sld, GLenum type, uint32_t global_flags, ch
 
     char path[1024];
 
-    snprintf(path, 1023, "data-shared/shaders/%s%s.%s",
-            sld->name,
-            (((global_flags & GF_IS_SHITTY) && (sld->flags & SL_HAS_SIMPLE)) ? ".simple" : ""),
-            type == GL_VERTEX_SHADER ? "vp" : "fp"
-            );
+    snprintf(path, 1023, "data-shared/shaders/%s.%s",
+            sld->name, type == GL_VERTEX_SHADER ? "vp" : "fp");
 
-#ifdef TMS_BACKEND_ANDROID
     FILE_IN_ASSET(1);
-#endif
 
     _FILE *fh = _fopen(path, "rb");
     if (fh) {
@@ -360,16 +346,8 @@ struct shader_load_data shaders[] = {
     { SL_SHARED, "grid",                    &shader_grid },
     { SL_SHARED, "bg_fixed",                &shader_bg_fixed },
     { SL_SHARED, "bg_colored",              &shader_bg_colored },
-    {
-        SL_SHARED | SL_HAS_SIMPLE,
-        "bg",
-        &shader_bg,
-    },
-    {
-        SL_SHARED | SL_NO_SIMPLE | SL_EXIT_ON_FAIL,
-        "shiny",
-        &shader_shiny,
-    },
+    { SL_SHARED, "bg",                      &shader_bg },
+    { SL_SHARED, "shiny",                   &shader_shiny },
     { SL_SHARED, "colored_field",           &shader_field },
 
     /* menu shaders */
@@ -618,21 +596,13 @@ material_factory::load_bg_texture(bool soft)
 
         default:
             {
-#if (defined TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
                 sprintf(bgname, "data-mobile/bg/%d.pkm", material_factory::background_id);
 
                 if (tex_bg->load_etc1(bgname) != T_OK) {
                     tex_bg->load_etc1("data-mobile/bg/0.pkm");
                     tms_warnf("Loading backup bg, 0. %s was not available.", bgname);
                 }
-
-                tex_bg->wrap = GL_REPEAT;
-                tms_texture_set_filtering(tex_bg, GL_LINEAR);
-#elif defined TMS_BACKEND_IOS
-                sprintf(bgname, "data-ios/bg/%d.pvr", material_factory::background_id);
-
-                if (tex_bg->load_pvrtc(bgname) != T_OK)
-                    tex_bg->load_pvrtc("data-ios/bg/0.pvr");
 
                 tex_bg->wrap = GL_REPEAT;
                 tms_texture_set_filtering(tex_bg, GL_LINEAR);
@@ -664,10 +634,8 @@ material_factory::load_bg_texture(bool soft)
       body }
 
 TEX_LAZYLOAD_FN(tpixel,
-#if defined TMS_BACKEND_ANDROID
+#ifdef TMS_BACKEND_ANDROID
     tex_tpixel->load_etc1("data-mobile/textures/tpixel.pkm");
-#elif defined TMS_BACKEND_IOS
-    tex_tpixel->load_pvrtc("data-ios/textures/tpixel.pvr");
 #else
     tms_texture_load(tex_tpixel,"data-pc/textures/tpixel.jpg");
     tex_tpixel->format = GL_RGB;
@@ -679,10 +647,8 @@ TEX_LAZYLOAD_FN(tpixel,
 )
 
 TEX_LAZYLOAD_FN(decoration,
-#if defined TMS_BACKEND_ANDROID
+#ifdef TMS_BACKEND_ANDROID
     tex_decoration->load_etc1("data-mobile/textures/decorations.pkm");
-#elif defined TMS_BACKEND_IOS
-    tex_decoration->load_pvrtc("data-ios/textures/decorations.pvr");
 #else
     tms_texture_load(tex_decoration,"data-pc/textures/decorations.jpg");
     tex_decoration->format = GL_RGB;
@@ -721,12 +687,9 @@ TEX_LAZYLOAD_FN(animal,
 )
 
 TEX_LAZYLOAD_FN(wood,
-#if (defined TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_wood->load_etc1("data-mobile/textures/wood.pkm");
     tms_texture_set_filtering(tex_wood, GL_NEAREST);
-#elif defined TMS_BACKEND_IOS
-    tex_wood->load_pvrtc("data-ios/textures/wood.pvr");
-    tms_texture_set_filtering(tex_wood, GL_LINEAR);
 #else
     tex_wood->load("data-pc/textures/wood.jpg");
     tex_wood->format = GL_RGB;
@@ -738,11 +701,8 @@ TEX_LAZYLOAD_FN(wood,
 )
 
 TEX_LAZYLOAD_FN(bark,
-#if defined(TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_bark->load_etc1("data-mobile/textures/bark-2.pkm");
-    tms_texture_set_filtering(tex_bark, GL_LINEAR);
-#elif defined TMS_BACKEND_IOS
-    tex_bark->load_pvrtc("data-ios/textures/bark-2.pvr");
     tms_texture_set_filtering(tex_bark, GL_LINEAR);
 #else
     tex_bark->load("data-pc/textures/bark-2.jpg");
@@ -754,22 +714,9 @@ TEX_LAZYLOAD_FN(bark,
     tms_texture_free_buffer(tex_bark);
 )
 
-TEX_LAZYLOAD_FN(bark_contour,
-    tex_bark_contour->load("data-shared/textures/bark_contour.png");
-    tex_bark_contour->format = GL_RGBA;
-    tms_texture_set_filtering(tex_bark_contour, TMS_MIPMAP);
-    //tms_texture_set_filtering(tex_bark_contour, GL_LINEAR);
-    tex_bark_contour->gamma_correction = 0;
-    tex_bark_contour->upload();
-    tms_texture_free_buffer(tex_bark_contour);
-)
-
 TEX_LAZYLOAD_FN(rubber,
-#if defined(TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_rubber->load_etc1("data-mobile/textures/rubber.pkm");
-    tms_texture_set_filtering(tex_rubber, GL_LINEAR);
-#elif defined TMS_BACKEND_IOS
-    tex_rubber->load_pvrtc("data-ios/textures/rubber.pvr");
     tms_texture_set_filtering(tex_rubber, GL_LINEAR);
 #else
     tex_rubber->load("data-pc/textures/rubber.jpg");
@@ -782,11 +729,8 @@ TEX_LAZYLOAD_FN(rubber,
 )
 
 TEX_LAZYLOAD_FN(bedrock,
-#if defined(TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_bedrock->load_etc1("data-mobile/textures/bedrock.pkm");
-    tms_texture_set_filtering(tex_bedrock, GL_LINEAR);
-#elif defined TMS_BACKEND_IOS
-    tex_bedrock->load_pvrtc("data-ios/textures/bedrock.pvr");
     tms_texture_set_filtering(tex_bedrock, GL_LINEAR);
 #else
     tex_bedrock->load("data-pc/textures/bedrock.jpg");
@@ -799,11 +743,8 @@ TEX_LAZYLOAD_FN(bedrock,
 )
 
 TEX_LAZYLOAD_FN(reflection,
-#if defined(TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_reflection->load_etc1("data-mobile/textures/reflection.pkm");
-    tms_texture_set_filtering(tex_reflection, GL_LINEAR);
-#elif defined TMS_BACKEND_IOS
-    tex_reflection->load_pvrtc("data-ios/textures/reflection.pvr");
     tms_texture_set_filtering(tex_reflection, GL_LINEAR);
 #else
     tex_reflection->load("data-pc/textures/reflection.jpg");
@@ -915,11 +856,8 @@ TEX_LAZYLOAD_FN(misc,
 )
 
 TEX_LAZYLOAD_FN(wmotor,
-#if defined(TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_wmotor->load_etc1("data-mobile/textures/wmotor.pkm");
-    tms_texture_set_filtering(tex_wmotor, GL_LINEAR);
-#elif defined(TMS_BACKEND_IOS)
-    tex_wmotor->load_pvrtc("data-ios/textures/wmotor.pvr");
     tms_texture_set_filtering(tex_wmotor, GL_LINEAR);
 #else
     tex_wmotor->gamma_correction = settings["gamma_correct"]->v.b;
@@ -931,11 +869,8 @@ TEX_LAZYLOAD_FN(wmotor,
 )
 
 TEX_LAZYLOAD_FN(metal,
-#if (defined TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_metal->load_etc1("data-mobile/textures/metal.pkm");
-    tms_texture_set_filtering(tex_metal, GL_LINEAR);
-#elif defined TMS_BACKEND_IOS
-    tex_metal->load_pvrtc("data-ios/textures/metal.pvr");
     tms_texture_set_filtering(tex_metal, GL_LINEAR);
 #else
     tex_metal->load("data-pc/textures/metal.jpg");
@@ -1002,9 +937,6 @@ TEX_LAZYLOAD_FN(rackhouse,
 #if (defined TMS_BACKEND_ANDROID)
     tex_rackhouse->load_etc1("data-mobile/textures/rackhouse.pkm");
     tms_texture_set_filtering(tex_rackhouse, GL_LINEAR);
-#elif defined TMS_BACKEND_IOS
-    tex_rackhouse->load_pvrtc("data-ios/textures/rackhouse.pvr");
-    tms_texture_set_filtering(tex_rackhouse, GL_LINEAR);
 #else
     tex_rackhouse->load("data-pc/textures/rackhouse.jpg");
     tex_rackhouse->format = GL_RGB;
@@ -1048,11 +980,8 @@ TEX_LAZYLOAD_FN(cpad,
 )
 
 TEX_LAZYLOAD_FN(breadboard,
-#if defined(TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_breadboard->load_etc1("data-mobile/textures/breadboard.pkm");
-    tms_texture_set_filtering(tex_breadboard, GL_LINEAR);
-#elif defined(TMS_BACKEND_IOS)
-    tex_breadboard->load_pvrtc("data-ios/textures/breadboard.pvr");
     tms_texture_set_filtering(tex_breadboard, GL_LINEAR);
 #else
     tex_breadboard->gamma_correction = settings["gamma_correct"]->v.b;
@@ -1072,11 +1001,8 @@ TEX_LAZYLOAD_FN(cup_ao,
 )
 
 TEX_LAZYLOAD_FN(border,
-#if (defined TMS_BACKEND_ANDROID)
+#ifdef TMS_BACKEND_ANDROID
     tex_border->load_etc1("data-mobile/textures/border.pkm");
-    tms_texture_set_filtering(tex_border, GL_LINEAR);
-#elif defined TMS_BACKEND_IOS
-    tex_border->load_pvrtc("data-ios/textures/border.pvr");
     tms_texture_set_filtering(tex_border, GL_LINEAR);
 #else
     tex_border->load("data-pc/textures/border.jpg");
@@ -1132,14 +1058,10 @@ TEX_LAZYLOAD_FN(repairstation,
 )
 
 void
-material_factory::init(bool is_shitty/*=false*/)
+material_factory::init()
 {
-    tms_infof("mf::init. Current LC_ALL: %s", setlocale(LC_ALL, NULL));
-    tms_infof("mf::init. Current LC_NUMERIC: %s", setlocale(LC_NUMERIC, NULL));
     setlocale(LC_ALL, "C");
     setlocale(LC_NUMERIC, "C");
-    tms_infof("mf::init. After LC_ALL: %s", setlocale(LC_ALL, NULL));
-    tms_infof("mf::init. After LC_NUMERIC: %s", setlocale(LC_NUMERIC, NULL));
 
     material_factory::background_id = 0;
     int ierr;
@@ -1150,10 +1072,10 @@ material_factory::init(bool is_shitty/*=false*/)
 
     tms_infof("Initializing material factor...");
 
-    material_factory::init_shaders(is_shitty);
+    material_factory::init_shaders();
 
     /* TEXTURES BEGIN */
-    tms_progressf("Initializing textures... ");
+    tms_infof("Initializing textures... ");
 
 #define TEX_INIT_LAZYLOAD(x) {tex_##x = new tms::texture(); tms_texture_set_buffer_fn(tex_##x, lz_##x);}
     TEX_INIT_LAZYLOAD(weapons);
@@ -1203,24 +1125,18 @@ material_factory::init(bool is_shitty/*=false*/)
 
     material_factory::load_bg_texture();
 
-    tms_progressf("OK\n");
-
     /* TEXTURES END */
 
-    material_factory::init_materials(is_shitty);
+    material_factory::init_materials();
 }
 
 void
-material_factory::init_shaders(bool is_shitty)
+material_factory::init_shaders()
 {
-    tms_infof("init_shaders. Current LC_ALL: %s", setlocale(LC_ALL, NULL));
-    tms_infof("init_shaders. Current LC_NUMERIC: %s", setlocale(LC_NUMERIC, NULL));
     setlocale(LC_ALL, "C");
     setlocale(LC_NUMERIC, "C");
-    tms_infof("init_shaders. After LC_ALL: %s", setlocale(LC_ALL, NULL));
-    tms_infof("init_shaders. After LC_NUMERIC: %s", setlocale(LC_NUMERIC, NULL));
 
-    tms_progressf("Defining shader globals... ");
+    tms_infof("Defining shader globals...");
 
     bool dynamic_lighting = false;
     _tms.gamma_correct = (int)settings["gamma_correct"]->v.b;
@@ -1235,8 +1151,6 @@ material_factory::init_shaders(bool is_shitty)
         P.default_ambient = .55f;
         P.default_diffuse = 1.1f;
     }
-
-    plant::high_quality = settings["high_quality_trees"]->v.b;
 
     int ierr;
     char tmp[512];
@@ -1253,12 +1167,9 @@ material_factory::init_shaders(bool is_shitty)
     tms_shader_global_define_fs("highp", "");
 #endif
 
-    if (settings["shadow_map_precision"]->v.i == 0
-        && !settings["shadow_map_depth_texture"]->is_true()) {
-        tms_progressf("sb=.15 ");
+    if (settings["shadow_map_precision"]->v.i == 0 && !settings["shadow_map_depth_texture"]->is_true()) {
         tms_shader_global_define("SHADOW_BIAS", ".15");
     } else {
-        tms_progressf("sb=.005 ");
         tms_shader_global_define("SHADOW_BIAS", ".005");
     }
 
@@ -1316,10 +1227,10 @@ material_factory::init_shaders(bool is_shitty)
     if (settings["enable_shadows"]->v.b || settings["enable_ao"]->v.b) {
         if (settings["shadow_ao_combine"]->v.b) {
             if (dynamic_lighting) {
-                tms_progressf("dl=1 ");
+                tms_debugf("dl=1 ");
                 tms_shader_global_define_vs("UNIFORMS", "uniform mat4 SMVP;uniform lowp vec2 _AMBIENTDIFFUSE;");
             } else {
-                tms_progressf("dl=0 ");
+                tms_debugf("dl=0 ");
                 tms_shader_global_define_vs("UNIFORMS", "uniform mat4 SMVP;");
             }
         } else {
@@ -1339,9 +1250,9 @@ material_factory::init_shaders(bool is_shitty)
             tms_shader_global_define_vs("UNIFORMS", tmp);
         }
     } else {
-        tms_progressf("sao=0 ");
+        tms_debugf("sao=0 ");
         if (dynamic_lighting) {
-            tms_progressf("dl=1 ");
+            tms_debugf("dl=1 ");
             tms_shader_global_define_vs("UNIFORMS", "uniform lowp vec2 _AMBIENTDIFFUSE;");
         } else {
             tms_shader_global_define_vs("UNIFORMS", "");
@@ -1460,16 +1371,11 @@ material_factory::init_shaders(bool is_shitty)
 
     tms_material_init(static_cast<tms_material*>(&m_colored));
 
-    tms_progressf("OK\n");
-
     tms_assertf((ierr = glGetError()) == 0, "gl error %d before shader compile", ierr);
 
     tms_infof("Compiling shaders");
 
     uint32_t global_flags = 0;
-    if (is_shitty) {
-        global_flags |= GF_IS_SHITTY;
-    }
 
     if (enable_gi) {
         global_flags |= GF_ENABLE_GI;
@@ -1481,7 +1387,7 @@ material_factory::init_shaders(bool is_shitty)
         char *buf;
         int r;
 
-        tms_infof("Reading %s vertex shader...", sld->name);
+        tms_debugf("Reading %s vertex shader...", sld->name);
         read_shader(sld, GL_VERTEX_SHADER, global_flags, &buf);
         if (!buf) {
             tms_infof("Falling back, failed to read!");
@@ -1496,13 +1402,7 @@ material_factory::init_shaders(bool is_shitty)
         free(buf);
         buf = 0;
 
-        if ((sld->flags & SL_EXIT_ON_FAIL) && r == T_COMPILE_ERROR) {
-            ui::message("The settings was adjusted for your device.\nPlease restart Principia for the action to take effect.\nPlease contact principia@bithack.se if you still have trouble starting the game.", true);
-            SDL_Delay(10000);
-            tms_fatalf("Error compiling shader: %s.", sld->name);
-        }
-
-        tms_infof("Reading %s fragment shader...", sld->name);
+        tms_debugf("Reading %s fragment shader...", sld->name);
         read_shader(sld, GL_FRAGMENT_SHADER, global_flags, &buf);
         if (!buf) {
             tms_infof("Falling back, failed to read!");
@@ -1516,19 +1416,12 @@ material_factory::init_shaders(bool is_shitty)
         free(buf);
         buf = 0;
 
-        if ((sld->flags & SL_EXIT_ON_FAIL) && r == T_COMPILE_ERROR) {
-            ui::message("The settings was adjusted for your device.\nPlease restart Principia for the action to take effect.\nPlease contact principia@bithack.se if you still have trouble starting the game.", true);
-            SDL_Delay(10000);
-            tms_fatalf("Error compiling shader: %s.", sld->name);
-        }
-
         *sld->shader = sh;
     }
 
     tms::shader *sh;
 
     sh = new tms::shader("edev");
-    tms_progressf("+");
 
     if (_tms.gamma_correct) {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.07074,.07074,.07074,1.)");
@@ -1536,181 +1429,134 @@ material_factory::init_shaders(bool is_shitty)
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.3,.3,.3,1.)");
     }
     sh->compile(GL_VERTEX_SHADER, src_constcolored[0]);
-    tms_progressf(".");
     sh->compile(GL_FRAGMENT_SHADER, src_constcolored[1]);
-    tms_progressf(".");
     shader_edev = sh;
 
     sh = new tms::shader("edev dark");
-    tms_progressf("+");
     if (_tms.gamma_correct) {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.02899,.02899,.02899,1.)");
     } else {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.2,.2,.2,1.)");
     }
     sh->compile(GL_VERTEX_SHADER, src_constcolored[0]);
-    tms_progressf(".");
     sh->compile(GL_FRAGMENT_SHADER, src_constcolored[1]);
-    tms_progressf(".");
     shader_edev_dark = sh;
 
     sh = new tms::shader("red");
-    tms_progressf("+");
     if (_tms.gamma_correct) {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.45626,.0993,.0993,1.)");
     } else {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.7,.35,.35,1.)");
     }
     sh->compile(GL_VERTEX_SHADER, src_constcolored[0]);
-    tms_progressf(".");
     sh->compile(GL_FRAGMENT_SHADER, src_constcolored[1]);
-    tms_progressf(".");
     shader_red = sh;
 
     sh = new tms::shader("blue");
-    tms_progressf("+");
     if (_tms.gamma_correct) {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.1726,.1726,.612065,1.)");
     } else {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.45,.45,.8,1.)");
     }
     sh->compile(GL_VERTEX_SHADER, src_constcolored[0]);
-    tms_progressf(".");
     sh->compile(GL_FRAGMENT_SHADER, src_constcolored[1]);
-    tms_progressf(".");
     shader_blue = sh;
 
     sh = new tms::shader("white");
-    tms_progressf("+");
     if (_tms.gamma_correct) {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.612065,.612065,.612065,1.)");
     } else {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.8,.8,.8,1.)");
     }
     sh->compile(GL_VERTEX_SHADER, src_constcolored[0]);
-    tms_progressf(".");
     sh->compile(GL_FRAGMENT_SHADER, src_constcolored[1]);
-    tms_progressf(".");
     shader_white = sh;
 
     sh = new tms::shader("interactive");
-    tms_progressf("+");
     if (_tms.gamma_correct) {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.325,.325,.612065,1.)");
     } else {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.6,.6,.8,1.)");
     }
     sh->compile(GL_VERTEX_SHADER, src_constcolored[0]);
-    tms_progressf(".");
     sh->compile(GL_FRAGMENT_SHADER, src_constcolored[1]);
-    tms_progressf(".");
     shader_interactive = sh;
 
     /* menu shaders */
 
     sh = new tms::shader("edev menu");
-    tms_progressf("+");
     if (_tms.gamma_correct) {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.07074,.07074,.07074,1.)");
     } else {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.3,.3,.3,1.)");
     }
     sh->compile(GL_VERTEX_SHADER, src_constcolored_m[0]);
-    tms_progressf(".");
     sh->compile(GL_FRAGMENT_SHADER, src_constcolored_m[1]);
-    tms_progressf(".");
     shader_edev_m = sh;
 
     sh = new tms::shader("edev dark menu");
-    tms_progressf("+");
     if (_tms.gamma_correct) {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.02899,.02899,.02899,1.)");
     } else {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.2,.2,.2,1.)");
     }
     sh->compile(GL_VERTEX_SHADER, src_constcolored_m[0]);
-    tms_progressf(".");
     sh->compile(GL_FRAGMENT_SHADER, src_constcolored_m[1]);
-    tms_progressf(".");
     shader_edev_dark_m = sh;
 
     sh = new tms::shader("red menu");
-    tms_progressf("+");
     if (_tms.gamma_correct) {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.45626,.0993,.0993,1.)");
     } else {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.7,.35,.35,1.)");
     }
     sh->compile(GL_VERTEX_SHADER, src_constcolored_m[0]);
-    tms_progressf(".");
     sh->compile(GL_FRAGMENT_SHADER, src_constcolored_m[1]);
-    tms_progressf(".");
     shader_red_m = sh;
 
     sh = new tms::shader("blue menu");
-    tms_progressf("+");
     if (_tms.gamma_correct) {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.1726,.1726,.612065,1.)");
     } else {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.45,.45,.8,1.)");
     }
     sh->compile(GL_VERTEX_SHADER, src_constcolored_m[0]);
-    tms_progressf(".");
     sh->compile(GL_FRAGMENT_SHADER, src_constcolored_m[1]);
-    tms_progressf(".");
     shader_blue_m = sh;
 
     sh = new tms::shader("white menu");
-    tms_progressf("+");
     if (_tms.gamma_correct) {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.612065,.612065,.612065,1.)");
     } else {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.8,.8,.8,1.)");
     }
     sh->compile(GL_VERTEX_SHADER, src_constcolored_m[0]);
-    tms_progressf(".");
     sh->compile(GL_FRAGMENT_SHADER, src_constcolored_m[1]);
-    tms_progressf(".");
     shader_white_m = sh;
 
     sh = new tms::shader("interactive menu");
-    tms_progressf("+");
     if (_tms.gamma_correct) {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.325,.325,.612065,1.)");
     } else {
         tms_shader_define((struct tms_shader*)sh, "COLOR", "vec4(.6,.6,.8,1.)");
     }
     sh->compile(GL_VERTEX_SHADER, src_constcolored_m[0]);
-    tms_progressf(".");
     sh->compile(GL_FRAGMENT_SHADER, src_constcolored_m[1]);
-    tms_progressf(".");
     shader_interactive_m = sh;
 
-    tms_infof("before bg. Current LC_ALL: %s", setlocale(LC_ALL, NULL));
-    tms_infof("before bg. Current LC_NUMERIC: %s", setlocale(LC_NUMERIC, NULL));
     setlocale(LC_ALL, "C");
     setlocale(LC_NUMERIC, "C");
-    tms_infof("before bg after. After LC_ALL: %s", setlocale(LC_ALL, NULL));
-    tms_infof("before bg after. After LC_NUMERIC: %s", setlocale(LC_NUMERIC, NULL));
 
     sh = new tms::shader("Menu BG");
-    tms_progressf("+");
     {char tmp[32];
     sprintf(tmp, "vec2(%f,%f)", _tms.window_width / 512.f, _tms.window_height / 512.f);
     tms_shader_define_vs((struct tms_shader*)sh, "SCALE", tmp);}
     sh->compile(GL_VERTEX_SHADER, menu_bgsources[0]);
-    tms_progressf(".");
     sh->compile(GL_FRAGMENT_SHADER, menu_bgsources[1]);
-    tms_progressf(".");
     menu_bg_program = sh->get_program(TMS_NO_PIPELINE);
     menu_bg_color_loc = tms_program_get_uniform(menu_bg_program, "color");
 
-    tms_infof("before bg after 2. After LC_ALL: %s", setlocale(LC_ALL, NULL));
-    tms_infof("before bg after 2. After LC_NUMERIC: %s", setlocale(LC_NUMERIC, NULL));
-
-    if (!is_shitty) {
-        SN(shader_shiny);
-    }
+    SN(shader_shiny);
     SN(shader_edev);
     SN(shader_edev_m);
     SN(shader_edev_dark);
@@ -1728,28 +1574,23 @@ material_factory::init_shaders(bool is_shitty)
 }
 
 void
-material_factory::init_materials(bool is_shitty)
+material_factory::init_materials()
 {
-    tms_progressf("Initializing materials");
+    tms_infof("Initializing materials");
 
     _tms.gamma_correct = settings["gamma_correct"]->v.b;
     bool shadow_ao_combine = settings["shadow_ao_combine"]->v.b;
     bool enable_gi = false; // settings["enable_gi"]->v.b
 
-    tms_progressf("+");
     m_bg.pipeline[0].program = shader_bg->get_program(0);
-    tms_progressf(".");
     m_bg.pipeline[1].program = 0;
     m_bg.pipeline[0].texture[0] = tex_bg;
 
     m_bg2.pipeline[0].program = shader_bg->get_program(0);
-    tms_progressf(".");
     m_bg2.pipeline[1].program = 0;
     m_bg2.pipeline[0].texture[0] = tex_wood;
 
-    tms_progressf("+");
     m_bg_fixed.pipeline[0].program = shader_bg_fixed->get_program(0);
-    tms_progressf(".");
     m_bg_fixed.pipeline[1].program = 0;
     m_bg_fixed.pipeline[0].texture[0] = tex_bg;
 
@@ -1765,40 +1606,26 @@ material_factory::init_materials(bool is_shitty)
     m_grid.pipeline[1].program = 0;
     m_grid.pipeline[0].texture[0] = tex_grid;
 
-    tms_progressf("+");
     m_border.pipeline[0].program = shader_border->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_border.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
     m_border.pipeline[2].program = 0;
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_border.pipeline[3].program = shader_border_ao->get_program(3);
     } else {
         m_border.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_border.pipeline[0].texture[0] = tex_border;
     m_border.pipeline[2].texture[0] = tex_border;
     m_border.type = TYPE_WOOD2;
 
-    tms_progressf("+");
     m_colored.pipeline[0].program = shader_colored->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_colored.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_colored.pipeline[2].program = shader_pv_colored_m->get_program(2);
-    tms_progressf(".");
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_colored.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_colored.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_colored.friction = .6f;
     m_colored.density = .5f*M_DENSITY;
     m_colored.restitution = .3f;
@@ -1817,49 +1644,31 @@ material_factory::init_materials(bool is_shitty)
     m_gem.restitution = .3f;
     m_gem.type = TYPE_METAL;
 
-    tms_progressf("+");
     m_rubberband.pipeline[0].program = shader_rubberband->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_rubberband.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
     m_rubberband.pipeline[2].program = 0;
     m_rubberband.pipeline[3].program = 0;
 
-    tms_progressf("+");
     m_cable.pipeline[0].program = shader_cable->get_program(0);
-    tms_progressf(".");
 
     if ((float)settings["shadow_map_resx"]->v.i / (float)_tms.window_width < .7f) {
         /* disable cable shadows if the resolution is too low, it just looks ugly */
         m_cable.pipeline[1].program = 0;
     } else {
-        tms_progressf("+");
         m_cable.pipeline[1].program = shader_gi->get_program(1);
-        tms_progressf(".");
     }
 
-    tms_progressf("+");
     m_cable.pipeline[2].program = shader_cable->get_program(2);
-    tms_progressf(".");
     m_cable.pipeline[3].program = 0;
 
-    tms_progressf("+");
     m_pixel.pipeline[0].program = shader_colorbuf->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_pixel.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_pixel.pipeline[2].program = 0;
-    tms_progressf(".");
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_pixel.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_pixel.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_pixel.friction = .6f;
     m_pixel.density = .5f*M_DENSITY;
     m_pixel.restitution = .3f;
@@ -1883,124 +1692,76 @@ material_factory::init_materials(bool is_shitty)
     m_pv_colored.restitution = .3f;
     m_pv_colored.type = TYPE_PLASTIC;
 
-    tms_progressf("+");
     m_interactive.pipeline[0].program = shader_interactive->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_interactive.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_interactive.pipeline[2].program = shader_interactive_m->get_program(2);
-    tms_progressf(".");
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_interactive.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_interactive.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_interactive.friction = .8f;
     m_interactive.density = 1.25f*M_DENSITY;
     m_interactive.restitution = .3f;
     m_interactive.type = TYPE_PLASTIC;
 
-    tms_progressf("+");
     m_pv_rgba.pipeline[0].program = shader_pv_colored->get_program(0);
-    tms_progressf(".");
     m_pv_rgba.pipeline[0].blend_mode = TMS_BLENDMODE__SRC_ALPHA__ONE_MINUS_SRC_ALPHA;
-    tms_progressf("+");
     //m_pv_rgba.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_pv_rgba.pipeline[2].program = shader_pv_colored_m->get_program(2);
-    tms_progressf(".");
-    tms_progressf("+");
     //m_pv_rgba.pipeline[3].program = shader_ao->get_program(3);
-    tms_progressf(".");
     m_pv_rgba.friction = .6f;
     m_pv_rgba.density = .5f*M_DENSITY;
     m_pv_rgba.restitution = .3f;
     m_pv_rgba.type = TYPE_PLASTIC;
 
-    tms_progressf("+");
     m_rope.pipeline[0].program = shader_pv_textured->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_rope.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_rope.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_rope.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_rope);
     m_rope.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_rope);
-    tms_progressf("+");
     m_rope.pipeline[3].program = 0;//shader_ao->get_program(3);
-    tms_progressf(".");
 
-    tms_progressf("+");
     m_gen.pipeline[0].program = shader_pv_textured_ao->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_gen.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_gen.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_gen.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_gen);
     m_gen.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_gen);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_gen.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_gen.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_gen.friction = .5f;
     m_gen.density = 2.0f*M_DENSITY;
     m_gen.restitution = .1f;
     m_gen.type = TYPE_METAL;
 
-    tms_progressf("+");
     m_battery.pipeline[0].program = shader_pv_textured_ao->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_battery.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_battery.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_battery.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_battery);
     m_battery.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_battery);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_battery.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_battery.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_battery.friction = .5f;
     m_battery.density = 2.0f*M_DENSITY;
     m_battery.restitution = .1f;
     m_battery.type = TYPE_METAL;
 
-    tms_progressf("+");
     m_motor.pipeline[0].program = shader_pv_textured_ao->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_motor.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_motor.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_motor.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_motor);
     m_motor.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_motor);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_motor.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_motor.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_motor.friction = .5f;
     m_motor.density = 2.0f*M_DENSITY;
     m_motor.restitution = .1f;
@@ -2043,48 +1804,33 @@ material_factory::init_materials(bool is_shitty)
     m_ladder.restitution = .1f;
     m_ladder.type = TYPE_WOOD;
 
-    tms_progressf("+");
     m_wood.pipeline[0].program = shader_pv_textured->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_wood.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_wood.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_wood.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_wood);
     if (enable_gi) m_wood.pipeline[1].texture[0] = static_cast<tms_texture*>(tex_wood);
     m_wood.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_wood);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_wood.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_wood.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_wood.friction = .6f;
     m_wood.density = .5f*M_DENSITY;
     m_wood.restitution = .3f;
     m_wood.type = TYPE_WOOD;
 
     m_tpixel.pipeline[0].program = shader_pv_textured->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_tpixel.pipeline[1].program = shader_gi_tex->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_tpixel.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_tpixel.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_tpixel);
     if (enable_gi) m_tpixel.pipeline[1].texture[0] = static_cast<tms_texture*>(tex_tpixel);
     m_tpixel.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_tpixel);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_tpixel.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_tpixel.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_tpixel.friction = .6f;
     m_tpixel.density = .5f*M_DENSITY;
     m_tpixel.restitution = .3f;
@@ -2098,17 +1844,13 @@ material_factory::init_materials(bool is_shitty)
     m_grass.pipeline[0].blend_mode = TMS_BLENDMODE__SRC_ALPHA__ONE_MINUS_SRC_ALPHA;
 
     m_weight.pipeline[0].program = shader_pv_colored->get_program(0);
-    tms_progressf(".");
     m_weight.pipeline[1].program = shader_gi_col->get_program(1);
-    tms_progressf(".");
     m_weight.pipeline[2].program = shader_pv_colored_m->get_program(2);
-    tms_progressf(".");
     if (shadow_ao_combine) {
         m_weight.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_weight.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_weight.friction = .6f;
     m_weight.density = 25.0f*M_DENSITY; /* XXX: Should this density really be used? */
     m_weight.restitution = .3f;
@@ -2141,26 +1883,9 @@ material_factory::init_materials(bool is_shitty)
     m_bark.density = .75f*M_DENSITY;
     m_bark.restitution = .1f;
 
-    m_bark_contour.pipeline[0].program = shader_bark->get_program(0);
-    m_bark_contour.pipeline[1].program = shader_gi->get_program(1);
-    m_bark_contour.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    m_bark_contour.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_bark_contour);
-    m_bark_contour.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_bark_contour);
-    if (shadow_ao_combine) {
-        m_bark_contour.pipeline[3].program = shader_ao->get_program(3);
-    } else {
-        m_bark_contour.pipeline[3].program = shader_ao_norot->get_program(3);
-    }
-    m_bark_contour.friction = m_bark.friction;
-    m_bark_contour.density = m_bark.density;
-    m_bark_contour.restitution = m_bark.restitution;
-
     m_rubber.pipeline[0].program = shader_pv_textured->get_program(0);
-    tms_progressf(".");
     m_rubber.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
     m_rubber.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_rubber.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_rubber);
     m_rubber.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_rubber);
     if (shadow_ao_combine) {
@@ -2168,18 +1893,14 @@ material_factory::init_materials(bool is_shitty)
     } else {
         m_rubber.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_rubber.friction = 1.75f;
     m_rubber.density = .75f*M_DENSITY;
     m_rubber.restitution = .5f;
     m_rubber.type = TYPE_RUBBER;
 
     m_metal.pipeline[0].program = shader_pv_textured->get_program(0);/* XXX */
-    tms_progressf(".");
     m_metal.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
     m_metal.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_metal.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_metal);
     m_metal.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_metal);
     if (shadow_ao_combine) {
@@ -2187,121 +1908,80 @@ material_factory::init_materials(bool is_shitty)
     } else {
         m_metal.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_metal.friction = .2f;
     m_metal.density = 1.0f*M_DENSITY;
     m_metal.restitution = .4f;
     m_metal.type = TYPE_METAL;
 
-    tms_progressf("+");
     m_angulardamper.pipeline[0].program = shader_pv_textured->get_program(0);/* XXX */
-    tms_progressf(".");
-    tms_progressf("+");
     m_angulardamper.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_angulardamper.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_angulardamper.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_metal);
     m_angulardamper.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_metal);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_angulardamper.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_angulardamper.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_angulardamper.friction = .2f;
     m_angulardamper.density = 1.0f*M_DENSITY;
     m_angulardamper.restitution = 1.0f;
 
-    tms_progressf("+");
     m_iron.pipeline[0].program = shader_textured->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_iron.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_iron.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_iron.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_metal);
     m_iron.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_metal);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_iron.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_iron.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_iron.friction = 0.5f;
     m_iron.density = 4.f*M_DENSITY;
     m_iron.restitution = .6f; /* TODO: previous: .9f */
     m_iron.type = TYPE_METAL;
 
-    tms_progressf("+");
     m_rail.pipeline[0].program = shader_textured->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_rail.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_rail.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_rail.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_metal);
     m_rail.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_metal);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_rail.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_rail.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_rail.friction = 0.1f;
     m_rail.density = 1.f*M_DENSITY;
     m_rail.restitution = .0f;
     m_rail.type = TYPE_METAL2;
 
-    tms_progressf("+");
     m_cpad.pipeline[0].program = shader_pv_textured->get_program(0);/* XXX */
-    tms_progressf(".");
-    tms_progressf("+");
     m_cpad.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_cpad.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_cpad.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_cpad); /* XXX */
     m_cpad.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_cpad); /* XXX */
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_cpad.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_cpad.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_cpad.friction = .8f;
     m_cpad.density = 1.0f*M_DENSITY;
     m_cpad.restitution = .1f;
     m_cpad.type = TYPE_PLASTIC;
 
-    tms_progressf("+");
     m_rocket.pipeline[0].program = shader_pv_textured->get_program(0);/* XXX */
-    tms_progressf(".");
-    tms_progressf("+");
     m_rocket.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_rocket.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_rocket.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_metal); /* XXX */
     m_rocket.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_metal); /* XXX */
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_rocket.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_rocket.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_rocket.friction = .2f;
     m_rocket.density = 1.0f*M_DENSITY;
     m_rocket.restitution = .005f;
@@ -2347,93 +2027,62 @@ material_factory::init_materials(bool is_shitty)
     m_pellet.restitution = .2f;
     m_pellet.type = TYPE_METAL;
 
-    tms_progressf("+");
     m_magnet.pipeline[0].program = shader_textured->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_magnet.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_magnet.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_magnet.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_magnet);
     m_magnet.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_magnet);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_magnet.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_magnet.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_magnet.friction = 4.f;
     m_magnet.density = 3.f*M_DENSITY;
     m_magnet.restitution = .0f;
     m_magnet.type = TYPE_METAL;
 
-    tms_progressf("+");
-    if (settings["texture_quality"]->v.u8 < 2 || is_shitty || !(m_gear.pipeline[0].program = shader_shiny->get_program(0)))
+    if (!(m_gear.pipeline[0].program = shader_shiny->get_program(0)))
         m_gear.pipeline[0].program = shader_pv_textured->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_gear.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_gear.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_gear.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_gear);
     m_gear.pipeline[0].texture[1] = static_cast<tms_texture*>(tex_reflection);
     m_gear.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_gear);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_gear.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_gear.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_gear.friction = 2.f;
     m_gear.density = .2f*M_DENSITY;
     m_gear.restitution = .1f;
 
-    tms_progressf("+");
     m_gear_ao.pipeline[0].program = shader_pv_textured_ao->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_gear_ao.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_gear_ao.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_gear_ao.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_rackhouse);
     m_gear_ao.pipeline[0].texture[1] = static_cast<tms_texture*>(tex_reflection);
     m_gear_ao.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_gear);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_gear_ao.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_gear_ao.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_gear_ao.friction = m_gear.friction;
     m_gear_ao.density = m_gear.density*M_DENSITY;
     m_gear_ao.restitution = m_gear.restitution;
 
-    tms_progressf("+");
     m_mpanel.pipeline[0].program = shader_pv_textured_ao->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_mpanel.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
     m_mpanel.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_mpanel.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_mpanel);
     m_mpanel.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_mpanel);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_mpanel.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_mpanel.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_mpanel.friction = .5f;
     m_mpanel.density = .7f*M_DENSITY;
     m_mpanel.restitution = .1f;
@@ -2484,71 +2133,47 @@ material_factory::init_materials(bool is_shitty)
     m_iomisc.restitution = m_edev.restitution;
     m_iomisc.type = m_edev.type;
 
-    tms_progressf("+");
     m_smallpanel.pipeline[0].program = shader_pv_textured_ao->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_smallpanel.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_smallpanel.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_smallpanel.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_smallpanel);
     m_smallpanel.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_smallpanel);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_smallpanel.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_smallpanel.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_smallpanel.friction = m_mpanel.friction;
     m_smallpanel.density = m_mpanel.density;
     m_smallpanel.restitution = m_mpanel.restitution;
     m_smallpanel.type = TYPE_PLASTIC;
 
-    tms_progressf("+");
     m_misc.pipeline[0].program = shader_pv_textured_ao->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_misc.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_misc.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_misc.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_misc);
     m_misc.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_misc);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_misc.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_misc.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_misc.friction = .5f;
     m_misc.density = .7f*M_DENSITY;
     m_misc.restitution = .3f;
     m_misc.type = TYPE_PLASTIC;
 
-    tms_progressf("+");
     m_robot.pipeline[0].program = shader_pv_textured_ao->get_program(0);
     //m_robot.pipeline[0].program = shader_colored->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_robot.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_robot.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_robot.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_robot);
     m_robot.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_robot);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_robot.pipeline[3].program = 0;
     } else {
         m_robot.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_robot.friction = .7f;
     m_robot.density = .5f*M_DENSITY*ROBOT_DENSITY_MUL;
     m_robot.restitution = .1f;
@@ -2612,32 +2237,18 @@ material_factory::init_materials(bool is_shitty)
     m_robot_skeleton.restitution = m_robot.restitution;
     m_robot_skeleton.type = TYPE_SHEET_METAL;
 
-    tms_progressf("+");
     m_robot_head.pipeline[0].program = shader_pv_colored->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_robot_head.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_robot_head.pipeline[2].program = shader_pv_colored_m->get_program(2);
-    tms_progressf(".");
-    tms_progressf("+");
     m_robot_head.pipeline[3].program = m_robot.pipeline[3].program;
-    tms_progressf(".");
     m_robot_head.friction = .5f;
     m_robot_head.density = .3f*M_DENSITY*ROBOT_DENSITY_MUL;
     m_robot_head.restitution = .1f;
     m_robot_head.type = TYPE_SHEET_METAL;
 
-    tms_progressf("+");
     m_robot_arm.pipeline[0].program = shader_pv_colored->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_robot_arm.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_robot_arm.pipeline[2].program = shader_pv_colored_m->get_program(2);
-    tms_progressf(".");
     if (shadow_ao_combine) {
         m_robot_arm.pipeline[3].program = 0;
     } else {
@@ -2648,15 +2259,9 @@ material_factory::init_materials(bool is_shitty)
     m_robot_arm.restitution = .1f;
     m_robot_arm.type = TYPE_SHEET_METAL;
 
-    tms_progressf("+");
     m_robot_leg.pipeline[0].program = shader_pv_colored->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_robot_leg.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_robot_leg.pipeline[2].program = shader_pv_colored_m->get_program(2);
-    tms_progressf(".");
     if (shadow_ao_combine) {
         m_robot_leg.pipeline[3].program = 0;
     } else {
@@ -2667,15 +2272,9 @@ material_factory::init_materials(bool is_shitty)
     m_robot_leg.restitution = .1f;
     m_robot_leg.type = TYPE_SHEET_METAL;
 
-    tms_progressf("+");
     m_robot_foot.pipeline[0].program = shader_pv_colored->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_robot_foot.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_robot_foot.pipeline[2].program = shader_pv_colored_m->get_program(2);
-    tms_progressf(".");
     if (shadow_ao_combine) {
         m_robot_foot.pipeline[3].program = 0;
     } else {
@@ -2686,140 +2285,80 @@ material_factory::init_materials(bool is_shitty)
     m_robot_foot.restitution = .0f;
     m_robot_foot.type = TYPE_SHEET_METAL;
 
-    tms_progressf("+");
     m_i2o1.pipeline[0].program = shader_pv_textured_ao->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_i2o1.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_i2o1.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_i2o1.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_i2o1);
     m_i2o1.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_i2o1);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_i2o1.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_i2o1.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_i2o1.friction = .5f;
     m_i2o1.density = .5f*M_DENSITY;
     m_i2o1.restitution = .2f;
     m_i2o1.type = TYPE_PLASTIC;
 
-    tms_progressf("+");
     m_i1o1.pipeline[0].program = shader_pv_textured_ao->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_i1o1.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_i1o1.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_i1o1.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_i1o1);
     m_i1o1.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_i1o1);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_i1o1.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_i1o1.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_i1o1.friction = .5f;
     m_i1o1.density = .5f*M_DENSITY;
     m_i1o1.restitution = .2f;
     m_i1o1.type = TYPE_PLASTIC;
 
     /* TODO: use src_constcolored */
-    tms_progressf("+");
     m_conn.pipeline[0].program = shader_edev->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_conn.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
     m_conn.pipeline[2].program = 0;
-    tms_progressf("+");
     m_conn.pipeline[3].program = shader_ao_bias->get_program(3);
-    tms_progressf(".");
 
-    tms_progressf("+");
     m_conn_no_ao.pipeline[0].program = shader_edev->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_conn_no_ao.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
     m_conn_no_ao.pipeline[2].program = 0;
     m_conn_no_ao.pipeline[3].program = 0;
 
-    tms_progressf("+");
     m_red.pipeline[0].program = shader_red->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_red.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_red.pipeline[2].program = shader_red_m->get_program(2);
-    tms_progressf(".");
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_red.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_red.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_red.friction = .5f;
     m_red.density = .5f*M_DENSITY;
     m_red.restitution = .5f;
     m_red.type = TYPE_PLASTIC;
 
-    tms_progressf("+");
     m_cable_red.pipeline[0].program = shader_red->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_cable_red.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_cable_red.pipeline[2].program = shader_red_m->get_program(2);
-    tms_progressf(".");
 
-    tms_progressf("+");
     m_cable_black.pipeline[0].program = shader_white->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_cable_black.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_cable_black.pipeline[2].program = shader_white_m->get_program(2);
-    tms_progressf(".");
 
-    tms_progressf("+");
     m_cable_blue.pipeline[0].program = shader_blue->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_cable_blue.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_cable_blue.pipeline[2].program = shader_blue_m->get_program(2);
-    tms_progressf(".");
 
-    tms_progressf("+");
     m_heavyedev.pipeline[0].program = shader_edev->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_heavyedev.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_heavyedev.pipeline[2].program = shader_edev_m->get_program(2);
-    tms_progressf(".");
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_heavyedev.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_heavyedev.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_heavyedev.friction = .2f;
     m_heavyedev.density = 1.0f*M_DENSITY;
     m_heavyedev.restitution = .4f;
@@ -2838,201 +2377,116 @@ material_factory::init_materials(bool is_shitty)
     m_edev.restitution = .2f;
     m_edev.type = TYPE_PLASTIC;
 
-    tms_progressf("+");
     m_edev_dark.pipeline[0].program = shader_edev_dark->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_edev_dark.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_edev_dark.pipeline[2].program = shader_edev_dark_m->get_program(2);
-    tms_progressf(".");
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_edev_dark.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_edev_dark.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_edev_dark.friction = .5f;
     m_edev_dark.density = .5f*M_DENSITY;
     m_edev_dark.restitution = .2f;
     m_edev_dark.type = TYPE_PLASTIC;
 
-    tms_progressf("+");
     m_spikes.pipeline[0].program = shader_edev->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_spikes.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_spikes.pipeline[2].program = shader_edev_m->get_program(2);
-    tms_progressf(".");
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_spikes.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_spikes.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_spikes.friction = 1.f;
     m_spikes.density = .8f*M_DENSITY;
     m_spikes.restitution = .1f;
     m_spikes.type = TYPE_METAL;
 
-/*
-    tms_progressf("+");
-    m_rackhouse.pipeline[0].program = shader_pv_textured_ao->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
-    m_rackhouse.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
-    m_rackhouse.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
-    m_rackhouse.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_rackhouse);
-    m_rackhouse.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_rackhouse);
-    tms_progressf("+");
-    m_rackhouse.pipeline[3].program = shader_ao->get_program(3);
-    tms_progressf(".");
-    */
-
-    tms_progressf("+");
-    if (settings["texture_quality"]->v.u8 < 2 || is_shitty || !(m_rackhouse.pipeline[0].program = shader_shiny->get_program(0)))
+    if (!(m_rackhouse.pipeline[0].program = shader_shiny->get_program(0)))
         m_rackhouse.pipeline[0].program = shader_pv_textured->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_rackhouse.pipeline[1].program = shader_gi_tex->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_rackhouse.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_rackhouse.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_rackhouse);
     m_rackhouse.pipeline[0].texture[1] = static_cast<tms_texture*>(tex_reflection);
     if (enable_gi) m_rackhouse.pipeline[1].texture[0] = static_cast<tms_texture*>(tex_rackhouse);
     m_rackhouse.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_rackhouse);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_rackhouse.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_rackhouse.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_rackhouse.type = TYPE_METAL2;
     m_rackhouse.friction = .6f;
     m_rackhouse.density = .5f*M_DENSITY;
     m_rackhouse.restitution = .2f;
 
-    tms_progressf("+");
     m_rack.pipeline[0].program = shader_pv_textured_ao->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_rack.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_rack.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_rack.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_rack);
     m_rack.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_rack);
 
-    tms_progressf("+");
     m_wheel.pipeline[0].program = shader_wheel->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_wheel.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_wheel.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_wheel.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_wheel);
     m_wheel.pipeline[0].texture[1] = static_cast<tms_texture*>(tex_reflection);
     m_wheel.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_wheel);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_wheel.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_wheel.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_wheel.friction = 1.5f;
     m_wheel.density = .5f*M_DENSITY;
     m_wheel.restitution = .4f;
     m_wheel.type = TYPE_RUBBER;
 
-    tms_progressf("+");
     m_wmotor.pipeline[0].program = shader_pv_textured->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_wmotor.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_wmotor.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_wmotor.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_wmotor);
     m_wmotor.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_wmotor);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_wmotor.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_wmotor.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_wmotor.type = TYPE_METAL;
 
-    tms_progressf("+");
     m_sticky.pipeline[0].program = shader_pv_sticky->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_sticky.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_sticky.pipeline[2].program = shader_pv_sticky->get_program(2);
-    tms_progressf(".");
     m_sticky.pipeline[0].texture[0] = static_cast<tms_texture*>(&sticky::texture);
     m_sticky.pipeline[2].texture[0] = static_cast<tms_texture*>(&sticky::texture);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_sticky.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_sticky.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
 
-    tms_progressf("+");
     m_cup.pipeline[0].program = shader_pv_textured_ao->get_program(0);
-    tms_progressf(".");
-    tms_progressf("+");
     m_cup.pipeline[1].program = shader_gi->get_program(1);
-    tms_progressf(".");
-    tms_progressf("+");
     m_cup.pipeline[2].program = shader_pv_textured_m->get_program(2);
-    tms_progressf(".");
     m_cup.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_cup_ao);
     m_cup.pipeline[2].texture[0] = static_cast<tms_texture*>(tex_cup_ao);
-    tms_progressf("+");
     if (shadow_ao_combine) {
         m_cup.pipeline[3].program = shader_ao->get_program(3);
     } else {
         m_cup.pipeline[3].program = shader_ao_norot->get_program(3);
     }
-    tms_progressf(".");
     m_cup.type = TYPE_PLASTIC;
 
-    tms_progressf("+");
     m_ledbuf.pipeline[0].program = shader_ledbuf->get_program(0);
-    tms_progressf(".");
     m_ledbuf.pipeline[1].program = 0;
     m_ledbuf.pipeline[2].program = 0;
 
-    tms_progressf("+");
     m_digbuf.pipeline[0].program = shader_digbuf->get_program(0);
-    tms_progressf(".");
     m_digbuf.pipeline[1].program = 0;
     m_digbuf.pipeline[2].program = 0;
 
-    tms_progressf("+");
     m_field.pipeline[0].program = shader_field->get_program(0);
-    tms_progressf(".");
     //m_field.pipeline[0].flags |= TMS_MATERIAL_BLEND;
     m_field.pipeline[0].blend_mode = TMS_BLENDMODE__SRC_ALPHA__ONE_MINUS_SRC_ALPHA;
     m_field.pipeline[1].program = 0;
@@ -3042,9 +2496,7 @@ material_factory::init_materials(bool is_shitty)
     m_field.friction = FLT_EPSILON;
     m_field.restitution = 0.0f;
 
-    tms_progressf("+");
     m_linebuf.pipeline[0].program = shader_linebuf->get_program(0);
-    tms_progressf(".");
     m_linebuf.pipeline[0].blend_mode = TMS_BLENDMODE__SRC_ALPHA__ONE_MINUS_SRC_ALPHA;
     m_linebuf.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_line);
     m_linebuf.pipeline[1].program = 0;
@@ -3062,16 +2514,13 @@ material_factory::init_materials(bool is_shitty)
     m_fluidbuf.pipeline[1].program = 0;
     m_fluidbuf.pipeline[2].program = 0;
 
-    tms_progressf("+");
     m_spritebuf.pipeline[0].program = shader_spritebuf->get_program(0);
-    tms_progressf(".");
     m_spritebuf.pipeline[0].blend_mode = TMS_BLENDMODE__SRC_ALPHA__ONE_MINUS_SRC_ALPHA;
     m_spritebuf.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_sprites);
     m_spritebuf.pipeline[1].program = 0;
     m_spritebuf.pipeline[2].program = 0;
 
     m_spritebuf2.pipeline[0].program = shader_spritebuf_light->get_program(0);
-    tms_progressf(".");
     m_spritebuf2.pipeline[0].blend_mode = TMS_BLENDMODE__SRC_ALPHA__ONE;
     m_spritebuf2.pipeline[0].texture[0] = static_cast<tms_texture*>(tex_sprites);
     m_spritebuf2.pipeline[1].program = 0;
@@ -3261,6 +2710,4 @@ material_factory::init_materials(bool is_shitty)
     m_robot_armor.restitution = m_robot.restitution;
     m_robot_armor.type = TYPE_SHEET_METAL;
 
-
-    tms_progressf("OK\n");
 }

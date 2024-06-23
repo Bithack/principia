@@ -3,15 +3,6 @@
 #include "const.hh"
 #include <tms/math/misc.h>
 #include "Box2D/Box2D.h"
-#include <inttypes.h>
-
-#if defined(TMS_BACKEND_IOS)
-#define SFX_PATH "data-ios/sfx"
-#elif defined(TMS_BACKEND_ANDROID)
-#define SFX_PATH "data-mobile/sfx"
-#else
-#define SFX_PATH "data-pc/sfx"
-#endif
 
 sm_sound*
 sm::get_sound_by_id(uint32_t sound_id)
@@ -22,6 +13,8 @@ sm::get_sound_by_id(uint32_t sound_id)
 
     return 0;
 }
+
+#ifdef ENABLE_SOUND
 
 static struct sm_load_data {
     uint32_t sound_id;
@@ -35,19 +28,19 @@ static struct sm_load_data {
         "Wood on Metal",
         "Wood Metal 1",
         &sm::wood_metal,
-        SFX_PATH "/wood_metal_0.wav"
+        "data-shared/sfx/wood_metal_1.wav"
     },
     {
         SND_WOOD_METAL, 0,
         "Wood Metal 2",
         &sm::wood_metal,
-        SFX_PATH "/wood_metal_1.wav"
+        "data-shared/sfx/wood_metal_2.wav"
     },
     {
         SND_WOOD_METAL, 0,
         "Wood Metal 3",
         &sm::wood_metal,
-        SFX_PATH "/wood_metal_2.wav"
+        "data-shared/sfx/wood_metal_3.wav"
     },
 
     {
@@ -55,25 +48,25 @@ static struct sm_load_data {
         "Wood on Wood",
         "Wood Wood 1",
         &sm::wood_wood,
-        SFX_PATH "/lightwood_05.wav"
+        "data-shared/sfx/lightwood_1.wav"
     },
     {
         SND_WOOD_WOOD, 0,
         "Wood Wood 2",
         &sm::wood_wood,
-        SFX_PATH "/lightwood_06.wav"
+        "data-shared/sfx/lightwood_2.wav"
     },
     {
         SND_WOOD_WOOD, 0,
         "Wood Wood 3",
         &sm::wood_wood,
-        SFX_PATH "/lightwood_07.wav"
+        "data-shared/sfx/lightwood_3.wav"
     },
     {
         SND_WOOD_WOOD, 0,
         "Wood Wood 4",
         &sm::wood_wood,
-        SFX_PATH "/lightwood_08.wav"
+        "data-shared/sfx/lightwood_4.wav"
     },
 
     {
@@ -81,37 +74,37 @@ static struct sm_load_data {
         "Wood on Hollow Wood",
         "Wood Hollow Wood 1",
         &sm::wood_hollowwood,
-        SFX_PATH "/wood0.wav"
+        "data-shared/sfx/wood0.wav"
     },
     {
         SND_WOOD_HOLLOWWOOD, 0,
         "Wood Hollow Wood 2",
         &sm::wood_hollowwood,
-        SFX_PATH "/wood1.wav"
+        "data-shared/sfx/wood1.wav"
     },
     {
         SND_WOOD_HOLLOWWOOD, 0,
         "Wood Hollow Wood 3",
         &sm::wood_hollowwood,
-        SFX_PATH "/wood2.wav"
+        "data-shared/sfx/wood2.wav"
     },
     {
         SND_WOOD_HOLLOWWOOD, 0,
         "Wood Hollow Wood 4",
         &sm::wood_hollowwood,
-        SFX_PATH "/wood3.wav"
+        "data-shared/sfx/wood3.wav"
     },
     {
         SND_WOOD_HOLLOWWOOD, 0,
         "Wood Hollow Wood 5",
         &sm::wood_hollowwood,
-        SFX_PATH "/wood4.wav"
+        "data-shared/sfx/wood4.wav"
     },
     {
         SND_WOOD_HOLLOWWOOD, 0,
         "Wood Hollow Wood 6",
         &sm::wood_hollowwood,
-        SFX_PATH "/wood5.wav"
+        "data-shared/sfx/wood5.wav"
     },
 
     {
@@ -119,7 +112,7 @@ static struct sm_load_data {
         "Click",
         "Click",
         &sm::click,
-        SFX_PATH "/click_02.wav"
+        "data-shared/sfx/click.wav"
     },
 
     {
@@ -127,7 +120,7 @@ static struct sm_load_data {
         "Drop absorb",
         "Drop absorb",
         &sm::drop_absorb,
-        SFX_PATH "/mini_absorb.wav"
+        "data-shared/sfx/mini_absorb.wav"
     },
 
     {
@@ -135,7 +128,7 @@ static struct sm_load_data {
         "Robot feet",
         "Robot feet",
         &sm::robot,
-        SFX_PATH "/robot.wav"
+        "data-shared/sfx/robot.wav"
     },
 
     {
@@ -143,7 +136,7 @@ static struct sm_load_data {
         "Arm cannon",
         "Arm cannon",
         &sm::robot_shoot,
-        SFX_PATH "/shoot.wav"
+        "data-shared/sfx/shoot.wav"
     },
 
     {
@@ -151,7 +144,7 @@ static struct sm_load_data {
         "Shotgun",
         "Shotgun",
         &sm::shotgun_shoot,
-        SFX_PATH "/shotgun_shoot.wav"
+        "data-shared/sfx/shotgun_shoot.wav"
     },
 
     {
@@ -159,7 +152,7 @@ static struct sm_load_data {
         "Shotgun slide",
         "Shotgun slide",
         &sm::shotgun_cock,
-        SFX_PATH "/shotgun_cock.wav"
+        "data-shared/sfx/shotgun_cock.wav"
     },
 
     {
@@ -167,7 +160,7 @@ static struct sm_load_data {
         "Railgun",
         "Railgun",
         &sm::railgun_shoot,
-        SFX_PATH "/railgun_shoot.wav"
+        "data-shared/sfx/railgun_shoot.wav"
     },
 
     {
@@ -175,7 +168,7 @@ static struct sm_load_data {
         "Robot bomb",
         "Robot bomb",
         &sm::robot_bomb,
-        SFX_PATH "/bomber.wav"
+        "data-shared/sfx/bomber.wav"
     },
 
     {
@@ -183,7 +176,7 @@ static struct sm_load_data {
         "Rocket",
         "Rocket",
         &sm::rocket,
-        SFX_PATH "/rocket.wav"
+        "data-shared/sfx/rocket.wav"
     },
 
     {
@@ -191,7 +184,7 @@ static struct sm_load_data {
         "Thruster",
         "Thruster",
         &sm::thruster,
-        SFX_PATH "/thruster.wav"
+        "data-shared/sfx/thruster.wav"
     },
 
     {
@@ -199,31 +192,31 @@ static struct sm_load_data {
         "Explosion",
         "Explosion 1",
         &sm::explosion,
-        SFX_PATH "/explosion_01.wav"
+        "data-shared/sfx/explosion_1.wav"
     },
     {
         SND_EXPLOSION, 0,
         "Explosion 2",
         &sm::explosion,
-        SFX_PATH "/explosion_02.wav"
+        "data-shared/sfx/explosion_2.wav"
     },
     {
         SND_EXPLOSION, 0,
         "Explosion 3",
         &sm::explosion,
-        SFX_PATH "/explosion_04.wav"
+        "data-shared/sfx/explosion_3.wav"
     },
     {
         SND_EXPLOSION, 0,
         "Explosion 4",
         &sm::explosion,
-        SFX_PATH "/explosion_05.wav"
+        "data-shared/sfx/explosion_4.wav"
     },
     {
         SND_EXPLOSION, 0,
         "Explosion 5",
         &sm::explosion,
-        SFX_PATH "/explosion_06.wav"
+        "data-shared/sfx/explosion_5.wav"
     },
 
     {
@@ -231,7 +224,7 @@ static struct sm_load_data {
         "Light explosion",
         "Light explosion",
         &sm::explosion_light,
-        SFX_PATH "/explosion_light.wav"
+        "data-shared/sfx/explosion_light.wav"
     },
 
     {
@@ -239,43 +232,43 @@ static struct sm_load_data {
         "Sheet metal",
         "Sheet metal 1",
         &sm::sheet_metal,
-        SFX_PATH "/sheet_metal-01.wav"
+        "data-shared/sfx/sheet_metal_1.wav"
     },
     {
         SND_SHEET_METAL, 0,
         "Sheet metal 2",
         &sm::sheet_metal,
-        SFX_PATH "/sheet_metal-02.wav"
+        "data-shared/sfx/sheet_metal_2.wav"
     },
     {
         SND_SHEET_METAL, 0,
         "Sheet metal 3",
         &sm::sheet_metal,
-        SFX_PATH "/sheet_metal-03.wav"
+        "data-shared/sfx/sheet_metal_3.wav"
     },
     {
         SND_SHEET_METAL, 0,
         "Sheet metal 4",
         &sm::sheet_metal,
-        SFX_PATH "/sheet_metal-04.wav"
+        "data-shared/sfx/sheet_metal_4.wav"
     },
     {
         SND_SHEET_METAL, 0,
         "Sheet metal 5",
         &sm::sheet_metal,
-        SFX_PATH "/sheet_metal-05.wav"
+        "data-shared/sfx/sheet_metal_5.wav"
     },
     {
         SND_SHEET_METAL, 0,
         "Sheet metal 6",
         &sm::sheet_metal,
-        SFX_PATH "/sheet_metal-06.wav"
+        "data-shared/sfx/sheet_metal_6.wav"
     },
     {
         SND_SHEET_METAL, 0,
         "Sheet metal 7",
         &sm::sheet_metal,
-        SFX_PATH "/sheet_metal-07.wav"
+        "data-shared/sfx/sheet_metal_7.wav"
     },
 
     {
@@ -283,13 +276,13 @@ static struct sm_load_data {
         "Rubber",
         "Rubber 1",
         &sm::rubber,
-        SFX_PATH "/rubber-01.wav"
+        "data-shared/sfx/rubber_1.wav"
     },
     {
         SND_RUBBER, 0,
         "Rubber 2",
         &sm::rubber,
-        SFX_PATH "/rubber-02.wav"
+        "data-shared/sfx/rubber_2.wav"
     },
 
     {
@@ -297,7 +290,7 @@ static struct sm_load_data {
         "Absorb",
         "Absorb",
         &sm::absorb,
-        SFX_PATH "/absorb.wav"
+        "data-shared/sfx/absorb.wav"
     },
 
     {
@@ -305,7 +298,7 @@ static struct sm_load_data {
         "Emit",
         "Emit",
         &sm::emit,
-        SFX_PATH "/emit.wav"
+        "data-shared/sfx/emit.wav"
     },
 
     {
@@ -313,31 +306,31 @@ static struct sm_load_data {
         "Metal on Metal 1",
         "Metal on Metal 1.1",
         &sm::metal_metal,
-        SFX_PATH "/metal_metal_01.wav"
+        "data-shared/sfx/metal_metal_1.wav"
     },
     {
         SND_METAL_METAL, 0,
         "Metal on Metal 1.2",
         &sm::metal_metal,
-        SFX_PATH "/metal_metal_02.wav"
+        "data-shared/sfx/metal_metal_2.wav"
     },
     {
         SND_METAL_METAL, 0,
         "Metal on Metal 1.3",
         &sm::metal_metal,
-        SFX_PATH "/metal_metal_03.wav"
+        "data-shared/sfx/metal_metal_3.wav"
     },
     {
         SND_METAL_METAL, 0,
         "Metal on Metal 1.4",
         &sm::metal_metal,
-        SFX_PATH "/metal_metal_04.wav"
+        "data-shared/sfx/metal_metal_4.wav"
     },
     {
         SND_METAL_METAL, 0,
         "Metal on Metal 1.5",
         &sm::metal_metal,
-        SFX_PATH "/metal_metal_05.wav"
+        "data-shared/sfx/metal_metal_5.wav"
     },
 
     {
@@ -345,25 +338,25 @@ static struct sm_load_data {
         "Metal on Metal 2",
         "Metal on Metal 2.1",
         &sm::metal_metal2,
-        SFX_PATH "/metal_metal2_01.wav"
+        "data-shared/sfx/metal_metal2_1.wav"
     },
     {
         SND_METAL_METAL2, 0,
         "Metal on Metal 2.2",
         &sm::metal_metal2,
-        SFX_PATH "/metal_metal2_02.wav"
+        "data-shared/sfx/metal_metal2_2.wav"
     },
     {
         SND_METAL_METAL2, 0,
         "Metal on Metal 2.3",
         &sm::metal_metal2,
-        SFX_PATH "/metal_metal2_03.wav"
+        "data-shared/sfx/metal_metal2_3.wav"
     },
     {
         SND_METAL_METAL2, 0,
         "Metal on Metal 2.4",
         &sm::metal_metal2,
-        SFX_PATH "/metal_metal2_04.wav"
+        "data-shared/sfx/metal_metal2_4.wav"
     },
 
     {
@@ -371,7 +364,7 @@ static struct sm_load_data {
         "Player death",
         "Player death",
         &sm::lose,
-        SFX_PATH "/lose.wav"
+        "data-shared/sfx/lose.wav"
     },
 
     {
@@ -379,7 +372,7 @@ static struct sm_load_data {
         "Ding",
         "Ding",
         &sm::ding,
-        SFX_PATH "/ding_light.wav"
+        "data-shared/sfx/ding_light.wav"
     },
 
     {
@@ -387,7 +380,7 @@ static struct sm_load_data {
         "Weird",
         "Weird",
         &sm::weird,
-        SFX_PATH "/weird.wav"
+        "data-shared/sfx/weird.wav"
     },
 
     {
@@ -395,7 +388,7 @@ static struct sm_load_data {
         "Detect",
         "Detect",
         &sm::detect,
-        SFX_PATH "/detect.wav"
+        "data-shared/sfx/detect.wav"
     },
 
     {
@@ -403,7 +396,7 @@ static struct sm_load_data {
         "Warning",
         "Warning",
         &sm::warning,
-        SFX_PATH "/warning.wav"
+        "data-shared/sfx/warning.wav"
     },
 
     {
@@ -411,49 +404,49 @@ static struct sm_load_data {
         "Drum 1",
         "Drum 1.1",
         &sm::drum1,
-        SFX_PATH "/drum-0.wav"
+        "data-shared/sfx/drum-0.wav"
     },
     {
         SND_DRUM1, 0,
         "Drum 1.2",
         &sm::drum1,
-        SFX_PATH "/drum-1.wav"
+        "data-shared/sfx/drum-1.wav"
     },
     {
         SND_DRUM1, 0,
         "Drum 1.3",
         &sm::drum1,
-        SFX_PATH "/drum-2.wav"
+        "data-shared/sfx/drum-2.wav"
     },
     {
         SND_DRUM1, 0,
         "Drum 1.4",
         &sm::drum1,
-        SFX_PATH "/drum-3.wav"
+        "data-shared/sfx/drum-3.wav"
     },
     {
         SND_DRUM1, 0,
         "Drum 1.5",
         &sm::drum1,
-        SFX_PATH "/drum-4.wav"
+        "data-shared/sfx/drum-4.wav"
     },
     {
         SND_DRUM1, 0,
         "Drum 1.6",
         &sm::drum1,
-        SFX_PATH "/drum-5.wav"
+        "data-shared/sfx/drum-5.wav"
     },
     {
         SND_DRUM1, 0,
         "Drum 1.7",
         &sm::drum1,
-        SFX_PATH "/drum-6.wav"
+        "data-shared/sfx/drum-6.wav"
     },
     {
         SND_DRUM1, 0,
         "Drum 1.8",
         &sm::drum1,
-        SFX_PATH "/drum-7.wav"
+        "data-shared/sfx/drum-7.wav"
     },
 
     {
@@ -461,25 +454,25 @@ static struct sm_load_data {
         "Drum 2",
         "Drum 2.1",
         &sm::drum2,
-        SFX_PATH "/drum-8.wav"
+        "data-shared/sfx/drum-8.wav"
     },
     {
         SND_DRUM2, 0,
         "Drum 2.2",
         &sm::drum2,
-        SFX_PATH "/drum-9.wav"
+        "data-shared/sfx/drum-9.wav"
     },
     {
         SND_DRUM2, 0,
         "Drum 2.3",
         &sm::drum2,
-        SFX_PATH "/drum-10.wav"
+        "data-shared/sfx/drum-10.wav"
     },
     {
         SND_DRUM2, 0,
         "Drum 2.4",
         &sm::drum2,
-        SFX_PATH "/drum-11.wav"
+        "data-shared/sfx/drum-11.wav"
     },
 
     {
@@ -487,7 +480,7 @@ static struct sm_load_data {
         "Bubbles",
         "Bubbles",
         &sm::bubbles,
-        SFX_PATH "/bubbles.wav"
+        "data-shared/sfx/bubbles.wav"
     },
 
     {
@@ -495,7 +488,7 @@ static struct sm_load_data {
         "Rocket launcher",
         "Rocket launcher",
         &sm::rocket_launcher_shoot,
-        SFX_PATH "/rocket_launcher_shoot.wav"
+        "data-shared/sfx/rocket_launcher_shoot.wav"
     },
 
     {
@@ -503,7 +496,7 @@ static struct sm_load_data {
         "Vendor",
         "Vendor",
         &sm::cash_register,
-        SFX_PATH "/cash_register.wav"
+        "data-shared/sfx/cash_register.wav"
     },
 
     {
@@ -511,7 +504,7 @@ static struct sm_load_data {
         "Discharge",
         "Discharge",
         &sm::discharge,
-        SFX_PATH "/discharge.wav"
+        "data-shared/sfx/discharge.wav"
     },
 
     {
@@ -519,7 +512,7 @@ static struct sm_load_data {
         "Plasma gun",
         "Plasma gun",
         &sm::plasma_shoot,
-        SFX_PATH "/plasma_shoot.wav"
+        "data-shared/sfx/plasma_shoot.wav"
     },
 
     {
@@ -527,7 +520,7 @@ static struct sm_load_data {
         "Mega buster shoot",
         "Mega buster shoot",
         &sm::buster_shoot,
-        SFX_PATH "/buster_shoot.wav"
+        "data-shared/sfx/buster_shoot.wav"
     },
 
     {
@@ -535,7 +528,7 @@ static struct sm_load_data {
         "Mega buster shoot full charge",
         "Mega buster shoot full charge",
         &sm::buster_shoot_maxcharge,
-        SFX_PATH "/buster_shoot_maxcharge.wav"
+        "data-shared/sfx/buster_shoot_maxcharge.wav"
     },
 
     {
@@ -543,20 +536,20 @@ static struct sm_load_data {
         "Mega buster charge",
         "Mega buster charge 1",
         &sm::buster_charge,
-        SFX_PATH "/buster_charge_1.wav"
+        "data-shared/sfx/buster_charge_1.wav"
     },
     {
         SND_BUSTER_CHARGE, 0,
         "Mega buster charge 2",
         &sm::buster_charge,
-        SFX_PATH "/buster_charge_2.wav"
+        "data-shared/sfx/buster_charge_2.wav"
     },
 
     {
         SND_BUSTER_CHARGE, 0,
         "Mega buster charge 3",
         &sm::buster_charge,
-        SFX_PATH "/buster_charge_3.wav"
+        "data-shared/sfx/buster_charge_3.wav"
     },
 
 
@@ -565,7 +558,7 @@ static struct sm_load_data {
         "Stone on Stone",
         "Stone on Stone",
         &sm::stone_stone,
-        SFX_PATH "/stone_stone.wav"
+        "data-shared/sfx/stone_stone.wav"
     },
 
     {
@@ -573,7 +566,7 @@ static struct sm_load_data {
         "Chest open",
         "Chest open",
         &sm::chest_open,
-        SFX_PATH "/chest_open.wav"
+        "data-shared/sfx/chest_open.wav"
     },
 
     {
@@ -581,7 +574,7 @@ static struct sm_load_data {
         "Chest open rare",
         "Chest open rare",
         &sm::chest_open_rare,
-        SFX_PATH "/chest_open_rare.wav"
+        "data-shared/sfx/chest_open_rare.wav"
     },
 
     {
@@ -589,7 +582,7 @@ static struct sm_load_data {
         "Mining hit ore",
         "Mining hit ore",
         &sm::mining_hit_ore,
-        SFX_PATH "/mining_hit_ore.wav"
+        "data-shared/sfx/mining_hit_ore.wav"
     },
 
     {
@@ -597,7 +590,7 @@ static struct sm_load_data {
         "Zapper",
         "Zapper",
         &sm::zapper,
-        SFX_PATH "/zapper.wav"
+        "data-shared/sfx/zapper.wav"
     },
 
     {
@@ -605,7 +598,7 @@ static struct sm_load_data {
         "Compressor",
         "Compressor",
         &sm::compressor,
-        SFX_PATH "/compressor.wav"
+        "data-shared/sfx/compressor.wav"
     },
 
     {
@@ -613,7 +606,7 @@ static struct sm_load_data {
         "Compressor reverse",
         "Compressor reverse",
         &sm::compressor_reverse,
-        SFX_PATH "/compressor-reverse.wav"
+        "data-shared/sfx/compressor-reverse.wav"
     },
 
     {
@@ -621,7 +614,7 @@ static struct sm_load_data {
         "Saw",
         "Saw",
         &sm::saw_loop,
-        SFX_PATH "/saw_loop.wav"
+        "data-shared/sfx/saw_loop.wav"
     },
 
     {
@@ -629,25 +622,25 @@ static struct sm_load_data {
         "Chop wood",
         "Chop wood 1",
         &sm::chop_wood,
-        SFX_PATH "/chop_wood_01.wav"
+        "data-shared/sfx/chop_wood_1.wav"
     },
     {
         SND_CHOP_WOOD, 0,
         "Chop wood 2",
         &sm::chop_wood,
-        SFX_PATH "/chop_wood_02.wav"
+        "data-shared/sfx/chop_wood_2.wav"
     },
     {
         SND_CHOP_WOOD, 0,
         "Chop wood 3",
         &sm::chop_wood,
-        SFX_PATH "/chop_wood_03.wav"
+        "data-shared/sfx/chop_wood_3.wav"
     },
     {
         SND_CHOP_WOOD, 0,
         "Chop wood 4",
         &sm::chop_wood,
-        SFX_PATH "/chop_wood_04.wav"
+        "data-shared/sfx/chop_wood_4.wav"
     },
 
     {
@@ -655,19 +648,19 @@ static struct sm_load_data {
         "Swish Hammer",
         "Swish Hammer 1",
         &sm::swish_hammer,
-        SFX_PATH "/swoosh_08.wav"
+        "data-shared/sfx/swish_hammer_1.wav"
     },
     {
         SND_SWISH_HAMMER, 0,
         "Swish Hammer 2",
         &sm::swish_hammer,
-        SFX_PATH "/swoosh_09.wav"
+        "data-shared/sfx/swish_hammer_2.wav"
     },
     {
         SND_SWISH_HAMMER, 0,
         "Swish Hammer 3",
         &sm::swish_hammer,
-        SFX_PATH "/swoosh_10.wav"
+        "data-shared/sfx/swish_hammer_3.wav"
     },
 
     {
@@ -675,19 +668,19 @@ static struct sm_load_data {
         "Swish Blade",
         "Swish Blade 1",
         &sm::swish_blade,
-        SFX_PATH "/swoosh_26.wav"
+        "data-shared/sfx/swish_blade_1.wav"
     },
     {
         SND_SWISH_BLADE, 0,
         "Swish Blade 2",
         &sm::swish_blade,
-        SFX_PATH "/swoosh_27.wav"
+        "data-shared/sfx/swish_blade_2.wav"
     },
     {
         SND_SWISH_BLADE, 0,
         "Swish Blade 3",
         &sm::swish_blade,
-        SFX_PATH "/swoosh_28.wav"
+        "data-shared/sfx/swish_blade_3.wav"
     },
 
     {
@@ -695,13 +688,13 @@ static struct sm_load_data {
         "Swish Spear",
         "Swish Spear 1",
         &sm::swish_spear,
-        SFX_PATH "/swoosh_17.wav"
+        "data-shared/sfx/swish_spear_1.wav"
     },
     {
         SND_SWISH_SPEAR, 0,
         "Swish Spear 2",
         &sm::swish_spear,
-        SFX_PATH "/swoosh_17-2.wav"
+        "data-shared/sfx/swish_spear_2.wav"
     },
 
     {
@@ -709,19 +702,19 @@ static struct sm_load_data {
         "Swish Axe",
         "Swish Axe 1",
         &sm::swish_axe,
-        SFX_PATH "/swoosh_22.wav"
+        "data-shared/sfx/swish_axe_1.wav"
     },
     {
         SND_SWISH_AXE, 0,
         "Swish Axe 2",
         &sm::swish_axe,
-        SFX_PATH "/swoosh_23.wav"
+        "data-shared/sfx/swish_axe_2.wav"
     },
     {
         SND_SWISH_AXE, 0,
         "Swish Axe 3",
         &sm::swish_axe,
-        SFX_PATH "/swoosh_24.wav"
+        "data-shared/sfx/swish_axe_3.wav"
     },
 
     {
@@ -729,7 +722,7 @@ static struct sm_load_data {
         "Happy",
         "Happy",
         &sm::happy,
-        SFX_PATH "/happy.wav"
+        "data-shared/sfx/happy.wav"
     },
 
     {
@@ -737,7 +730,7 @@ static struct sm_load_data {
         "Test",
         "Test",
         &sm::test,
-        SFX_PATH "/test.wav"
+        "data-shared/sfx/test.wav"
     },
 
     {
@@ -745,7 +738,7 @@ static struct sm_load_data {
         "Win",
         "Win",
         &sm::win,
-        SFX_PATH "/win.wav"
+        "data-shared/sfx/win.wav"
     },
 
     {
@@ -753,17 +746,19 @@ static struct sm_load_data {
         "Motor Start/Stop",
         "Motor Start",
         &sm::motor_startstop,
-        SFX_PATH "/motor_start.wav"
+        "data-shared/sfx/motor_start.wav"
     },
     {
         SND_MOTOR_STARTSTOP, 0,
         "Motor Stop",
         &sm::motor_startstop,
-        SFX_PATH "/motor_stop.wav"
+        "data-shared/sfx/motor_stop.wav"
     },
 };
 
 static size_t num_chunks_to_load = sizeof(load_data) / sizeof(load_data[0]);
+
+#endif
 
 static void channel_finished_cb(int channel);
 
@@ -835,6 +830,9 @@ sm_sound sm::swish_axe;
 
 sm_sound* sm::sound_lookup[SND__NUM];
 genwave_data sm::generated[SM_MAX_CHANNELS];
+
+#ifdef ENABLE_SOUND
+
 Mix_Chunk *sm::genchunk;
 
 sm_channel sm::channels[SM_MAX_CHANNELS];
@@ -962,12 +960,10 @@ void genwave_cleanup(int chan, void *udata)
 }
 
 static char genbuf[2048*20];
-static Mix_Chunk *chunk;
 
 void
 sm::play_gen(int x)
 {
-#ifdef ENABLE_SOUND
     if (!sm::gen_started) {
         sm::gen_started = true;
         sm::read_counter = 0;
@@ -989,7 +985,6 @@ sm::play_gen(int x)
     sm::generated[x].started = false;
     sm::generated[x].ticks[sm::write_counter%SM_GENWAVE_NUM_TICKS].command = SM_GENWAVE_START;
     sm::generated[x].available = false;
-#endif
 }
 
 void
@@ -1004,13 +999,11 @@ sm::load_settings()
 void
 sm::init()
 {
-#ifdef ENABLE_SOUND
-    tms_progressf("Initializing audio device... ");
+    tms_infof("Initializing audio device...");
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
-        tms_progressf("Error: %s\n", Mix_GetError());
+        tms_infof("Error: %s\n", Mix_GetError());
         sm::initialized = false;
     } else {
-        tms_progressf("OK\n");
         Mix_ChannelFinished(&channel_finished_cb);
         sm::initialized = true;
 
@@ -1039,7 +1032,7 @@ sm::init()
     }
 
     /* load all sound effects */
-    tms_progressf("Initializing sound effects... ");
+    tms_infof("Initializing sound effects... ");
 
     sm::click.min_repeat_ms = 80;
     sm::robot.min_repeat_ms = 40;
@@ -1056,9 +1049,6 @@ sm::init()
             data->sound_ptr->name = data->root_name;
         }
     }
-
-    tms_progressf("OK\n");
-#endif
 }
 
 static void channel_finished_cb(int channel)
@@ -1072,7 +1062,6 @@ static void channel_finished_cb(int channel)
 void
 sm::play(sm_sound *snd, float x, float y, uint8_t random, float volume, bool loop/*=false*/, void *ident/*=0*/, bool global/*=false*/)
 {
-#ifdef ENABLE_SOUND
     volume *= sm::volume;
     if (volume <= SM_MIN_VOLUME) {
         return;
@@ -1138,13 +1127,11 @@ sm::play(sm_sound *snd, float x, float y, uint8_t random, float volume, bool loo
             }
         }
     }
-#endif
 }
 
 bool
 sm::stop(sm_sound *snd, void *ident)
 {
-#ifdef ENABLE_SOUND
 #ifdef DEBUG
     if (snd->last_chan != -1 && sm::channels[snd->last_chan].ident != ident) {
         tms_debugf("last chan was something, but it wasnt our ident! %p %p", sm::channels[snd->last_chan].ident, ident);
@@ -1157,31 +1144,25 @@ sm::stop(sm_sound *snd, void *ident)
         return true;
     }
 
-#endif
-
     return false;
 }
 
 void
 sm::pause_all(void)
 {
-#ifdef ENABLE_SOUND
     Mix_Pause(-1);
-#endif
+
 }
 
 void
 sm::resume_all(void)
 {
-#ifdef ENABLE_SOUND
     Mix_Resume(-1);
-#endif
 }
 
 void
 sm::stop_all(void)
 {
-#ifdef ENABLE_SOUND
     for (int x=0; x<SM_MAX_CHANNELS; x++) {
         Mix_HaltChannel(x);
     }
@@ -1210,13 +1191,11 @@ sm::stop_all(void)
     for (int x=0; x<SM_MAX_CHANNELS; x++) {
         sm::channels[x].playing = false;
     }
-#endif
 }
 
 void
 sm_sound::add_chunk(const char *filename, const char *chunk_name)
 {
-#ifdef ENABLE_SOUND
     if (this->num_chunks < SM_MAX_CHUNKS) {
         this->chunks[this->num_chunks].chunk = Mix_LoadWAV(filename);
         this->chunks[this->num_chunks].name = chunk_name;
@@ -1224,26 +1203,22 @@ sm_sound::add_chunk(const char *filename, const char *chunk_name)
     } else {
         tms_errorf("Unable to add chunk '%s', too many chunks loaded for this sound.", filename);
     }
-#endif
 }
 
 void
 sm::step(void)
 {
-#ifdef ENABLE_SOUND
     for (int x=0; x<SM_MAX_CHANNELS; x++) {
         if (sm::channels[x].playing) {
             Mix_Volume(x, (int)(roundf(tclampf(channels[x].volume, 0.f, 1.f)*MIX_MAX_VOLUME)));
             channels[x].update_position();
         }
     }
-#endif
 }
 
 void
 sm_channel::update_position()
 {
-#ifdef ENABLE_SOUND
     if (this->global) {
         Mix_SetPosition(this->chan, 0, 0);
     } else {
@@ -1262,5 +1237,20 @@ sm_channel::update_position()
 
         Mix_SetPosition(this->chan, s_a, s_d);
     }
-#endif
 }
+
+#else
+
+// Dummy functions when sound is disabled
+
+void sm::play_gen(int x) { }
+void sm::load_settings() { }
+void sm::init() {}
+void sm::play(sm_sound *snd, float x, float y, uint8_t random, float volume, bool loop, void *ident, bool global) { }
+bool sm::stop(sm_sound *snd, void *ident) { return false; }
+void sm::pause_all(void) { }
+void sm::resume_all(void) { }
+void sm::stop_all(void) { }
+void sm::step(void) { }
+
+#endif

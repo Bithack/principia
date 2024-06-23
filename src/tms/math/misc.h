@@ -3,23 +3,15 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include <tms/util/util.h>
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-static inline float tms_modf(float a, float b)
-{
-    return a - b*(floorf(a/b));
-}
-
-#define RANDF_MAX 2147483647.f
-
 static inline float trandf(float min, float max)
 {
-    return min+(float)(rand())/((float)(RANDF_MAX/(max-min)));
+    return min + rand() / (float)RAND_MAX * ( max - min );
 }
 
 static inline float twrapf(float x, float min, float max)
@@ -39,25 +31,16 @@ static inline float twrapf(float x, float min, float max)
     return fmodf(x - min, range) + min;
 }
 
-static inline float tclampf(float x, float a, float b)
+static inline float tclampf(float d, float min, float max)
 {
-    if (x < a) x = a;
-    else if (x > b) x = b;
-    return x;
+    const float t = d < min ? min : d;
+    return t > max ? max : t;
 }
 
-static inline double tclamp(double x, double a, double b)
+static inline int tclampi(int d, int min, int max)
 {
-    if (x < a) x = a;
-    else if (x > b) x = b;
-    return x;
-}
-
-static inline int tclampi(int x, int a, int b)
-{
-    if (x < a) x = a;
-    else if (x > b) x = b;
-    return x;
+    const int t = d < min ? min : d;
+    return t > max ? max : t;
 }
 
 static inline float tmath_adist(float a, float b)
@@ -85,38 +68,18 @@ static inline float tmath_adist(float a, float b)
     return t[i]-a;
 }
 
-#if defined(TMS_BACKEND_ANDROID)
-static double tmath_log2(double n)
-{
-    return log(n) / log(2.);
-}
-#else
-#define tmath_log2(n) log2(n)
-#endif
-
 #ifdef TMS_FAST_MATH
+
 void tmath_sincos(float x, float *r0, float *r1);
-float tmath_sin(float x);
-static inline float tmath_cos(float x){return tmath_sin(x+M_PI_2);};
-float tmath_pow(float x, float n);
 float tmath_atan2(float y, float x);
 float tmath_sqrt(float x);
+
 #else
-#if defined(TMS_BACKEND_IOS) || defined(TMS_BACKEND_ANDROID)
-static inline void tmath_sincos(float x, float *y, float *z) {
-    *y = sinf(x);
-    *z = cosf(x);
-}
-//#define tmath_sincos(x,y,z) do {*(y) = sinf(x); *(z) = cosf(x);}while(0)
-//#define tmath_sincos(x,y,z) __sincosf(x,y,z)
-#else
+
 #define tmath_sincos(x,y,z) sincosf(x,y,z)
-#endif
-#define tmath_sin(x) sinf(x)
-#define tmath_cos(x) cosf(x)
-#define tmath_pow(x,n) powf(x,n)
 #define tmath_atan2(y,x) atan2f(y,x)
 #define tmath_sqrt(x) sqrtf(x)
+
 #endif
 
 static inline float tmath_atan2add(float y, float x)

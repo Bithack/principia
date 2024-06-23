@@ -1,5 +1,4 @@
 #include "creature.hh"
-#include "main.hh"
 #include "game.hh"
 #include "world.hh"
 #include "anchor.hh"
@@ -161,7 +160,7 @@ creature::init()
 void
 creature::setup()
 {
-    tms_debugf("creature setup %" PRIu32, this->id);
+    tms_debugf("creature setup %u", this->id);
     entity::setup();
 
     this->max_armour = ROBOT_MAX_ARMOUR;
@@ -3321,7 +3320,6 @@ creature::set_tool(int tool_id, robot_parts::tool *t/*=0*/)
 {
     if (!this->has_feature(CREATURE_FEATURE_TOOLS)) {
         tms_debugf("entity %u with gid %u does not support tools", this->id, this->g_id);
-        tms_trace();
         return false;
     }
 
@@ -3376,7 +3374,6 @@ creature::set_weapon(int weapon_id, robot_parts::weapon *w/*=0*/)
 {
     if (!this->has_feature(CREATURE_FEATURE_WEAPONS)) {
         tms_debugf("entity %u with gid %u does not support weapons", this->id, this->g_id);
-        tms_trace();
         return false;
     }
 

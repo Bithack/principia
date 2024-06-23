@@ -2,17 +2,12 @@
 #include "robot_base.hh"
 #include "robot.hh"
 #include "model.hh"
-#include "main.hh"
 #include "world.hh"
 #include "game.hh"
-#include "soundman.hh"
 #include "soundmanager.hh"
 #include "linebuffer.hh"
-#include "scanner.hh"
 #include "explosive.hh"
 #include "adventure.hh"
-#include "beam.hh"
-#include "pixel.hh"
 #include "fxemitter.hh"
 #include "spritebuffer.hh"
 #include "entity.hh"
@@ -20,10 +15,6 @@
 #include "creature.hh"
 #include "item.hh"
 #include "fxemitter.hh"
-#include "faction.hh"
-#include "display.hh"
-
-#include <inttypes.h>
 
 #define ROCKET_VELOCITY 2.f
 #define BOMBER_CHAMBER_ROTATION 65
@@ -117,6 +108,10 @@ robot_parts::head_base::update()
                     tmat4_scale(this->M, this->r->get_scale(), this->r->get_scale(), this->r->get_scale());
                 }
                 return;
+
+            default:
+                // nothing
+                break;
         }
     }
 
@@ -1294,7 +1289,7 @@ robot_parts::compressor::step()
                     break;
 
                 default:
-                    tms_errorf("Unhandled compressor item emit: %" PRIu32 " - %" PRIu32,
+                    tms_errorf("Unhandled compressor item emit: %u - %u",
                             ci.g_id, ci.sub_id);
                     break;
             }
@@ -2121,7 +2116,6 @@ robot_parts::head_base::on_dir_change()
     int new_dir = (int)roundf(this->r->i_dir);
 
     //tms_debugf("dir change head base");
-    //tms_trace();
 
     if (this->r->recreate_head_on_dir_change) {
         this->remove_from_world();
@@ -3951,7 +3945,8 @@ shape_tester::ReportFixture(b2Fixture *fx)
     }
 
     if (!world::fixture_in_layer(fx, layer, sublayer)) {
-        return -1.f;
+        // XXX
+        return false;
     }
 
     b2Body  *fx_body = fx->GetBody();

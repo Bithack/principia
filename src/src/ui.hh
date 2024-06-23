@@ -83,7 +83,6 @@
 #define DIALOG_PUBLISH          300
 #define DIALOG_LOGIN            301
 
-/* XXX: This might conflict with main.hh codes, use a prefix? */
 #define SIGNAL_LOGIN_SUCCESS        100
 #define SIGNAL_LOGIN_FAILED         101
 #define SIGNAL_QUICKADD_REFRESH     200
@@ -184,7 +183,6 @@ extern "C" {
     int ui_settings_get_shadow_quality();
     int ui_settings_get_ao_quality();
     int ui_settings_get_enable_ao();
-    int ui_settings_get_texture_quality();
     float ui_settings_get_ui_scale();
     float ui_settings_get_cam_speed();
     float ui_settings_get_zoom_speed();
@@ -197,7 +195,6 @@ extern "C" {
     void ui_settings_set_shadow_quality(int);
     void ui_settings_set_ao_quality(int v);
     void ui_settings_set_enable_ao(int v);
-    void ui_settings_set_texture_quality(int v);
     void ui_settings_set_ui_scale(float v);
     void ui_settings_set_cam_speed(float v);
     void ui_settings_set_zoom_speed(float v);
@@ -232,9 +229,7 @@ extern "C" {
     void ui_cb_reset_all_variables();
     void ui_cb_set_robot_dir(int dir);
     void ui_cb_set_level_type(int type);
-    void ui_cb_set_allow_derivatives(int v);
     void ui_cb_set_locked(int v);
-    int ui_cb_get_allow_derivatives();
     int ui_cb_get_locked();
     int ui_cb_get_level_type();
     char *ui_cb_get_level_title();

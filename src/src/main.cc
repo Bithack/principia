@@ -1,5 +1,6 @@
 #include "game.hh"
 #include "main.hh"
+#include "tms/core/err.h"
 #include "version.hh"
 #include "loading_screen.hh"
 #include "soundmanager.hh"
@@ -19,7 +20,6 @@
 #include "textbuffer.hh"
 #include "fluidbuffer.hh"
 #include "linebuffer.hh"
-#include "rubberband.hh"
 #include "sticky.hh"
 #include "rope.hh"
 #include "polygon.hh"
@@ -39,7 +39,7 @@
 #include <errno.h>
 #include <unistd.h>
 
-#if defined TMS_BACKEND_WINDOWS
+#ifdef TMS_BACKEND_WINDOWS
 #include <direct.h>
 #define mkdir(dirname, ...) _mkdir(dirname)
 #define create_dir(dirname, ...) _create_dir(dirname, 0)
@@ -54,7 +54,6 @@
 #endif
 
 #include <sys/stat.h>
-#include <set>
 
 #include <tms/core/tms.h>
 #include <tms/core/framebuffer.h>
@@ -78,8 +77,6 @@
 
 #endif
 
-extern "C" void tmod_3ds_init(void);
-
 enum {
     DOWNLOAD_GENERIC_ERROR              = 1,
     DOWNLOAD_WRITE_ERROR                = 2,
@@ -93,9 +90,6 @@ static struct tms_fb *ao_fb;
 static char          featured_data_path[1024];
 static char          featured_data_time_path[1024];
 static char          cookie_file[1024];
-static char          username[256];
-
-static bool          is_very_shitty = false;
 
 struct header_data {
     char *error_message;
@@ -129,16 +123,17 @@ static uint32_t      _publish_lvl_community_id;
 static uint32_t      _publish_lvl_id;
 static bool          _publish_lvl_with_pkg = false;
 static bool          _publish_lvl_set_locked = false;
-static uint8_t       _publish_lvl_pkg_index = 0;
 static bool          _publish_lvl_lock = false;
 static volatile bool _publish_lvl_uploading = false;
 static bool          _publish_lvl_uploading_error = false;
-static char          _publish_lvl_error_msg[512];
 
+#ifdef BUILD_PKGMGR
 /* Publish PKG variables */
+static uint8_t       _publish_lvl_pkg_index = 0;
 static uint32_t      _publish_pkg_id;
 static volatile bool _publish_pkg_done = false;
 static bool          _publish_pkg_error = false;
+#endif
 
 /* Submit score variables */
 static bool         _submit_score_done = false;
@@ -194,7 +189,7 @@ print_cookies(CURL *curl)
     struct curl_slist *nc;
     int i;
 
-    tms_debugf("Cookies, curl knows:");
+    tms_infof("Cookies, curl knows:");
     res = curl_easy_getinfo(curl, CURLINFO_COOKIELIST, &cookies);
     if (res != CURLE_OK) {
         tms_errorf("Curl curl_easy_getinfo failed: %s", curl_easy_strerror(res));
@@ -203,13 +198,13 @@ print_cookies(CURL *curl)
 
     nc = cookies, i = 1;
     while (nc) {
-        tms_progressf("[%d]: %s\n", i, nc->data);
+        tms_infof("[%d]: %s", i, nc->data);
         nc = nc->next;
         i++;
     }
 
     if (i == 1) {
-        tms_debugf("(none)\n");
+        tms_infof("(none)\n");
     }
 
     curl_slist_free_all(cookies);
@@ -321,7 +316,9 @@ static int edit_loader(int step);
 static int pkg_loader(int step);
 static int publish_loader(int step);
 static int submit_score_loader(int step);
+#ifdef BUILD_PKGMGR
 static int publish_pkg_loader(int step);
+#endif
 static int _publish_level(void *p);
 static int _download_level(void *p);
 static int _check_version_code(void *_unused);
@@ -445,26 +442,22 @@ end(void)
 void
 init_framebuffers(void)
 {
-    tms_progressf("Initializing framebuffers ");
+    tms_infof("Initializing framebuffers ");
 
     if (gi_fb) {
-        tms_progressf("-");
         tms_fb_free(gi_fb);
         gi_fb = 0;
     }
 
     if (ao_fb) {
-        tms_progressf("-");
         tms_fb_free(ao_fb);
         ao_fb = 0;
     }
 
     if (settings["enable_shadows"]->v.b) {
-        tms_progressf("SM(%u,%u)", settings["shadow_map_resx"]->v.i,settings["shadow_map_resy"]->v.i);
-        tms_progressf("+");
+        tms_infof("SM(%u,%u)", settings["shadow_map_resx"]->v.i,settings["shadow_map_resy"]->v.i);
         gi_fb = tms_fb_alloc(settings["shadow_map_resx"]->v.i,settings["shadow_map_resy"]->v.i,  (settings["swap_shadow_map"]->v.b?1:0));
         /* XXX use RGB is only shadows, RGBA if shadows+gi */
-        tms_progressf(".");
         //tms_fb_add_texture(gi_fb, GL_RGB, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
         //tms_fb_add_texture(gi_fb, GL_RGB32F, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
         //
@@ -472,22 +465,20 @@ init_framebuffers(void)
         int shadow_map_precision = GL_RGB;
 
         if (settings["shadow_map_depth_texture"]->is_true()) {
-            tms_progressf("using depth texture");
             tms_fb_add_texture(gi_fb, GL_RGB, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
             tms_fb_enable_depth_texture(gi_fb, GL_DEPTH_COMPONENT16);
-            tms_progressf("OK\n");
         } else {
-            if (settings["is_very_shitty"]->v.b || settings["shadow_map_precision"]->v.i == 0) {
+            if (settings["shadow_map_precision"]->v.i == 0) {
                 shadow_map_precision = GL_RGB;
             } else if (settings["shadow_map_precision"]->v.i == 1) {
-#ifdef TMS_BACKEND_ANDROID
+#ifdef TMS_USE_GLES
                 /* Android does not seem to have either GL_RGB16F or GL_RGBA16F defined */
                 shadow_map_precision = GL_RGB;
 #else
                 shadow_map_precision = GL_RGB16F;
 #endif
             } else if (settings["shadow_map_precision"]->v.i == 2) {
-#ifdef TMS_BACKEND_ANDROID
+#ifdef TMS_USE_GLES
                 /* Android does not seem to have either GL_RGB32F or GL_RGBA32F defined */
                 shadow_map_precision = GL_RGB;
 #else
@@ -501,22 +492,16 @@ init_framebuffers(void)
     }
 
     if (settings["enable_ao"]->v.i) {
-        tms_progressf("AO");
+        tms_infof("AO!!!!!!");
         int res = settings["ao_map_res"]->v.i == 512 ? 512 : (
                   settings["ao_map_res"]->v.i == 256 ? 256 :
                   128);
-        tms_progressf("+");
         ao_fb = tms_fb_alloc(res, res, (settings["swap_ao_map"]->v.b?1:0));
-        tms_progressf(".");
         tms_fb_add_texture(ao_fb, GL_RGB, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
     }
 
-    tms_progressf("=");
     tms_pipeline_set_framebuffer(1, gi_fb);
-    tms_progressf("=");
     tms_pipeline_set_framebuffer(3, ao_fb);
-
-    tms_progressf(" OK\n");
 }
 
 /* called by TMS when we receive the initial command
@@ -525,41 +510,6 @@ init_framebuffers(void)
 void
 tproject_set_args(int argc, char **argv)
 {
-#if defined(TMS_BACKEND_WINDOWS) && !defined(DEBUG)
-    static bool has_set_log = false;
-    if (!has_set_log) {
-        has_set_log = true;
-        char logfile[1024];
-        snprintf(logfile, 1023, "%s" SLASH "run.log", tbackend_get_storage_path());
-
-        if (file_exists(logfile)) {
-            char backup_logfile[1024];
-            snprintf(backup_logfile, 1023, "%s" SLASH "bkp.run.log", tbackend_get_storage_path());
-
-            if (file_exists(backup_logfile)) {
-                unlink(backup_logfile);
-            }
-
-            tms_infof("Copying log file from %s to %s", logfile, backup_logfile);
-            int r = rename(logfile, backup_logfile);
-
-            if (r == 0) {
-                tms_infof("Success!");
-            } else {
-                tms_infof("Error copying log file.. :(");
-            }
-        }
-
-        tms_infof("changing log file to %s", logfile);
-        FILE *log = fopen(logfile, "w+"); // XXX: why "w+" instead of "w"?
-        if (log) {
-            tms_set_log_file(log, log);
-        } else {
-            tms_infof("could not open log file for writing!");
-        }
-    }
-#endif
-
     if (argc > 1) {
 
         char *s = argv[1];
@@ -580,6 +530,7 @@ tproject_set_args(int argc, char **argv)
             }
 
             strncpy(_community_host, s, n);
+            _community_host[n] = '\0';
             s += n;
 
             if (*s == '\0') {
@@ -688,7 +639,7 @@ tproject_init_pipelines(void)
 {
     init_framebuffers();
 
-    tms_progressf("Initializing pipelines... ");
+    tms_infof("Initializing pipelines...");
 
     tms_pipeline_init();
     tms_pipeline_declare(0, "M", TMS_MAT4, offsetof(struct tms_entity, M));
@@ -696,12 +647,15 @@ tproject_init_pipelines(void)
     tms_pipeline_declare(0, "MVP", TMS_MVP, 0);
     tms_pipeline_declare(0, "N", TMS_MAT3, offsetof(struct tms_entity, N));
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Winvalid-offsetof"
     tms_pipeline_declare_global(0, "ao_layer", TMS_INT, offsetof(game, tmp_ao_layer));
     tms_pipeline_declare_global(0, "ao_mask", TMS_VEC3, offsetof(game, tmp_ao_mask));
     tms_pipeline_declare_global(0, "SMVP", TMS_MAT4, offsetof(game, SMVP));
     tms_pipeline_declare_global(0, "AOMVP", TMS_MAT4, offsetof(game, AOMVP));
 
     tms_pipeline_declare_global(0, "_AMBIENTDIFFUSE", TMS_VEC2, offsetof(game, tmp_ambientdiffuse));
+#pragma GCC diagnostic pop
 
     tms_pipeline_set_begin_fn(0, begin);
     tms_pipeline_set_end_fn(0, end);
@@ -727,8 +681,6 @@ tproject_init_pipelines(void)
 
     tms_pipeline_set_begin_fn(3, ao_begin);
     tms_pipeline_set_end_fn(3, ao_end);
-
-    tms_progressf("OK\n");
 }
 
 void
@@ -1094,7 +1046,6 @@ tproject_step(void)
 
                 case ACTION_RELOAD_GRAPHICS: {
                     tms_debugf("Reloading graphics...");
-                    settings["is_very_shitty"]->v.b = false;
                     if (_tms.screen == &G->super) {
                         P.s_loading_screen->load(shader_loader, G);
                         G->resume_action = GAME_RESUME_CONTINUE;
@@ -1297,7 +1248,7 @@ tproject_step(void)
                         _fseek(fp, 0, SEEK_SET);
 
                         if (size > 8*1024*1024) {
-                            tms_fatalf("file too big");
+                            tms_fatalf("Puzzle solution file too big");
                         }
 
                         char *buf = (char*)malloc(size);
@@ -1386,11 +1337,10 @@ tproject_soft_resume(void)
     lock_curl("tproject_soft_resume");
     CURLcode r = curl_global_init(CURL_GLOBAL_ALL);
     if (r != CURLE_OK) {
-        tms_progressf("ERR: %s\n", curl_easy_strerror(r));
+        tms_infof("ERR: %s", curl_easy_strerror(r));
         exit(1);
     }
     P.curl = curl_easy_init();
-    tms_progressf("OK v(%s)\n", LIBCURL_VERSION);
     unlock_curl("tproject_soft_resume");
 #endif
 
@@ -1409,12 +1359,11 @@ tproject_soft_pause(void)
     }
 
     tms_infof("SOFT PAUSE ---------------------");
-    tms_progressf("Saving settings...");
+
+    tms_infof("Saving settings...");
     settings.save();
-    tms_progressf(" OK\n");
-    tms_progressf("Saving progress...");
+    tms_infof("Saving progress...");
     progress::commit();
-    tms_progressf(" OK\n");
 
 #ifdef BUILD_CURL
     lock_curl("tproject_soft_pause");
@@ -1424,7 +1373,6 @@ tproject_soft_pause(void)
         P.curl = 0;
     }
     curl_global_cleanup();
-    tms_progressf("OK\n");
 
     unlock_curl("tproject_soft_pause");
 #endif
@@ -1442,30 +1390,24 @@ tproject_quit(void)
 
     tms_infof("tproject_quit");
 
-    tms_progressf("Saving settings...");
+    tms_infof("Saving settings...");
     settings.save();
-    tms_progressf(" OK\n");
-    tms_progressf("Saving progress...");
+    tms_infof("Saving progress...");
     progress::commit();
-    tms_progressf(" OK\n");
 
 #ifdef BUILD_CURL
-    tms_progressf("CURL easy cleanup[%p]... ", P.curl);
+    tms_infof("CURL easy cleanup...");
     lock_curl("tproject_quit");
     if (P.curl) {
         curl_easy_cleanup(P.curl);
         P.curl = 0;
     }
-    tms_progressf("OK\n");
-    tms_progressf("CURL global cleanup... ");
     curl_global_cleanup();
-    tms_progressf("OK\n");
     unlock_curl("tproject_quit");
 #endif
 
-    tms_progressf("Cleaning settings...");
+    tms_infof("Cleaning settings...");
     settings.clean();
-    tms_progressf(" OK\n");
 
     delete G;
 
@@ -1483,7 +1425,7 @@ setup_opengl_settings()
         settings["discard_framebuffer"]->v.b = ((bool)strstr(_tms.gl_extensions, "discard_framebuffer") ? 1 : 0);
     }
 
-#if defined TMS_BACKEND_ANDROID || defined TMS_BACKEND_IOS
+#ifdef TMS_BACKEND_MOBILE
     if (settings["shadow_map_precision"]->is_uninitialized()) {
         settings["shadow_map_precision"]->v.i = 0;
     }
@@ -1533,6 +1475,22 @@ setup_opengl_settings()
 }
 
 void
+tproject_preinit(void)
+{
+    settings.init();
+    tms_infof("Loading settings...");
+    if (!settings.load())
+        tms_infof("ERROR!");
+
+    settings.save();
+
+    tms_infof("Shadow quality: %d (%dx%d)",
+        settings["shadow_quality"]->v.i8,
+        settings["shadow_map_resx"]->v.i,
+        settings["shadow_map_resy"]->v.i);
+}
+
+void
 tproject_init(void)
 {
     P.username = 0;
@@ -1544,30 +1502,6 @@ tproject_init(void)
 
     tms_infof("tproject_init called");
     srand((unsigned)time(0));
-
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
-    settings.init();
-    settings.load();
-    P.loaded_correctly_last_run = settings["loaded_correctly"]->v.b;
-    if (!settings["fixed_uiscale"]->v.b && settings["uiscale"]->v.f == 1.f) {
-        settings["uiscale"]->v.f = 1.3f;
-    }
-
-    /* TODO: Move this into a settings function. settings.post_load? */
-    if (settings["fv"]->v.i == 1) {
-        settings["fv"]->v.i = 2;
-        settings["cam_speed_modifier"]->v.f = 1.f;
-        settings["menu_speed"]->v.f = 1.f;
-        settings["smooth_zoom"]->v.b = false;
-        settings["smooth_cam"]->v.b = false;
-        tms_infof("Modified cam settings.");
-    }
-    settings["fixed_uiscale"]->v.b = true;
-    is_very_shitty = (!settings["loaded_correctly"]->v.b || settings["is_very_shitty"]->v.b);
-    settings["loaded_correctly"]->v.b = false;
-    settings["is_very_shitty"]->v.b = is_very_shitty;
-
-#endif
 
     setup_opengl_settings();
     settings.save();
@@ -1593,13 +1527,12 @@ tproject_init(void)
 
     P.focused = 1;
 
-    tms_progressf("Initializing curl... ");
+    tms_infof("Initializing curl (v" LIBCURL_VERSION ")...");
     CURLcode r = curl_global_init(CURL_GLOBAL_ALL);
     if (r != CURLE_OK) {
-        tms_progressf("ERR: %s\n", curl_easy_strerror(r));
+        tms_infof("ERR: %s", curl_easy_strerror(r));
         exit(1);
     }
-    tms_progressf("OK v(%s)\n", LIBCURL_VERSION);
 
     snprintf(cookie_file, 1024, "%s/c", tbackend_get_storage_path());
 #endif
@@ -1621,8 +1554,8 @@ shader_loader(int step)
         case 2: tms_scene_clear_graphs(G->get_scene()); break;
         case 3: material_factory::free_shaders(); break;
         case 4:
-            material_factory::init_shaders(false);
-            material_factory::init_materials(false);
+            material_factory::init_shaders();
+            material_factory::init_materials();
             break;
         case 5: init_framebuffers(); G->init_framebuffers(); break;
         case 6: tms_scene_fill_graphs(G->get_scene()); break;
@@ -1811,6 +1744,9 @@ init_curl_defaults(void *curl)
 #ifdef DEBUG
     curl_easy_setopt(P.curl, CURLOPT_VERBOSE, 1);
 #endif
+
+    // Note: this may put token cookie in the log output
+    //print_cookies(P.curl);
 }
 
 int
@@ -1825,10 +1761,7 @@ _download_pkg(void *_p)
 
     tms_debugf("save: %s", save_path);
 
-    char url[256];
-    snprintf(url, 255, "https://%s/internal/get_package?i=%d",
-            P.community_host,
-            _play_pkg_id);
+    COMMUNITY_URL("internal/get_package?i=%d", _play_pkg_id);
     long http_code = 0;
 
     struct level_write save_data = {
@@ -1916,8 +1849,6 @@ _download_level(void *p)
     _play_header_data.error_action = 0;
 
     CURLcode res;
-    uint32_t crc=0;
-    struct stat file_stat;
 
     int arg = (intptr_t)p;
     int type = LEVEL_DB;
@@ -1971,7 +1902,7 @@ _download_level(void *p)
             host,
             _play_download_for_pkg ? "get_package" :
                 (type == LEVEL_DB ? "get" :
-                    (derive == true ? "derive" : "edit")),
+                    (derive ? "derive" : "edit")),
             _play_id, r);
 
     tms_infof("url: %s", url);
@@ -2075,7 +2006,7 @@ _download_level(void *p)
              * This should have been set when the level was published but it is possible
              * for the publisher to alter the id stored in the level file using tools
              * such as wireshark */
-            if (type == LEVEL_LOCAL && e.lvl.allow_derivatives && derive) {
+            if (type == LEVEL_LOCAL && derive) {
                 tms_debugf("setting derive properties");
                 e.lvl.community_id = 0;
                 e.lvl.parent_id = old_id;
@@ -2115,7 +2046,7 @@ level_loader(int step)
             _play_downloading = false;
             _play_download_for_pkg = false;
             // For Linux SS manager we will always assume it has DB levels downloaded :)
-#if defined(BUILD_CURL)
+#ifdef BUILD_CURL
             if (_play_type == LEVEL_DB) {
                 _play_downloading = true;
                 create_thread(_download_level, "_download_level", 0);
@@ -2280,7 +2211,7 @@ write_memory_cb(void *contents, size_t size, size_t nmemb, void *userp)
 
     mem->memory = (char*)realloc(mem->memory, mem->size + realsize + 1);
     if (mem->memory == NULL) {
-        tms_fatalf("wmc out of memory!");
+        tms_fatalf("write_memory_cb out of memory!");
         return 0;
     }
 
@@ -2296,7 +2227,6 @@ write_memory_cb(void *contents, size_t size, size_t nmemb, void *userp)
 static int
 _check_version_code(void *_unused)
 {
-    int res = T_OK;
     CURLcode r;
 
     struct MemoryStruct chunk;
@@ -2307,8 +2237,7 @@ _check_version_code(void *_unused)
     if (P.curl) {
         init_curl_defaults(P.curl);
 
-        char url[256];
-        snprintf(url, 255, "https://%s/internal/version_code", P.community_host);
+        COMMUNITY_URL("internal/version_code");
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
@@ -2334,11 +2263,9 @@ _check_version_code(void *_unused)
             }
         } else {
             tms_errorf("could not check for latest version: %s", curl_easy_strerror(r));
-            res = 1;
-        }
+         }
     } else {
         tms_errorf("unable to initialize curl handle!");
-        res = 1;
     }
     unlock_curl("check_version_code");
 
@@ -2392,9 +2319,9 @@ _get_featured_levels(void *_num)
 
         char url[256];
         if (fl_fetch_time && file_exists(featured_data_path)) {
-            snprintf(url, 255, "https://%s/internal/get_featured?num=%" PRIu32 "&time=%d", P.community_host, num_featured_levels, fl_fetch_time);
+            snprintf(url, 255, "https://%s/internal/get_featured?num=%u&time=%d", P.community_host, num_featured_levels, fl_fetch_time);
         } else {
-            snprintf(url, 255, "https://%s/internal/get_featured?num=%" PRIu32, P.community_host, num_featured_levels);
+            snprintf(url, 255, "https://%s/internal/get_featured?num=%u", P.community_host, num_featured_levels);
         }
 
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
@@ -2589,7 +2516,7 @@ _get_featured_levels(void *_num)
 
     uint32_t num_getting_started_links = lb.r_uint32();
 
-    tms_infof("Num getting started links: %" PRIu32, num_getting_started_links);
+    tms_infof("Num getting started links: %u", num_getting_started_links);
 
     menu_shared::gs_entries.clear();
 
@@ -2721,8 +2648,7 @@ _publish_pkg(void *_unused)
                     curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
 
 
-                    char url[256];
-                    snprintf(url, 255, "https://%s/internal/upload_package", P.community_host);
+                    COMMUNITY_URL("internal/upload_package");
                     curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
                     curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
@@ -2739,8 +2665,6 @@ _publish_pkg(void *_unused)
                         _publish_pkg_error = true;
                         return 1;
                     }
-
-                    //print_cookies(P.curl);
 
                     if (chunk.size != 0) {
                         char *pch;
@@ -2798,7 +2722,6 @@ _publish_level(void *p)
 {
     uint32_t level_id = _publish_lvl_id;
     int community_id    = 0;
-    int error           = 0;
 
     _publish_lvl_community_id = 0;
     _publish_lvl_uploading_error = false;
@@ -2847,8 +2770,7 @@ _publish_level(void *p)
 
         CURL_CUDDLES;
 
-        char url[256];
-        snprintf(url, 255, "https://%s/internal/upload", P.community_host);
+        COMMUNITY_URL("internal/upload");
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
@@ -2923,16 +2845,12 @@ _submit_score(void *p)
 {
     tms_assertf(W->is_playing(), "submit score called when the level was paused");
 
-    int error = 0;
-
     CURLcode r;
 
     char data_path[1024];
 
     const char *storage = tbackend_get_storage_path();
     snprintf(data_path, 1023, "%s/data.bin", storage);
-
-    uint32_t highscore_level_id = BASE_HIGHSCORE_LEVEL_ID;
 
     int highscore_level_offset = highscore_offset(W->level.community_id);
 
@@ -2963,7 +2881,7 @@ _submit_score(void *p)
 
         lp->last_score = more_data[(x+highscore_level_offset)%5];
 
-        tms_infof("Last score: %" PRIu32, lp->last_score);
+        tms_infof("Last score: %u", lp->last_score);
     }
 
     for (int x=0; x<5; ++x) {
@@ -2991,7 +2909,7 @@ _submit_score(void *p)
         curl_mime_filedata(part, data_path);
 
         char tmp[32];
-        sprintf(tmp, "%" PRIu32, W->level.community_id);
+        sprintf(tmp, "%u", W->level.community_id);
 
         part = curl_mime_addpart(mime);
         curl_mime_name(part, "lvl_id");
@@ -2999,8 +2917,7 @@ _submit_score(void *p)
 
         CURL_CUDDLES;
 
-        char url[256];
-        snprintf(url, 255, "https://%s/internal/submit_score", P.community_host);
+        COMMUNITY_URL("internal/submit_score");
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
@@ -3092,8 +3009,7 @@ _login(void *p)
 
         CURL_CUDDLES;
 
-        char url[256];
-        snprintf(url, 255, "https://%s/internal/login", P.community_host);
+        COMMUNITY_URL("internal/login");
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
@@ -3142,7 +3058,6 @@ _register(void *p)
 {
     struct register_data *data = static_cast<struct register_data*>(p);
     int res = T_OK;
-    int num_tries = 0;
 
     CURLcode r;
 
@@ -3169,8 +3084,7 @@ _register(void *p)
 
         CURL_CUDDLES;
 
-        char url[256];
-        snprintf(url, 255, "https://%s/internal/register", P.community_host);
+        COMMUNITY_URL("internal/register");
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
@@ -3360,7 +3274,6 @@ submit_score_loader(int step)
 #endif
 
 static Uint32 loader_times[32] = {0,};
-static Uint32 total_load = 0;
 
 static const char *load_step_name[] = {
     /* 0  */ "Initialize atlases",
@@ -3419,19 +3332,42 @@ generate_paths()
     snprintf(featured_data_time_path, 1023, "%s/fl.time", tbackend_get_storage_path());
 }
 
+static void
+populate_community_host()
+{
+    P.community_host = "principia-web.se";
+
+    char path[1024];
+    snprintf(path, 1023, "%s/community_host.txt", tbackend_get_storage_path());
+    FILE *fh = fopen(path, "r");
+
+    if (!fh) return;
+
+    static char buf[256];
+    fgets(buf, 256, fh);
+
+    for (size_t i = 0; i < 255; i++) {
+        if (buf[i] == '\n')
+            buf[i] = 0x0;
+    }
+
+    tms_infof("Overriding community host: %s", buf);
+
+    P.community_host = buf;
+}
+
 static int
 initial_loader(int step)
 {
     static uint32_t last_time = SDL_GetTicks();
 
     char tmp[512];
-    Uint32 ss = SDL_GetTicks();
     int retval = LOAD_CONT;
 
     switch (step) {
         case 0:
             {
-                P.community_host = "principia-web.se";
+                populate_community_host();
 
                 static const char *s_dirs[]={
                     "",
@@ -3501,15 +3437,13 @@ initial_loader(int step)
             /* initialize worker threads */
             w_init();
 
-            tmod_3ds_init();
             of::init();
 
             P.s_loading_screen->set_text("Loading materials...");
             break;
 
         case 5:
-            material_factory::init(is_very_shitty || settings["is_very_shitty"]->v.b);
-
+            material_factory::init();
             P.s_loading_screen->set_text("Allocating models...");
             break;
 
@@ -3616,10 +3550,10 @@ initial_loader(int step)
 #endif
 
                 P.loaded = true;
-                settings["loaded_correctly"]->v.b = true;
                 settings.save();
 
-#ifndef TMS_BACKEND_LINUX_SS
+#ifdef BUILD_CURL
+
                 /* do not start version check if we have an initial action like ACTION_OPEN_PLAY */
                 if (P.num_actions == 0) {
                     create_thread(_check_version_code,"_version_check",  (void*)0);
@@ -3652,7 +3586,7 @@ initial_loader(int step)
                     total += loader_times[x];
                 }
 
-                tms_infof("%27s: %" PRIu32, "Total", total);
+                tms_infof("%27s: %u", "Total", total);
 
                 ui::emit_signal(SIGNAL_QUICKADD_REFRESH);
             }
@@ -3731,8 +3665,7 @@ P_get_cookie_data(char **token)
     if (P.curl) {
         init_curl_defaults(P.curl);
 
-        char url[256];
-        snprintf(url, 255, "https://%s/internal/login", P.community_host);
+        COMMUNITY_URL("internal/login");
         curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
         struct curl_slist *cookies;

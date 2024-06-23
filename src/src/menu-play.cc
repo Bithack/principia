@@ -1,7 +1,6 @@
 #include "menu-play.hh"
 #include "menu_shared.hh"
 #include "menu_pkg.hh"
-#include "main.hh"
 #include "misc.hh"
 #include "settings.hh"
 #include "ui.hh"
@@ -192,12 +191,6 @@ menu_play::pause(void)
     return T_OK;
 }
 
-static inline bool
-clicked_within(float x, float y, float x1, float y1, float x2, float y2)
-{
-    return (x > x1 && x < x2 && y > y1 && y < y2);
-}
-
 int
 menu_play::handle_input(tms::event *ev, int action)
 {
@@ -267,7 +260,7 @@ menu_play::step(double dt)
 int
 menu_play::render()
 {
-#if defined(TMS_BACKEND_LINUX_SS)
+#ifdef TMS_BACKEND_LINUX_SS
     return T_OK;
 #endif
 

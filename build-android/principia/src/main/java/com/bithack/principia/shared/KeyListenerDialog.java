@@ -15,9 +15,6 @@ import android.view.View;
 import android.widget.Spinner;
 import android.widget.ArrayAdapter;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class KeyListenerDialog {
     static Dialog _dialog;
 

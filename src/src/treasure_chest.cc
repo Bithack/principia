@@ -5,12 +5,8 @@
 #include "item.hh"
 #include "resource.hh"
 #include "ui.hh"
-#include "soundman.hh"
 
 #include <sstream>
-
-#define OFF_RARITY 3.4f
-#define OFF_QUANTITY 1.2f
 
 #define QUALITY_COMMON   (1UL << 0)
 #define QUALITY_UNCOMMON (1UL << 1)

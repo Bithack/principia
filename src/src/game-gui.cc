@@ -5,28 +5,19 @@
 #include "game-message.hh"
 #include "settings.hh"
 #include "robot.hh"
-#include "shelf.hh"
-#include "beam.hh"
 #include "object_factory.hh"
-#include "i2o1gate.hh"
 #include "i1o1gate.hh"
-#include "command.hh"
 #include "ui.hh"
-#include "soundmanager.hh"
 #include "adventure.hh"
 #include "motor.hh"
-#include "sticky.hh"
 #include "rubberband.hh"
 #include "damper.hh"
 #include "pivot.hh"
 #include "screenshot_marker.hh"
-#include "timer.hh"
 #include "cable.hh"
 #include "prompt.hh"
-#include "tpixel.hh"
 #include "factory.hh"
 #include "item.hh"
-#include "pixel.hh"
 #include "widget_manager.hh"
 #include "font.hh"
 #include "text.hh"
@@ -74,10 +65,8 @@ static float category_selector_alpha = 0.f;
 static int category_selector_x = 0;
 static float menu_highlight = 0.f;
 static int menu_height = 0;
-static int menu_margin = 0;
 static float menu_cam_vel = 0.f;
 static int menu_cam_target = -1;
-static float menu_cam_y = 0.f;
 static tms::graph *menu_graph = 0;
 static tms::camera *menu_cam = 0;
 static float menu_depth = 0.f;
@@ -117,27 +106,6 @@ std::vector<struct menu_obj> menu_objects;
 std::vector<int> menu_objects_cat[of::num_categories];
 
 int gid_to_menu_pos[256];
-
-static tvec2 screen_to_menu(float x, float y)
-{
-    tvec2 r;
-    r.x = x - (_tms.window_width - _menu_width);
-    r.y = y;
-    return r;
-}
-
-static tvec2 menu_to_screen(float x, float y)
-{
-    tvec2 r;
-    r.x = x + (_tms.window_width - _menu_width);
-    r.y = y;
-    return r;
-}
-
-static float get_bmenu_topy()
-{
-    return b_y + b_h/2.f;
-}
 
 float
 game::get_bmenu_x()
@@ -1413,13 +1381,13 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             if (P.username) {
                 P.add_action(ACTION_AUTOSAVE, 0);
                 P.num_unread_messages = 0;
-                char tmp[256];
-                snprintf(tmp, 255, "https://%s/user/%s", P.community_host, P.username);
-                ui::open_url(tmp);
+                COMMUNITY_URL("user/%s", P.username);
+                ui::open_url(url);
 
-                snprintf(tmp, 255, "%s", P.username);
+                char username[256];
+                snprintf(username, 255, "%s", P.username);
 
-                w->set_label(tmp);
+                w->set_label(username);
             } else {
                 ui::open_dialog(DIALOG_LOGIN);
             }
@@ -1456,7 +1424,7 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                     return true;
                 }
 
-                tms_errorf("Unhandled GW: %" PRIu8, button_id);
+                tms_errorf("Unhandled GW: %u", button_id);
             }
             break;
     }
@@ -1472,22 +1440,19 @@ game::init_gui(void)
     }
 
     int ierr;
-    tms_progressf("Initializing GUI ");
+    tms_infof("Initializing GUI ");
 
     initialized = true;
 
     this->text_small = new p_text(font::small);
 
-    tms_progressf("+");
     this->texts = tms_atlas_alloc(1024, 1024, 4);
     this->texts->padding_x = 1;
     this->texts->padding_y = 1;
     this->texts->texture.filter = GL_LINEAR;
-    tms_progressf("-");
     tms_texture_clear_buffer(&this->texts->texture, 0);
 
     this->set_surface(new tms::surface());
-    tms_progressf(".");
     this->get_surface()->atlas = gui_spritesheet::atlas;
 
     menu_height = _tms.opengl_height;
@@ -1519,7 +1484,6 @@ game::init_gui(void)
     b_margin_y = .14f * menu_ydim;
     b_margin_x = .14f * menu_xdim;
 
-    tms_progressf("+");
     menu_graph = new tms::graph(2);
 
     menu_graph->sorting[0] = TMS_SORT_TEXTURE0;
@@ -1543,21 +1507,17 @@ game::init_gui(void)
 
     menu_cat_width = this->get_menu_width();
 
-    tms_progressf(".");
     int n=0;
     for (n=0; n<of::num_categories; n++) {
-        tms_progressf("+");
         catsprites[n] = this->text_small->add_to_atlas(this->texts, of::get_category_name(n));
 
         menu_cat_width += C_PADDING + catsprites[n]->width;
 
-        tms_progressf("+");
         catsprite_hints[n] = this->text_small->add_to_atlas(this->texts, of::get_category_hint(n));
 
         if (catsprites[n]->width > widest_catsprite) widest_catsprite = catsprites[n]->width;
         if (catsprites[n]->height > tallest_catsprite) tallest_catsprite = catsprites[n]->height;
     }
-    tms_progressf(".");
 
     betasprite = this->text_small->add_to_atlas(this->texts, "(BETA)");
     devsprite = this->text_small->add_to_atlas(this->texts, "(DEV)");
@@ -1567,9 +1527,7 @@ game::init_gui(void)
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 3", ierr);
     int num_objects = 0;
-    tms_progressf("*");
     for (int y=0; y<of::num_categories; y++) {
-        tms_progressf(".");
         for (int x=0; x<of::get_num_objects(y); x++) {
             int gid = of::get_gid(y, x);
             entity *e = of::create(gid);
@@ -1590,23 +1548,18 @@ game::init_gui(void)
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 4", ierr);
 
-    tms_progressf("+");
     struct tms_texture *tex = tms_texture_alloc();
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 5", ierr);
 
-    tms_progressf(".");
     tms_texture_upload(&this->texts->texture);
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 9", ierr);
 
-    tms_progressf("+");
     this->init_gearbox_edit();
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 11", ierr);
-    tms_progressf("+");
     this->init_sandbox_menu();
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 12", ierr);
 
-    tms_progressf(" OK\n");
     tms_infof("Number of objects in menu: %d", num_objects);
 
     this->wm = new widget_manager(this, false, true);
@@ -2014,7 +1967,6 @@ game::init_gui(void)
 
     this->selection.disable();
 
-    tms_progressf("+");
     this->init_panel_edit();
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 10", ierr);
 }
@@ -2038,6 +1990,13 @@ game::refresh_info_label()
         {
             char tmp[256];
             e->write_quickinfo(tmp);
+
+            if (G->state.sandbox && settings["display_object_id"]->v.b) {
+                char tmp2[256];
+                e->write_object_id(tmp2);
+
+                strcat(tmp, tmp2);
+            }
 
             this->info_label->set_text(tmp);
             this->info_label->active = true;
@@ -2599,7 +2558,7 @@ game::create_sandbox_menu()
             entity *e = menu_objects[n].e;
 
             char override_path[512];
-            snprintf(override_path, 512, "../data-src/override/%" PRIu32 ".png", e->g_id);
+            snprintf(override_path, 512, "../data-src/override/%u.png", e->g_id);
 
             if (!file_exists(override_path)) {
                 cam->width = 2.0f * 1.f/e->menu_scale;
@@ -2628,7 +2587,7 @@ game::create_sandbox_menu()
                 menu_objects[n].image.width  = SIZE_PER_MENU_ITEM;
                 menu_objects[n].image.height = SIZE_PER_MENU_ITEM;
 
-                tms_infof("%" PRIu32 " (%s) at %.2f/%.2f.", menu_objects[n].e->g_id, menu_objects[n].e->get_name(), VEC2_INLINE(menu_objects[n].image.bl));
+                tms_infof("%u (%s) at %.2f/%.2f.", menu_objects[n].e->g_id, menu_objects[n].e->get_name(), VEC2_INLINE(menu_objects[n].image.bl));
 
                 /* object */
                 tms_graph_add_entity_with_children(menu_graph, menu_objects[n].e);
@@ -2638,7 +2597,7 @@ game::create_sandbox_menu()
                 menu_graph->render(cam, this);
                 tms_graph_remove_entity_with_children(menu_graph, menu_objects[n].e);
             } else {
-                tms_infof("%" PRIu32 " (%s) is being overridden", menu_objects[n].e->g_id, menu_objects[n].e->get_name());
+                tms_infof("%u (%s) is being overridden", menu_objects[n].e->g_id, menu_objects[n].e->get_name());
             }
 
             n++;
@@ -2664,7 +2623,7 @@ game::create_sandbox_menu()
             entity *e = menu_objects[n].e;
 
             char override_path[512];
-            snprintf(override_path, 512, "../data-src/override/%" PRIu32 ".png", e->g_id);
+            snprintf(override_path, 512, "../data-src/override/%u.png", e->g_id);
 
             if (file_exists(override_path)) {
                 struct tms_texture tex;
@@ -3234,16 +3193,6 @@ game::render_edev_labels()
     }
     tmat4_copy(mv, this->cam->view);
     tms_ddraw_set_matrices(this->dd, mv, this->cam->projection);
-}
-
-static int get_sep_pos(int y)
-{
-    int py = 0;
-    int n = 0;
-    for (int x=0; x<y; x ++)
-        n+= of::get_num_objects(x);
-
-    return n*s_size;
 }
 
 struct tms_texture*

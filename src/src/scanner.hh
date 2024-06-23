@@ -26,8 +26,6 @@ class scanner : public ecomp_multiconnect
     };
 
     cb_handler *handler;
-    bool first_try;
-    bool result;
     b2Vec2 points[SCANNER_MAX_POINTS];
     int num_points;
 

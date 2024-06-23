@@ -4,7 +4,6 @@
 #include "world.hh"
 #include "model.hh"
 #include "material.hh"
-#include "soundmanager.hh"
 #include "gui.hh"
 
 #define SPEED 1.25f
@@ -259,8 +258,6 @@ motor::ifstep(float voltage, float ctl_speed,
     b2RevoluteJoint *j = static_cast<b2RevoluteJoint*>(this->c.j);
 
     if (j) {
-        bool play_sound = false;
-
         if (enable_angle) {
             float a = ctl_angle * M_PI * 2.f;
             float c_angle = j->GetJointAngle();
@@ -280,11 +277,6 @@ motor::ifstep(float voltage, float ctl_speed,
             float ns = dist*speed;
 
             if (this->mtype == MOTOR_TYPE_SERVO) {
-
-                if (fabsf(dist) > 0.02f && fabsf(speed) > 0.01f && torque > 0.01f
-                        && fabsf(os) > 0.01f/* XXX */
-                        )
-                    play_sound = true;
 
                 if ((((os >= 0.f && ns >= 0.f) || (os < 0.f && ns < 0.f))
                     && fabsf(os) > fabsf(ns))) {

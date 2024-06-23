@@ -34,7 +34,6 @@ public class SettingsDialog implements OnSeekBarChangeListener, OnClickListener 
     final SeekBar settings_zoom_speed;
     final CheckBox cb_enableshadows;
     final RadioGroup rg_ao;
-    final RadioGroup rg_texture_quality;
     final RadioGroup rg_fps;
 
     final CheckBox settings_smooth_cam;
@@ -87,7 +86,6 @@ public class SettingsDialog implements OnSeekBarChangeListener, OnClickListener 
         sb_shadowsoftness = (SeekBar)view.findViewById(R.id.seekbar_shadowsoftness);
         sb_uiscale = (SeekBar)view.findViewById(R.id.settings_uiscale);
         rg_ao = (RadioGroup)view.findViewById(R.id.radiogroup_ao);
-        rg_texture_quality = (RadioGroup)view.findViewById(R.id.tex_quality);
         rg_fps = (RadioGroup)view.findViewById(R.id.rg_fps);
         cb_enableshadows = (CheckBox)view.findViewById(R.id.checkbox_enableshadows);
 
@@ -161,7 +159,6 @@ public class SettingsDialog implements OnSeekBarChangeListener, OnClickListener 
         int shadow_map_resx;
         int shadow_map_resy;
         int ao_map_res = 256;
-        int texture_quality = 2;
         float uiscale_base = (float)sb_uiscale.getProgress() / 10.f;
         float uiscale = uiscale_base + 0.5f;
         float cam_speed_base = (float)settings_cam_speed.getProgress() / 10.f;
@@ -206,16 +203,11 @@ public class SettingsDialog implements OnSeekBarChangeListener, OnClickListener 
             case R.id.rg_fps_graph:     display_fps = 3; break;
         }
 
-        switch (rg_texture_quality.getCheckedRadioButtonId()) {
-            case R.id.tex_low: texture_quality = 0; break;
-            case R.id.tex_high: texture_quality = 2; break;
-        }
-
         shadow_quality = sb_shadowsoftness.getProgress();
 
         PrincipiaBackend.setSettings(enable_shadows, enable_ao,
                                      shadow_quality, shadow_map_resx, shadow_map_resy,
-                                     ao_map_res, texture_quality, uiscale,
+                                     ao_map_res, uiscale,
                                      cam_speed, zoom_speed,
                                      smooth_cam, smooth_zoom,
                                      border_scroll_enabled, border_scroll_speed,
@@ -267,14 +259,6 @@ public class SettingsDialog implements OnSeekBarChangeListener, OnClickListener 
             rg_fps.check(R.id.rg_fps_graph);
         } else {
             rg_fps.check(R.id.rg_fps_off);
-        }
-
-        if (s.texture_quality == 0) {
-            rg_texture_quality.check(R.id.tex_low);
-        } else if (s.texture_quality == 2) {
-            rg_texture_quality.check(R.id.tex_high);
-        } else {
-            rg_texture_quality.check(R.id.tex_low);
         }
 
         int uiscale_step = (int)Math.round((((double)s.uiscale - 0.5) * 10.0));
@@ -349,19 +333,16 @@ public class SettingsDialog implements OnSeekBarChangeListener, OnClickListener 
             sb_shadowsoftness.setProgress(0);
             rg_ao.check(R.id.rg_values_off);
             cb_enableshadows.setChecked(false);
-            rg_texture_quality.check(R.id.tex_low);
         } else if (v == this.btn_preset_medium) {
             sb_shadowresolution.setProgress(3);
             sb_shadowsoftness.setProgress(0);
             rg_ao.check(R.id.rg_values_low);
             cb_enableshadows.setChecked(true);
-            rg_texture_quality.check(R.id.tex_high);
         } else if (v == this.btn_preset_high) {
             sb_shadowresolution.setProgress(5);
             sb_shadowsoftness.setProgress(1);
             rg_ao.check(R.id.rg_values_medium);
             cb_enableshadows.setChecked(true);
-            rg_texture_quality.check(R.id.tex_high);
         }
     }
 

@@ -1,10 +1,8 @@
 #include "game.hh"
 #include "world.hh"
 #include "group.hh"
-#include "connection.hh"
 #include "object_factory.hh"
 #include "fxemitter.hh"
-#include "textbuffer.hh"
 
 #include <set>
 

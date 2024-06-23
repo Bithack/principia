@@ -1,9 +1,9 @@
 #include "vendor.hh"
 #include "game.hh"
+#include "model.hh"
 #include "object_factory.hh"
 #include "resource.hh"
 #include "item.hh"
-#include "soundman.hh"
 #include "ui.hh"
 
 /**

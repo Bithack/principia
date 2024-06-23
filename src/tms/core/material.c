@@ -1,7 +1,6 @@
 #include <stdlib.h>
 
 #include "material.h"
-#include "program.h"
 
 struct tms_material* tms_material_alloc(void)
 {

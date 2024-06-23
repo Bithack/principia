@@ -1,7 +1,6 @@
 #include "pointer.hh"
 #include "model.hh"
 #include "material.hh"
-#include "world.hh"
 
 pointer::pointer()
     : arrow_angle(0.f)

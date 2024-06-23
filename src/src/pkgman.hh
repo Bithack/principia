@@ -26,28 +26,42 @@
 #define LEVEL_HIDDEN  2
 
 static const char *level_version_strings[] = {
-    "0.0",     // 14
-    "1.0",     // 15
-    "1.1.6",   // 16
-    "1.1.7",   // 17
-    "1.2",     // 18
-    "1.2.1",   // 19
-    "1.2.2",   // 20
-    "1.2.3",   // 21
-    "1.2.4",   // 22
-    "1.3.0.1", // 23
-    "1.3.0.2", // 24
-    "1.3.0.3", // 25
-    "1.4",     // 26
-    "1.4.0.2", // 27
-    "1.5",     // 28
-    "1.5.1",   // 29
-    "1.5.2 (2023-06-05)", // 30
-    0,         // 31
-    0,         // 32
-    0,         // 33
-    0,         // 34
-    0,         // 35
+    "Null",
+    "Beta 1",
+    "Beta 2",
+    "Beta 3",
+    "Beta 4",
+    "Beta 5",
+    "Beta 6",
+    "Beta 7",
+    "Beta 8",
+    "Beta 9",
+    "Beta 10",
+    "Beta 11",
+    "Beta 12",
+    "Beta 13",
+    "Beta 14",
+    "1.0",
+    "1.1.6",
+    "1.1.7",
+    "1.2",
+    "1.2.1",
+    "1.2.2",
+    "1.2.3",
+    "1.2.4",
+    "1.3.0.1",
+    "1.3.0.2",
+    "1.3.0.3",
+    "1.4",
+    "1.4.0.2",
+    "1.5",
+    "1.5.1",
+    "2023-06-05",
+    0,
+    0,
+    0,
+    0,
+    0,
 };
 
 #define LCAT_PUZZLE      0
@@ -68,37 +82,27 @@ static const char *level_version_strings[] = {
 #define LEVEL_NAME_MAX_LEN 256
 #define LEVEL_DESCR_MAX_LEN (1024*1024*12)
 
-#if defined(TMS_BACKEND_WINDOWS)
-#define SLASH "\\"
-#else
-#define SLASH "/"
-#endif
-
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include <inttypes.h>
 
 #ifdef __cplusplus
 
 #include "progress.hh"
 #include "const.hh"
 
-static const char *level_version_string(int level_version)
+inline const char *level_version_string(int level_version)
 {
-    if (level_version < LEVEL_VERSION_1_0) {
-        return "old_level";
-    } else if (level_version <= LEVEL_VERSION) {
-        const char *ret = level_version_strings[level_version-LEVEL_VERSION_1_0+1];
+    const char *ret = level_version_strings[level_version];
 
-        if (ret) {
-            return ret;
-        }
-    }
-
-    return "unknown_version";
+    if (ret)
+        return ret;
+    else
+        return "N/A";
 }
+
+#ifdef DEBUG
 
 static const char *level_type_string(uint8_t level_type)
 {
@@ -120,6 +124,8 @@ static const char *level_visibility_string(uint8_t level_visibility)
         default:                return "Unknown";
     }
 }
+
+#endif
 
 class lvlbuf;
 class pkginfo;
@@ -358,6 +364,7 @@ class pkginfo
 #define LVL_ALLOW_RESPAWN_WITHOUT_CHECKPOINT    (1ULL << 34)
 #define LVL_DEAD_CREATURE_DESTRUCTION           (1ULL << 35)
 #define LVL_AUTOMATICALLY_SUBMIT_SCORE          (1ULL << 36)
+#define LVL_ENABLE_LUASOCKET                    (1ULL << 37)
 
 /* level format */
 class lvlinfo

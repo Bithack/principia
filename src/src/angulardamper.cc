@@ -129,25 +129,19 @@ angulardamper::step()
 {
     b2RevoluteJoint *j = static_cast<b2RevoluteJoint*>(this->c.j);
 
-    if (j) {
-        float c_angle = j->GetJointAngle();
-        float twopi = 2.f * M_PI;
-        float nref = 0.f;
-        float a = 0.f;
-        float dist = tmath_adist(c_angle, a);
+    if (!j)
+        return;
 
-        float speed = dist * this->properties[0].v.f;
-        float torque = this->properties[1].v.f;
+    float c_angle = j->GetJointAngle();
+    float a = 0.f;
+    float dist = tmath_adist(c_angle, a);
 
-        /*
-        tms_infof("r:%4.1f,nr:%4.1f,j:%4.1f,a:%4.1f,c_angle:%4.1f,dist:%4.1f,speed:%4.1f,torque:%4.1f",
-                ref, nref, j->GetJointAngle(),
-                a, c_angle, dist, speed, torque);
-                */
-        j->SetMotorSpeed(speed);
-        j->SetMaxMotorTorque(torque);
-        j->EnableMotor(true);
-    }
+    float speed = dist * this->properties[0].v.f;
+    float torque = this->properties[1].v.f;
+
+    j->SetMotorSpeed(speed);
+    j->SetMaxMotorTorque(torque);
+    j->EnableMotor(true);
 }
 
 bool

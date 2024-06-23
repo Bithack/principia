@@ -1,9 +1,6 @@
 #include "shelf.hh"
 #include "material.hh"
-#include "world.hh"
 #include "model.hh"
-#include "main.hh"
-#include "game.hh"
 
 shelf::shelf()
 {

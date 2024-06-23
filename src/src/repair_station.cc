@@ -3,7 +3,6 @@
 #include "world.hh"
 #include "object_factory.hh"
 #include "creature.hh"
-#include "main.hh"
 #include "fxemitter.hh"
 #include "settings.hh"
 #include "ui.hh"

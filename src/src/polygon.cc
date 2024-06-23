@@ -1,7 +1,5 @@
 #include "polygon.hh"
-#include "model.hh"
 #include "world.hh"
-#include "main.hh"
 #include "game.hh"
 #include "ui.hh"
 

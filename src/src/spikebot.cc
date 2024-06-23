@@ -1,6 +1,5 @@
 #include "spikebot.hh"
 #include "model.hh"
-#include "main.hh"
 #include "game.hh"
 
 static const float SPIKEBOT_BASE_RADIUS = 0.65f;

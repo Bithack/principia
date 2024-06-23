@@ -3,7 +3,7 @@
 #include "edevice.hh"
 #include <stdint.h>
 
-#if defined(TMS_BACKEND_WINDOWS) || defined(TMS_BACKEND_LINUX)
+#ifdef TMS_BACKEND_PC
 #define DISPLAY_MAX_TOTAL_SQUARES 16384
 #else
 #define DISPLAY_MAX_TOTAL_SQUARES 4096

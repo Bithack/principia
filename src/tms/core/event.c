@@ -1,6 +1,3 @@
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "screen.h"
 #include "event.h"
 #include "tms.h"

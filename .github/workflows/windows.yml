@@ -1,0 +1,74 @@
+name: windows
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'data-*/**'
+      - 'packaging/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/windows.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'data-*/**'
+      - 'packaging/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/windows.yml'
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          release: false
+          msystem: UCRT64
+          pacboy: >-
+            gcc:p
+            cmake:p
+            ninja:p
+            glew:p
+            zlib:p
+            gtk3:p
+            libpng:p
+            libjpeg-turbo:p
+            SDL2:p
+            nsis:p
+            7zip:p
+
+      # custom built packages with less dependencies than MSYS' counterparts
+      - name: Install external packages
+        run: |
+         wget https://grejer.voxelmanip.se/msys-pkgs/mingw-w64-ucrt-x86_64-{curl-winssl-8.6.0-2,freetype-2.13.2-1}-any.pkg.tar.zst
+         pacman -U --noconfirm *.pkg.tar.zst
+
+      - name: Build
+        run: |
+          mkdir build; cd build
+          cmake .. -G Ninja
+          ninja -j4
+
+      - name: Bundle together installer and portable
+        run: |
+          cd build
+          ../packaging/windows_release.sh
+          ../packaging/windows_portable.sh
+
+      - name: Upload output as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: principia-setup.exe
+          path: build/principia-setup.exe
+
+      - name: Upload output as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: principia-portable.7z
+          path: build/principia-portable.7z

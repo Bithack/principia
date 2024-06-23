@@ -1,10 +1,7 @@
 #include "menu_shared.hh"
 #include "menu_main.hh"
-#include "menu_pkg.hh"
 #include "menu_create.hh"
-#include "main.hh"
 #include "misc.hh"
-#include "settings.hh"
 #include "ui.hh"
 #include "game.hh"
 #include "widget_manager.hh"
@@ -18,10 +15,6 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
     }
 
     switch (button_id) {
-        case BTN_SHITTY:
-            ui::open_url("https://principia-web.se/wiki/Bad_Graphics");
-            break;
-
         case BTN_PLAY:
             P.add_action(ACTION_GOTO_PLAY, 1);
             break;
@@ -30,18 +23,15 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             P.add_action(ACTION_GOTO_CREATE, 1);
             break;
 
-        case BTN_BROWSE_COMMUNITY:
-            {
-                ui::emit_signal(SIGNAL_CLICK_DISCOVER);
-                char tmp[128];
-                snprintf(tmp, 127, "https://%s/", P.community_host);
-                ui::open_url(tmp);
-            }
-            break;
+        case BTN_BROWSE_COMMUNITY: {
+            COMMUNITY_URL("");
+            ui::open_url(url);
+        } break;
 
-        case BTN_UPDATE:
-            ui::open_url("https://principia-web.se/");
-            break;
+        case BTN_UPDATE: {
+            COMMUNITY_URL("download");
+            ui::open_url(url);
+        } break;
 
         default: return false;
     }
@@ -57,15 +47,9 @@ menu_main::menu_main()
 
     this->wdg_update_available = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
-            BTN_UPDATE, AREA_TOP_LEFT);
+            BTN_UPDATE, AREA_TOP_CENTER);
     this->wdg_update_available->set_label("Update available!");
     this->wdg_update_available->priority = 900;
-
-    this->wdg_shitty = this->wm->create_widget(
-            this->get_surface(), TMS_WDG_LABEL,
-            BTN_SHITTY, AREA_TOP_LEFT);
-    this->wdg_shitty->set_label("\nSafe mode enabled. Click here to read more.");
-    this->wdg_shitty->priority = 500;
 
     this->wdg_play = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
@@ -121,7 +105,7 @@ menu_main::pause(void)
 int
 menu_main::render(void)
 {
-#if defined(TMS_BACKEND_LINUX_SS)
+#ifdef TMS_BACKEND_LINUX_SS
     return T_OK;
 #endif
 
@@ -139,12 +123,6 @@ menu_main::render(void)
             _tms.opengl_width, _tms.opengl_height);
 
     return T_OK;
-}
-
-static inline bool
-clicked_within(float x, float y, float x1, float y1, float x2, float y2)
-{
-    return (x > x1 && x < x2 && y > y1 && y < y2);
 }
 
 int
@@ -227,7 +205,7 @@ menu_main::step(double dt)
 {
     menu_base::step(dt);
 
-#if defined(TMS_BACKEND_LINUX_SS)
+#ifdef TMS_BACKEND_LINUX_SS
     SDL_Delay(150);
     return T_OK;
 #endif
@@ -253,14 +231,9 @@ menu_main::refresh_widgets()
     menu_base::refresh_widgets();
 
     this->wdg_update_available->remove();
-    this->wdg_shitty->remove();
 
     if (P.new_version_available) {
         this->wdg_update_available->add();
-    }
-
-    if (!P.loaded_correctly_last_run) {
-        this->wdg_shitty->add();
     }
 
     if (menu_shared::fl_state == FL_INIT) {

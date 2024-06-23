@@ -1,80 +1,68 @@
+#include "absorber.hh"
+#include "adventure.hh"
+#include "basepixel.hh"
+#include "cable.hh"
+#include "chunk.hh"
+#include "connection.hh"
+#include "cursorfield.hh"
+#include "decorations.hh"
+#include "display.hh"
+#include "dragfield.hh"
+#include "emitter.hh"
+#include "escript.hh"
+#include "fan.hh"
+#include "fluid.hh"
+#include "fluidbuffer.hh"
+#include "font.hh"
+#include "fxemitter.hh"
+#include "game-message.hh"
 #include "game.hh"
-#include "main.hh"
-#include "loading_screen.hh"
-#include "beam.hh"
-#include "button.hh"
-#include "robot_parts.hh"
-#include "tester.hh"
-#include "command.hh"
-#include "shelf.hh"
-#include "simplebg.hh"
+#include "gravityman.hh"
 #include "grid.hh"
 #include "group.hh"
-#include "robot.hh"
-#include "world.hh"
-#include "object_factory.hh"
-#include "cable.hh"
-#include "polygon.hh"
-#include "chunk.hh"
 #include "i0o1gate.hh"
-#include "pkgwarp.hh"
-#include "i2o1gate.hh"
-#include "material.hh"
 #include "i1o1gate.hh"
+#include "i2o1gate.hh"
+#include "item.hh"
 #include "ladder.hh"
-#include "ragdoll.hh"
-#include "crane.hh"
-#include "rope.hh"
-#include "settings.hh"
 #include "ledbuffer.hh"
-#include "display.hh"
-#include "spritebuffer.hh"
-#include "fluidbuffer.hh"
 #include "linebuffer.hh"
-#include "textbuffer.hh"
-#include "rubberband.hh"
-#include "ui.hh"
-#include "connection.hh"
-#include "adventure.hh"
-#include "soundmanager.hh"
-#include "plant.hh"
-#include "soundman.hh"
-#include "screenshot_marker.hh"
+#include "loading_screen.hh"
+#include "main.hh"
+#include "material.hh"
+#include "menu_main.hh"
 #include "menu_pkg.hh"
-#include "progress.hh"
 #include "motor.hh"
+#include "object_factory.hh"
+#include "object_finder.hh"
 #include "objectfield.hh"
 #include "panel.hh"
-#include "emitter.hh"
-#include "absorber.hh"
-#include "fan.hh"
-#include "jumper.hh"
-#include "receiver.hh"
-#include "gravityman.hh"
-#include "proximitysensor.hh"
-#include "dragfield.hh"
-#include "object_finder.hh"
-#include "basepixel.hh"
 #include "pixel.hh"
-#include "tpixel.hh"
-#include "worker.hh"
-#include "menu_main.hh"
-#include "fxemitter.hh"
-#include "prompt.hh"
-#include "fluid.hh"
-#include "robotman.hh"
-#include "scup.hh"
-#include "escript.hh"
-#include "mood.hh"
-#include "item.hh"
-#include "vendor.hh"
-#include "cursorfield.hh"
-#include "widget_manager.hh"
-#include "game-message.hh"
-#include "font.hh"
-#include "text.hh"
-#include "decorations.hh"
+#include "plant.hh"
+#include "polygon.hh"
+#include "progress.hh"
+#include "proximitysensor.hh"
+#include "ragdoll.hh"
 #include "rand.h"
+#include "robot.hh"
+#include "robot_parts.hh"
+#include "robotman.hh"
+#include "rope.hh"
+#include "screenshot_marker.hh"
+#include "scup.hh"
+#include "settings.hh"
+#include "simplebg.hh"
+#include "soundman.hh"
+#include "soundmanager.hh"
+#include "spritebuffer.hh"
+#include "text.hh"
+#include "textbuffer.hh"
+#include "tpixel.hh"
+#include "ui.hh"
+#include "vendor.hh"
+#include "widget_manager.hh"
+#include "worker.hh"
+#include "world.hh"
 #ifdef DEBUG
 /* for print_screen_point_info */
 #include "terrain.hh"
@@ -87,11 +75,6 @@
 
 #include <tms/backend/opengl.h>
 #include <unistd.h>
-#include <errno.h>
-
-#define SPECIAL_LITE_LEVEL 624
-
-#include <png.h>
 
 #include <iterator>
 #include <map>
@@ -100,7 +83,7 @@
 
 #define MAX_COPY_ENTITIES 10
 
-#define CSCONN_OFFSX .5f
+#define CSCONN_OFFSX .55f
 #define CSCONN_OFFSY .0f
 
 #define MAX_BTN 5
@@ -733,8 +716,6 @@ render_next_prio(struct tms_rstate *state, void *value)
 {
     int val = VOID_TO_INT(value);
 
-    game *g = static_cast<game*>(state->data);
-
     switch (val) {
         case 2:
             G->tmp_ao_mask = (tvec3){.0f, 0.f, 0.0f};
@@ -768,8 +749,6 @@ int
 render_hidden_prio(struct tms_rstate *rstate, void *value)
 {
     int val = VOID_TO_INT(value);
-
-    game *g = static_cast<game*>(rstate->data);
 
     switch (val) {
         case 2: G->tmp_ao_mask = (tvec3){.0f, 0.f, 0.0f}; break;
@@ -892,6 +871,7 @@ post_fn(struct tms_rstate *state)
 void
 ao_post_fn(struct tms_rstate *state)
 {
+    /// XXX: what?
     return;
     if (W->level.type == LCAT_ADVENTURE && adventure::player) {
         glColorMask(0,0,1,0);
@@ -919,8 +899,6 @@ ao_post_fn(struct tms_rstate *state)
 int ao_mask_color(struct tms_rstate *state, void *value)
 {
     int val = VOID_TO_INT(value);
-
-    game *g = static_cast<game*>(state->data);
 
     switch (val) {
         case 2:
@@ -1209,56 +1187,46 @@ game::occupy_prompt_slot()
 void
 game::init_framebuffers()
 {
-    tms_progressf("Initializing game framebuffers ");
+    tms_infof("Initializing game framebuffers");
 
     if (!this->icon_fb) {
-        tms_progressf("+");
         this->icon_fb = tms_fb_alloc(512, 512, 0);
         tms_fb_add_texture(this->icon_fb, GL_RGB, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
         tms_fb_enable_depth(this->icon_fb, GL_DEPTH_COMPONENT16);
-        tms_progressf(".");
     }
 
     if (this->main_fb) {
-        tms_progressf("-");
         tms_fb_free(this->main_fb);
         this->main_fb = 0;
     }
 
     if (this->bloom_fb) {
-        tms_progressf("-");
         tms_fb_free(this->bloom_fb);
         this->bloom_fb = 0;
     }
 
-#ifdef TMS_BACKEND_PC
+#ifndef TMS_USE_GLES
     if (settings["postprocess"]->v.b) {
+        tms_infof("Postprocess time");
         //this->main_fb = tms_fb_alloc(_tms.window_width/2., _tms.window_height/2., 0);
-        tms_progressf("+");
         this->main_fb = tms_fb_alloc(_tms.window_width, _tms.window_height, 0);
-        tms_progressf(".");
         tms_fb_add_texture(this->main_fb, GL_RGBA, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
         //tms_fb_add_texture(this->main_fb, GL_RGB, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
-        tms_progressf(".");
         tms_fb_enable_depth(this->main_fb, GL_DEPTH_COMPONENT16);
 
-        tms_progressf("+");
         this->bloom_fb = tms_fb_alloc(_tms.window_width, _tms.window_height, 1);
-        tms_progressf(".");
         tms_fb_add_texture(this->bloom_fb, GL_RGBA, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
     } else {
         this->main_fb = 0;
         this->bloom_fb = 0;
     }
 #endif
-
-    tms_progressf("OK\n");
 }
 
 void
 game::init_shaders()
 {
-    tms_progressf("Compiling shaders...");
+    tms_infof("Compiling shaders...");
 
     struct tms_shader *sh;
 
@@ -1279,14 +1247,12 @@ game::init_shaders()
     tms_shader_compile(sh, GL_VERTEX_SHADER, src_brightpass[0]);
     tms_shader_compile(sh, GL_FRAGMENT_SHADER, src_brightpass[1]);
     prg_brightpass = tms_shader_get_program(sh, TMS_NO_PIPELINE);
-
-    tms_progressf("OK\n");
 }
 
 void
 game::init_graphs()
 {
-    tms_progressf("Loading graphs...");
+    tms_infof("Loading graphs...");
 
     this->graph = this->get_scene()->create_graph(0);
     this->graph->sorting[1] = TMS_SORT_PRIO;
@@ -1330,14 +1296,12 @@ game::init_graphs()
     this->outline_graph->sort_depth = 4;
     this->outline_graph->full_pipeline = 0;
     tms_graph_enable_culling(this->outline_graph, 0);
-
-    tms_progressf("OK\n");
 }
 
 void
 game::init_camera()
 {
-    tms_progressf("Loading camera...");
+    tms_infof("Loading camera...");
 
     this->cam = new tms::camera();
 
@@ -1347,26 +1311,8 @@ game::init_camera()
     this->cam->up = (tvec3){0.f, 1.f, 0.f};
     this->cam->fov = 50;
 
-    //this->cam->set_direction(0, 0, -1);
-    //this->cam->width = _tms.window_width/50.f;
-    //this->cam->height = _tms.window_height/50.f;
-    this->cam->calculate();
-    /*
     this->cam->set_direction(0, 0, -1);
-    this->cam->set_position(0, 0, 3);
-    this->cam->fov = 45;
-    this->cam->near = 1.f;
-    this->cam->far = 40.f;
     this->cam->calculate();
-
-    float test[16];
-    tmat4_load_identity(test);
-    test[8] = .707f;
-    test[9] = .707f;
-    tmat4_multiply(this->cam->projection, test);
-    //this->cam->view[2] = -.707f;
-    //this->cam->combined[2] = .707;
-    */
 
     this->ao_cam = new tms::camera();
     this->ao_cam->width = 1024.f/50.f;
@@ -1380,8 +1326,6 @@ game::init_camera()
     this->gi_cam->height = 1024.f/50.f;
     this->gi_cam->near = 0.f - 2.f;
     this->gi_cam->far = LAYER_DEPTH*3 + .5f;// + .75f;
-
-    tms_progressf("OK\n");
 }
 
 void
@@ -1457,8 +1401,7 @@ game::pause()
 int
 game::resume(void)
 {
-    char filename[1024];
-    snprintf(filename, 1023, "%s/.autosave", pkgman::get_level_path(LEVEL_LOCAL));
+    this->render_controls = false;
 
     if (this->resume_action == GAME_START_NEW_ADVENTURE) {
         tms_infof("Resume action: Start new adventure");
@@ -1475,17 +1418,7 @@ game::resume(void)
     } else if (this->resume_action == GAME_RESUME_NEW || this->resume_action == GAME_RESUME_NEW_EMPTY) {
         tms_infof("Resume action: New");
 
-        uint32_t level_type = settings["default_level_type"]->v.u8;
-        if (resume_level_type != -1) {
-            level_type = resume_level_type;
-        }
-
-        this->resume_level_type = -1;
-
-        /* Fall back to the custom level type if the user input something weird */
-        if (level_type > LCAT_CUSTOM) {
-            level_type = LCAT_CUSTOM;
-        }
+        uint32_t level_type = resume_level_type;
 
         this->create_level(level_type, this->resume_action == GAME_RESUME_NEW_EMPTY, false);
 
@@ -1618,7 +1551,7 @@ game::step(double dt)
         _tms.time_accum = 0;
     }
 
-#if defined TMS_BACKEND_PC
+#ifdef TMS_BACKEND_PC
     if (settings["rc_lock_cursor"]->v.b) {
         if ((this->active_hori_wdg && !this->active_hori_wdg->is_radial())
                 || (this->active_vert_wdg && !this->active_vert_wdg->is_radial())) {
@@ -1643,77 +1576,75 @@ game::step(double dt)
     */
 
 #ifdef TMS_BACKEND_PC
-    if ((W->is_paused() && settings["ingame_tooltips"]->v.b) || (W->is_playing() && settings["ingame_tooltips_playing"]->v.b)) {
-        uint64_t diff = _tms.last_time - move_time;
-        if (((this->hov_text->active && diff > HOVER_TIME_ACTIVE) || (this->hov_text->active == false && diff > HOVER_TIME)) && !move_queried) {
-            move_queried = true;
+    uint64_t diff = _tms.last_time - move_time;
+    if (((this->hov_text->active && diff > HOVER_TIME_ACTIVE) || (this->hov_text->active == false && diff > HOVER_TIME)) && !move_queried) {
+        move_queried = true;
 
-            b2Body *_b;
-            tvec2 _o;
-            uint8_t _f;
+        b2Body *_b;
+        tvec2 _o;
+        uint8_t _f;
 
-            W->query(this->cam, (int)move_pos.x, (int)move_pos.y, &this->hov_ent, &_b, &_o, &_f, this->layer_vis, false, 0, true);
+        W->query(this->cam, (int)move_pos.x, (int)move_pos.y, &this->hov_ent, &_b, &_o, &_f, this->layer_vis, false, 0, true);
 
-            hov_fadeout = true;
-            if (this->hov_ent && this->hov_ent->g_id != O_CHUNK) {
-                char tooltip_text[512];
-                tooltip_text[0] = '\0';
-                this->hov_ent->write_tooltip(tooltip_text);
-                if (strlen(tooltip_text)) {
-                    hov_fadeout = false;
-                    if (!this->hov_text->active) {
-                        hov_time = _tms.last_time;
-                    }
-                    this->hov_text->active = true;
-                    this->hov_text->set_text(tooltip_text);
+        hov_fadeout = true;
+        if (this->hov_ent && this->hov_ent->g_id != O_CHUNK) {
+            char tooltip_text[512];
+            tooltip_text[0] = '\0';
+            this->hov_ent->write_tooltip(tooltip_text);
+            if (strlen(tooltip_text)) {
+                hov_fadeout = false;
+                if (!this->hov_text->active) {
+                    hov_time = _tms.last_time;
                 }
-            } else {
-                this->hov_ent = 0;
+                this->hov_text->active = true;
+                this->hov_text->set_text(tooltip_text);
+            }
+        } else {
+            this->hov_ent = 0;
 
-                if (this->hov_text->active && !hov_fadeout) {
-                    hov_fadeout = true;
-                    hov_fadeout_time = _tms.last_time + 175000;
-                }
+            if (this->hov_text->active && !hov_fadeout) {
+                hov_fadeout = true;
+                hov_fadeout_time = _tms.last_time + 175000;
             }
         }
+    }
 
-        if (this->hov_text->active) {
-            float alpha = 0.f;
-            float h = this->hov_text->get_num_lines() * this->hov_text->get_max_height();
+    if (this->hov_text->active) {
+        float alpha = 0.f;
+        float h = this->hov_text->get_num_lines() * this->hov_text->get_max_height();
 
-            if (hov_fadeout) {
-                const float x = 1.f-(float)((int64_t)_tms.last_time - (int64_t)hov_fadeout_time) / 175000.f;
-                alpha = tclampf(x, 0.f, 1.f);
-                this->hov_text->color.a = alpha;
-                this->hov_text->outline_color.a = alpha;
+        if (hov_fadeout) {
+            const float x = 1.f-(float)((int64_t)_tms.last_time - (int64_t)hov_fadeout_time) / 175000.f;
+            alpha = tclampf(x, 0.f, 1.f);
+            this->hov_text->color.a = alpha;
+            this->hov_text->outline_color.a = alpha;
 
-                if (alpha <= 0.05f) {
-                    this->hov_text->active = false;
-                    tms_debugf("remove entirely");
-                    hov_fadeout = false;
-                }
-            } else {
-                if (this->hov_ent) {
-                    float x = this->hov_ent->get_position().x;
-                    float y = this->hov_ent->get_position().y + (this->hov_ent->height * 1.2f);
+            if (alpha <= 0.05f) {
+                this->hov_text->active = false;
+                tms_debugf("remove entirely");
+                hov_fadeout = false;
+            }
+        } else {
+            if (this->hov_ent) {
+                float x = this->hov_ent->get_position().x;
+                float y = this->hov_ent->get_position().y + (this->hov_ent->height * 1.2f);
 
-                    tvec3 dd = tms_camera_project(this->cam, x, y, this->hov_ent->get_layer()*LAYER_DEPTH);
-                    this->hov_text->set_position(dd.x, dd.y + this->wm->get_margin_y());
-                }
-
-                alpha = tclampf((float)(_tms.last_time - hov_time) / 175000.f, 0.f, 1.f);
-                this->hov_text->color.a = alpha;
-                this->hov_text->outline_color.a = alpha;
+                tvec3 dd = tms_camera_project(this->cam, x, y, this->hov_ent->get_layer()*LAYER_DEPTH);
+                this->hov_text->set_position(dd.x, dd.y + this->wm->get_margin_y());
             }
 
-            this->add_rounded_square(
-                    this->hov_text->get_x(),
-                    this->hov_text->get_y() + (this->hov_text->get_height() / 2.f),
-                    this->hov_text->get_width(),
-                    h * 1.05f,
-                    tvec4f(.2f, .2f, .2f, alpha*0.65f),
-                    2.f);
+            alpha = tclampf((float)(_tms.last_time - hov_time) / 175000.f, 0.f, 1.f);
+            this->hov_text->color.a = alpha;
+            this->hov_text->outline_color.a = alpha;
         }
+
+        this->add_rounded_square(
+                this->hov_text->get_x(),
+                this->hov_text->get_y() + (this->hov_text->get_height() / 2.f),
+                this->hov_text->get_width(),
+                h * 1.05f,
+                tvec4f(.2f, .2f, .2f, alpha*0.65f),
+                2.f);
     }
 #endif
 
@@ -2044,9 +1975,6 @@ game::step(double dt)
 
     this->cam->far = this->cam->_position.z+1.f;
     this->cam->near = this->cam->_position.z-3*LAYER_DEPTH;
-#ifdef TMS_BACKEND_LINUX_SS
-    //this->cam->near = 1.f;
-#endif
 
     tvec3 l = this->light;
 
@@ -3000,7 +2928,7 @@ game::render()
             tms_fb_swap_blur3x3(tms_pipeline_get_framebuffer(3));
         }
     }
-#ifdef TMS_BACKEND_PC
+#ifndef TMS_USE_GLES
     if (settings["postprocess"]->v.b) {
         //tms_assertf(glGetError() == 0, "error before main fb bind");
         tms_fb_bind(this->main_fb);
@@ -3014,7 +2942,7 @@ game::render()
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render before bg", ierr);
 
-#ifndef TMS_BACKEND_MOBILE
+#ifndef TMS_USE_GLES
     if (settings["gamma_correct"]->v.b && !settings["postprocess"]->v.b) {
         glEnable(GL_FRAMEBUFFER_SRGB);
     }
@@ -3138,7 +3066,7 @@ game::render()
         tms_assertf((ierr = glGetError()) == 0, "gl error %d after render foreground", ierr);
     }
 
-#ifndef TMS_BACKEND_MOBILE
+#ifndef TMS_USE_GLES
     if (settings["gamma_correct"]->v.b && !settings["postprocess"]->v.b) {
         glDisable(GL_FRAMEBUFFER_SRGB);
     }
@@ -3151,7 +3079,7 @@ game::render()
     tms_ddraw_set_matrices(this->dd, this->cam->view, this->cam->projection);
     //tms_ddraw_line3d(this->dd, 0, 0, 0, this->light.x*2.f, this->light.y*2.f, this->light.z*2.f);
 
-#ifdef TMS_BACKEND_PC
+#ifndef TMS_USE_GLES
     if (settings["postprocess"]->v.b) {
         tms_fb_unbind(this->main_fb);
         glDisable(GL_DEPTH_TEST);
@@ -3322,7 +3250,7 @@ game::render()
 
             if (error->e && error->alpha > 0.1f) {
                 tms_ddraw_set_color(this->dd, 1.0f, 1.0f, 1.0f, error->alpha);
-                double x = (double)_tms.last_time/100000.;
+
                 error->alpha -= _tms.dt * this->get_time_mul();
                 entity *e = error->e;
 
@@ -3601,17 +3529,6 @@ game::render()
                 } break;
             }
         }
-
-        // Render straight lines for socket connections of the selected object
-        if (settings["render_com"]->v.b) {
-            tms_ddraw_set_color(this->dd, 0.3f, 0.3f, 1.f, 1.f);
-            for (std::map<uint32_t, group*>::iterator i = W->groups.begin();
-                    i != W->groups.end(); i++) {
-                b2Vec2 p = i->second->get_body(0)->GetWorldCenter();
-                tms_ddraw_line(this->dd, p.x-.25f, p.y+.25f, p.x+.25f, p.y-.25f);
-                tms_ddraw_line(this->dd, p.x-.25f, p.y-.25f, p.x+.25f, p.y+.25f);
-            }
-        }
     }
     tms_assertf((ierr = glGetError()) == 0, "gl error %d after something2", ierr);
 
@@ -3632,8 +3549,6 @@ game::render()
     std::vector<entity*> hp_occurences;
 
     for (int x=0; x<NUM_HP; x++) {
-        float mv[16];
-
         struct hp *h = &this->hps[x];
         if (h->time <= 0.f || !h->e) {
             continue;
@@ -3973,53 +3888,52 @@ game::render_starred(void)
 void
 game::render_controls_help()
 {
-    if (this->render_controls) {
 #ifdef TMS_BACKEND_PC
-        if (!this->tex_controls) {
-            this->tex_controls = new tms::texture();
-            this->tex_controls->format = GL_RGBA;
-            this->tex_controls->load("data-pc/textures/controls.png");
-            this->tex_controls->upload();
-        }
-#else
-#warning "No controls fixed for this platform yet."
-        return;
-#endif
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        struct tms_sprite tmp;
-        tmp.bl = tvec2f(0.f, 0.f);
-        tmp.tr = tvec2f(1.f, 1.f);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, this->tex_controls->gl_texture);
-
-        int width = this->tex_controls->width;
-        int height = this->tex_controls->height;
-
-        if (this->tex_controls->width*1.25f >= _tms.window_width) {
-            float mod = _tms.window_width / (this->tex_controls->width*1.25f);
-            width *= mod;
-            height *= mod;
-        }
-
-        tms_ddraw_sprite(this->get_surface()->ddraw, &tmp,
-                _tms.window_width/2.f, _tms.window_height/2.f,
-                width, height);
-
-        this->add_text("Press <ESCAPE> or click anywhere on the screen to close this window.",
-                font::xmedium,
-                _tms.window_width/2.f, _tms.window_height/2.f + height/2.f + _tms.xppcm*0.1f,
-                TV_WHITE,
-                true,
-                ALIGN_CENTER, ALIGN_BOTTOM);
-    } else {
+    if (!this->render_controls) {
         if (this->tex_controls) {
             delete this->tex_controls;
             this->tex_controls = 0;
         }
+
+        return;
     }
+
+    if (!this->tex_controls) {
+        this->tex_controls = new tms::texture();
+        this->tex_controls->format = GL_RGBA;
+        this->tex_controls->load("data-pc/textures/controls.png");
+        this->tex_controls->upload();
+    }
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    struct tms_sprite tmp;
+    tmp.bl = tvec2f(0.f, 0.f);
+    tmp.tr = tvec2f(1.f, 1.f);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, this->tex_controls->gl_texture);
+
+    int width = this->tex_controls->width;
+    int height = this->tex_controls->height;
+
+    if (this->tex_controls->width*1.25f >= _tms.window_width) {
+        float mod = _tms.window_width / (this->tex_controls->width*1.25f);
+        width *= mod;
+        height *= mod;
+    }
+
+    tms_ddraw_sprite(this->get_surface()->ddraw, &tmp,
+            _tms.window_width/2.f, _tms.window_height/2.f,
+            width, height);
+
+    this->add_text("Press <ESCAPE> or click anywhere on the screen to close this window.",
+            font::xmedium,
+            _tms.window_width/2.f, _tms.window_height/2.f + height/2.f + _tms.xppcm*0.1f,
+            TV_WHITE,
+            true,
+            ALIGN_CENTER, ALIGN_BOTTOM);
+#endif
 }
 
 void
@@ -4096,9 +4010,9 @@ game::render_conn_types()
     float mv[16];
     float p[16];
 
-    if (this->cs_timer < 1.f) {
-        this->cs_timer += _tms.dt*10.f;
-        if (this->cs_timer > 1.f) this->cs_timer = 1.f;
+    if (this->cs_timer < 1.5f) {
+        this->cs_timer += _tms.dt*15.f;
+        if (this->cs_timer > 1.5f) this->cs_timer = 1.5f;
     }
 
     tmat4_copy(p, this->cam->projection);
@@ -5473,7 +5387,7 @@ game::apply_level_properties()
         this->set_architect_mode(false);
     }
 
-#if defined TMS_BACKEND_IOS || defined TMS_BACKEND_ANDROID
+#ifdef TMS_BACKEND_MOBILE
     if (W->level.flag_active(LVL_PORTRAIT_MODE)) {
 #else
     if (false) {
@@ -6003,20 +5917,25 @@ game::handle_input_playing(tms::event *ev, int action)
                 } else {
                     if (this->state.success && this->state.pkg != 0) {
                         if (this->state.is_main_puzzle) {
+                            // XXX: causes segfaults on android
+
                             char filename[1024];
                             uint32_t next = this->state.pkg->get_next_level(W->level.local_id);
                             snprintf(filename, 1023, "%s/7.%d.psol", pkgman::get_level_path(LEVEL_LOCAL), next);
 
-                            tms_infof("does %s exist?", filename);
-
                             open_play_data *opd = new open_play_data(LEVEL_LOCAL, next, this->state.pkg, false, 1);
+
+#ifndef TMS_BACKEND_ANDROID
+                            tms_infof("does %s exist?", filename);
                             if (file_exists(filename)) {
                                 tms_infof("yep! send ui confirm thing");
                                 ui::confirm("Do you want to load your last saved solution?",
                                         "Yes",    principia_action(ACTION_OPEN_MAIN_PUZZLE_SOLUTION, opd),
                                         "No",     principia_action(ACTION_CREATE_MAIN_PUZZLE_SOLUTION, opd),
                                         "Back",   ACTION_BACK);
-                            } else {
+                            } else
+#endif
+                            {
                                 tms_infof("file %s does not exist!", filename);
                                 P.add_action(ACTION_CREATE_MAIN_PUZZLE_SOLUTION, opd);
                             }
@@ -6042,7 +5961,7 @@ game::handle_input_playing(tms::event *ev, int action)
                 || ev->type == TMS_EV_KEY_PRESS) {
                 if (ev->type == TMS_EV_KEY_PRESS) {
                     switch (ev->data.key.keycode) {
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
                         case SDL_SCANCODE_AC_BACK:
 #endif
                         case TMS_KEY_B:
@@ -6179,7 +6098,7 @@ game::handle_input_playing(tms::event *ev, int action)
                 }
                 break;
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
             case SDL_SCANCODE_AC_BACK:
 #endif
             case TMS_KEY_B:
@@ -6222,7 +6141,7 @@ game::handle_input_playing(tms::event *ev, int action)
                 }
                 break;
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
             case SDL_SCANCODE_MENU:
                 ui::open_dialog(DIALOG_PLAY_MENU);
                 break;
@@ -6502,7 +6421,7 @@ game::handle_input_playing(tms::event *ev, int action)
             }
 
             if (!dragging[pid]
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
                     && td_mag > DRAG_DIST_MIN_EPS
 #endif
                     && (_tms.last_time - touch_time[pid] > DRAG_TIME_EPS
@@ -7234,7 +7153,7 @@ game::open_state(int id_type, uint32_t id, uint32_t save_id)
         id_type += LEVEL_LOCAL_STATE;
     }
 
-    tms_infof("opening state %" PRIu32 " of %d level %" PRIu32, save_id, id_type, id);
+    tms_infof("opening state %u of %d level %u", save_id, id_type, id);
 
     bool test = this->state.test_playing;
 
@@ -7306,8 +7225,6 @@ game::save_state()
 bool
 game::autosave()
 {
-    char tmp[1024];
-
     if (!this->state.sandbox) {
         tms_debugf("Can't save while outside the sandbox.");
         return false;
@@ -7325,8 +7242,6 @@ game::autosave()
 bool
 game::save(bool create_icon/*=true*/, bool force/*=false*/)
 {
-    char tmp[1024];
-
     if (!this->state.sandbox && !force) {
         tms_debugf("Can't save while outside the sandbox.");
         return false;
@@ -7339,9 +7254,8 @@ game::save(bool create_icon/*=true*/, bool force/*=false*/)
     W->level.sandbox_cam_zoom = this->cam->_position.z;
 
     if (create_icon) {
-        tms_progressf("Creating level icon... ");
+        tms_infof("Creating level icon...");
         this->create_icon();
-        tms_progressf("OK\n");
     }
 
     return W->save();
@@ -7601,7 +7515,7 @@ game::numkey_pressed(uint8_t key)
         }
     } else {
         if (key > MAX_COPY_ENTITIES) {
-            tms_errorf("handle_slot called with slot %" PRIu8 ", even though the max number of copy entities is %d", key, MAX_COPY_ENTITIES);
+            tms_errorf("handle_slot called with slot %u, even though the max number of copy entities is %d", key, MAX_COPY_ENTITIES);
             return;
         }
 
@@ -7692,8 +7606,8 @@ game::handle_input_paused(tms::event *ev, int action)
 
                 break;
             case TMS_KEY_V:
-#if defined DEBUG
-#if defined SINGLE_STEP_WORLD
+#ifdef DEBUG
+#ifdef SINGLE_STEP_WORLD
                 tms_debugf("STEPPING WORLD");
                 W->b2->Step(.001f, 20, 20);
 #endif
@@ -7961,7 +7875,7 @@ game::handle_input_paused(tms::event *ev, int action)
                 }
                 break;
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
             case SDL_SCANCODE_AC_BACK:
 #endif
             case TMS_KEY_B: this->back(); break;
@@ -8182,7 +8096,7 @@ game::handle_input_paused(tms::event *ev, int action)
                 }
                 break;
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
             case SDL_SCANCODE_MENU:
                 if (this->state.sandbox) {
                     ui::open_dialog(DIALOG_SANDBOX_MENU);
@@ -8502,7 +8416,7 @@ game::handle_input_paused(tms::event *ev, int action)
             */
 
             if (!dragging[pid]
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
                     && td_mag > DRAG_DIST_MIN_EPS
 #endif
                     && (_tms.last_time - touch_time[pid] > DRAG_TIME_EPS
@@ -8637,7 +8551,7 @@ game::handle_input_paused(tms::event *ev, int action)
                             simple_snap = !simple_snap;
                         }
 
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_MOBILE
                         /* On Android and iOS we include alternate snap-methods (holding a second finger down on the screen) */
                         if (snap[0] || snap[1]) {
                             simple_snap = !simple_snap;
@@ -9261,8 +9175,8 @@ game::check_select_object(int x, int y, int pid)
                         entity *e = this->sel_p_ent;
                         snprintf(msg, 2047,
                                       BOLD_BEGIN "Name:" BOLD_END " %s\n"
-                                      BOLD_BEGIN "ID:" BOLD_END " %" PRIu32 "\n"
-                                      BOLD_BEGIN "Type ID (g_id):" BOLD_END " %" PRIu8 "\n"
+                                      BOLD_BEGIN "ID:" BOLD_END " %u\n"
+                                      BOLD_BEGIN "Type ID (g_id):" BOLD_END " %u\n"
                                       BOLD_BEGIN "Position:" BOLD_END " %.2f/%.2f\n"
                                       BOLD_BEGIN "Angle:" BOLD_END " %.2f\n",
                                       e->get_name(),
@@ -9567,7 +9481,7 @@ game::check_select_object(int x, int y, int pid)
                     down[pid] = false;
                     if (this->sel_p_ent && this->sel_p_ent != rm && this->sel_p_ent->id != 0) {
                         if (this->sel_p_ent->flag_active(ENTITY_IS_ROBOT)) {
-                            ui::messagef("Managing robot with id %" PRIu32 ".", this->sel_p_ent->id);
+                            ui::messagef("Managing robot with id %u.", this->sel_p_ent->id);
                             rm->properties[0].v.i = this->sel_p_ent->id;
                         }
                         this->add_highlight(this->sel_p_ent, false);
@@ -11008,10 +10922,7 @@ game::say_goodbye(b2Joint *j)
         if ((ji = (joint_info*)j->GetUserData())) {
             switch (ji->type) {
                 case JOINT_TYPE_CONN:
-                    {
-                        //tms_trace();
-                        //tms_debugf("say goodbye conn joint");
-                    }
+                    //tms_debugf("say goodbye conn joint");
                     break;
 
                 case JOINT_TYPE_CABLE:
@@ -11536,6 +11447,8 @@ update_entity_id_changed(uint32_t old_id, uint32_t new_id, std::map<uint32_t, en
     }
 }
 
+#ifdef DEBUG
+
 void
 game::clamp_entities()
 {
@@ -11610,13 +11523,15 @@ game::clamp_entities()
 
     W->groups = new_groups;
 
-    tms_debugf("Done in %" PRIu32 " ticks", SDL_GetTicks()-ss);
-    tms_debugf("Old biggest id: %" PRIu32 ". New: %" PRIu32, prev_biggest, id-1);
-    tms_debugf("Entities: %" PRIu32 ", Cables: %" PRIu32 ", Groups: %" PRIu32,
+    tms_debugf("Done in %u ticks", SDL_GetTicks()-ss);
+    tms_debugf("Old biggest id: %u. New: %u", prev_biggest, id-1);
+    tms_debugf("Entities: %u, Cables: %u, Groups: %u",
                num_entities, num_cables, num_groups);
 
     of::_id = id;
 }
+
+#endif
 
 int
 game::post_render()
@@ -11735,32 +11650,32 @@ game::apply_multiselection(entity *e)
     }
 }
 
-void
-game::print_screen_point_info(int x, int y)
+#ifdef DEBUG
+
+void game::print_screen_point_info(int x, int y)
 {
-#if defined(DEBUG) && !defined(PAJLADA)
     tvec3 tproj[3];
     for (int l=0; l<3; l++) { W->get_layer_point(this->cam, x, y, l, &tproj[l]); }
     terrain_coord coord(tproj[0].x, tproj[0].y);
 
     level_chunk *c = W->cwindow->get_chunk(coord.chunk_x,coord.chunk_y);
 
-    fprintf(stderr, "--- CLICK AT %d %d ---\n", x, y);
-    fprintf(stderr, "pt layer 0: %f %f\n", tproj[0].x, tproj[0].y);
-    fprintf(stderr, "pt layer 1: %f %f\n", tproj[1].x, tproj[1].y);
-    fprintf(stderr, "pt layer 2: %f %f\n", tproj[2].x, tproj[2].y);
-    fprintf(stderr, "chunk x: %d\n", coord.chunk_x);
-    fprintf(stderr, "chunk y: %d\n", coord.chunk_y);
-    fprintf(stderr, "chunk in active?: %d\n", (W->cwindow->preloader.active_chunks.find(chunk_pos(coord.chunk_x, coord.chunk_y)) != W->cwindow->preloader.active_chunks.end()));
-    fprintf(stderr, "chunk num_fixtures: %d\n", c->num_fixtures);
-    fprintf(stderr, "chunk num_dyn_fixtures: %d\n", c->num_dyn_fixtures);
-    fprintf(stderr, "chunk load phase: %d\n", c->load_phase);
-    fprintf(stderr, "chunk generate phase: %d\n", c->generate_phase);
-    fprintf(stderr, "chunk in wastebin?: %d\n", (W->cwindow->preloader.wastebin.find(chunk_pos(coord.chunk_x, coord.chunk_y)) != W->cwindow->preloader.wastebin.end()));
+    printf("--- CLICK AT %d %d ---\n", x, y);
+    printf("pt layer 0: %f %f\n", tproj[0].x, tproj[0].y);
+    printf("pt layer 1: %f %f\n", tproj[1].x, tproj[1].y);
+    printf("pt layer 2: %f %f\n", tproj[2].x, tproj[2].y);
+    printf("chunk x: %d\n", coord.chunk_x);
+    printf("chunk y: %d\n", coord.chunk_y);
+    printf("chunk in active?: %d\n", (W->cwindow->preloader.active_chunks.find(chunk_pos(coord.chunk_x, coord.chunk_y)) != W->cwindow->preloader.active_chunks.end()));
+    printf("chunk num_fixtures: %d\n", c->num_fixtures);
+    printf("chunk num_dyn_fixtures: %d\n", c->num_dyn_fixtures);
+    printf("chunk load phase: %d\n", c->load_phase);
+    printf("chunk generate phase: %d\n", c->generate_phase);
+    printf("chunk in wastebin?: %d\n", (W->cwindow->preloader.wastebin.find(chunk_pos(coord.chunk_x, coord.chunk_y)) != W->cwindow->preloader.wastebin.end()));
 
     if (c) {
-        fprintf(stderr, "chunk num fixtures: %d\n", c->num_fixtures);
-        fprintf(stderr, "chunk garbage: %d\n", c->num_fixtures);
+        printf("chunk num fixtures: %d\n", c->num_fixtures);
+        printf("chunk garbage: %d\n", c->num_fixtures);
 
         for (int x=0; x<8; x++) {
             if (c->neighbours[x]) {
@@ -11769,13 +11684,11 @@ game::print_screen_point_info(int x, int y)
             }
         }
     }
-#endif
+
 }
 
-void
-game::print_stats()
+void game::print_stats()
 {
-#ifdef DEBUG
     printf("--- CHUNK PRELOADER ---\n");
     printf("heap size:\t\t%" PRIu64 "/%" PRIu64 "\n", W->cwindow->preloader.heap.size, W->cwindow->preloader.heap.cap);
     printf("level size:\t\t%" PRIu64 "/%" PRIu64 "\n", W->cwindow->preloader.w_lb.size, W->cwindow->preloader.w_lb.cap);
@@ -11783,8 +11696,9 @@ game::print_stats()
     printf("wastebin:\t\t%u\n", (int)W->cwindow->preloader.wastebin.size());
     printf("gentypes:\t\t%u\n", (int)W->cwindow->preloader.gentypes.size());
     SDL_Delay(5000);
-#endif
 }
+
+#endif
 
 bool
 game::autosave_exists()

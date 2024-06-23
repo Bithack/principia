@@ -6,8 +6,8 @@
 #include "wdg.h"
 #include "texture.h"
 #include "atlas.h"
+#include "util.h"
 
-#include "../util/glob.h"
 #include "../math/glob.h"
 
 #include <tms/backend/opengl.h>
@@ -124,7 +124,7 @@ tms_surface_render(struct tms_surface *s)
      **/
     int last_state = -100;
 
-#if !defined(NO_UI)
+#ifndef NO_UI
     for (int x=0; x<s->widget_count; x++) {
         if (s->widgets[x]->render) {
             float alpha = fmin(s->alpha, s->widgets[x]->alpha);

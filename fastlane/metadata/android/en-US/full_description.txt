@@ -1,0 +1,11 @@
+Principia is a physics-based sandbox building game. Build and play advanced contraptions, circuiting, minigames, robot adventures and more.
+
+The sandbox contains 200+ different objects ranging from basic wooden building blocks to circuitry, electrical and mechanical components, small robots you can control and fight against, and a LuaScript object featuring Lua scripting that can interact with the world. Build a controllable car, a calculator or make your own game with circuitry or in Lua.
+
+The Principia community site contains tens of thousands of creative levels made by players like you, from impressive contraptions to amusing games all for you to browse through and play. If something really peaks your interest, open the level in the sandbox to see how it ticks. What will you create in the sandbox?
+
+Principia started out as a paid proprietary game developed during 2013-2014 before being abandoned due to financial issues. Now the game is an open source project since 2022 developed by the same community who fell in love with it back in the day, free for anyone to play well into the future.
+
+In addition to being available on Android, Principia is also available on Linux, Windows as well as experimental ports to other platforms.
+
+(By default Principia makes connections to the main community site at principia-web.se. You can change or disable this by creating a file called community_host.txt in the app's scoped storage containing a domain name. If you have the main community site disabled you can still play levels by going via your web browser.)

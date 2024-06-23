@@ -4,7 +4,6 @@
 #include "settings.hh"
 #include "misc.hh"
 #include <tms/bindings/cpp/cpp.hh>
-#include <deque>
 
 #define FONT_CACHE_VERSION 34
 
@@ -182,7 +181,7 @@ static struct atlas_layout cache_atlases[NUM_ATLASES] = {
         4,
         0,
         0,
-        TMS_FILTER_LINEAR,
+        GL_LINEAR,
     },
     {
         &gui_spritesheet::atlas_text,
@@ -191,7 +190,7 @@ static struct atlas_layout cache_atlases[NUM_ATLASES] = {
         ATLAS_TEXT_NUM_CHANS,
         1,
         1,
-        TMS_FILTER_LINEAR,
+        GL_LINEAR,
     },
 };
 
@@ -412,11 +411,10 @@ read_cache(lvlbuf *lb)
         uint8_t num_channels = lb->r_uint8();
 
         if (width != al->width || height != al->height || num_channels != al->num_channels) {
-            tms_errorf("Mismatching atlas in texture cache");
             tms_infof("%d != %d?", width, al->width);
             tms_infof("%d != %d?", height, al->height);
             tms_infof("%d != %d?", num_channels, al->num_channels);
-            tms_fatalf("a");
+            tms_fatalf("Mismatching atlas in texture cache");
             return false;
         }
 
@@ -706,12 +704,10 @@ gui_spritesheet::init_atlas()
 #endif
     }
 
-    tms_progressf("Initialzing freetype... ");
+    tms_infof("Initialzing freetype...");
     if (FT_Init_FreeType(&gui_spritesheet::ft)) {
-        tms_progressf("ERROR\n");
         tms_fatalf("Unable to init freetype library");
     }
-    tms_progressf("OK\n");
 }
 
 static bool use_font_cache = true;

@@ -9,10 +9,6 @@
 #include "damper.hh"
 #include "rubberband.hh"
 
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG)
-#include <csignal>
-#endif
-
 static size_t _conn_id = 0;
 
 chunk_preloader::chunk_preloader()
@@ -214,7 +210,7 @@ chunk_preloader::preload_entity()
         uint8_t type = w_lb.r_uint8();
         switch (type) {
             default:
-                tms_fatalf("invalid property type");
+                tms_fatalf("Invalid property type");
             case P_INT8: w_lb.rp += sizeof(uint8_t); break;
             case P_ID: case P_FLT: case P_INT:
                  w_lb.rp+=sizeof(uint32_t);
@@ -305,7 +301,7 @@ chunk_preloader::preload_connection()
     this->connection_rels.insert(std::make_pair(e_id, conn_id));
     this->connection_rels.insert(std::make_pair(o_id, conn_id));
 
-    tms_debugf("preloaded connection %" PRIu32 " <-> %" PRIu32 " @ %" PRIu32, e_id, o_id, (uint32_t)ptr);
+    tms_debugf("preloaded connection %u <-> %u @ %u", e_id, o_id, (uint32_t)ptr);
 }
 
 void
@@ -515,7 +511,7 @@ chunk_preloader::unload(level_chunk *chunk)
             entity *e = i->second;
 
             if (e->type == ENTITY_CABLE) {
-                tms_fatalf("THIS SHOULD NEVER HAPPEN, CALL FBI");
+                tms_fatalf("This should never happen!");
             }
 
             /* this will destroy all joints created by connections and cables */
@@ -896,7 +892,6 @@ chunk_preloader::read_chunk(preload_info i)
 
 #ifdef DEBUG_SPECIFIC_CHUNK
     if (c->pos_x == DEBUG_CHUNK_X && c->pos_y == DEBUG_CHUNK_Y) {
-        tms_trace();
         tms_debugf("(chunk %d,%d) reading chunk, phase: %d",
                 c->pos_x, c->pos_y,
                 c->generate_phase);
@@ -999,7 +994,6 @@ chunk_preloader::read_chunks(lvlinfo *lvl, lvlbuf *lb)
             if (c) {
 #ifdef DEBUG_SPECIFIC_CHUNK
                 if (c->pos_x == DEBUG_CHUNK_X && c->pos_y == DEBUG_CHUNK_Y) {
-                    tms_trace();
                     tms_debugf("(chunk %d, %d) reading chunk, phase: %d, read phase: %d",
                             c->pos_x, c->pos_y,
                             c->generate_phase, generate_phase);
@@ -1052,7 +1046,6 @@ chunk_preloader::read_chunks(lvlinfo *lvl, lvlbuf *lb)
 
 #ifdef DEBUG_SPECIFIC_CHUNK
                 if (cp.x == DEBUG_CHUNK_X && cp.y == DEBUG_CHUNK_Y) {
-                    tms_trace();
                     tms_debugf("(chunk %d,%d) preloading chunk, phase: %d", cp.x, cp.y, generate_phase);
                 }
 #endif

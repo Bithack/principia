@@ -78,19 +78,9 @@ void ui_cb_update_rubber()
     P.add_action(ACTION_RESELECT, 0);
 }
 
-void ui_cb_set_allow_derivatives(int v)
-{
-    W->level.allow_derivatives = v;
-}
-
 void ui_cb_set_locked(int v)
 {
     W->level.visibility = v ? LEVEL_LOCKED : LEVEL_VISIBLE;
-}
-
-int ui_cb_get_allow_derivatives()
-{
-    return W->level.allow_derivatives;
 }
 
 int ui_cb_get_locked()
@@ -191,10 +181,7 @@ void ui_set_property_float(int index, float val)
     {
         return settings["enable_ao"]->v.b;
     }
-    int ui_settings_get_texture_quality()
-    {
-        return settings["texture_quality"]->v.i;
-    }
+
     float ui_settings_get_ui_scale()
     {
         return settings["uiscale"]->v.f;
@@ -240,10 +227,7 @@ void ui_set_property_float(int index, float val)
     {
         settings["enable_ao"]->v.b = v;
     }
-    void ui_settings_set_texture_quality(int v)
-    {
-        settings["texture_quality"]->v.i = v;
-    }
+
     void ui_settings_set_ui_scale(float v)
     {
         settings["uiscale"]->v.f = v;
@@ -476,8 +460,7 @@ void ui_cb_set_event(int n)
 void
 ui_cb_back_to_community(void)
 {
-    char tmp[1024];
-    snprintf(tmp, 1023, "https://%s/level/%d", P.community_host, W->level.community_id);
+    COMMUNITY_URL("level/%d", W->level.community_id);
 
     ui::open_url(tmp);
 }

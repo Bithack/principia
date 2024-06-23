@@ -1,6 +1,5 @@
 #include "fluid.hh"
 #include "material.hh"
-#include "model.hh"
 #include "world.hh"
 #include "fluidbuffer.hh"
 

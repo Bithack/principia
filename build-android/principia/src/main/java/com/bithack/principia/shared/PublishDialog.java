@@ -24,7 +24,6 @@ public class PublishDialog
     static EditText et_name;
     static EditText et_descr;
 
-    static CheckBox cb_allow_derivatives;
     static CheckBox cb_locked;
 
     public static Dialog get_dialog()
@@ -60,7 +59,6 @@ public class PublishDialog
 
                             PrincipiaBackend.setLevelName(name);
                             PrincipiaBackend.setLevelDescription(descr);
-                            PrincipiaBackend.setLevelAllowDerivatives(cb_allow_derivatives.isChecked());
                             PrincipiaBackend.setLevelLocked(cb_locked.isChecked());
 
                             PrincipiaBackend.addActionAsInt(SDLActivity.ACTION_PUBLISH, 0);
@@ -73,7 +71,6 @@ public class PublishDialog
 
             et_name = (EditText)view.findViewById(R.id.publish_name);
             et_descr = (EditText)view.findViewById(R.id.publish_descr);
-            cb_allow_derivatives = (CheckBox)view.findViewById(R.id.publish_allow_derivatives);
             cb_locked = (CheckBox)view.findViewById(R.id.publish_locked);
         }
 

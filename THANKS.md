@@ -3,32 +3,32 @@ Thanks
 
 We would like to send a special thanks to some of the most dedicated Apparatus and Principia players who have supported development and helped the community.
 
-Alfajim
-Axohmega
-BobMonkeypimp
-Cheddah
-Cralant
-Ctjet
-Demon666
-Doughnuts108
-Golden
-JOELwindows7
-Nighthawk
-Ridget
-Rubicon
-Sasha from Russia
-TechZ
-Tetsu
-The_Blacksmith_
-abrackers
-incrazyboyy
-mrsimb
-mznznlt
-sjoerd1999
-wokstation
-woodnut
-yo man
-zardOz (RIP)
+- Alfajim
+- Axohmega
+- BobMonkeypimp
+- Cheddah
+- Cralant
+- Ctjet
+- Demon666
+- Doughnuts108
+- Golden
+- JOELwindows7
+- Nighthawk
+- Ridget
+- Rubicon
+- Sasha from Russia
+- TechZ
+- Tetsu
+- The_Blacksmith_
+- abrackers
+- incrazyboyy
+- mrsimb
+- mznznlt
+- sjoerd1999
+- wokstation
+- woodnut
+- yo man
+- zardOz (RIP)
 
 And everyone else in the Principia and Apparatus communities.
 

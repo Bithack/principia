@@ -3,7 +3,6 @@
 #include "model.hh"
 #include "world.hh"
 #include "ball.hh"
-#include "main.hh"
 #include "game.hh"
 
 #define PIPELINE_SPEED .1f

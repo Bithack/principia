@@ -2,8 +2,6 @@ package com.bithack.principia.shared;
 
 import java.util.List;
 
-import com.bithack.principia.R;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,7 +9,8 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.util.AttributeSet;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+
+import com.bithack.principia.R;
 
 public class MultiSpinner extends androidx.appcompat.widget.AppCompatSpinner implements OnMultiChoiceClickListener, OnCancelListener {
 
@@ -33,11 +32,7 @@ public class MultiSpinner extends androidx.appcompat.widget.AppCompatSpinner imp
 
     @Override
     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-        if (isChecked) {
-            selected[which] = true;
-        } else {
-            selected[which] = false;
-        }
+        selected[which] = isChecked;
     }
 
     @Override
@@ -49,7 +44,7 @@ public class MultiSpinner extends androidx.appcompat.widget.AppCompatSpinner imp
     public boolean performClick() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setMultiChoiceItems(
-                items.toArray(new CharSequence[items.size()]), selected, this);
+                items.toArray(new CharSequence[0]), selected, this);
         builder.setPositiveButton(R.string.ok,
                 new DialogInterface.OnClickListener() {
 

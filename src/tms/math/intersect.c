@@ -2,7 +2,6 @@
 #include <math.h>
 
 #include "intersect.h"
-#include <tms/backend/print.h>
 
 /**
  * Compare the point and the line in a sense similar to strcmp(),

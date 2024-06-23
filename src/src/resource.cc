@@ -2,8 +2,6 @@
 #include "model.hh"
 #include "world.hh"
 #include "game.hh"
-#include "main.hh"
-#include "settings.hh"
 #include "ui.hh"
 
 struct resource_data resource_data[NUM_RESOURCES] = {
@@ -42,19 +40,10 @@ resource::resource()
 void
 resource::write_quickinfo(char *out)
 {
-    if (G && G->state.sandbox && settings["display_object_id"]->v.b) {
-        if (this->resource_type < NUM_RESOURCES) {
-            sprintf(out, "%s (id:%" PRIu32 ", g_id:%" PRIu8 ")", resource_data[this->resource_type].name, this->id, this->g_id);
-            return;
-        }
-    } else {
-        if (this->resource_type < NUM_RESOURCES) {
-            sprintf(out, "%s", resource_data[this->resource_type].name);
-            return;
-        }
-    }
-
-    sprintf(out, "Resource");
+    if (this->resource_type < NUM_RESOURCES)
+        sprintf(out, "%s", resource_data[this->resource_type].name);
+    else
+        sprintf(out, "Resource");
 }
 
 void

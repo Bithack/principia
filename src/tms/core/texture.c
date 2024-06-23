@@ -2,11 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "err.h"
+#include "backend.h"
 #include "texture.h"
 #include "framebuffer.h"
 #include "tms.h"
-#include "../util/hash.h"
 
 #include "SDL_image.h"
 
@@ -18,24 +17,6 @@ struct etc1_header {
     uint16_t height;
     uint16_t original_width;
     uint16_t original_height;
-} __attribute__ ((__packed__));
-#endif
-
-#ifdef TMS_BACKEND_IOS
-struct pvrtc_header {
-    uint32_t header_length;
-    uint32_t height;
-    uint32_t width;
-    uint32_t num_mipmaps;
-    uint32_t flags;
-    uint32_t datalength;
-    uint32_t bpp;
-    uint32_t bitmask_r;
-    uint32_t bitmask_g;
-    uint32_t bitmask_b;
-    uint32_t bitmask_a;
-    uint32_t pvrtag;
-    uint32_t numsurfs;
 } __attribute__ ((__packed__));
 #endif
 
@@ -63,7 +44,7 @@ tms_texture_init(struct tms_texture *t)
     t->gamma_correction = 0;
     t->is_uploaded = 0;
     t->is_buffered = 0;
-    t->filter = TMS_FILTER_LINEAR;
+    t->filter = GL_LINEAR;
     t->buffer_fn = 0;
 }
 
@@ -156,56 +137,6 @@ int tms_texture_free_buffer(struct tms_texture *tex)
 }
 
 /**
- * Load pvrtc 4bbp image
- **/
-int
-tms_texture_load_pvrtc_4bpp(struct tms_texture *tex, const char *filename)
-{
-#ifdef TMS_BACKEND_IOS
-    SDL_RWops *rw = SDL_RWFromFile(filename, "rb");
-
-    tms_infof("Load PVRTC 4BPP: %s", filename);
-
-    if (rw) {
-        long size;
-        SDL_RWseek(rw, 0, SEEK_END);
-        size = SDL_RWtell(rw);
-        SDL_RWseek(rw, 0, SEEK_SET);
-
-        /* XXX free previous? */
-        if (size > 4*1024*1024 || size < sizeof(struct etc1_header) + 20)
-            tms_fatalf("invalid file size");
-
-        struct pvrtc_header header;
-        SDL_RWread(rw, &header, sizeof(struct pvrtc_header), 1);
-        tex->data = malloc(size - sizeof(struct pvrtc_header));
-        SDL_RWread(rw, tex->data, 1, size-sizeof(struct pvrtc_header));
-
-        //tex->width = ntohs(header.width);
-        //tex->height = ntohs(header.height);
-        tex->width = header.width;
-        tex->height = header.height;
-        tex->num_channels = 3;
-        tex->is_buffered = 1;
-        tex->gamma_correction = 0;
-        tex->format = GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG_OES;
-        tex->buf_size = size-sizeof(struct pvrtc_header);
-
-        if (tex->width <= 0 || tex->height <= 0)
-            tms_fatalf("invalid pvrtc texture dimensions");
-
-        SDL_RWclose(rw);
-
-        return T_OK;
-    } else
-        tms_errorf("Unable to open texture: '%s'", SDL_GetError());
-
-#endif
-
-    return T_COULD_NOT_OPEN;
-}
-
-/**
  * Load a compressed image
  **/
 int
@@ -261,54 +192,48 @@ tms_texture_load_etc1(struct tms_texture *tex,
 int
 tms_texture_load(struct tms_texture *tex, const char *filename)
 {
-    const char *ext = strrchr(filename, '.')+1;
+    int status;
 
-    if (ext != 1) {
-        int status;
+    SDL_RWops *rw = SDL_RWFromFile(filename,"rb");
 
-        SDL_RWops *rw = SDL_RWFromFile(filename,"rb");
-
-        if (!rw) {
-            tms_infof("file not found: '%s'", SDL_GetError());
-            return T_COULD_NOT_OPEN;
-        }
-
-        SDL_Surface *s = IMG_Load_RW(rw, 1);
-
-        if (!s) {
-            tms_errorf("could not open file: %s", filename);
-            return T_COULD_NOT_OPEN;
-        }
-
-        tex->is_buffered = 1;
-        tex->filename = strdup(filename);
-        tex->gamma_corrected = 0;
-        tex->width = s->w;
-        tex->height = s->h;
-        //tex->num_channels = 3 + s->format->Amask?1:0;
-        tex->num_channels = s->format->BytesPerPixel;
-
-        //tms_infof("bpp %d", s->format->BytesPerPixel);
-
-        //tms_assertf(tex->num_channels == s->format->BytesPerPixel, "unsupported texture type BLAH");
-
-        tex->data = malloc(tex->width*tex->height*tex->num_channels);
-
-        for (int y=0; y<s->h; y++) {
-            for (int x=0; x<s->w*tex->num_channels; x++) {
-                int o = y*s->pitch;
-                ((unsigned char*)tex->data)[(s->h-y-1)*s->w*tex->num_channels+x] =
-                    ((unsigned char*)s->pixels)[o+x];
-            }
-        }
-
-        SDL_FreeSurface(s);
-        //SDL_RWclose(rw);
-
-        return T_OK;
+    if (!rw) {
+        tms_infof("file not found: '%s'", SDL_GetError());
+        return T_ERR;
     }
 
-    return T_UNSUPPORTED_FILE_FORMAT;
+    SDL_Surface *s = IMG_Load_RW(rw, 1);
+
+    if (!s) {
+        tms_errorf("could not open file: %s", filename);
+        return T_ERR;
+    }
+
+    tex->is_buffered = 1;
+    tex->filename = strdup(filename);
+    tex->gamma_corrected = 0;
+    tex->width = s->w;
+    tex->height = s->h;
+    //tex->num_channels = 3 + s->format->Amask?1:0;
+    tex->num_channels = s->format->BytesPerPixel;
+
+    //tms_infof("bpp %d", s->format->BytesPerPixel);
+
+    //tms_assertf(tex->num_channels == s->format->BytesPerPixel, "unsupported texture type BLAH");
+
+    tex->data = malloc(tex->width*tex->height*tex->num_channels);
+
+    for (int y=0; y<s->h; y++) {
+        for (int x=0; x<s->w*tex->num_channels; x++) {
+            int o = y*s->pitch;
+            ((unsigned char*)tex->data)[(s->h-y-1)*s->w*tex->num_channels+x] =
+                ((unsigned char*)s->pixels)[o+x];
+        }
+    }
+
+    SDL_FreeSurface(s);
+    //SDL_RWclose(rw);
+
+    return T_OK;
 }
 
 /**
@@ -527,31 +452,15 @@ tms_texture_upload(struct tms_texture *tex)
 
     switch (tex->num_channels) {
         case 1:
-//#ifdef TMS_BACKEND_ANDROID
-#if 1
-            //tms_fatalf("unsupported texture format");
             colors = GL_LUMINANCE;
             format = GL_LUMINANCE;
-#else
-            colors = GL_RED;
-            format = GL_RED;
-#endif
-            break;
-
-        case 2:
-#if defined TMS_BACKEND_ANDROID || defined TMS_BACKEND_IOS
-            tms_fatalf("unsupported texture format");
-#else
-            colors = GL_RG;
-            format = GL_RG;
-#endif
             break;
 
         case 3:
             colors = GL_RGB;
             format = GL_RGB;
 
-#ifndef TMS_BACKEND_MOBILE
+#ifndef TMS_USE_GLES
             if (tex->gamma_correction) {
                 format = GL_SRGB;
             }
@@ -562,7 +471,7 @@ tms_texture_upload(struct tms_texture *tex)
             colors = GL_RGBA;
             format = GL_RGBA;
 
-#ifndef TMS_BACKEND_MOBILE
+#ifndef TMS_USE_GLES
             if (tex->gamma_correction) {
                 format = GL_SRGB8_ALPHA8;
             }
@@ -575,23 +484,12 @@ tms_texture_upload(struct tms_texture *tex)
             break;
     }
 
-    /*
-    if (tex->format != 0)
-        format = tex->format;
-    if (tex->colors != 0)
-        colors = tex->colors;
-        */
-
     if (0 && tex->gamma_correction && !tex->gamma_corrected)
         inv_gamma_correction(tex);
 
-    //tms_infof("error 1: %d", glGetError());
-
     glBindTexture(GL_TEXTURE_2D, tex->gl_texture);
 
-    //tms_infof("error 2: %d", glGetError());
-
-#if !defined(TMS_BACKEND_ANDROID) && !defined(TMS_BACKEND_IOS)
+#ifndef TMS_USE_GLES
     glEnable(GL_TEXTURE_2D);
     if (tex->filter == TMS_MIPMAP) {
         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
@@ -599,17 +497,10 @@ tms_texture_upload(struct tms_texture *tex)
 #endif
 
     if (tex->format == GL_ETC1_RGB8_OES) {
-        //tms_infof("uploading compressed image");
         glCompressedTexImage2D(GL_TEXTURE_2D, 0,
                 GL_ETC1_RGB8_OES,
                 tex->width, tex->height,
                 0, tex->buf_size, tex->data);
-    } else if (tex->format == GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG_OES) {
-            //tms_infof("uploading compressed image");
-            glCompressedTexImage2D(GL_TEXTURE_2D, 0,
-                                   GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG_OES,
-                                   tex->width, tex->height,
-                                   0, tex->buf_size, tex->data);
     } else {
         glTexImage2D(GL_TEXTURE_2D, 0, format,
                 tex->width, tex->height,
@@ -622,7 +513,7 @@ tms_texture_upload(struct tms_texture *tex)
     if (tex->filter == TMS_MIPMAP) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-#if defined(TMS_BACKEND_ANDROID) || defined(TMS_BACKEND_IOS)
+#ifdef TMS_USE_GLES
         glGenerateMipmap(GL_TEXTURE_2D);
 
         int err = glGetError();
@@ -637,8 +528,6 @@ tms_texture_upload(struct tms_texture *tex)
     }
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, tex->wrap);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tex->wrap);
-
-    //tms_infof("error 4: %d", glGetError());
 
     return T_OK;
 }

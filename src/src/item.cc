@@ -1,15 +1,11 @@
 #include "item.hh"
 #include "model.hh"
-#include "main.hh"
 #include "game.hh"
 #include "robot_parts.hh"
-#include "settings.hh"
 #include "spritebuffer.hh"
 #include "fxemitter.hh"
 #include "crane.hh"
 #include "ui.hh"
-#include "progress.hh"
-#include "soundmanager.hh"
 
 #define ROCKET_FORCE_MULT 40.f
 #define ROCKET_FALLOFF 0.9f
@@ -1789,11 +1785,7 @@ item::update_effects()
 void
 item::write_quickinfo(char *out)
 {
-    if (G && G->state.sandbox && settings["display_object_id"]->v.b) {
-        sprintf(out, "%s\nid:%" PRIu32 ", g_id:%" PRIu8, item_options[this->get_item_type()].name, this->id, this->g_id);
-    } else {
-        sprintf(out, "%s", item_options[this->get_item_type()].name);
-    }
+    sprintf(out, "%s", item_options[this->get_item_type()].name);
 }
 
 void

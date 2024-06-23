@@ -7,7 +7,6 @@
 #include "menu_shared.hh"
 #include "menu_main.hh"
 #include "menu_create.hh"
-#include "menu_pkg.hh"
 #include "menu-play.hh"
 #include "settings.hh"
 #include "soundmanager.hh"
@@ -908,7 +907,7 @@ widget_manager::refresh_areas()
 
         int32_t min_diff = 135 + MARGIN_Y + menu_shared::bar_height;
 
-        tms_infof("diff: %d < %d?", diff, min_diff);
+        tms_debugf("diff: %d < %d?", diff, min_diff);
 
         if (diff < min_diff) {
             this->areas[AREA_CREATE_CONTEST_TOP].enabled = false;
@@ -956,7 +955,7 @@ principia_wdg*
 widget_manager::get_widget(enum WidgetArea area_id, uint8_t id)
 {
     if (area_id >= NUM_AREAS) {
-        tms_errorf("Invalid area %" PRIu8, area_id);
+        tms_errorf("Invalid area %u", area_id);
         return 0;
     }
 
@@ -1208,22 +1207,22 @@ widget_manager::rearrange()
         if (!w->surface || w->draggable) continue;
 
         switch (w->area->horizontal_align) {
-            case ALIGN_LEFT:
-                /* Do nothing, default behaviour. */
-                break;
-
             case ALIGN_CENTER:
                 w->area->x += ((w->size.x + w->padding.x) * -w->area->modx) / 2.f;
+                break;
+
+            default:
+                /* Do nothing, default behaviour. */
                 break;
         }
 
         switch (w->area->vertical_align) {
-            case ALIGN_TOP:
-                /* Do nothing, default behavior. */
-                break;
-
             case ALIGN_CENTER:
                 w->area->y += ((w->size.y + w->padding.y) * -w->area->mody) / 2.f;
+                break;
+
+            default:
+                /* Do nothing, default behavior. */
                 break;
         }
     }

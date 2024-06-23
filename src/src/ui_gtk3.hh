@@ -1,5 +1,9 @@
 
-#if defined(TMS_BACKEND_LINUX) || defined(TMS_BACKEND_WINDOWS)
+#ifdef TMS_BACKEND_PC
+
+// fuckgtk3
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -8,7 +12,7 @@
 #include <gtksourceview/gtksource.h>
 #endif
 
-#if defined(TMS_BACKEND_WINDOWS)
+#ifdef TMS_BACKEND_WINDOWS
 #include <windows.h>
 #include <shellapi.h>
 #endif
@@ -572,7 +576,7 @@ struct gtk_level_property gtk_level_properties[] = {
       "Disable the roaming robots ability to change layer." },
     { LVL_CHUNKED_LEVEL_LOADING,
       "Chunked level loading",
-      "" },
+      "Splits up the level into chunks, leading to better performance for large levels." },
     { LVL_DISABLE_CAVEVIEW,
       "Disable adventure caveview",
       "Disable the caveview which appears when the adventure robot is in layer two, with terrain in front of him in layer three." },
@@ -581,7 +585,7 @@ struct gtk_level_property gtk_level_properties[] = {
       "Disable the rocket from triggering any explosives when contact with its flames occurs." },
     { LVL_STORE_SCORE_ON_GAME_OVER,
       "Store high score on game over",
-      "" },
+      "Allow players to submit a high score even if they did not win the level." },
     { LVL_ALLOW_HIGH_SCORE_SUBMISSIONS,
       "Allow high score submissions",
       "Allow players to submit their high scores to be displayed on your levels community page." },
@@ -611,9 +615,7 @@ static int num_gtk_level_properties = sizeof(gtk_level_properties) / sizeof(gtk_
 GtkDialog      *publish_dialog;
 GtkEntry       *publish_name;
 GtkTextView    *publish_descr;
-GtkCheckButton *publish_allow_deriv;
 GtkCheckButton *publish_locked;
-GtkWidget      *publish_help_allow_deriv;
 
 /** --New level **/
 GtkDialog      *new_level_dialog;
@@ -757,7 +759,7 @@ GtkWindow *quickadd_window;
 GtkEntry  *quickadd_entry;
 
 /** --Color Chooser (for Plastic beam & Pixel) **/
-GtkColorChooserDialog *beam_color_dialog;
+GtkColorSelectionDialog *beam_color_dialog;
 
 /** --Info Dialog **/
 GtkWindow       *info_dialog;
@@ -1042,21 +1044,14 @@ new_lbl(const char *text)
 static GtkComboBoxText*
 new_item_cb()
 {
-    GtkCellRenderer *renderer;
     GtkListStore *store;
     GtkComboBoxText *cb;
 
+
     store = gtk_list_store_new(1, G_TYPE_STRING);
 
-    //cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_new_with_model(GTK_TREE_MODEL(store)));
     cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
     g_object_unref(store);
-
-    // renderer = gtk_cell_renderer_text_new();
-    // gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(cb), renderer, TRUE);
-    // gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(cb), renderer,
-    //         "text", 0,
-    //         NULL);
 
     return cb;
 }
@@ -1079,23 +1074,6 @@ clear_cb(GtkComboBoxText *cb)
 {
     GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(cb));
     gtk_list_store_clear(GTK_LIST_STORE(model));
-}
-
-static GtkScale*
-new_hscale_range(gdouble min, gdouble max, gdouble step)
-{
-    GtkScale *ret = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, min, max, step));
-    g_object_set(ret, "value-pos", GTK_POS_RIGHT, NULL);
-
-    return ret;
-}
-
-static GtkCheckButton*
-new_check_button()
-{
-    GtkCheckButton *ret = GTK_CHECK_BUTTON(gtk_check_button_new());
-
-    return ret;
 }
 
 static GtkCheckButton*
@@ -1134,19 +1112,6 @@ new_rlbl(const char *text)
     gtk_label_set_xalign(GTK_LABEL(r), 1.0f);
     gtk_label_set_yalign(GTK_LABEL(r), 0.5f);
     return r;
-}
-
-static void
-notebook_append_scroll(GtkNotebook *nb, const char *title, GtkBox *base)
-{
-    GtkWidget *view = gtk_viewport_new(0,0);
-    GtkWidget *win = gtk_scrolled_window_new(0,0);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (win),
-            GTK_POLICY_NEVER,
-            GTK_POLICY_AUTOMATIC);
-    gtk_container_add(GTK_CONTAINER(view), GTK_WIDGET(base));
-    gtk_container_add(GTK_CONTAINER(win), view);
-    gtk_notebook_append_page(nb, win, new_lbl(title));
 }
 
 static void
@@ -1290,7 +1255,7 @@ new_window_defaults(const char *title, GtkCallback on_show/*=0*/, gboolean (*on_
     return GTK_WINDOW(r);
 }
 
-static void
+static inline void
 update_all_spin_buttons(GtkWidget *wdg, gpointer unused)
 {
     if (GTK_IS_SPIN_BUTTON(wdg)) {
@@ -1304,12 +1269,6 @@ struct cb_find_data {
     int index;
     const char *str;
 };
-
-static gchar*
-format_percent(GtkScale *scale, gdouble value)
-{
-    return g_strdup_printf("%0.*f%%", gtk_scale_get_digits(scale), value*100);
-}
 
 static gchar*
 format_joint_strength(GtkScale *scale, gdouble value)
@@ -1422,7 +1381,6 @@ bool
 pk_get_current(pkginfo *out)
 {
     GtkTreeSelection *sel;
-    GtkTreePath      *path;
     GtkTreeIter       iter;
     GValue            val = {0, };
     sel = gtk_tree_view_get_selection(pk_pkg_treeview);
@@ -1634,7 +1592,6 @@ void
 press_add_current_level(GtkButton *w, gpointer unused)
 {
     GtkTreeSelection *sel;
-    GtkTreePath      *path;
     GtkTreeIter       iter;
     GValue            val = {0, };
 
@@ -1671,9 +1628,7 @@ void
 press_del_selected(GtkButton *w, gpointer unused)
 {
     GtkTreeSelection *sel;
-    GtkTreePath      *path;
     GtkTreeIter       iter;
-    GValue            val = {0, };
 
     sel = gtk_tree_view_get_selection(pk_lvl_treeview);
     if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
@@ -1685,7 +1640,6 @@ void
 press_play_selected(GtkButton *w, gpointer unused)
 {
     GtkTreeSelection *sel;
-    GtkTreePath      *path;
     GtkTreeIter       iter;
     GValue            val = {0, };
 
@@ -2233,7 +2187,7 @@ freq_range_value_changed(GtkSpinButton *btn, gpointer unused)
 
     char tmp[256];
 
-    snprintf(tmp, 255, "Frequencies: %" PRIu32 " - %" PRIu32, begin, end);
+    snprintf(tmp, 255, "Frequencies: %u - %u", begin, end);
     gtk_label_set_text(freq_range_info, tmp);
 }
 
@@ -2248,7 +2202,7 @@ freq_range_value_text_changed(GtkEditable *editable, gpointer unused)
 
     char tmp[256];
 
-    snprintf(tmp, 255, "Frequencies: %" PRIu32 " - %" PRIu32, begin, end);
+    snprintf(tmp, 255, "Frequencies: %u - %u", begin, end);
     gtk_label_set_text(freq_range_info, tmp);
 }
 
@@ -2384,7 +2338,6 @@ on_digi_show(GtkWidget *wdg, void *unused)
 void
 on_sticky_show(GtkWidget *wdg, void *ununused)
 {
-    char tmp[64];
     entity *e = G->selection.e;
 
     if (e && e->g_id == O_STICKY_NOTE) {
@@ -2479,8 +2432,6 @@ on_escript_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
             e->properties[1].v.i |= ESCRIPT_LISTEN_ON_INPUT;
             e->properties[1].v.i |= ((int)use_external_editor * ESCRIPT_USE_EXTERNAL_EDITOR);
 
-            bool wrote_to_external_file = false;
-
             GtkTextIter start, end;
             GtkTextBuffer *text_buffer = GTK_TEXT_BUFFER(escript_buffer);
             char *text;
@@ -2497,12 +2448,8 @@ on_escript_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
 
                 if (fh) {
                     fwrite(text, sizeof(char), strlen(text), fh);
-
                     tms_infof("Write to %s", file_path);
-
                     fclose(fh);
-
-                    wrote_to_external_file = true;
                 }
             }
 
@@ -2860,8 +2807,6 @@ sequencer_time_changed(GtkSpinButton *btn, gpointer unused)
         gtk_spin_button_set_value(sequencer_milliseconds, SEQUENCER_MIN_TIME);
         full_time = SEQUENCER_MIN_TIME;
     }
-
-    uint16_t num_steps = 0;
 
     snprintf(tmp, 127, "%d.%ds. %d steps", seconds, milliseconds, sequencer_num_steps);
     gtk_label_set_text(sequencer_state, tmp);
@@ -3417,26 +3362,21 @@ on_tchest_entity_changed(GtkComboBoxText *cb, gpointer user_data)
         gtk_combo_box_text_remove(tchest_sub_entity, 0);
     }
 
-    switch (g_id) {
-        case O_ITEM:
-            {
-                for (int x=0; x<NUM_ITEMS; x++) {
-                    item_cb_append(tchest_sub_entity, x, false);
-                }
+    if (g_id == O_ITEM) {
+        for (int x=0; x<NUM_ITEMS; x++) {
+            item_cb_append(tchest_sub_entity, x, false);
+        }
 
-                int item_id = rand()%NUM_ITEMS;
+        int item_id = rand()%NUM_ITEMS;
 
-                gtk_combo_box_set_active(GTK_COMBO_BOX(tchest_sub_entity), item_id);
-            }
-            break;
+        gtk_combo_box_set_active(GTK_COMBO_BOX(tchest_sub_entity), item_id);
 
-        case O_RESOURCE:
-            for (int x=0; x<NUM_RESOURCES; x++) {
-                gtk_combo_box_text_append_text(tchest_sub_entity, resource_data[x].name);
-            }
+    } else if (g_id == O_RESOURCE) {
+        for (int x=0; x<NUM_RESOURCES; x++) {
+            gtk_combo_box_text_append_text(tchest_sub_entity, resource_data[x].name);
+        }
 
-            gtk_combo_box_set_active(GTK_COMBO_BOX(tchest_sub_entity), rand()%NUM_RESOURCES);
-            break;
+        gtk_combo_box_set_active(GTK_COMBO_BOX(tchest_sub_entity), rand()%NUM_RESOURCES);
     }
 }
 
@@ -3444,9 +3384,7 @@ static void
 on_tchest_selection_changed(GtkTreeView *tv, gpointer user_data)
 {
     GtkTreeSelection *sel;
-    GtkTreePath      *path;
     GtkTreeIter       iter;
-    GValue            val = {0, };
 
     sel = gtk_tree_view_get_selection(tv);
     if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
@@ -3497,19 +3435,12 @@ on_tchest_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
 
             char name[128];
 
-            switch (g_id) {
-                case O_ITEM:
-                    snprintf(name, 127, "Item (%s)", item_options[sub_id].name);
-                    break;
-
-                case O_RESOURCE:
-                    snprintf(name, 127, "Resource (%s)", resource_data[sub_id].name);
-                    break;
-
-                default:
-                    strcpy(name, search);
-                    break;
-            }
+            if (g_id == O_ITEM)
+                snprintf(name, 127, "Item (%s)", item_options[sub_id].name);
+            else if (g_id == O_RESOURCE)
+                snprintf(name, 127, "Resource (%s)", resource_data[sub_id].name);
+            else
+                strcpy(name, search);
 
             GtkTreeIter iter;
             gtk_list_store_append(tchest_liststore, &iter);
@@ -3523,9 +3454,7 @@ on_tchest_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
         }
     } else if (btn_pressed(w, tchest_remove_selected, user_data)) {
         GtkTreeSelection *sel;
-        GtkTreePath      *path;
         GtkTreeIter       iter;
-        GValue            val = {0, };
 
         sel = gtk_tree_view_get_selection(tchest_treeview);
         if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
@@ -3558,46 +3487,40 @@ on_tchest_show(GtkWidget *wdg, void *ununused)
 {
     entity *e = G->selection.e;
 
-    if (e && e->g_id == O_TREASURE_CHEST) {
-        gtk_spin_button_set_value(tchest_count, 1);
-        gtk_combo_box_set_active(GTK_COMBO_BOX(tchest_entity), tchest_translations[O_ITEM]);
+    if (!e || e->g_id != O_TREASURE_CHEST)
+        return;
 
-        gtk_list_store_clear(tchest_liststore);
+    gtk_spin_button_set_value(tchest_count, 1);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(tchest_entity), tchest_translations[O_ITEM]);
 
-        char *str = strdup(e->properties[0].v.s.buf);
-        std::vector<struct treasure_chest_item> items = treasure_chest::parse_items(str);
-        free(str);
+    gtk_list_store_clear(tchest_liststore);
 
-        for (std::vector<struct treasure_chest_item>::iterator it = items.begin();
-                it != items.end(); ++it) {
-            struct treasure_chest_item &tci = *it;
+    char *str = strdup(e->properties[0].v.s.buf);
+    std::vector<struct treasure_chest_item> items = treasure_chest::parse_items(str);
+    free(str);
 
-            char name[128];
+    for (std::vector<struct treasure_chest_item>::iterator it = items.begin();
+            it != items.end(); ++it) {
+        struct treasure_chest_item &tci = *it;
 
-            switch (tci.g_id) {
-                case O_ITEM:
-                    snprintf(name, 127, "Item (%s)", item_options[tci.sub_id].name);
-                    break;
+        char name[128];
 
-                case O_RESOURCE:
-                    snprintf(name, 127, "Resource (%s)", resource_data[tci.sub_id].name);
-                    break;
+        if (tci.g_id == O_ITEM)
+            snprintf(name, 127, "Item (%s)", item_options[tci.sub_id].name);
+        else if (tci.g_id == O_RESOURCE)
+            snprintf(name, 127, "Resource (%s)", resource_data[tci.sub_id].name);
+        else
+            snprintf(name, 127, "%s", menu_objects.at((gid_to_menu_pos[tci.g_id])).e->get_name());
 
-                default:
-                    snprintf(name, 127, "%s", menu_objects.at((gid_to_menu_pos[tci.g_id])).e->get_name());
-                    break;
-            }
-
-            GtkTreeIter iter;
-            gtk_list_store_append(tchest_liststore, &iter);
-            gtk_list_store_set(tchest_liststore, &iter,
-                    TCHEST_COLUMN_G_ID, tci.g_id,
-                    TCHEST_COLUMN_SUB_ID, tci.sub_id,
-                    TCHEST_COLUMN_NAME, name,
-                    TCHEST_COLUMN_COUNT, tci.count,
-                    -1
-                    );
-        }
+        GtkTreeIter iter;
+        gtk_list_store_append(tchest_liststore, &iter);
+        gtk_list_store_set(tchest_liststore, &iter,
+                TCHEST_COLUMN_G_ID, tci.g_id,
+                TCHEST_COLUMN_SUB_ID, tci.sub_id,
+                TCHEST_COLUMN_NAME, name,
+                TCHEST_COLUMN_COUNT, tci.count,
+                -1
+                );
     }
 }
 
@@ -3605,7 +3528,6 @@ on_tchest_show(GtkWidget *wdg, void *ununused)
 void
 on_elistener_show(GtkWidget *wdg, void *ununused)
 {
-    char tmp[64];
     entity *e = G->selection.e;
 
     if (e && e->g_id == O_EVENT_LISTENER) {
@@ -3630,22 +3552,22 @@ on_emitter_show(GtkWidget *wdg, void *ununused)
 void
 on_fxemitter_show(GtkWidget *wdg, void *ununused)
 {
-    char tmp[64];
     entity *e = G->selection.e;
 
-    if (e && e->g_id == O_FX_EMITTER) {
-        for (int x=0; x<4; x++) {
-            gint index = 0;
-            if (e->properties[3+x].v.i != FX_INVALID)
-                index = e->properties[3+x].v.i+1;
+    if (!e || e->g_id != O_FX_EMITTER)
+        return;
 
-            gtk_combo_box_set_active(GTK_COMBO_BOX(fxemitter_cb[x]), index);
-        }
+    for (int x=0; x<4; x++) {
+        gint index = 0;
+        if (e->properties[3+x].v.i != FX_INVALID)
+            index = e->properties[3+x].v.i+1;
 
-        gtk_range_set_value(GTK_RANGE(fxemitter_radius), (double)e->properties[0].v.f);
-        gtk_range_set_value(GTK_RANGE(fxemitter_count), (double)e->properties[1].v.i);
-        gtk_range_set_value(GTK_RANGE(fxemitter_interval), (double)e->properties[2].v.f);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(fxemitter_cb[x]), index);
     }
+
+    gtk_range_set_value(GTK_RANGE(fxemitter_radius), (double)e->properties[0].v.f);
+    gtk_range_set_value(GTK_RANGE(fxemitter_count), (double)e->properties[1].v.i);
+    gtk_range_set_value(GTK_RANGE(fxemitter_interval), (double)e->properties[2].v.f);
 }
 
 /** --Cam targeter **/
@@ -3801,7 +3723,6 @@ on_publish_show(GtkWidget *wdg, void *unused)
     current_name[W->level.name_len] = '\0';
     gtk_entry_set_text(publish_name, current_name);
 
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(publish_allow_deriv), W->level.allow_derivatives);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(publish_locked), W->level.visibility == LEVEL_LOCKED);
 
     free(current_descr);
@@ -4063,9 +3984,10 @@ open_menu_item_activated(GtkMenuItem *i, gpointer userdata)
         }
 
         GtkTreeSelection *sel;
-        GtkTreePath      *path;
         GtkTreeIter       iter;
+
         sel = gtk_tree_view_get_selection(open_treeview);
+
         if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
             GValue val_name = {0, };
             GValue val_date = {0, };
@@ -4282,9 +4204,7 @@ on_open_state_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
     } else if (btn_pressed(w, open_state_btn_open, user_data)) {
         /* open ! */
         GtkTreeSelection *sel;
-        GtkTreePath      *path;
         GtkTreeIter       iter;
-        GValue            val = {0, };
 
         sel = gtk_tree_view_get_selection(open_state_treeview);
         if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
@@ -4307,7 +4227,6 @@ on_open_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
     } else if (btn_pressed(w, open_btn_open, user_data)) {
         /* open ! */
         GtkTreeSelection *sel;
-        GtkTreePath      *path;
         GtkTreeIter       iter;
         GValue            val = {0, };
 
@@ -4344,7 +4263,6 @@ on_object_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
     } else if (btn_pressed(w, object_btn_open, user_data)) {
         /* open ! */
         GtkTreeSelection *sel;
-        GtkTreePath      *path;
         GtkTreeIter       iter;
         GValue            val = {0, };
 
@@ -4680,7 +4598,6 @@ on_object_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
         gtk_widget_hide(w);
     else if (key->keyval == GDK_KEY_Return) {
         GtkTreeSelection *sel;
-        GtkTreePath      *path;
         GtkTreeIter       iter;
         GValue            val = {0, };
 
@@ -4763,9 +4680,7 @@ on_open_state_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
         gtk_widget_hide(w);
     else if (key->keyval == GDK_KEY_Return) {
         GtkTreeSelection *sel;
-        GtkTreePath      *path;
         GtkTreeIter       iter;
-        GValue            val = {0, };
 
         sel = gtk_tree_view_get_selection(open_state_treeview);
         if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
@@ -4814,7 +4729,6 @@ on_open_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
         gtk_widget_hide(w);
     else if (key->keyval == GDK_KEY_Return) {
         GtkTreeSelection *sel;
-        GtkTreePath      *path;
         GtkTreeIter       iter;
         GValue            val = {0, };
 
@@ -4892,11 +4806,7 @@ save_setting_row(struct table_setting_row *r)
             break;
 
         default:
-#ifdef DEBUG
-            tms_fatalf("Unknown row type: %d", row.type);
-#else
             tms_errorf("Unknown row type: %d", row.type);
-#endif
             break;
     }
 }
@@ -4916,11 +4826,7 @@ load_setting_row(struct table_setting_row *r)
             break;
 
         default:
-#ifdef DEBUG
-            tms_fatalf("Unknown row type: %d", row.type);
-#else
             tms_errorf("Unknown row type: %d", row.type);
-#endif
             break;
     }
 }
@@ -4940,11 +4846,7 @@ create_setting_row_widget(struct table_setting_row *r)
             break;
 
         default:
-            #ifdef DEBUG
-                tms_fatalf("Unknown row type: %d", row.type);
-            #else
-                tms_errorf("Unknown row type: %d", row.type);
-            #endif
+            tms_errorf("Unknown row type: %d", row.type);
             break;
     }
 }
@@ -5450,7 +5352,6 @@ on_properties_show(GtkWidget *wdg, void *unused)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lvl_radio_adventure), (W->level.type == LCAT_ADVENTURE));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lvl_radio_custom), (W->level.type == LCAT_CUSTOM));
 
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(publish_allow_deriv), W->level.allow_derivatives);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(publish_locked), W->level.visibility == LEVEL_LOCKED);
 
     refresh_borders();
@@ -5731,7 +5632,6 @@ activate_publish(GtkMenuItem *i, gpointer unused)
         } else
             W->level.descr_len = 0;
 
-        W->level.allow_derivatives = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(publish_allow_deriv));
         W->level.visibility = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(publish_locked)) ? LEVEL_LOCKED : LEVEL_VISIBLE;
 
         tms_infof("Setting level name to:  %s", name);
@@ -5914,8 +5814,7 @@ on_login_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data)
             gtk_label_set_text(login_status, "Enter data into both fields.");
         }
     } else if (btn_pressed(w, login_btn_register, user_data)) {
-        char url[256];
-        snprintf(url, 255, "https://%s/register", P.community_host);
+        COMMUNITY_URL("register");
         ui::open_url(url);
     }
 
@@ -6110,9 +6009,7 @@ activate_quickadd(GtkWidget *i, gpointer unused)
 
     const char *search = gtk_entry_get_text(quickadd_entry);
     int len = strlen(search);
-    uint32_t gid = 0;
     int found_arg = -1;
-    entity *found = 0;
     int found_score = -10000000;
     int found_lf = -1;
 
@@ -6212,7 +6109,6 @@ activate_quickadd(GtkWidget *i, gpointer unused)
     }
 
     if (found_arg >= 0) {
-        uint32_t arg = 0;
         switch (found_lf) {
             case LF_MENU:
                 P.add_action(ACTION_CONSTRUCT_ENTITY, found_arg);
@@ -6389,7 +6285,6 @@ int _gtk_loop(void *p)
     );
 
     GtkDialog *dialog;
-    GtkWidget *lbl;
 
     /** --Play menu **/
     {
@@ -6425,7 +6320,6 @@ int _gtk_loop(void *p)
     {
         editor_menu = GTK_MENU(gtk_menu_new());
         editor_menu_go_to_menu = GTK_MENU(gtk_menu_new());
-        GtkMenuItem *i;
 
         editor_menu_header = add_menuitem(editor_menu, "HEADER");
 
@@ -6672,7 +6566,7 @@ int _gtk_loop(void *p)
         pkg_name_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
                 "Create new package",
                 0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                NULL));
+                NULL, NULL));
 
         apply_dialog_defaults(pkg_name_dialog);
 
@@ -7023,7 +6917,7 @@ int _gtk_loop(void *p)
         properties_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
             "Level properties",
             0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-            NULL
+            NULL, NULL
         ));
 
         apply_dialog_defaults(properties_dialog);
@@ -7371,12 +7265,6 @@ int _gtk_loop(void *p)
         publish_descr = GTK_TEXT_VIEW(gtk_text_view_new());
         gtk_text_view_set_wrap_mode(publish_descr, GTK_WRAP_WORD);
 
-        GtkBox *box_allow_deriv = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-        publish_allow_deriv = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Allow derivatives"));
-
-        gtk_box_pack_start(box_allow_deriv, GTK_WIDGET(publish_allow_deriv), 1, 1, 0);
-        gtk_box_pack_start(box_allow_deriv, help_widget("Allow other players to download, edit your map and publish it as their own."), 0, 0, 0);
-
         GtkBox *box_locked = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
         publish_locked = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Locked"));
 
@@ -7401,9 +7289,6 @@ int _gtk_loop(void *p)
         gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Level description:</b>"), false, false, 0);
 
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(fr), false, false, 0);
-
-        /* Allow derivatives box */
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(box_allow_deriv), false, false, 0);
 
         /* Locked box */
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(box_locked), false, false, 0);
@@ -8188,7 +8073,7 @@ int _gtk_loop(void *p)
         dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
                 "Cam targeter properties",
                 0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                NULL));
+                NULL, NULL));
 
         apply_dialog_defaults(dialog);
 
@@ -8350,13 +8235,15 @@ int _gtk_loop(void *p)
 
     /** --Color Chooser (for Plastic beam & Pixel) **/
     {
-        beam_color_dialog = GTK_COLOR_CHOOSER_DIALOG(gtk_color_chooser_dialog_new("Color", NULL));
-        GtkColorChooser *sel = GTK_COLOR_CHOOSER(beam_color_dialog);
+        beam_color_dialog = GTK_COLOR_SELECTION_DIALOG(gtk_color_selection_dialog_new("Color"));
+        GtkColorSelectionDialog *sel = GTK_COLOR_SELECTION_DIALOG(beam_color_dialog);
 
         gtk_window_set_position(GTK_WINDOW(beam_color_dialog), GTK_WIN_POS_CENTER);
         //gtk_window_set_keep_above(GTK_WINDOW(beam_color_dialog), TRUE);
 
-        gtk_color_chooser_set_use_alpha(sel, false);
+        gtk_color_selection_set_has_opacity_control(
+            GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(
+                GTK_COLOR_SELECTION_DIALOG(sel))), false);
 
         g_signal_connect(beam_color_dialog, "delete-event", G_CALLBACK(on_window_close), 0);
 
@@ -8494,7 +8381,7 @@ int _gtk_loop(void *p)
         dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
                 "Confirm",
                 0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-                NULL));
+                NULL, NULL));
 
         apply_dialog_defaults(dialog);
 
@@ -8956,7 +8843,6 @@ int _gtk_loop(void *p)
             GtkGrid *tbl = create_settings_table();
 
             int y = -1;
-            GtkWidget *l, *hbox;
 
             settings_enable_shadows = GTK_CHECK_BUTTON(gtk_check_button_new());
             settings_shadow_quality = GTK_SPIN_BUTTON(gtk_spin_button_new(
@@ -9050,7 +8936,6 @@ int _gtk_loop(void *p)
             GtkGrid *tbl = create_settings_table();
 
             int y = -1;
-            GtkWidget *l, *hbox;
 
             settings_control_type = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
             gtk_combo_box_text_append_text(settings_control_type, "Keyboard");
@@ -9116,7 +9001,7 @@ int _gtk_loop(void *p)
         confirm_quit_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
             "Confirm Quit",
             0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-            NULL
+            NULL, NULL
         ));
 
         apply_dialog_defaults(confirm_quit_dialog);
@@ -9378,7 +9263,7 @@ int _gtk_loop(void *p)
         jumper_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
             "Jumper",
             0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-            NULL
+            NULL, NULL
         ));
 
         apply_dialog_defaults(jumper_dialog);
@@ -10115,7 +10000,7 @@ _open_sandbox_menu(gpointer unused)
         char tmp[256];
 
         if (G->selection.e) {
-            snprintf(tmp, 255, "- id:%" PRIu32 ", g_id:%" PRIu8 ", pos:%.2f/%.2f, angle:%.2f -",
+            snprintf(tmp, 255, "- id:%u, g_id:%u, pos:%.2f/%.2f, angle:%.2f -",
                     G->selection.e->id, G->selection.e->g_id,
                     G->selection.e->get_position().x,
                     G->selection.e->get_position().y,
@@ -10198,10 +10083,9 @@ _open_quickadd(gpointer unused)
 static gboolean
 _open_beam_color(gpointer unused)
 {
-    GtkColorChooser *sel = 0;
-
     /* set current chooser to beam/pixel current color */
-    sel = GTK_COLOR_CHOOSER(beam_color_dialog);
+    GtkColorSelection *sel = GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(beam_color_dialog));
+
     entity *e = G->selection.e;
     if (e) {
         GdkRGBA color;
@@ -10209,21 +10093,18 @@ _open_beam_color(gpointer unused)
         color.red   = c.r;
         color.green = c.g;
         color.blue  = c.b;
-        color.alpha = (double)(e->properties[4].v.i8) / 255.0;
-        //color.alpha = (double)((guint16) e->properties[4].v.i8 * 257) / 65535.;
-
-        gtk_color_chooser_set_rgba(sel, &color);
-
         if (e->g_id == O_PIXEL) {
-            gtk_color_chooser_set_rgba(sel, &color);
-            gtk_color_chooser_set_use_alpha(sel, true);
+            color.alpha = (double)(e->properties[4].v.i8) / 255.0;
+            gtk_color_selection_set_has_opacity_control(sel, true);
         } else {
-            gtk_color_chooser_set_use_alpha(sel, false);
+            color.alpha = 1.;
+            gtk_color_selection_set_has_opacity_control(sel, false);
         }
+        gtk_color_selection_set_current_rgba(sel, &color);
+#if 0 // XXX: Unused painter tool
     } else if (W->is_adventure() && adventure::player && adventure::is_player_alive()) {
         robot_parts::tool *t = adventure::player->get_tool();
         if (t && t->get_arm_type() == TOOL_PAINTER) {
-            /*
             GdkRGBA color;
             color.red   = t->properties[0].v.f;
             color.green = t->properties[1].v.f;
@@ -10232,32 +10113,34 @@ _open_beam_color(gpointer unused)
 
             gtk_color_chooser_set_use_alpha(sel, false);
             gtk_color_chooser_set_rgba(sel, &color);
-            */
         }
+#endif
     }
 
     if (gtk_dialog_run(GTK_DIALOG(beam_color_dialog)) == GTK_RESPONSE_OK) {
-        sel = GTK_COLOR_CHOOSER(beam_color_dialog);
-        entity *e = G->selection.e;
+        //GtkColorSelection *sel = GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(beam_color_dialog)));
 
         GdkRGBA color;
-        gtk_color_chooser_get_rgba(sel, &color);
+        gtk_color_selection_get_current_rgba(sel, &color);
+
+        entity *e = G->selection.e;
 
         if (e) {
             e->set_color4(color.red, color.green, color.blue);
+
             if (e->g_id == O_PIXEL) {
                 e->set_property(4, (uint8_t)(color.alpha * 255.));
             }
+#if 0 // XXX: Unused painter tool
         } else if (W->is_adventure() && adventure::player && adventure::is_player_alive()) {
             robot_parts::tool *t = adventure::player->get_tool();
-            /*
             if (t && t->tool_id == TOOL_PAINTER) {
                 t->set_property(0, (float)color.red / (float)0xffff);
                 t->set_property(1, (float)color.green / (float)0xffff);
                 t->set_property(2, (float)color.blue / (float)0xffff);
                 ((robot_parts::painter*)t)->update_appearance();
             }
-            */
+#endif
         }
     }
 
@@ -10586,7 +10469,7 @@ _open_alert_dialog(gpointer unused)
 {
     gtk_widget_hide(GTK_WIDGET(alert_dialog));
     P.focused = false;
-    int r = gtk_dialog_run(GTK_DIALOG(alert_dialog));
+    gtk_dialog_run(GTK_DIALOG(alert_dialog));
     P.focused = true;
 
     gtk_widget_hide(GTK_WIDGET(alert_dialog));
@@ -10661,10 +10544,8 @@ _open_published(gpointer unused)
     gint result = gtk_dialog_run(published_dialog);
 
     if (result == GTK_RESPONSE_ACCEPT) {
-        char tmp[256];
-        snprintf(tmp, 255, "https://%s/level/%d", P.community_host, W->level.community_id);
-
-        ui::open_url(tmp);
+        COMMUNITY_URL("level/%d", W->level.community_id);
+        ui::open_url(url);
     }
 
     gtk_widget_hide(GTK_WIDGET(published_dialog));
@@ -11187,7 +11068,7 @@ _open_key_listener(gpointer unused)
 
                 uint32_t key = g_value_get_uint(&val);
 
-                tms_debugf("Key: %" PRIu32 ": %s", key, key_names[key]);
+                tms_debugf("Key: %u: %s", key, key_names[key]);
 
                 e->properties[0].v.i = key;
                 P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
@@ -11596,7 +11477,7 @@ static void wait_ui_ready()
     SDL_LockMutex(ui_lock);
     if (!ui_ready) {
         SDL_CondWaitTimeout(ui_cond, ui_lock, 4000);
-        if (!ui_ready) tms_fatalf("could not initialize game");
+        if (!ui_ready) tms_fatalf("Could not initialise game (GTK not ready)");
     }
     SDL_UnlockMutex(ui_lock);
 }
@@ -11606,14 +11487,6 @@ void ui::open_url(const char *url)
 #if SDL_VERSION_ATLEAST(2,0,14)
     tms_infof("open url (SDL): %s", url);
     SDL_OpenURL(url);
-#elif defined(TMS_BACKEND_LINUX)
-    // Fallback for old Linux distros that don't contain SDL2 2.0.14
-    tms_infof("open url (Fallback): %s", url);
-
-    if (fork() == 0) {
-        execlp("xdg-open", "xdg-open", url, NULL);
-        _exit(0);
-    }
 #else
     #error "SDL2 2.0.14+ is required for this platform"
 #endif
@@ -11891,5 +11764,7 @@ ui::alert(const char *text, uint8_t alert_type/*=ALERT_INFORMATION*/)
 
     gdk_display_flush(gdk_display_get_default());
 }
+
+#pragma GCC diagnostic pop
 
 #endif

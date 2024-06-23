@@ -1,7 +1,6 @@
 #pragma once
 
 #include <tms/bindings/cpp/cpp.hh>
-#include "main.hh"
 #include "gui.hh"
 
 #define LOAD_CONT 0

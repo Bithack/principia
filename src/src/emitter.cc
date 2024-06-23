@@ -2,11 +2,9 @@
 #include "material.hh"
 #include "model.hh"
 #include "game.hh"
-#include "soundman.hh"
 #include "ui.hh"
 
 #include "object_factory.hh"
-#include "spritebuffer.hh"
 
 #define VELOCITY_MAX 40.f
 

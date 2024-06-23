@@ -1,13 +1,10 @@
 #include "scanner.hh"
 #include "model.hh"
 #include "material.hh"
-#include "main.hh"
 #include "game.hh"
 #include "linebuffer.hh"
 #include "spritebuffer.hh"
-#include "robot_base.hh"
 #include "explosive.hh"
-#include "settings.hh"
 
 mirror::mirror()
 {
@@ -265,8 +262,5 @@ scanner::on_slider_change(int s, float value)
 void
 scanner::write_quickinfo(char *out)
 {
-    if (G && G->state.sandbox && settings["display_object_id"]->v.b) {
-        sprintf(out, "%s (wavelength: %f, id:%" PRIu32 ", g_id:%" PRIu8 ")", this->get_name(), this->properties[0].v.f, this->id, this->g_id);
-    } else
-        sprintf(out, "%s (wavelength: %f)", this->get_name(), this->properties[0].v.f);
+    sprintf(out, "%s (wavelength: %f)", this->get_name(), this->properties[0].v.f);
 }

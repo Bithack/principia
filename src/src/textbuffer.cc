@@ -1,5 +1,4 @@
 #include "textbuffer.hh"
-#include "gui.hh"
 
 static tms::gbuffer *verts;
 static tms::gbuffer *verts2;
@@ -24,7 +23,7 @@ static struct vert base[4];
 
 void textbuffer::_init()
 {
-    tms_progressf("Initializing textbuffer... ");
+    tms_infof("Initializing textbuffer...");
 
     verts = new tms::gbuffer(4*TEXTBUFFER_MAX*sizeof(struct vert));
     verts->usage = TMS_GBUFFER_STREAM_DRAW;
@@ -82,8 +81,6 @@ void textbuffer::_init()
     };
 
     reset();
-
-    tms_progressf("OK\n");
 }
 
 void

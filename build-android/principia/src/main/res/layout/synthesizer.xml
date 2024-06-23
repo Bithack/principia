@@ -38,7 +38,6 @@
         android:layout_above="@id/synth_ll_end" >
 
         <LinearLayout
-            android:id="@+id/synth_ll_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
@@ -98,12 +97,12 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="@string/waveform"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
                 <Spinner
                     android:id="@+id/synth_waveform"
                     android:layout_width="0dip"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1" />
             </LinearLayout>
@@ -111,8 +110,8 @@
             <LinearLayout
                 android:id="@+id/synth_pulse_width_ll"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center" >
+                android:layout_height="40dp"
+                android:gravity="center">
 
                 <TextView
                     android:layout_width="0dp"
@@ -132,16 +131,16 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
+                    android:gravity="center"
                     android:text="@string/zero"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:gravity="center" />
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center" >
+                android:layout_height="40dp"
+                android:gravity="center">
 
                 <TextView
                     android:layout_width="0dp"
@@ -161,16 +160,16 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
+                    android:gravity="center"
                     android:text="@string/zero"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:gravity="center" />
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center" >
+                android:layout_height="40dp"
+                android:gravity="center">
 
                 <TextView
                     android:layout_width="0dp"
@@ -190,16 +189,16 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
+                    android:gravity="center"
                     android:text="@string/zero"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:gravity="center" />
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center" >
+                android:layout_height="40dp"
+                android:gravity="center">
 
                 <TextView
                     android:layout_width="0dp"
@@ -219,16 +218,16 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
+                    android:gravity="center"
                     android:text="@string/zero"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:gravity="center" />
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center" >
+                android:layout_height="40dp"
+                android:gravity="center">
 
                 <TextView
                     android:layout_width="0dp"
@@ -248,16 +247,16 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
+                    android:gravity="center"
                     android:text="@string/zero"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:gravity="center" />
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center" >
+                android:layout_height="40dp"
+                android:gravity="center">
 
                 <TextView
                     android:layout_width="0dp"
@@ -277,9 +276,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
+                    android:gravity="center"
                     android:text="@string/zero"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:gravity="center" />
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
             </LinearLayout>
 

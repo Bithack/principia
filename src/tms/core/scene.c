@@ -1,10 +1,9 @@
 #include <stdlib.h>
-#include <assert.h>
 #include <unistd.h>
 
 #include <tms/math/glob.h>
 #include <tms/core/glob.h>
-#include <tms/util/glob.h>
+#include "util.h"
 
 struct tms_scene*
 tms_scene_alloc(void)

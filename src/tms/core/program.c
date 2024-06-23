@@ -1,6 +1,5 @@
 #include <tms/core/glob.h>
-#include <tms/util/glob.h>
-#include <tms/util/hash.h>
+#include "hash.h"
 
 void
 tms_program_init(struct tms_program *p)
@@ -19,9 +18,8 @@ tms_program_free(struct tms_program *p)
 GLuint
 tms_program_get_uniform(struct tms_program *p, const char *name)
 {
-#ifdef DEBUG
     tms_assertf(name[0] != '~', "oops! tried to fetch a gamma-corrected uniform");
-#endif
+
     return glGetUniformLocation(p->id, name);
 }
 
@@ -61,7 +59,7 @@ tms_program_load_uniforms(struct tms_program *p)
         }
 
         switch (type) {
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
+#ifndef TMS_USE_GLES
             case GL_SAMPLER_1D:
             case GL_SAMPLER_3D:
             case GL_SAMPLER_1D_SHADOW:
@@ -139,12 +137,12 @@ tms_program_load_uniforms(struct tms_program *p)
 void
 tms_program_load_attributes(struct tms_program *p)
 {
+#if 0
     int x, n;
     GLint size;
     GLenum type;
     char name[256];
 
-    /*
     glGetProgramiv(p->id, GL_ACTIVE_ATTRIBUTES, (GLint*)&p->num_attributes);
 
     if (n = p->num_attributes) {
@@ -163,7 +161,7 @@ tms_program_load_attributes(struct tms_program *p)
             int loc =
         }
     }
-    */
+#endif
 }
 
 int*

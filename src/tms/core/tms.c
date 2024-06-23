@@ -10,8 +10,7 @@
 #include "backend.h"
 #include "shader.h"
 #include "project.h"
-
-#include "../util/glob.h"
+#include "hash.h"
 
 struct tms_singleton _tms = {
     .in_frame = 0,
@@ -26,20 +25,19 @@ struct tms_singleton _tms = {
 int
 tms_init(void)
 {
-    tms.model_loaders = thash_create_string_table(8);
     tms.framebuffer = 0;
     tms.is_paused = 0;
     tms.state = TMS_STATE_DEFAULT;
 
-    tgen_init();
+    tproject_preinit();
+
     tbackend_init_surface();
 
-    tms.gl_extensions = glGetString(GL_EXTENSIONS);
-    //tms_infof("opengl extensions: %s", tms.gl_extensions);
+    tms.gl_extensions = (const char*)glGetString(GL_EXTENSIONS);
 
     tmat4_set_ortho(tms.window_projection, 0, tms.window_width, 0, tms.window_height, 1, -1);
 
-#if !defined TMS_BACKEND_ANDROID && !defined TMS_BACKEND_IOS
+#ifndef TMS_USE_GLES
     tms_shader_global_define_vs("lowp", "");
     tms_shader_global_define_fs("lowp", "");
     tms_shader_global_define_vs("mediump", "");
@@ -52,18 +50,6 @@ tms_init(void)
     tproject_init_pipelines();
     tproject_initialize();
 
-    return T_OK;
-}
-
-/**
- * Register a 3D model filetype loader
- * @relates tms
- **/
-int
-tms_register_model_loader(struct tms_mesh* (*load_fn)(struct tms_model *, SDL_RWops *, int *), const char *ext)
-{
-    thash_add(tms.model_loaders, ext, strlen(ext), load_fn);
-    tms_debugf("registered model loader (%p) for \"%s\"", load_fn, ext);
     return T_OK;
 }
 
@@ -94,7 +80,7 @@ tms_set_screen(struct tms_screen *screen)
     return T_OK;
 }
 
-#if defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_IOS
 uint64_t tms_IOS_get_time();
 #endif
 
@@ -106,7 +92,7 @@ init_frame_time(void)
 #endif
     uint64_t curr_time, delta;
 
-#if defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_IOS
     curr_time = tms_IOS_get_time();
 #else
     gettimeofday(&t, 0);
@@ -123,7 +109,7 @@ init_frame_time(void)
         SDL_Delay((tms.delta_cap - delta)/1000);
         delta = tms.delta_cap;
 
-#if defined(TMS_BACKEND_IOS)
+#ifdef TMS_BACKEND_IOS
         curr_time = tms_IOS_get_time();
 #else
         gettimeofday(&t, 0);

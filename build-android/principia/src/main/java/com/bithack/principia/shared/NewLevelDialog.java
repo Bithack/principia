@@ -20,15 +20,15 @@ public class NewLevelDialog
         AlertDialog.Builder bld = new AlertDialog.Builder(PrincipiaActivity.mSingleton);
         bld.setTitle("Create new level");
 
-        bld.setMessage("Please select the level type:\nPuzzle\nAdventure - Control a robot\nCustom - Create whatever you want here!");
+        bld.setMessage("Please select the level type:\nAdventure - Control a robot\nCustom - Create whatever you want here!");
 
-        bld.setPositiveButton("Puzzle", new OnClickListener(){
+        /*bld.setPositiveButton("Puzzle", new OnClickListener(){
             public void onClick(DialogInterface dialog, int which)
             {
                 PrincipiaBackend.triggerCreateLevel(0);
                 Toast.makeText(PrincipiaActivity.mSingleton, "New Puzzle level created!", Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
 
         bld.setNeutralButton("Adventure", new OnClickListener(){
             public void onClick(DialogInterface dialog, int which)

@@ -3,7 +3,6 @@
 #include "world.hh"
 #include "model.hh"
 #include "material.hh"
-#include "soundmanager.hh"
 
 #define SPEED 2.f
 #define FORCE 250.f
@@ -422,7 +421,6 @@ lmotor::ifstep(float v, float ctl_speed, float ctl_angle,float ctl_tradeoff, boo
         float tr = this->properties[0].v.f;
         float dd = 1.f;
         float speed, force;
-        bool play_sound = false;
 
         if (enable_tradeoff)
             tr = ctl_tradeoff;
@@ -430,13 +428,6 @@ lmotor::ifstep(float v, float ctl_speed, float ctl_angle,float ctl_tradeoff, boo
         if (enable_angle) {
             float target = ctl_angle * (this->get_size()-.25f) * 2.f - (this->get_size()-.25f);
             dd = target - j->GetJointTranslation();
-
-            if (this->is_servo) {
-                if (fabsf(dd) > 0.02f &&
-                        (tr != 0.f && tr != 1.f)
-                        )
-                    play_sound = true;
-            }
         } else {
             bool recoil = (bool)this->properties[2].v.i;
 
