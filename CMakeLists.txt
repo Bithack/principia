@@ -261,7 +261,8 @@ endif()
 
 add_definitions(-DTMS_BACKEND_${TMS_FORMFACTOR} -DTMS_BACKEND_${TMS_BACKEND})
 
-set(COMMON_FLAGS "-ffast-math")
+# Use a safe subset of fast math flags
+set(COMMON_FLAGS "-fno-math-errno -fno-trapping-math -fno-signed-zeros")
 
 set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -DDEBUG=1")
 set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} -DNDEBUG=1 -fomit-frame-pointer")
