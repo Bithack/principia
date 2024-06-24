@@ -145,13 +145,15 @@ void setup_pipe(int argc, char **argv)
                 &dwMode,
                 0,0);
 
-        int len = strlen(argv[1]);
-        DWORD written;
-        if (!(WriteFile(pipe_h, argv[1], len, &written, 0))) {
-            tms_errorf("error writing to pipe");
+        if (argc > 1) {
+            DWORD written;
+            if (!(WriteFile(pipe_h, argv[1], strlen(argv[1]), &written, 0))) {
+                tms_errorf("error writing to pipe");
+            }
+
+            tms_infof("done");
         }
 
-        tms_infof("done");
         CloseHandle(pipe_h);
 
         /* bring the window to the front */
