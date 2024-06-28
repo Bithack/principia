@@ -1,0 +1,6 @@
+- Updated to the latest SDL2 on Android (previously it was on an old beta version from 2012)
+- Sounds have been improved, some sounds that were missing on Android has been added
+- The default community domain is now configurable
+- New Lua functions have been added
+
+For a full list of changes including bugfixes and technical changes see the Changelog.
