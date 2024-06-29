@@ -400,7 +400,7 @@ tbackend_init_surface()
 
     tms_infof("Initializing GLEW...");
     GLenum err = glewInit();
-    if (err != GLEW_OK) {
+    if (err != GLEW_OK && err != GLEW_ERROR_NO_GLX_DISPLAY) {
         tms_infof("ERROR: %s", glewGetErrorString(err));
         exit(1);
     }
