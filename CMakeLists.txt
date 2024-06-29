@@ -9,8 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 message(STATUS "*** Building Principia! ***")
 
 if (NOT CMAKE_BUILD_TYPE)
-    message(STATUS "No build type selected, default to Release")
-    set(CMAKE_BUILD_TYPE "Release")
+	message(STATUS "No build type selected, default to Release")
+	set(CMAKE_BUILD_TYPE "Release")
 endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
@@ -48,6 +48,8 @@ if(LINUX)
 else()
 	set(SCREENSHOT_BUILD FALSE)
 endif()
+
+option(BACKEND_IMGUI "Use ImGui as the UI backend (expreimental)" TRUE)
 
 set(TMS_FORMFACTOR "PC")
 if(WIN32)
@@ -91,6 +93,13 @@ include_directories(
 	${PNG_INCLUDE_DIRS}
 	${ZLIB_INCLUDE_DIRS})
 
+if(BACKEND_IMGUI)
+	include_directories(
+		src/imgui/
+		src/imgui-texteditor/
+	)
+endif()
+
 file(GLOB SRCS
 	src/tms/core/*.c
 	src/tms/math/*.c
@@ -113,6 +122,14 @@ file(GLOB SRCS
 	src/src/Box2D/Particle/*.cc
 )
 
+if(BACKEND_IMGUI)
+	file(GLOB IMGUI_SRCS
+		src/imgui/*.cpp
+		src/imgui-texteditor/*.cpp
+	)
+	set(SRCS ${SRCS} ${IMGUI_SRCS})
+endif()
+
 # For non-Android, system SDL2 and OpenGL include dirs
 include_directories(
 	${SDL2_INCLUDE_DIRS}
@@ -121,14 +138,19 @@ include_directories(
 # Optional dependencies not found on Android or in the screenshot build
 if(NOT SCREENSHOT_BUILD)
 	if(NOT ANDROID AND NOT EMSCRIPTEN)
-		find_package(PkgConfig REQUIRED)
-		pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+		if(NOT BACKEND_IMGUI)
+			find_package(PkgConfig REQUIRED)
+			pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+		endif()
 
 		find_package(GLEW REQUIRED)
 
 		include_directories(
-			${GLEW_INCLUDE_DIRS}
-			${GTK3_INCLUDE_DIRS})
+			${GLEW_INCLUDE_DIRS})
+		
+		if(NOT BACKEND_IMGUI)
+			include_directories(${GTK3_INCLUDE_DIRS})
+		endif()
 	endif()
 
 	find_package(CURL REQUIRED)
@@ -138,7 +160,9 @@ if(NOT SCREENSHOT_BUILD)
 
 	include_directories(
 		${CURL_INCLUDE_DIR}
-		src/SDL_mixer/)
+		${GLEW_INCLUDE_DIRS}
+		src/SDL_mixer/
+	)
 endif()
 
 
@@ -213,6 +237,13 @@ target_link_libraries(
 		${PNG_LIBRARIES}
 		${ZLIB_LIBRARIES})
 
+if (NOT (SCREENSHOT_BUILD OR BACKEND_IMGUI))
+	target_link_libraries(
+		${PROJECT_NAME}
+		${GTK3_LIBRARIES}
+	)
+endif()
+
 if(NOT SCREENSHOT_BUILD)
 	target_link_libraries(${PROJECT_NAME} ${CURL_LIBRARIES})
 
@@ -273,7 +304,15 @@ set(CMAKE_C_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG}")
 
 set(CMAKE_CXX_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O2 -fno-rtti")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} -g")
-set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG}")
+set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG} ${IM_CXX}")
+
+if((NOT SCREENSHOT_BUILD) AND BACKEND_IMGUI)
+	set(COMMON_FLAGS "${COMMON_FLAGS} -DPRINCIPIA_BACKEND_IMGUI -DIMGUI_DEFINE_MATH_OPERATORS -DIMGUI_DISABLE_OBSOLETE_KEYIO -DIMGUI_USE_WCHAR32")
+	set(IMGUI_FLAGS_DEBUG "-DIMGUI_DEBUG_PARANOID")
+	set(IMGUI_FLAGS_RELEASE "-DIMGUI_DISABLE_DEMO_WINDOWS -DIMGUI_DISABLE_DEBUG_TOOLS")
+else()
+	set(COMMON_FLAGS "${COMMON_FLAGS} -DIMGUI_DISABLE")
+endif()
 
 # macOS Clang's linker doesn't like these flags
 if(NOT APPLE)

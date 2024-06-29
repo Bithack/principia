@@ -14,6 +14,8 @@ compile_commands.json
 doc/doxy/
 doc/doxygen-awesome.css
 
+imgui.ini
+
 # Model junk files
 *.blend1
 *.blend2
