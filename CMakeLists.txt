@@ -241,6 +241,8 @@ endif()
 
 if(SHOULD_USE_GLES)
 	add_definitions(-DTMS_USE_GLES)
+elseif(NOT SCREENSHOT_BUILD)
+	add_definitions(-DTMS_USE_GLEW)
 endif()
 
 if(ANDROID)

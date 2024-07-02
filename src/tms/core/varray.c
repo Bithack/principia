@@ -108,7 +108,7 @@ tms_varray_bind_attributes(struct tms_varray *va,
 
             if (last != m->gbuf) {
                 //tms_gbuffer_bind(va->mappings[x].gbuf, GL_ARRAY_BUFFER);
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
                 if (GLEW_VERSION_1_5) {
                     glBindBuffer(GL_ARRAY_BUFFER, bufdata->gbuf->vbo);
                 } else {

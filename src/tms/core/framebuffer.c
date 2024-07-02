@@ -544,7 +544,7 @@ tms_fb_init(struct tms_fb* fb)
     int ierr;
     fb->toggle = 0;
     tms_assertf((ierr = glGetError()) == 0, "gl error %d before tms_fb_init", ierr);
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
     if (__glewGenFramebuffers) {
         __glewGenFramebuffers(fb->double_buffering ? 2 : 1, fb->fb_o);
     } else {
@@ -624,7 +624,7 @@ tms_fb_enable_depth(struct tms_fb *fb, int format)
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_enable_depth (begin)", ierr);
 
     for (int x=0; x<(fb->double_buffering ? 2 : 1); x++) {
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
         //if (GLEW_VERSION_1_5) {
         if (__glewBindFramebuffer) {
             __glewBindFramebuffer(GL_FRAMEBUFFER, fb->fb_o[x]);
@@ -639,7 +639,7 @@ tms_fb_enable_depth(struct tms_fb *fb, int format)
 
         //tms_infof("enable depth after bind %d", glGetError());
 
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
         if (__glewGenRenderbuffers) {
             __glewGenRenderbuffers(1, &fb->fb_depth[x]);
             __glewBindRenderbuffer(GL_RENDERBUFFER, fb->fb_depth[x]);
@@ -659,7 +659,7 @@ tms_fb_enable_depth(struct tms_fb *fb, int format)
 
 #ifdef TMS_USE_GLES
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, fb->width, fb->height);
-#elif defined TMS_BACKEND_WINDOWS
+#elif defined TMS_USE_GLEW
         if (__glewRenderbufferStorage) {
             __glewRenderbufferStorage(GL_RENDERBUFFER, format, fb->width, fb->height);
         } else {
@@ -670,7 +670,7 @@ tms_fb_enable_depth(struct tms_fb *fb, int format)
 #endif
         tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_enable_depth %d 4", ierr, x);
 
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
         if (__glewFramebufferRenderbuffer) {
             __glewFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fb->fb_depth[x]);
         } else {
@@ -683,7 +683,7 @@ tms_fb_enable_depth(struct tms_fb *fb, int format)
         tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_enable_depth %d 5", ierr, x);
         //tms_infof("enable depth after hello %d", glGetError());
 
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
         if (__glewBindRenderbuffer) {
             __glewBindRenderbuffer(GL_RENDERBUFFER, 0);
         } else {
@@ -695,7 +695,7 @@ tms_fb_enable_depth(struct tms_fb *fb, int format)
         tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_enable_depth %d 6", ierr, x);
     }
 
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
     if (__glewBindFramebuffer) {
         __glewBindFramebuffer(GL_FRAMEBUFFER, 0);
     } else {
@@ -711,7 +711,7 @@ void
 tms_fb_enable_depth_texture(struct tms_fb *fb, int format)
 {
     for (int x=0; x<(fb->double_buffering ? 2 : 1); x++) {
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
         if (__glewBindFramebuffer) {
             __glewBindFramebuffer(GL_FRAMEBUFFER, fb->fb_o[x]);
         } else {
@@ -743,7 +743,7 @@ tms_fb_enable_depth_texture(struct tms_fb *fb, int format)
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
     if (__glewBindFramebuffer) {
         __glewBindFramebuffer(GL_FRAMEBUFFER, 0);
     } else {
@@ -767,7 +767,7 @@ tms_fb_add_texture(struct tms_fb *fb, int format,
 
     for (int x=0; x<(fb->double_buffering ? 2 : 1); x++) {
         //tms_infof("add texture before bind %d", glGetError());
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
         if (__glewBindFramebuffer) {
             __glewBindFramebuffer(GL_FRAMEBUFFER, fb->fb_o[x]);
         } else {
@@ -829,7 +829,7 @@ tms_fb_add_texture(struct tms_fb *fb, int format,
 
         //tms_infof("add texture after parameters %d", glGetError());
 
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
         if (__glewFramebufferTexture2D) {
             __glewFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+fb->num_textures, GL_TEXTURE_2D, fb->fb_texture[x][fb->num_textures], 0);
         } else {
@@ -861,7 +861,7 @@ tms_fb_add_texture(struct tms_fb *fb, int format,
 
     fb->num_textures ++;
 
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
     if (__glewBindFramebuffer) {
         __glewBindFramebuffer(GL_FRAMEBUFFER, 0);
     } else {
@@ -979,7 +979,7 @@ tms_fb_bind_last_textures(struct tms_fb *fb, int first_unit)
 static int _bind(struct tms_fb *f)
 {
     if (f != 0) {
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
         if (__glewBindFramebuffer) {
             __glewBindFramebuffer(GL_FRAMEBUFFER, f->fb_o[f->toggle]);
         } else {
@@ -990,7 +990,7 @@ static int _bind(struct tms_fb *f)
 #endif
         glViewport(0, 0, f->width, f->height);
     } else {
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
         if (__glewBindFramebuffer) {
             __glewBindFramebuffer(GL_FRAMEBUFFER, 0);
         } else {

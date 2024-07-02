@@ -3106,7 +3106,7 @@ game::render()
         glBindTexture(GL_TEXTURE_2D, this->main_fb->fb_texture[0][0]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
         if (GLEW_VERSION_3_0) { /* XXX */
             glGenerateMipmap(GL_TEXTURE_2D);
         } else {
@@ -3125,7 +3125,7 @@ game::render()
         glDisable(GL_DEPTH_TEST);
 
         glBindTexture(GL_TEXTURE_2D, this->bloom_fb->fb_texture[this->bloom_fb->toggle][0]);
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef TMS_USE_GLEW
         if (GLEW_VERSION_3_0) { /* XXX */
             glGenerateMipmap(GL_TEXTURE_2D);
         } else {
