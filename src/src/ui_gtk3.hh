@@ -10241,7 +10241,7 @@ _open_prompt_dialog(gpointer unused)
                 case PROMPT_RESPONSE_A:
                 case PROMPT_RESPONSE_B:
                 case PROMPT_RESPONSE_C:
-                    {
+                    if (G->current_prompt) {
                         bp = G->current_prompt->get_base_prompt();
 
                         if (bp) {
