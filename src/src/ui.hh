@@ -158,6 +158,7 @@ class ui
             confirm_data cd=confirm_data(CONFIRM_TYPE_DEFAULT)
             );
     static void alert(const char *text, uint8_t alert_type=ALERT_INFORMATION);
+    static void render();
 };
 extern "C" {
 #endif
@@ -283,3 +284,7 @@ extern "C" {
 #if defined(TMS_BACKEND_PC) && !defined(NO_UI)
 extern int prompt_is_open;
 #endif
+
+extern const char* tips[];
+extern const int num_tips;
+extern int ctip;

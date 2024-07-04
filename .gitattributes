@@ -1,5 +1,7 @@
-
 # Exclude vendored libraries from GitHub language detection
+src/imgui-texteditor/* linguist-vendored
+src/imgui/*       linguist-vendored
+src/lua/*			    linguist-vendored
 src/lua/*			linguist-vendored
 src/luasocket/*		linguist-vendored
 src/SDL_image/*		linguist-vendored
