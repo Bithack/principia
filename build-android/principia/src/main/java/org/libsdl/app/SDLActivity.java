@@ -574,6 +574,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         // PRINCIPIA
         this.init_webview();
 
+        this.handle_intent(this.getIntent());
+
         SDLActivity.open_adapter = new ArrayAdapter<Level>(SDLActivity.mSingleton,
                 android.R.layout.select_dialog_item);
         QuickaddDialog.object_adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
@@ -2651,6 +2653,24 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
     }
 
+    private void handle_intent(Intent i)
+    {
+        Log.v("Principia", "intent new!");
+
+        if (i != null) {
+            if (i.getScheme() != null && i.getScheme().equals("principia")) {
+                PrincipiaBackend.setarg(i.getDataString());
+            }
+        }
+    }
+
+    @Override
+    public void onNewIntent(Intent i)
+    {
+        super.onNewIntent(i);
+
+        handle_intent(i);
+    }
 }
 
 /**
