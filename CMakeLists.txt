@@ -139,6 +139,8 @@ if(NOT SCREENSHOT_BUILD)
 	include_directories(
 		${CURL_INCLUDE_DIR}
 		src/SDL_mixer/)
+
+	add_definitions(-DBUILD_CURL)
 endif()
 
 

@@ -242,10 +242,4 @@ class open_play_data
 void P_add_action(int id, void *data);
 void P_focus(int focus);
 #endif
-#ifdef __cplusplus
-extern "C" {
-#endif
-void P_get_cookie_data(char **token);
-#ifdef __cplusplus
-}
-#endif
+

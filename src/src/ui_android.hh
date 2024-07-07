@@ -2,6 +2,7 @@
 #if defined(TMS_BACKEND_ANDROID)
 
 #include "SDL.h"
+#include "network.hh"
 #include <jni.h>
 #include <sstream>
 
