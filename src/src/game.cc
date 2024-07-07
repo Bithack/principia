@@ -6957,11 +6957,6 @@ game::finish(bool success)
         }
 
         if (success) {
-            if (level_id_type == LEVEL_MAIN && p && p->completed == 0) {
-                /* TODO: we need to transmit another argument here, with the level id */
-                ui::emit_signal(SIGNAL_MAIN_LEVEL_COMPLETED);
-            }
-
             if (p) {
                 p->completed = 1;
             }

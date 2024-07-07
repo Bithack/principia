@@ -1060,7 +1060,6 @@ tproject_step(void)
 
                 case ACTION_SAVE:
                     if (G->save()) {
-                        ui::emit_signal(SIGNAL_SAVE_LEVEL);
                         ui::message("Saved!");
                     } else {
                         ui::message("Unable to save level.");
@@ -1155,7 +1154,6 @@ tproject_step(void)
                 } break;
 
                 case ACTION_OPEN_PLAY:
-                    ui::emit_signal(SIGNAL_PLAY_COMMUNITY_LEVEL);
                     G->resume_action = GAME_RESUME_OPEN;
                     G->screen_back = 0;
 

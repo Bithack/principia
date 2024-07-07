@@ -30,11 +30,6 @@ void ui::emit_signal(int signal_id, void *data/*=0*/)
             tms_infof("Register success!!!!!!!!!");
             break;
 
-        case SIGNAL_LONG_PRESS:
-            ui::open_dialog(SIGNAL_LONG_PRESS);
-            tms_debugf("SEND LONG PRESS");
-            break;
-
         case SIGNAL_REGISTER_FAILED:
             ui::open_dialog(DISABLE_REGISTER_LOADER);
             tms_infof("Register failed!!!!!!!!!");

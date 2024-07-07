@@ -361,8 +361,6 @@ principia_wdg::step()
                 this->value[0] = 0.f;
                 this->down_time = 0.0;
 
-                ui::emit_signal(SIGNAL_LONG_PRESS);
-
                 this->on_long_press(this);
             } else {
                 this->moved_out = true;

@@ -362,8 +362,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     public static final int CLOSE_REGISTER_DIALOG        = 202;
     public static final int DISABLE_REGISTER_LOADER      = 203;
 
-    public static final int SIGNAL_LONG_PRESS    = 1000;
-
     public static final int PROMPT_RESPONSE_NONE = 0;
     public static final int PROMPT_RESPONSE_A    = 1;
     public static final int PROMPT_RESPONSE_B    = 2;
@@ -2021,19 +2019,11 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         });
     }
 
-    public static final int SIGNAL_QUICKADD_REFRESH     = 200;
-    public static final int SIGNAL_CLICK_DISCOVER       = 400;
-    public static final int SIGNAL_CLICK_SANDBOX        = 401;
-    public static final int SIGNAL_SAVE_LEVEL           = 402;
-    public static final int SIGNAL_PLAY_COMMUNITY_LEVEL = 403;
-    public static final int SIGNAL_MAIN_LEVEL_COMPLETED = 404;
-
     public static void emit_signal(final int signal_id)
     {
         SDLActivity.mSingleton.runOnUiThread(new Runnable(){
             public void run() {
-                switch (signal_id) {
-                case SIGNAL_QUICKADD_REFRESH:
+                if (signal_id == 200) { // SIGNAL_QUICKADD_REFRESH
                     Log.v("Principia", "Quickadd refresh.");
                     QuickaddDialog.object_adapter.clear();
                     String[] objects = PrincipiaBackend.getObjects().split(",");
@@ -2043,17 +2033,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                     for (String name : objects) {
                         QuickaddDialog.object_adapter.add(name);
                     }
-                    break;
-                case SIGNAL_CLICK_DISCOVER:
-                    break;
-                case SIGNAL_CLICK_SANDBOX:
-                    break;
-                case SIGNAL_SAVE_LEVEL:
-                    break;
-                case SIGNAL_PLAY_COMMUNITY_LEVEL:
-                    break;
-                case SIGNAL_MAIN_LEVEL_COMPLETED:
-                    break;
                 }
             }
         });
@@ -2445,20 +2424,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             SDLActivity.mSingleton.runOnUiThread(new Runnable(){
                 public void run() {
                     RegisterDialog.progressbar.setVisibility(View.GONE);
-                }
-            });
-            break;
-
-        case SIGNAL_LONG_PRESS:
-            SDLActivity.mSingleton.runOnUiThread(new Runnable(){
-                public void run() {
-                    Log.v(TAG, "long press!");
-                    Vibrator mVibrator = (Vibrator)SDLActivity.getContext().getSystemService(Context.VIBRATOR_SERVICE);
-
-                    long[] mLongPressVibePattern = new long[] {
-                        0, 1, 20, 21
-                    };
-                    mVibrator.vibrate(mLongPressVibePattern, -1);
                 }
             });
             break;
