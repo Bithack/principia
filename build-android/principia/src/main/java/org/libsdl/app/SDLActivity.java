@@ -1994,18 +1994,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
     /**CUSTOM FOR PRINCIPIA PLEASE MOVE THIS ELSEWHERE KTHX <3 */
 
-
-    public static String get_storage_path()
-    {
-        File file_path[] = SDLActivity.getContext().getExternalFilesDirs(null);
-
-        String path = file_path[0].toString();
-
-        Log.v("FilesDir", path);
-
-        return path;
-    }
-
     public static void message(final String s, final int longd)
     {
         Log.v("tes message", s);
@@ -2232,35 +2220,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                     }
                 })
                 .run(text, button1, button2, button3, dna_sandbox);
-            }
-        });
-    }
-
-    public static void alert(final String text, final int alert_type)
-    {
-        SDLActivity.mSingleton.runOnUiThread(new Runnable(){
-            public void run() {
-                new AlertDialog.Builder(mSingleton.getContext())
-                    .setMessage(text)
-                    .setPositiveButton(mSingleton.getString(R.string.close), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface di, int which) {
-                            //di.dismiss();
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_info)
-                    .show();
-            }
-        });
-    }
-
-    public static void showErrorDialog(final String text)
-    {
-        SDLActivity.mSingleton.runOnUiThread(new Runnable(){
-            public void run() {
-                try {SDLActivity.mSingleton.removeDialog(DIALOG_HELP);} catch(Exception e){};
-                HelpDialog.title = "Errors";
-                HelpDialog.description = text;
-                SDLActivity.mSingleton.showDialog(DIALOG_HELP);
             }
         });
     }

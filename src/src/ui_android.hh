@@ -106,38 +106,13 @@ ui::confirm(const char *text,
 void
 ui::alert(const char *text, uint8_t alert_type/*=ALERT_INFORMATION*/)
 {
-    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
-    jobject activity = (jobject)SDL_AndroidGetActivity();
-    jclass cls = env->GetObjectClass(activity);
-
-    jmethodID mid = env->GetStaticMethodID(cls, "alert", "(Ljava/lang/String;I)V");
-
-    if (mid) {
-        jstring _text = env->NewStringUTF(text);
-        env->CallStaticVoidMethod(cls, mid,
-                _text,
-                alert_type
-                );
-    } else {
-        tms_errorf("Unable to run alert");
-    }
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Principia", text, NULL);
 }
 
 void
 ui::open_error_dialog(const char *error_msg)
 {
-    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
-    jobject activity = (jobject)SDL_AndroidGetActivity();
-    jclass cls = env->GetObjectClass(activity);
-
-    jmethodID mid = env->GetStaticMethodID(cls, "showErrorDialog", "(Ljava/lang/String;)V");
-
-    if (mid) {
-        jstring str = env->NewStringUTF(error_msg);
-        env->CallStaticVoidMethod(cls, mid, (jvalue*)str);
-    } else {
-        tms_errorf("Unable to run showErrorDialog");
-    }
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", error_msg, NULL);
 }
 
 void

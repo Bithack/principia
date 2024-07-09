@@ -210,33 +210,7 @@ T_intercept_input(SDL_Event ev)
     return T_OK;
 }
 
-static char storage_path[1024];
-static const char*
-_JNI_get_storage_path()
-{
-    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
-    jobject activity = (jobject)SDL_AndroidGetActivity();
-    jclass cls = env->GetObjectClass(activity);
-
-    jmethodID mid = env->GetStaticMethodID(cls, "get_storage_path", "()Ljava/lang/String;");
-    if (mid) {
-        jstring s = (jstring)env->CallStaticObjectMethod(cls, mid);
-
-        const char *tmp = env->GetStringUTFChars(s, 0);
-
-        tms_infof("Storage path: %s", tmp ? tmp : "<NULL>");
-
-        strcpy(storage_path, tmp);
-
-        env->ReleaseStringUTFChars(s, tmp);
-    } else {
-        strcpy(storage_path, "");
-    }
-
-    return storage_path;
-}
-
 const char *tbackend_get_storage_path(void)
 {
-    return _JNI_get_storage_path();
+    return SDL_AndroidGetExternalStoragePath();
 }
