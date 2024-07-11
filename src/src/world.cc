@@ -35,10 +35,6 @@
 
 #include <algorithm>
 
-#if defined(DEBUG) && defined(TMS_BACKEND_LINUX)
-#include <csignal>
-#endif
-
 #define QUERY_EPS .5f
 #define RAY_LENGTH 4.f
 

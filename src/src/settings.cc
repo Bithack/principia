@@ -3,7 +3,7 @@
 #include <cmath>
 #include "game.hh"
 
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG)
+#ifdef BUILD_VALGRIND
 #include <valgrind/valgrind.h>
 #endif
 
@@ -232,7 +232,7 @@ _settings::load(void)
 
     tms_infof("num workers (user): %d", settings["num_workers"]->v.i);
 
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG)
+#ifdef BUILD_VALGRIND
     if (RUNNING_ON_VALGRIND) {
         tms_debugf("Running on valgrind, forcing settings to bad!");
         settings["num_workers"]->v.i = 0;
@@ -257,11 +257,11 @@ _settings::load(void)
 bool
 _settings::save(void)
 {
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG)
+#ifdef BUILD_VALGRIND
     // don't save the shitty valgrind settings file
     if (RUNNING_ON_VALGRIND) return true;
-
 #endif
+
     /* TODO: store filename in the class, char[1024] settings_file, to be
      * set in init*/
     char filename[1024];

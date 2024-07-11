@@ -41,9 +41,8 @@
 #include "decorations.hh"
 
 #include <tms/core/tms.h>
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG)
+#ifdef BUILD_VALGRIND
 #include <valgrind/valgrind.h>
-#define VALGRIND_NO_UI
 #endif
 
 #include <sstream>

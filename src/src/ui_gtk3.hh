@@ -6268,7 +6268,7 @@ void load_gtk_css() {
 
 int _gtk_loop(void *p)
 {
-#ifdef VALGRIND_NO_UI
+#ifdef BUILD_VALGRIND
     if (RUNNING_ON_VALGRIND) return T_OK;
 #endif
 
@@ -11457,7 +11457,7 @@ _close_all_dialogs(gpointer unused)
 static gboolean
 _close_absolutely_all_dialogs(gpointer unused)
 {
-#ifdef VALGRIND_NO_UI
+#ifdef BUILD_VALGRIND
     if (RUNNING_ON_VALGRIND) return false;
 #endif
 
@@ -11470,7 +11470,7 @@ _close_absolutely_all_dialogs(gpointer unused)
 
 static void wait_ui_ready()
 {
-#ifdef VALGRIND_NO_UI
+#ifdef BUILD_VALGRIND
     if (RUNNING_ON_VALGRIND) return;
 #endif
 
@@ -11495,7 +11495,7 @@ void ui::open_url(const char *url)
 void
 ui::open_dialog(int num, void *data/*=0*/)
 {
-#ifdef VALGRIND_NO_UI
+#ifdef BUILD_VALGRIND
     if (RUNNING_ON_VALGRIND) {
         /* Send default response to any prompt that pops up */
         if (num == DIALOG_PROMPT) {
@@ -11613,7 +11613,7 @@ ui::open_dialog(int num, void *data/*=0*/)
 
 void ui::open_sandbox_tips()
 {
-#ifdef VALGRIND_NO_UI
+#ifdef BUILD_VALGRIND
     if (RUNNING_ON_VALGRIND) return;
 #endif
 
@@ -11627,10 +11627,6 @@ void ui::open_sandbox_tips()
 void
 ui::open_help_dialog(const char *title, const char *description)
 {
-#ifdef VALGRIND_NO_UI
-    if (RUNNING_ON_VALGRIND) return;
-#endif
-
     wait_ui_ready();
 
     /* title and description are constant static strings in
@@ -11653,7 +11649,7 @@ ui::set_next_action(int action_id)
 void
 ui::emit_signal(int num, void *data/*=0*/)
 {
-#ifdef VALGRIND_NO_UI
+#ifdef BUILD_VALGRIND
     if (RUNNING_ON_VALGRIND) return;
 #endif
 
@@ -11715,7 +11711,7 @@ ui::confirm(const char *text,
         struct confirm_data _confirm_data/*=none*/
         )
 {
-#ifdef VALGRIND_NO_UI
+#ifdef BUILD_VALGRIND
     if (RUNNING_ON_VALGRIND) {
         P.add_action(action1.action_id, 0);
         return;

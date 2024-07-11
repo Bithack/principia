@@ -68,11 +68,6 @@
 #include "terrain.hh"
 #endif
 
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG)
-#include <valgrind/valgrind.h>
-#include <csignal>
-#endif
-
 #include <tms/backend/opengl.h>
 #include <unistd.h>
 

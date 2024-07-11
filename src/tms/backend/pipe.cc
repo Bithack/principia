@@ -28,7 +28,6 @@ static uint8_t buf[512];
 
 #else
 
-#include <pwd.h>
 
 static char *_args[2] = {0,0};
 static int pipe_h;
