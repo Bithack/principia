@@ -76,11 +76,7 @@ create_thread(int (SDLCALL *fn)(void*),
         const char *name, void *data)
 {
     SDL_Thread *t = SDL_CreateThread(fn, name, data);
-#ifdef TMS_BACKEND_PC
-    /* SDL_DetachThread was implemented in SDL 2.0.2, which is only available
-     * for our PC backend as of now. */
     SDL_DetachThread(t);
-#endif
 }
 
 static void
