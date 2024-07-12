@@ -4,10 +4,10 @@ SetCompressor lzma
 
 !define MUI_ICON "..\packaging\icon.ico"
 !define VER_MAJOR 2024
-!define VER_MINOR 06
-!define VER_BUILD 28
+!define VER_MINOR 07
+!define VER_BUILD 12
 
-!define VERSION "2024.06.28"
+!define VERSION "2024.07.12"
 
 Name "Principia"
 OutFile "principia-setup.exe"

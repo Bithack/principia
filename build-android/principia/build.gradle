@@ -11,9 +11,9 @@ android {
     defaultConfig {
         applicationId "com.bithack.principia"
         minSdk 21
-        versionCode 36
-        versionName "2024.06.28"
         targetSdk 34
+        versionCode 37
+        versionName "2024.07.12"
 
         externalNativeBuild {
             ndkBuild {

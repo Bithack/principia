@@ -1,0 +1,4 @@
+- Fix VSync being disabled on Android (oh no)
+- Fix not being able to play levels from the browser on Android
+
+For a full list of changes including bugfixes and technical changes see the Changelog.
