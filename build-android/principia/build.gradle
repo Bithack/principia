@@ -4,15 +4,16 @@ plugins {
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
     ndkVersion "26.2.11394342"
+    namespace 'com.bithack.principia'
 
     defaultConfig {
         applicationId "com.bithack.principia"
         minSdk 21
-        targetSdk 33
         versionCode 36
         versionName "2024.06.28"
+        targetSdk 34
 
         externalNativeBuild {
             ndkBuild {
@@ -57,19 +58,20 @@ dependencies {
 }
 
 // get precompiled deps
-task downloadDeps(type: Download) {
-	src 'https://github.com/principia-game/principia-android-deps/releases/download/latest/deps.zip'
-	dest new File(buildDir, 'deps.zip')
-	overwrite false
+tasks.register('downloadDeps', Download) {
+    src 'https://github.com/principia-game/android-deps/releases/download/latest/deps.zip'
+    dest new File(buildDir, 'deps.zip')
+    overwrite false
 }
 
-task getDeps(dependsOn: downloadDeps, type: Copy) {
-	def deps = new File(buildDir.parent, '../deps')
-	if (!deps.exists()) {
-		deps.mkdir()
-		from zipTree(downloadDeps.dest)
-		into deps
-	}
+tasks.register('getDeps', Copy) {
+    dependsOn downloadDeps
+    def deps = new File(buildDir.parent, '../deps')
+    if (!deps.exists()) {
+        deps.mkdir()
+        from zipTree(downloadDeps.dest)
+        into deps
+    }
 }
 
 preBuild.dependsOn getDeps

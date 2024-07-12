@@ -24,10 +24,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends openjdk-11-jdk-headless
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+            distribution: 'temurin'
+            java-version: '17'
 
       - name: Build with gradle
         run: |
