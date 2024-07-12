@@ -269,7 +269,12 @@ init_curl_defaults(void *curl)
 
     curl_easy_setopt(P.curl, CURLOPT_HEADERFUNCTION, _parse_headers);
 
-    curl_easy_setopt(P.curl, CURLOPT_COOKIEFILE, cookie_file);
+    CURLcode res = curl_easy_setopt(P.curl, CURLOPT_COOKIEFILE, cookie_file);
+
+    if (res != CURLE_OK) {
+        tms_errorf("!!! curl is not compiled with cookie support !!!");
+    }
+
     curl_easy_setopt(P.curl, CURLOPT_COOKIEJAR, cookie_file);
 
     curl_easy_setopt(P.curl, CURLOPT_XFERINFOFUNCTION, progress_cb);
