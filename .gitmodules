@@ -1,0 +1,3 @@
+[submodule "build-android/principia/deps-src"]
+	path = build-android/principia/deps-src
+	url = https://github.com/principia-game/android-deps
