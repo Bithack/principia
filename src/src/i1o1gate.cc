@@ -719,6 +719,8 @@ ldecay::solve_electronics()
 
     this->value = tclampf(this->value, 0.f, 1.f);
     this->value -= this->properties[0].v.f;
+    
+    this->value = tclampf(this->value, 0.f, 1.f);
 
     this->s_out[0].write(this->value);
 
