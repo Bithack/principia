@@ -344,8 +344,8 @@ float
 condenser::get_slider_value(int s)
 {
     if (s == 0)
-        return (this->properties[0].v.f - 1.f) / 19.f;
-    else
+        return (this->properties[0].v.f - 1.f) / 31.f;
+    else // s == 1
         return this->properties[1].v.f;
 }
 
@@ -353,10 +353,10 @@ void
 condenser::on_slider_change(int s, float value)
 {
     if (s == 0) {
-        float v = 1.f + (value * 19.f);
+        float v = 1.f + (value * 31.f);
         this->properties[0].v.f = v;
         G->show_numfeed(v);
-    } else {
+    } else { // s == 1
         this->properties[1].v.f = value;
         G->show_numfeed(value);
     }

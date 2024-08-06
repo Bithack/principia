@@ -194,8 +194,18 @@ class condenser : public i2o1gate_empty
     const char* get_name(){return "Condenser";}
 
     void setup();
-    const char *get_slider_label(int s) { switch (s) { case 0: return "Max value"; case 1: return "Initial fraction"; } return ""; }
-    float get_slider_snap(int s) { return 1/19.f; }
+    const char *get_slider_label(int s) {
+        if (s == 0)
+            return "Max value";
+        else // s == 1
+            return "Initial fraction";
+    }
+    float get_slider_snap(int s) {
+        if (s == 0)
+            return 1/31.f;
+        else // s == 1
+            return 1/20.f;
+    }
     float get_slider_value(int s);
     void on_slider_change(int s, float value);
 
