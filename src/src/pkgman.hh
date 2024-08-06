@@ -386,7 +386,6 @@ class lvlinfo
     uint8_t  name_len;
     uint16_t descr_len;
     uint64_t flags;
-    bool     allow_derivatives;
     uint8_t  visibility;
     uint32_t parent_revision;
     bool     pause_on_finish;

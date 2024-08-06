@@ -58,7 +58,6 @@ lvlinfo::create(int type, uint64_t seed/*=0*/, uint32_t version/*=0*/)
     this->pause_on_finish = true;
     this->show_score = (type == LCAT_ADVENTURE);
     this->descr_len = 0;
-    this->allow_derivatives = true;
     this->visibility = LEVEL_VISIBLE;
 
     static const int random_bgs[] = {
@@ -258,7 +257,7 @@ lvlinfo::write(lvlbuf *lb)
 
     if (this->type != LCAT_PARTIAL) {
         lb->w_uint16(this->descr_len);
-        lb->w_uint8((uint8_t)this->allow_derivatives);
+        lb->w_uint8(1);
         if (this->version >= 3) {
             lb->w_uint8(this->visibility);
         }
