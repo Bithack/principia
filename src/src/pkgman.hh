@@ -17,6 +17,7 @@
 #define LEVEL_VERSION_1_5     28
 #define LEVEL_VERSION_1_5_1   29
 #define LEVEL_VERSION_2023_06_05 30
+#define LEVEL_VERSION_FUTURE 31
 
 #define PKG_VERSION   3
 #define LEVEL_VERSION LEVEL_VERSION_2023_06_05
@@ -57,7 +58,7 @@ static const char *level_version_strings[] = {
     "1.5",
     "1.5.1",
     "2023-06-05",
-    0,
+    "31 (Pending)",
     0,
     0,
     0,

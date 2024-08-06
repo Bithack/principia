@@ -719,8 +719,10 @@ ldecay::solve_electronics()
 
     this->value = tclampf(this->value, 0.f, 1.f);
     this->value -= this->properties[0].v.f;
-    
-    this->value = tclampf(this->value, 0.f, 1.f);
+
+    // BUG: Linear decay used to not clamp, keep buggy behaviour for old levels.
+    if (W->level.version >= LEVEL_VERSION_FUTURE)
+        this->value = tclampf(this->value, 0.f, 1.f);
 
     this->s_out[0].write(this->value);
 
