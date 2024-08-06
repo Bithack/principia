@@ -12,8 +12,8 @@ android {
         applicationId "com.bithack.principia"
         minSdk 21
         targetSdk 34
-        versionCode 38
-        versionName "2024.07.12-fdroid"
+        versionCode 37
+        versionName "2024.07.12"
 
         externalNativeBuild {
             ndkBuild {
