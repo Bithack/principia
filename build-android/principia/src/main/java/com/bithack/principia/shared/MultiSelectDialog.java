@@ -275,7 +275,7 @@ public class MultiSelectDialog implements OnSeekBarChangeListener, OnCheckedChan
                         break;
 
                     case PLASTIC_DENSITY:
-                        PrincipiaBackend.addActionAsInt(PrincipiaActivity.ACTION_MULTI_PLASTIC_DENSITY, sb_plastic_density.getProgress());
+                        PrincipiaBackend.addActionAsInt(PrincipiaActivity.ACTION_MULTI_PLASTIC_DENSITY, sb_plastic_density.getProgress()/10);
                         message = "Changed the density of all plastic entities.";
                         break;
 
