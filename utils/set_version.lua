@@ -134,7 +134,7 @@ local function write_version_header(verinfo)
 #define PRINCIPIA_VERSION_STRING "%s" VER_EXTRA
 ]], verinfo.code, verinfo.name)
 
-	write_to_file('src/src/version.hh', content)
+	write_to_file('src/src/version_info.hh', content)
 end
 
 -- Update version info in the Windows NSIS installer file (`principia_install.nsi`).

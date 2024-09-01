@@ -266,7 +266,7 @@ init_curl_defaults(void *curl)
 
     char ua[512];
     snprintf(ua, 511, "Principia/%d (%s) (%s)",
-        PRINCIPIA_VERSION_CODE, SDL_GetPlatform(), PRINCIPIA_VERSION_STRING);
+        principia_version_code(), SDL_GetPlatform(), principia_version_string());
 
     curl_easy_setopt(P.curl, CURLOPT_USERAGENT, ua);
 
@@ -334,12 +334,12 @@ _check_version_code(void *_unused)
             if (chunk.size > 0) {
                 int server_version_code = atoi(chunk.memory);
 
-                if (server_version_code > PRINCIPIA_VERSION_CODE) {
+                if (server_version_code > principia_version_code()) {
                     P.new_version_available = true;
                     ui::message("A new version of Principia is available!", true);
                 }
 
-                tms_debugf("Client: %d. Server: %d", PRINCIPIA_VERSION_CODE, server_version_code);
+                tms_debugf("Client: %d. Server: %d", principia_version_code(), server_version_code);
                 if (P.message) {
                     free(P.message);
                 }
@@ -939,7 +939,7 @@ _submit_score(void *p)
     more_data[HS_VER_DATA_TIMESTAMP] = timestamp;
     more_data[HS_VER_DATA_REVISION] = lvl.lvl.revision;
     more_data[HS_VER_DATA_TYPE] = W->level_id_type;
-    more_data[HS_VER_DATA_PRINCIPIA_VERSION] = PRINCIPIA_VERSION_CODE;
+    more_data[HS_VER_DATA_PRINCIPIA_VERSION] = principia_version_code();
     more_data[HS_VER_DATA_VERSION] = W->level.version;
 
     for (int x=0; x<5; ++x) {

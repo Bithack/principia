@@ -118,7 +118,7 @@ menu_shared::init()
     }
 
     menu_shared::text_version = new p_text(font::medium, ALIGN_CENTER, ALIGN_CENTER);
-    menu_shared::text_version->set_text(PRINCIPIA_VERSION_STRING);
+    menu_shared::text_version->set_text(principia_version_string());
 
     float h = (gui_spritesheet::get_sprite(S_CONFIG)->height / 64.f) * 0.5f * _tms.yppcm * .7f;
 

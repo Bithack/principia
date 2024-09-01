@@ -19,7 +19,11 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
 
     switch (button_id) {
         case BTN_VERSION:
-            ui::message("You're running Principia " PRINCIPIA_VERSION_STRING ", built at " __DATE__ " " __TIME__ "!");
+            char msg[1024];
+            snprintf(msg, 1023, "Principia %s built at " __DATE__ " " __TIME__ ".",
+                principia_version_string());
+
+            ui::message(msg);
             break;
 
         case BTN_USERNAME:
