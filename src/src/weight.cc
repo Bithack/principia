@@ -62,13 +62,13 @@ weight::get_slider_value(int s)
 float
 weight::get_slider_snap(int s)
 {
-    return 1.f / 10.f;
+    return 1.f / 20.f;
 }
 
 void
 weight::on_slider_change(int s, float value)
 {
-    float v = (.5f + value);
+    float v = (.5f + value*2);
     this->set_property(0, v);
     G->show_numfeed(v);
 }
