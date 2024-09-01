@@ -4,8 +4,6 @@
 #include "spritebuffer.hh"
 #include "world.hh"
 
-#include "Box2D/Box2D.h"
-
 dragfield::dragfield()
 {
     this->num_sliders = 1;

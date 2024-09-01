@@ -2,7 +2,7 @@
 
 #include "terrain.hh"
 #include "faction.hh"
-#include "Box2D/Box2D.h"
+#include <Box2D/Box2D.h>
 #include "pkgman.hh"
 #include "types.hh"
 

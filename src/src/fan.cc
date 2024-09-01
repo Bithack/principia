@@ -3,8 +3,6 @@
 #include "model.hh"
 #include "game.hh"
 
-#include "Box2D/Box2D.h"
-
 #define NUM_RAYS    5
 #define RAY_LENGTH  10.f
 #define FAN_WIDTH   1.f

@@ -2,7 +2,7 @@
 
 #include "edevice.hh"
 
-#include "Box2D/Box2D.h"
+#include <Box2D/Box2D.h>
 
 #define SCANNER_MAX_POINTS 40
 #define SCANNER_MIN_LEN .05f

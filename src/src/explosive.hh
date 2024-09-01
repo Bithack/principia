@@ -1,7 +1,7 @@
 #pragma once
 
 #include "entity.hh"
-#include "Box2D/Box2D.h"
+#include <Box2D/Box2D.h>
 
 #define EXPLOSIVE_MAX_HP 25.f
 

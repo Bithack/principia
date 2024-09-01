@@ -3,8 +3,6 @@
 #include "model.hh"
 #include "game.hh"
 
-#include "Box2D/Box2D.h"
-
 objectfield::objectfield(int _object_type)
     : object_type(_object_type)
 {

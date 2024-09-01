@@ -104,13 +104,13 @@ file(GLOB SRCS
 	src/src/*.cc
 	src/src/*.c
 
-	src/src/Box2D/Collision/*.cc
-	src/src/Box2D/Collision/Shapes/*.cc
-	src/src/Box2D/Common/*.cc
-	src/src/Box2D/Dynamics/*.cc
-	src/src/Box2D/Dynamics/Contacts/*.cc
-	src/src/Box2D/Dynamics/Joints/*.cc
-	src/src/Box2D/Particle/*.cc
+	src/Box2D/Collision/*.cc
+	src/Box2D/Collision/Shapes/*.cc
+	src/Box2D/Common/*.cc
+	src/Box2D/Dynamics/*.cc
+	src/Box2D/Dynamics/Contacts/*.cc
+	src/Box2D/Dynamics/Joints/*.cc
+	src/Box2D/Particle/*.cc
 )
 
 # For non-Android, system SDL2 and OpenGL include dirs

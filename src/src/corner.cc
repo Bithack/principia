@@ -3,8 +3,6 @@
 #include "model.hh"
 #include "game.hh"
 
-#include "Box2D/Box2D.h"
-
 class corner_ray_cb : public b2RayCastCallback
 {
   public:

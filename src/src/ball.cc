@@ -4,8 +4,6 @@
 #include "model.hh"
 #include "game.hh"
 
-#include "Box2D/Box2D.h"
-
 void ball_update_customz(struct tms_entity *e)
 {
     ball *b = (ball*)e;

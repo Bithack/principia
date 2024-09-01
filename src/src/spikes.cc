@@ -5,8 +5,6 @@
 #include "robot.hh"
 #include "fxemitter.hh"
 
-#include "Box2D/Box2D.h"
-
 spikes::spikes()
 {
     this->type = ENTITY_PLANK;

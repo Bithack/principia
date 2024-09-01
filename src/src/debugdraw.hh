@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Box2D/Box2D.h"
+#include <Box2D/Box2D.h>
 #include <tms/bindings/cpp/cpp.hh>
 
 class world;

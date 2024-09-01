@@ -16,7 +16,6 @@ RECURSIVE              = YES
 STRIP_FROM_PATH        = src
 INPUT                  = doc/main_page.dox \
                          src/src/ src/tms/
-EXCLUDE                = src/src/Box2D/
 
 # Dot graphs
 HAVE_DOT               = YES

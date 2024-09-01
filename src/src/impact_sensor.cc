@@ -3,7 +3,7 @@
 #include "model.hh"
 #include "game.hh"
 
-#include "Box2D/Box2D.h"
+#include <Box2D/Box2D.h>
 
 impact_sensor::impact_sensor(bool pressure)
     : impulse(0.f)
