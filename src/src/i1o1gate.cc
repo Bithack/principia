@@ -64,7 +64,7 @@ invertergate::solve_electronics()
 
     float v = 1.f - this->s_in[0].get_value();
 
-    this->s_out[0].write(v);
+    this->s_out[0].write(tclampf(v, 0.f, 1.f));
 
     return 0;
 }
@@ -165,7 +165,7 @@ squaregate::solve_electronics()
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 
-    float v = this->s_in[0].get_value();
+    float v = tclampf(this->s_in[0].get_value(), 0.f, 1.f);
     v *= v;
 
     this->s_out[0].write(v);
@@ -534,7 +534,6 @@ esub::solve_electronics()
     this->s_out[0].write(tclampf(v - this->properties[0].v.f, 0.f, 1.f));
 
     return 0;
-
 }
 
 void

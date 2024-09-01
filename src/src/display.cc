@@ -620,7 +620,7 @@ active_display::solve_electronics()
 
     this->active = (this->s_in[0].p == 0 || (bool)(int)roundf(this->s_in[0].get_value()));
 
-    float v = this->s_in[1].get_value();
+    float v = tclampf(this->s_in[1].get_value(), 0.f, 1.f);
 
     if (this->s_in[1].p) {
         // plug is connected
