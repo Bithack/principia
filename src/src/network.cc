@@ -264,8 +264,11 @@ init_curl_defaults(void *curl)
     curl_easy_setopt(P.curl, CURLOPT_SSL_VERIFYHOST, 0); /* XXX */
     curl_easy_setopt(P.curl, CURLOPT_SSL_VERIFYPEER, 0); /* XXX */
 
-    curl_easy_setopt(P.curl, CURLOPT_USERAGENT,
-        "Principia/" STR(PRINCIPIA_VERSION_CODE) " (" OS_STRING ") (" PRINCIPIA_VERSION_STRING ")");
+    char ua[512];
+    snprintf(ua, 511, "Principia/%d (%s) (%s)",
+        PRINCIPIA_VERSION_CODE, SDL_GetPlatform(), PRINCIPIA_VERSION_STRING);
+
+    curl_easy_setopt(P.curl, CURLOPT_USERAGENT, ua);
 
     curl_easy_setopt(P.curl, CURLOPT_HEADERFUNCTION, _parse_headers);
 
