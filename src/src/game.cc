@@ -24,6 +24,7 @@
 #include "i1o1gate.hh"
 #include "i2o1gate.hh"
 #include "item.hh"
+#include "key_listener.hh"
 #include "ladder.hh"
 #include "ledbuffer.hh"
 #include "linebuffer.hh"
@@ -44,6 +45,7 @@
 #include "proximitysensor.hh"
 #include "ragdoll.hh"
 #include "rand.h"
+#include "rc_activator.hh"
 #include "robot.hh"
 #include "robot_parts.hh"
 #include "robotman.hh"
@@ -63,6 +65,7 @@
 #include "widget_manager.hh"
 #include "worker.hh"
 #include "world.hh"
+#include "player_activator.hh"
 #ifdef DEBUG
 /* for print_screen_point_info */
 #include "terrain.hh"

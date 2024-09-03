@@ -39,6 +39,9 @@
 #include "polygon.hh"
 #include "treasure_chest.hh"
 #include "decorations.hh"
+#include "sequencer.hh"
+#include "sfxemitter.hh"
+#include "key_listener.hh"
 
 #include <tms/core/tms.h>
 #ifdef BUILD_VALGRIND

@@ -1,5 +1,6 @@
 #include "world.hh"
 #include "escript.hh"
+#include "eventlistener.hh"
 #include "solver.hh"
 #include "solver_ingame.hh"
 #include "group.hh"
