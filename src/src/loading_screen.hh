@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tms/bindings/cpp/cpp.hh>
-#include "gui.hh"
+#include "text.hh"
 
 #define LOAD_CONT 0
 #define LOAD_ERROR 1

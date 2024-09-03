@@ -9,6 +9,7 @@
 #include "widget_manager.hh"
 #include "text.hh"
 #include "game-message.hh"
+#include "gui.hh"
 
 #define MAX_X 8.f
 #define MIN_X -8.f

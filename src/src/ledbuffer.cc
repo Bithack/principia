@@ -1,4 +1,5 @@
 #include "ledbuffer.hh"
+#include "material.hh"
 
 #define RADIUS .04f
 

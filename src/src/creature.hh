@@ -2,7 +2,6 @@
 
 #include "entity.hh"
 #include "robot_parts.hh"
-#include "resource.hh"
 #include "activator.hh"
 
 // Define this for verbose robot AI debugging

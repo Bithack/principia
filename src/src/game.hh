@@ -1,18 +1,15 @@
 #pragma once
 
+#include "misc.hh"
 #include "pscreen.hh"
 #include "entity.hh"
 #include <tms/bindings/cpp/cpp.hh>
 #include <set>
 #include <map>
-#include "gui.hh"
-#include "adventure.hh"
-#include "chunk.hh"
-#include "object_factory.hh"
-#include "misc.hh"
 #include "panel.hh"
-#include "terrain.hh"
+#include "types.hh"
 
+#include "text.hh"
 #include "world.hh"
 
 #define OFFS_REPAIR_STATION 0.f, 3.f
@@ -900,11 +897,7 @@ class game : public pscreen
     void create_level(int type, bool empty, bool play);
     void snap_to_camera(screenshot_marker *sm);
 
-    inline bool player_can_build()
-    {
-        return W->level.type == LCAT_ADVENTURE && adventure::player && adventure::is_player_alive()
-                        && adventure::player->get_tool() && adventure::player->get_tool_type() == TOOL_BUILDER;
-    }
+    bool player_can_build();
 
     struct multi_options {
         bool follow_connections;
@@ -1095,18 +1088,7 @@ class game : public pscreen
     void post_emit(entity *e, entity *emitter=0, b2Vec2 velocity=b2Vec2(0.f,0.f));
     bool absorb(entity *e, bool include_connection=false, entity *absorber=0, b2Vec2 absorber_point=b2Vec2(0.f, 0.f), uint8_t absorber_frame=0);
     bool timed_absorb(uint32_t id, double time);
-    bool timed_absorb(entity *e, double time)
-    {
-        if (e) {
-            if (e->flag_active(ENTITY_IS_ABSORBED)) return false;
-
-            if (!e->conn_ll) { /* do not absorb connected objects */
-                return this->timed_absorb(e->id, time);
-            }
-        }
-
-        return false;
-    }
+    bool timed_absorb(entity *e, double time);
     void absorb(std::set<entity *> *loop);
     void destroy_joint(b2Joint *j);
     void add_destructable_joint(b2Joint *j, float max_force);

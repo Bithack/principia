@@ -1,7 +1,8 @@
 #include "checkpoint.hh"
-#include "model.hh"
-#include "material.hh"
+#include "adventure.hh"
 #include "game.hh"
+#include "material.hh"
+#include "model.hh"
 
 checkpoint::checkpoint()
     : spawned(false)

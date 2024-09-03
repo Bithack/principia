@@ -1,7 +1,6 @@
 #pragma once
 
 #include "entity.hh"
-#include <set>
 
 class game;
 

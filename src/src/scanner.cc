@@ -5,6 +5,7 @@
 #include "linebuffer.hh"
 #include "spritebuffer.hh"
 #include "explosive.hh"
+#include "creature.hh"
 
 mirror::mirror()
 {

@@ -1,12 +1,8 @@
 #pragma once
 
-#include "gui.hh"
-#include "resource.hh"
 #include "creature.hh"
 #include "entity.hh"
 #include "text.hh"
-
-#include <list>
 
 #define BAR_SIDE_LEFT  0
 #define BAR_SIDE_RIGHT 1

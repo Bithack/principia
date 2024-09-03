@@ -1,16 +1,16 @@
+#include "network.hh"
+#include "crc.hh"
 #include "game.hh"
+#include "gui.hh"
 #include "main.hh"
-#include "tms/backend/print.h"
-#include "tms/core/err.h"
-#include "version.hh"
-#include "ui.hh"
 #include "menu_shared.hh"
 #include "object_factory.hh"
 #include "progress.hh"
 #include "text.hh"
-#include "crc.hh"
-
-#include "network.hh"
+#include "tms/backend/print.h"
+#include "tms/core/err.h"
+#include "ui.hh"
+#include "version.hh"
 
 /* Publish level variables */
 uint32_t      _publish_lvl_community_id;

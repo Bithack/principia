@@ -1,8 +1,9 @@
 #include "panel.hh"
-#include "model.hh"
-#include "game.hh"
-#include "material.hh"
 #include "font.hh"
+#include "game.hh"
+#include "gui.hh"
+#include "material.hh"
+#include "model.hh"
 
 static void
 panel_post_render(struct tms_wdg *w, struct tms_surface *s)

@@ -2,7 +2,6 @@
 
 #include "entity.hh"
 #include "material.hh"
-#include "model.hh"
 
 enum {
     DECORATION_STONE1,

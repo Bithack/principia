@@ -2,7 +2,6 @@
 
 #include "edevice.hh"
 
-#include <list> /* XXX: remove */
 #include <map>
 
 typedef std::multimap<entity*, b2Fixture*> object_map;

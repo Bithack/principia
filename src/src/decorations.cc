@@ -1,4 +1,5 @@
 #include "decorations.hh"
+#include "model.hh"
 #include "ui.hh"
 #include "world.hh"
 

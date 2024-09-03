@@ -10,6 +10,7 @@
 #include "soundmanager.hh"
 #include "robot_base.hh"
 #include "faction.hh"
+#include "gui.hh"
 
 static std::vector<struct factory_object> generic_objects;
 static std::vector<struct factory_object> armory_objects;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entity.hh"
+#include "tms/bindings/cpp/cpp.hh"
 
 #define LINEBUFFER_MAX 512
 

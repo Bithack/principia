@@ -15,6 +15,7 @@
 #include "item.hh"
 #include "misc.hh"
 #include "plant.hh"
+#include "gui.hh"
 
 #define MINING_INTERVAL 75000
 #define MINING_DAMAGE   1.f

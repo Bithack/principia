@@ -7,6 +7,7 @@
 #include "ui.hh"
 #include "robotman.hh"
 #include "robot_base.hh"
+#include "adventure.hh"
 
 #define lua_pushint32(L, n) (lua_pushinteger(L, static_cast<int32_t>(n)))
 #define lua_pushuint32(L, n) (lua_pushinteger(L, static_cast<uint32_t>(n)))

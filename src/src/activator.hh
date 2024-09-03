@@ -3,6 +3,7 @@
 #include <map>
 #include <Box2D/Box2D.h>
 #include <tms/math/vector.h>
+#include "creature.hh"
 
 
 class entity;

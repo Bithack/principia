@@ -1,6 +1,6 @@
 #pragma once
 
-#include "composable.hh"
+#include "entity.hh"
 
 class weight : public entity_simpleconnect
 {

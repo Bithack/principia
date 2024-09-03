@@ -1,4 +1,5 @@
 #include "textbuffer.hh"
+#include "material.hh"
 
 static tms::gbuffer *verts;
 static tms::gbuffer *verts2;

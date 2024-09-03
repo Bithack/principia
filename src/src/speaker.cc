@@ -1,6 +1,7 @@
 #include "speaker.hh"
 #include "model.hh"
 #include "game.hh"
+#include "soundmanager.hh"
 #include "ui.hh"
 
 const char *speaker_options[NUM_WAVEFORMS] = {

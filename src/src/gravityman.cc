@@ -1,7 +1,9 @@
 #include "gravityman.hh"
+#include "creature.hh"
+#include "game.hh"
+#include "gui.hh"
 #include "material.hh"
 #include "model.hh"
-#include "game.hh"
 
 gravityman::gravityman(int _type)
 {

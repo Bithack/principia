@@ -1,11 +1,12 @@
-#include "menu_shared.hh"
 #include "menu_main.hh"
-#include "menu_create.hh"
-#include "misc.hh"
-#include "ui.hh"
 #include "game.hh"
-#include "widget_manager.hh"
+#include "gui.hh"
+#include "menu_create.hh"
+#include "menu_shared.hh"
+#include "misc.hh"
 #include "text.hh"
+#include "ui.hh"
+#include "widget_manager.hh"
 
 bool
 menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)

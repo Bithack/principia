@@ -1,14 +1,15 @@
 #include "creature.hh"
-#include "game.hh"
-#include "world.hh"
+#include "adventure.hh"
 #include "anchor.hh"
-#include "fxemitter.hh"
-#include "item.hh"
+#include "backpack.hh"
 #include "checkpoint.hh"
 #include "factory.hh"
-#include "backpack.hh"
+#include "fxemitter.hh"
+#include "game.hh"
+#include "item.hh"
 #include "robot_parts.hh"
 #include "settings.hh"
+#include "world.hh"
 
 creature::creature()
     : cur_activator(0)

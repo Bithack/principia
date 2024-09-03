@@ -2,7 +2,6 @@
 
 #include "entity.hh"
 
-#include <string>
 #include <set>
 
 struct limb {

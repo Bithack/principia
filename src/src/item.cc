@@ -1,10 +1,11 @@
 #include "item.hh"
-#include "model.hh"
+#include "crane.hh"
+#include "fxemitter.hh"
 #include "game.hh"
+#include "gui.hh"
+#include "model.hh"
 #include "robot_parts.hh"
 #include "spritebuffer.hh"
-#include "fxemitter.hh"
-#include "crane.hh"
 #include "ui.hh"
 
 #define ROCKET_FORCE_MULT 40.f
@@ -726,7 +727,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_can_rotate(true)
         .set_mesh_offset(0,-.1)
         ,
-        
+
     item_option("Black robot back")
         .set_layer_mask(15)
         .set_material(&m_robot_tinted_light)
@@ -743,7 +744,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .add_worth(RESOURCE_ALUMINIUM, 10)
         .add_worth(RESOURCE_IRON, 20)
         ,
-        
+
     item_option("Top Hat")
         .set_layer_mask(15)
         .set_material(&m_item_shiny)
@@ -785,7 +786,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_can_rotate(true)
         .set_mesh_offset(0.f,-.1f)
         ,
-        
+
     item_option("Dummy head")
         .set_layer_mask(15)
         .set_material(&m_animal)
@@ -799,7 +800,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_magnetic(true)
         .set_menu_scale(1.25f)
         ,
-        
+
     item_option("Jester hat")
         .set_layer_mask(15)
         .set_material(&m_item)
@@ -812,7 +813,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_can_rotate(true)
         .set_mesh_offset(.1f,-.1f)
         ,
-        
+
     item_option("Training sword")
         .set_layer_mask(2+4)
         .set_material(&m_item)
@@ -824,7 +825,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(0.75f)
         .set_mesh_offset(-.0125f, -.5f)
         ,
-        
+
     item_option("Witch Hat")
         .set_layer_mask(15)
         .set_material(&m_item)
@@ -849,7 +850,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(0.75f)
         .set_mesh_offset(-.0125f, -.5f)
         ,
-        
+
     item_option("Simple axe")
         .set_layer_mask(2+4)
         .set_material(&m_item)
@@ -873,7 +874,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(0.75f)
         .set_mesh_offset(.2f, .1f)
         ,
-        
+
     item_option("Spiked Club")
         .set_layer_mask(2+4)
         .set_material(&m_item)
@@ -885,7 +886,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(0.75f)
         .set_mesh_offset(-.0125f, -.5f)
         ,
-        
+
     item_option("Steel Sword")
         .set_layer_mask(2+4)
         .set_material(&m_item_shiny)
@@ -897,7 +898,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(0.75f)
         .set_mesh_offset(-.0125f, -.5f)
         ,
-        
+
     item_option("Baseball bat")
         .set_layer_mask(2+4)
         .set_material(&m_item_shiny)
@@ -921,7 +922,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(0.75f)
         .set_mesh_offset(0.f, -.45f)
         ,
-        
+
     item_option("War axe")
         .set_layer_mask(2+4)
         .set_material(&m_item)
@@ -933,7 +934,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(0.75f)
         .set_mesh_offset(.0125f, -.5f)
         ,
-        
+
     item_option("Pixel sword")
         .set_layer_mask(2+4)
         .set_material(&m_item)
@@ -945,7 +946,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(0.75f)
         .set_mesh_offset(-.0125f, -.5f)
         ,
-        
+
     item_option("Hard hat")
         .set_layer_mask(15)
         .set_material(&m_item_shiny)
@@ -958,7 +959,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_can_rotate(true)
         .set_mesh_offset(0.f,-.1f)
         ,
-        
+
     item_option("Serpent Sword")
         .set_layer_mask(2+4)
         .set_material(&m_item_shiny)
@@ -970,7 +971,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(0.75f)
         .set_mesh_offset(-.0125f, -.5f)
         ,
-        
+
     item_option("Pioneer front")
         .set_layer_mask(15)
         .set_material(&m_robot_armor)
@@ -983,7 +984,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_can_rotate(true)
         .set_magnetic(true)
         ,
-        
+
     item_option("Pioneer back")
         .set_layer_mask(15)
         .set_material(&m_robot_armor)
@@ -1000,7 +1001,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .add_worth(RESOURCE_ALUMINIUM, 10)
         .add_worth(RESOURCE_IRON, 20)
         ,
-        
+
     item_option("Viking Helmet")
         .set_layer_mask(15)
         .set_material(&m_item_shiny)
@@ -1013,7 +1014,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_can_rotate(true)
         .set_mesh_offset(0.f,-.1f)
         ,
-        
+
     item_option("Pickaxe")
         .set_layer_mask(2+4)
         .set_material(&m_item)

@@ -2,8 +2,6 @@
 
 #include "edevice.hh"
 
-#include <set>
-
 class fan : public ecomp_multiconnect
 {
   private:

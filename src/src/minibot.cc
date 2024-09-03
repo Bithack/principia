@@ -4,6 +4,7 @@
 #include "game.hh"
 #include "world.hh"
 #include "item.hh"
+#include "adventure.hh"
 
 #define VISION 8.f
 

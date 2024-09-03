@@ -1,7 +1,6 @@
 #pragma once
 
 #include "i2o0gate.hh"
-#include "soundmanager.hh"
 
 #define NUM_WAVEFORMS 5
 extern const char *speaker_options[NUM_WAVEFORMS];

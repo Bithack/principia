@@ -316,10 +316,6 @@ int main(int argc, char **argv)
                 case SDL_TEXTINPUT:
                     T_intercept_input(ev);
                     break;
-
-                default:
-                    tms_debugf("Unhandled input: %d", ev.type);
-                    break;
             }
         }
 

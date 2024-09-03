@@ -11,17 +11,6 @@ class gentype;
 #define GENTYPE_MAX_REACH_X 4
 #define GENTYPE_MAX_REACH_Y 18
 
-enum {
-    TERRAIN_EMPTY           = 0,
-    TERRAIN_GRASS           = 1,
-    TERRAIN_DIRT            = 2,
-    TERRAIN_STONE           = 3,
-    TERRAIN_HEAVY_STONE     = 4,
-
-
-    NUM_TERRAIN_MATERIALS
-};
-
 #define TERRAIN_EDIT_LAYER0   (1<<0)
 #define TERRAIN_EDIT_LAYER1   (1<<1)
 #define TERRAIN_EDIT_LAYER2   (1<<2)

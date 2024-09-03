@@ -1,9 +1,9 @@
 #pragma once
 
 #include <stdint.h>
-#include <Box2D/Box2D.h>
-#include <vector>
+#include <Box2D/Common/b2Math.h>
 #include "types.hh"
+#include <vector>
 
 class item;
 

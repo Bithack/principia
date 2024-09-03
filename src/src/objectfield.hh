@@ -2,8 +2,6 @@
 
 #include "edevice.hh"
 
-#include <set>
-
 enum {
     OBJECT_FIELD_ID,
     OBJECT_FIELD_OBJECT,

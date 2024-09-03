@@ -60,3 +60,13 @@ enum damage_type {
 
     NUM_DAMAGE_TYPES
 };
+
+enum {
+    TERRAIN_EMPTY           = 0,
+    TERRAIN_GRASS           = 1,
+    TERRAIN_DIRT            = 2,
+    TERRAIN_STONE           = 3,
+    TERRAIN_HEAVY_STONE     = 4,
+
+    NUM_TERRAIN_MATERIALS
+};

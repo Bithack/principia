@@ -31,6 +31,8 @@
 #include "faction.hh"
 #include "robot_base.hh"
 #include "factory.hh"
+#include "adventure.hh"
+#include "gui.hh"
 
 #include <ctime>
 #include <errno.h>

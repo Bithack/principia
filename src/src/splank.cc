@@ -2,6 +2,7 @@
 #include "world.hh"
 #include "game.hh"
 #include "model.hh"
+#include "gui.hh"
 
 float32
 splank::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)

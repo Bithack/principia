@@ -1,7 +1,6 @@
 #pragma once
 
 #include "composable.hh"
-#include <set>
 
 #define BR_MAX_SIZE 10.f
 

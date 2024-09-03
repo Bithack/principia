@@ -4,6 +4,7 @@
 #include "material.hh"
 #include "model.hh"
 #include "game.hh"
+#include "adventure.hh"
 
 goal::goal()
 {
