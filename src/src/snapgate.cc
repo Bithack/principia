@@ -23,7 +23,7 @@ snapgate::solve_electronics()
     v = roundf(v);
     v *= snap;
 
-    this->s_out[0].write(v);
+    this->s_out[0].write(tclampf(v, 0.f, 1.f));
 
     return 0;
 }

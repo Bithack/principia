@@ -16,7 +16,7 @@ cavg::solve_electronics()
         this->value = f * this->value + (1.f - f)*v;
     }
 
-    this->s_out[0].write(this->value);
+    this->s_out[0].write(tclampf(this->value, 0.f, 1.f));
 
     return 0;
 }

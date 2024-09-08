@@ -226,7 +226,7 @@ emin::solve_electronics()
     float a = this->s_in[0].get_value();
     float b = this->s_in[1].get_value();
 
-    this->s_out[0].write(!(b<a)?a:b);
+    this->s_out[0].write(tclampf(!(b < a) ? a : b, 0.f, 1.f));
 
     return 0;
 }
@@ -242,7 +242,7 @@ emax::solve_electronics()
     float a = this->s_in[0].get_value();
     float b = this->s_in[1].get_value();
 
-    this->s_out[0].write((a<b)?b:a);
+    this->s_out[0].write(tclampf((a < b) ? b : a, 0.f, 1.f));
 
     return 0;
 }
@@ -308,7 +308,7 @@ hp_control::solve_electronics()
             }
         }
 
-        this->s_out[0].write(hp / this->target->get_max_hp());
+        this->s_out[0].write(tclampf(hp / this->target->get_max_hp(), 0.f, 1.f));
     } else {
         this->s_out[0].write(0.f);
     }
