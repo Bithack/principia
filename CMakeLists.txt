@@ -129,6 +129,11 @@ if(NOT SCREENSHOT_BUILD)
 		include_directories(
 			${GLEW_INCLUDE_DIRS}
 			${GTK3_INCLUDE_DIRS})
+
+		# Only requrired by the level browser
+		# TODO: make the gtk3 level browser optional
+		find_package(nlohmann_json 3.2.0 REQUIRED)
+		include_directories(${NLOHMANN_JSON_INCLUDE_DIRS})
 	endif()
 
 	find_package(CURL REQUIRED)
