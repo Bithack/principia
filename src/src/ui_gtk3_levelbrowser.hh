@@ -10,6 +10,7 @@
 #include <string>
 #include <cstdint>
 #include <nlohmann/json.hpp>
+#include <glib.h>
 
 using json = nlohmann::json;
 
@@ -60,7 +61,7 @@ namespace api {
 // Use ui::open_dialog(DIALOG_HC_LEVEL_BROWSER) instead!
 //
 // (If calling from ui::open_dialog, make sure to wrap it in gdk_threads_add_idle!)
-void open_community_level_browser();
+gboolean open_community_level_browser(gpointer _);
 
 // class gtk_community_state {
 //     uint16_t cur_page;

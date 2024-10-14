@@ -7,6 +7,7 @@
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
 #include <SDL_mutex.h>
+#include <glib.h>
 
 using json = nlohmann::json;
 
@@ -18,18 +19,18 @@ std::unique_ptr<T> get_nullable(const nlohmann::json &j, const std::string &fiel
     return nullptr;
 }
 
-api::user::user(json &j) {
+api::user::user(const json &j) {
     id = j["id"];
     name = j.at("name").get<std::string>();
     customcolor = get_nullable<std::string>(j, "customcolor");
 }
 
-api::recent_level::recent_level(json &j): u(j) {
+api::recent_level::recent_level(const json &j): u(j) {
     id = j["id"];
     title = j["title"].get<std::string>();
 }
 
-api::level::level(json &j): u(j) {
+api::level::level(const json &j): u(j) {
     id = j["id"];
     cat = j["cat"];
     title = j["title"].get<std::string>();
@@ -91,8 +92,9 @@ api::level api::get_level(uint32_t id) {
     tms_fatalf("not implemented"); exit(1);
 }
 
-void open_community_level_browser() {
+gboolean open_community_level_browser(gpointer _) {
     tms_infof("====== Open level browser ======");
+    return false;
 }
 
 #endif

@@ -11612,6 +11612,7 @@ ui::open_dialog(int num, void *data/*=0*/)
             #else
                 ui::open_url(P.community_host);
             #endif
+            break;
 
         default:
             tms_warnf("Unhandled dialog ID: %d", num);
