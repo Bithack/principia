@@ -1,12 +1,14 @@
 #include "ui_gtk3_levelbrowser.hh"
-#include <string>
-
 
 #ifdef GTK3_LEVEL_BROWSER_ENABLE
 
 #include "main.hh"
+#include "const.hh"
+#include "network.hh"
+#include "ui.hh"
 #include "tms/backend/print.h"
 
+#include <string>
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
 #include <SDL_mutex.h>
@@ -112,12 +114,21 @@ namespace api {
 namespace gtk_community {
     // Callback function for clicking on the level title
     static void on_level_clicked(GtkWidget *widget, gpointer data) {
-        g_print("Level clicked: %s\n", (char *)data);
-    }
+        uint32_t level_id = (size_t)data;
+        g_print("Level clicked: %d\n", level_id);
+        _play_id = level_id;
+        _play_type = LEVEL_DB;
+        P.add_action(ACTION_OPEN_PLAY, 0);
+     }
 
     // Callback function for clicking on the username
     static void on_username_clicked(GtkWidget *widget, gpointer data) {
-        g_print("Username clicked: %s\n", (char *)data);
+        uint32_t user_id = (size_t)data;
+        g_print("Level clicked: %d\n", user_id);
+        {
+            COMMUNITY_URL("user/%d", user_id);
+            ui::open_url(url);
+        };
     }
 
     static GtkWidget* create_level_tile(const api::recent_level &level) {
@@ -134,7 +145,8 @@ namespace gtk_community {
 
         // Level title (clickable button)
         GtkWidget *level_button = gtk_button_new_with_label(title);
-        g_signal_connect(level_button, "clicked", G_CALLBACK(on_level_clicked), (gpointer)title);
+        gpointer level_id = (gpointer)(size_t)level.id;
+        g_signal_connect(level_button, "clicked", G_CALLBACK(on_level_clicked), (gpointer)level_id);
 
         // Username (clickable label)
         // TODO set user color
@@ -155,10 +167,13 @@ namespace gtk_community {
             "Community Levels",
             NULL,
             (GtkDialogFlags)(GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_MODAL),
+            ("_Open Full Website"),
+            GTK_RESPONSE_ACCEPT,
             ("_Close"),
             GTK_RESPONSE_CLOSE,
             NULL
         );
+        gtk_window_set_keep_above(GTK_WINDOW(dialog), true);
         g_signal_connect(dialog, "response", G_CALLBACK(gtk_widget_destroy), NULL);
 
         // Get the content area of the dialog
