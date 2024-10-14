@@ -91,5 +91,9 @@ api::level api::get_level(uint32_t id) {
     tms_fatalf("not implemented"); exit(1);
 }
 
+void open_community_level_browser() {
+    tms_infof("====== Open level browser ======");
+}
+
 #endif
 

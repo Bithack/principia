@@ -56,6 +56,12 @@ namespace api {
     level get_level(uint32_t id);
 };
 
+// DO NOT USE THIS FUNCTION DIRECTLY
+// Use ui::open_dialog(DIALOG_HC_LEVEL_BROWSER) instead!
+//
+// (If calling from ui::open_dialog, make sure to wrap it in gdk_threads_add_idle!)
+void open_community_level_browser();
+
 // class gtk_community_state {
 //     uint16_t cur_page;
 //     // std::unordered_map<uint32_t, uint8_t*> cache_thumbnails;
