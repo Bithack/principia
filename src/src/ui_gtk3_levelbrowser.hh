@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #if !defined(GTK3_LEVEL_BROWSER_DISABLE) && defined(TMS_BACKEND_PC) && !defined(TMS_BACKEND_EMSCRIPTEN) && !defined(NO_UI) && defined(BUILD_CURL)
     #define GTK3_LEVEL_BROWSER_ENABLE
 #endif
@@ -11,6 +12,7 @@
 #include <cstdint>
 #include <nlohmann/json.hpp>
 #include <glib.h>
+#include <gtk/gtk.h>
 
 using json = nlohmann::json;
 
@@ -23,6 +25,7 @@ namespace api {
         std::unique_ptr<std::string> customcolor; // TODO store as u32 instead
 
         user(const json &j);
+        // user(uint32_t id, std::string name);
     };
 
     struct recent_level {
@@ -31,6 +34,8 @@ namespace api {
         struct user u;
 
         recent_level(const json &j);
+        // recent_level(uint32_t id, const std::string &title, const struct user &u);
+        // recent_level(const struct level &l);
     };
 
     struct level {
@@ -53,9 +58,17 @@ namespace api {
         level(const json &j);
     };
 
-    std::vector<recent_level> get_recent_levels(uint32_t offset, uint32_t limit);
-    level get_level(uint32_t id);
+    static std::vector<recent_level> get_recent_levels(uint32_t offset, uint32_t limit);
+    static level get_level(uint32_t id);
 };
+
+namespace gtk_community {
+    static void on_level_clicked(GtkWidget *widget, gpointer data);
+    static void on_username_clicked(GtkWidget *widget, gpointer data);
+    // Creates a single level tile (image, title, and username)
+    static GtkWidget *create_level_tile(const api::recent_level &level);
+    static GtkWidget *create_dialog(const std::vector<api::recent_level> &levels);
+}
 
 // DO NOT USE THIS FUNCTION DIRECTLY
 // Use ui::open_dialog(DIALOG_HC_LEVEL_BROWSER) instead!
