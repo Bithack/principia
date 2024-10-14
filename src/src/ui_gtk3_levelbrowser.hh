@@ -21,7 +21,7 @@ namespace api {
         std::string name;
         std::unique_ptr<std::string> customcolor; // TODO store as u32 instead
 
-        user(json &j);
+        user(const json &j);
     };
 
     struct recent_level {
@@ -29,7 +29,7 @@ namespace api {
         std::string title;
         struct user u;
 
-        recent_level(json &j);
+        recent_level(const json &j);
     };
 
     struct level {
@@ -49,7 +49,7 @@ namespace api {
         std::string platform;
         struct user u;
 
-        level(json &j);
+        level(const json &j);
     };
 
     std::vector<recent_level> get_recent_levels(uint32_t offset, uint32_t limit);
