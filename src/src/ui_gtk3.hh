@@ -6280,6 +6280,10 @@ int _gtk_loop(void *p)
     //Load CSS themes
     load_gtk_css();
 
+#ifdef GTK3_LEVEL_BROWSER_ENABLE
+    init_community_level_browser();
+#endif
+
     g_object_set(
         gtk_settings_get_default(),
         "gtk-application-prefer-dark-theme", true,

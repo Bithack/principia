@@ -60,6 +60,7 @@ namespace api {
 
     static std::vector<recent_level> get_recent_levels(uint32_t offset, uint32_t limit);
     static level get_level(uint32_t id);
+    static std::vector<uint8_t> get_level_thumbnail(uint32_t id, bool use_global_curl = true);
 };
 
 namespace gtk_community {
@@ -67,6 +68,9 @@ namespace gtk_community {
     static void on_username_clicked(GtkWidget *widget, gpointer data);
     // Creates a single level tile (image, title, and username)
     static GtkWidget *create_level_tile(const api::recent_level &level);
+    static GtkWidget *create_level_grid(const std::vector<api::recent_level> &levels);
+    static GtkWidget *create_top_shelf_content();
+    static GtkWidget *create_shelf(std::string name, GtkWidget *content);
     static GtkWidget *create_dialog(const std::vector<api::recent_level> &levels);
 }
 
@@ -75,6 +79,9 @@ namespace gtk_community {
 //
 // (If calling from ui::open_dialog, make sure to wrap it in gdk_threads_add_idle!)
 gboolean open_community_level_browser(gpointer _);
+
+// Call in ui::init() after gtk_init()
+void init_community_level_browser();
 
 // class gtk_community_state {
 //     uint16_t cur_page;
