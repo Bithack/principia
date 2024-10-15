@@ -7198,7 +7198,7 @@ void game::open_sandbox_snapshot_mem(const void* snapshot, size_t size) {
         size,
         W->level_id_type,
         W->level.local_id,
-        false,
+        W->is_paused(),
         true,
         W->level.save_id,
         false,
