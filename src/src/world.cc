@@ -2720,6 +2720,7 @@ bool world::open_internal(
         tms_debugf("Version: %u", this->level.version);
     }
 
+    // TODO/MAYBE griffi-gh: Probably should skip this if loading from in-memory buffer????
     if (!this->read_cache(id_type, id, save_id)) {
 
     }
