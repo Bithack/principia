@@ -1,26 +1,31 @@
 #include "gundo.hh"
 
 #include "game.hh"
-#include "main.hh"
 #include "tms/backend/print.h"
 #include "world.hh"
+#include <cstdlib>
 
-// TODO griffi-gh: compress undo items
+// TODO griffi-gh: call reset on level load
 // TODO griffi-gh: support redo
+// TODO griffi-gh: compress undo items?
 
 struct undo_stack undo;
+
+size_t undo_stack::amount() {
+    return this->items.size();
+}
 
 void undo_stack::reset() {
     this->items.clear();
 }
 
-void undo_stack::checkpoint() {
+void undo_stack::checkpoint(const char *reason) {
     W->save(SAVE_TYPE_UNDO);
 
     void *data_copy = malloc(W->lb.size);
     memcpy(data_copy, W->lb.buf, W->lb.size);
 
-    struct undo_item item = {data_copy, W->lb.size};
+    struct undo_item item = { reason, data_copy, W->lb.size };
     this->items.push_back(item);
 
     tms_debugf(
@@ -40,7 +45,7 @@ void undo_stack::checkpoint() {
     );
 }
 
-void undo_stack::restore() {
+const char* undo_stack::restore() {
     if (this->items.size() == 0) {
         tms_fatalf("undo_load: no items to load");
     }
@@ -50,4 +55,7 @@ void undo_stack::restore() {
     G->open_sandbox_snapshot_mem(item.data, item.size);
 
     tms_infof("Restored level from undo stack");
+
+    free(item.data);
+    return item.reason;
 }

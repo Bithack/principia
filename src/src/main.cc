@@ -35,6 +35,7 @@
 #include "adventure.hh"
 #include "gui.hh"
 
+#include <cstdio>
 #include <ctime>
 #include <errno.h>
 #include <unistd.h>
@@ -1164,11 +1165,22 @@ tproject_step(void)
                     break;
 
                 case ACTION_UNDO_CHECKPOINT:
-                    undo.checkpoint();
+                    undo.checkpoint((const char*)data);
                     break;
 
                 case ACTION_UNDO_RESTORE:
-                    undo.restore();
+                    if (undo.amount() == 0) {
+                        ui::message("Nothing to undo");
+                    } else {
+                        const char* undo_reason = undo.restore();
+                        if (undo_reason) {
+                            char tmp[1024];
+                            sprintf(tmp, "Undid %s", undo_reason);
+                            ui::message(tmp);
+                        } else {
+                            ui::message("Undid");
+                        }
+                    }
                     break;
             }
         }

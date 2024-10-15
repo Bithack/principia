@@ -694,7 +694,7 @@ game::menu_handle_event(tms::event *ev)
 
                 if (found) {
                     if (o.e) {
-                        undo.checkpoint();
+                        undo.checkpoint("Added object");
 
                         entity *e = of::create(o.e->g_id);
                         if (e) {
