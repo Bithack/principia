@@ -39,6 +39,17 @@ void undo_stack::checkpoint(const char *reason) {
         this->items.erase(this->items.begin());
     }
 
+#ifdef DEBUG
+    size_t total_size_bytes = 0;
+    for (const struct undo_item &item : this->items) {
+        total_size_bytes += item.size;
+    }
+    tms_debugf(
+        "undo_checkpoint: total size: %lu bytes\n",
+        total_size_bytes
+    );
+#endif
+
     tms_printf(
         "undo_checkpoint: histsize: %lu/%u\n",
         this->items.size(), MAX_UNDO_ITEMS
