@@ -2480,6 +2480,10 @@ world::save(int save_type)
     char filename[1024];
 
     switch (save_type) {
+        // If we're saving the state, skip all of this and return immediately (we just need to generate the level buffer)
+        case SAVE_TYPE_UNDO:
+            return true;
+
         case SAVE_TYPE_DEFAULT:
             if (this->level.local_id == 0) {
                 /* this level does not have a local id,
@@ -2651,14 +2655,9 @@ world::load_partial(uint32_t id, b2Vec2 position,
 }
 
 bool
-world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_id/*=0*/)
-{
-    bool is_autosave = false;
-
-    this->reset();
-    this->init(paused);
-
+world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_id/*=0*/) {
     char filename[1024];
+    bool is_autosave = false;
 
     if (id == 0 && id_type == LEVEL_LOCAL) {
         /* opening an autosave file */
@@ -2686,87 +2685,98 @@ world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_i
             tms_fatalf("Level file too big");
         }
 
-        this->lb.reset();
-        this->lb.size = 0;
-        this->lb.ensure((int)size);
-
         _fread(this->lb.buf, 1, size, fp);
-
         _fclose(fp);
 
-        this->lb.size = size;
-        tms_infof("read file of size: %lu", size);
+        this->open_internal(size, id_type, id, paused, sandbox, save_id, is_autosave, false);
+    } else {
+        tms_errorf("could not open file '%s' for reading", filename);
+        return false;
+    }
+}
 
-        if (!this->level.read(&this->lb)) {
-            ui::message("You need to update Principia to play this level.", true);
-            return false;
-        } else {
-            tms_debugf("Successfully read level");
-            tms_debugf("Version: %u", this->level.version);
-        }
+bool world::open_internal(
+    size_t size,
+    int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_id/*=0*/,
+    bool is_autosave,
+    bool skip_compression/*=false*/
+) {
 
-        if (!this->read_cache(id_type, id, save_id)) {
+    this->reset();
+    this->init(paused);
 
-        }
+    this->lb.reset();
+    this->lb.size = 0;
+    this->lb.ensure((int)size);
 
-        if (!sandbox && this->level.visibility == LEVEL_LOCKED && G->state.pkg == 0) {
-            ui::message("This level is locked and can only be played from inside a package.");
-            tms_errorf("locked level");
-            return false;
-        }
+    this->lb.size = size;
+    tms_infof("read file of size: %lu", size);
 
-        this->level_id_type = id_type;
-        if (is_autosave) {
-            this->level.local_id = this->level.autosave_id;
-        } else {
-            this->level.local_id = id;
-        }
-
-        G->init_background();
-
-        this->init_level();
-
-        if (this->level.version >= LEVEL_VERSION_1_5) {
-            this->lb.zuncompress(this->level);
-        }
-
-        /* save the location of the state buffer so game can load it later */
-        this->state_ptr = this->lb.rp;
-        this->lb.rp += this->level.state_size;
-
-        bool result;
-
-        if (this->level.flag_active(LVL_CHUNKED_LEVEL_LOADING)) {
-            result = this->cwindow->preloader.preload(&this->level, &this->lb);
-        } else {
-            result = this->load_buffer(&this->level, &this->lb);
-            /* preloader is always used to load and write chunks, disregarding chunked level loading flag */
-            this->cwindow->preloader.read_gentypes(&this->level, &this->lb);
-            this->cwindow->preloader.read_chunks(&this->level, &this->lb);
-        }
-
-        if (!result) {
-            ui::message("Could not load level. You may need to update Principia to the latest version.", true);
-            this->reset();
-            return false;
-        }
-
-
-        uint8_t extra = this->lb.r_uint8();
-
-        if (extra == (uint8_t)1 && sandbox) {
-            this->reset();
-            return false;
-        }
-
-        if (!sandbox && this->level.type == LCAT_PUZZLE) this->apply_puzzle_constraints();
-        if (!paused) this->optimize_connections();
-
-        return true;
+    if (!this->level.read(&this->lb)) {
+        ui::message("You need to update Principia to play this level.", true);
+        return false;
+    } else {
+        tms_debugf("Successfully read level");
+        tms_debugf("Version: %u", this->level.version);
     }
 
-    tms_errorf("could not open file '%s' for reading", filename);
-    return false;
+    if (!this->read_cache(id_type, id, save_id)) {
+
+    }
+
+    if (!sandbox && this->level.visibility == LEVEL_LOCKED && G->state.pkg == 0) {
+        ui::message("This level is locked and can only be played from inside a package.");
+        tms_errorf("locked level");
+        return false;
+    }
+
+    this->level_id_type = id_type;
+    if (is_autosave) {
+        this->level.local_id = this->level.autosave_id;
+    } else {
+        this->level.local_id = id;
+    }
+
+    G->init_background();
+
+    this->init_level();
+
+    if ((!skip_compression) && (this->level.version >= LEVEL_VERSION_1_5)) {
+        this->lb.zuncompress(this->level);
+    }
+
+    /* save the location of the state buffer so game can load it later */
+    this->state_ptr = this->lb.rp;
+    this->lb.rp += this->level.state_size;
+
+    bool result;
+
+    if (this->level.flag_active(LVL_CHUNKED_LEVEL_LOADING)) {
+        result = this->cwindow->preloader.preload(&this->level, &this->lb);
+    } else {
+        result = this->load_buffer(&this->level, &this->lb);
+        /* preloader is always used to load and write chunks, disregarding chunked level loading flag */
+        this->cwindow->preloader.read_gentypes(&this->level, &this->lb);
+        this->cwindow->preloader.read_chunks(&this->level, &this->lb);
+    }
+
+    if (!result) {
+        ui::message("Could not load level. You may need to update Principia to the latest version.", true);
+        this->reset();
+        return false;
+    }
+
+    uint8_t extra = this->lb.r_uint8();
+
+    if (extra == (uint8_t)1 && sandbox) {
+        this->reset();
+        return false;
+    }
+
+    if (!sandbox && this->level.type == LCAT_PUZZLE) this->apply_puzzle_constraints();
+    if (!paused) this->optimize_connections();
+
+    return true;
 }
 
 void

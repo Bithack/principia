@@ -1,5 +1,6 @@
 #include "game.hh"
 #include "main.hh"
+#include "gundo.hh"
 #include "tms/core/err.h"
 #include "loading_screen.hh"
 #include "soundmanager.hh"
@@ -1156,6 +1157,18 @@ tproject_step(void)
                     if (W->is_adventure() && adventure::player) {
                         adventure::player->damage(10000.f, 0, DAMAGE_TYPE_OTHER, DAMAGE_SOURCE_WORLD, 0);
                     }
+                    break;
+
+                case ACTION_UNDO_RESET:
+                    undo.reset();
+                    break;
+
+                case ACTION_UNDO_CHECKPOINT:
+                    undo.checkpoint();
+                    break;
+
+                case ACTION_UNDO_RESTORE:
+                    undo.restore();
                     break;
             }
         }

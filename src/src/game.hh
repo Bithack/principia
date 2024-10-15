@@ -42,6 +42,7 @@ enum {
     GW_PLAYPAUSE,
     GW_ORTHOGRAPHIC,
     GW_LAYERVIS,
+    GW_UNDO,
     GW_MODE,
     GW_ADVANCED,
     GW_HELP,
@@ -440,6 +441,7 @@ class game : public pscreen
     principia_wdg *wdg_playpause;
     principia_wdg *wdg_orthographic;
     principia_wdg *wdg_layervis;
+    principia_wdg *wdg_undo;
     principia_wdg *wdg_mode;
     principia_wdg *wdg_advanced;
     principia_wdg *wdg_help;
@@ -712,9 +714,9 @@ class game : public pscreen
     float get_bmenu_y();
     float get_bmenu_pad();
 
+    void reset(void);
   protected:
     void clear_entities(void);
-    void reset(void);
 
     void init_panel_edit(void);
     void init_gearbox_edit(void);

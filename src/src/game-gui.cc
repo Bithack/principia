@@ -3,10 +3,13 @@
 
 #include "game.hh"
 #include "game-message.hh"
+#include "gundo.hh"
+#include "main.hh"
 #include "settings.hh"
 #include "robot.hh"
 #include "object_factory.hh"
 #include "i1o1gate.hh"
+#include "tms/core/wdg.h"
 #include "ui.hh"
 #include "adventure.hh"
 #include "motor.hh"
@@ -691,6 +694,8 @@ game::menu_handle_event(tms::event *ev)
 
                 if (found) {
                     if (o.e) {
+                        undo.checkpoint();
+
                         entity *e = of::create(o.e->g_id);
                         if (e) {
                             menu_objects[gid_to_menu_pos[e->g_id]].highlighted = true;
@@ -999,6 +1004,10 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                 }
             }
             return true;
+
+        case GW_UNDO:
+            P.add_action(ACTION_UNDO_RESTORE, 0);
+            break;
 
         case GW_MODE:
             {
@@ -1613,18 +1622,32 @@ game::init_gui(void)
     this->wdg_layervis->priority = 800;
     this->wdg_layervis->set_tooltip("Toggle layer visibility");
 
+    // TODO griffi-gh: add proper icon for the undo button
+    this->wdg_undo = this->wm->create_widget(
+            this->get_surface(), TMS_WDG_BUTTON,
+            GW_UNDO, AREA_TOP_LEFT,
+            gui_spritesheet::get_sprite(S_EMPTY), 0);
+    this->wdg_undo->priority = 700;
+    const char* undo_tooltip =
+        "Undo"
+#ifdef TMS_BACKEND_PC
+        " (Ctrl+Z)"
+#endif
+        ;
+    this->wdg_undo->set_tooltip(undo_tooltip);
+
     this->wdg_mode = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             GW_MODE, AREA_TOP_LEFT,
             gui_spritesheet::get_sprite(S_CONFIG), 0);
-    this->wdg_mode->priority = 700;
+    this->wdg_mode->priority = 600;
     this->wdg_mode->set_tooltip("Change mode");
 
     this->wdg_advanced = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             GW_ADVANCED, AREA_TOP_LEFT,
             gui_spritesheet::get_sprite(S_ADVUP), 0);
-    this->wdg_advanced->priority = 600;
+    this->wdg_advanced->priority = 500;
     this->wdg_advanced->set_tooltip("Toggle advanced options");
 
     this->wdg_help = this->wm->create_widget(
@@ -2371,6 +2394,8 @@ game::refresh_widgets()
             case 0b011: G->wdg_layervis->s[0] = gui_spritesheet::get_sprite(S_LAYERVIS_2); break;
             default: case 0b111: G->wdg_layervis->s[0] = gui_spritesheet::get_sprite(S_LAYERVIS_3); break;
         }
+
+        this->wdg_undo->add(); // XXX griffi-gh: Is this the right place?
     }
 
     if ((this->state.sandbox || this->state.test_playing || W->is_paused() || W->is_puzzle()) && (W->level.type != LCAT_ADVENTURE || W->is_paused())) {
