@@ -36,7 +36,7 @@ struct undo_stack {
         // Returns the reason for the last checkpoint
         //
         // Avoid using this function directly, use P.add_action(ACTION_UNDO_RESTORE, 0) instead
-        const char* restore();
+        const char* restore(bool keep_cam_pos = true);
 };
 
 extern struct undo_stack undo;

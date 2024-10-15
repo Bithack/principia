@@ -56,7 +56,14 @@ void undo_stack::checkpoint(const char *reason) {
     );
 }
 
-const char* undo_stack::restore() {
+const char* undo_stack::restore(bool keep_cam_pos /* = true */) {
+    float cx, cy, cz;
+    if (keep_cam_pos) {
+        cx = G->cam->_position.x;
+        cy = G->cam->_position.y;
+        cz = G->cam->_position.z;
+    }
+
     if (this->items.size() == 0) {
         tms_fatalf("undo_load: no items to load");
     }
@@ -68,5 +75,9 @@ const char* undo_stack::restore() {
     tms_infof("Restored level from undo stack");
 
     free(item.data);
+
+    if (keep_cam_pos) {
+        G->cam->set_position(cx, cy, cz);
+    }
     return item.reason;
 }
