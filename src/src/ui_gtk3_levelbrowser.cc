@@ -11,15 +11,15 @@
 #include <string>
 #include <vector>
 #include <curl/curl.h>
+#include <curl/easy.h>
 #include <nlohmann/json.hpp>
 #include <SDL_mutex.h>
 #include <glib.h>
 #include <gtk/gtk.h>
-#include "pango/pango-layout.h"
 #include "gio/gio.h"
-#include <curl/easy.h>
-#include <curl/curl.h>
-#include <thread>
+#include "glib-object.h"
+#include "pango/pango-layout.h"
+// #include <thread>
 
 namespace api {
     using json = nlohmann::json;
@@ -188,6 +188,8 @@ namespace gtk_community {
         _play_id = level_id;
         _play_type = LEVEL_DB;
         P.add_action(ACTION_OPEN_PLAY, 0);
+
+        gtk_widget_destroy(global_dialog);
      }
 
     // Callback function for clicking on the username
@@ -198,6 +200,57 @@ namespace gtk_community {
             COMMUNITY_URL("user/%d", user_id);
             ui::open_url(url);
         };
+    }
+
+    // Callback function for activating the search entry
+    static void on_search_activate(GtkWidget *widget, gpointer data) {
+        const char *text = gtk_entry_get_text(GTK_ENTRY(widget));
+        g_print("Search activated: %s\n", text);
+        // Check if id is entered
+        // Valid syntax:
+        // number or "id:number": open level by ID
+        // otherwise, use ui::open_url to search on the website
+
+        bool should_play = false;
+        uint32_t play_db_id;
+
+        // Case 1: text *only* contains ASCII digits
+        bool is_number = true;
+        for (int i = 0; text[i] != '\0'; i++) {
+            if (text[i] < '0' || text[i] > '9') {
+                is_number = false;
+                break;
+            }
+        }
+        if (is_number) {
+            uint32_t level_id = atoi(text);
+            g_print("Level ID: %d\n", level_id);
+            should_play = true;
+            play_db_id = level_id;
+        }
+
+        // Case 2: starts with id:
+        if (text[0] == 'i' && text[1] == 'd' && text[2] == ':') {
+            uint32_t level_id = atoi(text + 3);
+            g_print("Level ID: %d\n", level_id);
+            should_play = true;
+            play_db_id = level_id;
+        }
+
+        if (should_play) {
+            _play_id = play_db_id;
+            _play_type = LEVEL_DB;
+            P.add_action(ACTION_OPEN_PLAY, 0);
+
+            gtk_widget_destroy(global_dialog);
+            return;
+        }
+
+        // Case 3: search on the website
+        {
+            COMMUNITY_URL("search?query=%s", text);
+            ui::open_url(url);
+        }
     }
 
     static GtkWidget* create_level_tile(const api::recent_level &level) {
@@ -351,6 +404,7 @@ namespace gtk_community {
         gtk_entry_set_width_chars(GTK_ENTRY(entry), 40);
         gtk_box_pack_start(GTK_BOX(box), entry, FALSE, TRUE, 0);
         gtk_box_set_center_widget(GTK_BOX(box), entry);
+        g_signal_connect(entry, "activate", G_CALLBACK(on_search_activate), NULL);
 
         return box;
     }
@@ -395,6 +449,7 @@ gboolean open_community_level_browser(gpointer _) {
 
     tms_infof("Creating dialog...");
     GtkWidget *dialog = gtk_community::create_dialog(levels);
+    gtk_community::global_dialog = dialog;
     gtk_widget_show_all(dialog);
 
     return false;

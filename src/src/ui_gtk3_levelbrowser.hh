@@ -64,9 +64,12 @@ namespace api {
 };
 
 namespace gtk_community {
+    static GtkWidget *global_dialog;
+
     static void on_level_clicked(GtkWidget *widget, gpointer data);
     static void on_username_clicked(GtkWidget *widget, gpointer data);
-    // Creates a single level tile (image, title, and username)
+    static void on_search_activate(GtkWidget *widget, gpointer data);
+
     static GtkWidget *create_level_tile(const api::recent_level &level);
     static GtkWidget *create_level_grid(const std::vector<api::recent_level> &levels);
     static GtkWidget *create_top_shelf_content();
