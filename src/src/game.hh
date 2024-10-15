@@ -714,9 +714,9 @@ class game : public pscreen
     float get_bmenu_y();
     float get_bmenu_pad();
 
-    void reset(void);
   protected:
     void clear_entities(void);
+    void reset(void);
 
     void init_panel_edit(void);
     void init_gearbox_edit(void);
@@ -1107,6 +1107,12 @@ class game : public pscreen
     void open_state(int id_type, uint32_t id, uint32_t save_id);
     void open_sandbox(int id_type, uint32_t id);
     void open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing=false, int is_main_puzzle=0);
+    // Reload state of the *currently open* level from an in-memory snapshot.
+    // Shit WILL break in unpredictable ways if:
+    // - save data is compressed
+    // - save data comes from a different level
+    // - the level is not a sandbox level
+    void open_sandbox_snapshot_mem(const void* snapshot, size_t size);
 
     void begin_play(bool has_state=false);
 

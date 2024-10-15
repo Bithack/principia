@@ -47,40 +47,7 @@ void undo_stack::restore() {
     struct undo_item &item = this->items.back();
     this->items.pop_back();
 
-    // if (W->lb.buf) {
-    //     free(W->lb.buf);
-    // }
-    // W->lb.buf = (uint8_t*)item.data;
-    W->lb.clear();
-    W->lb.ensure(item.size);
-    memcpy(W->lb.buf, item.data, item.size);
-    W->lb.size = item.size;
-
-    G->reset();
-    W->open_internal(
-        item.size,
-        W->level_id_type,
-        W->level.local_id,
-        true,
-        true,
-        W->level.save_id,
-        false,
-        true
-    );
-    G->apply_level_properties();
-    G->add_entities(&W->all_entities, &W->groups, &W->connections, &W->cables);
-    W->begin();
-
-    G->refresh_widgets();
-
-    // W->cwindow->preloader.read_gentypes(&W->level, &W->lb);
-    // W->cwindow->preloader.read_chunks(&W->level, &W->lb);
-    // W->state_ptr = W->lb.rp;
-    // W->lb.rp += W->level.state_size;
-
-    // free(item.data); DO NOT!
-    // P.add_action(ACTION_RELOAD_LEVEL, 0);
-    // W->reset();
+    G->open_sandbox_snapshot_mem(item.data, item.size);
 
     tms_infof("Restored level from undo stack");
 }

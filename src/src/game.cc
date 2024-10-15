@@ -67,6 +67,7 @@
 #include "world.hh"
 #include "player_activator.hh"
 #include "gui.hh"
+#include <cstddef>
 #ifdef DEBUG
 /* for print_screen_point_info */
 #include "terrain.hh"
@@ -7175,6 +7176,34 @@ game::open_sandbox(int id_type, uint32_t id)
     } else {
         W->open(id_type, id, true, true);
     }
+
+    this->apply_level_properties();
+    this->add_entities(&W->all_entities, &W->groups, &W->connections, &W->cables);
+    W->begin();
+
+    this->refresh_widgets();
+}
+
+void game::open_sandbox_snapshot_mem(const void* snapshot, size_t size) {
+    tms_assertf(this->state.sandbox, "level is not a sandbox");
+
+    W->lb.clear();
+    W->lb.ensure(size);
+    memcpy(W->lb.buf, snapshot, size);
+    W->lb.size = size;
+
+    this->reset();
+    this->state.sandbox = true;
+    W->open_internal(
+        size,
+        W->level_id_type,
+        W->level.local_id,
+        false,
+        true,
+        W->level.save_id,
+        false,
+        true
+    );
 
     this->apply_level_properties();
     this->add_entities(&W->all_entities, &W->groups, &W->connections, &W->cables);
