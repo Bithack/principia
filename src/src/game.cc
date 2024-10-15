@@ -7185,7 +7185,10 @@ game::open_sandbox(int id_type, uint32_t id)
 }
 
 void game::open_sandbox_snapshot_mem(const void* snapshot, size_t size) {
-    tms_assertf(this->state.sandbox, "level is not a sandbox");
+    tms_assertf(this->state.sandbox,
+        "FATAL ERROR. Level is not a sandbox. This is a bug.\n"
+        "open_sandbox_snapshot_mem is only supported while in sandbox mode.\n"
+        "You probably tried to undo while playing a level, which shouldn't be possible");
 
     W->lb.clear();
     W->lb.ensure(size);

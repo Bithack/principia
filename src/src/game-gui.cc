@@ -1626,7 +1626,7 @@ game::init_gui(void)
     this->wdg_undo = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             GW_UNDO, AREA_TOP_LEFT,
-            gui_spritesheet::get_sprite(S_EMPTY), 0);
+            gui_spritesheet::get_sprite(S_UNDO), 0);
     this->wdg_undo->priority = 700;
     const char* undo_tooltip =
         "Undo"
