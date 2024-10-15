@@ -2685,10 +2685,14 @@ world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_i
             tms_fatalf("Level file too big");
         }
 
+        this->lb.reset();
+        this->lb.size = 0;
+        this->lb.ensure((int)size);
+        this->lb.size = size;
         _fread(this->lb.buf, 1, size, fp);
         _fclose(fp);
 
-        this->open_internal(size, id_type, id, paused, sandbox, save_id, is_autosave, false);
+        return this->open_internal(size, id_type, id, paused, sandbox, save_id, is_autosave, false);
     } else {
         tms_errorf("could not open file '%s' for reading", filename);
         return false;
@@ -2705,12 +2709,8 @@ bool world::open_internal(
     this->reset();
     this->init(paused);
 
-    this->lb.reset();
-    this->lb.size = 0;
-    this->lb.ensure((int)size);
-
-    this->lb.size = size;
     tms_infof("read file of size: %lu", size);
+    this->lb.size = size;
 
     if (!this->level.read(&this->lb)) {
         ui::message("You need to update Principia to play this level.", true);
