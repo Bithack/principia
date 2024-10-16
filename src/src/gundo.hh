@@ -3,13 +3,20 @@
 #include <cstddef>
 #include <cstdint>
 #include <vector>
+#include <SDL_thread.h>
+#include <condition_variable>
+#include <mutex>
 
 #define MAX_UNDO_ITEMS 100
+// TODO make background compression optional
 
 struct undo_item {
     const char *reason;
     void *data;
     size_t size;
+    size_t size_uncompressed;
+    bool compressed;
+    std::mutex mutex;
 };
 
 enum {
@@ -19,14 +26,40 @@ enum {
     UNDO_KEEP_ALL       = 0b11,
 };
 
+enum {
+    WORKER_IDLE = 0,
+    WORKER_RUN  = 1,
+    WORKER_KYS  = 2,
+};
+
+int _thread_worker(void *data);
+
 struct undo_stack {
-    private:
-        std::vector<undo_item> items;
+    // XXX: this should be private
+    public:
+        std::mutex m_items;
+        std::vector<undo_item*> items;
+
+        SDL_Thread *compressor_thread = nullptr;
+
+        std::mutex m_run_compressor;
+        uint8_t run_compressor = WORKER_IDLE;
+        std::condition_variable c_run_compressor;
+
+        void signal_to_run_compressor();
 
     public:
+        undo_stack();
+        ~undo_stack();
+
+        // Start the background compression thread
+        void start_thread();
+
+        // Kill the background compression thread
+        void kill_thread();
+
         // Get the number of items in the undo stack
         size_t amount();
-
 
         // Reset the undo stack
         // Call this while loading a new level
