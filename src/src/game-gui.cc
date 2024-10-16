@@ -2394,8 +2394,12 @@ game::refresh_widgets()
             case 0b011: G->wdg_layervis->s[0] = gui_spritesheet::get_sprite(S_LAYERVIS_2); break;
             default: case 0b111: G->wdg_layervis->s[0] = gui_spritesheet::get_sprite(S_LAYERVIS_3); break;
         }
+    }
 
-        this->wdg_undo->add(); // XXX griffi-gh: Is this the right place?
+    // XXX griffi-gh: Is this the right condition?
+    // Shouldn't we always show the undo button in sandbox mode? (even without advanced mode)
+    if (G->state.sandbox && W->is_paused() && G->state.advanced_mode) {
+        this->wdg_undo->add();
         this->wdg_undo->faded = undo.amount() == 0;
     }
 
