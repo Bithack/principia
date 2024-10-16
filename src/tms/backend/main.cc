@@ -353,7 +353,7 @@ tbackend_init_surface()
     _tms.xppcm = 108.f/2.54f * 1.5f;
     _tms.yppcm = 107.f/2.54f * 1.5f;
 
-    uint32_t flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
+    uint32_t flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
 
     if (settings["window_maximized"]->v.b)
         flags |= SDL_WINDOW_MAXIMIZED;
@@ -361,7 +361,10 @@ tbackend_init_surface()
     if (settings["window_fullscreen"]->v.b)
         flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
-    tms_infof("Creating window..."); \
+    if (settings["window_resizable"]->v.b)
+        flags |= SDL_WINDOW_RESIZABLE;
+
+    tms_infof("Creating window...");
     _window = SDL_CreateWindow("Principia", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		_tms.window_width, _tms.window_height, flags);
 

@@ -441,9 +441,9 @@ struct table_setting_row settings_interface_rows[] = {
         "uiscale",
         setting_row_type::create_hscale(0.25, 2.0, 0.05),
     },{
-        "Autosave screen size",
-        "Save the screen size when resizing the window.",
-        "autosave_screensize",
+        "Fullscreen mode",
+        "Toggle fullscreen mode",
+        "window_fullscreen",
         setting_row_type::create_checkbox()
     }, {
         "Display object ID",
@@ -479,6 +479,16 @@ struct table_setting_row settings_interface_rows[] = {
         "Ask before submitting highscore",
         "Always ask before submitting highscore.",
         "score_ask_before_submitting",
+        setting_row_type::create_checkbox()
+    }, {
+        "Resizable window",
+        "Allow the window to be resized. NOTE: Principia does not support resizing while in-game. Things will break.",
+        "window_resizable",
+        setting_row_type::create_checkbox()
+    }, {
+        "Autosave screen size",
+        "Save the screen size when resizing the window.",
+        "autosave_screensize",
         setting_row_type::create_checkbox()
     },
 };
