@@ -73,6 +73,11 @@
 #define DIALOG_DECORATION       161
 #define DIALOG_SFXEMITTER_2     162
 
+// Open native level browser dialog
+// ..or open community host if it's not
+//   supported by the current backend
+#define DIALOG_HC_LEVEL_BROWSER 163
+
 #define CLOSE_ALL_DIALOGS                  200
 #define CLOSE_ABSOLUTELY_ALL_DIALOGS       201
 #define CLOSE_REGISTER_DIALOG              202
