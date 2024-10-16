@@ -23,17 +23,25 @@ void undo_stack::reset() {
     this->items.clear();
 }
 
-void undo_stack::checkpoint(const char *reason) {
-#ifdef DEBUG
-    auto started = std::chrono::high_resolution_clock::now();
-#endif
-
+void* undo_stack::snapshot_state() {
     W->save(SAVE_TYPE_UNDO);
 
     void *data_copy = malloc(W->lb.size);
     memcpy(data_copy, W->lb.buf, W->lb.size);
 
-    struct undo_item item = { reason, data_copy, W->lb.size };
+    return data_copy;
+}
+
+void undo_stack::checkpoint(const char *reason, void *snapshot /* = nullptr */) {
+#ifdef DEBUG
+    auto started = std::chrono::high_resolution_clock::now();
+#endif
+
+    if (snapshot == nullptr) {
+        snapshot = this->snapshot_state();
+    }
+
+    struct undo_item item = { reason, snapshot, W->lb.size };
     this->items.push_back(item);
 
     if (this->items.size() > MAX_UNDO_ITEMS) {

@@ -20,6 +20,7 @@
 #include "gravityman.hh"
 #include "grid.hh"
 #include "group.hh"
+#include "gundo.hh"
 #include "i0o1gate.hh"
 #include "i1o1gate.hh"
 #include "i2o1gate.hh"
@@ -8006,6 +8007,14 @@ game::handle_input_paused(tms::event *ev, int action)
             case TMS_KEY_E:
                 if (ev->data.key.mod & TMS_MOD_SHIFT
                         && this->state.sandbox && this->selection.e) {
+                    // Save undo state if any items are going to be modified
+                    for (c_map::iterator it = this->pairs.begin(); it != this->pairs.end(); ++it) {
+                        if (!it->second->typeselect) {
+                            undo.checkpoint("Connect all");
+                            break;
+                        }
+                    }
+
                     entity *saved = this->selection.e;
                     for (c_map::iterator it = this->pairs.begin(); it != this->pairs.end(); ++it) {
                         connection *c = it->second;

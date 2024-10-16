@@ -26,11 +26,14 @@ struct undo_stack {
         // Avoid using this function directly if possible, use P.add_action(ACTION_UNDO_RESET, 0) instead
         void reset();
 
+        // Create a snapshot of the current level state
+        void* snapshot_state();
+
         // Save the current level state to the undo stack
         //
         // Avoid using this function directly if possible, use P.add_action(ACTION_UNDO_CHECKPOINT, reason) instead
         // Although, if you're calling it right before the state of the level changes, you MUST call it directly
-        void checkpoint(const char* reason = nullptr);
+        void checkpoint(const char* reason = nullptr, void* snapshot = nullptr);
 
         // Restore the last saved level state from the undo stack
         // Returns the reason for the last checkpoint
