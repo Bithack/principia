@@ -32,11 +32,11 @@ enum {
     WORKER_KYS  = 2,
 };
 
-int _thread_worker(void *data);
+static int _thread_worker_main(void *data);
 
 struct undo_stack {
     // XXX: this should be private
-    public:
+    private:
         std::mutex m_items;
         std::vector<undo_item*> items;
 
@@ -47,10 +47,13 @@ struct undo_stack {
         std::condition_variable c_run_compressor;
 
         void signal_to_run_compressor();
-
+        void _ensure_thread_running();
     public:
         undo_stack();
         ~undo_stack();
+
+        // Implementation detail, do not use
+        void _thread_worker();
 
         // Start the background compression thread
         void start_thread();

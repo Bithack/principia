@@ -24,29 +24,34 @@
 
 struct undo_stack undo;
 
-undo_stack::undo_stack() {
-    undo_stack::start_thread();
-}
+undo_stack::undo_stack() {}
 
 undo_stack::~undo_stack() {
     undo_stack::reset();
-    undo_stack::kill_thread();
+    if (this->compressor_thread != nullptr) {
+        tms_warnf("undo_stack: thread was not cleaned up");
+        undo_stack::kill_thread();
+    }
 }
 
-int _thread_worker(void *data) {
+static int _thread_worker_main(void *data) {
     undo_stack *stack = (undo_stack *)data;
+    stack->_thread_worker();
+    return 0;
+}
 
+void undo_stack::_thread_worker() {
     while (true) {
-        std::unique_lock<std::mutex> run_compressor_lock(stack->m_run_compressor);
-        stack->c_run_compressor.wait(run_compressor_lock, [stack] {
-            return stack->run_compressor != WORKER_IDLE;
+        std::unique_lock<std::mutex> run_compressor_lock(this->m_run_compressor);
+        this->c_run_compressor.wait(run_compressor_lock, [this] {
+            return this->run_compressor != WORKER_IDLE;
         });
-        if (stack->run_compressor == WORKER_KYS) {
-            stack->run_compressor = WORKER_IDLE;
+        if (this->run_compressor == WORKER_KYS) {
+            this->run_compressor = WORKER_IDLE;
             run_compressor_lock.unlock();
             break;
         } else {
-            stack->run_compressor = WORKER_IDLE;
+            this->run_compressor = WORKER_IDLE;
             run_compressor_lock.unlock();
         }
 
@@ -58,8 +63,8 @@ int _thread_worker(void *data) {
             // Find the first uncompressed undo item
             tms_debugf(UNDOTHR_LOG "look for item to compress...");
             {
-                std::lock_guard<std::mutex> lock(stack->m_items);
-                for (struct undo_item *&item : stack->items) {
+                std::lock_guard<std::mutex> lock(this->m_items);
+                for (struct undo_item *&item : this->items) {
                     std::lock_guard<std::mutex> lock(item->mutex);
                     if (!item->compressed) {
                         item_to_compress = item;
@@ -72,6 +77,30 @@ int _thread_worker(void *data) {
             // If no item was found, break the loop and wait for the next signal
             if (item_to_compress == nullptr) {
                 tms_debugf(UNDOTHR_LOG "done compressing, waiting for next signal...");
+#ifdef DEBUG
+                {
+                    size_t size_compressed = 0;
+                    size_t size_uncompressed = 0;
+                    std::lock_guard<std::mutex> lock(this->m_items);
+                    for (struct undo_item *&item : this->items) {
+                        std::lock_guard<std::mutex> lock(item->mutex);
+                        size_compressed += item->size;
+                        size_uncompressed += item->size_uncompressed;
+                    }
+                    tms_debugf(UNDOTHR_LOG
+                        "undo storage condition\n"
+                        " - items: %lu/%d\n"
+                        " - size compressed: %lu\n"
+                        " - size uncompressed: %lu\n"
+                        " - compression ratio: %f",
+                        this->items.size(), MAX_UNDO_ITEMS,
+                        size_compressed,
+                        size_uncompressed,
+                        (float)size_compressed / size_uncompressed
+                    );
+                }
+#endif
+                // Break the loop and wait for the next signal
                 break;
             }
 
@@ -114,8 +143,6 @@ int _thread_worker(void *data) {
             }
         }
     }
-
-    return 0;
 }
 
 void undo_stack::signal_to_run_compressor() {
@@ -132,7 +159,15 @@ void undo_stack::start_thread() {
         tms_warnf("undo_thread_worker: thread already running");
         return;
     }
-    this->compressor_thread = SDL_CreateThread(_thread_worker, "undocomp_thr", this);
+    tms_infof("Undo compression worker starting...");
+    this->compressor_thread = SDL_CreateThread(_thread_worker_main, "undocomp_thr", this);
+    tms_infof("Started undo compression worker thread");
+}
+
+void undo_stack::_ensure_thread_running() {
+    if (this->compressor_thread != nullptr) return;
+    tms_infof("Undo compression worker not running, starting...");
+    this->start_thread();
 }
 
 void undo_stack::kill_thread() {
@@ -148,6 +183,8 @@ void undo_stack::kill_thread() {
     int status = 0;
     SDL_WaitThread(this->compressor_thread, &status);
     tms_debugf("undo_thread_worker: thread exited with status %d", status);
+
+    tms_infof("Undo compression worker stopped");
 
     this->compressor_thread = nullptr;
 }
@@ -172,6 +209,8 @@ void* undo_stack::snapshot_state() {
 }
 
 void undo_stack::checkpoint(const char *reason, void *snapshot /* = nullptr */) {
+    this->_ensure_thread_running();
+
     std::lock_guard<std::mutex> guard_items(this->m_items);
 
     if (!W->paused) {
@@ -209,19 +248,11 @@ void undo_stack::checkpoint(const char *reason, void *snapshot /* = nullptr */) 
 
 #ifdef DEBUG
     auto done = std::chrono::high_resolution_clock::now();
-    size_t total_size_bytes = 0;
-    for (struct undo_item *&item : this->items) {
-        total_size_bytes += item->size;
-    }
     tms_debugf(
         "undo_checkpoint:\n"
-        " - item: %lu bytes; ptr %p\n"
-        " - total size: %lu bytes\n"
-        " - histsize: %lu/%u\n"
+        " - item: %lu bytes (before compression); ptr %p\n"
         " - time: %lu ns\n",
         item->size, item->data,
-        total_size_bytes,
-        this->items.size(), MAX_UNDO_ITEMS,
         std::chrono::duration_cast<std::chrono::nanoseconds>(done - started).count()
     );
 #endif
