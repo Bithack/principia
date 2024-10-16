@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 
 #define MAX_UNDO_ITEMS 100
@@ -9,6 +10,13 @@ struct undo_item {
     const char *reason;
     void *data;
     size_t size;
+};
+
+enum {
+    UNDO_KEEP_NONE      = 0b00,
+    UNDO_KEEP_CAM_POS   = 0b01,
+    UNDO_KEEP_SELECTION = 0b10,
+    UNDO_KEEP_ALL       = 0b11,
 };
 
 struct undo_stack {
@@ -39,7 +47,7 @@ struct undo_stack {
         // Returns the reason for the last checkpoint
         //
         // Avoid using this function directly, use P.add_action(ACTION_UNDO_RESTORE, 0) instead
-        const char* restore(bool keep_cam_pos = true);
+        const char* restore(uint8_t flags = UNDO_KEEP_ALL);
 };
 
 extern struct undo_stack undo;

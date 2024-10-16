@@ -3,6 +3,7 @@
 #include "game.hh"
 #include "tms/backend/print.h"
 #include "world.hh"
+#include <cstdint>
 #include <cstdlib>
 
 #ifdef DEBUG
@@ -75,12 +76,23 @@ void undo_stack::checkpoint(const char *reason, void *snapshot /* = nullptr */) 
     );
 }
 
-const char* undo_stack::restore(bool keep_cam_pos /* = true */) {
+const char* undo_stack::restore(uint8_t flags) {
+    // Save the current camera position
     float cx, cy, cz;
-    if (keep_cam_pos) {
+    if (flags & UNDO_KEEP_CAM_POS) {
         cx = G->cam->_position.x;
         cy = G->cam->_position.y;
         cz = G->cam->_position.z;
+    }
+
+    // Save the current selection
+    uint32_t saved_selection_id = 0;
+    if (flags & UNDO_KEEP_SELECTION) {
+        if (G->selection.e != nullptr) {
+            saved_selection_id = G->selection.e->id;
+        } else {
+            tms_warnf("undo_restore: no selection to keep");
+        }
     }
 
     if (this->items.size() == 0) {
@@ -95,8 +107,19 @@ const char* undo_stack::restore(bool keep_cam_pos /* = true */) {
 
     free(item.data);
 
-    if (keep_cam_pos) {
+    if (flags & UNDO_KEEP_CAM_POS) {
         G->cam->set_position(cx, cy, cz);
     }
+    if (flags & UNDO_KEEP_SELECTION) {
+        G->selection.disable();
+        if (saved_selection_id) {
+            if (entity *e = W->get_entity_by_id(saved_selection_id)) {
+                G->selection.select(e);
+            } else {
+                tms_warnf("undo_restore: selection entity not found");
+            }
+        }
+    }
+
     return item.reason;
 }
