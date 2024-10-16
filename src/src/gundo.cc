@@ -50,7 +50,7 @@ void undo_stack::checkpoint(const char *reason, void *snapshot /* = nullptr */) 
         snapshot = this->snapshot_state();
     }
 
-    struct undo_item item = { reason, snapshot, W->lb.size };
+    struct undo_item item = { reason, snapshot, static_cast<size_t>(W->lb.size) };
     this->items.push_back(item);
 
     if (this->items.size() > MAX_UNDO_ITEMS) {
