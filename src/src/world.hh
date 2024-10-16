@@ -30,6 +30,7 @@ enum {
     SAVE_TYPE_DEFAULT  = 0,
     SAVE_TYPE_AUTOSAVE = 1,
     SAVE_TYPE_STATE    = 2,
+    SAVE_TYPE_UNDO     = 3,
 };
 
 #define WORLD_STEP 8000
@@ -292,6 +293,11 @@ class world : public b2QueryCallback
 
     void create(int type, uint64_t seed, bool play);
     void open_autosave(void);
+    bool open_internal(
+        size_t data_len,
+        int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_id=0,
+        bool is_autosave=false, bool skip_compression=false
+    );
     bool open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_id=0);
     void begin();
     bool read_cache(int level_type, uint32_t id, uint32_t save_id=0);

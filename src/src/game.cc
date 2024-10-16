@@ -20,6 +20,7 @@
 #include "gravityman.hh"
 #include "grid.hh"
 #include "group.hh"
+#include "gundo.hh"
 #include "i0o1gate.hh"
 #include "i1o1gate.hh"
 #include "i2o1gate.hh"
@@ -67,6 +68,7 @@
 #include "world.hh"
 #include "player_activator.hh"
 #include "gui.hh"
+#include <cstddef>
 #ifdef DEBUG
 /* for print_screen_point_info */
 #include "terrain.hh"
@@ -7183,6 +7185,37 @@ game::open_sandbox(int id_type, uint32_t id)
     this->refresh_widgets();
 }
 
+void game::open_sandbox_snapshot_mem(const void* snapshot, size_t size) {
+    tms_assertf(this->state.sandbox,
+        "FATAL ERROR. Level is not a sandbox. This is a bug.\n"
+        "open_sandbox_snapshot_mem is only supported while in sandbox mode.\n"
+        "You probably tried to undo while playing a level, which shouldn't be possible");
+
+    W->lb.clear();
+    W->lb.ensure(size);
+    memcpy(W->lb.buf, snapshot, size);
+    W->lb.size = size;
+
+    this->reset();
+    this->state.sandbox = true;
+    W->open_internal(
+        size,
+        W->level_id_type,
+        W->level.local_id,
+        W->is_paused(),
+        true,
+        W->level.save_id,
+        false,
+        true
+    );
+
+    this->apply_level_properties();
+    this->add_entities(&W->all_entities, &W->groups, &W->connections, &W->cables);
+    W->begin();
+
+    this->refresh_widgets();
+}
+
 bool
 game::delete_level(int id_type, uint32_t id, uint32_t save_id)
 {
@@ -7974,6 +8007,14 @@ game::handle_input_paused(tms::event *ev, int action)
             case TMS_KEY_E:
                 if (ev->data.key.mod & TMS_MOD_SHIFT
                         && this->state.sandbox && this->selection.e) {
+                    // Save undo state if any items are going to be modified
+                    for (c_map::iterator it = this->pairs.begin(); it != this->pairs.end(); ++it) {
+                        if (!it->second->typeselect) {
+                            undo.checkpoint("Connect all");
+                            break;
+                        }
+                    }
+
                     entity *saved = this->selection.e;
                     for (c_map::iterator it = this->pairs.begin(); it != this->pairs.end(); ++it) {
                         connection *c = it->second;
@@ -8337,6 +8378,7 @@ game::handle_input_paused(tms::event *ev, int action)
 #endif
                     ) {
                 tms_debugf("IMPORT (%.2f)", dist);
+                undo.checkpoint("Import partial");
                 this->import_object(this->multi.import->lvl_id);
             }
         } else {
@@ -9594,8 +9636,10 @@ game::check_click_conntype(int x, int y)
                     : b2Vec2(pt[this->cs_conn->layer].x, pt[this->cs_conn->layer].y);
 
     if ((p1 - point).Length() < w) {
+        undo.checkpoint("Connection (Fixed)");
         this->apply_connection(this->cs_conn, 0);
     } else if ((p2 - point).Length() < w) {
+        undo.checkpoint("Connection (Rotating)");
         this->apply_connection(this->cs_conn, 1);
     }
 
@@ -9802,6 +9846,8 @@ game::check_click_conn(int x, int y)
                 this->cs_conn = c;
                 return true;
             }
+
+            undo.checkpoint("Connection");
 
             if (W->is_adventure() && W->is_playing()) {
                 this->apply_connection(c, c->option);
