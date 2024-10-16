@@ -15,6 +15,13 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
+add_custom_target(GenerateGitVersion
+	COMMAND ${CMAKE_COMMAND}
+	-D "GENERATE_VERSION_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+	-D "GENERATE_VERSION_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}"
+	-P "${CMAKE_SOURCE_DIR}/cmake/Modules/GenerateGitVersion.cmake"
+	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
 
 # Find core dependencies
 # ----------------------
@@ -89,7 +96,8 @@ include_directories(
 	${FREETYPE_INCLUDE_DIRS}
 	${JPEG_INCLUDE_DIRS}
 	${PNG_INCLUDE_DIRS}
-	${ZLIB_INCLUDE_DIRS})
+	${ZLIB_INCLUDE_DIRS}
+	${CMAKE_CURRENT_BINARY_DIR})
 
 file(GLOB SRCS
 	src/tms/core/*.c
@@ -237,6 +245,7 @@ else()
 	target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 endif()
 
+add_dependencies(${PROJECT_NAME} GenerateGitVersion)
 
 # Compiler flags
 # --------------

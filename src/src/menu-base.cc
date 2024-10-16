@@ -20,8 +20,8 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
     switch (button_id) {
         case BTN_VERSION:
             char msg[1024];
-            snprintf(msg, 1023, "Principia %s built at " __DATE__ " " __TIME__ ".",
-                principia_version_string());
+            snprintf(msg, 1023, "Principia %s commit %s",
+                principia_version_string(), principia_version_hash());
 
             ui::message(msg);
             break;

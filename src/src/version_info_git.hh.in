@@ -1,0 +1,5 @@
+#pragma once
+
+// Filled in by CMake
+
+#define PRINCIPIA_VERSION_HASH "@VERSION_GITHASH@"

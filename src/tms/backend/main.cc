@@ -76,7 +76,7 @@ void print_log_header() {
         "| |_) | |  | | | | | (__| | |_) | | (_| |\n"
         "| .__/|_|  |_|_| |_|\\___|_| .__/|_|\\__,_|\n"
         "|_|                       |_|            \n"
-        "Version %d, built " __DATE__ " " __TIME__ "\n", principia_version_code());
+        "Version %s, commit %s\n", principia_version_string(), principia_version_hash());
 }
 
 int main(int argc, char **argv)
