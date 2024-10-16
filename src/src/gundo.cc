@@ -14,7 +14,7 @@
 #include <chrono>
 #endif
 
-#define COMPRESSION_LEVEL 3
+#define COMPRESSION_LEVEL Z_BEST_COMPRESSION
 
 #define UNDOTHR_LOG "undo_thread_worker: "
 
