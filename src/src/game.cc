@@ -8378,6 +8378,7 @@ game::handle_input_paused(tms::event *ev, int action)
 #endif
                     ) {
                 tms_debugf("IMPORT (%.2f)", dist);
+                undo.checkpoint("Import partial");
                 this->import_object(this->multi.import->lvl_id);
             }
         } else {
