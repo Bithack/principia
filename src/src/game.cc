@@ -9635,8 +9635,10 @@ game::check_click_conntype(int x, int y)
                     : b2Vec2(pt[this->cs_conn->layer].x, pt[this->cs_conn->layer].y);
 
     if ((p1 - point).Length() < w) {
+        undo.checkpoint("Connection (Fixed)");
         this->apply_connection(this->cs_conn, 0);
     } else if ((p2 - point).Length() < w) {
+        undo.checkpoint("Connection (Rotating)");
         this->apply_connection(this->cs_conn, 1);
     }
 
