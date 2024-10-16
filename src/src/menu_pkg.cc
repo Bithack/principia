@@ -289,10 +289,10 @@ menu_pkg::step(double dt)
     this->cam->near = -1.f;
     this->cam->far = 1.f;
 
-    float max_x = this->pkg.num_levels/9 * _tms.xppcm*4.f*1.2f + 1000;
+    float max_x = this->pkg.num_levels/9 * _tms.xppcm*4.f*1.2f + 2000;
     float min_x = _tms.window_width/2.f - 200.f;
-    if (this->cam->_position.x < min_x) this->cam->_position.x = min_x;
-    else if (this->cam->_position.x > max_x) this->cam->_position.x = max_x;
+
+    this->cam->_position.x = tclampf(this->cam->_position.x, min_x, max_x);
 
     tms_camera_calculate(this->cam);
 
