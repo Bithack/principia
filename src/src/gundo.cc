@@ -34,6 +34,14 @@ void* undo_stack::snapshot_state() {
 }
 
 void undo_stack::checkpoint(const char *reason, void *snapshot /* = nullptr */) {
+    if (!W->paused) {
+        tms_warnf("undo_checkpoint: SKIPPING, BECAUSE not paused");
+        return;
+    } else if (!G->state.sandbox) {
+        tms_warnf("undo_checkpoint: SKIPPING, BECAUSE state != sandbox");
+        return;
+    }
+
 #ifdef DEBUG
     auto started = std::chrono::high_resolution_clock::now();
 #endif
