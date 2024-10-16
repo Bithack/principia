@@ -2398,7 +2398,7 @@ game::refresh_widgets()
 
     // XXX griffi-gh: Is this the right condition?
     // Shouldn't we always show the undo button in sandbox mode? (even without advanced mode)
-    if (G->state.sandbox && W->is_paused() && G->state.advanced_mode) {
+    if (G->state.sandbox && W->is_paused() /*&& G->state.advanced_mode*/) {
         this->wdg_undo->add();
         this->wdg_undo->faded = undo.amount() == 0;
     }
