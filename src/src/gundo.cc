@@ -146,9 +146,10 @@ void undo_stack::_thread_worker() {
 }
 
 void undo_stack::signal_to_run_compressor() {
+    this->_ensure_thread_running();
     tms_debugf("signal_to_run_compressor: enter");
     this->m_run_compressor.lock();
-    this->run_compressor = true;
+    this->run_compressor = WORKER_RUN;
     this->m_run_compressor.unlock();
     this->c_run_compressor.notify_all();
     tms_debugf("signal_to_run_compressor: leave");
@@ -209,8 +210,6 @@ void* undo_stack::snapshot_state() {
 }
 
 void undo_stack::checkpoint(const char *reason, void *snapshot /* = nullptr */) {
-    this->_ensure_thread_running();
-
     std::lock_guard<std::mutex> guard_items(this->m_items);
 
     if (!W->paused) {
