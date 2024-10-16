@@ -9844,6 +9844,8 @@ game::check_click_conn(int x, int y)
                 return true;
             }
 
+            undo.checkpoint("Connection");
+
             if (W->is_adventure() && W->is_playing()) {
                 this->apply_connection(c, c->option);
             } else {
