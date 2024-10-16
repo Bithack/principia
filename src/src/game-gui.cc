@@ -2396,6 +2396,7 @@ game::refresh_widgets()
         }
 
         this->wdg_undo->add(); // XXX griffi-gh: Is this the right place?
+        this->wdg_undo->faded = undo.amount() == 0;
     }
 
     if ((this->state.sandbox || this->state.test_playing || W->is_paused() || W->is_puzzle()) && (W->level.type != LCAT_ADVENTURE || W->is_paused())) {
