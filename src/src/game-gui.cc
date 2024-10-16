@@ -1007,7 +1007,7 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
 
         case GW_UNDO:
             P.add_action(ACTION_UNDO_RESTORE, 0);
-            break;
+            return true;
 
         case GW_MODE:
             {
