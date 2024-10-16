@@ -5,6 +5,10 @@
 #include "world.hh"
 #include <cstdlib>
 
+#ifdef DEBUG
+#include <chrono>
+#endif
+
 // TODO griffi-gh: call reset on level load
 // TODO griffi-gh: support redo
 // TODO griffi-gh: compress undo items?
@@ -20,6 +24,10 @@ void undo_stack::reset() {
 }
 
 void undo_stack::checkpoint(const char *reason) {
+#ifdef DEBUG
+    auto started = std::chrono::high_resolution_clock::now();
+#endif
+
     W->save(SAVE_TYPE_UNDO);
 
     void *data_copy = malloc(W->lb.size);
@@ -28,11 +36,6 @@ void undo_stack::checkpoint(const char *reason) {
     struct undo_item item = { reason, data_copy, W->lb.size };
     this->items.push_back(item);
 
-    tms_debugf(
-        "undo_checkpoint: item: %lu bytes; ptr %p",
-        item.size, item.data
-    );
-
     if (this->items.size() > MAX_UNDO_ITEMS) {
         const void *data = this->items.front().data;
         free((void *)data);
@@ -40,13 +43,21 @@ void undo_stack::checkpoint(const char *reason) {
     }
 
 #ifdef DEBUG
+    auto done = std::chrono::high_resolution_clock::now();
     size_t total_size_bytes = 0;
     for (const struct undo_item &item : this->items) {
         total_size_bytes += item.size;
     }
     tms_debugf(
-        "undo_checkpoint: total size: %lu bytes\n",
-        total_size_bytes
+        "undo_checkpoint:\n"
+        " - item: %lu bytes; ptr %p\n"
+        " - total size: %lu bytes\n"
+        " - histsize: %lu/%u\n"
+        " - time: %lu ns\n",
+        item.size, item.data,
+        total_size_bytes,
+        this->items.size(), MAX_UNDO_ITEMS,
+        std::chrono::duration_cast<std::chrono::nanoseconds>(done - started).count()
     );
 #endif
 
