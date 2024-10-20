@@ -83,6 +83,7 @@ class sm_sound
     };
 
     void add_chunk(const char *filename, const char *chunk_name);
+    void add_chunk_raw(uint8_t *data, size_t len, const char *chunk_name);
 };
 
 class sm_channel

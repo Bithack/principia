@@ -1206,6 +1206,18 @@ sm_sound::add_chunk(const char *filename, const char *chunk_name)
 }
 
 void
+sm_sound::add_chunk_raw(uint8_t *data, size_t len, const char *chunk_name)
+{
+    if (this->num_chunks < SM_MAX_CHUNKS) {
+        this->chunks[this->num_chunks].chunk = Mix_QuickLoad_RAW(data, len);
+        this->chunks[this->num_chunks].name = chunk_name;
+        this->num_chunks ++;
+    } else {
+        tms_errorf("Unable to add chunk, too many chunks loaded for this sound.");
+    }
+}
+
+void
 sm::step(void)
 {
     for (int x=0; x<SM_MAX_CHANNELS; x++) {
