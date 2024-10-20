@@ -1,4 +1,5 @@
 #include "escript.hh"
+#include "SDL_mixer.h"
 #include "model.hh"
 #include "game.hh"
 #include "pkgman.hh"
@@ -7,6 +8,7 @@
 #include "receiver.hh"
 #include "soundmanager.hh"
 #include "tms/backend/print.h"
+#include "tms/math/misc.h"
 #include "ui.hh"
 #include "robotman.hh"
 #include "robot_base.hh"
@@ -3125,7 +3127,9 @@ extern "C" {
             len * sizeof(int16_t),
             chunk_name);
 
-        free(pcm_buf);
+        // XXX: do not do this...
+        // Mix_QuickLoad_RAW just points to the buffer, doesnt actually load the data
+        // free(pcm_buf);
 
         tms_debugf("Created Sfx %p", sfx);
 
@@ -3137,13 +3141,35 @@ extern "C" {
         return 1;
     }
 
+    // possible overloads:
+    // (this) - play globally with full volume
+    // (this, volume) - play globally with specified volume
+    // (this, volume, x, y) - play at specified position with specified volume
     static int l_sfx_play(lua_State *L) {
-        // get this as SfxMT
-
+        // Get this as SfxMT
         sm_sound *s = *(sm_sound**)luaL_checkudata(L, 1, "SfxMT");
+
+        // Get other args
+        float x = 0, y = 0;
+        float volume = 1.0f;
+        bool global = true;
+        if (lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
+            // XXX: should volume upper bound be clamped?
+            volume = tclampf(
+                luaL_checknumber(L, 2),
+                SM_MIN_VOLUME, 1.);
+        }
+        if (lua_gettop(L) >= 3 &&
+            !(lua_isnil(L, 3) && lua_isnil(L, 4))
+        ) {
+            global = false;
+            x = luaL_checknumber(L, 3);
+            y = luaL_checknumber(L, 4);
+        }
+
         // TODO: accept other arguments
         tms_debugf("Playing Sfx %p", s);
-        sm::play(s, 0., 0., 0, 1.);
+        sm::play(s, x, y, 0, volume, false, 0, global);
 
         return 0;
     }
@@ -3159,7 +3185,9 @@ extern "C" {
         // TODO: figure out how to handle audio that's still playing! (is it okay to free it after play is called?)
         tms_debugf("deleting Sfx %p", s);
         for (size_t i = 0; i < s->num_chunks; i++) {
-            SDL_free(s->chunks[i].chunk);
+            Mix_Chunk *chunk = s->chunks[i].chunk;
+            free(chunk->abuf);
+            SDL_free(chunk);
         }
         s->num_chunks = 0;
         free(s);
