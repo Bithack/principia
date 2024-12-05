@@ -43,3 +43,9 @@ jobs:
         with:
           name: Principia-x86_64.AppImage
           path: build/Principia-x86_64.AppImage
+
+      - name: Upload debug symbols as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-appimage-dbgsym
+          path: build/principia.debug

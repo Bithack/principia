@@ -17,11 +17,16 @@ fi
 # Remove old appdir
 rm -rf AppDir
 
-# Compile and install into AppDir
-cmake .. -G Ninja -DCMAKE_INSTALL_PREFIX=AppDir/usr/
+# Compile
+cmake .. -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=AppDir/usr/
 ninja
-ninja install
 
+# Strip binary and create debug symbol file
+objcopy --only-keep-debug principia principia.debug
+objcopy --strip-debug --add-gnu-debuglink=principia.debug principia
+
+# Install into AppDir
+ninja install
 cd AppDir
 
 # Put desktop and icon at root
