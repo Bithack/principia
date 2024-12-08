@@ -261,8 +261,10 @@ init_curl_defaults(void *curl)
 {
     curl_easy_reset(P.curl);
 
-    curl_easy_setopt(P.curl, CURLOPT_SSL_VERIFYHOST, 0); /* XXX */
-    curl_easy_setopt(P.curl, CURLOPT_SSL_VERIFYPEER, 0); /* XXX */
+#ifdef TMS_BACKEND_ANDROID
+    // XXX: Fix cert verification on Android
+    curl_easy_setopt(P.curl, CURLOPT_SSL_VERIFYPEER, 0);
+#endif
 
     char ua[512];
     snprintf(ua, 511, "Principia/%d (%s) (%s)",
