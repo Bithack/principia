@@ -24,10 +24,9 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             P.add_action(ACTION_GOTO_CREATE, 1);
             break;
 
-        case BTN_BROWSE_COMMUNITY: {
-            COMMUNITY_URL("");
-            ui::open_url(url);
-        } break;
+        case BTN_BROWSE_COMMUNITY:
+            ui::open_dialog(DIALOG_HC_LEVEL_BROWSER);
+            break;
 
         case BTN_UPDATE: {
             COMMUNITY_URL("download");

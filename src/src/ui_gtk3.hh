@@ -1,4 +1,5 @@
 
+#include "main.hh"
 #ifdef TMS_BACKEND_PC
 
 // fuckgtk3
@@ -7,6 +8,8 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+
+#include "ui_gtk3_levelbrowser.hh"
 
 #ifdef USE_GTK_SOURCE_VIEW
 #include <gtksourceview/gtksource.h>
@@ -6287,6 +6290,10 @@ int _gtk_loop(void *p)
     //Load CSS themes
     load_gtk_css();
 
+#ifdef GTK3_LEVEL_BROWSER_ENABLE
+    init_community_level_browser();
+#endif
+
     g_object_set(
         gtk_settings_get_default(),
         "gtk-application-prefer-dark-theme", true,
@@ -11612,6 +11619,14 @@ ui::open_dialog(int num, void *data/*=0*/)
             gdk_threads_add_timeout(40, _open_prompt_dialog, 0);
             break;
         case DIALOG_PROMPT_SETTINGS: gdk_threads_add_idle(_open_prompt_settings_dialog, 0); break;
+
+        case DIALOG_HC_LEVEL_BROWSER:
+            #ifdef GTK3_LEVEL_BROWSER_ENABLE
+                gdk_threads_add_idle(open_community_level_browser, 0);
+            #else
+                ui::open_url(P.community_host);
+            #endif
+            break;
 
         default:
             tms_warnf("Unhandled dialog ID: %d", num);
