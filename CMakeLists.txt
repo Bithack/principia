@@ -266,7 +266,7 @@ else()
 
 		add_definitions(-D_WIN32_WINNT=0x0501 -DUNICODE)
 	elseif(SCREENSHOT_BUILD)
-		add_definitions(-DNO_UI)
+		add_definitions(-DNO_UI -DSCREENSHOT_BUILD)
 	endif()
 endif()
 
