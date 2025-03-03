@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.14)
 
 project(principia)
 
@@ -90,11 +90,8 @@ include_directories(
 	src/
 	src/lua/
 	src/SDL_image/
+	src/SDL_mixer/
 	src/src/
-	${FREETYPE_INCLUDE_DIRS}
-	${JPEG_INCLUDE_DIRS}
-	${PNG_INCLUDE_DIRS}
-	${ZLIB_INCLUDE_DIRS}
 	${CMAKE_CURRENT_BINARY_DIR})
 
 file(GLOB SRCS
@@ -119,11 +116,6 @@ file(GLOB SRCS
 	src/Box2D/Particle/*.cc
 )
 
-# For non-Android, system SDL2 and OpenGL include dirs
-include_directories(
-	${SDL2_INCLUDE_DIRS}
-	${OPENGL_INCLUDE_DIRS})
-
 # Optional dependencies not found on Android or in the screenshot build
 if(NOT SCREENSHOT_BUILD)
 	if(NOT ANDROID AND NOT EMSCRIPTEN)
@@ -132,19 +124,14 @@ if(NOT SCREENSHOT_BUILD)
 
 		find_package(GLEW REQUIRED)
 
-		include_directories(
-			${GLEW_INCLUDE_DIRS}
-			${GTK3_INCLUDE_DIRS})
+		include_directories(${GTK3_INCLUDE_DIRS})
 	endif()
 
 	find_package(CURL REQUIRED)
+	include_directories(${CURL_INCLUDE_DIR})
 
 	file(GLOB SDL_mixer_SRCS src/SDL_mixer/*.c)
-	set(SRCS ${SRCS} ${SDL_mixer_SRCS})
-
-	include_directories(
-		${CURL_INCLUDE_DIR}
-		src/SDL_mixer/)
+	list(APPEND SRCS ${SDL_mixer_SRCS})
 
 	add_definitions(-DBUILD_CURL)
 endif()
@@ -155,7 +142,7 @@ endif()
 if(NOT SCREENSHOT_BUILD AND NOT ANDROID AND NOT EMSCRIPTEN)
 	option(USE_LUASOCKET "Build with Luasocket support" TRUE)
 else()
-	set(USE_LUASOCKET false)
+	set(USE_LUASOCKET FALSE)
 endif()
 
 if(USE_LUASOCKET)
@@ -164,7 +151,7 @@ if(USE_LUASOCKET)
 	file(GLOB LUASOCKET_SRCS
 		src/luasocket/*.c)
 
-	set(SRCS ${SRCS} ${LUASOCKET_SRCS})
+	list(APPEND SRCS ${LUASOCKET_SRCS})
 endif()
 
 
@@ -177,27 +164,14 @@ elseif(EMSCRIPTEN)
 	set(BACKEND_SRC main_emscripten.cc)
 else()
 	set(BACKEND_SRC main.cc)
-	set(SRCS ${SRCS} src/tms/backend/pipe.cc)
+	list(APPEND SRCS src/tms/backend/pipe.cc)
 endif()
 
-set(SRCS ${SRCS} src/tms/backend/${BACKEND_SRC})
+list(APPEND SRCS src/tms/backend/${BACKEND_SRC})
 
 
 if(WIN32)
-	# Windows manifest (resource and icon) for Windows builds
-	set(WINRESOURCE_FILE "packaging/principia.rc")
-	set(WINMANIFEST_FILE "packaging/principia.manifest")
-
-	if(NOT CMAKE_RC_COMPILER)
-		set(CMAKE_RC_COMPILER "windres.exe")
-	endif()
-	add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/principia.rc.o
-		COMMAND ${CMAKE_RC_COMPILER} -I${CMAKE_CURRENT_SOURCE_DIR} -I${CMAKE_CURRENT_BINARY_DIR}
-		-i${WINRESOURCE_FILE}
-		-o ${CMAKE_CURRENT_BINARY_DIR}/principia.rc.o
-		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-		DEPENDS ${WINRESOURCE_FILE} ${WINMANIFEST_FILE})
-	set(SRCS ${SRCS} ${CMAKE_CURRENT_BINARY_DIR}/principia.rc.o)
+	list(APPEND SRCS packaging/principia.rc)
 endif()
 
 
@@ -214,34 +188,45 @@ endif()
 # Link libraries against executable
 # ---------------------------------
 
-target_link_libraries(
-	${PROJECT_NAME}
-		${FREETYPE_LIBRARIES}
-		${JPEG_LIBRARIES}
-		${PNG_LIBRARIES}
-		${ZLIB_LIBRARIES})
+set(LIBS
+    Freetype::Freetype
+    JPEG::JPEG
+    PNG::PNG
+    ZLIB::ZLIB
+)
+
+if(NOT EMSCRIPTEN)
+	list(APPEND LIBS SDL2::SDL2)
+	if(WINDOWS)
+		list(APPEND LIBS SDL2::SDL2main)
+	endif()
+endif()
 
 if(NOT SCREENSHOT_BUILD)
-	target_link_libraries(${PROJECT_NAME} ${CURL_LIBRARIES})
+	list(APPEND LIBS ${CURL_LIBRARIES})
 
 	if(NOT ANDROID)
-		target_link_libraries(${PROJECT_NAME} ${GTK3_LIBRARIES})
+		list(APPEND LIBS ${GTK3_LIBRARIES})
 	endif()
 
 	if(NOT SHOULD_USE_GLES)
-		target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARIES})
+		list(APPEND LIBS GLEW::GLEW)
 	endif()
 endif()
 
-if(NOT EMSCRIPTEN)
-	target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
+if(SHOULD_USE_GLES)
+	list(APPEND LIBS GLESv2)
+else()
+	list(APPEND LIBS OpenGL::GL)
 endif()
 
-if(SHOULD_USE_GLES)
-	target_link_libraries(${PROJECT_NAME} -lGLESv2)
-else()
-	target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
+if(ANDROID)
+	list(APPEND LIBS android dl log OpenSLES)
+elseif(WIN32)
+	list(APPEND LIBS ws2_32.lib version.lib shlwapi.lib winmm.lib)
 endif()
+
+target_link_libraries(${PROJECT_NAME} ${LIBS})
 
 add_dependencies(${PROJECT_NAME} GenerateGitVersion)
 
@@ -255,15 +240,11 @@ elseif(NOT SCREENSHOT_BUILD)
 endif()
 
 if(ANDROID)
-	target_link_libraries(${PROJECT_NAME} -landroid -ldl -llog -lOpenSLES)
-
 	add_definitions(-DHAVE_GCC_ATOMICS)
 else()
 	add_definitions(-DTMS_FAST_MATH)
 
 	if(WIN32)
-		target_link_libraries(${PROJECT_NAME} ws2_32.lib version.lib shlwapi.lib winmm.lib)
-
 		add_definitions(-D_WIN32_WINNT=0x0501 -DUNICODE)
 	elseif(SCREENSHOT_BUILD)
 		add_definitions(-DNO_UI -DSCREENSHOT_BUILD)
@@ -286,15 +267,18 @@ set(CMAKE_CXX_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE} -O2 -fno-rtti")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} -g")
 set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG}")
 
-# macOS Clang's linker doesn't like these flags
-if(NOT APPLE)
-	if(WIN32)
-		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-mwindows -Wl,-s")
-	else()
-		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-s")
-	endif()
+if(NOT DEFINED CMAKE_EXE_LINKER_FLAGS_RELEASE)
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "")
 endif()
 
+if(WIN32)
+	string(APPEND CMAKE_EXE_LINKER_FLAGS_RELEASE "-mwindows ")
+endif()
+
+# macOS Clang's linker doesn't like these flags
+if(NOT APPLE)
+	string(APPEND CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-s ")
+endif()
 
 # Installation
 # ------------
