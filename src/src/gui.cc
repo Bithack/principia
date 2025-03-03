@@ -116,6 +116,7 @@ struct sprite_load_data gui_spritesheet::sprites[NUM_SPRITES] = {
     { "data-shared/textures/ui/btn_ccw.png", &atlas },
     { "data-shared/textures/ui/btn_lock.png", &atlas },
     { "data-shared/textures/ui/btn_unlock.png", &atlas },
+    { "data-shared/textures/ui/btn_undo.png", &atlas },
 
     { "data-shared/textures/menu/menu_play.png", &atlas },
     { "data-shared/textures/menu/menu_create.png", &atlas },

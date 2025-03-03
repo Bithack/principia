@@ -1,5 +1,6 @@
 #include "game.hh"
 #include "main.hh"
+#include "gundo.hh"
 #include "tms/core/err.h"
 #include "loading_screen.hh"
 #include "soundmanager.hh"
@@ -34,6 +35,7 @@
 #include "adventure.hh"
 #include "gui.hh"
 
+#include <cstdio>
 #include <ctime>
 #include <errno.h>
 #include <unistd.h>
@@ -1155,6 +1157,29 @@ tproject_step(void)
                 case ACTION_SELF_DESTRUCT:
                     if (W->is_adventure() && adventure::player) {
                         adventure::player->damage(10000.f, 0, DAMAGE_TYPE_OTHER, DAMAGE_SOURCE_WORLD, 0);
+                    }
+                    break;
+
+                case ACTION_UNDO_RESET:
+                    undo.reset();
+                    break;
+
+                case ACTION_UNDO_CHECKPOINT:
+                    undo.checkpoint((const char*)data);
+                    break;
+
+                case ACTION_UNDO_RESTORE:
+                    if (undo.amount() == 0) {
+                        ui::message("Nothing to undo");
+                    } else {
+                        const char* undo_reason = undo.restore();
+                        if (undo_reason) {
+                            char tmp[1024];
+                            sprintf(tmp, "Undid %s", undo_reason);
+                            ui::message(tmp);
+                        } else {
+                            ui::message("Undid");
+                        }
                     }
                     break;
             }
