@@ -196,10 +196,10 @@ set(LIBS
 )
 
 if(NOT EMSCRIPTEN)
-	list(APPEND LIBS SDL2::SDL2)
-	if(WINDOWS)
+	if(WIN32)
 		list(APPEND LIBS SDL2::SDL2main)
 	endif()
+	list(APPEND LIBS SDL2::SDL2)
 endif()
 
 if(NOT SCREENSHOT_BUILD)
