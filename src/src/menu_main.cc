@@ -106,7 +106,7 @@ menu_main::pause(void)
 int
 menu_main::render(void)
 {
-#ifdef TMS_BACKEND_LINUX_SS
+#ifdef SCREENSHOT_BUILD
     return T_OK;
 #endif
 
@@ -206,7 +206,7 @@ menu_main::step(double dt)
 {
     menu_base::step(dt);
 
-#ifdef TMS_BACKEND_LINUX_SS
+#ifdef SCREENSHOT_BUILD
     SDL_Delay(150);
     return T_OK;
 #endif
@@ -226,7 +226,7 @@ menu_main::step(double dt)
 void
 menu_main::refresh_widgets()
 {
-#ifdef TMS_BACKEND_LINUX_SS
+#ifdef SCREENSHOT_BUILD
     this->wm->remove_all();
 #else
     menu_base::refresh_widgets();

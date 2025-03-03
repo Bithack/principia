@@ -2068,7 +2068,7 @@ game::refresh_widgets()
         return;
     }
 
-#ifdef TMS_BACKEND_LINUX_SS
+#ifdef SCREENSHOT_BUILD
     return;
 #endif
 

@@ -167,7 +167,7 @@ menu_base::window_size_changed()
 int
 menu_base::render()
 {
-#ifdef TMS_BACKEND_LINUX_SS
+#ifdef SCREENSHOT_BUILD
     return T_OK;
 #endif
 

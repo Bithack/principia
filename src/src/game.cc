@@ -1431,7 +1431,7 @@ game::resume(void)
         tms_infof("OPEN");
     }
 
-#ifndef TMS_BACKEND_LINUX_SS
+#ifndef SCREENSHOT_BUILD
     this->state.fade = 1.f;
 #endif
     this->resume_action = GAME_RESUME_CONTINUE;
@@ -1537,7 +1537,7 @@ game::unset_caveview_zoom_limits()
 int
 game::step(double dt)
 {
-#ifndef TMS_BACKEND_LINUX_SS
+#ifndef SCREENSHOT_BUILD
     if (!P.focused) {
         _tms.time_accum = 0;
         return T_OK;
@@ -1781,7 +1781,7 @@ game::step(double dt)
         }
 
         if (!W->is_paused() && this->follow_object) {
-#ifndef TMS_BACKEND_LINUX_SS
+#ifndef SCREENSHOT_BUILD
             if (this->follow_options.linear) {
                 b2Vec2 p = this->follow_object->get_position();
                 b2Vec2 offset(0,0);
@@ -1882,7 +1882,7 @@ game::step(double dt)
     this->cam_vel.y *= damping;
     this->cam_vel.z *= damping;
 
-#ifndef TMS_BACKEND_LINUX_SS
+#ifndef SCREENSHOT_BUILD
     if (!W->level.flag_active(LVL_DISABLE_CAM_MOVEMENT) || (this->state.sandbox && W->is_paused())) {
         this->cam->_position.x += this->cam_vel.x * dt;
         this->cam->_position.y += this->cam_vel.y * dt;
@@ -1912,7 +1912,7 @@ game::step(double dt)
 #endif
     float min_z = 4.f;
 
-#ifndef TMS_BACKEND_LINUX_SS
+#ifndef SCREENSHOT_BUILD
     if (!W->level.flag_active(LVL_DISABLE_ADVENTURE_MAX_ZOOM) && !W->is_paused() && W->is_adventure() && this->follow_object == adventure::player) {
         max_z = 20.f;
     }
@@ -1924,7 +1924,7 @@ game::step(double dt)
         this->cam->_position.z = min_z;
     }
 
-#ifndef TMS_BACKEND_LINUX_SS
+#ifndef SCREENSHOT_BUILD
     /* Apply camera movement constraints */
     if (W->is_playing() && W->is_adventure() && adventure::player && this->follow_object == adventure::player) {
         if (this->cam_rel_pos.Length() > 0.1f) {
@@ -3236,7 +3236,7 @@ game::render()
         }
     }
 
-#ifndef TMS_BACKEND_LINUX_SS
+#ifndef SCREENSHOT_BUILD
     if (this->get_mode() != GAME_MODE_CONN_EDIT && ((W->is_puzzle() && W->is_paused()) || (!W->is_puzzle() && !W->is_paused()))) {
         this->render_starred();
     }
@@ -7050,7 +7050,7 @@ game::open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing/*=fals
         }
     }
 
-#ifndef TMS_BACKEND_LINUX_SS
+#ifndef SCREENSHOT_BUILD
     if (!W->is_puzzle()) {
         if (just_paused || (!this->state.sandbox && !W->level.flag_active(LVL_DISABLE_INITIAL_WAIT) && !this->state.test_playing)) {
             this->state.waiting = true;
@@ -7066,7 +7066,7 @@ game::open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing/*=fals
     W->begin();
     this->begin_play();
 
-#ifndef TMS_BACKEND_LINUX_SS
+#ifndef SCREENSHOT_BUILD
     if (test_playing) {
         this->state.fade = 0.2f;
     } else {

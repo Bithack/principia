@@ -10,14 +10,14 @@
     #define GL_GLEXT_PROTOTYPES 1
     #include <GLES2/gl2.h>
 #else
-    #ifdef TMS_BACKEND_LINUX_SS
-        // Screenshotter doesn't use GLEW
+    #ifdef TMS_USE_GLEW
+        #include <GL/glew.h>
+    #else
+        // e.g. screenshotter doesn't use GLEW
         #define GL_GLEXT_PROTOTYPES 1
         #include <GL/gl.h>
         #include <GL/glext.h>
         #include <GL/glx.h>
-    #else
-        #include <GL/glew.h>
     #endif
 #endif
 

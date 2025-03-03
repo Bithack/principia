@@ -344,7 +344,7 @@ world::step()
 #endif
             this->cwindow->step();
 
-#ifndef TMS_BACKEND_LINUX_SS
+#ifndef SCREENSHOT_BUILD
             if (!this->level.flag_active(LVL_DISABLE_PHYSICS)) {
                 this->b2->Step(((float)(WORLD_STEP+WORLD_STEP_SPEEDUP) * .000001f) * G->get_time_mul(),
                         this->level.velocity_iterations,
@@ -374,7 +374,7 @@ world::step()
             ss = SDL_GetTicks();
 #endif
 
-#ifndef TMS_BACKEND_LINUX_SS
+#ifndef SCREENSHOT_BUILD
             if (w_is_enabled()) {
                 w_mstep_set = &this->mstepable;
 
@@ -504,7 +504,7 @@ world::step()
             ss = SDL_GetTicks();
 # endif
 
-#endif /* ifndef TMS_BACKEND_LINUX_SS */
+#endif /* ifndef SCREENSHOT_BUILD */
             this->solve_electronics();
 #ifdef PROFILING
             tms_infof("world: solve electronics: %d", SDL_GetTicks() - ss);

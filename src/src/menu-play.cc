@@ -260,7 +260,7 @@ menu_play::step(double dt)
 int
 menu_play::render()
 {
-#ifdef TMS_BACKEND_LINUX_SS
+#ifdef SCREENSHOT_BUILD
     return T_OK;
 #endif
 

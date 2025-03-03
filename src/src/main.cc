@@ -1982,7 +1982,7 @@ initial_loader(int step)
 
         case 16:
             {
-#ifdef TMS_BACKEND_LINUX_SS
+#ifdef SCREENSHOT_BUILD
                 P.s_loading_screen->set_text("Ready! o.o");
 #else
                 P.s_loading_screen->set_text(0);

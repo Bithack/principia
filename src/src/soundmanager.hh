@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef TMS_BACKEND_LINUX_SS
+#ifndef SCREENSHOT_BUILD
 #define ENABLE_SOUND
 #endif
 
