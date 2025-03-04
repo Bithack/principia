@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - 'src/**'
-      - 'build-android/**'
+      - 'android/**'
       - 'data-*/**'
       - 'packaging/**'
       - 'CMakeLists.txt'
@@ -12,7 +12,7 @@ on:
   pull_request:
     paths:
       - 'src/**'
-      - 'build-android/**'
+      - 'android/**'
       - 'data-*/**'
       - 'packaging/**'
       - 'CMakeLists.txt'
@@ -32,11 +32,11 @@ jobs:
 
       - name: Build with gradle
         run: |
-          cd build-android
+          cd android
           ./gradlew assemblerelease
 
       - name: Save apk artifact
         uses: actions/upload-artifact@v4
         with:
           name: principia-release-unsigned.apk
-          path: build-android/principia/build/outputs/apk/release/principia-release-unsigned.apk
+          path: android/principia/build/outputs/apk/release/principia-release-unsigned.apk

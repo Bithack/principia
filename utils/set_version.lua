@@ -74,7 +74,7 @@ end
 --------------------------------------------------------------------------------
 
 local version_info_txt = 'packaging/version_info.txt'
-local gradle_build = 'build-android/principia/build.gradle'
+local gradle_build = 'android/principia/build.gradle'
 local nsi_file = 'packaging/principia_install.nsi'
 local rc_file = 'packaging/principia.rc'
 

@@ -1,4 +1,4 @@
-set(DEPS "${CMAKE_SOURCE_DIR}/build-android/deps/${ANDROID_ABI}")
+set(DEPS "${CMAKE_SOURCE_DIR}/android/deps/${ANDROID_ABI}")
 
 set(CURL_INCLUDE_DIR ${DEPS}/curl/include)
 set(CURL_LIBRARY ${DEPS}/curl/libcurl.a;${DEPS}/curl/libmbedcrypto.a;${DEPS}/curl/libmbedtls.a;${DEPS}/curl/libmbedx509.a)
