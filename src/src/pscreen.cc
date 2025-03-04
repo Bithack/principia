@@ -377,6 +377,8 @@ pscreen::post_render()
 
     pscreen::message->render(this);
 
+    ui::render();
+
     return T_OK;
 }
 

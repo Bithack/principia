@@ -56,6 +56,8 @@ else()
 	set(SCREENSHOT_BUILD FALSE)
 endif()
 
+option(BACKEND_IMGUI "Enable incomplete Dear Imgui dialog backend (Experimental)" FALSE)
+
 set(TMS_FORMFACTOR "PC")
 if(WIN32)
 	set(TMS_BACKEND "WINDOWS")
@@ -88,6 +90,7 @@ endif()
 
 include_directories(
 	src/
+	src/imgui/
 	src/lua/
 	src/SDL_image/
 	src/SDL_mixer/
@@ -116,15 +119,25 @@ file(GLOB SRCS
 	src/Box2D/Particle/*.cc
 )
 
+if(BACKEND_IMGUI)
+	file(GLOB IMGUI_SRCS
+		src/imgui/*.cpp)
+	list(APPEND SRCS ${IMGUI_SRCS})
+endif()
+
 # Optional dependencies not found on Android or in the screenshot build
 if(NOT SCREENSHOT_BUILD)
 	if(NOT ANDROID AND NOT EMSCRIPTEN)
-		find_package(PkgConfig REQUIRED)
-		pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+		if(NOT BACKEND_IMGUI)
+			find_package(PkgConfig REQUIRED)
+			pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+		endif()
 
 		find_package(GLEW REQUIRED)
 
-		include_directories(${GTK3_INCLUDE_DIRS})
+		if(NOT BACKEND_IMGUI)
+			include_directories(${GTK3_INCLUDE_DIRS})
+		endif()
 	endif()
 
 	find_package(CURL REQUIRED)
@@ -249,6 +262,10 @@ else()
 	elseif(SCREENSHOT_BUILD)
 		add_definitions(-DNO_UI -DSCREENSHOT_BUILD)
 	endif()
+endif()
+
+if(BACKEND_IMGUI)
+	add_definitions(-DPRINCIPIA_BACKEND_IMGUI -DIMGUI_DEFINE_MATH_OPERATORS)
 endif()
 
 add_definitions(-DTMS_BACKEND_${TMS_FORMFACTOR} -DTMS_BACKEND_${TMS_BACKEND})
