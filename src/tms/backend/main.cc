@@ -125,18 +125,18 @@ int main(int argc, char **argv)
 
     // Check if we're in the right place
     struct stat st{};
-    if (stat("data-shared", &st) != 0) {
+    if (stat("data", &st) != 0) {
         // We're in the build dir, go up
         tms_infof("chdirring to ../");
         chdir("../");
 
         // How about now?
-        if (stat("data-shared", &st) != 0) {
+        if (stat("data", &st) != 0) {
             // If that doesn't work we're assuming a system install.
             tms_infof("chdirring to ./share/principia/");
             chdir("./share/principia/");
 
-            if (stat("data-shared", &st) != 0) {
+            if (stat("data", &st) != 0) {
                 // We're doomed, better just fail.
                 tms_fatalf("Could not find data directories.");
             }

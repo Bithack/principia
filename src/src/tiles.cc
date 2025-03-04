@@ -6,8 +6,8 @@
 #include <string.h>
 
 struct tile_load_data tile_factory::tiles[NUM_TILES] = {
-    { "data-shared/tiles/nomad_hideout_0.txt" },
-    { "data-shared/tiles/nomad_hideout_1.txt" },
+    { "data/tiles/nomad_hideout_0.txt" },
+    { "data/tiles/nomad_hideout_1.txt" },
 };
 
 enum section_type {

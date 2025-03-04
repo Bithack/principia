@@ -72,7 +72,7 @@ Section "Core Files (required)" SecCore
     File /r "release\share"
 
     File /r /x build-android "..\data-pc"
-    File /r /x build-android "..\data-shared"
+    File /r /x build-android "..\data"
 
     WriteRegStr HKCR "principia" "" "URL:Principia"
     WriteRegStr HKCR "principia" "URL Protocol" ""

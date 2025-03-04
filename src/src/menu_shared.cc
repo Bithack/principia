@@ -39,7 +39,7 @@ menu_shared::init()
         tms::texture *tex = new tms::texture();
 
         tex->gamma_correction = 0;
-        tex->load("data-shared/textures/menu/menu_bg.jpg");
+        tex->load("data/textures/menu/menu_bg.jpg");
         tex->colors = GL_RGB;
 
         tex->upload();
@@ -52,7 +52,7 @@ menu_shared::init()
 
         tex->gamma_correction = 0;
         tex->colors = GL_RGBA;
-        tex->load("data-shared/textures/menu/vignette.png");
+        tex->load("data/textures/menu/vignette.png");
 
         tex->upload();
 
@@ -65,7 +65,7 @@ menu_shared::init()
         tex->gamma_correction = 0;
         tex->colors = GL_RGBA;
 
-        tex->load("data-shared/textures/menu/menu_bottom.png");
+        tex->load("data/textures/menu/menu_bottom.png");
 
         tex->upload();
 
@@ -78,7 +78,7 @@ menu_shared::init()
         tex->gamma_correction = 0;
         tex->colors = GL_RGBA;
 
-        tex->load("data-shared/textures/menu/menu_principia.png");
+        tex->load("data/textures/menu/menu_principia.png");
 
         tex->upload();
 
@@ -91,7 +91,7 @@ menu_shared::init()
         tex->gamma_correction = 0;
         tex->colors = GL_RGBA;
 
-        tex->load("data-shared/textures/menu/vert_line.png");
+        tex->load("data/textures/menu/vert_line.png");
 
         tex->upload();
 
@@ -104,7 +104,7 @@ menu_shared::init()
         tex->gamma_correction = 0;
         tex->colors = GL_RGBA;
 
-        tex->load("data-shared/textures/menu/hori_line.png");
+        tex->load("data/textures/menu/hori_line.png");
 
         tex->upload();
 

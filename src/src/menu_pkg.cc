@@ -222,13 +222,13 @@ menu_pkg::resume(void)
 
     _tex_bg = tms_texture_alloc();
 
-    tms_texture_load(_tex_bg, "data-shared/textures/pkgmenubg.png");
+    tms_texture_load(_tex_bg, "data/textures/pkgmenubg.png");
     _tex_bg->format = GL_RGBA;
     tms_texture_set_filtering(_tex_bg, GL_LINEAR);
     tms_texture_upload(_tex_bg);
 
     tex_overlay = tms_texture_alloc();
-    tms_texture_load(tex_overlay, "data-shared/textures/ui/icon_overlay.png");
+    tms_texture_load(tex_overlay, "data/textures/ui/icon_overlay.png");
     tex_overlay->format = GL_RGBA;
     tms_texture_set_filtering(tex_overlay, GL_LINEAR);
     tms_texture_upload(tex_overlay);

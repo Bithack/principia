@@ -200,8 +200,8 @@ static void load_fonts() {
 
     tms_infof("font size %fpx", size_pixels);
 
-    ui_font = im_load_ttf("data-shared/fonts/Roboto-Bold.ttf", size_pixels);
-    ui_font_mono = im_load_ttf("data-shared/fonts/SourceCodePro-Medium.ttf", size_pixels + 2);
+    ui_font = im_load_ttf("data/fonts/Roboto-Bold.ttf", size_pixels);
+    ui_font_mono = im_load_ttf("data/fonts/SourceCodePro-Medium.ttf", size_pixels + 2);
 
 }
 

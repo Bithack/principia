@@ -670,7 +670,7 @@ pkgman::get_pkg_path(int type)
 
         if (type == LEVEL_MAIN) {
             /* main levels are stored internally in data/ */
-            snprintf((char*)_pkg_path[type], 1023, "data-shared/pkg/%s",
+            snprintf((char*)_pkg_path[type], 1023, "data/pkg/%s",
                     _dir_names[type]);
         } else {
             snprintf((char*)_pkg_path[type], 1023, "%s/pkg/%s",
@@ -717,7 +717,7 @@ pkgman::get_level_path(int level_type)
         if (level_type == LEVEL_MAIN) {
             /* main levels are stored internally in data/ */
             snprintf((char*)_level_path[level_type], 1023,
-                    "data-shared/lvl/%s",
+                    "data/lvl/%s",
                     _dir_names[level_type]);
         } else {
             snprintf((char*)_level_path[level_type], 1023,

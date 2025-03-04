@@ -10,7 +10,7 @@
 
 #define NUM_SLOTS 33
 
-#define NOTE_FONT "data-shared/fonts/easyspeech.ttf"
+#define NOTE_FONT "data/fonts/easyspeech.ttf"
 #define NUM_SIZES 4
 
 #define PIXELSZ 1

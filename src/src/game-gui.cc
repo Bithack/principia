@@ -3204,7 +3204,7 @@ game::get_item_texture()
     if (!item_texture) {
         item_texture = tms_texture_alloc();
 
-        tms_texture_load(item_texture, "data-shared/textures/menu_items.png");
+        tms_texture_load(item_texture, "data/textures/menu_items.png");
         tms_texture_flip_y(item_texture);
         tms_texture_set_filtering(item_texture, GL_LINEAR);
         tms_texture_upload(item_texture);
@@ -3224,7 +3224,7 @@ game::get_sandbox_texture(int n)
         sandbox_texture[n] = tms_texture_alloc();
         char name[256];
 
-        sprintf(name, "data-shared/textures/sandbox-menu-%d.png", n);
+        sprintf(name, "data/textures/sandbox-menu-%d.png", n);
         tms_texture_load(sandbox_texture[n], name);
         tms_texture_flip_y(sandbox_texture[n]);
 

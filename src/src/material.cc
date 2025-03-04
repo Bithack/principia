@@ -275,7 +275,7 @@ read_shader(struct shader_load_data *sld, GLenum type, uint32_t global_flags, ch
 
     char path[1024];
 
-    snprintf(path, 1023, "data-shared/shaders/%s.%s",
+    snprintf(path, 1023, "data/shaders/%s.%s",
             sld->name, type == GL_VERTEX_SHADER ? "vp" : "fp");
 
     FILE_IN_ASSET(1);
@@ -586,7 +586,7 @@ material_factory::load_bg_texture(bool soft)
     switch (material_factory::background_id) {
         case BG_OUTDOOR:
             {
-                tex_bg->load("data-shared/bg/5.jpg");
+                tex_bg->load("data/bg/5.jpg");
 
                 tex_bg->format = GL_RGB;
                 tex_bg->wrap = GL_CLAMP_TO_EDGE;
@@ -660,7 +660,7 @@ TEX_LAZYLOAD_FN(decoration,
 )
 
 TEX_LAZYLOAD_FN(grass,
-    tms_texture_load(tex_grass,"data-shared/textures/grass.png");
+    tms_texture_load(tex_grass,"data/textures/grass.png");
     tex_grass->format = GL_RGBA;
     tex_grass->gamma_correction = settings["gamma_correct"]->v.b;
     tms_texture_set_filtering(tex_grass, GL_LINEAR);
@@ -669,7 +669,7 @@ TEX_LAZYLOAD_FN(grass,
 )
 
 TEX_LAZYLOAD_FN(grid,
-    tms_texture_load(tex_grid,"data-shared/textures/grid.png");
+    tms_texture_load(tex_grid,"data/textures/grid.png");
     tex_grid->format = GL_RGBA;
     tex_grid->gamma_correction = settings["gamma_correct"]->v.b;
     tms_texture_set_filtering(tex_grid, TMS_MIPMAP);
@@ -678,7 +678,7 @@ TEX_LAZYLOAD_FN(grid,
 )
 
 TEX_LAZYLOAD_FN(animal,
-    tex_animal->load("data-shared/textures/animal.png");
+    tex_animal->load("data/textures/animal.png");
     tex_animal->format = GL_RGB;
     tms_texture_set_filtering(tex_animal, TMS_MIPMAP);
     tex_animal->gamma_correction = settings["gamma_correct"]->v.b;
@@ -759,7 +759,7 @@ TEX_LAZYLOAD_FN(reflection,
 TEX_LAZYLOAD_FN(magnet,
     tex_magnet->gamma_correction = settings["gamma_correct"]->v.b;
     tex_magnet->format = GL_RGBA;
-    tex_magnet->load("data-shared/textures/magnet.png");
+    tex_magnet->load("data/textures/magnet.png");
     tex_magnet->upload();
     tms_texture_free_buffer(tex_magnet);
 )
@@ -767,7 +767,7 @@ TEX_LAZYLOAD_FN(magnet,
 TEX_LAZYLOAD_FN(factory,
     tex_factory->gamma_correction = settings["gamma_correct"]->v.b;
     tex_factory->format = GL_RGBA;
-    tex_factory->load("data-shared/textures/factory.png");
+    tex_factory->load("data/textures/factory.png");
     tex_factory->upload();
     tms_texture_free_buffer(tex_factory);
 )
@@ -775,7 +775,7 @@ TEX_LAZYLOAD_FN(factory,
 TEX_LAZYLOAD_FN(iomisc,
     tex_iomisc->gamma_correction = settings["gamma_correct"]->v.b;
     tex_iomisc->format = GL_RGBA;
-    tex_iomisc->load("data-shared/textures/iomisc.png");
+    tex_iomisc->load("data/textures/iomisc.png");
     tex_iomisc->upload();
     tms_texture_free_buffer(tex_iomisc);
 )
@@ -783,7 +783,7 @@ TEX_LAZYLOAD_FN(iomisc,
 TEX_LAZYLOAD_FN(leaves,
     tex_leaves->gamma_correction = settings["gamma_correct"]->v.b;
     tex_leaves->format = GL_RGBA;
-    tex_leaves->load("data-shared/textures/leaves.png");
+    tex_leaves->load("data/textures/leaves.png");
     tex_leaves->upload();
     tms_texture_free_buffer(tex_leaves);
 )
@@ -791,7 +791,7 @@ TEX_LAZYLOAD_FN(leaves,
 TEX_LAZYLOAD_FN(robot,
     tex_robot->gamma_correction = settings["gamma_correct"]->v.b;
     tex_robot->format = GL_RGBA;
-    tex_robot->load("data-shared/textures/robot.png");
+    tex_robot->load("data/textures/robot.png");
     tex_robot->upload();
     tms_texture_free_buffer(tex_robot);
 )
@@ -799,7 +799,7 @@ TEX_LAZYLOAD_FN(robot,
 TEX_LAZYLOAD_FN(robot2,
     tex_robot2->gamma_correction = settings["gamma_correct"]->v.b;
     tex_robot2->format = GL_RGBA;
-    tex_robot2->load("data-shared/textures/robot2.png");
+    tex_robot2->load("data/textures/robot2.png");
     tex_robot2->upload();
     tms_texture_free_buffer(tex_robot2);
 )
@@ -807,7 +807,7 @@ TEX_LAZYLOAD_FN(robot2,
 TEX_LAZYLOAD_FN(robot_armor,
     tex_robot_armor->gamma_correction = settings["gamma_correct"]->v.b;
     tex_robot_armor->format = GL_RGBA;
-    tex_robot_armor->load("data-shared/textures/robot_armor.png");
+    tex_robot_armor->load("data/textures/robot_armor.png");
     tex_robot_armor->upload();
     tms_texture_free_buffer(tex_robot_armor);
 )
@@ -815,7 +815,7 @@ TEX_LAZYLOAD_FN(robot_armor,
 TEX_LAZYLOAD_FN(weapons,
     tex_weapons->gamma_correction = settings["gamma_correct"]->v.b;
     tex_weapons->format = GL_RGBA;
-    tex_weapons->load("data-shared/textures/weapons.png");
+    tex_weapons->load("data/textures/weapons.png");
     tex_weapons->upload();
     tms_texture_free_buffer(tex_weapons);
 )
@@ -823,7 +823,7 @@ TEX_LAZYLOAD_FN(weapons,
 TEX_LAZYLOAD_FN(gen,
     tex_gen->gamma_correction = settings["gamma_correct"]->v.b;
     tex_gen->format = GL_RGBA;
-    tex_gen->load("data-shared/textures/generator.png");
+    tex_gen->load("data/textures/generator.png");
     tms_texture_set_filtering(tex_gen, TMS_MIPMAP);
     tex_gen->upload();
     tms_texture_free_buffer(tex_gen);
@@ -832,7 +832,7 @@ TEX_LAZYLOAD_FN(gen,
 TEX_LAZYLOAD_FN(battery,
     tex_battery->gamma_correction = settings["gamma_correct"]->v.b;
     tex_battery->format = GL_RGBA;
-    tex_battery->load("data-shared/textures/battery_aa.png");
+    tex_battery->load("data/textures/battery_aa.png");
     tms_texture_set_filtering(tex_battery, TMS_MIPMAP);
     tex_battery->upload();
     tms_texture_free_buffer(tex_battery);
@@ -841,7 +841,7 @@ TEX_LAZYLOAD_FN(battery,
 TEX_LAZYLOAD_FN(motor,
     tex_motor->gamma_correction = settings["gamma_correct"]->v.b;
     tex_motor->format = GL_RGBA;
-    tex_motor->load("data-shared/textures/motor.png");
+    tex_motor->load("data/textures/motor.png");
     tex_motor->upload();
     tms_texture_free_buffer(tex_motor);
 )
@@ -849,7 +849,7 @@ TEX_LAZYLOAD_FN(motor,
 TEX_LAZYLOAD_FN(misc,
     tex_misc->gamma_correction = settings["gamma_correct"]->v.b;
     tex_misc->format = GL_RGBA;
-    tex_misc->load("data-shared/textures/misc.png");
+    tex_misc->load("data/textures/misc.png");
     //tms_texture_set_filtering(tex_misc, TMS_MIPMAP);
     tex_misc->upload();
     tms_texture_free_buffer(tex_misc);
@@ -885,7 +885,7 @@ TEX_LAZYLOAD_FN(metal,
 TEX_LAZYLOAD_FN(i2o1,
     tex_i2o1->gamma_correction = settings["gamma_correct"]->v.b;
     tex_i2o1->format = GL_RGBA;
-    tex_i2o1->load("data-shared/textures/i2o1.png");
+    tex_i2o1->load("data/textures/i2o1.png");
     tms_texture_set_filtering(tex_i2o1, TMS_MIPMAP);
     tex_i2o1->upload();
     tms_texture_free_buffer(tex_i2o1);
@@ -894,7 +894,7 @@ TEX_LAZYLOAD_FN(i2o1,
 TEX_LAZYLOAD_FN(i1o1,
     tex_i1o1->gamma_correction = settings["gamma_correct"]->v.b;
     tex_i1o1->format = GL_RGBA;
-    tex_i1o1->load("data-shared/textures/i1o1.png");
+    tex_i1o1->load("data/textures/i1o1.png");
     tms_texture_set_filtering(tex_i1o1, TMS_MIPMAP);
     tex_i1o1->upload();
     //tex_i1o1->set_filtering(TMS_MIPMAP);
@@ -904,7 +904,7 @@ TEX_LAZYLOAD_FN(i1o1,
 TEX_LAZYLOAD_FN(gear,
     tex_gear->gamma_correction = settings["gamma_correct"]->v.b;
     tex_gear->format = GL_RGBA;
-    tex_gear->load("data-shared/textures/rust.png");
+    tex_gear->load("data/textures/rust.png");
     tex_gear->upload();
     tms_texture_free_buffer(tex_gear);
 )
@@ -912,7 +912,7 @@ TEX_LAZYLOAD_FN(gear,
 TEX_LAZYLOAD_FN(bigpanel,
     tex_bigpanel->gamma_correction = settings["gamma_correct"]->v.b;
     tex_bigpanel->format = GL_RGBA;
-    tex_bigpanel->load("data-shared/textures/bigpanel.png");
+    tex_bigpanel->load("data/textures/bigpanel.png");
     tex_bigpanel->upload();
     tms_texture_free_buffer(tex_bigpanel);
 )
@@ -920,7 +920,7 @@ TEX_LAZYLOAD_FN(bigpanel,
 TEX_LAZYLOAD_FN(mpanel,
     tex_mpanel->gamma_correction = settings["gamma_correct"]->v.b;
     tex_mpanel->format = GL_RGBA;
-    tex_mpanel->load("data-shared/textures/mpanel.png");
+    tex_mpanel->load("data/textures/mpanel.png");
     tex_mpanel->upload();
     tms_texture_free_buffer(tex_mpanel);
 )
@@ -928,7 +928,7 @@ TEX_LAZYLOAD_FN(mpanel,
 TEX_LAZYLOAD_FN(smallpanel,
     tex_smallpanel->gamma_correction = settings["gamma_correct"]->v.b;
     tex_smallpanel->format = GL_RGBA;
-    tex_smallpanel->load("data-shared/textures/smallpanel.png");
+    tex_smallpanel->load("data/textures/smallpanel.png");
     tex_smallpanel->upload();
     tms_texture_free_buffer(tex_smallpanel);
 )
@@ -950,7 +950,7 @@ TEX_LAZYLOAD_FN(rackhouse,
 TEX_LAZYLOAD_FN(rack,
     tex_rack->gamma_correction = settings["gamma_correct"]->v.b;
     tex_rack->format = GL_RGBA;
-    tex_rack->load("data-shared/textures/rack.png");
+    tex_rack->load("data/textures/rack.png");
     tex_rack->upload();
     tms_texture_free_buffer(tex_rack);
 )
@@ -958,7 +958,7 @@ TEX_LAZYLOAD_FN(rack,
 TEX_LAZYLOAD_FN(rope,
     tex_rope->gamma_correction = settings["gamma_correct"]->v.b;
     tex_rope->format = GL_RGBA;
-    tex_rope->load("data-shared/textures/rope.png");
+    tex_rope->load("data/textures/rope.png");
     tex_rope->upload();
     tms_texture_free_buffer(tex_rope);
 )
@@ -966,7 +966,7 @@ TEX_LAZYLOAD_FN(rope,
 TEX_LAZYLOAD_FN(wheel,
     tex_wheel->gamma_correction = settings["gamma_correct"]->v.b;
     tex_wheel->format = GL_RGBA;
-    tex_wheel->load("data-shared/textures/wheel.png");
+    tex_wheel->load("data/textures/wheel.png");
     tex_wheel->upload();
     tms_texture_free_buffer(tex_wheel);
 )
@@ -974,7 +974,7 @@ TEX_LAZYLOAD_FN(wheel,
 TEX_LAZYLOAD_FN(cpad,
     tex_cpad->gamma_correction = settings["gamma_correct"]->v.b;
     tex_cpad->format = GL_RGBA;
-    tex_cpad->load("data-shared/textures/command.png");
+    tex_cpad->load("data/textures/command.png");
     tex_cpad->upload();
     tms_texture_free_buffer(tex_cpad);
 )
@@ -995,7 +995,7 @@ TEX_LAZYLOAD_FN(breadboard,
 TEX_LAZYLOAD_FN(cup_ao,
     tex_cup_ao->gamma_correction = settings["gamma_correct"]->v.b;
     tex_cup_ao->format = GL_RGBA;
-    tex_cup_ao->load("data-shared/textures/cup_ao.png");
+    tex_cup_ao->load("data/textures/cup_ao.png");
     tex_cup_ao->upload();
     tms_texture_free_buffer(tex_cup_ao);
 )
@@ -1017,7 +1017,7 @@ TEX_LAZYLOAD_FN(border,
 TEX_LAZYLOAD_FN(sprites,
     tex_sprites->gamma_correction = settings["gamma_correct"]->v.b;
     tex_sprites->format = GL_RGBA;
-    tex_sprites->load("data-shared/textures/sprites.png");
+    tex_sprites->load("data/textures/sprites.png");
     tex_sprites->upload();
     tms_texture_free_buffer(tex_sprites);
 )
@@ -1025,7 +1025,7 @@ TEX_LAZYLOAD_FN(sprites,
 TEX_LAZYLOAD_FN(line,
     tex_line->gamma_correction = settings["gamma_correct"]->v.b;
     tex_line->format = GL_RGBA;
-    tex_line->load("data-shared/textures/line.png");
+    tex_line->load("data/textures/line.png");
     tex_line->upload();
     tms_texture_free_buffer(tex_line);
 )
@@ -1033,7 +1033,7 @@ TEX_LAZYLOAD_FN(line,
 TEX_LAZYLOAD_FN(items,
     tex_items->gamma_correction = settings["gamma_correct"]->v.b;
     tex_items->format = GL_RGBA;
-    tex_items->load("data-shared/textures/items.png");
+    tex_items->load("data/textures/items.png");
     tms_texture_set_filtering(tex_items, TMS_MIPMAP);
     tex_items->upload();
     tms_texture_free_buffer(tex_items);
@@ -1042,7 +1042,7 @@ TEX_LAZYLOAD_FN(items,
 TEX_LAZYLOAD_FN(chests,
     tex_chests->gamma_correction = settings["gamma_correct"]->v.b;
     tex_chests->format = GL_RGBA;
-    tex_chests->load("data-shared/textures/chests.png");
+    tex_chests->load("data/textures/chests.png");
     tms_texture_set_filtering(tex_chests, TMS_MIPMAP);
     tex_chests->upload();
     tms_texture_free_buffer(tex_chests);
@@ -1051,7 +1051,7 @@ TEX_LAZYLOAD_FN(chests,
 TEX_LAZYLOAD_FN(repairstation,
     tex_repairstation->gamma_correction = settings["gamma_correct"]->v.b;
     tex_repairstation->format = GL_RGBA;
-    tex_repairstation->load("data-shared/textures/repairstation.png");
+    tex_repairstation->load("data/textures/repairstation.png");
     tms_texture_set_filtering(tex_repairstation, TMS_MIPMAP);
     tex_repairstation->upload();
     tms_texture_free_buffer(tex_repairstation);
