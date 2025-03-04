@@ -9,17 +9,6 @@
 
 #include "SDL_image.h"
 
-#ifdef TMS_BACKEND_ANDROID
-struct etc1_header {
-    char tag[6];
-    uint16_t format;
-    uint16_t width;
-    uint16_t height;
-    uint16_t original_width;
-    uint16_t original_height;
-} __attribute__ ((__packed__));
-#endif
-
 struct tms_texture*
 tms_texture_alloc(void)
 {
@@ -134,55 +123,6 @@ int tms_texture_free_buffer(struct tms_texture *tex)
     tex->is_buffered = 0;
 
     return T_OK;
-}
-
-/**
- * Load a compressed image
- **/
-int
-tms_texture_load_etc1(struct tms_texture *tex,
-                      const char *filename)
-{
-#ifdef TMS_BACKEND_ANDROID
-    SDL_RWops *rw = SDL_RWFromFile(filename,"rb");
-
-    tms_infof("Load ETC1: %s", filename);
-
-    if (rw) {
-        long size;
-        SDL_RWseek(rw, 0, SEEK_END);
-        size = SDL_RWtell(rw);
-        SDL_RWseek(rw, 0, SEEK_SET);
-
-        /* XXX free previous? */
-        if (size > 4*1024*1024 || size < sizeof(struct etc1_header) + 20)
-            tms_fatalf("invalid file size");
-
-        struct etc1_header header;
-        SDL_RWread(rw, &header, sizeof(struct etc1_header), 1);
-        tex->data = malloc(size - sizeof(struct etc1_header));
-        SDL_RWread(rw, tex->data, 1, size-sizeof(struct etc1_header));
-
-        tex->width = ntohs(header.width);
-        tex->height = ntohs(header.height);
-        tex->num_channels = 3;
-        tex->is_buffered = 1;
-        tex->gamma_correction = 0;
-        tex->format = GL_ETC1_RGB8_OES;
-        tex->buf_size = size-sizeof(struct etc1_header);
-
-        if (tex->width <= 0 || tex->height <= 0)
-            tms_fatalf("invalid etc1 texture dimensions");
-
-        SDL_RWclose(rw);
-
-        return T_OK;
-    } else
-        tms_errorf("Unable to open texture: '%s'", SDL_GetError());
-
-#endif
-
-    return T_COULD_NOT_OPEN;
 }
 
 /**
@@ -496,16 +436,10 @@ tms_texture_upload(struct tms_texture *tex)
     }
 #endif
 
-    if (tex->format == GL_ETC1_RGB8_OES) {
-        glCompressedTexImage2D(GL_TEXTURE_2D, 0,
-                GL_ETC1_RGB8_OES,
-                tex->width, tex->height,
-                0, tex->buf_size, tex->data);
-    } else {
-        glTexImage2D(GL_TEXTURE_2D, 0, format,
-                tex->width, tex->height,
-                0, colors, GL_UNSIGNED_BYTE, tex->data);
-    }
+    glTexImage2D(GL_TEXTURE_2D, 0, format,
+            tex->width, tex->height,
+            0, colors, GL_UNSIGNED_BYTE, tex->data);
+
 #ifdef DEBUG_TEXTURES
     tms_debugf("tex upload: %d: (%dx%d), f:%d, c:%d (%s)", glGetError(), tex->width, tex->height, tex->format, colors, tex->filename?tex->filename:"");
 #endif

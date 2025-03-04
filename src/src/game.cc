@@ -3900,7 +3900,7 @@ game::render_controls_help()
     if (!this->tex_controls) {
         this->tex_controls = new tms::texture();
         this->tex_controls->format = GL_RGBA;
-        this->tex_controls->load("data-pc/textures/controls.png");
+        this->tex_controls->load("data/textures/controls.png");
         this->tex_controls->upload();
     }
 

@@ -301,7 +301,7 @@ endif()
 # ------------
 
 if(EMSCRIPTEN)
-	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "--preload-file ../data-pc/ --preload-file ../data/")
+	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "--preload-file ../data/")
 	target_link_libraries(${PROJECT_NAME} -lemsocket -lssl -lcrypto)
 endif()
 
@@ -312,7 +312,6 @@ if(APPLE)
 	set(BINDIR ${BUNDLE_NAME}/Contents/MacOS)
 	set(SHAREDIR ${BUNDLE_NAME}/Contents/Resources)
 
-	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data-pc" DESTINATION "${SHAREDIR}")
 	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data" DESTINATION "${SHAREDIR}")
 
 	install(FILES "packaging/principia.icns" DESTINATION "${SHAREDIR}")
@@ -323,7 +322,6 @@ else()
 	set(SHAREDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}")
 	set(BINDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
 
-	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data-pc" DESTINATION "${SHAREDIR}/principia")
 	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data" DESTINATION "${SHAREDIR}/principia")
 
 	install(FILES "packaging/principia.desktop" DESTINATION "${SHAREDIR}/applications")

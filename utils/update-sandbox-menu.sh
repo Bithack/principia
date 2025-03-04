@@ -11,7 +11,7 @@ for ((i = 0; i < $NUM_TEXTURES; i ++)); do
 
   convert tmp_alpha.png tmp_shadow.png -compose DstOver +repage -gravity center +repage -composite tmp_composite.png
   convert tmp_composite.png -background 'rgb(54,54,54)' -flatten -alpha Off ../data/textures/sandbox-menu-$i.png
-#gimp ../data-pc/textures/sandbox-menu-$i.jpg
+#gimp ../data/textures/sandbox-menu-$i.jpg
 
   rm tmp.png mask.png tmp_alpha.png tmp_shadow.png
   rm tmp_composite.png
@@ -26,14 +26,14 @@ done
 #convert tmp_alpha.png -background black -shadow 80x3+0+0 tmp_shadow.png
 
 #convert tmp_alpha.png tmp_shadow.png -compose DstOver +repage -gravity center +repage -composite tmp_composite.png
-#convert tmp_composite.png -background 'rgb(54,54,54)' -flatten -alpha Off ../data-pc/textures/items.jpg
-#cp tmp_composite.png ../data-pc/textures/items.png
+#convert tmp_composite.png -background 'rgb(54,54,54)' -flatten -alpha Off ../data/textures/items.jpg
+#cp tmp_composite.png ../data/textures/items.png
 
 convert items.png +clone -background black -shadow 100x3+0+0 -composite test.png
 convert items.png test.png -compose DstOver +repage -gravity center +repage -composite ../data/textures/menu_items.png
 
 #convert items.png \( +clone -background black -shadow 100x3+0+0 \)\
-#            -compose DstOver +swap -background none -layers merge -gravity center +repage ../data-pc/textures/items.png
+#            -compose DstOver +swap -background none -layers merge -gravity center +repage ../data/textures/items.png
 
 #rm tmp.png mask.png tmp_alpha.png tmp_shadow.png
 #rm tmp_composite.png

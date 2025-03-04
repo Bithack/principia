@@ -99,11 +99,6 @@ namespace tms
               }
           }
 
-          inline int load_etc1(const char *filename)
-          {
-              return tms_texture_load_etc1(this, filename);
-          }
-
           inline int load(const char *filename)
           {
               return tms_texture_load(this, filename);
@@ -477,7 +472,7 @@ namespace tms
             return reinterpret_cast<varray*>(static_cast<tms_mesh*>(this)->vertex_array);
         }
 
-        inline void set_primitive_type(int type) 
+        inline void set_primitive_type(int type)
         {
             tms_mesh_set_primitive_type(static_cast<tms_mesh*>(this), type);
         }

@@ -596,28 +596,16 @@ material_factory::load_bg_texture(bool soft)
 
         default:
             {
-#ifdef TMS_BACKEND_ANDROID
-                sprintf(bgname, "data-mobile/bg/%d.pkm", material_factory::background_id);
-
-                if (tex_bg->load_etc1(bgname) != T_OK) {
-                    tex_bg->load_etc1("data-mobile/bg/0.pkm");
-                    tms_warnf("Loading backup bg, 0. %s was not available.", bgname);
-                }
-
-                tex_bg->wrap = GL_REPEAT;
-                tms_texture_set_filtering(tex_bg, GL_LINEAR);
-#else
-                sprintf(bgname, "data-pc/bg/%d.jpg", material_factory::background_id);
+                sprintf(bgname, "data/bg/%d.jpg", material_factory::background_id);
 
                 if (tex_bg->load(bgname) != T_OK)
-                    tex_bg->load("data-pc/bg/0.jpg");
+                    tex_bg->load("data/bg/0.jpg");
 
                 tex_bg->format = GL_RGB;
 
                 tex_bg->wrap = GL_REPEAT;
                 tms_texture_set_filtering(tex_bg, GL_LINEAR);
                 tex_bg->gamma_correction = settings["gamma_correct"]->v.b;
-#endif
             }
             break;
     }
@@ -634,26 +622,18 @@ material_factory::load_bg_texture(bool soft)
       body }
 
 TEX_LAZYLOAD_FN(tpixel,
-#ifdef TMS_BACKEND_ANDROID
-    tex_tpixel->load_etc1("data-mobile/textures/tpixel.pkm");
-#else
-    tms_texture_load(tex_tpixel,"data-pc/textures/tpixel.jpg");
+    tms_texture_load(tex_tpixel,"data/textures/tpixel.jpg");
     tex_tpixel->format = GL_RGB;
     tex_tpixel->gamma_correction = settings["gamma_correct"]->v.b;
-#endif
     tms_texture_set_filtering(tex_tpixel, GL_LINEAR);
     tms_texture_upload(tex_tpixel);
     tms_texture_free_buffer(tex_tpixel);
 )
 
 TEX_LAZYLOAD_FN(decoration,
-#ifdef TMS_BACKEND_ANDROID
-    tex_decoration->load_etc1("data-mobile/textures/decorations.pkm");
-#else
-    tms_texture_load(tex_decoration,"data-pc/textures/decorations.jpg");
+    tms_texture_load(tex_decoration,"data/textures/decorations.jpg");
     tex_decoration->format = GL_RGB;
     tex_decoration->gamma_correction = settings["gamma_correct"]->v.b;
-#endif
     tms_texture_set_filtering(tex_decoration, GL_LINEAR);
     tms_texture_upload(tex_decoration);
     tms_texture_free_buffer(tex_decoration);
@@ -687,71 +667,46 @@ TEX_LAZYLOAD_FN(animal,
 )
 
 TEX_LAZYLOAD_FN(wood,
-#ifdef TMS_BACKEND_ANDROID
-    tex_wood->load_etc1("data-mobile/textures/wood.pkm");
-    tms_texture_set_filtering(tex_wood, GL_NEAREST);
-#else
-    tex_wood->load("data-pc/textures/wood.jpg");
+    tex_wood->load("data/textures/wood.jpg");
     tex_wood->format = GL_RGB;
     tms_texture_set_filtering(tex_wood, TMS_MIPMAP);
     tex_wood->gamma_correction = settings["gamma_correct"]->v.b;
-#endif
     tex_wood->upload();
     tms_texture_free_buffer(tex_wood);
 )
 
 TEX_LAZYLOAD_FN(bark,
-#ifdef TMS_BACKEND_ANDROID
-    tex_bark->load_etc1("data-mobile/textures/bark-2.pkm");
-    tms_texture_set_filtering(tex_bark, GL_LINEAR);
-#else
-    tex_bark->load("data-pc/textures/bark-2.jpg");
+    tex_bark->load("data/textures/bark-2.jpg");
     tex_bark->format = GL_RGB;
     tms_texture_set_filtering(tex_bark, TMS_MIPMAP);
     tex_bark->gamma_correction = settings["gamma_correct"]->v.b;
-#endif
     tex_bark->upload();
     tms_texture_free_buffer(tex_bark);
 )
 
 TEX_LAZYLOAD_FN(rubber,
-#ifdef TMS_BACKEND_ANDROID
-    tex_rubber->load_etc1("data-mobile/textures/rubber.pkm");
-    tms_texture_set_filtering(tex_rubber, GL_LINEAR);
-#else
-    tex_rubber->load("data-pc/textures/rubber.jpg");
+    tex_rubber->load("data/textures/rubber.jpg");
     tex_rubber->format = GL_RGB;
     tms_texture_set_filtering(tex_rubber, TMS_MIPMAP);
     tex_rubber->gamma_correction = settings["gamma_correct"]->v.b;
-#endif
     tex_rubber->upload();
     tms_texture_free_buffer(tex_rubber);
 )
 
 TEX_LAZYLOAD_FN(bedrock,
-#ifdef TMS_BACKEND_ANDROID
-    tex_bedrock->load_etc1("data-mobile/textures/bedrock.pkm");
-    tms_texture_set_filtering(tex_bedrock, GL_LINEAR);
-#else
-    tex_bedrock->load("data-pc/textures/bedrock.jpg");
+    tex_bedrock->load("data/textures/bedrock.jpg");
     tex_bedrock->format = GL_RGB;
     tms_texture_set_filtering(tex_bedrock, TMS_MIPMAP);
     tex_bedrock->gamma_correction = settings["gamma_correct"]->v.b;
-#endif
     tex_bedrock->upload();
     tms_texture_free_buffer(tex_bedrock);
 )
 
 TEX_LAZYLOAD_FN(reflection,
-#ifdef TMS_BACKEND_ANDROID
-    tex_reflection->load_etc1("data-mobile/textures/reflection.pkm");
-    tms_texture_set_filtering(tex_reflection, GL_LINEAR);
-#else
-    tex_reflection->load("data-pc/textures/reflection.jpg");
+    tex_reflection->load("data/textures/reflection.jpg");
     tex_reflection->format = GL_RGB;
     tms_texture_set_filtering(tex_reflection, GL_LINEAR);
     tex_reflection->gamma_correction = settings["gamma_correct"]->v.b;
-#endif
     tex_reflection->upload();
     tms_texture_free_buffer(tex_reflection);
 )
@@ -856,28 +811,18 @@ TEX_LAZYLOAD_FN(misc,
 )
 
 TEX_LAZYLOAD_FN(wmotor,
-#ifdef TMS_BACKEND_ANDROID
-    tex_wmotor->load_etc1("data-mobile/textures/wmotor.pkm");
-    tms_texture_set_filtering(tex_wmotor, GL_LINEAR);
-#else
     tex_wmotor->gamma_correction = settings["gamma_correct"]->v.b;
     tex_wmotor->format = GL_RGB;
-    tex_wmotor->load("data-pc/textures/wmotor.png");
-#endif
+    tex_wmotor->load("data/textures/wmotor.png");
     tex_wmotor->upload();
     tms_texture_free_buffer(tex_wmotor);
 )
 
 TEX_LAZYLOAD_FN(metal,
-#ifdef TMS_BACKEND_ANDROID
-    tex_metal->load_etc1("data-mobile/textures/metal.pkm");
-    tms_texture_set_filtering(tex_metal, GL_LINEAR);
-#else
-    tex_metal->load("data-pc/textures/metal.jpg");
+    tex_metal->load("data/textures/metal.jpg");
     tex_metal->format = GL_RGB;
     tms_texture_set_filtering(tex_metal, TMS_MIPMAP);
     tex_metal->gamma_correction = settings["gamma_correct"]->v.b;
-#endif
     tex_metal->upload();
     tms_texture_free_buffer(tex_metal);
 )
@@ -934,15 +879,10 @@ TEX_LAZYLOAD_FN(smallpanel,
 )
 
 TEX_LAZYLOAD_FN(rackhouse,
-#if (defined TMS_BACKEND_ANDROID)
-    tex_rackhouse->load_etc1("data-mobile/textures/rackhouse.pkm");
-    tms_texture_set_filtering(tex_rackhouse, GL_LINEAR);
-#else
-    tex_rackhouse->load("data-pc/textures/rackhouse.jpg");
+    tex_rackhouse->load("data/textures/rackhouse.jpg");
     tex_rackhouse->format = GL_RGB;
     tms_texture_set_filtering(tex_rackhouse, TMS_MIPMAP);
     tex_rackhouse->gamma_correction = settings["gamma_correct"]->v.b;
-#endif
     tex_rackhouse->upload();
     tms_texture_free_buffer(tex_rackhouse);
 )
@@ -980,14 +920,9 @@ TEX_LAZYLOAD_FN(cpad,
 )
 
 TEX_LAZYLOAD_FN(breadboard,
-#ifdef TMS_BACKEND_ANDROID
-    tex_breadboard->load_etc1("data-mobile/textures/breadboard.pkm");
-    tms_texture_set_filtering(tex_breadboard, GL_LINEAR);
-#else
     tex_breadboard->gamma_correction = settings["gamma_correct"]->v.b;
     tex_breadboard->format = GL_RGB;
-    tex_breadboard->load("data-pc/textures/breadboard.jpg");
-#endif
+    tex_breadboard->load("data/textures/breadboard.jpg");
     tex_breadboard->upload();
     tms_texture_free_buffer(tex_breadboard);
 )
@@ -1001,15 +936,10 @@ TEX_LAZYLOAD_FN(cup_ao,
 )
 
 TEX_LAZYLOAD_FN(border,
-#ifdef TMS_BACKEND_ANDROID
-    tex_border->load_etc1("data-mobile/textures/border.pkm");
-    tms_texture_set_filtering(tex_border, GL_LINEAR);
-#else
-    tex_border->load("data-pc/textures/border.jpg");
+    tex_border->load("data/textures/border.jpg");
     tex_border->format = GL_RGB;
     tms_texture_set_filtering(tex_border, TMS_MIPMAP);
     tex_border->gamma_correction = settings["gamma_correct"]->v.b;
-#endif
     tex_border->upload();
     tms_texture_free_buffer(tex_border);
 )
