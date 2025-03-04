@@ -14,7 +14,7 @@ BUILTIN_STL_SUPPORT    = YES
 # Input
 RECURSIVE              = YES
 STRIP_FROM_PATH        = src
-INPUT                  = doc/main_page.dox \
+INPUT                  = src/main_page.dox \
                          src/src/ src/tms/
 
 # Dot graphs
@@ -26,7 +26,7 @@ DOT_MULTI_TARGETS      = YES
 DOT_IMAGE_FORMAT       = svg
 
 # Output
-OUTPUT_DIRECTORY       = doc/doxy/  # /tmp/doxy/
+OUTPUT_DIRECTORY       = doxy/  # /tmp/doxy/
 GENERATE_LATEX         = NO
 REFERENCED_BY_RELATION = YES
 REFERENCES_RELATION    = YES
@@ -35,4 +35,4 @@ DISABLE_INDEX          = YES
 GENERATE_TREEVIEW      = YES
 HTML_DYNAMIC_SECTIONS  = YES
 HTML_TIMESTAMP         = YES
-HTML_EXTRA_STYLESHEET  = doc/doxygen-awesome.css
+HTML_EXTRA_STYLESHEET  = doxygen-awesome.css
