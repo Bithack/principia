@@ -1,13 +1,20 @@
 #include "escript.hh"
+#include "SDL_mixer.h"
 #include "model.hh"
 #include "game.hh"
+#include "pkgman.hh"
 #include "receiver.hh"
 #include "linebuffer.hh"
 #include "receiver.hh"
+#include "soundmanager.hh"
+#include "tms/backend/print.h"
+#include "tms/math/misc.h"
 #include "ui.hh"
 #include "robotman.hh"
 #include "robot_base.hh"
 #include "adventure.hh"
+#include <SDL_audio.h>
+#include <cstdint>
 
 #define lua_pushint32(L, n) (lua_pushinteger(L, static_cast<int32_t>(n)))
 #define lua_pushuint32(L, n) (lua_pushinteger(L, static_cast<uint32_t>(n)))
@@ -605,6 +612,7 @@ static void register_game(lua_State *L);
 static void register_cam(lua_State *L);
 static void register_entity(lua_State *L);
 static void register_this(lua_State *L, escript *e);
+static void register_sfx(lua_State *L);
 
 static uint32_t
 upper_power_of_two(uint32_t v)
@@ -3071,6 +3079,121 @@ extern "C" {
 
         return 0;
     }
+
+    static int l_this_create_sfx(lua_State *L) {
+        ESCRIPT_VERSION_ERROR(L, "this:create_sfx", "master", LEVEL_VERSION_1_5_1);
+
+        //args: (this, sfx_data, name?)
+        //TODO: overload (this, name, sfx_data) or (this, sfx_data) instead?
+
+        const char* chunk_name = "lua_sfx";
+        luaL_argcheck(L,
+            lua_istable(L, 2),
+            2,
+            "Table expected"
+        );
+        if (lua_gettop(L) > 2) {
+            chunk_name = luaL_checkstring(L, 3);
+        }
+
+        //XXX: this assumes the audio is inited with these params:
+        //     16-bit signed int, 2 channels
+        // Otherwise, it's ub :3
+
+        // Create a buffer to hold the audio data
+        const int len = lua_rawlen(L, 2);
+        if (len & 1) {
+            luaL_error(L, "Odd number of samples in stereo audio data");
+        }
+
+        int16_t *pcm_buf = new int16_t[len];
+
+        // Copy the table to the buffer
+        for (int i = 0; i < len; i++) {
+            // Get the sample from the table
+            lua_rawgeti(L, 2, i+1);
+            float sample = luaL_checknumber(L, -1);
+            lua_pop(L, 1);
+
+            // Clamp the sample to -1.0-1.0, and convert to 16-bit signed int
+            sample = tclampf(sample, -1.0f, 1.0f);
+            pcm_buf[i] = (int16_t)(sample * 32767.0f);
+        }
+
+        sm_sound *sfx = new sm_sound();
+        sfx->name = chunk_name;
+        sfx->add_chunk_raw(
+            (uint8_t*)pcm_buf,
+            len * sizeof(int16_t),
+            chunk_name);
+
+        // XXX: do not do this...
+        // Mix_QuickLoad_RAW just points to the buffer, doesnt actually load the data
+        // free(pcm_buf);
+
+        tms_debugf("Created Sfx %p", sfx);
+
+        // Push the sound object to the stack
+        sm_sound **userdata = static_cast<sm_sound**>(lua_newuserdata(L, sizeof(sm_sound*)));
+        *(userdata) = sfx;
+        luaL_setmetatable(L, "SfxMT");
+
+        return 1;
+    }
+
+    // possible overloads:
+    // (this) - play globally with full volume
+    // (this, volume) - play globally with specified volume
+    // (this, volume, x, y) - play at specified position with specified volume
+    static int l_sfx_play(lua_State *L) {
+        // Get this as SfxMT
+        sm_sound *s = *(sm_sound**)luaL_checkudata(L, 1, "SfxMT");
+
+        // Get other args
+        float x = 0, y = 0;
+        float volume = 1.0f;
+        bool global = true;
+        if (lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
+            // XXX: should volume upper bound be clamped?
+            volume = tclampf(
+                luaL_checknumber(L, 2),
+                SM_MIN_VOLUME, 1.);
+        }
+        if (lua_gettop(L) >= 3 &&
+            !(lua_isnil(L, 3) && lua_isnil(L, 4))
+        ) {
+            global = false;
+            x = luaL_checknumber(L, 3);
+            y = luaL_checknumber(L, 4);
+        }
+
+        // TODO: accept other arguments
+        tms_debugf("Playing Sfx %p", s);
+        sm::play(s, x, y, 0, volume, false, 0, global);
+
+        return 0;
+    }
+
+    static int l_sfx_gc(lua_State *L) {
+        // TODO: figure out why this gets called on a table instead of userdata sometimes!!!
+        if (!lua_isuserdata(L, 1)) {
+            tms_warnf("__gc called on non-userdata??? wtf");
+            return 0;
+        }
+        sm_sound *s = *(sm_sound**)luaL_checkudata(L, 1, "SfxMT");
+
+        // TODO: figure out how to handle audio that's still playing! (is it okay to free it after play is called?)
+        tms_debugf("deleting Sfx %p", s);
+        for (size_t i = 0; i < s->num_chunks; i++) {
+            Mix_Chunk *chunk = s->chunks[i].chunk;
+            free(chunk->abuf);
+            SDL_free(chunk);
+        }
+        s->num_chunks = 0;
+        free(s);
+
+        return 0;
+    }
 }
 
 escript::escript()
@@ -3267,6 +3390,8 @@ escript::init()
     register_entity(this->L);
 
     register_this(this->L, this);
+
+    register_sfx(this->L);
 
 #ifdef BUILD_LUASOCKET
     if (W->level.flag_active(LVL_ENABLE_LUASOCKET)) {
@@ -3681,6 +3806,8 @@ static const luaL_Reg this_methods[] = {
     LUA_REG(add_static_sprite),
     LUA_REG(clear_static_sprites),
 
+    LUA_REG(create_sfx),
+
     { NULL, NULL }
 #undef LUA_REG
 };
@@ -3710,6 +3837,40 @@ register_this(lua_State *L, escript *e)
     luaL_setmetatable(L, "This");
     lua_setglobal(L, "this");
 
+    lua_pop(L, 1);
+}
+
+/* AUDIO */
+static const luaL_Reg sfx_meta[] = {
+    { "__gc", l_sfx_gc },
+    { NULL, NULL }
+};
+
+static const luaL_Reg sfx_methods[] = {
+#define LUA_REG(name) { #name, l_sfx_##name }
+    LUA_REG(play),
+    { NULL, NULL }
+#undef LUA_REG
+};
+
+static void
+register_sfx(lua_State *L) {
+    int lib_id, meta_id;
+
+    lua_createtable(L, 0, 0);
+    lib_id = lua_gettop(L);
+
+    luaL_newmetatable(L, "SfxMT");
+    meta_id = lua_gettop(L);
+    luaL_setfuncs(L, sfx_meta, 0);
+
+    luaL_newlib(L, sfx_methods);
+    lua_setfield(L, meta_id, "__index");
+
+    luaL_newlib(L, sfx_meta);
+    lua_setfield(L, meta_id, "__metatable");
+
+    lua_setmetatable(L, lib_id);
     lua_pop(L, 1);
 }
 
