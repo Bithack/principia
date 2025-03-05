@@ -10,5 +10,5 @@ else()
 endif()
 
 configure_file(
-	${GENERATE_VERSION_SOURCE_DIR}/src/src/version_info_git.hh.in
+	${GENERATE_VERSION_SOURCE_DIR}/src/version_info_git.hh.in
 	${GENERATE_VERSION_BINARY_DIR}/version_info_git.hh)

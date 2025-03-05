@@ -89,12 +89,12 @@ endif()
 # ----------------------------------
 
 include_directories(
+	lib/
+	lib/imgui/
+	lib/lua/
+	lib/SDL_image/
+	lib/SDL_mixer/
 	src/
-	src/imgui/
-	src/lua/
-	src/SDL_image/
-	src/SDL_mixer/
-	src/src/
 	${CMAKE_CURRENT_BINARY_DIR})
 
 file(GLOB SRCS
@@ -104,24 +104,24 @@ file(GLOB SRCS
 	src/tms/bindings/cpp/cpp.cc
 	src/tms/modules/3ds.c
 
-	src/lua/*.c
-	src/SDL_image/*.c
+	src/*.cc
+	src/*.c
 
-	src/src/*.cc
-	src/src/*.c
+	lib/lua/*.c
+	lib/SDL_image/*.c
 
-	src/Box2D/Collision/*.cc
-	src/Box2D/Collision/Shapes/*.cc
-	src/Box2D/Common/*.cc
-	src/Box2D/Dynamics/*.cc
-	src/Box2D/Dynamics/Contacts/*.cc
-	src/Box2D/Dynamics/Joints/*.cc
-	src/Box2D/Particle/*.cc
+	lib/Box2D/Collision/*.cc
+	lib/Box2D/Collision/Shapes/*.cc
+	lib/Box2D/Common/*.cc
+	lib/Box2D/Dynamics/*.cc
+	lib/Box2D/Dynamics/Contacts/*.cc
+	lib/Box2D/Dynamics/Joints/*.cc
+	lib/Box2D/Particle/*.cc
 )
 
 if(BACKEND_IMGUI)
 	file(GLOB IMGUI_SRCS
-		src/imgui/*.cpp)
+		lib/imgui/*.cpp)
 	list(APPEND SRCS ${IMGUI_SRCS})
 endif()
 
@@ -143,7 +143,7 @@ if(NOT SCREENSHOT_BUILD)
 	find_package(CURL REQUIRED)
 	include_directories(${CURL_INCLUDE_DIR})
 
-	file(GLOB SDL_mixer_SRCS src/SDL_mixer/*.c)
+	file(GLOB SDL_mixer_SRCS lib/SDL_mixer/*.c)
 	list(APPEND SRCS ${SDL_mixer_SRCS})
 
 	add_definitions(-DBUILD_CURL)
@@ -162,7 +162,7 @@ if(USE_LUASOCKET)
 	add_definitions(-DBUILD_LUASOCKET)
 
 	file(GLOB LUASOCKET_SRCS
-		src/luasocket/*.c)
+		lib/luasocket/*.c)
 
 	list(APPEND SRCS ${LUASOCKET_SRCS})
 endif()

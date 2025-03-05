@@ -14,8 +14,7 @@ BUILTIN_STL_SUPPORT    = YES
 # Input
 RECURSIVE              = YES
 STRIP_FROM_PATH        = src
-INPUT                  = src/main_page.dox \
-                         src/src/ src/tms/
+INPUT                  = src/
 
 # Dot graphs
 HAVE_DOT               = YES

@@ -4,13 +4,15 @@ on:
   push:
     paths:
       - 'src/**'
-      - 'data-*/**'
+      - 'lib/**'
+      - 'data/**'
       - 'CMakeLists.txt'
       - '.github/workflows/linux_ss.yml'
   pull_request:
     paths:
       - 'src/**'
-      - 'data-*/**'
+      - 'lib/**'
+      - 'data/**'
       - 'CMakeLists.txt'
       - '.github/workflows/linux_ss.yml'
 

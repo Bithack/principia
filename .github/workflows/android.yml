@@ -4,16 +4,18 @@ on:
   push:
     paths:
       - 'src/**'
+      - 'lib/**'
       - 'android/**'
-      - 'data-*/**'
+      - 'data/**'
       - 'packaging/**'
       - 'CMakeLists.txt'
       - '.github/workflows/android.yml'
   pull_request:
     paths:
       - 'src/**'
+      - 'lib/**'
       - 'android/**'
-      - 'data-*/**'
+      - 'data/**'
       - 'packaging/**'
       - 'CMakeLists.txt'
       - '.github/workflows/android.yml'
