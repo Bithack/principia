@@ -1068,7 +1068,6 @@ material_factory::init_shaders()
 
     tms_infof("Defining shader globals...");
 
-    bool dynamic_lighting = false;
     _tms.gamma_correct = (int)settings["gamma_correct"]->v.b;
 
     /* Default ambient/diffuse values */
@@ -1156,45 +1155,30 @@ material_factory::init_shaders()
 
     if (settings["enable_shadows"]->v.b || settings["enable_ao"]->v.b) {
         if (settings["shadow_ao_combine"]->v.b) {
-            if (dynamic_lighting) {
-                tms_debugf("dl=1 ");
-                tms_shader_global_define_vs("UNIFORMS", "uniform mat4 SMVP;uniform lowp vec2 _AMBIENTDIFFUSE;");
-            } else {
-                tms_debugf("dl=0 ");
-                tms_shader_global_define_vs("UNIFORMS", "uniform mat4 SMVP;");
-            }
+            tms_shader_global_define_vs("UNIFORMS", "uniform mat4 SMVP; uniform lowp vec2 _AMBIENTDIFFUSE;");
         } else {
-            char tmp[1024];
-            tmp[0]='\0';
+            char tmp[1024] = "uniform lowp vec2 _AMBIENTDIFFUSE;";
 
-            if (settings["enable_shadows"]->v.b) {
+            if (settings["enable_shadows"]->v.b)
                 strcat(tmp, "uniform mat4 SMVP;");
-            }
-            if (settings["enable_ao"]->v.b) {
+
+            if (settings["enable_ao"]->v.b)
                 strcat(tmp, "uniform mat4 AOMVP;");
-            }
-            if (dynamic_lighting) {
-                strcat(tmp, "uniform lowp vec2 _AMBIENTDIFFUSE;");
-            }
 
             tms_shader_global_define_vs("UNIFORMS", tmp);
         }
     } else {
         tms_debugf("sao=0 ");
-        if (dynamic_lighting) {
-            tms_debugf("dl=1 ");
-            tms_shader_global_define_vs("UNIFORMS", "uniform lowp vec2 _AMBIENTDIFFUSE;");
-        } else {
-            tms_shader_global_define_vs("UNIFORMS", "");
-        }
+        tms_shader_global_define_vs("UNIFORMS", "uniform lowp vec2 _AMBIENTDIFFUSE;");
     }
 
-    sprintf(tmp, "%s%s%s%s",
-            settings["enable_ao"]->v.b ? "uniform lowp vec3 ao_mask;" : "",
-            settings["enable_shadows"]->v.b ? "uniform lowp sampler2D tex_3;" : "",
-            settings["enable_ao"]->v.b ? "uniform lowp sampler2D tex_4;" : "",
-            dynamic_lighting ? "uniform lowp vec2 _AMBIENTDIFFUSE;" : ""
-            );
+    strcpy(tmp, "uniform lowp vec2 _AMBIENTDIFFUSE;");
+    if (settings["enable_ao"]->v.b)
+        strcat(tmp, "uniform lowp vec3 ao_mask; uniform lowp sampler2D tex_4;");
+
+    if (settings["enable_shadows"]->v.b)
+        strcat(tmp, "uniform lowp sampler2D tex_3;");
+
     tms_shader_global_define_fs("UNIFORMS", tmp);
 
     tms_shader_global_define_fs("GI_FUN",
@@ -1282,20 +1266,8 @@ material_factory::init_shaders()
         tms_shader_global_define("SHADOW_AO_COMBINE", "1");
     }
 
-    if (!dynamic_lighting) {
-        char _tmp[32];
-        setlocale(LC_ALL, "C");
-        setlocale(LC_NUMERIC, "C");
-        sprintf(_tmp, "%f", P.default_ambient);
-        tms_shader_global_define("_AMBIENT", _tmp);
-        setlocale(LC_ALL, "C");
-        setlocale(LC_NUMERIC, "C");
-        sprintf(_tmp, "%f", P.default_diffuse);
-        tms_shader_global_define("_DIFFUSE", _tmp);
-    } else {
-        tms_shader_global_define("_AMBIENT", "_AMBIENTDIFFUSE.x");
-        tms_shader_global_define("_DIFFUSE", "_AMBIENTDIFFUSE.y");
-    }
+    tms_shader_global_define("_AMBIENT", "_AMBIENTDIFFUSE.x");
+    tms_shader_global_define("_DIFFUSE", "_AMBIENTDIFFUSE.y");
 
     tms_shader_global_define("AMBIENT_M", ".75");
 
