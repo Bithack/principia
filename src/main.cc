@@ -82,12 +82,6 @@ create_thread(int (SDLCALL *fn)(void*),
 }
 
 static void
-menu_begin(void)
-{
-
-}
-
-static void
 gi_begin(void)
 {
     time_start = SDL_GetTicks();
@@ -533,10 +527,6 @@ tproject_init_pipelines(void)
 
     tms_pipeline_set_begin_fn(1, gi_begin);
     tms_pipeline_set_end_fn(1, gi_end);
-
-    /* menu pipeline */
-    tms_pipeline_declare(2, "MVP", TMS_MVP, 0);
-    tms_pipeline_set_begin_fn(2, menu_begin);
 
     /* ao pipeline */
     tms_pipeline_declare(3, "M", TMS_MAT4, offsetof(struct tms_entity, M));

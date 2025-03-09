@@ -37,6 +37,8 @@ simplebg::set_repeating(bool repeat)
     }
 }
 
+extern tms::texture *tex_border;
+
 bool
 simplebg::set_level_size(uint16_t left, uint16_t right, uint16_t down, uint16_t up)
 {
@@ -62,7 +64,7 @@ simplebg::set_level_size(uint16_t left, uint16_t right, uint16_t down, uint16_t 
             {
                 this->set_material(&m_bg_colored);
 
-                m_border.pipeline[0].texture[0] = m_border.pipeline[2].texture[0];
+                m_border.pipeline[0].texture[0] = tex_border;
                 m_border.pipeline[1].program = m_wood.pipeline[1].program;
                 m_border.pipeline[3].program = m_bedrock.pipeline[3].program;
             }
@@ -72,7 +74,7 @@ simplebg::set_level_size(uint16_t left, uint16_t right, uint16_t down, uint16_t 
             {
                 this->set_material(&m_bg);
 
-                m_border.pipeline[0].texture[0] = m_border.pipeline[2].texture[0];
+                m_border.pipeline[0].texture[0] = tex_border;
                 m_border.pipeline[1].program = m_wood.pipeline[1].program;
                 m_border.pipeline[3].program = m_bedrock.pipeline[3].program;
             }
