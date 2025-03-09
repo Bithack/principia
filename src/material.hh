@@ -68,9 +68,6 @@
 #define C_STONE_STONE           (TYPE_STONE | TYPE_STONE_STONE)
 
 #define SL_SHARED       (1UL << 0)
-#define SL_REQUIRE_GI   (1UL << 4)
-
-#define GF_ENABLE_GI    (1UL << 1)
 
 struct shader_load_data {
     uint32_t flags;

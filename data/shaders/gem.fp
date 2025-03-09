@@ -5,8 +5,6 @@ varying mediump vec3 FS_eye;
 varying mediump vec3 FS_normal;
 VARYINGS
 
-GI_FUN
-
 void main(void)
 {
     vec3 n = normalize(FS_normal);
@@ -20,6 +18,6 @@ void main(void)
 
     float shadow = clamp(SHADOW, .5, 1.);
 
-    gl_FragColor = specular*vec4(.7) + shadow * color * diffuse + color * ambient GI;
+    gl_FragColor = specular*vec4(.7) + shadow * color * diffuse + color * ambient;
 }
 

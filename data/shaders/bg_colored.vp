@@ -18,7 +18,6 @@ void main(void)
     FS_diffuse = dot(LIGHT, normalize(normal))*_DIFFUSE;
 
     SET_SHADOW
-    SET_GI
 
 #ifdef ENABLE_AO
 #ifdef SHADOW_AO_COMBINE

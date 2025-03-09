@@ -20,7 +20,6 @@ void main(void)
     FS_texcoord = _pos.xy*vec2(0.066);
 
     SET_SHADOW
-    SET_GI
 
 #ifdef ENABLE_AO
 #ifdef SHADOW_AO_COMBINE

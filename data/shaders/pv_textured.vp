@@ -17,7 +17,6 @@ void main(void)
 
     SET_SHADOW
     SET_AMBIENT_OCCL
-    SET_GI
 
     FS_texcoord = texcoord;
     FS_diffuse = max(dot(LIGHT, nor)*_DIFFUSE, 0.);
