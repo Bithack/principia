@@ -25,7 +25,6 @@ _settings::init()
 
     this->add("uiscale",            S_FLOAT, 1.3f);
 
-    this->add("blur_shadow_map",    S_BOOL,  false);
     this->add("swap_shadow_map",    S_BOOL,  false);
 
     // XXX: see git history

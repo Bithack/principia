@@ -2888,12 +2888,6 @@ game::render()
             glClear(GL_COLOR_BUFFER_BIT);
             tms_fb_unbind(tms_pipeline_get_framebuffer(1));
         }
-
-        /*
-        if (settings["blur_shadow_map"]->v.b) {
-            tms_fb_swap_blur3x3(tms_pipeline_get_framebuffer(1));
-        }
-        */
     }
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render after shadow render", ierr);
