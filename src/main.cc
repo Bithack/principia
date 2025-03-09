@@ -1881,7 +1881,12 @@ initial_loader(int step)
 
         case 7:
             {
-                bool ret = mesh_factory::load_next();
+                bool ret;
+                // Speed up model loading by not bottlenecking it from screen vsync
+                // (10 * 60fps = 600 models loaded per second, ideally)
+                for (size_t i = 0; i < 10; i++) {
+                    ret = mesh_factory::load_next();
+                }
 
                 char msg[128];
                 snprintf(msg, 127, "Loading model %d/%d", cur_mesh+1, NUM_MODELS);
