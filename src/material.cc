@@ -1107,26 +1107,21 @@ material_factory::init_shaders()
     tms_shader_global_define("LIGHT", tmp);
 
     if (settings["enable_shadows"]->v.b) {
-        switch (settings["shadow_quality"]->v.u8) {
-            default: case 0: case 2:
-                tms_shader_global_define_vs("SET_SHADOW",
-                        "vec4 shadow = SMVP*pos;"
-                        "FS_shadow_z = shadow.z;"
-                        "FS_shadow = shadow.xy;");
-                break;
-            case 1:
-            {
-                sprintf(tmp,
-                        "vec4 shadow = SMVP*pos; FS_shadow_z = shadow.z; FS_shadow = shadow.xy; FS_shadow_dither = shadow.xy + vec2(%f, %f);",
-                        //1.f / settings["shadow_map_resx"]->v.i,
-                        //1.f / settings["shadow_map_resy"]->v.i
-                        1.f / _tms.window_width,
-                        1.f / _tms.window_height
-                        );
-                tms_shader_global_define_vs("SET_SHADOW", tmp);
-                break;
-            }
+        char set_shadow[256];
+        strcpy(set_shadow,
+            "vec4 shadow = SMVP*pos;"
+            "FS_shadow_z = shadow.z;"
+            "FS_shadow = shadow.xy;");
+
+        if (settings["shadow_quality"]->v.u8 == 1) {
+            // Smooth
+            sprintf(tmp,
+                "FS_shadow_dither = shadow.xy + vec2(%f, %f);",
+                1.f / _tms.window_width, 1.f / _tms.window_height);
+            strcat(set_shadow, tmp);
         }
+
+        tms_shader_global_define_vs("SET_SHADOW", set_shadow);
     } else {
         tms_shader_global_define_vs("SET_SHADOW", "");
     }
@@ -1218,31 +1213,29 @@ material_factory::init_shaders()
             );
     tms_shader_global_define("VARYINGS", tmp);
 
-#define COOL_THING ".005"
+    // Small shadow bias to prevent shadow acne
+    #define SH_BIAS ".005"
 
-    if (settings["enable_shadows"]->v.b)
-        switch (settings["shadow_quality"]->v.u8) {
-            default: case 0:
-                if (settings["shadow_map_depth_texture"]->is_true()) {
-                    tms_shader_global_define_fs("SHADOW", "float(texture2D(tex_3, FS_shadow).g > FS_shadow_z- " COOL_THING ")");
-                } else {
-                    tms_shader_global_define_fs("SHADOW", "float(texture2D(tex_3, FS_shadow).g > FS_shadow_z)");
-                }
-                break;
-            case 1:
-                if (settings["shadow_map_depth_texture"]->is_true()) {
-                    tms_shader_global_define_fs("SHADOW", "((float(texture2D(tex_3, FS_shadow).g > FS_shadow_z-" COOL_THING ") + float(texture2D(tex_3, FS_shadow_dither).g > FS_shadow_z-" COOL_THING "))*.5)");
-                } else {
-                    tms_shader_global_define_fs("SHADOW", "((float(texture2D(tex_3, FS_shadow).g > FS_shadow_z) + float(texture2D(tex_3, FS_shadow_dither).g > FS_shadow_z))*.5)");
-                }
-                break;
+    const char *shadow;
 
-            case 2:
-                tms_shader_global_define_fs("SHADOW", "(1. - dot(vec3(lessThan(texture2D(tex_3, FS_shadow).rgb, vec3(FS_shadow_z))), vec3(.3333333,.3333333,.3333333)))");
-                break;
+    if (settings["enable_shadows"]->v.b) {
+        if (settings["shadow_quality"]->v.u8 == 1) {
+            // Smooth
+            if (settings["shadow_map_depth_texture"]->is_true())
+                shadow = "((float(texture2D(tex_3, FS_shadow).g > FS_shadow_z-" SH_BIAS ") + float(texture2D(tex_3, FS_shadow_dither).g > FS_shadow_z-" SH_BIAS "))*.5)";
+            else
+                shadow = "((float(texture2D(tex_3, FS_shadow).g > FS_shadow_z) + float(texture2D(tex_3, FS_shadow_dither).g > FS_shadow_z))*.5)";
+        } else {
+            // Sharp
+            if (settings["shadow_map_depth_texture"]->is_true())
+                shadow = "float(texture2D(tex_3, FS_shadow).g > FS_shadow_z- " SH_BIAS ")";
+            else
+                shadow = "float(texture2D(tex_3, FS_shadow).g > FS_shadow_z)";
         }
-    else
-        tms_shader_global_define_fs("SHADOW", "1.0");
+    } else
+        shadow = "1.0";
+
+    tms_shader_global_define_fs("SHADOW", shadow);
 
     if (settings["enable_shadows"]->v.b) {
         if (settings["gamma_correct"]->v.b)

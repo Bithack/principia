@@ -194,7 +194,7 @@ gi_end(void)
 {
     glColorMask(1,1,1,1);
 
-    if (settings["shadow_quality"]->v.i != 2 && !settings["shadow_map_depth_texture"]->is_true()) {
+    if (!settings["shadow_map_depth_texture"]->is_true()) {
         GLenum discards[] = {GL_DEPTH_ATTACHMENT};
 
         if (settings["discard_framebuffer"]->v.b && _glDiscardFramebufferEXT == 0) {
@@ -1296,15 +1296,8 @@ setup_opengl_settings()
         }
     }
 
-    if (settings["shadow_map_depth_texture"]->is_uninitialized()) {
-        if (strstr(_tms.gl_extensions, "GL_ARB_depth_texture") != 0) {
-            tms_infof("GL_ARB_depth_texture: YES");
-            settings["shadow_map_depth_texture"]->v.b = 1;
-        } else {
-            tms_infof("GL_ARB_depth_texture: NO");
-            settings["shadow_map_depth_texture"]->v.b = 0;
-        }
-    }
+    // GL_ARB_depth_texture is OpenGL 1.5+, so we can always assume it to exist on desktop
+    settings["shadow_map_depth_texture"]->v.b = 1;
 #endif
 }
 

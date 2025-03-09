@@ -2880,26 +2880,8 @@ game::render()
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render before shadow render", ierr);
     if (settings["enable_shadows"]->v.b) {
         if (!this->state.abo_architect_mode || !W->is_paused()) {
-            if (settings["shadow_quality"]->v.i == 2) {
-                P.best_variable_in_the_world2 = 0;
-                this->gi_graph->render(this->gi_cam, this);
-
-#define JKL .04f
-
-                glColorMask(1,0,0,0);
-                P.best_variable_in_the_world2 = 1337;
-                tmat4_translate(this->gi_cam->view, JKL, JKL, 0.f);
-                this->gi_graph->render(this->gi_cam, this);
-
-                glColorMask(0,0,1,0);
-                tmat4_translate(this->gi_cam->view, -JKL*2.f, -JKL*2.f, 0.f);
-                this->gi_graph->render(this->gi_cam, this);
-
-#undef JKL
-            } else {
-                P.best_variable_in_the_world2 = 0;
-                this->gi_graph->render(this->gi_cam, this);
-            }
+            P.best_variable_in_the_world2 = 0;
+            this->gi_graph->render(this->gi_cam, this);
         } else {
             tms_fb_bind(tms_pipeline_get_framebuffer(1));
             glClearColor(1.f, 1.f, 1.f, 1.f);
