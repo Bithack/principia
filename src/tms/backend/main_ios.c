@@ -194,8 +194,6 @@ tbackend_init_surface()
 
     SDL_GL_CreateContext(_window);
 
-    SDL_GL_SetSwapInterval(0);
-
 //#include "glhacks/definc.h"
 
     return T_OK;

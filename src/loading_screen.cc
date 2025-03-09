@@ -16,15 +16,12 @@ loading_screen::loading_screen()
 int
 loading_screen::pause(void)
 {
-#ifdef TMS_BACKEND_PC
-    /* return the pervious vsync status */
     if (settings["vsync"]->v.b) {
         if (SDL_GL_SetSwapInterval(-1) == -1)
             SDL_GL_SetSwapInterval(1);
     } else {
         SDL_GL_SetSwapInterval(0);
     }
-#endif
 
     tms_infof("pause loading");
     return T_OK;
@@ -33,11 +30,6 @@ loading_screen::pause(void)
 int
 loading_screen::resume(void)
 {
-#ifdef TMS_BACKEND_PC
-    /* Disable vsync during loading screen */
-    SDL_GL_SetSwapInterval(0);
-#endif
-
     tms_infof("resume loading -----------------------------------");
     this->step = 0;
     return T_OK;

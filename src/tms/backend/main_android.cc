@@ -150,8 +150,6 @@ tbackend_init_surface()
 
     SDL_GL_CreateContext(_window);
 
-    //SDL_GL_SetSwapInterval(0);
-
     return T_OK;
 }
 
