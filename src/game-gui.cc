@@ -2432,6 +2432,8 @@ game::refresh_gui(void)
 
     this->wm->init_areas();
     this->wm->rearrange();
+
+    this->panel_refresh_widgets();
 }
 
 void

@@ -35,6 +35,60 @@ on_drag_scroll(principia_wdg *w, float value_x, float value_y)
 }
 
 void
+game::panel_refresh_widgets()
+{
+    base_y = _tms.window_height;// - PANEL_WDG_OUTER_Y / 2.f;
+    base_y = _tms.window_height - (MAX_Y * b_h * (1.f - WIDGET_SCALE))/2.f;
+
+    for (int x=0; x<MAX_P; x++) {
+        dragging[x] = -1;
+        modifying[x] = -1;
+    }
+
+    const float WIDGET_SIZE_MOD_X = (0.10f * _tms.xppcm) * WIDGET_SCALE;
+    const float WIDGET_SIZE_MOD_Y = (0.10f * _tms.yppcm) * WIDGET_SCALE;
+
+    for (int n=0; n<NUM_PANEL_WIDGET_TYPES; ++n) {
+        float w = (btns[n].rx * b_w * WIDGET_SCALE) - WIDGET_SIZE_MOD_X;
+        float h = (btns[n].ry * b_h * WIDGET_SCALE) - WIDGET_SIZE_MOD_Y;
+
+        float x = scroll_x + (btns[n].ex * b_w * WIDGET_SCALE) + (btns[n].rx * b_w * WIDGET_SCALE) / 2.f;
+        float y = base_y - (btns[n].ey * b_h * WIDGET_SCALE) - (btns[n].ry * b_h * WIDGET_SCALE) / 2.f;
+
+        if (btns[n].ry > btns[n].rx) {
+            float temp = w;
+            w = h;
+            h = temp;
+        }
+
+        if (x+w/2.f > max_x) {
+            max_x = x+w/2.f;
+        }
+    }
+
+    this->panel_edit_need_scroll = (_tms.window_width < max_x);
+
+    if (this->panel_edit_need_scroll) {
+        // how much can we scroll?
+        // this will decide the size of the knob
+        const float ow = 10.f;
+        float width = (_tms.window_width * (_tms.window_width / max_x));
+        float height = (_tms.yppcm * .15f);
+        this->wdg_panel_slider_knob->size.w = width;
+        this->wdg_panel_slider_knob->size.h = height;
+        this->wdg_panel_slider_knob->set_position(width/2.f, _tms.window_height - 1.5f*menu_ydim - (_tms.yppcm * .075f));
+        this->wdg_panel_slider_knob->set_draggable_x(true, true, width/2.f, _tms.window_width-(width/2.f));
+        this->wdg_panel_slider_knob->on_dragged = on_drag_scroll;
+    } else {
+        /* If we don't need any scrolling support, we can programmatically scroll
+         * enough so the widgets are horizontally centered */
+        scroll_x = (_tms.window_width - max_x)/2.f;
+    }
+
+    this->help_dragpanel->set_position(_tms.window_width/2.f, _tms.window_height - 1.5f*menu_ydim / 2.f - (menu_ydim*0.95f));
+}
+
+void
 game::init_panel_edit()
 {
     btns[0].s = gui_spritesheet::get_sprite(S_SLIDER_2);
@@ -118,57 +172,10 @@ game::init_panel_edit()
         btns[x].sy = btns[x].ry;
     }
 
-    base_y = _tms.window_height;// - PANEL_WDG_OUTER_Y / 2.f;
-    base_y = _tms.window_height - (MAX_Y * b_h * (1.f - WIDGET_SCALE))/2.f;
-
-    for (int x=0; x<MAX_P; x++) {
-        dragging[x] = -1;
-        modifying[x] = -1;
-    }
-
-    const float WIDGET_SIZE_MOD_X = (0.10f * _tms.xppcm) * WIDGET_SCALE;
-    const float WIDGET_SIZE_MOD_Y = (0.10f * _tms.yppcm) * WIDGET_SCALE;
-
-    for (int n=0; n<NUM_PANEL_WIDGET_TYPES; ++n) {
-        float w = (btns[n].rx * b_w * WIDGET_SCALE) - WIDGET_SIZE_MOD_X;
-        float h = (btns[n].ry * b_h * WIDGET_SCALE) - WIDGET_SIZE_MOD_Y;
-
-        float x = scroll_x + (btns[n].ex * b_w * WIDGET_SCALE) + (btns[n].rx * b_w * WIDGET_SCALE) / 2.f;
-        float y = base_y - (btns[n].ey * b_h * WIDGET_SCALE) - (btns[n].ry * b_h * WIDGET_SCALE) / 2.f;
-
-        if (btns[n].ry > btns[n].rx) {
-            float temp = w;
-            w = h;
-            h = temp;
-        }
-
-        if (x+w/2.f > max_x) {
-            max_x = x+w/2.f;
-        }
-    }
-
-    this->panel_edit_need_scroll = (_tms.window_width < max_x);
-
-    if (this->panel_edit_need_scroll) {
-        // how much can we scroll?
-        // this will decide the size of the knob
-        const float ow = 10.f;
-        float width = (_tms.window_width * (_tms.window_width / max_x));
-        float height = (_tms.yppcm * .15f);
-        this->wdg_panel_slider_knob->size.w = width;
-        this->wdg_panel_slider_knob->size.h = height;
-        this->wdg_panel_slider_knob->set_position(width/2.f, _tms.window_height - 1.5f*menu_ydim - (_tms.yppcm * .075f));
-        this->wdg_panel_slider_knob->set_draggable_x(true, true, width/2.f, _tms.window_width-(width/2.f));
-        this->wdg_panel_slider_knob->on_dragged = on_drag_scroll;
-    } else {
-        /* If we don't need any scrolling support, we can programmatically scroll
-         * enough so the widgets are horizontally centered */
-        scroll_x = (_tms.window_width - max_x)/2.f;
-    }
-
     this->help_dragpanel = new p_text(font::small);
     this->help_dragpanel->set_text("Add widgets by dragging them down to open slots. (no/no)");
-    this->help_dragpanel->set_position(_tms.window_width/2.f, _tms.window_height - 1.5f*menu_ydim / 2.f - (menu_ydim*0.95f));
+
+    this->panel_refresh_widgets();
 }
 
 int

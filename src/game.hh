@@ -717,6 +717,7 @@ class game : public pscreen
     void reset(void);
 
     void init_panel_edit(void);
+    void panel_refresh_widgets();
     void init_gearbox_edit(void);
     void init_sandbox_menu();
     struct tms_texture* get_sandbox_texture(int n);
