@@ -172,9 +172,6 @@ if(ANDROID)
 	set(BACKEND_SRC main_android.cc)
 elseif(SCREENSHOT_BUILD)
 	set(BACKEND_SRC main_screenshotter.cc)
-elseif(EMSCRIPTEN)
-	set(CMAKE_EXECUTABLE_SUFFIX ".html")
-	set(BACKEND_SRC main_emscripten.cc)
 else()
 	set(BACKEND_SRC main.cc)
 	list(APPEND SRCS src/tms/backend/pipe.cc)
@@ -273,6 +270,13 @@ add_definitions(-DTMS_BACKEND_${TMS_FORMFACTOR} -DTMS_BACKEND_${TMS_BACKEND})
 # Use a safe subset of fast math flags
 set(COMMON_FLAGS "-fno-math-errno -fno-trapping-math -fno-signed-zeros")
 
+if(EMSCRIPTEN)
+	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "--preload-file ../data/")
+	string(APPEND COMMON_FLAGS " -sUSE_SDL=2 -pthread")
+	set(CMAKE_EXE_LINKER_FLAGS " -sUSE_SDL=2 -pthread -sPTHREAD_POOL_SIZE=20 -sINITIAL_MEMORY=2013265920 -sALLOW_MEMORY_GROWTH=1 -sTOTAL_STACK=16Mb")
+	set(CMAKE_EXECUTABLE_SUFFIX ".html")
+endif()
+
 set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -DDEBUG=1")
 set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} -DNDEBUG=1 -fomit-frame-pointer")
 
@@ -299,11 +303,6 @@ endif()
 
 # Installation
 # ------------
-
-if(EMSCRIPTEN)
-	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "--preload-file ../data/")
-	target_link_libraries(${PROJECT_NAME} -lemsocket -lssl -lcrypto)
-endif()
 
 if(APPLE)
 	set(BUNDLE_NAME ${PROJECT_NAME}.app)

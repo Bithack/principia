@@ -30,6 +30,10 @@
     #include <pwd.h>
 #endif
 
+#ifdef __EMSCRIPTEN__
+    #include <emscripten.h>
+#endif
+
 #include "pipe.hh"
 
 FILE *_f_out = stdout;
@@ -43,6 +47,7 @@ int mouse_down;
 static char *_storage_path = 0;
 
 static int T_intercept_input(SDL_Event ev);
+static void mainloop();
 
 extern "C" int tbackend_init_surface();
 extern "C" const char *tbackend_get_storage_path(void);
@@ -81,8 +86,7 @@ void print_log_header() {
 
 int main(int argc, char **argv)
 {
-    SDL_Event  ev;
-    int        done = 0;
+    int done = 0;
 
     signal(SIGSEGV, _catch_signal);
 
@@ -179,169 +183,179 @@ int main(int argc, char **argv)
     if (_tms.screen == 0)
         tms_fatalf("Context has no initial screen!");
 
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop(mainloop, 0, 1);
+#else
     do {
-        int i;
-
-        for (i = 0; i < 235; ++i) {
-            if (keys[i] == 1) {
-                struct tms_event spec;
-                spec.type = TMS_EV_KEY_DOWN;
-                spec.data.key.keycode = i;
-
-                tms_event_push(spec);
-            }
-        }
-
-        while (SDL_PollEvent(&ev)) {
-            switch (ev.type) {
-                case SDL_QUIT:
-                    _tms.state = TMS_STATE_QUITTING;
-                    break;
-
-                case SDL_KEYDOWN:
-                    T_intercept_input(ev);
-                    keys[ev.key.keysym.scancode] = 1;
-                    break;
-
-                case SDL_KEYUP:
-                    T_intercept_input(ev);
-                    keys[ev.key.keysym.scancode] = 0;
-                    break;
-
-                case SDL_WINDOWEVENT:
-                    switch (ev.window.event) {
-                        case SDL_WINDOWEVENT_RESIZED: {
-                            tms_infof("Window %d resized to %dx%d",
-                                    ev.window.windowID, ev.window.data1,
-                                    ev.window.data2);
-                            int w = ev.window.data1;
-                            int h = ev.window.data2;
-
-                            _tms.window_width  = _tms.opengl_width  = w;
-                            _tms.window_height = _tms.opengl_height = h;
-
-                            tproject_window_size_changed();
-                        } break;
-                        case SDL_WINDOWEVENT_MAXIMIZED:
-                            settings["window_maximized"]->v.b = true;
-                            break;
-                        case SDL_WINDOWEVENT_RESTORED:
-                            settings["window_maximized"]->v.b = false;
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-
-                case SDL_FINGERDOWN:
-                case SDL_FINGERUP:
-                case SDL_FINGERMOTION:
-                case SDL_MOUSEWHEEL:
-                    T_intercept_input(ev);
-                    break;
-                case SDL_MOUSEBUTTONDOWN:
-                case SDL_MOUSEBUTTONUP:
-                case SDL_MOUSEMOTION: {
-                    if (settings["emulate_touch"]->is_false()) {
-                        //tms_infof("from sdl mouse thing");
-                        T_intercept_input(ev);
-                    }
-                } break;
-
-                // XXX: is this necessary
-#ifdef TMS_BACKEND_WINDOWS
-                case SDL_SYSWMEVENT: {
-                    SDL_SysWMmsg *msg = (SDL_SysWMmsg*)ev.syswm.msg;
-
-                    switch (msg->msg.win.msg) {
-                        case WM_MOUSEMOVE: {
-                            //tms_infof("MOUSE MOVE");
-
-                            SDL_Event user_event;
-                            user_event.type = SDL_MOUSEMOTION;
-                            user_event.button.x = GET_X_LPARAM(msg->msg.win.lParam);
-                            user_event.button.y = GET_Y_LPARAM(msg->msg.win.lParam);
-                            user_event.button.button = SDL_BUTTON_LEFT;
-
-                            T_intercept_input(user_event);
-                        } break;
-
-                        case WM_LBUTTONDOWN: {
-                            //tms_infof("LBUTTON DOWN");
-                            SDL_Event user_event;
-                            user_event.type = SDL_MOUSEBUTTONDOWN;
-                            user_event.button.x = GET_X_LPARAM(msg->msg.win.lParam);
-                            user_event.button.y = GET_Y_LPARAM(msg->msg.win.lParam);
-                            user_event.button.button = SDL_BUTTON_LEFT;
-
-                            T_intercept_input(user_event);
-                        } break;
-
-                        case WM_LBUTTONUP: {
-                            //tms_infof("LBUTTON UP");
-                            SDL_Event user_event;
-                            user_event.type = SDL_MOUSEBUTTONUP;
-                            user_event.button.x = GET_X_LPARAM(msg->msg.win.lParam);
-                            user_event.button.y = GET_Y_LPARAM(msg->msg.win.lParam);
-                            user_event.button.button = SDL_BUTTON_LEFT;
-
-                            T_intercept_input(user_event);
-                        } break;
-
-                        case WM_RBUTTONDOWN: {
-                            //tms_infof("RBUTTON DOWN");
-                            SDL_Event user_event;
-                            user_event.type = SDL_MOUSEBUTTONDOWN;
-                            user_event.button.x = GET_X_LPARAM(msg->msg.win.lParam);
-                            user_event.button.y = GET_Y_LPARAM(msg->msg.win.lParam);
-                            user_event.button.button = SDL_BUTTON_RIGHT;
-
-                            T_intercept_input(user_event);
-                        } break;
-
-                        case WM_RBUTTONUP: {
-                            //tms_infof("RBUTTON UP");
-                            SDL_Event user_event;
-                            user_event.type = SDL_MOUSEBUTTONUP;
-                            user_event.button.x = GET_X_LPARAM(msg->msg.win.lParam);
-                            user_event.button.y = GET_Y_LPARAM(msg->msg.win.lParam);
-                            user_event.button.button = SDL_BUTTON_RIGHT;
-
-                            T_intercept_input(user_event);
-                        } break;
-                    }
-                } break;
-#endif
-
-                case SDL_TEXTINPUT:
-                    T_intercept_input(ev);
-                    break;
-            }
-        }
-
-        tms_step();
-        tms_begin_frame();
-        tms_render();
-        SDL_GL_SwapWindow(_window);
-        tms_end_frame();
-
-        if (settings["emulate_touch"]->is_true()) {
-            int x, y;
-            SDL_GetMouseState(&x, &y);
-
-            SDL_Event user_event;
-            user_event.type = SDL_MOUSEMOTION;
-            user_event.button.x = x;
-            user_event.button.y = y;
-            user_event.button.button = SDL_BUTTON_LEFT;
-        }
+        mainloop();
     } while (_tms.state != TMS_STATE_QUITTING);
+#endif
 
     tproject_quit();
 
     SDL_Quit();
 
     return 0;
+}
+
+static void mainloop()
+{
+    SDL_Event ev;
+    int i;
+
+    for (i = 0; i < 235; ++i) {
+        if (keys[i] == 1) {
+            struct tms_event spec;
+            spec.type = TMS_EV_KEY_DOWN;
+            spec.data.key.keycode = i;
+
+            tms_event_push(spec);
+        }
+    }
+
+    while (SDL_PollEvent(&ev)) {
+        switch (ev.type) {
+            case SDL_QUIT:
+                _tms.state = TMS_STATE_QUITTING;
+                break;
+
+            case SDL_KEYDOWN:
+                T_intercept_input(ev);
+                keys[ev.key.keysym.scancode] = 1;
+                break;
+
+            case SDL_KEYUP:
+                T_intercept_input(ev);
+                keys[ev.key.keysym.scancode] = 0;
+                break;
+
+            case SDL_WINDOWEVENT:
+                switch (ev.window.event) {
+                    case SDL_WINDOWEVENT_RESIZED: {
+                        tms_infof("Window %d resized to %dx%d",
+                                ev.window.windowID, ev.window.data1,
+                                ev.window.data2);
+                        int w = ev.window.data1;
+                        int h = ev.window.data2;
+
+                        _tms.window_width  = _tms.opengl_width  = w;
+                        _tms.window_height = _tms.opengl_height = h;
+
+                        tproject_window_size_changed();
+                    } break;
+                    case SDL_WINDOWEVENT_MAXIMIZED:
+                        settings["window_maximized"]->v.b = true;
+                        break;
+                    case SDL_WINDOWEVENT_RESTORED:
+                        settings["window_maximized"]->v.b = false;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+
+            case SDL_FINGERDOWN:
+            case SDL_FINGERUP:
+            case SDL_FINGERMOTION:
+            case SDL_MOUSEWHEEL:
+                T_intercept_input(ev);
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
+            case SDL_MOUSEMOTION: {
+                if (settings["emulate_touch"]->is_false()) {
+                    //tms_infof("from sdl mouse thing");
+                    T_intercept_input(ev);
+                }
+            } break;
+
+            // XXX: is this necessary
+#ifdef TMS_BACKEND_WINDOWS
+            case SDL_SYSWMEVENT: {
+                SDL_SysWMmsg *msg = (SDL_SysWMmsg*)ev.syswm.msg;
+
+                switch (msg->msg.win.msg) {
+                    case WM_MOUSEMOVE: {
+                        //tms_infof("MOUSE MOVE");
+
+                        SDL_Event user_event;
+                        user_event.type = SDL_MOUSEMOTION;
+                        user_event.button.x = GET_X_LPARAM(msg->msg.win.lParam);
+                        user_event.button.y = GET_Y_LPARAM(msg->msg.win.lParam);
+                        user_event.button.button = SDL_BUTTON_LEFT;
+
+                        T_intercept_input(user_event);
+                    } break;
+
+                    case WM_LBUTTONDOWN: {
+                        //tms_infof("LBUTTON DOWN");
+                        SDL_Event user_event;
+                        user_event.type = SDL_MOUSEBUTTONDOWN;
+                        user_event.button.x = GET_X_LPARAM(msg->msg.win.lParam);
+                        user_event.button.y = GET_Y_LPARAM(msg->msg.win.lParam);
+                        user_event.button.button = SDL_BUTTON_LEFT;
+
+                        T_intercept_input(user_event);
+                    } break;
+
+                    case WM_LBUTTONUP: {
+                        //tms_infof("LBUTTON UP");
+                        SDL_Event user_event;
+                        user_event.type = SDL_MOUSEBUTTONUP;
+                        user_event.button.x = GET_X_LPARAM(msg->msg.win.lParam);
+                        user_event.button.y = GET_Y_LPARAM(msg->msg.win.lParam);
+                        user_event.button.button = SDL_BUTTON_LEFT;
+
+                        T_intercept_input(user_event);
+                    } break;
+
+                    case WM_RBUTTONDOWN: {
+                        //tms_infof("RBUTTON DOWN");
+                        SDL_Event user_event;
+                        user_event.type = SDL_MOUSEBUTTONDOWN;
+                        user_event.button.x = GET_X_LPARAM(msg->msg.win.lParam);
+                        user_event.button.y = GET_Y_LPARAM(msg->msg.win.lParam);
+                        user_event.button.button = SDL_BUTTON_RIGHT;
+
+                        T_intercept_input(user_event);
+                    } break;
+
+                    case WM_RBUTTONUP: {
+                        //tms_infof("RBUTTON UP");
+                        SDL_Event user_event;
+                        user_event.type = SDL_MOUSEBUTTONUP;
+                        user_event.button.x = GET_X_LPARAM(msg->msg.win.lParam);
+                        user_event.button.y = GET_Y_LPARAM(msg->msg.win.lParam);
+                        user_event.button.button = SDL_BUTTON_RIGHT;
+
+                        T_intercept_input(user_event);
+                    } break;
+                }
+            } break;
+#endif
+
+            case SDL_TEXTINPUT:
+                T_intercept_input(ev);
+                break;
+        }
+    }
+
+    tms_step();
+    tms_begin_frame();
+    tms_render();
+    SDL_GL_SwapWindow(_window);
+    tms_end_frame();
+
+    if (settings["emulate_touch"]->is_true()) {
+        int x, y;
+        SDL_GetMouseState(&x, &y);
+
+        SDL_Event user_event;
+        user_event.type = SDL_MOUSEMOTION;
+        user_event.button.x = x;
+        user_event.button.y = y;
+        user_event.button.button = SDL_BUTTON_LEFT;
+    }
 }
 
 int
@@ -620,6 +634,10 @@ T_intercept_input(SDL_Event ev)
 
 const char *tbackend_get_storage_path(void)
 {
+#ifdef __EMSCRIPTEN__
+    return SDL_GetPrefPath("Bithack", "Principia");
+#endif
+
     if (!_storage_path) {
         char *path = (char*)malloc(512);
 

@@ -64,9 +64,10 @@ int _pipe_listener(void *p)
 
     return T_OK;
 
-#elif defined(TMS_BACKEND_HAIKU)
+#elif defined(TMS_BACKEND_HAIKU) || defined(TMS_BACKEND_EMSCRIPTEN)
 
     // Unimplemented
+    return 0;
 
 #else
 
@@ -166,7 +167,7 @@ void setup_pipe(int argc, char **argv)
         SDL_CreateThread(_pipe_listener, "_pipe_listener", 0);
     }
 
-#elif defined(TMS_BACKEND_HAIKU)
+#elif defined(TMS_BACKEND_HAIKU) || defined(TMS_BACKEND_EMSCRIPTEN)
 
     // Unimplemented
 
