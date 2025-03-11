@@ -112,7 +112,7 @@ int main(int argc, char **argv)
     mkdir(tbackend_get_storage_path(), S_IRWXU | S_IRWXG | S_IRWXO);
 #endif
 
-#ifndef DEBUG
+#if !defined(DEBUG) && !defined(__EMSCRIPTEN__)
     char logfile[1024];
     snprintf(logfile, 1023, "%s/run.log", tbackend_get_storage_path());
 
