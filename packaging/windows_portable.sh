@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eu
 
 # This script relies on windows_release.sh being run to prepare the release/ directory
 
@@ -6,7 +6,7 @@ touch release/portable.txt
 
 cp ../packaging/play_community_level.bat release/
 
-cp -r ../data-{pc,shared}/ release/
+cp -r ../data/ release/
 
 # juggling time
 mv principia.exe principia_exe.exe

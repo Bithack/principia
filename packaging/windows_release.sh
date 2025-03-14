@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eu
 
 # This script assumes you already have built the executable
 
