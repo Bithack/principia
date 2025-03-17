@@ -4,9 +4,6 @@
 
 class wheel : public composable, public b2QueryCallback
 {
-  private:
-    m rubber_material;
-
   public:
     wheel();
 

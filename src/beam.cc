@@ -116,8 +116,7 @@ beam::beam(int btype)
             this->properties[1].v.f = m_rubber.restitution;
             this->properties[2].v.f = m_rubber.friction;
             this->set_mesh(mesh_factory::get_mesh(MODEL_PLANK4));
-            this->rubber_material = m_rubber;
-            this->set_material(&this->rubber_material);
+            this->set_material(&m_rubber);
             if (W->level.version >= LEVEL_VERSION_1_4) {
                 this->set_flag(ENTITY_HAS_CONFIG, true);
                 this->dialog_id = DIALOG_RUBBER;
@@ -237,10 +236,9 @@ beam::update_fixture()
     if (this->btype == BEAM_RUBBER) {
         // before we recreate the shape, we need to update the material!
         if (W->level.version >= LEVEL_VERSION_1_4) {
-            this->rubber_material.restitution = this->properties[1].v.f;
-            this->rubber_material.friction = this->properties[2].v.f;
+            m_rubber.restitution = this->properties[1].v.f;
+            m_rubber.friction = this->properties[2].v.f;
         }
-        //this->set_material(&this->rubber_material);
     }
 
     switch (this->btype) {

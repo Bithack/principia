@@ -16,8 +16,6 @@ class beam : public composable
     connection c[2];
     int btype;
 
-    m rubber_material;
-
   public:
     beam(int btype);
 

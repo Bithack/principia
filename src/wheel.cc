@@ -22,8 +22,7 @@ wheel::wheel()
     }
 
     this->set_mesh(mesh_factory::get_mesh(MODEL_WHEEL));
-    this->rubber_material = m_wheel;
-    this->set_material(&this->rubber_material);
+    this->set_material(&m_wheel);
 
     this->update_method = ENTITY_UPDATE_CUSTOM;
 
@@ -61,8 +60,8 @@ wheel::tick()
 {
     if (this->do_update_fixture) {
         if (W->level.version >= LEVEL_VERSION_1_4) {
-            this->rubber_material.restitution = this->properties[1].v.f;
-            this->rubber_material.friction = this->properties[2].v.f;
+            m_wheel.restitution = this->properties[1].v.f;
+            m_wheel.friction = this->properties[2].v.f;
 
             this->set_as_circle((.75f*((float)this->properties[0].v.i*.5f+1.f)));
         }
@@ -144,8 +143,8 @@ void
 wheel::setup()
 {
     if (W->level.version >= LEVEL_VERSION_1_4) {
-        this->fd.friction = this->rubber_material.friction = this->properties[2].v.f;
-        this->fd.restitution = this->rubber_material.restitution = this->properties[1].v.f;
+        this->fd.friction = m_wheel.friction = this->properties[2].v.f;
+        this->fd.restitution = m_wheel.restitution = this->properties[1].v.f;
     }
 }
 
@@ -155,8 +154,8 @@ wheel::on_load(bool created, bool has_state)
     this->on_slider_change(-1, (float)this->properties[0].v.i / 2.f);
 
     if (W->level.version >= LEVEL_VERSION_1_4) {
-        this->fd.friction = this->rubber_material.friction = this->properties[2].v.f;
-        this->fd.restitution = this->rubber_material.restitution = this->properties[1].v.f;
+        this->fd.friction = m_wheel.friction = this->properties[2].v.f;
+        this->fd.restitution = m_wheel.restitution = this->properties[1].v.f;
     }
 }
 
