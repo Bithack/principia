@@ -409,12 +409,10 @@ game::delete_selected_entity(bool multi/*=false*/)
 
         this->selection.disable();
 
-        return this->delete_entity(e);
-
-        this->selection.disable(); /* cool */
-
         this->sel_p_ent = 0;
         this->sel_p_body = 0;
+
+        return this->delete_entity(e);
     } else if (this->selection.c) {
         /* connection selected, remove the connection */
         connection *c = this->selection.c;
