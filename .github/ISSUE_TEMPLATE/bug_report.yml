@@ -1,0 +1,40 @@
+name: Bug report
+description: Reporting bugs, crashes and other related issues with the game
+labels: ["Bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for helping to make the game better by reporting issues that you discover. Please make sure to describe the necessary details about the bug such that it can be reproduced by others and hopefully be fixed.
+  - type: textarea
+    attributes:
+      label: Principia version
+      description: Describe the version you are running here. Are you on a stable release or on a nightly build, or have you built from source? To determine where a non-release build was built off of you can press the version number in the bottom right corner of the main menu.
+      placeholder: "Example: 20XX.XX.XX"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Platform
+      description: A lot of times a issue can be specific to a particular platform. Please write the platform you're on, or list the platforms you can reproduce it on.
+      placeholder: "Example: Linux"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: System information
+      description: Give some information about your device that may be relevant for your issue. For example it would be helpful to know your GPU vendor for graphical issues.
+      placeholder: "Example: AMD Radeon RX 560 with Mesa drivers"
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Summary
+      description: Describe the problem here.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: Explain the steps one could take to reproduce it. If applicable, providing Lua code snippets or attaching a test level would also be helpful.
+    validations:
+      required: true
