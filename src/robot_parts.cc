@@ -1797,7 +1797,8 @@ static void on_bomb_absorbed(entity *self, void *userdata)
         robot_base *r = static_cast<robot_base*>(self);
         robot_parts::weapon *w = r->has_weapon(WEAPON_BOMBER);
 
-        static_cast<robot_parts::bomber*>(w)->bomb_fired = 0;
+        if (w)
+            static_cast<robot_parts::bomber*>(w)->bomb_fired = 0;
     }
 }
 
