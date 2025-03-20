@@ -2095,7 +2095,8 @@ game::refresh_widgets()
     }
 
     this->wdg_username->add();
-    this->wdg_menu->add();
+    if (!W->is_puzzle() || G->state.sandbox)
+        this->wdg_menu->add();
 
 #ifdef TMS_BACKEND_MOBILE
     if (this->state.sandbox) {
