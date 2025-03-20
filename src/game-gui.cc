@@ -942,9 +942,11 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                 if (W->is_paused()) {
                     /* PLAY */
                     if (W->is_puzzle() && G->state.sandbox) {
-                        ui::open_dialog(DIALOG_PUZZLE_PLAY);
+                        // XXX
+                        //ui::open_dialog(DIALOG_PUZZLE_PLAY);
+                        P.add_action(ACTION_PUZZLEPLAY, PUZZLE_TEST_PLAY);
                     } else {
-                        if (W->is_puzzle() && this->state.is_main_puzzle) {
+                        if (W->is_puzzle()) {
                             this->save(false, true);
                         }
                         G->do_play();
@@ -2903,14 +2905,13 @@ game::render_gui(void)
             } else {
                 this->render_noselection_gui();
             }
-
         }
     }
 
     tms_ddraw_set_color(this->get_surface()->ddraw, 1.f, 1.f, 1.f, 1.f);
 
     if (this->state.test_playing && W->is_paused()) {
-        this->add_text(gui_spritesheet::t_test_playing_back, _tms.window_width/2.f, _tms.window_height/2.f);
+        this->add_text(gui_spritesheet::t_test_playing_back, _tms.window_width/2.f, 20.f);
     }
 
     if (!W->is_paused() && !W->is_puzzle()) {

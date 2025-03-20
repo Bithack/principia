@@ -2490,6 +2490,8 @@ world::save(int save_type)
 
             if (G->state.is_main_puzzle) {
                 snprintf(filename, 1023, "%s/7.%d.psol", pkgman::get_level_path(LEVEL_LOCAL), this->level.local_id);
+            } else if (G->state.test_playing) {
+                snprintf(filename, 1023, "%s/%d.plvl", pkgman::get_level_path(LEVEL_SYS), this->level.local_id);
             } else {
                 snprintf(filename, 1023, "%s/%d.plvl", pkgman::get_level_path(LEVEL_LOCAL), this->level.local_id);
             }
@@ -2667,6 +2669,8 @@ world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_i
         is_autosave = true;
     } else if (G->state.is_main_puzzle) {
         snprintf(filename, 1023, "%s/7.%d.psol", pkgman::get_level_path(id_type), id);
+    } else if (this->is_puzzle() && !G->state.sandbox) {
+        snprintf(filename, 1023,  "%s/%d.plvl", pkgman::get_level_path(LEVEL_SYS), id);
     } else {
         pkgman::get_level_full_path(id_type, id, save_id, filename);
     }

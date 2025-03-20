@@ -719,6 +719,10 @@ pkgman::get_level_path(int level_type)
             snprintf((char*)_level_path[level_type], 1023,
                     "data/lvl/%s",
                     _dir_names[level_type]);
+        } else if (level_type == LEVEL_SYS) {
+            snprintf((char*)_level_path[level_type], 1023,
+                    "%s/cache/local",
+                    tbackend_get_storage_path());
         } else {
             snprintf((char*)_level_path[level_type], 1023,
                     "%s/lvl/%s",

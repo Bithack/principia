@@ -5456,19 +5456,19 @@ game::do_pause()
 #ifdef TMS_BACKEND_PC
     SDL_SetWindowGrab((SDL_Window*)_tms._window, SDL_FALSE);
 #endif
-    if (this->state.test_playing) {
+    if (this->state.test_playing && !W->is_puzzle()) {
         tms_infof("returning to sandbox");
         /* When returning from the sandbox, i.e. when we've finished testing our level,
          * we will open the autosave. */
         this->open_sandbox(LEVEL_LOCAL, 0);
     } else {
-        if (this->screen_back != 0 && !this->state.is_main_puzzle) {
+        if (this->screen_back != 0 && !this->state.is_main_puzzle && !W->is_puzzle()) {
             sm::stop_all();
             tms::set_screen(this->screen_back);
         } else {
             tms_infof("Returning to half-paused state.");
             just_paused = true;
-            this->open_play(W->level_id_type, W->level.local_id, this->state.pkg, false, this->state.is_main_puzzle?1:0);
+            this->open_play(W->level_id_type, W->level.local_id, this->state.pkg, this->state.test_playing, this->state.is_main_puzzle?1:0, W->is_puzzle());
         }
     }
 
@@ -5511,7 +5511,7 @@ game::do_play()
 
     this->refresh_widgets();
 
-    this->open_play(level_id_type, local_id, this->state.pkg, this->state.sandbox, 2);
+    this->open_play(level_id_type, local_id, this->state.pkg, this->state.sandbox || this->state.test_playing, G->state.is_main_puzzle ? 2 : 0);
 }
 
 void
@@ -6990,7 +6990,7 @@ game::finish(bool success)
 }
 
 void
-game::open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing/*=false*/, int is_main_puzzle/*=0*/)
+game::open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing/*=false*/, int is_main_puzzle/*=0*/, bool cool)
 {
     tms_infof("playing level %d, type %d", id, id_type);
 
@@ -7009,7 +7009,7 @@ game::open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing/*=fals
 
     bool paused = false;
 
-    if (is_main_puzzle == 1) {
+    if (is_main_puzzle == 1 || cool) {
         paused = true;
     }
 
@@ -10654,8 +10654,9 @@ game::puzzle_play(int type)
         this->do_play();
     } else if (type == PUZZLE_TEST_PLAY) {
         this->save(false);
-
-        this->open_play(LEVEL_LOCAL, W->level.local_id, NULL, true);
+        this->state.test_playing = true;
+        this->save(false, true);
+        this->open_play(LEVEL_LOCAL, W->level.local_id, NULL, true, 0, true);
         ui::message("Now testplaying your level! Press B to return.");
     } else {
         tms_warnf("Invalid input for puzzle play");

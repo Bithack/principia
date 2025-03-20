@@ -1105,7 +1105,7 @@ class game : public pscreen
 
     void open_state(int id_type, uint32_t id, uint32_t save_id);
     void open_sandbox(int id_type, uint32_t id);
-    void open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing=false, int is_main_puzzle=0);
+    void open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing=false, int is_main_puzzle=0, bool cool=false);
 
     void begin_play(bool has_state=false);
 
