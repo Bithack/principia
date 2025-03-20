@@ -15,6 +15,7 @@ class menu_create : public menu_base
     principia_wdg *wdg_adventure;
     principia_wdg *wdg_empty_adventure;
     principia_wdg *wdg_custom;
+    principia_wdg *wdg_puzzle;
 
     /* LEFT SUB */
     principia_wdg *wdg_open;

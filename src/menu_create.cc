@@ -49,6 +49,13 @@ menu_create::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             tms::set_screen(G);
             break;
 
+        case BTN_PUZZLE:
+            G->resume_action = GAME_RESUME_NEW_EMPTY;
+            G->resume_level_type = LCAT_PUZZLE;
+            G->screen_back = 0;
+            tms::set_screen(G);
+            break;
+
         case BTN_OPEN:
             ui::open_dialog(DIALOG_OPEN);
             break;
@@ -114,6 +121,15 @@ menu_create::menu_create()
                 _tms.window_width,  w_percentage,
                 _tms.window_height, h_percentage);
 
+        this->wdg_custom = this->wm->create_widget(
+            this->get_surface(), TMS_WDG_LABEL,
+            BTN_CUSTOM, area);
+        this->wdg_custom->set_label("Custom", font::xmedium);
+        this->wdg_custom->priority = 995;
+        this->wdg_custom->render_background = true;
+        this->wdg_custom->add();
+        this->wdg_custom->label->set_scale(this->wdg_create_new_level->label->get_scale());
+
         this->wdg_adventure = this->wm->create_widget(
                 this->get_surface(), TMS_WDG_LABEL,
                 BTN_ADVENTURE, area);
@@ -121,28 +137,25 @@ menu_create::menu_create()
         this->wdg_adventure->priority = 990;
         this->wdg_adventure->render_background = true;
         this->wdg_adventure->add();
-
         this->wdg_adventure->label->set_scale(this->wdg_create_new_level->label->get_scale());
 
         this->wdg_empty_adventure = this->wm->create_widget(
-                this->get_surface(), TMS_WDG_LABEL,
-                BTN_EMPTY_ADVENTURE, area);
+            this->get_surface(), TMS_WDG_LABEL,
+            BTN_EMPTY_ADVENTURE, area);
         this->wdg_empty_adventure->set_label("Empty Adventure", font::xmedium);
         this->wdg_empty_adventure->priority = 980;
         this->wdg_empty_adventure->render_background = true;
         this->wdg_empty_adventure->add();
-
         this->wdg_empty_adventure->label->set_scale(this->wdg_create_new_level->label->get_scale());
 
-        this->wdg_custom = this->wm->create_widget(
-                this->get_surface(), TMS_WDG_LABEL,
-                BTN_CUSTOM, area);
-        this->wdg_custom->set_label("Custom", font::xmedium);
-        this->wdg_custom->priority = 995;
-        this->wdg_custom->render_background = true;
-        this->wdg_custom->add();
-
-        this->wdg_custom->label->set_scale(this->wdg_create_new_level->label->get_scale());
+        this->wdg_puzzle = this->wm->create_widget(
+            this->get_surface(), TMS_WDG_LABEL,
+            BTN_PUZZLE, area);
+        this->wdg_puzzle->set_label("Puzzle", font::xmedium);
+        this->wdg_puzzle->priority = 970;
+        this->wdg_puzzle->render_background = true;
+        this->wdg_puzzle->add();
+        this->wdg_puzzle->label->set_scale(this->wdg_create_new_level->label->get_scale());
     }
 
     {
@@ -373,9 +386,10 @@ menu_create::refresh_widgets()
     this->wdg_settings->add();
 
     this->wdg_create_new_level->add();
+    this->wdg_custom->add();
     this->wdg_adventure->add();
     this->wdg_empty_adventure->add();
-    this->wdg_custom->add();
+    this->wdg_puzzle->add();
     this->wdg_open->add();
 
     this->wdg_getting_started->add();

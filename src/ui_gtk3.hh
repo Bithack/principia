@@ -269,6 +269,7 @@ GtkDialog       *properties_dialog;
 GtkButton       *lvl_ok;
 GtkButton       *lvl_cancel;
 GtkRadioButton  *lvl_radio_adventure;
+GtkRadioButton  *lvl_radio_puzzle;
 GtkRadioButton  *lvl_radio_custom;
 GtkEntry        *lvl_title;
 GtkTextView     *lvl_descr;
@@ -1875,6 +1876,8 @@ editor_menu_activate(GtkMenuItem *i, gpointer unused)
 
             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_radio_adventure))) {
                 P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_ADVENTURE);
+            } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_radio_puzzle))) {
+                P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_PUZZLE);
             } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_radio_custom))) {
                 P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_CUSTOM);
             }
@@ -5360,6 +5363,7 @@ on_properties_show(GtkWidget *wdg, void *unused)
     gtk_entry_set_text(lvl_title, current_name);
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lvl_radio_adventure), (W->level.type == LCAT_ADVENTURE));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lvl_radio_puzzle), (W->level.type == LCAT_PUZZLE));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lvl_radio_custom), (W->level.type == LCAT_CUSTOM));
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(publish_locked), W->level.visibility == LEVEL_LOCKED);
@@ -6951,9 +6955,11 @@ int _gtk_loop(void *p)
             GtkBox* lvl_type_box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
             lvl_radio_adventure = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(NULL, "Adventure"));
+            lvl_radio_puzzle = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(gtk_radio_button_get_group(lvl_radio_adventure), "Puzzle"));
             lvl_radio_custom = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(gtk_radio_button_get_group(lvl_radio_adventure), "Custom"));
 
             gtk_container_add(GTK_CONTAINER(lvl_type_box), GTK_WIDGET(lvl_radio_adventure));
+            gtk_container_add(GTK_CONTAINER(lvl_type_box), GTK_WIDGET(lvl_radio_puzzle));
             gtk_container_add(GTK_CONTAINER(lvl_type_box), GTK_WIDGET(lvl_radio_custom));
 
             GtkScrolledWindow *ew = GTK_SCROLLED_WINDOW(gtk_scrolled_window_new(0, 0));
@@ -7315,9 +7321,10 @@ int _gtk_loop(void *p)
         new_level_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
                 "New level",
                 0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
+                "Custom", RESPONSE_CUSTOM,
                 "Empty Adventure", RESPONSE_EMPTY_ADVENTURE,
                 "Adventure", RESPONSE_ADVENTURE,
-                "Custom", RESPONSE_CUSTOM,
+                "Puzzle", RESPONSE_PUZZLE,
                 NULL));
 
         apply_dialog_defaults(new_level_dialog);
