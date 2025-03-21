@@ -348,6 +348,7 @@ class gamestate
         this->is_main_puzzle = false;
         this->new_adventure = false;
         this->step_num = 0;
+        this->puzzle_state = 0;
     }
 
     uint32_t adventure_id;
@@ -376,6 +377,7 @@ class gamestate
     bool    is_main_puzzle;
     bool    new_adventure;
     uint32_t step_num;
+    uint8_t puzzle_state;
 };
 
 struct fadeout_entity {
@@ -1105,7 +1107,7 @@ class game : public pscreen
 
     void open_state(int id_type, uint32_t id, uint32_t save_id);
     void open_sandbox(int id_type, uint32_t id);
-    void open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing=false, int is_main_puzzle=0, bool cool=false);
+    void open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing=false, int is_main_puzzle=0);
 
     void begin_play(bool has_state=false);
 

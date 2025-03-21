@@ -1438,6 +1438,7 @@ level_loader(int step)
 #endif
 
             G->screen_back = 0;
+            G->state.puzzle_state = 0;
             G->open_play(_play_type, _play_id, 0);
             break;
         case 2: default:

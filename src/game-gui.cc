@@ -946,6 +946,7 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                     } else {
                         if (W->is_puzzle()) {
                             this->save(false, true);
+                            G->state.puzzle_state = 2;
                         }
                         G->do_play();
                     }
@@ -956,6 +957,9 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                                 "Yes",  ACTION_WORLD_PAUSE,
                                 "No",   ACTION_IGNORE);
                     } else {
+                        if (W->is_puzzle())
+                            G->state.puzzle_state = 1;
+
                         G->do_pause();
                     }
                 }
