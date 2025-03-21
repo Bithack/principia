@@ -702,11 +702,6 @@ tproject_step(void)
                     G->open_sandbox(LEVEL_LOCAL,0);
                     break;
 
-                case ACTION_PUZZLEPLAY: {
-                    uint32_t id = VOID_TO_UINT32(data);
-                    G->puzzle_play(id);
-                } break;
-
                 case ACTION_CONSTRUCT_ENTITY: {
                     uint32_t g_id = VOID_TO_UINT32(data);
                     G->editor_construct_entity(g_id);

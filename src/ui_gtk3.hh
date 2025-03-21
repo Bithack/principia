@@ -906,9 +906,6 @@ GtkComboBoxText *robot_back_equipment;
 GtkComboBoxText *robot_front_equipment;
 GtkComboBoxText *robot_head_equipment;
 
-/** --Puzzle play **/
-GtkDialog       *puzzle_play_dialog;
-
 /** --Timer **/
 GtkDialog       *timer_dialog;
 GtkLabel        *timer_time;
@@ -9165,25 +9162,6 @@ int _gtk_loop(void *p)
         gtk_container_add(GTK_CONTAINER(robot_window), GTK_WIDGET(content));
     }
 
-    /** --Puzzle play **/
-    {
-        puzzle_play_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-            "Play method",
-            0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-            "Test play", PUZZLE_TEST_PLAY,
-            "Simulate", PUZZLE_SIMULATE,
-            "_Cancel", GTK_RESPONSE_CANCEL,
-            NULL
-        ));
-
-        apply_dialog_defaults(puzzle_play_dialog);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(puzzle_play_dialog));
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("Do you want to test-play the level, or just simulate it?"), false, false, 0);
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
     /** --Published **/
     {
         published_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
@@ -10455,23 +10433,6 @@ _open_robot_window(gpointer unused)
     return false;
 }
 
-static gboolean
-_open_puzzle_play(gpointer unused)
-{
-    gint result = gtk_dialog_run(puzzle_play_dialog);
-
-    switch (result) {
-        case PUZZLE_SIMULATE:
-        case PUZZLE_TEST_PLAY:
-            P.add_action(ACTION_PUZZLEPLAY, (void*)(intptr_t)result);
-            break;
-    }
-
-    gtk_widget_hide(GTK_WIDGET(puzzle_play_dialog));
-
-    return false;
-}
-
 /** --Published **/
 static gboolean
 _open_published(gpointer unused)
@@ -11372,7 +11333,6 @@ _close_all_dialogs(gpointer unused)
     gtk_widget_hide(GTK_WIDGET(sticky_dialog));
     gtk_widget_hide(GTK_WIDGET(fxemitter_dialog));
     gtk_widget_hide(GTK_WIDGET(freq_range_window));
-    gtk_widget_hide(GTK_WIDGET(puzzle_play_dialog));
     gtk_widget_hide(GTK_WIDGET(timer_dialog));
     gtk_widget_hide(GTK_WIDGET(escript_window));
     gtk_widget_hide(GTK_WIDGET(synth_dialog));
@@ -11501,7 +11461,6 @@ ui::open_dialog(int num, void *data/*=0*/)
         case DIALOG_SET_FREQ_RANGE: gdk_threads_add_idle(_open_freq_range_window, 0); break;
         case DIALOG_SET_PKG_LEVEL:  gdk_threads_add_idle(_open_pkg_lvl_chooser_window, 0); break;
         case DIALOG_ROBOT:          gdk_threads_add_idle(_open_robot_window, 0); break;
-        case DIALOG_PUZZLE_PLAY:    gdk_threads_add_idle(_open_puzzle_play, 0); break;
         case DIALOG_TIMER:          gdk_threads_add_idle(_open_timer, 0); break;
         case DIALOG_SYNTHESIZER:    gdk_threads_add_idle(_open_synth, 0); break;
         case DIALOG_SEQUENCER:      gdk_threads_add_idle(_open_sequencer, 0); break;

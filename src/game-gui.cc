@@ -942,9 +942,7 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                 if (W->is_paused()) {
                     /* PLAY */
                     if (W->is_puzzle() && G->state.sandbox) {
-                        // XXX
-                        //ui::open_dialog(DIALOG_PUZZLE_PLAY);
-                        P.add_action(ACTION_PUZZLEPLAY, PUZZLE_TEST_PLAY);
+                        G->puzzle_play(PUZZLE_TEST_PLAY);
                     } else {
                         if (W->is_puzzle()) {
                             this->save(false, true);
