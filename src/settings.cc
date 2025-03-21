@@ -31,10 +31,10 @@ _settings::init()
     this->add("shadow_map_resx",    S_INT32,   1280);
     this->add("shadow_map_resy",    S_INT32,   720);
 
-#ifndef TMS_BACKEND_ANDROID
     // vsync is managed by the OS on Android
     this->add("vsync",              S_BOOL,  true);
 
+#ifndef TMS_BACKEND_ANDROID
     this->add("window_width",       S_INT32,   _tms.window_width);
     this->add("window_height",      S_INT32,   _tms.window_height);
     this->add("window_maximized",   S_BOOL,  0);
