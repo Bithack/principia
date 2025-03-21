@@ -6951,6 +6951,7 @@ int _gtk_loop(void *p)
 
             lvl_title = GTK_ENTRY(gtk_entry_new());
             lvl_descr = GTK_TEXT_VIEW(gtk_text_view_new());
+            gtk_text_view_set_wrap_mode(lvl_descr, GTK_WRAP_WORD);
 
             GtkBox* lvl_type_box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
 
@@ -6963,7 +6964,7 @@ int _gtk_loop(void *p)
             gtk_container_add(GTK_CONTAINER(lvl_type_box), GTK_WIDGET(lvl_radio_custom));
 
             GtkScrolledWindow *ew = GTK_SCROLLED_WINDOW(gtk_scrolled_window_new(0, 0));
-            gtk_scrolled_window_set_min_content_height(ew, 64);
+            gtk_scrolled_window_set_min_content_height(ew, 256);
             gtk_scrolled_window_set_policy(ew, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
             gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(lvl_descr));
 
@@ -7296,7 +7297,7 @@ int _gtk_loop(void *p)
             GTK_POLICY_AUTOMATIC,
             GTK_POLICY_AUTOMATIC
         );
-        gtk_widget_set_size_request(GTK_WIDGET(ew), 400, 150);
+        gtk_widget_set_size_request(GTK_WIDGET(ew), 500, 200);
         gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(publish_descr));
 
         GtkWidget *fr = gtk_frame_new(NULL);
