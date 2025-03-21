@@ -8340,6 +8340,17 @@ int _gtk_loop(void *p)
         gtk_window_set_position(GTK_WINDOW(info_dialog), GTK_WIN_POS_CENTER);
         gtk_window_set_default_size(GTK_WINDOW(info_dialog), 425, 400);
 
+        GtkCssProvider *provider = gtk_css_provider_new();
+        gtk_css_provider_load_from_data(provider,
+                                        "window {"
+                                        "   background-color: rgba(55, 55, 55, 0.74);"
+                                        "   border: none;"
+                                        "}",
+                                        -1, NULL);
+
+        GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(info_dialog));
+        gtk_style_context_add_provider(context, GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_USER);
+
         GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
         gtk_container_add(GTK_CONTAINER(info_dialog), vbox);
 
