@@ -1137,7 +1137,7 @@ static void apply_dialog_defaults(
     gboolean (*on_keypress)(GtkWidget*, GdkEventKey*, gpointer)=0
 ) {
     gtk_window_set_position(GTK_WINDOW(w), GTK_WIN_POS_CENTER);
-    //gtk_window_set_keep_above(GTK_WINDOW(w), TRUE);
+    gtk_window_set_keep_above(GTK_WINDOW(w), TRUE);
     g_signal_connect(w, "delete-event", G_CALLBACK(on_window_close), 0);
 
     if (on_show) {
@@ -1257,9 +1257,6 @@ new_window_defaults(const char *title, GtkCallback on_show/*=0*/, gboolean (*on_
     gtk_container_set_border_width(GTK_CONTAINER(r), 10);
     gtk_window_set_title(GTK_WINDOW(r), title);
     gtk_window_set_resizable(GTK_WINDOW(r), false);
-    // gtk_window_set_policy(GTK_WINDOW(r),
-    //         FALSE,
-    //         FALSE, FALSE);
 
     apply_dialog_defaults(r, on_show, on_keypress);
 
@@ -6622,16 +6619,8 @@ int _gtk_loop(void *p)
         gtk_window_set_default_size(GTK_WINDOW(variable_dialog), 400, 400);
         gtk_widget_set_size_request(GTK_WIDGET(variable_dialog), 400, 400);
         gtk_window_set_title(GTK_WINDOW(variable_dialog), "Variable chooser");
+        apply_dialog_defaults(variable_dialog, on_variable_show, on_variable_keypress);
         gtk_window_set_resizable(GTK_WINDOW(variable_dialog), false);
-        // gtk_window_set_policy(GTK_WINDOW(variable_dialog),
-        //               FALSE,
-        //               FALSE, FALSE);
-        gtk_window_set_position(variable_dialog, GTK_WIN_POS_CENTER);
-        //gtk_window_set_keep_above(GTK_WINDOW(variable_dialog), TRUE);
-
-        g_signal_connect(variable_dialog, "key-press-event", G_CALLBACK(on_variable_keypress), 0);
-        g_signal_connect(variable_dialog, "show", G_CALLBACK(on_variable_show), 0);
-        g_signal_connect(variable_dialog, "delete-event", G_CALLBACK(on_window_close), 0);
 
         GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
         GtkBox *inner_content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
@@ -6791,10 +6780,6 @@ int _gtk_loop(void *p)
         gtk_widget_set_size_request(GTK_WIDGET(package_window), 400, 700);
         gtk_window_set_title(GTK_WINDOW(package_window), "Package Manager");
         gtk_window_set_resizable(GTK_WINDOW(package_window), false);
-        // gtk_window_set_policy(GTK_WINDOW(package_window),
-        //               FALSE,
-        //               FALSE, FALSE);
-        //gtk_window_set_keep_above(GTK_WINDOW(package_window), true);
 
         g_signal_connect(package_window, "delete-event", G_CALLBACK(on_window_close), 0);
         g_signal_connect(package_window, "show", G_CALLBACK(on_package_manager_show), 0);
@@ -6934,10 +6919,7 @@ int _gtk_loop(void *p)
             NULL, NULL
         ));
 
-        apply_dialog_defaults(properties_dialog);
-
-        g_signal_connect(properties_dialog, "show", G_CALLBACK(on_properties_show), 0);
-        g_signal_connect(properties_dialog, "key-press-event", G_CALLBACK(on_properties_keypress), 0);
+        apply_dialog_defaults(properties_dialog, on_properties_show, on_properties_keypress);
 
         GtkBox *layout = GTK_BOX(gtk_dialog_get_content_area(properties_dialog));
 
@@ -7329,8 +7311,6 @@ int _gtk_loop(void *p)
                 NULL));
 
         apply_dialog_defaults(new_level_dialog);
-
-        /* XXX: Should we add some information about the various level types? */
     }
 
     /** --Sandbox mode**/
@@ -7344,8 +7324,6 @@ int _gtk_loop(void *p)
                 NULL));
 
         apply_dialog_defaults(mode_dialog);
-
-        /* XXX: Should we add some informationa bout the varius modes? */
     }
 
     /** --Command pad **/
@@ -7584,8 +7562,8 @@ int _gtk_loop(void *p)
                 "_OK", GTK_RESPONSE_ACCEPT,
                 "_Cancel", GTK_RESPONSE_REJECT,
                 NULL));
-        gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
-        //gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);
+
+        apply_dialog_defaults(dialog);
 
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
 
@@ -8203,19 +8181,14 @@ int _gtk_loop(void *p)
     /** --Quickadd **/
     {
         quickadd_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-        //VX: GTK_WIDGET_SET_FLAGS(quickadd_window, GTK_CAN_FOCUS);
-        //VX: GTK_WINDOW(quickadd_window)->type = GTK_WINDOW_TOPLEVEL;
-        gtk_window_set_decorated(GTK_WINDOW(quickadd_window), FALSE);
-        //VX: gtk_window_set_has_frame(GTK_WINDOW(quickadd_window), FALSE);
+        gtk_window_set_decorated(GTK_WINDOW(quickadd_window), TRUE);
+        gtk_window_set_keep_above(GTK_WINDOW(quickadd_window), TRUE);
         gtk_window_set_type_hint(GTK_WINDOW(quickadd_window), GDK_WINDOW_TYPE_HINT_POPUP_MENU);
 
         gtk_container_set_border_width(GTK_CONTAINER(quickadd_window), 4);
         gtk_window_set_default_size(GTK_WINDOW(quickadd_window), 200, 20);
         gtk_widget_set_size_request(GTK_WIDGET(quickadd_window), 200, 20);
         gtk_window_set_resizable(GTK_WINDOW(quickadd_window), false);
-        // gtk_window_set_policy(GTK_WINDOW(quickadd_window),
-        //               FALSE,
-        //               FALSE, FALSE);
 
         quickadd_entry = GTK_ENTRY(gtk_entry_new());
 
@@ -8256,14 +8229,11 @@ int _gtk_loop(void *p)
         beam_color_dialog = GTK_COLOR_SELECTION_DIALOG(gtk_color_selection_dialog_new("Color"));
         GtkColorSelectionDialog *sel = GTK_COLOR_SELECTION_DIALOG(beam_color_dialog);
 
-        gtk_window_set_position(GTK_WINDOW(beam_color_dialog), GTK_WIN_POS_CENTER);
-        //gtk_window_set_keep_above(GTK_WINDOW(beam_color_dialog), TRUE);
+        apply_dialog_defaults(beam_color_dialog);
 
         gtk_color_selection_set_has_opacity_control(
             GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(
                 GTK_COLOR_SELECTION_DIALOG(sel))), false);
-
-        g_signal_connect(beam_color_dialog, "delete-event", G_CALLBACK(on_window_close), 0);
 
         GtkWidget *beam_color_dialog_ok_button = gtk_dialog_get_widget_for_response(GTK_DIALOG(beam_color_dialog), GTK_RESPONSE_OK);
 
@@ -8303,7 +8273,7 @@ int _gtk_loop(void *p)
                 "More tips & tricks", GTK_RESPONSE_YES,
                 NULL));
 
-        apply_dialog_defaults(tips_dialog);
+        apply_dialog_defaults(tips_dialog, on_tips_show, on_tips_keypress);
 
         gtk_window_set_default_size(GTK_WINDOW(tips_dialog), 425, 400);
 
@@ -8325,9 +8295,6 @@ int _gtk_loop(void *p)
         gtk_label_set_line_wrap(GTK_LABEL(tips_text), true);
 
         gtk_widget_show_all(GTK_WIDGET(content));
-
-        g_signal_connect(tips_dialog, "show", G_CALLBACK(on_tips_show), 0);
-        g_signal_connect(tips_dialog, "key-press-event", G_CALLBACK(on_tips_keypress), 0);
     }
 
     /** --Info Dialog **/
@@ -8336,9 +8303,9 @@ int _gtk_loop(void *p)
         gtk_container_set_border_width(GTK_CONTAINER(info_dialog), 10);
         gtk_window_set_title(GTK_WINDOW(info_dialog), "Info");
         gtk_window_set_resizable(GTK_WINDOW(info_dialog), true);
-        gtk_window_set_position(GTK_WINDOW(info_dialog), GTK_WIN_POS_CENTER);
-        //gtk_window_set_keep_above(GTK_WINDOW(info_dialog), TRUE);
         gtk_window_set_default_size(GTK_WINDOW(info_dialog), 425, 400);
+
+        apply_dialog_defaults(info_dialog, on_info_show, on_info_keypress);
 
         info_name = GTK_LABEL(gtk_label_new(0));
         info_text = GTK_LABEL(gtk_label_new(0));
@@ -8348,18 +8315,10 @@ int _gtk_loop(void *p)
                       GTK_POLICY_AUTOMATIC,
                       GTK_POLICY_AUTOMATIC);
         gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(info_text));
-        //gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(info_name), 0, 0, 0);
-        //gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(ew), 1, 1, 3);
+
         gtk_container_add(GTK_CONTAINER(info_dialog), GTK_WIDGET(ew));
 
         gtk_label_set_line_wrap(GTK_LABEL(info_text), true);
-
-        //gtk_widget_show_all(GTK_WIDGET(content));
-
-        g_signal_connect(info_dialog, "show", G_CALLBACK(on_info_show), 0);
-        g_signal_connect(info_dialog, "delete-event", G_CALLBACK(on_window_close), 0);
-
-        g_signal_connect(info_dialog, "key-press-event", G_CALLBACK(on_info_keypress), 0);
     }
 
     /** --Error Dialog **/
@@ -8370,7 +8329,7 @@ int _gtk_loop(void *p)
                 "OK", GTK_RESPONSE_ACCEPT,
                 NULL));
 
-        apply_dialog_defaults(error_dialog);
+        apply_dialog_defaults(error_dialog, on_error_show, on_error_keypress);
 
         gtk_window_set_default_size(GTK_WINDOW(error_dialog), 425, 400);
 
@@ -8388,10 +8347,6 @@ int _gtk_loop(void *p)
         gtk_label_set_line_wrap(GTK_LABEL(error_text), true);
 
         gtk_widget_show_all(GTK_WIDGET(content));
-
-        g_signal_connect(error_dialog, "show", G_CALLBACK(on_error_show), 0);
-        g_signal_connect(error_dialog, "delete-event", G_CALLBACK(on_window_close), 0);
-        g_signal_connect(error_dialog, "key-press-event", G_CALLBACK(on_error_keypress), 0);
     }
 
     /** --Confirm Dialog **/
@@ -8401,7 +8356,7 @@ int _gtk_loop(void *p)
                 0, (GtkDialogFlags)(0),/*GTK_MODAL*/
                 NULL, NULL));
 
-        apply_dialog_defaults(dialog);
+        apply_dialog_defaults(dialog, on_confirm_show, on_confirm_keypress);
 
         confirm_button1 = GTK_BUTTON(
                 gtk_dialog_add_button(
@@ -8444,9 +8399,6 @@ int _gtk_loop(void *p)
 
         gtk_widget_show_all(GTK_WIDGET(content));
 
-        g_signal_connect(dialog, "show", G_CALLBACK(on_confirm_show), 0);
-        g_signal_connect(dialog, "key-press-event", G_CALLBACK(on_confirm_keypress), 0);
-
         confirm_dialog = dialog;
     }
 
@@ -8458,10 +8410,7 @@ int _gtk_loop(void *p)
                 GTK_BUTTONS_CLOSE,
                 "Alert"));
 
-        apply_dialog_defaults(dialog);
-
-        g_signal_connect(dialog, "show", G_CALLBACK(on_alert_show), 0);
-        g_signal_connect(dialog, "key-press-event", G_CALLBACK(on_alert_keypress), 0);
+        apply_dialog_defaults(dialog, on_alert_show, on_alert_keypress);
 
         alert_dialog = GTK_MESSAGE_DIALOG(dialog);
     }
@@ -9284,7 +9233,7 @@ int _gtk_loop(void *p)
             NULL, NULL
         ));
 
-        apply_dialog_defaults(jumper_dialog);
+        apply_dialog_defaults(jumper_dialog, on_jumper_show, on_jumper_keypress);
 
         jumper_save = GTK_BUTTON(gtk_dialog_add_button(
             jumper_dialog,
@@ -9294,9 +9243,6 @@ int _gtk_loop(void *p)
             jumper_dialog,
             "_Cancel", GTK_RESPONSE_CANCEL
         ));
-
-        g_signal_connect(jumper_dialog, "show", G_CALLBACK(on_jumper_show), 0);
-        g_signal_connect(jumper_dialog, "key-press-event", G_CALLBACK(on_jumper_keypress), 0);
 
         gtk_widget_set_size_request(GTK_WIDGET(jumper_dialog), 350, -1);
         GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(jumper_dialog));
@@ -9373,17 +9319,10 @@ int _gtk_loop(void *p)
         gtk_window_set_title(escript_window, "Lua Script");
         gtk_widget_set_size_request(GTK_WIDGET(escript_window), 800, 560);
         gtk_window_set_resizable(escript_window, true);
-        // gtk_window_set_policy(escript_window,
-        //               FALSE,
-        //               FALSE, FALSE);
-        gtk_window_set_position(GTK_WINDOW(escript_window), GTK_WIN_POS_CENTER);
-        //gtk_window_set_keep_above(GTK_WINDOW(escript_window), TRUE);
+
+        apply_dialog_defaults(escript_window, on_escript_show, on_escript_keypress);
 
         escript_statusbar = GTK_STATUSBAR(gtk_statusbar_new());
-
-        g_signal_connect(escript_window, "show", G_CALLBACK(on_escript_show), 0);
-        g_signal_connect(escript_window, "key-press-event", G_CALLBACK(on_escript_keypress), 0);
-        g_signal_connect(escript_window, "delete-event", G_CALLBACK(on_window_close), 0);
 
         GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
@@ -9782,22 +9721,11 @@ int _gtk_loop(void *p)
     /** --Sequencer **/
     {
         sequencer_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-        //gtk_container_set_border_width(GTK_CONTAINER(sequencer_window), 10);
         gtk_window_set_default_size(GTK_WINDOW(sequencer_window), 400, 400);
         gtk_widget_set_size_request(GTK_WIDGET(sequencer_window), 400, 400);
         gtk_window_set_title(GTK_WINDOW(sequencer_window), "Sequencer settings");
         gtk_window_set_resizable(GTK_WINDOW(sequencer_window), false);
-        // gtk_window_set_policy(GTK_WINDOW(sequencer_window),
-        //               FALSE,
-        //               FALSE, FALSE);
-
-        g_signal_connect(sequencer_window, "show", G_CALLBACK(on_sequencer_show), 0);
-        g_signal_connect(sequencer_window, "key-press-event", G_CALLBACK(on_sequencer_keypress), 0);
-        g_signal_connect(sequencer_window, "delete-event", G_CALLBACK(on_window_close), 0);
-
-        gtk_window_set_position(GTK_WINDOW(sequencer_window), GTK_WIN_POS_CENTER);
-        //gtk_window_set_keep_above(GTK_WINDOW(sequencer_window), TRUE);
-        gtk_widget_set_size_request(GTK_WIDGET(sequencer_window), 250, -1);
+        apply_dialog_defaults(sequencer_window, on_sequencer_show, on_sequencer_keypress);
 
         GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
 
@@ -9882,15 +9810,8 @@ int _gtk_loop(void *p)
         gtk_widget_set_size_request(GTK_WIDGET(prompt_settings_dialog), 400, 400);
         gtk_window_set_title(GTK_WINDOW(prompt_settings_dialog), "Prompt settings");
         gtk_window_set_resizable(GTK_WINDOW(prompt_settings_dialog), false);
-        // gtk_window_set_policy(GTK_WINDOW(prompt_settings_dialog),
-        //               FALSE,
-        //               FALSE, FALSE);
-        gtk_window_set_position(prompt_settings_dialog, GTK_WIN_POS_CENTER);
-        //gtk_window_set_keep_above(GTK_WINDOW(prompt_settings_dialog), TRUE);
 
-        g_signal_connect(prompt_settings_dialog, "key-press-event", G_CALLBACK(on_prompt_keypress), 0);
-        g_signal_connect(prompt_settings_dialog, "show", G_CALLBACK(on_prompt_show), 0);
-        g_signal_connect(prompt_settings_dialog, "delete-event", G_CALLBACK(on_window_close), 0);
+        apply_dialog_defaults(prompt_settings_dialog, on_prompt_show, on_prompt_keypress);
 
         GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
         GtkBox *inner_content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
@@ -10087,11 +10008,8 @@ static gboolean
 _open_quickadd(gpointer unused)
 {
     gtk_window_set_position(quickadd_window, GTK_WIN_POS_MOUSE);
-    //gtk_entry_set_text(quickadd_entry, "");
-    //gtk_entry_
     gtk_widget_show_all(GTK_WIDGET(quickadd_window));
     gtk_widget_grab_focus(GTK_WIDGET(quickadd_entry));
-    //gtk_window_set_keep_above(GTK_WINDOW(quickadd_window), TRUE);
     tms_infof("open quickadd");
 
     return false;
@@ -10226,7 +10144,6 @@ _open_prompt_dialog(gpointer unused)
 
         gtk_window_set_deletable(GTK_WINDOW(d), FALSE);
         gtk_window_set_position(GTK_WINDOW(d), GTK_WIN_POS_CENTER);
-        //gtk_window_set_keep_above(GTK_WINDOW(d), TRUE);
 
         if (W && W->level.version >= LEVEL_VERSION_1_2_3) {
             for (int x=0; x<3; ++x) {
