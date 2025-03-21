@@ -942,12 +942,11 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                 if (W->is_paused()) {
                     /* PLAY */
                     if (W->is_puzzle() && G->state.sandbox) {
-                        // XXX
-                        //ui::open_dialog(DIALOG_PUZZLE_PLAY);
-                        P.add_action(ACTION_PUZZLEPLAY, PUZZLE_TEST_PLAY);
+                        G->puzzle_play(PUZZLE_TEST_PLAY);
                     } else {
                         if (W->is_puzzle()) {
                             this->save(false, true);
+                            G->state.puzzle_state = 2;
                         }
                         G->do_play();
                     }
@@ -958,6 +957,9 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                                 "Yes",  ACTION_WORLD_PAUSE,
                                 "No",   ACTION_IGNORE);
                     } else {
+                        if (W->is_puzzle())
+                            G->state.puzzle_state = 1;
+
                         G->do_pause();
                     }
                 }
@@ -2095,7 +2097,8 @@ game::refresh_widgets()
     }
 
     this->wdg_username->add();
-    this->wdg_menu->add();
+    if (!W->is_puzzle() || G->state.sandbox)
+        this->wdg_menu->add();
 
 #ifdef TMS_BACKEND_MOBILE
     if (this->state.sandbox) {

@@ -30,7 +30,6 @@ import com.bithack.principia.shared.PromptDialog;
 import com.bithack.principia.shared.PromptSettingsDialog;
 import com.bithack.principia.shared.PublishDialog;
 import com.bithack.principia.shared.PublishedDialog;
-import com.bithack.principia.shared.PuzzlePlayDialog;
 import com.bithack.principia.shared.QuickaddDialog;
 import com.bithack.principia.shared.RegisterDialog;
 import com.bithack.principia.shared.ResourceDialog;
@@ -2320,7 +2319,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         case DIALOG_MULTIEMITTER:       d = (new ImportDialog(true)).get_dialog(); break;
         case DIALOG_OPEN_OBJECT:        d = (new ImportDialog(false)).get_dialog(); break;
         case DIALOG_TIMER:              d = TimerDialog.get_dialog(); break;
-        case DIALOG_PUZZLE_PLAY:        d = (new PuzzlePlayDialog()).get_dialog(); break;
         case DIALOG_PLAY_MENU:          d = (PlayDialog.create_dialog()); break;
         case DIALOG_OPEN_AUTOSAVE:      d = (new AutosaveDialog()).get_dialog(); break;
         case DIALOG_COMMUNITY:          d = (new CommunityDialog()).get_dialog(); break;

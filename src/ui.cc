@@ -140,10 +140,6 @@ void ui::alert(const char*, uint8_t/*=ALERT_INFORMATION*/) {};
 
 #include "ui_imgui.hh"
 
-#elif defined(TMS_BACKEND_IOS)
-
-#include "ui_ios.hh"
-
 #elif defined(TMS_BACKEND_ANDROID)
 
 #include "ui_android.hh"
