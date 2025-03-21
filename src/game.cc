@@ -7031,6 +7031,13 @@ game::open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing/*=fals
         }
     }
 
+    if (W->is_puzzle() && id_type == LEVEL_DB && G->state.puzzle_state == 0) {
+        G->state.puzzle_state = 1;
+        W->save();
+        this->open_play(id_type, id, pkg, test_playing, is_main_puzzle);
+        return;
+    }
+
 #ifndef SCREENSHOT_BUILD
     if (!W->is_puzzle()) {
         if (just_paused || (!this->state.sandbox && !W->level.flag_active(LVL_DISABLE_INITIAL_WAIT) && !this->state.test_playing)) {
