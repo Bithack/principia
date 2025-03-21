@@ -6,7 +6,11 @@
 #include <map>
 #include <vector>
 
+#ifdef TMS_BACKEND_PC
+#define MAX_CHUNKS (14*12*2)
+#else
 #define MAX_CHUNKS (14*12)
+#endif
 #define MAX_VERTS_PER_CHUNK 13824 /* (3*16*16*24) * (3/4) */
 #define MAX_GRASS_VERTS_PER_CHUNK MAX_GRASS_PER_CHUNK*4
 #define MAX_GRASS_PER_CHUNK (16*NUM_GRASS_PER_PIXEL*3)*2
