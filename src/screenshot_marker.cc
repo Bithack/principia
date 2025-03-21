@@ -92,7 +92,10 @@ screenshot_marker::setup()
 void
 screenshot_marker::on_pause()
 {
-    this->show();
+    if (G->state.sandbox)
+        this->show();
+    else
+        this->hide();
 }
 
 void
