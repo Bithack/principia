@@ -2755,14 +2755,6 @@ world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_i
             return false;
         }
 
-
-        uint8_t extra = this->lb.r_uint8();
-
-        if (extra == (uint8_t)1 && sandbox) {
-            this->reset();
-            return false;
-        }
-
         if (!sandbox && this->level.type == LCAT_PUZZLE) this->apply_puzzle_constraints();
         if (!paused) this->optimize_connections();
 
