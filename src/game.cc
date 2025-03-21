@@ -7049,7 +7049,6 @@ game::open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing/*=fals
         this->state.fade = 1.0f;
     }
 #endif
-
     this->refresh_widgets();
 }
 
@@ -11357,6 +11356,8 @@ game::restart_level()
     if (!this->_restart_level) {
         this->_restart_level = true;
         P.add_action(ACTION_WORLD_PAUSE, 0);
+        P.add_action(ACTION_RESTART_LEVEL, 0);
+        this->_restart_level = false;
     }
 }
 

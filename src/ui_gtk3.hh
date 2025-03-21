@@ -778,6 +778,8 @@ GtkLabel        *info_name;
 GtkLabel        *info_text;
 char            *_pass_info_descr;
 char            *_pass_info_name;
+void on_continue_button_clicked(GtkWidget *widget, gpointer user_data);
+
 
 /** --Error Dialog **/
 GtkDialog       *error_dialog;
@@ -8336,29 +8338,35 @@ int _gtk_loop(void *p)
         gtk_window_set_title(GTK_WINDOW(info_dialog), "Info");
         gtk_window_set_resizable(GTK_WINDOW(info_dialog), true);
         gtk_window_set_position(GTK_WINDOW(info_dialog), GTK_WIN_POS_CENTER);
-        //gtk_window_set_keep_above(GTK_WINDOW(info_dialog), TRUE);
         gtk_window_set_default_size(GTK_WINDOW(info_dialog), 425, 400);
+
+        GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+        gtk_container_add(GTK_CONTAINER(info_dialog), vbox);
 
         info_name = GTK_LABEL(gtk_label_new(0));
         info_text = GTK_LABEL(gtk_label_new(0));
         gtk_label_set_selectable(info_text, 1);
+        gtk_label_set_line_wrap(GTK_LABEL(info_text), true);
+
+
         GtkWidget *ew = gtk_scrolled_window_new(0,0);
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
                       GTK_POLICY_AUTOMATIC,
                       GTK_POLICY_AUTOMATIC);
         gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(info_text));
-        //gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(info_name), 0, 0, 0);
+        gtk_box_pack_start(GTK_BOX(vbox), ew, TRUE, TRUE, 0);
+
+
+        GtkWidget *continue_button = gtk_button_new_with_label("Continue");
+        g_signal_connect(continue_button, "clicked", G_CALLBACK(on_continue_button_clicked), info_dialog);
+        gtk_box_pack_start(GTK_BOX(vbox), continue_button, FALSE, FALSE, 0);
         //gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(ew), 1, 1, 3);
-        gtk_container_add(GTK_CONTAINER(info_dialog), GTK_WIDGET(ew));
-
-        gtk_label_set_line_wrap(GTK_LABEL(info_text), true);
-
-        //gtk_widget_show_all(GTK_WIDGET(content));
 
         g_signal_connect(info_dialog, "show", G_CALLBACK(on_info_show), 0);
         g_signal_connect(info_dialog, "delete-event", G_CALLBACK(on_window_close), 0);
-
         g_signal_connect(info_dialog, "key-press-event", G_CALLBACK(on_info_keypress), 0);
+
+        //gtk_widget_show_all(GTK_WIDGET(info_dialog));
     }
 
     /** --Error Dialog **/
@@ -10394,9 +10402,22 @@ _open_tips_dialog(gpointer unused)
     return false;
 }
 
+void
+on_continue_button_clicked(GtkWidget *widget, gpointer user_data)
+{
+    GtkWindow *dialog = GTK_WINDOW(user_data);
+    //g_signal_emit_by_name(dialog, "delete-event");
+    gtk_widget_hide(GTK_WIDGET(dialog));
+}
+
 static gboolean
 _open_info_dialog(gpointer unused)
 {
+    GtkWidget *continue_button = gtk_button_new_with_label("Continue");
+    g_signal_connect(continue_button, "clicked", G_CALLBACK(on_continue_button_clicked), info_dialog);
+    GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(info_dialog));
+    gtk_box_pack_start(GTK_BOX(content_area), continue_button, FALSE, FALSE, 0);
+    
     gtk_widget_show_all(GTK_WIDGET(info_dialog));
 
     return false;

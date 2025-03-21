@@ -1621,6 +1621,10 @@ void
 world::init_level(bool soft)
 {
     tms_debugf("init level (soft=%s)", soft?"true":"false");
+
+    if(!soft && this->level.descr && strlen(this->level.descr) > 0){
+        ui::open_help_dialog("Level description", W->level.descr);
+    }
     /* create the level borders */
     float w = (float)this->level.size_x[0]+(float)this->level.size_x[1];
     float h = (float)this->level.size_y[0]+(float)this->level.size_y[1];
