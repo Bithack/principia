@@ -7,6 +7,10 @@
 
 #include <unistd.h>
 
+#ifdef __ANDROID__
+    #include <SDL3_polyfills.h>
+#endif
+
 #ifdef TMS_BACKEND_WINDOWS
     #include <direct.h>
     #define mkdir(dirname, ...) _mkdir(dirname)
@@ -95,7 +99,43 @@ const char *tms_storage_path(void)
 
 const char *tms_storage_cache_path(void)
 {
-    return tms_storage_path();
+#ifdef __ANDROID__
+    return SDL_GetAndroidCachePath();
+#elif defined(__EMSCRIPTEN__)
+    return SDL_GetPrefPath("Bithack", "Principia");
+#elif defined(SCREENSHOT_BUILD)
+    return "/tmp/principia_cache";
+#else
+    static char *cache_path = 0;
+
+    if (cache_path)
+        return cache_path;
+
+    char *path = (char *)malloc(1024);
+
+    if (_storage_portable) { // Portable
+        char* exedir = SDL_GetBasePath();
+        strcpy(path, exedir);
+        strcat(path, "cache");
+    } else { // System
+#ifdef TMS_BACKEND_WINDOWS
+        strcpy(path, getenv("LOCALAPPDATA"));
+        strcat(path, "\\Principia");
+#else
+        const char* xdg_cache_home = getenv("XDG_CACHE_HOME");
+        if (!xdg_cache_home) {
+            strcpy(path, getenv("HOME"));
+            strcat(path, "/.cache/principia");
+        } else {
+            strcpy(path, xdg_cache_home);
+            strcat(path, "/principia");
+        }
+#endif
+    }
+
+    cache_path = path;
+    return cache_path;
+#endif
 }
 
 void tms_storage_create_dirs(void)
