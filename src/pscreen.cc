@@ -245,16 +245,10 @@ pscreen::handle_input(tms::event *ev, int action)
             case TMS_KEY_F11:
                 uint32_t flags = SDL_GetWindowFlags(_tms._window);
 
-                if (settings["window_resizable"]->v.b) {
-                    if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP)
-                        SDL_SetWindowFullscreen(_tms._window, 0);
-                    else
-                        SDL_SetWindowFullscreen(_tms._window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                } else {
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Principia",
-                        "Principia does not support resizing the window while in-game. For fullscreen changes to take effect, please restart the game.",
-                        0);
-                }
+                if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP)
+                    SDL_SetWindowFullscreen(_tms._window, 0);
+                else
+                    SDL_SetWindowFullscreen(_tms._window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
                 settings["window_fullscreen"]->v.b = (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == 0;
                 break;

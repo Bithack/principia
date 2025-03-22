@@ -37,9 +37,8 @@ _settings::init()
 #ifndef TMS_BACKEND_ANDROID
     this->add("window_width",       S_INT32,   _tms.window_width);
     this->add("window_height",      S_INT32,   _tms.window_height);
-    this->add("window_maximized",   S_BOOL,  0);
+    this->add("window_maximized",   S_BOOL,  false);
     this->add("window_fullscreen",  S_BOOL, false);
-    this->add("window_resizable", S_BOOL, false);
     this->add("autosave_screensize",S_BOOL,  true);
 #endif
 

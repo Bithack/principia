@@ -482,11 +482,6 @@ struct table_setting_row settings_interface_rows[] = {
         "score_ask_before_submitting",
         setting_row_type::create_checkbox()
     }, {
-        "Resizable window",
-        "Allow the window to be resized. NOTE: Principia does not support resizing while in-game. Things will break.",
-        "window_resizable",
-        setting_row_type::create_checkbox()
-    }, {
         "Autosave screen size",
         "Save the screen size when resizing the window.",
         "autosave_screensize",
