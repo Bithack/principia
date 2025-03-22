@@ -10427,7 +10427,7 @@ game::editor_construct_entity(uint32_t g_id, int pid/*=0*/, bool force_on_pid/*=
 
     e->ghost_update();
 
-    if (this->selection.e && e->compatible_with(this->selection.e) && this->selection.e->g_id != O_ROPE && (this->selection.e->g_id != O_TPIXEL)) {
+    if (this->selection.e && e->compatible_with(this->selection.e) && this->selection.e->g_id != O_ROPE) {
         /* copy properties from the selected object */
         this->copy_properties(e, this->selection.e);
 
