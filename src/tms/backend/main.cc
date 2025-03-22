@@ -1,5 +1,3 @@
-// Unified backend used for most platforms (Linux, Windows...)
-
 #include <SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,7 +23,6 @@
     #include <windowsx.h>
     #include <clocale>
     #include "shlwapi.h"
-    #include "SDL_syswm.h"
 #else
     #include <pwd.h>
 #endif
@@ -84,6 +81,7 @@ int main(int argc, char **argv)
 {
     int done = 0;
 
+#ifndef __ANDROID__
     signal(SIGSEGV, _catch_signal);
 
 #ifdef TMS_BACKEND_WINDOWS
@@ -166,11 +164,15 @@ int main(int argc, char **argv)
     tms_infof("set initial res to %dx%d", _tms.window_width, _tms.window_height);
 
     tproject_set_args(argc, argv);
-    tms_init();
 
-#ifdef TMS_BACKEND_WINDOWS
-    SDL_EventState(SDL_SYSWMEVENT, settings["emulate_touch"]->is_true() ? SDL_ENABLE : SDL_DISABLE);
+#else // ANDROID
+
+    tms_storage_create_dirs();
+    SDL_Init(SDL_INIT_VIDEO);
+
 #endif
+
+    tms_init();
 
     if (_tms.screen == 0)
         tms_fatalf("Context has no initial screen!");
@@ -194,35 +196,35 @@ static void mainloop()
 {
     SDL_Event ev;
     int i;
+    int do_step = 1;
 
-    for (i = 0; i < 235; ++i) {
-        if (keys[i] == 1) {
-            struct tms_event spec;
-            spec.type = TMS_EV_KEY_DOWN;
-            spec.data.key.keycode = i;
+    if (do_step) {
+        for (i = 0; i < 235; ++i) {
+            if (keys[i] == 1) {
+                struct tms_event spec;
+                spec.type = TMS_EV_KEY_DOWN;
+                spec.data.key.keycode = i;
 
-            tms_event_push(spec);
+                tms_event_push(spec);
+            }
         }
     }
 
     while (SDL_PollEvent(&ev)) {
         switch (ev.type) {
-            case SDL_QUIT:
-                _tms.state = TMS_STATE_QUITTING;
-                break;
-
-            case SDL_KEYDOWN:
-                T_intercept_input(ev);
-                keys[ev.key.keysym.scancode] = 1;
-                break;
-
-            case SDL_KEYUP:
-                T_intercept_input(ev);
-                keys[ev.key.keysym.scancode] = 0;
-                break;
-
-            case SDL_WINDOWEVENT:
+            case SDL_WINDOWEVENT: {
                 switch (ev.window.event) {
+#ifdef __ANDROID__
+                    case SDL_WINDOWEVENT_MINIMIZED:
+                        tproject_soft_pause();
+                        do_step = 0;
+                        break;
+
+                    case SDL_WINDOWEVENT_RESTORED:
+                        tproject_soft_resume();
+                        do_step = 1;
+                        break;
+#else
                     case SDL_WINDOWEVENT_RESIZED: {
                         tms_infof("Window %d resized to %dx%d",
                                 ev.window.windowID, ev.window.data1,
@@ -241,126 +243,62 @@ static void mainloop()
                     case SDL_WINDOWEVENT_RESTORED:
                         settings["window_maximized"]->v.b = false;
                         break;
-                    default:
-                        break;
+#endif
                 }
+            } break;
+
+            case SDL_QUIT:
+                _tms.state = TMS_STATE_QUITTING;
+                break;
+
+            case SDL_KEYDOWN:
+                T_intercept_input(ev);
+                keys[ev.key.keysym.scancode] = 1;
+                break;
+
+            case SDL_KEYUP:
+                T_intercept_input(ev);
+                keys[ev.key.keysym.scancode] = 0;
                 break;
 
             case SDL_FINGERDOWN:
             case SDL_FINGERUP:
             case SDL_FINGERMOTION:
             case SDL_MOUSEWHEEL:
-                T_intercept_input(ev);
-                break;
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP:
-            case SDL_MOUSEMOTION: {
-                if (settings["emulate_touch"]->is_false()) {
-                    //tms_infof("from sdl mouse thing");
-                    T_intercept_input(ev);
-                }
-            } break;
-
-            // XXX: is this necessary
-#ifdef TMS_BACKEND_WINDOWS
-            case SDL_SYSWMEVENT: {
-                SDL_SysWMmsg *msg = (SDL_SysWMmsg*)ev.syswm.msg;
-
-                switch (msg->msg.win.msg) {
-                    case WM_MOUSEMOVE: {
-                        //tms_infof("MOUSE MOVE");
-
-                        SDL_Event user_event;
-                        user_event.type = SDL_MOUSEMOTION;
-                        user_event.button.x = GET_X_LPARAM(msg->msg.win.lParam);
-                        user_event.button.y = GET_Y_LPARAM(msg->msg.win.lParam);
-                        user_event.button.button = SDL_BUTTON_LEFT;
-
-                        T_intercept_input(user_event);
-                    } break;
-
-                    case WM_LBUTTONDOWN: {
-                        //tms_infof("LBUTTON DOWN");
-                        SDL_Event user_event;
-                        user_event.type = SDL_MOUSEBUTTONDOWN;
-                        user_event.button.x = GET_X_LPARAM(msg->msg.win.lParam);
-                        user_event.button.y = GET_Y_LPARAM(msg->msg.win.lParam);
-                        user_event.button.button = SDL_BUTTON_LEFT;
-
-                        T_intercept_input(user_event);
-                    } break;
-
-                    case WM_LBUTTONUP: {
-                        //tms_infof("LBUTTON UP");
-                        SDL_Event user_event;
-                        user_event.type = SDL_MOUSEBUTTONUP;
-                        user_event.button.x = GET_X_LPARAM(msg->msg.win.lParam);
-                        user_event.button.y = GET_Y_LPARAM(msg->msg.win.lParam);
-                        user_event.button.button = SDL_BUTTON_LEFT;
-
-                        T_intercept_input(user_event);
-                    } break;
-
-                    case WM_RBUTTONDOWN: {
-                        //tms_infof("RBUTTON DOWN");
-                        SDL_Event user_event;
-                        user_event.type = SDL_MOUSEBUTTONDOWN;
-                        user_event.button.x = GET_X_LPARAM(msg->msg.win.lParam);
-                        user_event.button.y = GET_Y_LPARAM(msg->msg.win.lParam);
-                        user_event.button.button = SDL_BUTTON_RIGHT;
-
-                        T_intercept_input(user_event);
-                    } break;
-
-                    case WM_RBUTTONUP: {
-                        //tms_infof("RBUTTON UP");
-                        SDL_Event user_event;
-                        user_event.type = SDL_MOUSEBUTTONUP;
-                        user_event.button.x = GET_X_LPARAM(msg->msg.win.lParam);
-                        user_event.button.y = GET_Y_LPARAM(msg->msg.win.lParam);
-                        user_event.button.button = SDL_BUTTON_RIGHT;
-
-                        T_intercept_input(user_event);
-                    } break;
-                }
-            } break;
-#endif
-
+            case SDL_MOUSEMOTION:
             case SDL_TEXTINPUT:
                 T_intercept_input(ev);
-                break;
+            break;
         }
     }
 
-    tms_step();
-    tms_begin_frame();
-    tms_render();
-    SDL_GL_SwapWindow(_window);
-    tms_end_frame();
-
-    if (settings["emulate_touch"]->is_true()) {
-        int x, y;
-        SDL_GetMouseState(&x, &y);
-
-        SDL_Event user_event;
-        user_event.type = SDL_MOUSEMOTION;
-        user_event.button.x = x;
-        user_event.button.y = y;
-        user_event.button.button = SDL_BUTTON_LEFT;
+    if (_tms.is_paused == 0) {
+        tms_step();
+        tms_begin_frame();
+        tms_render();
+        SDL_GL_SwapWindow(_window);
+        tms_end_frame();
+    } else {
+        SDL_Delay(100);
     }
 }
 
 int
 tbackend_init_surface()
 {
+#ifndef __ANDROID__
     _tms.window_width = settings["window_width"]->v.i;
     _tms.window_height = settings["window_height"]->v.i;
 
     _tms.xppcm = 108.f/2.54f * 1.5f;
     _tms.yppcm = 107.f/2.54f * 1.5f;
+#endif
 
     uint32_t flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
 
+#ifndef __ANDROID__
     if (settings["window_maximized"]->v.b)
         flags |= SDL_WINDOW_MAXIMIZED;
 
@@ -369,6 +307,10 @@ tbackend_init_surface()
 
     if (settings["window_resizable"]->v.b)
         flags |= SDL_WINDOW_RESIZABLE;
+
+#else
+    flags |= SDL_WINDOW_FULLSCREEN;
+#endif
 
     tms_infof("Creating window...");
     _window = SDL_CreateWindow("Principia", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -380,6 +322,19 @@ tbackend_init_surface()
     }
 
     _tms._window = _window;
+
+#ifdef __ANDROID__
+    SDL_GL_GetDrawableSize(_window, &_tms.window_width, &_tms.window_height);
+
+    _tms._window = _window;
+    float density_x, density_y;
+    SDL_GetDisplayDPI(0, NULL, &density_x, &density_y);
+    _tms.xppcm = density_x / 2.54f;
+    _tms.yppcm = density_y / 2.54f;
+
+    tms_infof("Device dimensions: %d %d", _tms.window_width, _tms.window_height);
+    tms_infof("Device PPCM: %f %f", _tms.xppcm, _tms.yppcm);
+#endif
 
 #ifdef TMS_USE_GLES
 
@@ -464,29 +419,6 @@ mouse_button_to_pointer_id(int button)
     }
 }
 
-#define MAX_P 10
-
-static int finger_ids[MAX_P];
-
-static int finger_to_pointer(int finger, bool create)
-{
-    for (int x=0; x<MAX_P; x++) {
-        if ((finger_ids[x] == 0 && create) || finger_ids[x] == finger) {
-            tms_infof("found %u at %d", finger, x);
-            finger_ids[x] = finger;
-            return x;
-        }
-    }
-
-    /* no slot found */
-    if (create) {
-        /* helo */
-    }
-
-    finger_ids[MAX_P-1] = finger;
-    return MAX_P-1;
-}
-
 int
 T_intercept_input(SDL_Event ev)
 {
@@ -525,36 +457,23 @@ T_intercept_input(SDL_Event ev)
 
         case SDL_FINGERDOWN:
             spec.type = TMS_EV_POINTER_DOWN;
-
-            f = finger_to_pointer(ev.tfinger.fingerId, true);
-            spec.data.button.pointer_id = f;
-
+            spec.data.button.pointer_id = ev.tfinger.fingerId;
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
-            spec.data.button.button = 0;
             break;
 
         case SDL_FINGERUP:
             spec.type = TMS_EV_POINTER_UP;
-
-            f = finger_to_pointer(ev.tfinger.fingerId, false);
-            spec.data.button.pointer_id = f;
+            spec.data.button.pointer_id = ev.tfinger.fingerId;
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
-            spec.data.button.button = 0;
-
-            finger_ids[f] = 0;
             break;
 
         case SDL_FINGERMOTION:
             spec.type = TMS_EV_POINTER_DRAG;
-
-            f = finger_to_pointer(ev.tfinger.fingerId, false);
-            spec.data.button.pointer_id = f;
+            spec.data.button.pointer_id = ev.tfinger.fingerId;
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
-            spec.data.button.button = 0;
-
             break;
 
         case SDL_MOUSEBUTTONDOWN:

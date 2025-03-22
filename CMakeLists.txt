@@ -169,9 +169,7 @@ if(USE_LUASOCKET)
 endif()
 
 
-if(ANDROID)
-	set(BACKEND_SRC main_android.cc)
-elseif(SCREENSHOT_BUILD)
+if(SCREENSHOT_BUILD)
 	set(BACKEND_SRC main_screenshotter.cc)
 else()
 	set(BACKEND_SRC main.cc)
