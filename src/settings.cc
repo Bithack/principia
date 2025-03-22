@@ -122,11 +122,10 @@ _settings::init()
     this->add("score_ask_before_submitting", S_BOOL, false);
     this->add("score_automatically_submit", S_BOOL, true);
 
-    char filename[1024];
-    sprintf(filename, "%s/settings.ini", tbackend_get_storage_path());
+    sprintf(this->filename, "%s/settings.ini", tms_storage_path());
     FILE *fh;
 
-    if ((fh = fopen(filename, "r")) == NULL) {
+    if ((fh = fopen(this->filename, "r")) == NULL) {
         if (errno == ENOENT) {
             tms_infof("file doesn't exist, create it!");
             this->save();
@@ -142,9 +141,7 @@ _settings::init()
 bool
 _settings::load(void)
 {
-    char filename[1024];
-    sprintf(filename, "%s/settings.ini", tbackend_get_storage_path());
-    FILE *fh = fopen(filename, "r");
+    FILE *fh = fopen(this->filename, "r");
 
     if (!fh) {
         tms_errorf("Unable to open settings file for reading.");
@@ -260,11 +257,7 @@ _settings::save(void)
     if (RUNNING_ON_VALGRIND) return true;
 #endif
 
-    /* TODO: store filename in the class, char[1024] settings_file, to be
-     * set in init*/
-    char filename[1024];
-    sprintf(filename, "%s/settings.ini", tbackend_get_storage_path());
-    FILE *fh = fopen(filename, "w+");
+    FILE *fh = fopen(this->filename, "w+");
 
     if (!fh) {
         tms_errorf("An error occured when attempting to open settings file.");

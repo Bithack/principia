@@ -92,7 +92,7 @@ init_curl()
         exit(1);
     }
 
-    snprintf(cookie_file, 1024, "%s/c", tbackend_get_storage_path());
+    snprintf(cookie_file, 1024, "%s/c", tms_storage_path());
 
     lock_curl("initial_loader-curl_init");
     P.curl = curl_easy_init();
@@ -377,7 +377,7 @@ _get_featured_levels(void *_num)
     CURLcode r;
 
     char featured_data_path[1024];
-    snprintf(featured_data_path, 1023, "%s/fl.cache", tbackend_get_storage_path());
+    snprintf(featured_data_path, 1023, "%s/fl.cache", tms_storage_cache_path());
 
     struct MemoryStruct chunk;
     chunk.memory = (char*)malloc(1);
@@ -920,7 +920,7 @@ _submit_score(void *p)
 
     char data_path[1024];
 
-    const char *storage = tbackend_get_storage_path();
+    const char *storage = tms_storage_path();
     snprintf(data_path, 1023, "%s/data.bin", storage);
 
     int highscore_level_offset = highscore_offset(W->level.community_id);

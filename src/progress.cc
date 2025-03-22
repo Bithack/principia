@@ -53,7 +53,7 @@ progress::init(char *custom_path/*=0*/)
 #ifdef _NO_TMS
         return;
 #else
-        const char *storage = tbackend_get_storage_path();
+        const char *storage = tms_storage_path();
         snprintf(tmp, 1023, "%s/data.bin", storage);
 #endif
     }
@@ -230,7 +230,7 @@ progress::commit()
     }
 
     char filename[1024];
-    const char *storage = tbackend_get_storage_path();
+    const char *storage = tms_storage_path();
     snprintf(filename, 1023, "%s/data.bin", storage);
 
     long crc_pos[4]={0,0,0,0};

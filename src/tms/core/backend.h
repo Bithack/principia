@@ -14,7 +14,7 @@ extern "C" {
 
 int tbackend_init_surface(void);
 
-const char *tbackend_get_storage_path();
+#include "storage.h"
 
 #ifdef __cplusplus
 }

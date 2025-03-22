@@ -508,7 +508,7 @@ save_cache(lvlbuf *lb)
 void
 mesh_factory::init_models(void)
 {
-    snprintf(cache_path, 511, "%s/models.cache", tbackend_get_storage_path());
+    snprintf(cache_path, 511, "%s/models.cache", tms_storage_cache_path());
 
     GLuint err = glGetError();
     if (err != 0) {

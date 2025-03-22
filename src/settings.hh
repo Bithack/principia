@@ -121,6 +121,8 @@ extern class _settings {
         return this->_data.end();
     }
 
+    char filename[1024];
+
   public:
 
     setting*& operator[] (const char* key) {

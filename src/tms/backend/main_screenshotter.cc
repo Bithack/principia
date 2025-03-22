@@ -56,7 +56,6 @@ static uint32_t snap_step_num = 0;
 
 int screenshot(char *file_name, unsigned int x, unsigned int y, unsigned long width, unsigned long height);
 extern "C" int tbackend_init_surface();
-extern "C" const char *tbackend_get_storage_path(void);
 
 
 void
@@ -146,7 +145,7 @@ main(int argc, char **argv)
     tms_infof("chdirring to %s", exedir);
     (void)chdir(exedir);
 
-    mkdir(tbackend_get_storage_path(), S_IRWXU | S_IRWXG | S_IRWXO);
+    tms_storage_create_dirs();
 
     tms_infof("Initializing SDL...");
     SDL_Init(SDL_INIT_VIDEO);
@@ -384,11 +383,6 @@ tbackend_init_surface()
     SDL_GL_CreateContext(_window);
 
     return T_OK;
-}
-
-const char *tbackend_get_storage_path(void)
-{
-    return "storage";
 }
 
 int

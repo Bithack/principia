@@ -7,6 +7,7 @@
 #include <tms/core/event.h>
 #include <tms/core/tms.h>
 #include <tms/backend/opengl.h>
+#include <tms/core/storage.h>
 
 #include "SDL.h"
 #include <jni.h>
@@ -18,7 +19,6 @@ int keys[235];
 int mouse_down[64];
 
 extern "C" int tbackend_init_surface();
-extern "C" const char *tbackend_get_storage_path(void);
 
 static int T_intercept_input(SDL_Event ev);
 
@@ -28,6 +28,8 @@ SDL_main(int argc, char **argv)
     SDL_Event  ev;
     int        done = 0;
     int do_step = 1;
+
+    tms_storage_create_dirs();
 
     tms_init();
 
@@ -206,9 +208,4 @@ T_intercept_input(SDL_Event ev)
     tms_event_push(spec);
 
     return T_OK;
-}
-
-const char *tbackend_get_storage_path(void)
-{
-    return SDL_AndroidGetExternalStoragePath();
 }

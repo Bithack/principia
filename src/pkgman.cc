@@ -16,9 +16,8 @@
     #define tms_fatalf(...)
     #define tms_errorf(...)
 
-    static const char *tbackend_get_storage_path() {
-        return "/tmp/";
-    }
+    static const char *tms_storage_path() { return "/tmp/"; }
+    static const char *tms_storage_cache_path() { return "/tmp/"; }
 #else
     #include <tms/bindings/cpp/cpp.hh>
 #endif
@@ -672,9 +671,13 @@ pkgman::get_pkg_path(int type)
             /* main levels are stored internally in data/ */
             snprintf((char*)_pkg_path[type], 1023, "data/pkg/%s",
                     _dir_names[type]);
+        } else if (type == LEVEL_DB) {
+            snprintf((char*)_pkg_path[type], 1023, "%s/pkg/%s",
+                    tms_storage_cache_path(),
+                    _dir_names[type]);
         } else {
             snprintf((char*)_pkg_path[type], 1023, "%s/pkg/%s",
-                    tbackend_get_storage_path(),
+                    tms_storage_path(),
                     _dir_names[type]);
         }
     }
@@ -700,7 +703,7 @@ pkgman::get_level_path(int level_type)
             _state_path = (char*)malloc(1024); /* XXX free this somewhere */
             snprintf((char*)_state_path, 1023,
                     "%s/sav",
-                     tbackend_get_storage_path());
+                     tms_storage_path());
         }
 
         return _state_path;
@@ -722,11 +725,16 @@ pkgman::get_level_path(int level_type)
         } else if (level_type == LEVEL_SYS) {
             snprintf((char*)_level_path[level_type], 1023,
                     "%s/cache/local",
-                    tbackend_get_storage_path());
+                    tms_storage_cache_path());
+        } else if (level_type == LEVEL_DB) {
+            snprintf((char*)_level_path[level_type], 1023,
+                    "%s/lvl/%s",
+                    tms_storage_cache_path(),
+                    _dir_names[level_type]);
         } else {
             snprintf((char*)_level_path[level_type], 1023,
                     "%s/lvl/%s",
-                    tbackend_get_storage_path(),
+                    tms_storage_path(),
                     _dir_names[level_type]);
         }
     }
@@ -769,7 +777,7 @@ pkgman::get_cache_path(int level_type)
 
             snprintf((char*)_cache_state_path, 1023,
                     "%s/cache/sav",
-                    tbackend_get_storage_path());
+                    tms_storage_cache_path());
         }
 
         return _cache_state_path;
@@ -785,7 +793,7 @@ pkgman::get_cache_path(int level_type)
 
         snprintf((char*)_cache_path[level_type], 1023,
                 "%s/cache/%s",
-                tbackend_get_storage_path(),
+                tms_storage_cache_path(),
                 _dir_names[level_type]);
     }
 

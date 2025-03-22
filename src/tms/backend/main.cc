@@ -38,19 +38,15 @@
 
 FILE *_f_out = stdout;
 
-static int _storage_type = 0;
-
 SDL_Window *_window;
 
 int keys[235];
 int mouse_down;
-static char *_storage_path = 0;
 
 static int T_intercept_input(SDL_Event ev);
 static void mainloop();
 
 extern "C" int tbackend_init_surface();
-extern "C" const char *tbackend_get_storage_path(void);
 
 static void _catch_signal(int signal)
 {
@@ -103,18 +99,14 @@ int main(int argc, char **argv)
     // Switch to portable if ./portable.txt exists next to binary
     if (access("portable.txt", F_OK) == 0) {
         tms_infof("We're becoming portable!");
-        _storage_type = 1;
+        tms_storage_set_portable(true);
     }
 
-#ifdef TMS_BACKEND_WINDOWS
-    mkdir(tbackend_get_storage_path());
-#else
-    mkdir(tbackend_get_storage_path(), S_IRWXU | S_IRWXG | S_IRWXO);
-#endif
+    tms_storage_create_dirs();
 
 #if !defined(DEBUG) && !defined(__EMSCRIPTEN__)
     char logfile[1024];
-    snprintf(logfile, 1023, "%s/run.log", tbackend_get_storage_path());
+    snprintf(logfile, 1023, "%s/run.log", tms_storage_path());
 
     tms_infof("Redirecting log output to %s", logfile);
     FILE *log = fopen(logfile, "w+");
@@ -630,35 +622,4 @@ T_intercept_input(SDL_Event ev)
     tms_event_push(spec);
 
     return T_OK;
-}
-
-const char *tbackend_get_storage_path(void)
-{
-#ifdef __EMSCRIPTEN__
-    return SDL_GetPrefPath("Bithack", "Principia");
-#endif
-
-    if (!_storage_path) {
-        char *path = (char*)malloc(512);
-
-        if (_storage_type == 0) { // System (Installed)
-#ifdef TMS_BACKEND_WINDOWS
-            strcpy(path, getenv("USERPROFILE"));
-            strcat(path, "\\Principia");
-#else
-            struct passwd *pw = getpwuid(getuid());
-            strcpy(path, pw->pw_dir);
-            strcat(path, "/.principia");
-#endif
-        } else if (_storage_type == 1) { // Portable
-            char* exedir = SDL_GetBasePath();
-            strcpy(path, exedir);
-            strcat(path, "userdata");
-        }
-
-        _storage_path = path;
-
-        tms_infof("Storage path: %s", path);
-    }
-    return _storage_path;
 }

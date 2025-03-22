@@ -35,17 +35,7 @@
 #include "gui.hh"
 
 #include <ctime>
-#include <errno.h>
 #include <unistd.h>
-
-#ifdef TMS_BACKEND_WINDOWS
-#include <direct.h>
-#define mkdir(dirname, ...) _mkdir(dirname)
-#define create_dir(dirname, ...) _create_dir(dirname, 0)
-#else
-#define create_dir _create_dir
-
-#endif
 
 #ifdef BUILD_VALGRIND
 #include <valgrind/valgrind.h>
@@ -1729,43 +1719,13 @@ static const char *load_step_name[] = {
     /* 16 */ "Save settings",
 };
 
-bool
-_create_dir(const char *path, mode_t mode)
-{
-    if (mkdir(path, mode) != 0) {
-        switch (errno) {
-            case EACCES:
-                tms_errorf("We lack permissions to create folder %s", path);
-                return false;
-
-            case EEXIST:
-                /* this should not be considered an error */
-                return true;
-
-            case ENAMETOOLONG:
-                tms_errorf("Name of directory %s is too long.", path);
-                return false;
-
-            case ENOENT:
-                tms_errorf("Parent directory for %s not found.", path);
-                return false;
-
-            default:
-                tms_errorf("An unknown error occurs when attempting to create directory %s (%d)", path, errno);
-                return false;
-        }
-    }
-
-    return true;
-}
-
 static void
 populate_community_host()
 {
     P.community_host = "principia-web.se";
 
     char path[1024];
-    snprintf(path, 1023, "%s/community_host.txt", tbackend_get_storage_path());
+    snprintf(path, 1023, "%s/community_host.txt", tms_storage_path());
     FILE *fh = fopen(path, "r");
 
     if (!fh) return;
@@ -1788,26 +1748,12 @@ initial_loader(int step)
 {
     static uint32_t last_time = SDL_GetTicks();
 
-    char tmp[512];
     int retval = LOAD_CONT;
 
     switch (step) {
         case 0:
             {
                 populate_community_host();
-
-                static const char *s_dirs[]={
-                    "",
-                    "/cache", "/cache/db", "/cache/local", "/cache/main", "/cache/sav",
-                    "/lvl", "/lvl/db", "/lvl/local", "/lvl/main",
-                    "/pkg", "/pkg/db", "/pkg/local", "/pkg/main",
-                    "/sav"
-                };
-
-                for (int x=0; x<sizeof(s_dirs)/sizeof(const char*); x++) {
-                    sprintf(tmp, "%s%s", tbackend_get_storage_path(), s_dirs[x]);
-                    create_dir(tmp, S_IRWXU | S_IRWXG | S_IRWXO);
-                }
 
                 /**
                  * We must init the recipes for the factories "dynamically" like this,
