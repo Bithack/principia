@@ -595,9 +595,9 @@ public class HIDDeviceManager {
                    Intent intent = new Intent(HIDDeviceManager.ACTION_USB_PERMISSION);
                    intent.setPackage(mContext.getPackageName());
                    mUsbManager.requestPermission(usbDevice, PendingIntent.getBroadcast(mContext, 0, intent, flags));
-                } else {
+               } else {
                    mUsbManager.requestPermission(usbDevice, PendingIntent.getBroadcast(mContext, 0, new Intent(HIDDeviceManager.ACTION_USB_PERMISSION), flags));
-                }
+               }
             } catch (Exception e) {
                 Log.v(TAG, "Couldn't request permission for USB device " + usbDevice);
                 HIDDeviceOpenResult(deviceID, false);
