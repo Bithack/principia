@@ -2402,8 +2402,12 @@ game::refresh_widgets()
         this->wdg_advanced->add();
         if (this->state.advanced_mode) {
             this->wdg_advanced->s[0] = gui_spritesheet::get_sprite(S_ADVUP);
+            this->wdg_layervis->add();
+            this->wdg_help->add();
         } else {
             this->wdg_advanced->s[0] = gui_spritesheet::get_sprite(S_ADVDOWN);
+            this->wdg_layervis->remove();
+            this->wdg_help->remove();
         }
     }
 

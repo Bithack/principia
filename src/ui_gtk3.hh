@@ -8297,6 +8297,22 @@ int _gtk_loop(void *p)
         gtk_window_set_resizable(GTK_WINDOW(info_dialog), true);
         gtk_window_set_default_size(GTK_WINDOW(info_dialog), 425, 400);
 
+        gtk_window_set_decorated(GTK_WINDOW(info_dialog), FALSE);
+
+        GtkCssProvider *provider = gtk_css_provider_new();
+        gtk_css_provider_load_from_data(provider,
+                                        "window {"
+                                        "   background-color: rgba(158, 141, 121, 0.64);"
+                                        "   border: 2px solid rgba(86, 73, 63, 0.64);"
+                                        "   border-radius: 15px;"
+                                        "   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);"
+                                        "   font-size: 16px;"
+                                        "   color:rgb(28, 17, 5);"
+                                        "}",
+                                        -1, NULL);
+
+        GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(info_dialog));
+        gtk_style_context_add_provider(context, GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_USER);
         apply_dialog_defaults(info_dialog, on_info_show, on_info_keypress);
 
         info_name = GTK_LABEL(gtk_label_new(0));
@@ -8309,6 +8325,8 @@ int _gtk_loop(void *p)
         gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(info_text));
 
         gtk_container_add(GTK_CONTAINER(info_dialog), GTK_WIDGET(ew));
+        g_signal_connect(G_OBJECT(info_dialog), "focus-out-event", G_CALLBACK(gtk_window_close), info_dialog);
+
 
         gtk_label_set_line_wrap(GTK_LABEL(info_text), true);
     }
