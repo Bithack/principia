@@ -27,6 +27,7 @@ menu_play::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
 
         case BTN_BROWSE_COMMUNITY:
             COMMUNITY_URL("browse");
+            ui::open_url(url);
             break;
 
         case BTN_OPEN_STATE_DIALOG:
