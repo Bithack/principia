@@ -469,6 +469,7 @@ menu_pkg::handle_input(tms::event *ev, int action)
 
                 if (UNLOCK_ALL_LVLS || this->pkg.unlock_count == 0 || btn < unlock_count || cache[btn].progress->completed) {
                     uint32_t level_id = this->pkg.levels[btn];
+                    G->play_sound(SND_CLICK, 0.0f, 0.0f, 0, .5f);
 
                     bool test_playing = false;
                     G->screen_back = this;
