@@ -341,6 +341,13 @@ namespace UiSandboxMenu {
                         if (activated) {
                             goto_entity(ment);
                         }
+                        // Context menu for deleting right-clicked bookmark
+                        if (ImGui::BeginPopupContextItem("BookmarkContext")) {
+                            if (ImGui::MenuItem("Delete Bookmark")) {
+                                bookmarks.erase(std::find(bookmarks.begin(), bookmarks.end(), eid));
+                            }
+                            ImGui::EndPopup();
+                        }
                         //ImGui::PopItemFlag();
                         ImGui::PopID();
                     }
