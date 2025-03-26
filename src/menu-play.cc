@@ -1,6 +1,5 @@
 #include "menu-play.hh"
 #include "menu_shared.hh"
-#include "menu_pkg.hh"
 #include "misc.hh"
 #include "gui.hh"
 #include "ui.hh"
@@ -26,22 +25,17 @@ menu_play::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             P.add_action(ACTION_GOTO_MAINMENU, 0x1);
             break;
 
-        case BTN_PLAY_ADVENTURE:
-            G->resume_action = GAME_START_NEW_ADVENTURE;
-            G->screen_back = this;
-            tms::set_screen(G);
-            break;
-
-        case BTN_OPEN_LATEST_STATE:
-            P.add_action(ACTION_OPEN_LATEST_STATE, this);
+        case BTN_BROWSE_COMMUNITY:
+            COMMUNITY_URL("browse");
+            ui::open_url(url);
             break;
 
         case BTN_OPEN_STATE_DIALOG:
             ui::open_dialog(DIALOG_OPEN_STATE, UINT_TO_VOID(1));
             break;
 
-        case BTN_OPEN_STATE:
-            P.add_action(ACTION_OPEN_STATE, w->data3);
+        case BTN_OPEN_LATEST_STATE:
+            P.add_action(ACTION_OPEN_LATEST_STATE, this);
             break;
 
         case BTN_PUZZLES:
@@ -56,7 +50,6 @@ menu_play::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
 
 menu_play::menu_play()
     : menu_base(false)
-    , has_saved_state(false)
 {
     this->wdg_back = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
@@ -66,17 +59,26 @@ menu_play::menu_play()
     this->wdg_back->priority = 500;
     this->wdg_back->add();
 
-    this->wdg_puzzles = this->wm->create_widget(
+    this->wdg_browse_community = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
-            BTN_PUZZLES, AREA_MENU_CENTER);
-    this->wdg_puzzles->set_label("Learn with puzzles", font::large);
-    this->wdg_puzzles->priority = 1000;
-    this->wdg_puzzles->render_background = true;
-    this->wdg_puzzles->add();
+            BTN_BROWSE_COMMUNITY, AREA_MENU_CENTER);
+    this->wdg_browse_community->set_label("Browse community levels", font::large);
+    this->wdg_browse_community->priority = 1000;
+    this->wdg_browse_community->render_background = true;
+    this->wdg_browse_community->add();
 
-    this->wdg_puzzles->resize_percentage(
+    this->wdg_browse_community->resize_percentage(
             _tms.window_width,  0.45,
             _tms.window_height, 0.20);
+
+    this->wdg_open = this->wm->create_widget(
+            this->get_surface(), TMS_WDG_LABEL,
+            BTN_OPEN_STATE_DIALOG, AREA_MENU_CENTER);
+    this->wdg_open->set_label("Open state saves", font::xmedium);
+    this->wdg_open->priority = 960;
+    this->wdg_open->render_background = true;
+    this->wdg_open->add();
+    this->wdg_open->label->set_scale(this->wdg_browse_community->label->get_scale());
 
     this->wdg_open_latest_state = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
@@ -85,41 +87,16 @@ menu_play::menu_play()
     this->wdg_open_latest_state->priority = 950;
     this->wdg_open_latest_state->render_background = true;
     this->wdg_open_latest_state->add();
+    this->wdg_open_latest_state->label->set_scale(this->wdg_browse_community->label->get_scale());
 
-    this->wdg_open_latest_state->label->set_scale(this->wdg_puzzles->label->get_scale());
-
-    this->wdg_open = this->wm->create_widget(
+    this->wdg_puzzles = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
-            BTN_OPEN_STATE_DIALOG, AREA_MENU_CENTER);
-    this->wdg_open->set_label("Open", font::xmedium);
-    this->wdg_open->priority = 900;
-    this->wdg_open->render_background = true;
-    this->wdg_open->add();
-
-    this->wdg_open->label->set_scale(this->wdg_puzzles->label->get_scale());
-
-    this->wdg_play_adventure = this->wm->create_widget(
-            this->get_surface(), TMS_WDG_LABEL,
-            BTN_PLAY_ADVENTURE, AREA_MENU_CENTER);
-    this->wdg_play_adventure->set_label("Adventure exploration mode", font::xmedium);
-    this->wdg_play_adventure->render_background = true;
-    this->wdg_play_adventure->priority = 850;
-    this->wdg_play_adventure->add();
-
-    this->wdg_play_adventure->label->set_scale(this->wdg_puzzles->label->get_scale());
-
-    for (int n=0; n<MAX_STATES; ++n) {
-        this->wdg_state[n] = this->wm->create_widget(
-                this->get_surface(), TMS_WDG_LABEL,
-                BTN_OPEN_STATE, AREA_MENU_LEFT_HLEFT);
-        this->wdg_state[n]->priority = 600+MAX_STATES-n;
-
-        this->wdg_state_date[n] = this->wm->create_widget(
-                this->get_surface(), TMS_WDG_LABEL,
-                BTN_IGNORE, AREA_MENU_RIGHT_HRIGHT);
-        this->wdg_state_date[n]->priority = 600+MAX_STATES-n;
-        this->wdg_state_date[n]->clickthrough = true;
-    }
+            BTN_PUZZLES, AREA_MENU_CENTER);
+    this->wdg_puzzles->set_label("Classic puzzles", font::xmedium);
+    this->wdg_puzzles->render_background = true;
+    this->wdg_puzzles->priority = 850;
+    this->wdg_puzzles->add();
+    this->wdg_puzzles->label->set_scale(this->wdg_browse_community->label->get_scale());
 
     this->refresh_widgets();
 }
@@ -130,57 +107,6 @@ menu_play::resume()
     menu_base::resume();
 
     this->refresh_widgets();
-
-    return T_OK;
-
-    std::vector<lvlfile*> states;
-
-    lvlfile *level  = pkgman::get_levels(LEVEL_LOCAL_STATE);
-    while (level) {
-        states.push_back(level);
-        lvlfile *next = level->next;
-        level = next;
-    }
-
-    std::sort(states.begin(), states.end(), &pkgman::mtime_desc);
-
-    int n;
-    for (n=0; n<MAX_STATES; ++n) {
-        if (this->wdg_state[n]) {
-            this->wdg_state[n]->remove();
-
-            if (this->wdg_state[n]->data3) {
-                free(this->wdg_state[n]->data3);
-                this->wdg_state[n]->data3 = 0;
-            }
-        }
-        if (this->wdg_state_date[n]) {
-            this->wdg_state_date[n]->remove();
-        }
-    }
-
-    n = 0;
-    for (std::vector<lvlfile*>::iterator it = states.begin();
-            it != states.end(); ++it) {
-        lvlfile *lvl = *it;
-
-        this->wdg_state[n]->set_label(lvl->name);
-        uint32_t *info = (uint32_t*)malloc(sizeof(uint32_t)*3);
-        info[0] = lvl->id_type;
-        info[1] = lvl->id;
-        info[2] = lvl->save_id;
-        this->wdg_state[n]->data3 = info;
-        this->wdg_state[n]->add();
-
-        this->wdg_state_date[n]->set_label(lvl->modified_date);
-        this->wdg_state_date[n]->add();
-
-        if (++n == MAX_STATES) {
-            break;
-        }
-    }
-
-    //this->has_autosave = G->autosave_exists();
 
     return T_OK;
 }
@@ -211,19 +137,25 @@ menu_play::handle_input(tms::event *ev, int action)
         switch (ev->data.key.keycode) {
             case TMS_KEY_A:
             case TMS_KEY_1:
-                this->wdg_play_adventure->click();
+                this->wdg_browse_community->click();
                 break;
 
             case TMS_KEY_2:
-                this->wdg_open_latest_state->click();
+                this->wdg_open->click();
                 break;
 
             case TMS_KEY_3:
-                this->wdg_open->click();
+                this->wdg_open_latest_state->click();
                 break;
 
             case TMS_KEY_4:
                 this->wdg_puzzles->click();
+                break;
+
+            case TMS_KEY_E:
+                G->resume_action = GAME_START_NEW_ADVENTURE;
+                G->screen_back = this;
+                tms::set_screen(G);
                 break;
 
             case TMS_KEY_R:

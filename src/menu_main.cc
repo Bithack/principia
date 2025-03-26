@@ -25,7 +25,7 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             break;
 
         case BTN_BROWSE_COMMUNITY: {
-            COMMUNITY_URL("");
+            COMMUNITY_URL("browse");
             ui::open_url(url);
         } break;
 
