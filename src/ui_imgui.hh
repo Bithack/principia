@@ -288,35 +288,35 @@ namespace UiSandboxMenu {
                 float z = G->cam->_position.z;
 
                 auto goto_entity = [z](entity *ment) {
-                    G->lock();
                     b2Vec2 xy = ment->get_position();
                     G->cam->set_position(xy.x, xy.y, z);
-                    G->selection.select(ment);
-                    G->unlock();
                     sb_position = xy;
                 };
                 auto goto_position = [z](b2Vec2 xy) {
-                    G->lock();
                     G->cam->set_position(xy.x, xy.y, z);
-                    //XXX: should we reset the selection here?
-                    G->selection.disable();
-                    G->unlock();
                     sb_position = xy;
                 };
 
                 if (ImGui::MenuItem("0, 0")) {
                     goto_position(b2Vec2_zero);
                 }
-                //TODO the rest of goto options
-                // if (ImGui::MenuItem("Player")) {
-                //
-                // }
-                // if (ImGui::MenuItem("Last created entity")) {
-                //
-                // }
-                // if (ImGui::MenuItem("Last camera position")) {
-                //
-                // }
+
+                if (W->is_adventure()) {
+                    if (ImGui::MenuItem("Player")) {
+                        if (adventure::player) {
+                            goto_entity(adventure::player);
+                        }
+                    }
+                }
+
+                // Unimplemented: "Last camera position"
+                // (functions as an undo from the last position that was gone to)
+
+                if (ImGui::MenuItem("Last created entity")) {
+                    if (!W->all_entities.empty()) {
+                        goto_entity(W->all_entities.rbegin()->second);
+                    }
+                }
 
                 ImGui::Separator();
                 if (bookmarks.size() > 0) {
