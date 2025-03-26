@@ -332,8 +332,6 @@ namespace UiSandboxMenu {
                 ImGui::Separator();
                 if (bookmarks.size() > 0) {
                     for (uint32_t eid : bookmarks) {
-                        //TODO: remove bookmark by right clicking
-                        //XXX: maybe auto remove if id is no longer valid???
                         ImGui::PushID(eid);
                         entity* ment = W->get_entity_by_id(eid);
                         if (!ment) continue;
@@ -351,6 +349,15 @@ namespace UiSandboxMenu {
                         );
                         if (activated) {
                             goto_entity(ment);
+                        }
+                        //TODO: remove bookmark by right clicking
+                        //XXX: maybe auto remove if id is no longer valid???
+                        //context menu for deleting right-clicked bookmark
+                        if (ImGui::BeginPopupContextItem("BookmarkContext")) {
+                            if (ImGui::MenuItem("Delete Bookmark")) {
+                                bookmarks.erase(std::find(bookmarks.begin(), bookmarks.end(), eid));
+                            }
+                            ImGui::EndPopup();
                         }
                         //ImGui::PopItemFlag();
                         ImGui::PopID();
