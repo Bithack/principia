@@ -2109,6 +2109,15 @@ namespace UiLevelProperties {
                             P.add_action(ACTION_RELOAD_LEVEL, 0);
                         }
                     };
+                    auto slider_float = [](float* x) {
+                        int tmp = (int)*x;
+                        //HACK: use pointer as unique id
+                        ImGui::PushID((size_t)x);
+                        if (ImGui::SliderInt("###slider", &tmp, 0, 255)) {
+                            *x = tmp & 0xff;
+                        }
+                        ImGui::PopID();
+                    };
                     auto slider_uint8t = [](uint8_t* x) {
                         int tmp = (int)*x;
                         //HACK: use pointer as unique id
@@ -2121,15 +2130,35 @@ namespace UiLevelProperties {
 
                     ImGui::SeparatorText("Iteration count");
 
-                    ImGui::TextUnformatted("Position interations");
+                    ImGui::TextUnformatted("Position iterations");
                     slider_uint8t(&W->level.position_iterations);
                     reload_if_changed();
 
-                    ImGui::TextUnformatted("Velocity interations");
+                    ImGui::TextUnformatted("Velocity iterations");
                     slider_uint8t(&W->level.velocity_iterations);
                     reload_if_changed();
 
                     //TODO add the rest of the physics settings
+                    ImGui::TextUnformatted("Prismatic tolerance");
+                    slider_float(&W->level.prismatic_tolerance);
+                    reload_if_changed();
+
+                    ImGui::TextUnformatted("Pivot tolerance");
+                    slider_float(&W->level.pivot_tolerance);
+                    reload_if_changed();
+
+                    ImGui::TextUnformatted("Linear damping");
+                    slider_float(&W->level.linear_damping);
+                    reload_if_changed();
+
+                    ImGui::TextUnformatted("Angular damping");
+                    slider_float(&W->level.angular_damping);
+                    reload_if_changed();
+
+                    ImGui::TextUnformatted("Joint friction");
+                    slider_float(&W->level.joint_friction);
+                    reload_if_changed();
+
 
                     ImGui::EndTabItem();
                 }
