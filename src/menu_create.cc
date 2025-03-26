@@ -28,23 +28,23 @@ menu_create::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             P.add_action(ACTION_GOTO_MAINMENU, 0x1);
             break;
 
-        case BTN_ADVENTURE:
-            G->resume_action = GAME_RESUME_NEW;
-            G->resume_level_type = LCAT_ADVENTURE;
-            G->screen_back = 0;
-            tms::set_screen(G);
-            break;
-
-        case BTN_EMPTY_ADVENTURE:
-            G->resume_action = GAME_RESUME_NEW_EMPTY;
-            G->resume_level_type = LCAT_ADVENTURE;
-            G->screen_back = 0;
-            tms::set_screen(G);
-            break;
-
         case BTN_CUSTOM:
             G->resume_action = GAME_RESUME_NEW_EMPTY;
             G->resume_level_type = LCAT_CUSTOM;
+            G->screen_back = 0;
+            tms::set_screen(G);
+            break;
+
+        case BTN_ADVENTURE:
+            G->resume_action = GAME_RESUME_NEW_EMPTY;
+            G->resume_level_type = LCAT_ADVENTURE;
+            G->screen_back = 0;
+            tms::set_screen(G);
+            break;
+
+        case BTN_PROCEDURAL_ADVENTURE:
+            G->resume_action = GAME_RESUME_NEW;
+            G->resume_level_type = LCAT_ADVENTURE;
             G->screen_back = 0;
             tms::set_screen(G);
             break;
@@ -125,34 +125,34 @@ menu_create::menu_create()
             this->get_surface(), TMS_WDG_LABEL,
             BTN_CUSTOM, area);
         this->wdg_custom->set_label("Custom", font::xmedium);
-        this->wdg_custom->priority = 995;
+        this->wdg_custom->priority = 990;
         this->wdg_custom->render_background = true;
         this->wdg_custom->add();
         this->wdg_custom->label->set_scale(this->wdg_create_new_level->label->get_scale());
 
         this->wdg_adventure = this->wm->create_widget(
-                this->get_surface(), TMS_WDG_LABEL,
-                BTN_ADVENTURE, area);
+            this->get_surface(), TMS_WDG_LABEL,
+            BTN_ADVENTURE, area);
         this->wdg_adventure->set_label("Adventure", font::xmedium);
-        this->wdg_adventure->priority = 990;
+        this->wdg_adventure->priority = 980;
         this->wdg_adventure->render_background = true;
         this->wdg_adventure->add();
         this->wdg_adventure->label->set_scale(this->wdg_create_new_level->label->get_scale());
 
-        this->wdg_empty_adventure = this->wm->create_widget(
+        this->wdg_procedural_adventure = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
-            BTN_EMPTY_ADVENTURE, area);
-        this->wdg_empty_adventure->set_label("Empty Adventure", font::xmedium);
-        this->wdg_empty_adventure->priority = 980;
-        this->wdg_empty_adventure->render_background = true;
-        this->wdg_empty_adventure->add();
-        this->wdg_empty_adventure->label->set_scale(this->wdg_create_new_level->label->get_scale());
+            BTN_PROCEDURAL_ADVENTURE, area);
+        this->wdg_procedural_adventure->set_label("Procedural Adventure", font::xmedium);
+        this->wdg_procedural_adventure->priority = 970;
+        this->wdg_procedural_adventure->render_background = true;
+        this->wdg_procedural_adventure->add();
+        this->wdg_procedural_adventure->label->set_scale(this->wdg_create_new_level->label->get_scale());
 
         this->wdg_puzzle = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
             BTN_PUZZLE, area);
         this->wdg_puzzle->set_label("Puzzle", font::xmedium);
-        this->wdg_puzzle->priority = 970;
+        this->wdg_puzzle->priority = 960;
         this->wdg_puzzle->render_background = true;
         this->wdg_puzzle->add();
         this->wdg_puzzle->label->set_scale(this->wdg_create_new_level->label->get_scale());
@@ -265,19 +265,20 @@ menu_create::handle_input(tms::event *ev, int action)
 
     if (ev->type == TMS_EV_KEY_PRESS) {
         switch (ev->data.key.keycode) {
-            case TMS_KEY_A:
             case TMS_KEY_1:
+                this->wdg_custom->click();
+                break;
+
+            case TMS_KEY_2:
                 this->wdg_adventure->click();
                 break;
 
-            case TMS_KEY_E:
-            case TMS_KEY_2:
-                this->wdg_empty_adventure->click();
+            case TMS_KEY_3:
+                this->wdg_procedural_adventure->click();
                 break;
 
-            case TMS_KEY_C:
-            case TMS_KEY_3:
-                this->wdg_custom->click();
+            case TMS_KEY_4:
+                this->wdg_puzzle->click();
                 break;
 
             case TMS_KEY_O:
@@ -388,7 +389,7 @@ menu_create::refresh_widgets()
     this->wdg_create_new_level->add();
     this->wdg_custom->add();
     this->wdg_adventure->add();
-    this->wdg_empty_adventure->add();
+    this->wdg_procedural_adventure->add();
     this->wdg_puzzle->add();
     this->wdg_open->add();
 
