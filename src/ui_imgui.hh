@@ -308,15 +308,26 @@ namespace UiSandboxMenu {
                     goto_position(b2Vec2_zero);
                 }
                 //TODO the rest of goto options
-                // if (ImGui::MenuItem("Player")) {
-                //
-                // }
-                // if (ImGui::MenuItem("Last created entity")) {
-                //
-                // }
-                // if (ImGui::MenuItem("Last camera position")) {
-                //
-                // }
+                if(W->level.type == LCAT_ADVENTURE){
+                    if (ImGui::MenuItem("Player")) {
+                        if (adventure::player) {
+                            goto_entity(adventure::player);
+                        }
+                    }
+                    if (ImGui::MenuItem("Last camera position")) {
+                        if (adventure::player) {
+                            b2Vec2 last_camera_pos = adventure::player->get_position();
+                            if (last_camera_pos.x != b2Vec2_zero.x || last_camera_pos.y != b2Vec2_zero.y) {
+                                goto_position(last_camera_pos);
+                            }
+                        }
+                    }
+                }
+                if (ImGui::MenuItem("Last created entity")) {
+                    if (!W->all_entities.empty()) {
+                        goto_entity(W->all_entities.rbegin()->second);
+                    }
+                }
 
                 ImGui::Separator();
                 if (bookmarks.size() > 0) {
