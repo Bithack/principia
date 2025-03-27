@@ -8,23 +8,20 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.text.Html;
 
-public class HelpDialog
+public class InfoDialog
 {
     Dialog _dialog;
 
-    public static String description ="";
-    public static String title = "";
+    public static String description;
 
-    public HelpDialog()
+    public InfoDialog()
     {
         AlertDialog.Builder bld = new AlertDialog.Builder(PrincipiaActivity.mSingleton);
-        bld.setTitle(title);
-        bld.setMessage(Html.fromHtml((description.replaceAll("\n", "<br />"))));
+        bld.setTitle("Level description");
+        bld.setMessage(description);
 
         bld.setNeutralButton("Close", new OnClickListener(){
-            public void onClick(DialogInterface dialog, int which)
-            {
-            }
+            public void onClick(DialogInterface dialog, int which) { }
         });
 
         this._dialog = bld.create();

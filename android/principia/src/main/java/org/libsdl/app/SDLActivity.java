@@ -16,7 +16,7 @@ import com.bithack.principia.shared.FactoryDialog;
 import com.bithack.principia.shared.FrequencyDialog;
 import com.bithack.principia.shared.FrequencyRangeDialog;
 import com.bithack.principia.shared.FxEmitterDialog;
-import com.bithack.principia.shared.HelpDialog;
+import com.bithack.principia.shared.InfoDialog;
 import com.bithack.principia.shared.ImportDialog;
 import com.bithack.principia.shared.JumperDialog;
 import com.bithack.principia.shared.Level;
@@ -309,7 +309,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     public static final int DIALOG_SETTINGS         = 121;
     public static final int DIALOG_SAVE_COPY        = 122;
     public static final int DIALOG_LEVEL_PROPERTIES = 123;
-    public static final int DIALOG_HELP             = 124;
+    public static final int DIALOG_LEVEL_INFO       = 124;
     public static final int DIALOG_DIGITAL_DISPLAY  = 125;
     public static final int DIALOG_PLAY_MENU        = 126;
     public static final int DIALOG_OPEN_AUTOSAVE    = 127;
@@ -453,7 +453,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         mNextNativeState = NativeState.INIT;
         mCurrentNativeState = NativeState.INIT;
     }
-    
+
     protected SDLSurface createSDLSurface(Context context) {
         return new SDLSurface(context);
     }
@@ -2192,14 +2192,13 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
     private List<Dialog> open_dialogs = new ArrayList<Dialog>();
 
-    public static void showHelpDialog(final String title, final String description)
+    public static void showInfoDialog(final String description)
     {
         SDLActivity.mSingleton.runOnUiThread(new Runnable(){
             public void run() {
-                try {SDLActivity.mSingleton.removeDialog(DIALOG_HELP);} catch(Exception e){};
-                HelpDialog.title = title;
-                HelpDialog.description = description;
-                SDLActivity.mSingleton.showDialog(DIALOG_HELP);
+                try {SDLActivity.mSingleton.removeDialog(DIALOG_LEVEL_INFO);} catch(Exception e){};
+                InfoDialog.description = description;
+                SDLActivity.mSingleton.showDialog(DIALOG_LEVEL_INFO);
             }
         });
     }
@@ -2303,7 +2302,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         case DIALOG_LEVEL_PROPERTIES:   d = LevelDialog.get_dialog(); break;
         case DIALOG_SAVE_COPY:          d = SaveAsDialog.get_dialog(); break;
         case DIALOG_SAVE:               d = SaveAsDialog.get_dialog(); break;
-        case DIALOG_HELP:               d = (new HelpDialog()).get_dialog(); break;
+        case DIALOG_LEVEL_INFO:         d = (new InfoDialog()).get_dialog(); break;
         case DIALOG_STICKY:             d = StickyDialog.get_dialog(); break;
         case DIALOG_NEW_LEVEL:          d = (new NewLevelDialog()).get_dialog(); break;
         case DIALOG_ROBOT:              d = RobotDialog.get_dialog(); break;

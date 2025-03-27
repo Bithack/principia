@@ -30,7 +30,7 @@
 #define DIALOG_SETTINGS         121
 #define DIALOG_SAVE_COPY        122
 #define DIALOG_LEVEL_PROPERTIES 123
-#define DIALOG_HELP             124
+#define DIALOG_LEVEL_INFO       124
 #define DIALOG_DIGITALDISPLAY   125
 #define DIALOG_PLAY_MENU        126
 #define DIALOG_OPEN_AUTOSAVE    127
@@ -119,7 +119,6 @@ class ui
     static void message(const char *str, bool long_duration=false);
     static void messagef(const char *str, ...);
     static void open_dialog(int num, void *data=0);
-    static void open_help_dialog(const char *title, const char *description);
     static void open_error_dialog(const char *error_string);
     static void open_sandbox_tips();
     static void open_url(const char *url);

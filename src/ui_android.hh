@@ -118,6 +118,22 @@ ui::open_error_dialog(const char *error_msg)
 void
 ui::open_dialog(int num, void *data/*=0*/)
 {
+    if (num == DIALOG_LEVEL_INFO) {
+        JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+        jobject activity = (jobject)SDL_AndroidGetActivity();
+        jclass cls = env->GetObjectClass(activity);
+
+        jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
+
+        if (mid) {
+            jstring d = env->NewStringUTF((char *)data);
+            env->CallStaticVoidMethod(cls, mid, (jvalue*)d);
+        } else
+            tms_errorf("could not run showInfoDialog");
+
+        return;
+    }
+
     JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
     jobject activity = (jobject)SDL_AndroidGetActivity();
     jclass cls = env->GetObjectClass(activity);
@@ -133,22 +149,6 @@ void
 ui::quit()
 {
     _tms.state = TMS_STATE_QUITTING;
-}
-
-void ui::open_help_dialog(const char *title, const char *description)
-{
-    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
-    jobject activity = (jobject)SDL_AndroidGetActivity();
-    jclass cls = env->GetObjectClass(activity);
-
-    jmethodID mid = env->GetStaticMethodID(cls, "showHelpDialog", "(Ljava/lang/String;Ljava/lang/String;)V");
-
-    if (mid) {
-        jstring t = env->NewStringUTF(title);
-        jstring d = env->NewStringUTF(description);
-        env->CallStaticVoidMethod(cls, mid, (jvalue*)t, (jvalue*)d);
-    } else
-        tms_errorf("could not run showHelpDialog");
 }
 
 void

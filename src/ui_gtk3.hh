@@ -769,10 +769,8 @@ GtkColorSelectionDialog *beam_color_dialog;
 
 /** --Info Dialog **/
 GtkWindow       *info_dialog;
-GtkLabel        *info_name;
 GtkLabel        *info_text;
 char            *_pass_info_descr;
-char            *_pass_info_name;
 
 /** --Error Dialog **/
 GtkDialog       *error_dialog;
@@ -5174,7 +5172,6 @@ void
 on_info_show(GtkWidget *wdg, void *unused)
 {
     gtk_label_set_text(info_text, _pass_info_descr);
-    gtk_label_set_text(info_name, _pass_info_name);
 }
 
 gboolean
@@ -8299,7 +8296,6 @@ int _gtk_loop(void *p)
 
         apply_dialog_defaults(info_dialog, on_info_show, on_info_keypress);
 
-        info_name = GTK_LABEL(gtk_label_new(0));
         info_text = GTK_LABEL(gtk_label_new(0));
         gtk_label_set_selectable(info_text, 1);
         GtkWidget *ew = gtk_scrolled_window_new(0,0);
@@ -11483,6 +11479,12 @@ ui::open_dialog(int num, void *data/*=0*/)
         case DIALOG_PUBLISH:        gdk_threads_add_idle(_open_publish_dialog, 0); break;
         case DIALOG_LOGIN:          gdk_threads_add_idle(_open_login_dialog, 0); break;
 
+        case DIALOG_LEVEL_INFO: {
+            _pass_info_descr = (char *)data;
+            gdk_threads_add_idle(_open_info_dialog, 0);
+            break;
+        }
+
         case DIALOG_PROMPT:
             if (G) {
                 G->reset_touch(false);
@@ -11509,21 +11511,6 @@ void ui::open_sandbox_tips()
     wait_ui_ready();
 
     gdk_threads_add_idle(_open_tips_dialog, 0);
-
-    gdk_display_flush(gdk_display_get_default());
-}
-
-void
-ui::open_help_dialog(const char *title, const char *description)
-{
-    wait_ui_ready();
-
-    /* title and description are constant static strings in
-     * object facotyr, should be safe to use directly
-     * from any thread */
-    _pass_info_name = const_cast<char*>(title);
-    _pass_info_descr = const_cast<char*>(description);
-    gdk_threads_add_idle(_open_info_dialog, 0);
 
     gdk_display_flush(gdk_display_get_default());
 }
