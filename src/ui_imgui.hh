@@ -231,6 +231,7 @@ namespace UiLevelProperties { static void open(); static void layout(); }
 namespace UiSave { static void open(); static void layout(); }
 namespace UiNewLevel { static void open(); static void layout(); }
 namespace UiFrequency { static void open(bool is_range, entity *e = G->selection.e); static void layout(); }
+namespace UiHelp { static void open(const char* title, const char* message); static void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
@@ -2628,6 +2629,44 @@ namespace UiFrequency {
     }
 }
 
+namespace UiHelp {
+    static bool do_open = false;
+    static const char* popup_title = nullptr;
+    static const char* popup_message = nullptr;
+
+    static void open(const char* title, const char* message) {
+        if (title == nullptr || message == nullptr) {
+            return;
+        }
+        popup_title = title;
+        popup_message = message;
+        do_open = true;
+    }
+
+    static void layout() {
+        handle_do_open(&do_open, "help_menu");
+        ImGui_CenterNextWindow();
+        ImGui::SetNextWindowSize(ImVec2(400, 200));
+        
+        if (ImGui::BeginPopup("help_menu", POPUP_FLAGS)) {
+            if (popup_title) {
+                ImGui::TextWrapped("%s", popup_title);
+            }
+            ImGui::Separator();
+            if (popup_message) {
+                ImGui::TextWrapped("%s", popup_message);
+            }
+
+            ImGui::SetCursorPos(ImVec2(325, 175));
+            if (ImGui::Button("Close")) {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+}
+
 static void ui_init() {
     UiLevelManager::init();
     UiLuaEditor::init();
@@ -2656,6 +2695,7 @@ static void ui_layout() {
     UiSave::layout();
     UiNewLevel::layout();
     UiFrequency::layout();
+    UiHelp::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -2822,6 +2862,9 @@ void ui::open_dialog(int num, void *data) {
         case DIALOG_SET_FREQ_RANGE:
             UiFrequency::open(true);
             break;
+        case DIALOG_HELP:
+            ui::open_help_dialog("Level Description", static_cast<const char*>(data));
+            break;
         default:
             tms_errorf("dialog %d not implemented yet", num);
     }
@@ -2841,7 +2884,7 @@ void ui::open_url(const char *url) {
 }
 
 void ui::open_help_dialog(const char* title, const char* description) {
-    tms_errorf("ui::open_help_dialog not implemented yet");
+    UiHelp::open(title, description);
 }
 
 void ui::emit_signal(int num, void *data){
