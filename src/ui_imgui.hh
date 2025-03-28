@@ -232,7 +232,7 @@ namespace UiSave { static void open(); static void layout(); }
 namespace UiNewLevel { static void open(); static void layout(); }
 namespace UiFrequency { static void open(bool is_range, entity *e = G->selection.e); static void layout(); }
 namespace UiLevelInfo { static void open(const char* message); static void layout(); }
-namespace UiConfirm { void open(const char* text, const char* button1, principia_action action1, const char* button2, principia_action action2, const char* button3, principia_action action3); void layout(); }
+namespace UiConfirm { void open(const char* text, const char* button1, principia_action action1, const char* button2, principia_action action2, const char* button3, principia_action action3, struct confirm_data  _confirm_data); void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
@@ -2667,49 +2667,53 @@ namespace UiConfirm {
     void *confirm_action1_data = 0;
     void *confirm_action2_data = 0;
     void *confirm_action3_data = 0;
-
+    struct confirm_data confirm_data(CONFIRM_TYPE_DEFAULT);
 
     void open(const char* text, const char* button1, principia_action action1,
-              const char* button2, principia_action action2, const char* button3, principia_action action3) {
+              const char* button2, principia_action action2, const char* button3, principia_action action3, struct confirm_data _confirm_data) {
         confirm_text = text;
-
         confirm_button1 = button1;
         confirm_button2 = button2;
-        confirm_button3 = button3;
-
+        if(button3==nullptr){
+                confirm_button3 = "";
+        }else {
+            confirm_button3 = button3;
+        }
         confirm_action1 = action1.action_id;
         confirm_action2 = action2.action_id;
         confirm_action3 = action3.action_id;
-
         confirm_action1_data = action1.action_data;
         confirm_action2_data = action2.action_data;
         confirm_action3_data = action3.action_data;
+        confirm_data = _confirm_data;
 
         do_open = true;
     }
 
     void layout() {
-        if (do_open) {
-            handle_do_open(&do_open, "confirm_dialog");
-            ImGui_CenterNextWindow();
-            ImGui::SetNextWindowSize(ImVec2(400, 200));
-        }
-        if (ImGui::BeginPopup("confirm_dialog")) {
+
+        handle_do_open(&do_open, "Confirm Dialog");
+        ImGui_CenterNextWindow();
+        ImGui::SetNextWindowSize(ImVec2(400, 200));
+
+        if (ImGui::BeginPopupModal("Confirm Dialog", NULL, MODAL_FLAGS)) {
             ImGui::TextWrapped("%s", confirm_text.c_str());
 
             if (ImGui::Button(confirm_button1.c_str())) {
                 P.add_action(confirm_action1, confirm_action1_data);
                 ImGui::CloseCurrentPopup();
             }
-
+            ImGui::SameLine();
             if (ImGui::Button(confirm_button2.c_str())) {
                 P.add_action(confirm_action2, confirm_action2_data);
                 ImGui::CloseCurrentPopup();
             }
-
-            if (ImGui::Button(confirm_button3.c_str())) {
-                P.add_action(confirm_action3, confirm_action3_data);
-                ImGui::CloseCurrentPopup();
+            ImGui::SameLine();
+            if (!confirm_button3.empty()) {
+                if (ImGui::Button(confirm_button3.c_str())) {
+                    P.add_action(confirm_action3, confirm_action3_data);
+                    ImGui::CloseCurrentPopup();
+                }
             }
 
             ImGui::EndPopup();
@@ -2970,9 +2974,9 @@ void ui::confirm(
     const char *button1, principia_action action1,
     const char *button2, principia_action action2,
     const char *button3, principia_action action3,
-    struct confirm_data _confirm_data
+    struct confirm_data cd
 ) {
-    UiConfirm::open(text, button1, action1, button2, action2, button3, action3);
+    UiConfirm::open(text, button1, action1, button2, action2, button3, action3, cd);
 }
 
 void ui::alert(const char* text, uint8_t type) {

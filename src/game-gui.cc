@@ -954,8 +954,8 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                     /* PAUSE */
                     if (W->is_adventure()) {
                         ui::confirm("Are you sure you want to quit this level?",
-                                "Yes",  ACTION_WORLD_PAUSE,
-                                "No",   ACTION_IGNORE);
+                            "Yes",  principia_action(ACTION_WORLD_PAUSE,0),
+                            "No",   principia_action(ACTION_IGNORE,0));
                     } else {
                         if (W->is_puzzle())
                             G->state.puzzle_state = 1;
@@ -1115,12 +1115,12 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
         case GW_REMOVE:
             if (G->get_mode() == GAME_MODE_MULTISEL && G->selection.m) {
                 ui::confirm("Are you sure you want to delete these objects?",
-                        "Yes",  ACTION_MULTI_DELETE,
-                        "No",   ACTION_IGNORE);
+                        "Yes",  principia_action(ACTION_MULTI_DELETE, 0),
+                        "No",   principia_action(ACTION_IGNORE, 0));
             } else if (G->selection.e && G->selection.e->requires_delete_confirmation()) {
                 ui::confirm("Are you sure you want to delete this object?",
-                        "Yes",  ACTION_DELETE_SELECTION,
-                        "No",   ACTION_IGNORE);
+                        "Yes",  principia_action(ACTION_DELETE_SELECTION, 0),
+                        "No",   principia_action(ACTION_IGNORE, 0));
             } else if (G->delete_selected_entity() == T_OK) {
                 G->state.modified = true;
                 G->refresh_widgets();

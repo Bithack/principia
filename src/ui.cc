@@ -127,8 +127,8 @@ void
 ui::confirm(const char *text,
         const char *button1, principia_action action1,
         const char *button2, principia_action action2,
-        const char *button3/*=0*/, principia_action action3/*=ACTION_IGNORE*/,
-        struct confirm_data _confirm_data/*=none*/
+        const char *button3, principia_action action3,
+        struct confirm_data cd
         )
 {
     P.add_action(action1.action_id, 0);

@@ -6089,15 +6089,15 @@ game::handle_input_playing(tms::event *ev, int action)
                             this->do_pause();
                         } else {
                             ui::confirm("Are you sure you want to quit this level?",
-                                    "Yes",  ACTION_WORLD_PAUSE,
-                                    "No",   ACTION_IGNORE,
-                                    0,      ACTION_IGNORE,
+                                    "Yes",  principia_action(ACTION_WORLD_PAUSE,0),
+                                    "No",   principia_action(ACTION_IGNORE,0),
+                                    0,      principia_action(ACTION_IGNORE,0),
                                     confirm_data(CONFIRM_TYPE_BACK_SANDBOX));
                         }
                     } else {
                         ui::confirm("Are you sure you want to quit this level?",
-                                "Yes",  ACTION_WORLD_PAUSE,
-                                "No",   ACTION_IGNORE);
+                                "Yes",  principia_action(ACTION_WORLD_PAUSE,0),
+                                "No",   principia_action(ACTION_IGNORE,0));
                     }
                 } else {
                     this->do_pause();
@@ -7867,14 +7867,14 @@ game::handle_input_paused(tms::event *ev, int action)
                 if (this->get_mode() == GAME_MODE_MULTISEL) {
                     if (this->selection.m && !this->selection.m->empty()) {
                         ui::confirm("Are you sure you want to delete these objects?",
-                                "Yes",  ACTION_MULTI_DELETE,
-                                "No",   ACTION_IGNORE);
+                                "Yes",  principia_action(ACTION_MULTI_DELETE,0),
+                                "No",   principia_action(ACTION_IGNORE,0));
                     }
                 } else if (this->state.sandbox) {
                     if (this->selection.e && this->selection.e->requires_delete_confirmation()) {
                         ui::confirm("Are you sure you want to delete this object?",
-                                "Yes",  ACTION_DELETE_SELECTION,
-                                "No",   ACTION_IGNORE);
+                                "Yes",  principia_action(ACTION_DELETE_SELECTION,0),
+                                "No",   principia_action(ACTION_IGNORE,0));
                     } else
                         this->delete_selected_entity();
                 }
