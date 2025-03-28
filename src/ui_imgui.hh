@@ -2103,23 +2103,49 @@ namespace UiLevelProperties {
                         int tmp = (int)*x;
                         //HACK: use pointer as unique id
                         ImGui::PushID((size_t)x);
-                        if (ImGui::SliderInt("###slider", &tmp, 0, 255)) {
+                        if (ImGui::SliderInt("###slider", &tmp, 10, 255)) {
                             *x = tmp & 0xff;
                         }
                         ImGui::PopID();
                     };
+                    auto slider_float = [](float* x, float rng) {
+                        float tmp = *x;
+                        //HACK: use pointer as unique id
+                        ImGui::PushID((size_t)x);
+                        if (ImGui::SliderFloat("###slider", &tmp, 0.0f, rng)) {
+                            *x = tmp;
+                        }
+                        ImGui::PopID();
+                    };
 
-                    ImGui::SeparatorText("Iteration count");
-
-                    ImGui::TextUnformatted("Position interations");
+                    ImGui::SeparatorText("");
+                    ImGui::TextUnformatted("Position Iterations");
                     slider_uint8t(&W->level.position_iterations);
                     reload_if_changed();
-
-                    ImGui::TextUnformatted("Velocity interations");
+                    ImGui::TextUnformatted("Velocity Iterations");
                     slider_uint8t(&W->level.velocity_iterations);
                     reload_if_changed();
 
-                    //TODO add the rest of the physics settings
+                    ImGui::SeparatorText("");
+                    ImGui::TextUnformatted("Prismatic Tolerance");
+                    slider_float(&W->level.prismatic_tolerance, 0.075f);
+                    reload_if_changed();
+                    ImGui::TextUnformatted("Pivot Tolerance");
+                    slider_float(&W->level.pivot_tolerance, 0.075f);
+                    reload_if_changed();
+
+                    ImGui::SeparatorText("");
+                    ImGui::TextUnformatted("Linear Damping");
+                    slider_float(&W->level.linear_damping, 10.00f);
+                    reload_if_changed();
+                    ImGui::TextUnformatted("Angular Damping");
+                    slider_float(&W->level.angular_damping, 10.00f);
+                    reload_if_changed();
+
+                    ImGui::SeparatorText("");
+                    ImGui::TextUnformatted("Joint Friction");
+                    slider_float(&W->level.joint_friction, 10.00f);
+                    reload_if_changed();
 
                     ImGui::EndTabItem();
                 }
