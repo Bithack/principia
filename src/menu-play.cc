@@ -7,6 +7,7 @@
 #include "widget_manager.hh"
 #include "text.hh"
 #include "game-message.hh"
+#include "settings.hh"
 
 #define MAX_X 8.f
 #define MIN_X -8.f
@@ -68,7 +69,7 @@ menu_play::menu_play()
     this->wdg_browse_community->add();
 
     this->wdg_browse_community->resize_percentage(
-            _tms.window_width,  0.45,
+            _tms.window_width,  0.50,
             _tms.window_height, 0.20);
 
     this->wdg_open = this->wm->create_widget(
@@ -209,7 +210,22 @@ menu_play::render()
 void
 menu_play::refresh_widgets()
 {
+    this->wm->remove_all();
+
     menu_base::refresh_widgets();
+
+    this->wdg_back->add();
+    this->wdg_version->add();
+    this->wdg_username->add();
+    this->wdg_message->add();
+    this->wdg_bithack->add();
+    this->wdg_settings->add();
+
+    this->wdg_browse_community->add();
+    this->wdg_open->add();
+    this->wdg_open_latest_state->add();
+    if (settings["has_opened_classic_puzzles"]->v.b)
+        this->wdg_puzzles->add();
 
     this->wm->rearrange();
 }

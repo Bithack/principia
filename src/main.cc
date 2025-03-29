@@ -930,16 +930,10 @@ tproject_step(void)
                     G->state.modified = true;
                 } break;
 
-                case ACTION_MAIN_MENU_PKG: {
-                    int type = VOID_TO_INT(data);
-                    if (type == 0) {
-                        P.s_menu_pkg->set_pkg(LEVEL_MAIN, 7);
-                    } else {
-                        P.s_menu_pkg->set_pkg(LEVEL_MAIN, 9);
-                    }
-
+                case ACTION_MAIN_MENU_PKG:
+                    P.s_menu_pkg->set_pkg(LEVEL_MAIN, 7);
                     tms::set_screen(P.s_menu_pkg);
-                } break;
+                    break;
 
                 case ACTION_SET_MODE:
                     G->set_mode(VOID_TO_INT(data));

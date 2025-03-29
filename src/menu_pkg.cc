@@ -7,6 +7,7 @@
 #include "ui.hh"
 #include "misc.hh"
 #include "widget_manager.hh"
+#include "settings.hh"
 
 #include <unistd.h>
 
@@ -145,6 +146,10 @@ menu_pkg::menu_pkg()
 bool
 menu_pkg::set_pkg(int type, uint32_t id)
 {
+    if (type == LEVEL_MAIN && id == 7) {
+        settings["has_opened_classic_puzzles"]->v.b = true;
+    }
+
     tms_infof("set pkg");
     if (!(this->pkg.open(type,id))) {
         tms_errorf("could not open package!");

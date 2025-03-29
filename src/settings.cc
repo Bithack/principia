@@ -121,6 +121,8 @@ _settings::init()
     this->add("score_ask_before_submitting", S_BOOL, false);
     this->add("score_automatically_submit", S_BOOL, true);
 
+    this->add("has_opened_classic_puzzles", S_BOOL, false);
+
     sprintf(this->filename, "%s/settings.ini", tms_storage_path());
     FILE *fh;
 
