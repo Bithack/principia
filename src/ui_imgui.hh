@@ -211,7 +211,8 @@ static void update_imgui_ui_scale();
 /* forward */
 enum class MessageType {
     Message,
-    Error
+    Error,
+    LevelInfo
 };
 
 /* forward */
@@ -231,7 +232,6 @@ namespace UiLevelProperties { static void open(); static void layout(); }
 namespace UiSave { static void open(); static void layout(); }
 namespace UiNewLevel { static void open(); static void layout(); }
 namespace UiFrequency { static void open(bool is_range, entity *e = G->selection.e); static void layout(); }
-namespace UiLevelInfo { static void open(const char* message); static void layout(); }
 namespace UiConfirm { void open(const char* text, const char* button1, principia_action action1, const char* button2, principia_action action2, const char* button3, principia_action action3, struct confirm_data  _confirm_data); void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
@@ -925,16 +925,19 @@ namespace UiMessage {
             case MessageType::Error:
                 typ = "Error###info-popup";
                 break;
+
+            case MessageType::LevelInfo:
+                typ = "Level description###info-popup";
+                break;
         }
         ImGui::SetNextWindowSize(ImVec2(400., 0.));
         if (ImGui::BeginPopupModal(typ, NULL, MODAL_FLAGS)) {
             ImGui::TextWrapped("%s", message.c_str());
+
+            ImGui::Dummy(ImVec2(0.0f, 40.0f));
+
             if (ImGui::Button("Close")) {
                 ImGui::CloseCurrentPopup();
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Copy to clipboard")) {
-                ImGui::SetClipboardText(message.c_str());
             }
             ImGui::EndPopup();
         }
@@ -2656,31 +2659,6 @@ namespace UiFrequency {
     }
 }
 
-namespace UiLevelInfo {
-    static bool do_open = false;
-    static const char* popup_message = nullptr;
-
-    static void open(const char* message) {
-        popup_message = message;
-        do_open = true;
-    }
-
-    static void layout() {
-        handle_do_open(&do_open, "Level description");
-        ImGui_CenterNextWindow();
-        ImGui::SetNextWindowSize(ImVec2(400, 300));
-
-        if (ImGui::BeginPopupModal("Level description", NULL, MODAL_FLAGS)) {
-            ImGui::TextWrapped("%s", popup_message);
-            ImGui::SetCursorPos(ImVec2(325, 175));
-            if (ImGui::Button("Close")) {
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::EndPopup();
-        }
-    }
-}
-
 namespace UiConfirm {
     static bool do_open = false;
     const char *confirm_text;
@@ -2788,7 +2766,6 @@ static void ui_layout() {
     UiSave::layout();
     UiNewLevel::layout();
     UiFrequency::layout();
-    UiLevelInfo::layout();
     UiConfirm::layout();
 }
 
@@ -2957,7 +2934,7 @@ void ui::open_dialog(int num, void *data) {
             UiFrequency::open(true);
             break;
         case DIALOG_LEVEL_INFO:
-            UiLevelInfo::open((char *)data);
+            UiMessage::open((char *)data, MessageType::LevelInfo);
             break;
         default:
             tms_errorf("dialog %d not implemented yet", num);
