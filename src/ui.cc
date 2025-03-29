@@ -108,6 +108,18 @@ ui::messagef(const char *format, ...)
     }
 }
 
+#ifndef TMS_BACKEND_ANDROID
+void ui::open_url(const char *url)
+{
+    ui:messagef("Opening the page in your web browser...", url);
+#if SDL_VERSION_ATLEAST(2,0,14)
+    SDL_OpenURL(url);
+#else
+    #error "SDL2 2.0.14+ is required for this platform"
+#endif
+}
+#endif
+
 #if !defined(PRINCIPIA_BACKEND_IMGUI)
 void ui::render(){};
 #endif
@@ -118,7 +130,6 @@ int prompt_is_open = 0;
 void ui::init(){};
 void ui::open_dialog(int num, void *data/*=0*/){}
 void ui::open_sandbox_tips(){};
-void ui::open_url(const char *url){};
 void ui::emit_signal(int num, void *data/*=0*/){};
 void ui::quit(){};
 void ui::set_next_action(int action_id){};

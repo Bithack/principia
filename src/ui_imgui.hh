@@ -2945,15 +2945,6 @@ void ui::open_sandbox_tips() {
     UiTips::open();
 }
 
-void ui::open_url(const char *url) {
-    tms_infof("open url: %s", url);
-    #if SDL_VERSION_ATLEAST(2,0,14)
-        SDL_OpenURL(url);
-    #else
-        #error "SDL2 2.0.14+ is required"
-    #endif
-}
-
 void ui::emit_signal(int num, void *data){
     switch (num) {
         case SIGNAL_LOGIN_SUCCESS:

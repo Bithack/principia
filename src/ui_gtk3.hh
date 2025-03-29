@@ -11368,16 +11368,6 @@ static void wait_ui_ready()
     SDL_UnlockMutex(ui_lock);
 }
 
-void ui::open_url(const char *url)
-{
-#if SDL_VERSION_ATLEAST(2,0,14)
-    tms_infof("open url (SDL): %s", url);
-    SDL_OpenURL(url);
-#else
-    #error "SDL2 2.0.14+ is required for this platform"
-#endif
-}
-
 void
 ui::open_dialog(int num, void *data/*=0*/)
 {
