@@ -305,7 +305,8 @@ tbackend_init_surface()
     if (settings["window_fullscreen"]->v.b)
         flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
-    flags |= SDL_WINDOW_RESIZABLE;
+    if (settings["window_resizable"]->v.b)
+        flags |= SDL_WINDOW_RESIZABLE;
 #else
     flags |= SDL_WINDOW_FULLSCREEN;
 #endif
