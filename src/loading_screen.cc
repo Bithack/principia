@@ -102,15 +102,15 @@ loading_screen::set_text(const char *text)
     if (font::medium) {
         if (!this->text) {
             this->text = new p_text(font::medium, ALIGN_LEFT, ALIGN_BOTTOM);
-
-            float bar_width  = _tms.xppcm * 3.f;
-            float bar_height = _tms.yppcm / 3.f;
-
-            float x = _tms.window_width/2.f - bar_width/2.f;
-            float y = _tms.window_height/2.f + bar_height/1.5f;
-
-            this->text->set_position(x, y);
         }
+
+        float bar_width  = _tms.xppcm * 3.f;
+        float bar_height = _tms.yppcm / 3.f;
+
+        float x = _tms.window_width/2.f - bar_width/2.f;
+        float y = _tms.window_height/2.f + bar_height/1.5f;
+
+        this->text->set_position(x, y);
 
         this->text->active = false;
 
