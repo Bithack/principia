@@ -375,6 +375,7 @@ pscreen::post_render()
         this->pending_renders.clear();
     }
 
+    pscreen::message->set_position(_tms.window_width/2.f, _tms.window_height/4.f);
     pscreen::message->render(this);
 
     ui::render();
