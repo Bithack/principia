@@ -2863,6 +2863,7 @@ game::render_gui(void)
         }
     }
 
+    this->numfeed_text->set_position(_tms.window_width/2.f, _tms.window_height-_tms.yppcm/2.f/2.f);
     if (this->numfeed_timer > 0.f) {
         this->numfeed_text->set_text(this->numfeed_str);
 
