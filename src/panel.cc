@@ -6,9 +6,35 @@
 #include "model.hh"
 
 static void
+update_widget_pos(panel::widget *w)
+{
+    int sx = widget_data[w->wtype].sx;
+    int sy = widget_data[w->wtype].sy;
+
+    int base_sock = w->sock[0];
+    w->num_socks = 0;
+
+    for (int y=0; y<sy; y++) {
+        for (int x=0; x<sx; x++) {
+            w->sock[w->num_socks++] = base_sock + y*3 + x;
+        }
+    }
+
+    int x = base_sock%3;
+    int y = (base_sock%9)/3;
+    float px = (base_sock >= 9) * (_tms.window_width - 3*(PANEL_WDG_OUTER_X));
+    w->pos = (tvec2){
+        px+(PANEL_WDG_OUTER_X)/2.f + x*PANEL_WDG_OUTER_X + ((sx-1) * .5f)*PANEL_WDG_OUTER_X,
+        (PANEL_WDG_OUTER_Y)/2.f + y*PANEL_WDG_OUTER_Y + ((sy-1) * .5f)*PANEL_WDG_OUTER_Y
+    };
+}
+
+static void
 panel_post_render(struct tms_wdg *w, struct tms_surface *s)
 {
     panel::widget *wdg = static_cast<panel::widget*>(w->data3);
+
+    update_widget_pos(wdg);
 
     if (wdg->glyph) {
         /* push glyph for rendering */
@@ -657,9 +683,6 @@ panel::add_widget(struct widget_decl decl, int x, int y, int z)
 void
 panel::init_widget(panel::widget *w)
 {
-    int sx = 2;
-    int sy = 2;
-
     struct tms_sprite *s1 = 0;
     struct tms_sprite *s2 = 0;
 
@@ -667,8 +690,8 @@ panel::init_widget(panel::widget *w)
     if (widget_data[w->wtype].s2) s2 = *widget_data[w->wtype].s2;
 
     tms_wdg_init(w, widget_data[w->wtype].wdg_type, s1, s2);
-    sx = widget_data[w->wtype].sx;
-    sy = widget_data[w->wtype].sy;
+    int sx = widget_data[w->wtype].sx;
+    int sy = widget_data[w->wtype].sy;
     w->default_value[0] = widget_data[w->wtype].default_value[0];
     w->default_value[1] = widget_data[w->wtype].default_value[1];
     w->num_outputs = widget_data[w->wtype].num_outputs;
@@ -680,22 +703,7 @@ panel::init_widget(panel::widget *w)
     w->size.x = sx*b_w;
     w->size.y = sy*b_h;
 
-    int base_sock = w->sock[0];
-    w->num_socks = 0;
-
-    for (int y=0; y<sy; y++) {
-        for (int x=0; x<sx; x++) {
-            w->sock[w->num_socks++] = base_sock + y*3 + x;
-        }
-    }
-
-    int x = base_sock%3;
-    int y = (base_sock%9)/3;
-    float px = (base_sock >= 9) * (_tms.window_width - 3*(PANEL_WDG_OUTER_X));
-    w->pos = (tvec2){
-        px+(PANEL_WDG_OUTER_X)/2.f + x*PANEL_WDG_OUTER_X + ((sx-1) * .5f)*PANEL_WDG_OUTER_X,
-        (PANEL_WDG_OUTER_Y)/2.f + y*PANEL_WDG_OUTER_Y + ((sy-1) * .5f)*PANEL_WDG_OUTER_Y
-    };
+    update_widget_pos(w);
 }
 
 #define MAX_BTN 5
