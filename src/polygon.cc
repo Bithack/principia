@@ -338,6 +338,9 @@ get_midpoint(const b2Vec2& p1, const b2Vec2& p2)
     return b2Vec2((p1.x+p2.x)/2.f, (p1.y+p2.y)/2.f);
 }
 
+#pragma GCC push_options
+#pragma GCC optimize ("no-strict-aliasing")
+
 void
 polygon::update_mesh()
 {
@@ -416,6 +419,8 @@ polygon::update_mesh()
     }
     modified = true;
 }
+
+#pragma GCC pop_options
 
 void
 polygon::set_color(tvec4 c)
