@@ -8070,12 +8070,14 @@ game::handle_input_paused(tms::event *ev, int action)
                 break;
 
             case TMS_KEY_P:
-                if (this->get_mode() == GAME_MODE_DEFAULT || this->get_mode() == GAME_MODE_MULTISEL || this->get_mode() == GAME_MODE_DRAW) {
-                    this->set_mode(GAME_MODE_DEFAULT);
-                    if (this->state.is_main_puzzle) {
+                if (W->is_puzzle() && G->state.sandbox) {
+                    G->puzzle_play(PUZZLE_TEST_PLAY);
+                } else {
+                    if (W->is_puzzle()) {
                         this->save(false, true);
+                        G->state.puzzle_state = 2;
                     }
-                    this->do_play();
+                    G->do_play();
                 }
                 break;
 
