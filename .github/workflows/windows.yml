@@ -31,7 +31,7 @@ jobs:
         with:
           update: true
           release: false
-          msystem: UCRT64
+          msystem: CLANG64
           pacboy: >-
             git:
             gcc:p
@@ -46,11 +46,9 @@ jobs:
             nsis:p
             7zip:p
 
-      # custom built packages with less dependencies than MSYS' counterparts
       - name: Install external packages
         run: |
-         wget https://grejer.voxelmanip.se/msys-pkgs/mingw-w64-ucrt-x86_64-{curl-winssl-8.9.1-2,freetype-2.13.2-1}-any.pkg.tar.zst
-         pacman -U --noconfirm *.pkg.tar.zst
+         ./packaging/windows-install-pkgs.sh
 
       - name: Build
         run: |
