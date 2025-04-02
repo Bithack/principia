@@ -1,0 +1,3 @@
+Puzzles have been reintroduced as a fully functional level type! Create your own puzzles in the sandbox or play ones others have made.
+
+For a full list of changes including bugfixes and technical changes see the Changelog.
