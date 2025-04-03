@@ -64,8 +64,8 @@ enum {
 
 enum {
     RESPONSE_PUZZLE,
-    RESPONSE_EMPTY_ADVENTURE,
     RESPONSE_ADVENTURE,
+    RESPONSE_PROCEDURAL_ADVENTURE,
     RESPONSE_CUSTOM,
 };
 
@@ -1983,10 +1983,10 @@ activate_new_level(GtkMenuItem *i, gpointer unused)
         case RESPONSE_PUZZLE:
             P.add_action(ACTION_NEW_LEVEL, LCAT_PUZZLE);
             break;
-        case RESPONSE_EMPTY_ADVENTURE:
+        case RESPONSE_ADVENTURE:
             P.add_action(ACTION_NEW_LEVEL, LCAT_ADVENTURE);
             break;
-        case RESPONSE_ADVENTURE:
+        case RESPONSE_PROCEDURAL_ADVENTURE:
             P.add_action(ACTION_NEW_GENERATED_LEVEL, LCAT_ADVENTURE);
             break;
         case RESPONSE_CUSTOM:
@@ -7299,8 +7299,8 @@ int _gtk_loop(void *p)
                 "New level",
                 0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
                 "Custom", RESPONSE_CUSTOM,
-                "Empty Adventure", RESPONSE_EMPTY_ADVENTURE,
                 "Adventure", RESPONSE_ADVENTURE,
+                "Proc. Adventure", RESPONSE_PROCEDURAL_ADVENTURE,
                 "Puzzle", RESPONSE_PUZZLE,
                 NULL));
 
