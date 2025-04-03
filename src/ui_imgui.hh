@@ -1979,14 +1979,12 @@ namespace UiLevelProperties {
                     if (ImGui::RadioButton("Adventure", W->level.type == LCAT_ADVENTURE)) {
                         P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_ADVENTURE);
                     }
-                    if (ImGui::RadioButton("Custom", W->level.type == LCAT_CUSTOM)) {
-                        P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_CUSTOM);
-                    }
-#if 0
                     if (ImGui::RadioButton("Puzzle", W->level.type == LCAT_PUZZLE)) {
                         P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_PUZZLE);
                     }
-#endif
+                    if (ImGui::RadioButton("Custom", W->level.type == LCAT_CUSTOM)) {
+                        P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_CUSTOM);
+                    }
 
                     ImGui::EndTabItem();
                 }
@@ -2469,22 +2467,20 @@ namespace UiNewLevel {
                 ImGui::CloseCurrentPopup();
             }
 
-            if (ImGui::Button("Empty adventure")) {
+            if (ImGui::Button("Adventure")) {
                 P.add_action(ACTION_NEW_LEVEL, LCAT_ADVENTURE);
                 ImGui::CloseCurrentPopup();
             }
 
-            if (ImGui::Button("Adventure")) {
+            if (ImGui::Button("Procedural Adventure")) {
                 P.add_action(ACTION_NEW_GENERATED_LEVEL, LCAT_ADVENTURE);
                 ImGui::CloseCurrentPopup();
             }
 
-#if 0
             if (ImGui::Button("Puzzle")) {
                 P.add_action(ACTION_NEW_LEVEL, LCAT_PUZZLE);
                 ImGui::CloseCurrentPopup();
             }
-#endif
 
             ImGui::EndPopup();
         }
