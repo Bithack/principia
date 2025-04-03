@@ -68,19 +68,9 @@ static inline float tmath_adist(float a, float b)
     return t[i]-a;
 }
 
-#ifdef TMS_FAST_MATH
-
 void tmath_sincos(float x, float *r0, float *r1);
 float tmath_atan2(float y, float x);
 float tmath_sqrt(float x);
-
-#else
-
-#define tmath_sincos(x,y,z) sincosf(x,y,z)
-#define tmath_atan2(y,x) atan2f(y,x)
-#define tmath_sqrt(x) sqrtf(x)
-
-#endif
 
 static inline float tmath_atan2add(float y, float x)
 {

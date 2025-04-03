@@ -24,8 +24,6 @@ tmat4_dump(float *m)
     fflush(stdout);
 }
 
-#ifdef TMS_FAST_MATH
-
 static const float __sincosf_rng[2] = {
 	2.0 / M_PI,
 	M_PI / 2.0
@@ -203,8 +201,6 @@ float tmath_sqrt(float x)
 
 	return a.f;
 }
-
-#endif
 
 /**
  * Invert the given matrix in-place.
