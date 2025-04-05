@@ -3,11 +3,11 @@ SetCompressor lzma
 !include "MUI2.nsh"
 
 !define MUI_ICON "..\packaging\icon.ico"
-!define VER_MAJOR 2024
-!define VER_MINOR 07
-!define VER_BUILD 12
+!define VER_MAJOR 2025
+!define VER_MINOR 04
+!define VER_BUILD 05
 
-!define VERSION "2024.07.12"
+!define VERSION "2025.04.05"
 
 Name "Principia"
 OutFile "principia-setup.exe"
