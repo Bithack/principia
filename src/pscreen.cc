@@ -242,6 +242,7 @@ pscreen::handle_input(tms::event *ev, int action)
                 }
                 break;
 
+#ifndef TMS_BACKEND_ANDROID
             case TMS_KEY_F11:
                 uint32_t flags = SDL_GetWindowFlags(_tms._window);
 
@@ -258,6 +259,7 @@ pscreen::handle_input(tms::event *ev, int action)
 
                 settings["window_fullscreen"]->v.b = (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == 0;
                 break;
+#endif
         }
     } else if (ev->type == TMS_EV_POINTER_UP) {
 #ifndef NO_UI
