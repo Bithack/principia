@@ -233,6 +233,7 @@ namespace UiSave { static void open(); static void layout(); }
 namespace UiNewLevel { static void open(); static void layout(); }
 namespace UiFrequency { static void open(bool is_range, entity *e = G->selection.e); static void layout(); }
 namespace UiConfirm { void open(const char* text, const char* button1, principia_action action1, const char* button2, principia_action action2, const char* button3, principia_action action3, struct confirm_data  _confirm_data); void layout(); }
+namespace UiAnimal { static void open(); static void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
@@ -2734,6 +2735,36 @@ namespace UiConfirm {
     }
 }
 
+namespace UiAnimal {
+    static bool do_open = false;
+
+    static void open() {
+        do_open = true;
+    }
+
+    static void layout() {
+        handle_do_open(&do_open, "animal_select");
+        if (ImGui::BeginPopup("animal_select", POPUP_FLAGS)) {
+            ImGui::SeparatorText("Select animal type:");
+            for (int i = 0; i < NUM_ANIMAL_TYPES; ++i) {
+                if (ImGui::MenuItem(animal_data[i].name)) {
+                    entity* e = G->selection.e;
+    
+                    if (e && e->g_id == O_ANIMAL) {
+                        W->add_action(e->id, ACTION_SET_ANIMAL_TYPE, UINT_TO_VOID((uint32_t)i));
+    
+                        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
+                        P.add_action(ACTION_RESELECT, 0);
+                    }
+                }
+            }
+    
+            ImGui::EndPopup();
+        }
+    }
+    
+}
+
 static void ui_init() {
     UiLevelManager::init();
     UiLuaEditor::init();
@@ -2763,6 +2794,7 @@ static void ui_layout() {
     UiNewLevel::layout();
     UiFrequency::layout();
     UiConfirm::layout();
+    UiAnimal::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -2931,6 +2963,9 @@ void ui::open_dialog(int num, void *data) {
             break;
         case DIALOG_LEVEL_INFO:
             UiMessage::open((char *)data, MessageType::LevelInfo);
+            break;
+        case DIALOG_ANIMAL:
+            UiAnimal::open();
             break;
         default:
             tms_errorf("dialog %d not implemented yet", num);
