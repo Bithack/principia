@@ -2743,9 +2743,9 @@ namespace UiAnimal {
     }
 
     static void layout() {
-        handle_do_open(&do_open, "Select Animal Type:");
+        handle_do_open(&do_open, "Animal type");
         ImGui::SetNextWindowSize(ImVec2(200, .0));
-        if (ImGui::BeginPopupModal("Select Animal Type:", REF_TRUE, MODAL_FLAGS)) {
+        if (ImGui::BeginPopupModal("Animal type", REF_TRUE, MODAL_FLAGS)) {
             for (int i = 0; i < NUM_ANIMAL_TYPES; ++i) {
                 if (ImGui::MenuItem(animal_data[i].name)) {
                     entity* e = G->selection.e;
