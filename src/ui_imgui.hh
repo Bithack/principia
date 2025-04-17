@@ -234,6 +234,8 @@ namespace UiNewLevel { static void open(); static void layout(); }
 namespace UiFrequency { static void open(bool is_range, entity *e = G->selection.e); static void layout(); }
 namespace UiConfirm { void open(const char* text, const char* button1, principia_action action1, const char* button2, principia_action action2, const char* button3, principia_action action3, struct confirm_data  _confirm_data); void layout(); }
 namespace UiAnimal { static void open(); static void layout(); }
+namespace UiRobot { static void open(); static void layout(); }
+namespace UiSticky { static void open(); static void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
@@ -2765,6 +2767,294 @@ namespace UiAnimal {
     
 }
 
+namespace UiRobot {
+    static bool do_open = false;
+
+    static void open() {
+        do_open = true;
+    }
+
+    static void layout() {
+        static entity* last_selected = nullptr;
+        static bool needs_refresh = true;
+    
+        handle_do_open(&do_open, "Robot Settings:");
+        if (ImGui::BeginPopupModal("Robot Settings:", nullptr, MODAL_FLAGS)) {
+            entity* e = G->selection.e;
+    
+            if (e != last_selected) {
+                last_selected = e;
+                needs_refresh = true;
+            }
+    
+            creature* c = dynamic_cast<creature*>(e);
+    
+            // Default State
+            bool isAdventure = (e->id == G->state.adventure_id && W->is_adventure());
+            if (isAdventure) {
+                ImGui::BeginDisabled();
+            }
+            ImGui::Text("Default State");
+            int state = e->properties[ROBOT_PROPERTY_STATE].v.i8;
+            if (ImGui::RadioButton("Idle", &state, CREATURE_IDLE)) {
+                e->properties[ROBOT_PROPERTY_STATE].v.i8 = static_cast<uint8_t>(state);
+            }
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Walking", &state, CREATURE_WALK)) {
+                e->properties[ROBOT_PROPERTY_STATE].v.i8 = static_cast<uint8_t>(state);
+            }
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Dead", &state, CREATURE_DEAD)) {
+                e->properties[ROBOT_PROPERTY_STATE].v.i8 = static_cast<uint8_t>(state);
+            }
+            ImGui::Separator();
+    
+            // Roaming
+            bool roaming = e->properties[ROBOT_PROPERTY_ROAMING].v.i8 != 0;
+            if (ImGui::Checkbox("Roaming", &roaming)) {
+                e->properties[ROBOT_PROPERTY_ROAMING].v.i8 = roaming ? 1 : 0;
+            }
+            ImGui::Separator();
+    
+            // Initial Direction
+            ImGui::Text("Initial Direction");
+            int direction = e->properties[ROBOT_PROPERTY_DIR].v.i8;
+            if (ImGui::RadioButton("Left", &direction, 0)) {
+                e->properties[ROBOT_PROPERTY_DIR].v.i8 = static_cast<uint8_t>(direction);
+                ((robot_base*)e)->set_i_dir(DIR_LEFT);
+            }
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Random", &direction, 1)) {
+                e->properties[ROBOT_PROPERTY_DIR].v.i8 = static_cast<uint8_t>(direction);
+                ((robot_base*)e)->set_i_dir(0.f);
+            }
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Right", &direction, 2)) {
+                e->properties[ROBOT_PROPERTY_DIR].v.i8 = static_cast<uint8_t>(direction);
+                ((robot_base*)e)->set_i_dir(DIR_RIGHT);
+            }
+            ImGui::Separator();
+            if (isAdventure) {
+                ImGui::EndDisabled();
+            }
+    
+            // Faction
+            ImGui::Text("Faction");
+            int faction = e->properties[ROBOT_PROPERTY_FACTION].v.i8;
+            for (int x = 0; x < NUM_FACTIONS; ++x) {
+                if (ImGui::RadioButton(factions[x].name, &faction, x)) {
+                    e->properties[ROBOT_PROPERTY_FACTION].v.i8 = static_cast<uint8_t>(faction);
+                    ((robot_base*)e)->set_faction(faction);
+                }
+            }
+            if (faction >= NUM_FACTIONS) {
+                e->properties[ROBOT_PROPERTY_FACTION].v.i8 = FACTION_ENEMY;
+                ((robot_base*)e)->set_faction(FACTION_ENEMY);
+            }
+            ImGui::Separator();
+    
+            // Equipment ISSUE - Clicking apply only makes corresponding dissapear instead of adding selected (also needs 'none' logic)
+            ImGui::Text("Equipment:");
+            ImGui::Separator();
+    
+            auto item_cb_append = [&e](const char* labelPrefix, uint8_t* equipment, int numTypes, const int* itemArray, bool hasFeature = true) {
+                if (!hasFeature) return;
+            
+                std::string currentLabel = item::get_ui_name(*equipment);
+                if (currentLabel.empty()) {
+                    currentLabel = "None";
+                }
+            
+                if (ImGui::BeginCombo(labelPrefix, currentLabel.c_str())) {
+                    if (ImGui::Selectable("None")) {
+                    }
+                    for (int i = 1; i < numTypes; ++i) {
+                        int itemId = itemArray[i];
+                        if (itemId < 0 || itemId >= NUM_ITEMS) {
+                            continue;
+                        }
+                        const char* label = item::get_ui_name(itemId);
+                        if (label == nullptr || strlen(label) == 0) {
+                            label = "Unknown Item";
+                        }
+                        bool selected = (*equipment == itemId);
+                        if (ImGui::Selectable(label, selected) && itemId >= 0) {
+                            *equipment = static_cast<uint8_t>(itemId);
+                            needs_refresh = true;
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+            };
+            
+            //ISSUE - All categories display 'builder' ('arm cannon' for head equipment) by default, even though not in corresponding itemArray
+            if (c->has_feature(CREATURE_FEATURE_HEAD)) {
+                item_cb_append("Head", &e->properties[ROBOT_PROPERTY_HEAD].v.i8, NUM_HEAD_TYPES, _head_to_item);
+                item_cb_append("Head Equipment", &e->properties[ROBOT_PROPERTY_HEAD_EQUIPMENT].v.i8, NUM_HEAD_EQUIPMENT_TYPES, _head_equipment_to_item);
+            } else {
+                ImGui::BeginDisabled();
+                item_cb_append("Head", &e->properties[ROBOT_PROPERTY_HEAD].v.i8, NUM_HEAD_TYPES, _head_to_item, false);
+                item_cb_append("Head Equipment", &e->properties[ROBOT_PROPERTY_HEAD_EQUIPMENT].v.i8, NUM_HEAD_EQUIPMENT_TYPES, _head_equipment_to_item, false);
+                ImGui::EndDisabled();
+            }
+            if (c->has_feature(CREATURE_FEATURE_BACK_EQUIPMENT)) {
+                item_cb_append("Back Equipment", &e->properties[ROBOT_PROPERTY_BACK].v.i8, NUM_BACK_EQUIPMENT_TYPES, _back_to_item);
+            } else {
+                ImGui::BeginDisabled();
+                item_cb_append("Back Equipment", &e->properties[ROBOT_PROPERTY_BACK].v.i8, NUM_BACK_EQUIPMENT_TYPES, _back_to_item, false);
+                ImGui::EndDisabled();
+            }
+            if (c->has_feature(CREATURE_FEATURE_FRONT_EQUIPMENT)) {
+                item_cb_append("Front Equipment", &e->properties[ROBOT_PROPERTY_FRONT].v.i8, NUM_FRONT_EQUIPMENT_TYPES, _front_to_item);
+            } else {
+                ImGui::BeginDisabled();
+                item_cb_append("Front Equipment", &e->properties[ROBOT_PROPERTY_FRONT].v.i8, NUM_FRONT_EQUIPMENT_TYPES, _front_to_item, false);
+                ImGui::EndDisabled();
+            }
+            item_cb_append("Feet", &e->properties[ROBOT_PROPERTY_FEET].v.i8, NUM_FEET_TYPES, _feet_to_item);
+            item_cb_append("Bolt Set", &e->properties[ROBOT_PROPERTY_BOLT_SET].v.i8, NUM_BOLT_SETS, _bolt_to_item);
+            static std::vector<uint32_t> equipment;
+
+            if (needs_refresh) {
+                equipment.clear();
+                std::vector<char*> eq_parts = p_split(e->properties[ROBOT_PROPERTY_EQUIPMENT].v.s.buf, e->properties[ROBOT_PROPERTY_EQUIPMENT].v.s.len, ";");
+                for (char* part : eq_parts) {
+                    equipment.push_back(atoi(part));
+                }
+                needs_refresh = false;
+            }
+
+            // Equipped Items (Consider adding a limit to equipped items and disabling for other robot types)
+            ImGui::Text("Equipped Items:");
+            ImGui::Separator();
+    
+            if (ImGui::BeginListBox("##EquipmentList", ImVec2(0, ImGui::GetTextLineHeight() * 10))) {
+                for (int x = 0; x < NUM_ITEMS; ++x) {
+                    struct item_option* io = &item_options[x];
+                    if (io->category != ITEM_CATEGORY_WEAPON &&
+                        io->category != ITEM_CATEGORY_TOOL &&
+                        io->category != ITEM_CATEGORY_CIRCUIT) {
+                        continue;
+                    }
+            
+                    bool equipped = std::find(equipment.begin(), equipment.end(), x) != equipment.end();
+                    std::string label = item::get_ui_name(x);
+                    if (equipped) {
+                        label += " (Equipped)";
+                    }
+            
+                    if (ImGui::Selectable(label.c_str())) {
+                        if (equipped) {
+                            equipment.erase(std::remove(equipment.begin(), equipment.end(), x), equipment.end());
+                        } else {
+                            equipment.push_back(x);
+                        }
+                    }
+                }
+                ImGui::EndListBox();
+            }
+            
+    
+            // Buttons
+            ImGui::Separator();
+            if (ImGui::Button("Apply")) {
+                std::vector<int> equippedItems;
+            
+                auto push_if_valid = [&](uint8_t itemId) {
+                    if (itemId != 255 && itemId >= 0) {
+                        equippedItems.push_back(itemId);
+                    }
+                };
+            
+                push_if_valid(e->properties[ROBOT_PROPERTY_HEAD].v.i8);
+                push_if_valid(e->properties[ROBOT_PROPERTY_HEAD_EQUIPMENT].v.i8);
+                push_if_valid(e->properties[ROBOT_PROPERTY_BACK].v.i8);
+                push_if_valid(e->properties[ROBOT_PROPERTY_FRONT].v.i8);
+                push_if_valid(e->properties[ROBOT_PROPERTY_FEET].v.i8);
+                push_if_valid(e->properties[ROBOT_PROPERTY_BOLT_SET].v.i8);
+                for (uint32_t itemId : equipment) {
+                    equippedItems.push_back(itemId);
+                }
+            
+                std::stringstream ss;
+                for (size_t i = 0; i < equippedItems.size(); ++i) {
+                    if (i > 0) ss << ";";
+                    ss << equippedItems[i];
+                }
+                e->set_property(ROBOT_PROPERTY_EQUIPMENT, ss.str().c_str());
+                ui::message("Robot properties saved!");
+                P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
+                P.add_action(ACTION_RESELECT, 0);
+                W->add_action(e->id, ACTION_CALL_ON_LOAD);
+                ImGui::CloseCurrentPopup();
+                last_selected = nullptr;
+                needs_refresh = true;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel")) {
+                ImGui::CloseCurrentPopup();
+                last_selected = nullptr;
+                needs_refresh = true;
+            }
+    
+            ImGui::EndPopup();
+        }
+    }
+}
+
+namespace UiSticky {
+    static bool do_open = false;
+
+    static void open() {
+        do_open = true;
+    }
+
+    static void layout() {
+        entity* e = G->selection.e;
+
+        static bool center_x = true;
+        static bool center_y = true;
+        static int font_size = 2;
+        static std::string text = "Hello!";
+
+        if (do_open) {
+            text = e->properties[0].v.s.buf ? e->properties[0].v.s.buf : "Hello!";
+            center_x = e->properties[1].v.i8 != 0;
+            center_y = e->properties[2].v.i8 != 0;
+            font_size = e->properties[3].v.i8;
+        }
+        handle_do_open(&do_open, "Sticky Note");
+        //ISSUE - If a sticky entity is selected, when creating new sticky it copies previous sticky. (should go back to default)
+        if (ImGui::BeginPopupModal("Sticky Note", nullptr, MODAL_FLAGS)) {
+            ImGui::Checkbox("Center X", &center_x);
+            ImGui::Checkbox("Center Y", &center_y);
+            ImGui::SliderInt("Font Size", &font_size, 1, 3);
+            ImGui::InputTextMultiline("Text", &text, ImVec2(300, ImGui::GetTextLineHeight() * 10));
+
+            if (ImGui::Button("Accept")) {
+                if (e->properties[0].v.s.buf) {
+                    free(e->properties[0].v.s.buf);
+                }
+                e->properties[0].v.s.buf = strdup(text.c_str());
+                e->properties[1].v.i8 = static_cast<uint8_t>(center_x);
+                e->properties[2].v.i8 = static_cast<uint8_t>(center_y);
+                e->properties[3].v.i8 = static_cast<uint8_t>(font_size);
+
+                P.add_action(ACTION_SET_STICKY_TEXT, text.c_str());
+                ImGui::CloseCurrentPopup();
+                do_open = false;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel")) {
+                ImGui::CloseCurrentPopup();
+                do_open = false;
+            }
+
+            ImGui::EndPopup();
+        } 
+    }
+}
+
 static void ui_init() {
     UiLevelManager::init();
     UiLuaEditor::init();
@@ -2795,6 +3085,8 @@ static void ui_layout() {
     UiFrequency::layout();
     UiConfirm::layout();
     UiAnimal::layout();
+    UiRobot::layout();
+    UiSticky::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -2966,6 +3258,12 @@ void ui::open_dialog(int num, void *data) {
             break;
         case DIALOG_ANIMAL:
             UiAnimal::open();
+            break;
+        case DIALOG_ROBOT:
+            UiRobot::open();
+            break;
+        case DIALOG_STICKY:
+            UiSticky::open();
             break;
         default:
             tms_errorf("dialog %d not implemented yet", num);
