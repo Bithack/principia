@@ -2783,9 +2783,21 @@ namespace UiTreasureChest {
 
     static void open() {
         do_open = true;
+        entity* e = G->selection.e;
+        chest_items.clear();
+        selected_index = -1;
+    
+        if (e && e->g_id == O_TREASURE_CHEST) {
+            char* str = strdup(e->properties[0].v.s.buf);
+            std::vector<treasure_chest_item> parsed_items = treasure_chest::parse_items(str);
+            free(str);
+            for (const auto& item : parsed_items) {
+                chest_items.push_back({ item.g_id, item.sub_id, item.count });
+            }
+        }
     }
 
-    static void layout() {             // ISSUE - keeps previous properties on new chest. however new chest seems to be random until modified.
+    static void layout() {
         handle_do_open(&do_open, "Treasure chest");
         if (ImGui::BeginPopupModal("Treasure chest", REF_TRUE, MODAL_FLAGS)) {
             entity* e = G->selection.e;
