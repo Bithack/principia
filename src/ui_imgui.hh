@@ -237,6 +237,7 @@ namespace UiAnimal { static void open(); static void layout(); }
 namespace UiRobot { static void open(); static void layout(); }
 namespace UiSticky { static void open(); static void layout(); }
 
+
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
 static bool show_demo = false;
@@ -3055,6 +3056,7 @@ namespace UiSticky {
     }
 }
 
+
 static void ui_init() {
     UiLevelManager::init();
     UiLuaEditor::init();
@@ -3265,6 +3267,7 @@ void ui::open_dialog(int num, void *data) {
         case DIALOG_STICKY:
             UiSticky::open();
             break;
+
         default:
             tms_errorf("dialog %d not implemented yet", num);
     }
