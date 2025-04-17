@@ -3005,31 +3005,28 @@ namespace UiRobot {
 
 namespace UiSticky {
     static bool do_open = false;
+    static bool center_x = true;
+    static bool center_y = true;
+    static int font_size = 2;
+    static std::string text = "Hello!";
 
     static void open() {
+        entity* e = G->selection.e;
+        text = e->properties[0].v.s.buf ? e->properties[0].v.s.buf : "Hello!";
+        center_x = e->properties[1].v.i8 != 0;
+        center_y = e->properties[2].v.i8 != 0;
+        font_size = e->properties[3].v.i8;
         do_open = true;
     }
 
     static void layout() {
         entity* e = G->selection.e;
-
-        static bool center_x = true;
-        static bool center_y = true;
-        static int font_size = 2;
-        static std::string text = "Hello!";
-
-        if (do_open) {
-            text = e->properties[0].v.s.buf ? e->properties[0].v.s.buf : "Hello!";
-            center_x = e->properties[1].v.i8 != 0;
-            center_y = e->properties[2].v.i8 != 0;
-            font_size = e->properties[3].v.i8;
-        }
+        
         handle_do_open(&do_open, "Sticky Note");
-        //ISSUE - If a sticky entity is selected, when creating new sticky it copies previous sticky. (should go back to default)
         if (ImGui::BeginPopupModal("Sticky Note", nullptr, MODAL_FLAGS)) {
             ImGui::Checkbox("Center X", &center_x);
             ImGui::Checkbox("Center Y", &center_y);
-            ImGui::SliderInt("Font Size", &font_size, 1, 3);
+            ImGui::SliderInt("Font Size", &font_size, 0, 3);
             ImGui::InputTextMultiline("Text", &text, ImVec2(300, ImGui::GetTextLineHeight() * 10));
 
             if (ImGui::Button("Accept")) {
