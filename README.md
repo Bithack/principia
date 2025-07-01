@@ -20,7 +20,7 @@ Principia runs on anything with a recent enough version of Windows, Linux or And
 
 * Codeberg mirror: https://codeberg.org/principia/principia
 
-* Mastodon: https://fosstodon.org/@principia
+* Mastodon: https://hachyderm.io/@principia
 
 ## Binary builds
 Release builds builds of Principia for Windows, Android and Linux are available on the [download page](https://principia-web.se/download).
@@ -32,7 +32,7 @@ Feel free to fork this project and send in your pull requests. This is a communi
 
 For a brief overview on how to get started with contributing to the game, see the [Contributing to the Game](https://principia-web.se/wiki/Contributing_to_the_Game) page on the wiki.
 
-Also be sure to follow [@principia](https://fosstodon.org/@principia) on Fosstodon for more updates about the project.
+Also be sure to follow [@principia](https://hachyderm.io/@principia) on Mastodon for more updates about the project.
 
 ## Building from source
 See [Compiling Principia](https://principia-web.se/wiki/Compiling_Principia) on the wiki for building from source on supported platforms.
