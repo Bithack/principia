@@ -102,6 +102,10 @@ int main(int argc, char **argv)
 
     tms_storage_create_dirs();
 
+#if defined(SDL_HINT_APP_NAME)
+    SDL_SetHint(SDL_HINT_APP_NAME, "Principia");
+#endif
+
 #if !defined(DEBUG) && !defined(__EMSCRIPTEN__)
     char logfile[1024];
     snprintf(logfile, 1023, "%s/run.log", tms_storage_path());
