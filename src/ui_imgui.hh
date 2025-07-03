@@ -234,6 +234,7 @@ namespace UiNewLevel { static void open(); static void layout(); }
 namespace UiFrequency { static void open(bool is_range, entity *e = G->selection.e); static void layout(); }
 namespace UiConfirm { void open(const char* text, const char* button1, principia_action action1, const char* button2, principia_action action2, const char* button3, principia_action action3, struct confirm_data  _confirm_data); void layout(); }
 namespace UiAnimal { static void open(); static void layout(); }
+namespace UiDecoration { static void open(); static void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
@@ -2765,6 +2766,48 @@ namespace UiAnimal {
     
 }
 
+namespace UiDecoration {
+    static bool do_open = false;
+    static int selected_index = 0;
+
+    static void open() {
+        selected_index = 0;
+        do_open = true;
+    }
+
+    static void layout() {
+        handle_do_open(&do_open, "Decoration type");
+        if (ImGui::BeginPopupModal("Decoration type", nullptr, MODAL_FLAGS)) {
+            if (ImGui::BeginCombo(" ", decorations[selected_index].name)) {
+                for (int i = 0; i < NUM_DECORATIONS; ++i) {
+                    bool is_selected = (selected_index == i);
+                    if (ImGui::Selectable(decorations[i].name, is_selected)) {
+                        selected_index = i;
+                    }
+                    if (is_selected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+
+            if (ImGui::Button("Confirm")) {
+                entity* e = G->selection.e;
+                if (e && e->g_id == O_DECORATION) {
+                    ((decoration*)e)->set_decoration_type((uint32_t)selected_index);
+                    ((decoration*)e)->do_recreate_shape = true;
+
+                    P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
+                    P.add_action(ACTION_RESELECT, 0);
+                }
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+}
+
 static void ui_init() {
     UiLevelManager::init();
     UiLuaEditor::init();
@@ -2795,6 +2838,7 @@ static void ui_layout() {
     UiFrequency::layout();
     UiConfirm::layout();
     UiAnimal::layout();
+    UiDecoration::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -2966,6 +3010,9 @@ void ui::open_dialog(int num, void *data) {
             break;
         case DIALOG_ANIMAL:
             UiAnimal::open();
+            break;
+        case DIALOG_DECORATION:
+            UiDecoration::open();
             break;
         default:
             tms_errorf("dialog %d not implemented yet", num);
