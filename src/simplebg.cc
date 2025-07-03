@@ -114,16 +114,16 @@ simplebg::set_level_size(uint16_t left, uint16_t right, uint16_t down, uint16_t 
 
     b2Vec2 pos[4] = {
         b2Vec2(right+border_extra_span/2.f, py),
-        b2Vec2(px, up+border_extra_span/2.f),
+        b2Vec2(px, up-0.25f+border_extra_span/2.f),
         b2Vec2(-left-border_extra_span/2.f, py),
-        b2Vec2(px, -down-border_extra_span/2.f)
+        b2Vec2(px, -down+0.25f-border_extra_span/2.f)
     };
 
     b2Vec2 size[4] = {
         b2Vec2(border_extra_span+1.f, h+border_extra_span*2.f),
-        b2Vec2(w, border_extra_span+1.f),
+        b2Vec2(w-0.98f, border_extra_span+0.5f),
         b2Vec2(border_extra_span+1.f, h+border_extra_span*2.f),
-        b2Vec2(w, border_extra_span+1.f),
+        b2Vec2(w-0.98f, border_extra_span+0.5f),
     };
 
     for (int x=0; x<4; x++) {
