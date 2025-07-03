@@ -529,11 +529,11 @@ tpixel::update()
         if (this->properties[1].v.i8 > TPIXEL_MATERIAL_ROCK) {
             tmat4_rotate(this->ore.M, -90+90*(this->properties[2].v.i8%5), 1.f, 0.f, 0.f);
             tmat3_copy_mat4_sub3x3(this->ore.N, this->ore.M);
-            tmat4_scale(this->ore.M, as, as, tclampf(as, 0.f, 1.f));
+            tmat4_scale(this->ore.M, as, as, as);
         }
 
         //tmat4_scale(this->M, .8f, .8f,1.f);
-        tmat4_scale(this->M, as, as, tclampf(as, 0.f, 1.f));
+        tmat4_scale(this->M, as, as, as);
     }
         /*
     } else {
