@@ -234,6 +234,7 @@ namespace UiNewLevel { static void open(); static void layout(); }
 namespace UiFrequency { static void open(bool is_range, entity *e = G->selection.e); static void layout(); }
 namespace UiConfirm { void open(const char* text, const char* button1, principia_action action1, const char* button2, principia_action action2, const char* button3, principia_action action3, struct confirm_data  _confirm_data); void layout(); }
 namespace UiAnimal { static void open(); static void layout(); }
+namespace UiRubber { static void open(); static void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
@@ -2765,6 +2766,42 @@ namespace UiAnimal {
     
 }
 
+namespace UiRubber {
+    static bool do_open = false;
+    static float restitution = 0.5f;
+    static float friction = 1.8f;
+
+    static void open() {
+        entity* e = G->selection.e;
+        restitution = e->properties[1].v.f;
+        friction = e->properties[2].v.f;
+        do_open = true;
+    }
+
+    static void layout() {
+        handle_do_open(&do_open, "Rubber");
+        if (ImGui::BeginPopupModal("Rubber", REF_TRUE, MODAL_FLAGS)) {
+
+            ImGui::SliderFloat("Restitution", &restitution, 0.0f, 1.0f);
+            ImGui::SliderFloat("Friction", &friction, 1.0f, 10.0f);
+
+            if (ImGui::Button("Confirm")) {
+                entity* e = G->selection.e;
+                if (e && (e->g_id == O_WHEEL || e->g_id == O_RUBBER_BEAM)) {
+                    e->properties[1].v.f = restitution;
+                    e->properties[2].v.f = friction;
+                    P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
+                    P.add_action(ACTION_RESELECT, 0);
+                    do_open = false;
+                    ImGui::CloseCurrentPopup();
+                }
+            }
+            ImGui::EndPopup();
+        }
+    }
+    
+}
+
 static void ui_init() {
     UiLevelManager::init();
     UiLuaEditor::init();
@@ -2795,6 +2832,7 @@ static void ui_layout() {
     UiFrequency::layout();
     UiConfirm::layout();
     UiAnimal::layout();
+    UiRubber::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -2966,6 +3004,9 @@ void ui::open_dialog(int num, void *data) {
             break;
         case DIALOG_ANIMAL:
             UiAnimal::open();
+            break;
+        case DIALOG_RUBBER:
+            UiRubber::open();
             break;
         default:
             tms_errorf("dialog %d not implemented yet", num);
