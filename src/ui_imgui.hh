@@ -234,6 +234,7 @@ namespace UiNewLevel { static void open(); static void layout(); }
 namespace UiFrequency { static void open(bool is_range, entity *e = G->selection.e); static void layout(); }
 namespace UiConfirm { void open(const char* text, const char* button1, principia_action action1, const char* button2, principia_action action2, const char* button3, principia_action action3, struct confirm_data  _confirm_data); void layout(); }
 namespace UiAnimal { static void open(); static void layout(); }
+namespace UiPolygon { static void open(); static void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
@@ -2765,6 +2766,48 @@ namespace UiAnimal {
     
 }
 
+namespace UiPolygon {
+    static bool do_open = false;
+    static int sublayer_depth = 1;
+    static bool front_align = false;
+
+    static void open() {
+        do_open = true;
+    }
+
+    static void layout() {
+        handle_do_open(&do_open, "Polygon");
+        ImGui::SetNextWindowSize(ImVec2(350, 0));
+
+        if (ImGui::BeginPopupModal("Polygon", nullptr, MODAL_FLAGS)) {
+            entity *e = G->selection.e;
+
+            ImGui::Text("Sublayer Depth");
+            ImGui::SliderInt("##depth", &sublayer_depth, 1, 4);
+
+            ImGui::Checkbox("Front Align", &front_align);
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("Sublayer depth from front instead of back");
+            }
+
+            if (ImGui::Button("Close")) {
+                if (e && e->g_id == O_PLASTIC_POLYGON) {
+                    ((polygon*)e)->do_recreate_shape = true;
+            
+                    e->properties[1].v.i8 = static_cast<uint8_t>(front_align ? 1 : 0);
+                    e->properties[0].v.i8 = static_cast<uint8_t>(sublayer_depth - 1);
+            
+                    P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
+                    P.add_action(ACTION_RESELECT, 0);
+                }
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+}
+
 static void ui_init() {
     UiLevelManager::init();
     UiLuaEditor::init();
@@ -2795,6 +2838,7 @@ static void ui_layout() {
     UiFrequency::layout();
     UiConfirm::layout();
     UiAnimal::layout();
+    UiPolygon::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -2966,6 +3010,9 @@ void ui::open_dialog(int num, void *data) {
             break;
         case DIALOG_ANIMAL:
             UiAnimal::open();
+            break;
+        case DIALOG_POLYGON:
+            UiPolygon::open();
             break;
         default:
             tms_errorf("dialog %d not implemented yet", num);
