@@ -8,9 +8,7 @@
 
 # Download appimagetool
 if [ ! -f appimagetool ]; then
-	wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
-	# Newer appimagetool uses Zstd compression which appimagelauncher doesn't support. :/
-	#wget https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+	wget https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
 	chmod +x appimagetool
 fi
 
@@ -86,5 +84,4 @@ cp /usr/lib/libSDL2-2.0.so.0 usr/lib/
 
 # Actually build the appimage
 cd ..
-# LZMA compression since appimagelauncher doesn't support Zstd
-ARCH=x86_64 ./appimagetool --appimage-extract-and-run --comp xz AppDir/
+ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir/
