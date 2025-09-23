@@ -77,6 +77,7 @@ local version_info_txt = 'packaging/version_info.txt'
 local gradle_build = 'android/principia/build.gradle'
 local nsi_file = 'packaging/principia_install.nsi'
 local rc_file = 'packaging/principia.rc'
+local metainfo_file = 'packaging/se.principia_web.principia.metainfo.xml'
 
 -- Read the current version info from version_info.txt
 local function read_version_info()
@@ -176,6 +177,31 @@ local function update_windows_resource(verinfo)
 	write_lines_to_file(rc_file, lines)
 end
 
+-- Update version info in the AppStream metainfo file
+local function update_appstream_metainfo(verinfo)
+	print("Updating AppStream metainfo...")
+
+	local verdigits = split_vername(verinfo.name)
+	local date = verdigits[1] .. '-' .. verdigits[2] .. '-' .. verdigits[3]
+	local lines = read_lines_from_file(metainfo_file)
+
+	lines_replace(lines, {
+		['<release date='] = '\t\t<release date="'..date..'" version="'..verinfo.name..'"/>'
+	})
+
+	write_lines_to_file(metainfo_file, lines)
+end
+
+-- Apply all changes
+local function apply_changes(ver)
+	update_android_version(ver)
+	write_version_header(ver)
+	update_nsis_version(ver)
+	update_windows_resource(ver)
+	update_appstream_metainfo(ver)
+	write_version_info(ver)
+end
+
 
 -- Entrypoint functions...
 --------------------------------------------------------------------------------
@@ -203,11 +229,7 @@ local function main()
 
 	print("")
 
-	update_android_version(newver)
-	write_version_header(newver)
-	update_nsis_version(newver)
-	update_windows_resource(newver)
-	write_version_info(newver)
+	apply_changes(newver)
 
 	print("")
 
@@ -229,11 +251,7 @@ local function test()
 	for _,ver in ipairs(versions) do
 		print("Setting to: ", ver.code, ver.name)
 
-		update_android_version(ver)
-		write_version_header(ver)
-		update_nsis_version(ver)
-		update_windows_resource(ver)
-		write_version_info(ver)
+		apply_changes(ver)
 	end
 end
 
