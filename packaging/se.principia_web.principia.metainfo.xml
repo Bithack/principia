@@ -8,6 +8,9 @@
 	</content_rating>
 	<name>Principia</name>
 	<summary>Physics-based sandbox building game</summary>
+	<developer id="se.principia-web">
+		<name>The Principia community</name>
+	</developer>
 	<description>
 		<p>
 			Principia is a physics-based sandbox building game. Build and play advanced contraptions, circuiting, minigames, robot adventures and more.
@@ -57,15 +60,16 @@
 	</keywords>
 	<url type="homepage">https://principia-web.se</url>
 	<url type="bugtracker">https://github.com/Bithack/principia/issues</url>
-	<url type="donation">https://liberapay.com/ROllerozxa</url>
+	<url type="donation">https://principia-web.se/donate</url>
 	<url type="faq">https://principia-web.se/wiki/FAQ</url>
 	<url type="help">https://principia-web.se/wiki/</url>
 	<url type="vcs-browser">https://github.com/Bithack/principia</url>
 	<provides>
 		<binary>principia</binary>
 	</provides>
+	<launchable type="desktop-id">principia.desktop</launchable>
 	<update_contact>rollerozxa@voxelmanip.se</update_contact>
 	<releases>
-		<release date="2023-12-26" version="2023.12.26"/>
+		<release date="2025-04-05" version="2025.04.05"/>
 	</releases>
 </component>
