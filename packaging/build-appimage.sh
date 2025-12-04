@@ -69,7 +69,6 @@ chmod +x AppRun
 # installed by the user and other libraries like libcurl and libfreetype are
 # expected to already exist on the system.
 INCLUDE_LIBS=(
-	libGLEW.so.2.1
 	libjpeg.so.62
 	libpng16.so.16
 )

@@ -1,4 +1,5 @@
 #include "gbuffer.h"
+#include <string.h>
 #include <tms/core/err.h>
 #include <tms/backend/print.h>
 

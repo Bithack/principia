@@ -30,7 +30,7 @@ jobs:
       - name: Install deps
         run: |
           apt-get update
-          apt-get install -y clang-16 libgtk-3-dev libgl-dev libglew-dev libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev cmake ninja-build desktop-file-utils ca-certificates wget file --no-install-recommends
+          apt-get install -y clang-16 libgtk-3-dev libgl-dev libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev cmake ninja-build desktop-file-utils ca-certificates wget file --no-install-recommends
 
           wget https://github.com/principia-game/linux-deps/releases/download/latest/deps.tar.gz -O linux-deps.tar.gz
           tar -xaf linux-deps.tar.gz -C /

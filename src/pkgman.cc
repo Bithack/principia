@@ -6,6 +6,10 @@
 #include "zlib.h"
 #include "misc.hh"
 
+#ifdef TMS_BACKEND_WINDOWS
+    #include <windows.h>
+#endif
+
 /* for lvledit command line tool */
 #ifdef _NO_TMS
     #include <stdlib.h>

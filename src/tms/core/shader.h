@@ -3,7 +3,7 @@
 
 /** @relates tms_shader @{ */
 
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 #include <tms/math/vector.h>
 #include <tms/core/tms.h>
 

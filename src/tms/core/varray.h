@@ -1,7 +1,7 @@
 #ifndef _TMS_VARRAY__H_
 #define _TMS_VARRAY__H_
 
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 #include <stdint.h>
 #include <stdlib.h>
 

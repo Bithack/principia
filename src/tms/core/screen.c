@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
 #include <tms/math/intersect.h>
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 
 #include "tms.h"
 #include "screen.h"

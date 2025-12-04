@@ -29,9 +29,7 @@ jobs:
           export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
           export HOMEBREW_NO_INSTALL_CLEANUP=1
           brew update --auto-update
-          brew install cmake ninja glew libpng libjpeg-turbo freetype sdl2 gtk+3
-
-          patch /opt/homebrew/include/GL/glew.h < packaging/glew_macos_fix.patch
+          brew install cmake ninja libpng libjpeg-turbo freetype sdl2 gtk+3
 
       - name: Compile
         run: |
@@ -40,8 +38,7 @@ jobs:
             -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 \
             -DCMAKE_FIND_FRAMEWORK=LAST \
             -DCMAKE_INSTALL_PREFIX=../build/macos/ \
-            -DCMAKE_EXE_LINKER_FLAGS="-L/opt/homebrew/lib/" \
-            -DGLEW_LIBRARY_RELEASE=/opt/homebrew/lib/libGLEW.dylib
+            -DCMAKE_EXE_LINKER_FLAGS="-L/opt/homebrew/lib/"
           ninja
 
       - name: Package

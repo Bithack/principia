@@ -4,7 +4,7 @@
 /** @relates tms_mesh @{ */
 
 #include <tms/core/settings.h>
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 
 #define TMS_TRIANGLE_FAN   GL_TRIANGLE_FAN
 #define TMS_TRIANGLES      GL_TRIANGLES

@@ -37,7 +37,6 @@ jobs:
             gcc:p
             cmake:p
             ninja:p
-            glew:p
             zlib:p
             gtk3:p
             libpng:p

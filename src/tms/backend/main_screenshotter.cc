@@ -14,7 +14,7 @@
 #include <tms/core/event.h>
 #include <tms/core/tms.h>
 
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 
 #include "settings.hh"
 #include "game.hh"
@@ -378,9 +378,10 @@ tbackend_init_surface()
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-
     SDL_GL_CreateContext(_window);
+
+    int version = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
+    tms_infof("Loaded GL version %d.%d", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
 
     return T_OK;
 }

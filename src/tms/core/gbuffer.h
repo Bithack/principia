@@ -2,7 +2,7 @@
 #define _TMS_GBUFFER__H_
 
 #include <stdlib.h>
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 
 #define TMS_GBUFFER_STATIC_DRAW GL_STATIC_DRAW
 #define TMS_GBUFFER_STATIC_COPY GL_STATIC_COPY

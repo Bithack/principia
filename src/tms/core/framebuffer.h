@@ -3,7 +3,7 @@
 
 /** @relates tms_fb @{ */
 
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 
 struct tms_program;
 

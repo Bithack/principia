@@ -13,7 +13,7 @@
 #include <tms/core/event.h>
 #include <tms/core/tms.h>
 
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 
 #ifdef TMS_BACKEND_WINDOWS
 

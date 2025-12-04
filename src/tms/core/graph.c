@@ -2,7 +2,7 @@
 #include <tms/math/glob.h>
 #include "util.h"
 
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 
 #pragma GCC push_options
 #pragma GCC optimize ("O0")

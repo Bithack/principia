@@ -9,7 +9,7 @@
 #include <tms/core/program.h>
 #include <tms/core/pipeline.h>
 
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 
 #define INFOLOG_SIZE 2048
 

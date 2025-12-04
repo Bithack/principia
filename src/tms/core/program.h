@@ -1,7 +1,7 @@
 #ifndef _TMS_PROGRAM__H_
 #define _TMS_PROGRAM__H_
 
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 
 struct tms_entity;
 

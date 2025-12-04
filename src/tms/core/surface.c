@@ -10,7 +10,7 @@
 
 #include "../math/glob.h"
 
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 
 #include "ddraw.h"
 

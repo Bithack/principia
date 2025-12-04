@@ -1,5 +1,6 @@
 #include "varray.h"
 #include "gbuffer.h"
+#include <string.h>
 #include <tms/core/err.h>
 
 static int last_amax = 0;
@@ -108,15 +109,7 @@ tms_varray_bind_attributes(struct tms_varray *va,
 
             if (last != m->gbuf) {
                 //tms_gbuffer_bind(va->mappings[x].gbuf, GL_ARRAY_BUFFER);
-#ifdef TMS_USE_GLEW
-                if (GLEW_VERSION_1_5) {
-                    glBindBuffer(GL_ARRAY_BUFFER, bufdata->gbuf->vbo);
-                } else {
-                    glBindBufferARB(GL_ARRAY_BUFFER, bufdata->gbuf->vbo);
-                }
-#else
                 glBindBuffer(GL_ARRAY_BUFFER, bufdata->gbuf->vbo);
-#endif
                 last = m->gbuf;
             }
 

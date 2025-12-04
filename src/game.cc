@@ -72,7 +72,7 @@
 #include "terrain.hh"
 #endif
 
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 #include <unistd.h>
 
 #include <iterator>
@@ -3082,12 +3082,11 @@ game::render()
         glBindTexture(GL_TEXTURE_2D, this->main_fb->fb_texture[0][0]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-#ifdef TMS_USE_GLEW
-        if (GLEW_VERSION_3_0) { /* XXX */
+#ifndef TMS_USE_GLES
+        if (glad_glGenerateMipmap)
             glGenerateMipmap(GL_TEXTURE_2D);
-        } else {
+        else
             glGenerateMipmapEXT(GL_TEXTURE_2D);
-        }
 #else
         glGenerateMipmap(GL_TEXTURE_2D);
 #endif
@@ -3101,12 +3100,11 @@ game::render()
         glDisable(GL_DEPTH_TEST);
 
         glBindTexture(GL_TEXTURE_2D, this->bloom_fb->fb_texture[this->bloom_fb->toggle][0]);
-#ifdef TMS_USE_GLEW
-        if (GLEW_VERSION_3_0) { /* XXX */
+#ifndef TMS_USE_GLES
+        if (glad_glGenerateMipmap)
             glGenerateMipmap(GL_TEXTURE_2D);
-        } else {
+        else
             glGenerateMipmapEXT(GL_TEXTURE_2D);
-        }
 #else
         glGenerateMipmap(GL_TEXTURE_2D);
 #endif

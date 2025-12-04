@@ -90,6 +90,7 @@ endif()
 
 include_directories(
 	lib/
+	lib/GLAD/include/
 	lib/imgui/
 	lib/lua/
 	lib/SDL_image/
@@ -107,6 +108,7 @@ file(GLOB SRCS
 	src/*.cc
 	src/*.c
 
+	lib/GLAD/src/gl.c
 	lib/lua/*.c
 	lib/SDL_image/*.c
 
@@ -132,8 +134,6 @@ if(NOT SCREENSHOT_BUILD)
 			find_package(PkgConfig REQUIRED)
 			pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
 		endif()
-
-		find_package(GLEW REQUIRED)
 
 		if(NOT BACKEND_IMGUI)
 			include_directories(${GTK3_INCLUDE_DIRS})
@@ -215,10 +215,6 @@ if(NOT EMSCRIPTEN)
 		if(NOT ANDROID)
 			list(APPEND LIBS ${GTK3_LIBRARIES})
 		endif()
-
-		if(NOT SHOULD_USE_GLES)
-			list(APPEND LIBS GLEW::GLEW)
-		endif()
 	endif()
 endif()
 
@@ -243,8 +239,6 @@ add_dependencies(${PROJECT_NAME} GenerateGitVersion)
 
 if(SHOULD_USE_GLES)
 	add_definitions(-DTMS_USE_GLES)
-elseif(NOT SCREENSHOT_BUILD)
-	add_definitions(-DTMS_USE_GLEW)
 endif()
 
 if(WIN32)

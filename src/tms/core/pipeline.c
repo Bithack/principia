@@ -1,6 +1,6 @@
 #include "pipeline.h"
 #include "framebuffer.h"
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 
 static struct tms_pipeline pipelines[TMS_NUM_PIPELINES] = {0};
 static int n_local_uniforms = 0;

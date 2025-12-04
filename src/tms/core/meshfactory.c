@@ -4,7 +4,7 @@
 #include "varray.h"
 
 #include <tms/math/vector.h>
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 
 #define SPHERE_QUALITY 40
 

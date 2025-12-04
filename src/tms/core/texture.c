@@ -481,12 +481,11 @@ tms_texture_set_filtering(struct tms_texture *tex, int filter)
             glEnable(GL_TEXTURE_2D);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-#ifdef TMS_USE_GLEW
-            if (GLEW_VERSION_3_0) { /* XXX */
+#ifndef TMS_USE_GLES
+            if (glad_glGenerateMipmap)
                 glGenerateMipmap(GL_TEXTURE_2D);
-            } else {
+            else
                 glGenerateMipmapEXT(GL_TEXTURE_2D);
-            }
 #else
             glGenerateMipmap(GL_TEXTURE_2D);
 #endif

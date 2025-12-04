@@ -3,7 +3,8 @@
 
 /** @relates tms_texture @{ */
 
-#include <tms/backend/opengl.h>
+#include <stddef.h>
+#include <glad/gl.h>
 
 #define TMS_MIPMAP -1
 

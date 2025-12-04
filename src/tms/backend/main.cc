@@ -12,7 +12,7 @@
 #include <tms/core/event.h>
 #include <tms/core/tms.h>
 
-#include <tms/backend/opengl.h>
+#include <glad/gl.h>
 
 #include "settings.hh"
 #include "main.hh"
@@ -340,58 +340,34 @@ tbackend_init_surface()
 #endif
 
 #ifdef TMS_USE_GLES
-
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-
-    SDL_GL_CreateContext(_window);
-
 #else
-
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+#endif
 
     SDL_GLContext gl_context = SDL_GL_CreateContext(_window);
 
     if (gl_context == NULL)
         tms_fatalf("Error creating GL Context: %s", SDL_GetError());
 
-    tms_infof("Initializing GLEW...");
-    GLenum err = glewInit();
-    if (err != GLEW_OK && err != GLEW_ERROR_NO_GLX_DISPLAY) {
-        tms_infof("ERROR: %s", glewGetErrorString(err));
-        exit(1);
-    }
-    tms_infof("GLEW init OK (v%s)", glewGetString(GLEW_VERSION));
+#ifdef TMS_USE_GLES
+    int version = gladLoadGLES2((GLADloadfunc)SDL_GL_GetProcAddress);
+#else
+    int version = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
+#endif
+    tms_infof("Loaded GL version %d.%d", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
 
     tms_infof("GL Info: %s/%s/%s", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
     tms_infof("GLSL Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-    tms_printf("GL versions supported: ");
-    if (GLEW_VERSION_4_6) tms_printf("4.6,");
-    if (GLEW_VERSION_4_5) tms_printf("4.5,");
-    if (GLEW_VERSION_4_4) tms_printf("4.4,");
-    if (GLEW_VERSION_4_3) tms_printf("4.3,");
-    if (GLEW_VERSION_4_2) tms_printf("4.2,");
-    if (GLEW_VERSION_4_1) tms_printf("4.1,");
-    if (GLEW_VERSION_3_3) tms_printf("3.3,");
-    if (GLEW_VERSION_3_1) tms_printf("3.1,");
-    if (GLEW_VERSION_3_0) tms_printf("3.0,");
-    if (GLEW_VERSION_2_1) tms_printf("2.1,");
-    if (GLEW_VERSION_2_0) tms_printf("2.0,");
-    if (GLEW_VERSION_1_5) tms_printf("1.5,");
-    if (GLEW_VERSION_1_4) tms_printf("1.4,");
-    if (GLEW_VERSION_1_3) tms_printf("1.3,");
-    if (GLEW_VERSION_1_2) tms_printf("1.2,");
-    if (GLEW_VERSION_1_1) tms_printf("1.1");
-	tms_printf("\n");
-
 #ifdef TMS_BACKEND_WINDOWS
 
-    if (!GLEW_VERSION_1_2) {
+    if (!GLAD_GL_VERSION_1_2) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Principia",
 R"(Your graphics driver does not support OpenGL >1.1 and as such Principia will not start.
 Most likely this is because you do not have any graphics drivers installed and are using
@@ -402,8 +378,6 @@ If you are on a VM for testing purposes, then you can use Mesa's software render
 get Principia running. (place the Mesa opengl32.dll library next to principia.exe))", 0);
         exit(1);
     }
-
-#endif
 
 #endif
 
