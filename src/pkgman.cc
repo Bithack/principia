@@ -26,11 +26,11 @@
     #include <tms/bindings/cpp/cpp.hh>
 #endif
 
-static const char *_level_path[4];
-static char *_state_path = 0;
-static const char *_cache_path[4];
-static char *_cache_state_path = 0;
-static const char *_pkg_path[4];
+static char _level_path[4][1024];
+static char _state_path[1024];
+static char _cache_path[4][1024];
+static char _cache_state_path[1024];
+static char _pkg_path[4][1024];
 static const char *_dir_names[] = {
     "local", "db", "main", "sys"
 };
@@ -668,22 +668,14 @@ pkgman::get_pkg_path(int type)
         return "";
     }
 
-    if (!_pkg_path[type]) {
-        _pkg_path[type] = (char*)malloc(1024); /* XXX free this somewhere */
-
-        if (type == LEVEL_MAIN) {
+    if (!_pkg_path[type][0]) {
+        if (type == LEVEL_MAIN)
             /* main levels are stored internally in data/ */
-            snprintf((char*)_pkg_path[type], 1023, "data/pkg/%s",
-                    _dir_names[type]);
-        } else if (type == LEVEL_DB) {
-            snprintf((char*)_pkg_path[type], 1023, "%s/pkg/%s",
-                    tms_storage_cache_path(),
-                    _dir_names[type]);
-        } else {
-            snprintf((char*)_pkg_path[type], 1023, "%s/pkg/%s",
-                    tms_storage_path(),
-                    _dir_names[type]);
-        }
+            snprintf(_pkg_path[type], 1023, "data/pkg");
+        else if (type == LEVEL_DB)
+            snprintf(_pkg_path[type], 1023, "%s/pkg/db", tms_storage_cache_path());
+        else
+            snprintf(_pkg_path[type], 1023, "%s/pkg/local", tms_storage_path());
     }
 
     return _pkg_path[type];
@@ -703,12 +695,8 @@ pkgman::get_level_path(int level_type)
     if (level_type == LEVEL_PARTIAL) level_type = LEVEL_LOCAL;
 
     if (level_type >= LEVEL_LOCAL_STATE) {
-        if (!_state_path) {
-            _state_path = (char*)malloc(1024); /* XXX free this somewhere */
-            snprintf((char*)_state_path, 1023,
-                    "%s/sav",
-                     tms_storage_path());
-        }
+        if (!_state_path[0])
+            snprintf(_state_path, 1023, "%s/sav", tms_storage_path());
 
         return _state_path;
     }
@@ -718,56 +706,34 @@ pkgman::get_level_path(int level_type)
         return "";
     }
 
-    if (!_level_path[level_type]) {
-        _level_path[level_type] = (char*)malloc(1024); /* XXX free this somewhere */
-
-        if (level_type == LEVEL_MAIN) {
+    if (!_level_path[level_type][0]) {
+        if (level_type == LEVEL_MAIN)
             /* main levels are stored internally in data/ */
-            snprintf((char*)_level_path[level_type], 1023,
-                    "data/lvl/%s",
-                    _dir_names[level_type]);
-        } else if (level_type == LEVEL_SYS) {
-            snprintf((char*)_level_path[level_type], 1023,
-                    "%s/cache/local",
-                    tms_storage_cache_path());
-        } else if (level_type == LEVEL_DB) {
-            snprintf((char*)_level_path[level_type], 1023,
-                    "%s/lvl/%s",
-                    tms_storage_cache_path(),
-                    _dir_names[level_type]);
-        } else {
-            snprintf((char*)_level_path[level_type], 1023,
-                    "%s/lvl/%s",
-                    tms_storage_path(),
-                    _dir_names[level_type]);
-        }
+            snprintf(_level_path[level_type], 1023, "data/lvl");
+        else if (level_type == LEVEL_SYS)
+            snprintf(_level_path[level_type], 1023, "%s/cache/local", tms_storage_cache_path());
+        else if (level_type == LEVEL_DB)
+            snprintf(_level_path[level_type], 1023, "%s/lvl/db", tms_storage_cache_path());
+        else
+            snprintf(_level_path[level_type], 1023, "%s/lvl/local", tms_storage_path());
     }
 
     return _level_path[level_type];
 }
 
-const char *state_prefixes[3] = {
-    "local",
-    "db",
-    "unknown",
-};
-
 const char *
 pkgman::get_state_prefix(int level_type)
 {
-    if (level_type >= LEVEL_LOCAL_STATE) {
+    if (level_type >= LEVEL_LOCAL_STATE)
         level_type -= LEVEL_LOCAL_STATE;
-    }
 
-    if (level_type == LEVEL_LOCAL) {
-        return state_prefixes[0];
-    } else if (level_type == LEVEL_DB) {
-        return state_prefixes[1];
-    }
+    if (level_type == LEVEL_LOCAL)
+        return "local";
+    else if (level_type == LEVEL_DB)
+        return "db";
 
     tms_errorf("Unknown state prefix for level type %d", level_type);
-
-    return state_prefixes[2];
+    return "unknown";
 }
 
 const char *
@@ -776,10 +742,8 @@ pkgman::get_cache_path(int level_type)
     if (level_type == LEVEL_PARTIAL) level_type = LEVEL_LOCAL;
 
     if (level_type >= LEVEL_LOCAL_STATE) {
-        if (!_cache_state_path) {
-            _cache_state_path = (char*)malloc(1024);
-
-            snprintf((char*)_cache_state_path, 1023,
+        if (!_cache_state_path[0]) {
+            snprintf(_cache_state_path, 1023,
                     "%s/cache/sav",
                     tms_storage_cache_path());
         }
@@ -792,10 +756,8 @@ pkgman::get_cache_path(int level_type)
         return "";
     }
 
-    if (!_cache_path[level_type]) {
-        _cache_path[level_type] = (char*)malloc(1024); /* XXX free this somewhere */
-
-        snprintf((char*)_cache_path[level_type], 1023,
+    if (!_cache_path[level_type][0]) {
+        snprintf(_cache_path[level_type], 1023,
                 "%s/cache/%s",
                 tms_storage_cache_path(),
                 _dir_names[level_type]);
