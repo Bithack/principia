@@ -92,7 +92,7 @@ init_curl()
         exit(1);
     }
 
-    snprintf(cookie_file, 1024, "%s/c", tms_storage_path());
+    snprintf(cookie_file, 1024, "%s/cookie_jar", tms_storage_path());
 
     lock_curl("initial_loader-curl_init");
     P.curl = curl_easy_init();

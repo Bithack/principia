@@ -675,7 +675,7 @@ pkgman::get_pkg_path(int type)
         else if (type == LEVEL_DB)
             snprintf(_pkg_path[type], 1023, "%s/pkg/db", tms_storage_cache_path());
         else
-            snprintf(_pkg_path[type], 1023, "%s/pkg/local", tms_storage_path());
+            snprintf(_pkg_path[type], 1023, "%s/packages", tms_storage_path());
     }
 
     return _pkg_path[type];
@@ -696,7 +696,7 @@ pkgman::get_level_path(int level_type)
 
     if (level_type >= LEVEL_LOCAL_STATE) {
         if (!_state_path[0])
-            snprintf(_state_path, 1023, "%s/sav", tms_storage_path());
+            snprintf(_state_path, 1023, "%s/saves", tms_storage_path());
 
         return _state_path;
     }
@@ -715,7 +715,7 @@ pkgman::get_level_path(int level_type)
         else if (level_type == LEVEL_DB)
             snprintf(_level_path[level_type], 1023, "%s/lvl/db", tms_storage_cache_path());
         else
-            snprintf(_level_path[level_type], 1023, "%s/lvl/local", tms_storage_path());
+            snprintf(_level_path[level_type], 1023, "%s/levels", tms_storage_path());
     }
 
     return _level_path[level_type];
