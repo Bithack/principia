@@ -22,6 +22,7 @@ ninja
 # Strip binary and create debug symbol file
 objcopy --only-keep-debug principia principia.debug
 objcopy --strip-debug --add-gnu-debuglink=principia.debug principia
+strip -s principia
 
 # Install into AppDir
 ninja install
