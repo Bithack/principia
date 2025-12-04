@@ -249,6 +249,10 @@ endif()
 
 if(BACKEND_IMGUI)
 	add_definitions(-DPRINCIPIA_BACKEND_IMGUI -DIMGUI_DEFINE_MATH_OPERATORS)
+
+	if(SHOULD_USE_GLES)
+		add_definitions(-DIMGUI_IMPL_OPENGL_ES2)
+	endif()
 endif()
 
 add_definitions(-DTMS_BACKEND_${TMS_FORMFACTOR} -DTMS_BACKEND_${TMS_BACKEND})
