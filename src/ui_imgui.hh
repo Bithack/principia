@@ -884,6 +884,12 @@ namespace UiLogin {
                 P.add_action(ACTION_LOGIN, data);
             }
             ImGui::EndDisabled();
+            ImGui::SameLine();
+            if (ImGui::Button("  Register  ") || (can_submit && activate)) {
+                COMMUNITY_URL("register");
+                ui::open_url(url);
+            }
+            ImGui::EndDisabled;
 
             ImGui::SameLine();
 
