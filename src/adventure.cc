@@ -1473,6 +1473,58 @@ adventure::focused(int w)
     return ret;
 }
 
+static void
+draw_icon_list(robot *r, int count, bool is_weapon, int num_icons_per_column,
+               float base_x, float base_y, int &col, int &row,
+               tvec2 *icon_pos_array, struct tms_ddraw *dd)
+{
+    for (int n = 0; n < count; ++n) {
+        if (col >= num_icons_per_column) {
+            col = 0;
+            row++;
+        }
+
+        uint32_t item_id;
+        if (is_weapon) {
+            item_id = _weapon_to_item[r->weapons[n]->get_weapon_type()];
+            if (item_id >= NUM_ITEMS)
+                continue;
+        } else {
+            item_id = _tool_to_item[r->tools[n]->get_arm_type()];
+            if (item_id == NUM_ITEMS)
+                continue;
+        }
+
+        struct tms_sprite *img = &item_options[item_id].image;
+
+        float x = base_x + (col * icon_width) + (col * margin_x);
+        float y = base_y - (row * icon_height) - (row * margin_y);
+
+        icon_pos_array[n] = (tvec2){x, y};
+
+        bool sel = is_weapon ? (r->weapon == r->weapons[n]) : (r->tool == r->tools[n]);
+
+        static tvec4 bg_color = { .5f, .5f, .5f, 0.5f };
+        static tvec4 bg_color_sel = { .5f, 1.0f, 0.5f, 0.5f };
+
+        if (sel) {
+            tms_ddraw_set_color(dd, bg_color_sel.x, bg_color_sel.y, bg_color_sel.z, bg_color_sel.a);
+            tms_ddraw_square(dd, x, y, icon_width + 8, icon_height + 8);
+
+            tms_ddraw_set_color(dd, bg_color_sel.x/2.f, bg_color_sel.y/2.f, bg_color_sel.z/2.f, 1.f);
+            tms_ddraw_lsquare(dd, x, y, icon_width + 8, icon_height + 8);
+        } else {
+            tms_ddraw_set_color(dd, bg_color.x, bg_color.y, bg_color.z, bg_color.a);
+            tms_ddraw_square(dd, x, y, icon_width, icon_height);
+        }
+
+        tms_ddraw_set_color(dd, 1.f, 1.f, 1.f, 1.f);
+        tms_ddraw_sprite(dd, img, x, y, icon_width, icon_height);
+
+        col++;
+    }
+}
+
 void
 adventure::render()
 {
@@ -1514,117 +1566,20 @@ adventure::render()
         if (adventure::player->g_id == O_ROBOT) {
             robot *r = static_cast<robot*>(adventure::player);
 
+            // weapons
             adventure::num_weapons = r->num_weapons;
-
-            for (int n=0; n<r->num_weapons; ++n) {
-                if (col >= num_icons_per_column) {
-                    col = 0;
-                    row ++;
-                }
-
-                uint32_t item_id = _weapon_to_item[adventure::player->weapons[n]->get_weapon_type()];
-                if (item_id >= NUM_ITEMS) continue;
-                img = &item_options[item_id].image;
-
-                float x = base_x + (col * icon_width) + (col * margin_x);
-                float y = base_y - (row * icon_height) - (row * margin_y);
-
-                adventure::weapon_icon_pos[n] = (tvec2){x,y};
-
-                bool sel = (r->weapon == r->weapons[n]);
-
-                if (sel) {
-                    tms_ddraw_set_color(dd, bg_color_sel.x, bg_color_sel.y, bg_color_sel.z, bg_color_sel.a);
-                    tms_ddraw_square(dd,
-                            x, y,
-                            icon_width+8,
-                            icon_height+8
-                            );
-                    tms_ddraw_set_color(dd, bg_color_sel.x/2.f, bg_color_sel.y/2.f, bg_color_sel.z/2.f, 1.f);
-                    tms_ddraw_lsquare(dd,
-                            x, y,
-                            icon_width+8,
-                            icon_height+8
-                            );
-                } else {
-                    tms_ddraw_set_color(dd, bg_color.x, bg_color.y, bg_color.z, bg_color.a);
-                    tms_ddraw_square(dd,
-                            x, y,
-                            icon_width,
-                            icon_height
-                            );
-                }
-
-                tms_ddraw_set_color(dd, 1.f, 1.f, 1.f, 1.f);
-
-                tms_ddraw_sprite(dd, img,
-                        x, y,
-                        icon_width,
-                        icon_height
-                        );
-
-                col ++;
-            }
+            draw_icon_list(r, r->num_weapons, true, num_icons_per_column,
+                           base_x, base_y, col, row, adventure::weapon_icon_pos, dd);
 
             if (col != 0 || row != 0) {
                 col = 0;
-                row ++;
+                row++;
             }
-        }
 
-        if (adventure::player->g_id == O_ROBOT) {
-            robot *r = static_cast<robot*>(adventure::player);
-
+            // tools
             adventure::num_tools = r->num_tools;
-
-            for (int n=0; n<r->num_tools; ++n) {
-                if (col >= num_icons_per_column) {
-                    col = 0;
-                    row ++;
-                }
-
-                uint32_t item_id = _tool_to_item[adventure::player->tools[n]->get_arm_type()];
-                if (item_id == NUM_ITEMS) continue;
-                img = &item_options[item_id].image;
-
-                float x = base_x + (col * icon_width) + (col * margin_x);
-                float y = base_y - (row * icon_height) - (row * margin_y);
-
-                adventure::tool_icon_pos[n] = (tvec2){x,y};
-
-                bool sel = (r->tool == r->tools[n]);
-
-                if (sel) {
-                    tms_ddraw_set_color(dd, bg_color_sel.x, bg_color_sel.y, bg_color_sel.z, bg_color_sel.a);
-                    tms_ddraw_square(dd,
-                            x, y,
-                            icon_width+8,
-                            icon_height+8
-                            );
-                    tms_ddraw_set_color(dd, bg_color_sel.x/2.f, bg_color_sel.y/2.f, bg_color_sel.z/2.f, 1.f);
-                    tms_ddraw_lsquare(dd,
-                            x, y,
-                            icon_width+8,
-                            icon_height+8
-                            );
-                } else {
-                    tms_ddraw_set_color(dd, bg_color.x, bg_color.y, bg_color.z, bg_color.a);
-                    tms_ddraw_square(dd,
-                            x, y,
-                            icon_width,
-                            icon_height
-                            );
-                }
-
-                tms_ddraw_set_color(dd, 1.f, 1.f, 1.f, 1.f);
-                tms_ddraw_sprite(dd, img,
-                        x, y,
-                        icon_width,
-                        icon_height
-                        );
-
-                col ++;
-            }
+            draw_icon_list(r, r->num_tools, false, num_icons_per_column,
+                               base_x, base_y, col, row, adventure::tool_icon_pos, dd);
         }
 
         if (col)
