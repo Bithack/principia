@@ -1099,10 +1099,7 @@ _login(void *p)
 
             if (hd.notify_message) {
                 ui::message(hd.notify_message);
-
-                P.username = strdup(data->username);
                 P.add_action(ACTION_REFRESH_HEADER_DATA, 0);
-
                 ui::emit_signal(SIGNAL_LOGIN_SUCCESS);
 
                 free(hd.notify_message);
