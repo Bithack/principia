@@ -56,7 +56,11 @@ else()
 	set(SCREENSHOT_BUILD FALSE)
 endif()
 
-option(BACKEND_IMGUI "Enable incomplete Dear Imgui dialog backend (Experimental)" FALSE)
+if(EMSCRIPTEN)
+	set(BACKEND_IMGUI TRUE)
+else()
+	option(BACKEND_IMGUI "Enable incomplete Dear Imgui dialog backend (Experimental)" FALSE)
+endif()
 
 set(TMS_FORMFACTOR "PC")
 if(WIN32)

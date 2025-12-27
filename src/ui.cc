@@ -124,7 +124,7 @@ void ui::open_url(const char *url)
 void ui::render(){};
 #endif
 
-#if defined(NO_UI) || defined(TMS_BACKEND_EMSCRIPTEN)
+#if defined(NO_UI)
 
 int prompt_is_open = 0;
 void ui::init(){};
