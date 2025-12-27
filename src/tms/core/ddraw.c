@@ -235,6 +235,7 @@ init_buffers(void)
     tms_ddraw_circle_mesh = circle;
 
     rsquare_ibuf = tms_gbuffer_alloc(18 * 3 * sizeof(uint16_t));
+    rsquare_ibuf->target = GL_ELEMENT_ARRAY_BUFFER;
 
     uint16_t *i = (uint16_t*)tms_gbuffer_get_buffer(rsquare_ibuf);
     for (int iy=0; iy<3; ++iy) {
@@ -247,28 +248,6 @@ init_buffers(void)
             i[iy*3*6+ix*6+5] = ix + 5 + iy * 4;
         }
     }
-    /*
-    for (int x=0; x<9; ++x) {
-        i[x*6+0] = (x*4)+1;
-        i[x*6+1] = (x*4)+0;
-        i[x*6+2] = (x*4)+4;
-        i[x*6+3] = (x*4)+1;
-        i[x*6+4] = (x*4)+4;
-        i[x*6+5] = (x*4)+5;
-        tms_debugf("[%d], %d - %d - %d",
-                x,
-                i[x*6+0],
-                i[x*6+1],
-                i[x*6+2]);
-        tms_debugf("[%d], %d - %d - %d",
-                x,
-                i[x*6+3],
-                i[x*6+4],
-                i[x*6+5]);
-    }
-    */
-
-    //tms_fatalf("x");
 
     tms_gbuffer_upload(rsquare_ibuf);
 

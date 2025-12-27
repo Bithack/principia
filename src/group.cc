@@ -73,6 +73,7 @@ group::group()
     this->va = tms_varray_alloc(2);
     this->vbuf = tms_gbuffer_alloc(1); /* XXX */
     this->ibuf = tms_gbuffer_alloc(1);
+    this->ibuf->target = GL_ELEMENT_ARRAY_BUFFER;
     tms_varray_map_attribute(this->va, "position", 3, GL_FLOAT, this->vbuf);
     tms_varray_map_attribute(this->va, "normal", 3, GL_FLOAT, this->vbuf);
 
@@ -1099,11 +1100,13 @@ group::finalize()
     }
 
     if (num_wood > 0) {
+        this->wooden_ibuf.target = GL_ELEMENT_ARRAY_BUFFER;
         tms_gbuffer_upload(&this->wooden_ibuf);
         tms_gbuffer_upload(&this->wooden_vbuf);
     }
 
     if (num_plastic > 0) {
+        this->plastic_ibuf.target = GL_ELEMENT_ARRAY_BUFFER;
         tms_gbuffer_upload(&this->plastic_ibuf);
         tms_gbuffer_upload(&this->plastic_vbuf);
     }

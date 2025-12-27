@@ -424,6 +424,7 @@ read_cache(lvlbuf *lb)
         data = (char*)malloc(indices_size);
         lb->r_buf(data, indices_size);
         m->indices = tms_gbuffer_alloc_fill(data, indices_size);
+        m->indices->target = GL_ELEMENT_ARRAY_BUFFER;
         free(data);
 
         m->va = tms_varray_alloc(3);

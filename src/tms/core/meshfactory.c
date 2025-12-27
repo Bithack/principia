@@ -158,6 +158,7 @@ tms_meshfactory_get_cylinder(void)
         struct tms_gbuffer *vbuf = tms_gbuffer_alloc(sizeof(struct cvert) * CQ*4);
         //struct tms_gbuffer *ibuf = tms_gbuffer_alloc(sizeof(short) * (CQ*4 + 12));
         struct tms_gbuffer *ibuf = tms_gbuffer_alloc(sizeof(short) * (CQ*6+CQ*3+CQ*3));
+        ibuf->target = GL_ELEMENT_ARRAY_BUFFER;
 
         struct cvert *vertices = tms_gbuffer_get_buffer(vbuf);;
         short *indices = tms_gbuffer_get_buffer(ibuf);
@@ -224,6 +225,7 @@ const struct tms_mesh *tms_meshfactory_get_cube(void)
 {
     if (cube == 0) {
         struct tms_gbuffer *indices = tms_gbuffer_alloc_fill(cube_indices, sizeof(cube_indices));
+        indices->target = GL_ELEMENT_ARRAY_BUFFER;
         struct tms_gbuffer *vertices = tms_gbuffer_alloc_fill(cube_verts, sizeof(cube_verts));
         struct tms_varray *va = tms_varray_alloc(3);
         tms_varray_map_attribute(va, "position", 3, GL_FLOAT, vertices);

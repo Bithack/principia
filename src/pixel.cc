@@ -48,6 +48,7 @@ pixel::initialize()
 
         _ibuf = new tms::gbuffer(MAX_PIXELS * indices_per_pixel * sizeof(uint16_t));
         _ibuf->usage = GL_STATIC_DRAW;
+        _ibuf->target = GL_ELEMENT_ARRAY_BUFFER;
 
         for (int x=0; x<3; x++) {
 

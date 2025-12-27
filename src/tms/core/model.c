@@ -14,6 +14,7 @@ struct tms_model *tms_model_alloc(void)
 
     m->vertices = tms_gbuffer_alloc(0);
     m->indices = tms_gbuffer_alloc(0);
+    m->indices->target = GL_ELEMENT_ARRAY_BUFFER;
 
     tms_varray_map_attribute(m->va, "position", 3, GL_FLOAT, m->vertices);
     tms_varray_map_attribute(m->va, "normal", 3, GL_FLOAT, m->vertices);
@@ -45,7 +46,10 @@ tms_model_upload(struct tms_model *m)
 {
     if (m->meshes) {
         tms_gbuffer_upload(m->vertices);
-        tms_gbuffer_upload(m->indices);
+        if (m->indices) {
+            m->indices->target = GL_ELEMENT_ARRAY_BUFFER;
+            tms_gbuffer_upload(m->indices);
+        }
     }
 }
 

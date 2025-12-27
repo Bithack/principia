@@ -35,6 +35,7 @@ static void init()
 
     vbuf = tms_gbuffer_alloc(4096*sizeof(struct vertex2));
     ibuf = tms_gbuffer_alloc(32*4096*sizeof(uint16_t));
+    ibuf->target = GL_ELEMENT_ARRAY_BUFFER;
 
     va = tms_varray_alloc(2);
     tms_varray_map_attribute(va, "position", 3, GL_FLOAT, vbuf);

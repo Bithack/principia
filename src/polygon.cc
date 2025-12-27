@@ -22,6 +22,7 @@ polygon::_init()
     vbuf->usage = GL_STATIC_DRAW;
 
     ibuf = tms_gbuffer_alloc(90 * MAX_POLYGONS * sizeof(uint16_t));
+    ibuf->target = GL_ELEMENT_ARRAY_BUFFER;
 
     va = tms_varray_alloc(3);
     tms_varray_map_attribute(va, "position", 3, GL_FLOAT, vbuf);

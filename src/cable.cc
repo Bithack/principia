@@ -69,6 +69,7 @@ cable::_init(void)
 
         buf->usage = GL_STREAM_DRAW;
         ibuf->usage = GL_STATIC_DRAW;
+        ibuf->target = GL_ELEMENT_ARRAY_BUFFER;
 
         va = new tms::varray(2);
         va->map_attribute("position", 3, GL_FLOAT, buf);
@@ -122,6 +123,7 @@ cable::_init(void)
 
         plug_ibuf = new tms::gbuffer(MAX_PLUGS * indices_per_plug * sizeof(uint16_t));
         plug_ibuf->usage = GL_STATIC_DRAW;
+        plug_ibuf->target = GL_ELEMENT_ARRAY_BUFFER;
 
         for (int x=0; x<3; x++) {
             plug_buf[x] = new tms::gbuffer(MAX_PLUGS * vertices_per_plug * sizeof(struct vertex));

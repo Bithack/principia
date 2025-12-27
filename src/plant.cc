@@ -130,6 +130,7 @@ static void _init()
 
     vbuf->usage = GL_STREAM_DRAW;
     ibuf->usage = GL_STATIC_DRAW;
+    ibuf->target = GL_ELEMENT_ARRAY_BUFFER;
 
     va = tms_varray_alloc(4);
     tms_varray_map_attribute(va, "position", 3, GL_FLOAT, vbuf);

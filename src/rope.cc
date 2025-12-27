@@ -40,6 +40,7 @@ rope::_init()
 
     buf->usage = GL_STREAM_DRAW;
     ibuf->usage = GL_STATIC_DRAW;
+    ibuf->target = GL_ELEMENT_ARRAY_BUFFER;
 
     va = new tms::varray(3);
     va->map_attribute("position", 3, GL_FLOAT, buf);

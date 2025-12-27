@@ -51,6 +51,7 @@ _init()
     {
         ibuf = new tms::gbuffer((3 * 16 * 16 * indices_per_tpixel * sizeof(uint16_t))/* / 4 * 3*/);
         ibuf->usage = GL_STATIC_DRAW;
+        ibuf->target = GL_ELEMENT_ARRAY_BUFFER;
 
         uint16_t *i = (uint16_t*)tms_gbuffer_get_buffer(ibuf);
         uint16_t *ri = (uint16_t*)((char*)tms_gbuffer_get_buffer(mm->indices)+mm->i_start*2);
@@ -67,6 +68,7 @@ _init()
 
     {
         grass_ibuf = new tms::gbuffer(MAX_GRASS_PER_CHUNK*6*sizeof(short));
+        grass_ibuf->target = GL_ELEMENT_ARRAY_BUFFER;
         uint16_t *i = (uint16_t*)tms_gbuffer_get_buffer(grass_ibuf);
         for (int x=0; x<MAX_GRASS_PER_CHUNK; x++) {
             i[x*6+0] = x*4;
@@ -137,7 +139,7 @@ chunk_window::reset()
     this->isset = false;
 }
 
-/** 
+/**
  * Sets a pixel at global gx and gy
  * returns the affected chunk
  **/
@@ -156,7 +158,7 @@ chunk_window::set_pixel(int gx, int gy, int z, int material)
     return c;
 }
 
-/** 
+/**
  * Gets the pixel at global gx and gy
  * returns the material of the given pixel
  **/
@@ -533,7 +535,7 @@ void flood_fill(chunk_window *win, int x, int y)
     }
 }
 
-/** 
+/**
  * Create the texture that is used for terrain visibility
  *
  * This function is NOT thread safe
