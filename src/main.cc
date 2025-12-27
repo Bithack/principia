@@ -51,6 +51,10 @@
 
 #include "network.hh"
 
+#ifdef __EMSCRIPTEN__
+#include "emscripten_interop.hh"
+#endif
+
 principia P={0};
 static struct tms_fb *gi_fb;
 static struct tms_fb *ao_fb;
@@ -1398,9 +1402,16 @@ level_loader(int step)
                 create_thread(_download_level, "_download_level", 0);
             }
 #endif
+            // Special handling for Emscripten...
+#ifdef __EMSCRIPTEN__
+            if (_play_type == LEVEL_DB) {
+                _play_downloading = true;
+                create_thread(_download_level_emscripten, "_download_level_emscripten", 0);
+            }
+#endif
             break;
         case 1:
-#ifdef BUILD_CURL
+#if defined(BUILD_CURL) || defined(__EMSCRIPTEN__)
             if (num < 10) {
                 P.s_loading_screen->set_text("Downloading level.");
             } else if (num < 20) {
@@ -1411,6 +1422,7 @@ level_loader(int step)
 
             if (_play_downloading) return LOAD_RETRY;
 
+#ifdef BUILD_CURL
             if (_play_downloading_error) {
                 handle_downloading_error(_play_downloading_error);
 
@@ -1419,6 +1431,7 @@ level_loader(int step)
                 if (_play_header_data.notify_message)
                     ui::message(_play_header_data.notify_message, 1);
             }
+#endif
 #endif
 
             G->screen_back = 0;

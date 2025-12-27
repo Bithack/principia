@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Principia</title>
+
+	<style>
+body {
+	margin: 0;
+	padding: 0;
+	background: #000513;
+	color: white;
+}
+canvas {
+	display: block;
+	margin: auto;
+	position: absolute;
+	top: 0; bottom: 0; left: 0; right: 0;
+	aspect-ratio: 16 / 9;
+	max-width: 100%;
+	max-height: 100%;
+}
+	</style>
+</head>
+<body>
+	<canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+
+	<script>
+	var Module = {
+		preRun: [],
+		postRun: [],
+	print: function (text) {
+		if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+		console.log(text);
+	},
+	printErr: function (text) {
+		if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+		console.error(text);
+	},
+	canvas: (function () { return document.getElementById('canvas'); })(),
+	setStatus: function (text) {
+		console.log(text);
+	},
+	totalDependencies: 0,
+	monitorRunDependencies: function (left) {
+		this.totalDependencies = Math.max(this.totalDependencies, left);
+		Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+	}
+};
+
+// Read optional `?play=[id]` query parameter and set Module.arguments accordingly
+(function() {
+	var params = new URLSearchParams(window.location.search);
+	var play = params.get('play');
+	if (play && play.length > 0) {
+		Module.arguments = ["principia://principia-web.se/play/lvl/db/" + encodeURIComponent(play)];
+	}
+})();
+
+Module.setStatus('Downloading...');
+window.onerror = function (msg) {
+	// TODO: do not warn on ok events like simulating an infinite loop or exitStatus
+	Module.setStatus('Exception thrown, see JavaScript console (' + msg + ')');
+	Module.setStatus = function (text) {
+		if (text) Module.printErr('[post-exception status] ' + text);
+	};
+};
+	</script>
+	<script async src="principia.js"></script>
+</body>
+</html>
