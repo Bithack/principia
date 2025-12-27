@@ -13,6 +13,24 @@ struct shadow_res {int x; int y;};
 
 _settings settings;
 
+// Set all graphics settings to their lowest for e.g. emscripten or valgrind
+static void apply_very_bad_settings()
+{
+    settings["num_workers"]->v.i = 0;
+    settings["ao_map_res"]->v.i = 256;
+    settings["shadow_quality"]->v.u8 = 0;
+    settings["shadow_map_resx"]->v.i = 256;
+    settings["shadow_map_resy"]->v.i = 256;
+    settings["shadow_map_precision"]->v.i = 0;
+    settings["postprocess"]->v.b = false;
+    settings["debug"]->v.b = false;
+    settings["enable_shadows"]->v.b = false;
+    settings["enable_bloom"]->v.b = false;
+    settings["enable_ao"]->v.b = false;
+    settings["render_edev_labels"]->v.b = false;
+    settings["hide_tips"]->v.b = true;
+}
+
 void
 _settings::init()
 {
@@ -124,6 +142,10 @@ _settings::init()
 
     this->add("has_opened_classic_puzzles", S_BOOL, false);
 
+#ifdef TMS_BACKEND_EMSCRIPTEN
+    apply_very_bad_settings();
+#endif
+
     sprintf(this->filename, "%s/settings.ini", tms_storage_path());
     FILE *fh;
 
@@ -232,19 +254,7 @@ _settings::load(void)
 #ifdef BUILD_VALGRIND
     if (RUNNING_ON_VALGRIND) {
         tms_debugf("Running on valgrind, forcing settings to bad!");
-        settings["num_workers"]->v.i = 0;
-        settings["ao_map_res"]->v.i = 256;
-        settings["shadow_quality"]->v.u8 = 0;
-        settings["shadow_map_resx"]->v.i = 256;
-        settings["shadow_map_resy"]->v.i = 256;
-        settings["shadow_map_precision"]->v.i = 0;
-        settings["postprocess"]->v.b = false;
-        settings["debug"]->v.b = false;
-        settings["enable_shadows"]->v.b = false;
-        settings["enable_bloom"]->v.b = false;
-        settings["enable_ao"]->v.b = false;
-        settings["render_edev_labels"]->v.b = false;
-        settings["hide_tips"]->v.b = true;
+        apply_very_bad_settings();
     }
 #endif
 
