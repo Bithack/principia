@@ -27,7 +27,7 @@
     #include <pwd.h>
 #endif
 
-#ifdef __EMSCRIPTEN__
+#ifdef TMS_BACKEND_EMSCRIPTEN
     #include <emscripten.h>
 #endif
 
@@ -66,47 +66,8 @@ to reproduce it, if possible.
     exit(1);
 }
 
-void print_log_header() {
-    tms_printf( \
-        "            _            _       _       \n"
-        " _ __  _ __(_)_ __   ___(_)_ __ (_) __ _ \n"
-        "| '_ \\| '__| | '_ \\ / __| | '_ \\| |/ _` |\n"
-        "| |_) | |  | | | | | (__| | |_) | | (_| |\n"
-        "| .__/|_|  |_|_| |_|\\___|_| .__/|_|\\__,_|\n"
-        "|_|                       |_|            \n"
-        "Version %s, commit %s\n", principia_version_string(), principia_version_hash());
-}
-
-int main(int argc, char **argv)
-{
-    int done = 0;
-
-#ifndef __ANDROID__
-    signal(SIGSEGV, _catch_signal);
-
-#ifdef TMS_BACKEND_WINDOWS
-    setlocale(LC_ALL, "C");
-#endif
-
-    setup_pipe(argc, argv);
-
-    char* exedir = SDL_GetBasePath();
-    tms_infof("chdirring to %s", exedir);
-    chdir(exedir);
-
-    // Switch to portable if ./portable.txt exists next to binary
-    if (access("portable.txt", F_OK) == 0) {
-        tms_infof("We're becoming portable!");
-        tms_storage_set_portable(true);
-    }
-
-    tms_storage_create_dirs();
-
-#if defined(SDL_HINT_APP_NAME)
-    SDL_SetHint(SDL_HINT_APP_NAME, "Principia");
-#endif
-
-#if !defined(DEBUG) && !defined(__EMSCRIPTEN__)
+void redirect_log_output() {
+#if !defined(DEBUG) && !defined(TMS_BACKEND_EMSCRIPTEN)
     char logfile[1024];
     snprintf(logfile, 1023, "%s/run.log", tms_storage_path());
 
@@ -118,9 +79,21 @@ int main(int argc, char **argv)
         tms_errorf("Could not open log file for writing! Nevermind.");
     }
 #endif
+}
 
-    print_log_header();
+void print_log_header() {
+    tms_printf( \
+        "            _            _       _       \n"
+        " _ __  _ __(_)_ __   ___(_)_ __ (_) __ _ \n"
+        "| '_ \\| '__| | '_ \\ / __| | '_ \\| |/ _` |\n"
+        "| |_) | |  | | | | | (__| | |_) | | (_| |\n"
+        "| .__/|_|  |_|_| |_|\\___|_| .__/|_|\\__,_|\n"
+        "|_|                       |_|            \n"
+        "Version %s, commit %s\n", principia_version_string(), principia_version_hash());
+}
 
+static void find_data_dir() {
+#ifndef TMS_BACKEND_ANDROID
     // Check if we're in the right place
     struct stat st{};
     if (stat("data", &st) != 0) {
@@ -140,6 +113,44 @@ int main(int argc, char **argv)
             }
         }
     }
+#endif
+}
+
+int main(int argc, char **argv)
+{
+    int done = 0;
+
+#ifndef TMS_BACKEND_ANDROID
+    signal(SIGSEGV, _catch_signal);
+
+#ifdef TMS_BACKEND_WINDOWS
+    setlocale(LC_ALL, "C");
+#endif
+
+    setup_pipe(argc, argv);
+
+    char* exedir = SDL_GetBasePath();
+    tms_infof("chdirring to %s", exedir);
+    chdir(exedir);
+#endif
+
+    // Switch to portable if ./portable.txt exists next to binary
+    if (access("portable.txt", F_OK) == 0) {
+        tms_infof("We're becoming portable!");
+        tms_storage_set_portable(true);
+    }
+
+    tms_storage_create_dirs();
+
+#ifdef SDL_HINT_APP_NAME
+    SDL_SetHint(SDL_HINT_APP_NAME, "Principia");
+#endif
+
+    redirect_log_output();
+
+    print_log_header();
+
+    find_data_dir();
 
     SDL_version compiled;
     SDL_VERSION(&compiled);
@@ -153,9 +164,14 @@ int main(int argc, char **argv)
 
     tms_infof("Initializing SDL...");
     SDL_Init(SDL_INIT_VIDEO);
+
+#ifdef TMS_BACKEND_EMSCRIPTEN
+    _tms.window_width = 1280;
+    _tms.window_height = 720;
+
+#elif !defined(TMS_BACKEND_ANDROID)
     SDL_DisplayMode mode;
     SDL_GetCurrentDisplayMode(0, &mode);
-
     _tms.window_width = 1280;
 
     if (mode.w <= 1280)
@@ -166,22 +182,16 @@ int main(int argc, char **argv)
     _tms.window_height = (int)((double)_tms.window_width * .5625);
 
     tms_infof("set initial res to %dx%d", _tms.window_width, _tms.window_height);
+#endif
 
     tproject_set_args(argc, argv);
-
-#else // ANDROID
-
-    tms_storage_create_dirs();
-    SDL_Init(SDL_INIT_VIDEO);
-
-#endif
 
     tms_init();
 
     if (_tms.screen == 0)
         tms_fatalf("Context has no initial screen!");
 
-#ifdef __EMSCRIPTEN__
+#ifdef TMS_BACKEND_EMSCRIPTEN
     emscripten_set_main_loop(mainloop, 0, 1);
 #else
     do {
@@ -292,17 +302,17 @@ static void mainloop()
 int
 tbackend_init_surface()
 {
-#ifndef __ANDROID__
+    uint32_t flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
+
+#ifdef TMS_BACKEND_ANDROID
+    flags |= SDL_WINDOW_FULLSCREEN;
+#else
     _tms.window_width = settings["window_width"]->v.i;
     _tms.window_height = settings["window_height"]->v.i;
 
     _tms.xppcm = 108.f/2.54f * 1.5f;
     _tms.yppcm = 107.f/2.54f * 1.5f;
-#endif
 
-    uint32_t flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
-
-#ifndef __ANDROID__
     if (settings["window_maximized"]->v.b)
         flags |= SDL_WINDOW_MAXIMIZED;
 
@@ -311,8 +321,6 @@ tbackend_init_surface()
 
     if (settings["window_resizable"]->v.b)
         flags |= SDL_WINDOW_RESIZABLE;
-#else
-    flags |= SDL_WINDOW_FULLSCREEN;
 #endif
 
     tms_infof("Creating window...");
@@ -326,10 +334,9 @@ tbackend_init_surface()
 
     _tms._window = _window;
 
-#ifdef __ANDROID__
+#ifdef TMS_BACKEND_ANDROID
     SDL_GL_GetDrawableSize(_window, &_tms.window_width, &_tms.window_height);
 
-    _tms._window = _window;
     float density_x, density_y;
     SDL_GetDisplayDPI(0, NULL, &density_x, &density_y);
     _tms.xppcm = density_x / 2.54f;
