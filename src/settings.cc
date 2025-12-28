@@ -31,6 +31,28 @@ static void apply_very_bad_settings()
     settings["hide_tips"]->v.b = true;
 }
 
+#ifdef TMS_BACKEND_EMSCRIPTEN
+    #define ENABLE_SHADOWS_DEFAULT false
+    #define ENABLE_AO_DEFAULT false
+    #define WINDOW_RESIZABLE_DEFAULT true
+#else
+    #define ENABLE_SHADOWS_DEFAULT true
+    #define ENABLE_AO_DEFAULT true
+    #define WINDOW_RESIZABLE_DEFAULT false
+#endif
+
+#ifdef TMS_BACKEND_MOBILE
+    #define AO_MAP_RES_DEFAULT 256
+#else
+    #define AO_MAP_RES_DEFAULT 512
+#endif
+
+#ifdef TMS_USE_GLES
+    #define GAMMA_CORRECT_DEFAULT false
+#else
+    #define GAMMA_CORRECT_DEFAULT -1
+#endif
+
 void
 _settings::init()
 {
@@ -38,59 +60,44 @@ _settings::init()
 
     /** -Graphics **/
     this->add("debug",              S_BOOL,  false);
-    this->add("postprocess",        S_BOOL,  false);
-    this->add("enable_shadows",     S_BOOL,  true);
 
-    this->add("uiscale",            S_FLOAT, 1.3f);
-
-    this->add("swap_shadow_map",    S_BOOL,  false);
-
+    // Shadows
+    this->add("enable_shadows",           S_BOOL,  ENABLE_SHADOWS_DEFAULT);
+    this->add("shadow_quality",           S_UINT8, 1);
+    this->add("swap_shadow_map",          S_BOOL,  false);
+    this->add("shadow_map_depth_texture", S_BOOL,  -1);
+    this->add("shadow_map_precision",     S_BOOL,  -1);
     // XXX: see git history
     this->add("shadow_map_resx",    S_INT32,   1280);
     this->add("shadow_map_resy",    S_INT32,   720);
 
-    // vsync is managed by the OS on Android
+    // AO
+    this->add("enable_ao",          S_BOOL,  ENABLE_AO_DEFAULT);
+    this->add("ao_map_res",         S_INT32,   AO_MAP_RES_DEFAULT);
+    this->add("swap_ao_map",        S_BOOL,  true);
+    this->add("shadow_ao_combine",  S_BOOL, 0);
+
+    // Postprocessing
+    this->add("postprocess",        S_BOOL,  false);
+    this->add("enable_bloom",       S_BOOL,  false);
+    this->add("discard_framebuffer",S_BOOL,  -1);
+    this->add("gamma_correct",      S_BOOL,  GAMMA_CORRECT_DEFAULT);
+
+    // VSync
     this->add("vsync",              S_BOOL,  true);
 
-#ifndef TMS_BACKEND_ANDROID
+    // Windowing settings
     this->add("window_width",       S_INT32,   _tms.window_width);
     this->add("window_height",      S_INT32,   _tms.window_height);
     this->add("window_maximized",   S_BOOL,  false);
     this->add("window_fullscreen",  S_BOOL, false);
-    this->add("window_resizable",   S_BOOL, false);
+    this->add("window_resizable",   S_BOOL, WINDOW_RESIZABLE_DEFAULT);
     this->add("autosave_screensize",S_BOOL,  true);
-#endif
 
-    this->add("shadow_quality",     S_UINT8,  1);
-
-#ifdef TMS_BACKEND_MOBILE
-    this->add("ao_map_res",         S_INT32,   256);
-#else
-    this->add("ao_map_res",         S_INT32,   512);
-#endif
-
-    this->add("discard_framebuffer",        S_BOOL, -1);
-    this->add("shadow_map_depth_texture",   S_BOOL, -1);
-    this->add("shadow_map_precision",       S_BOOL, -1);
-
-    this->add("swap_ao_map",        S_BOOL,  true);
-#ifdef TMS_BACKEND_MOBILE
-    this->add("gamma_correct",      S_BOOL,  false);
-#else
-    this->add("gamma_correct",      S_BOOL,  -1);
-#endif
-    this->add("enable_ao",          S_BOOL,  true);
-
-#ifdef TMS_BACKEND_MOBILE
-    this->add("shadow_ao_combine",         S_BOOL, 0);
-#else
-    this->add("shadow_ao_combine",         S_BOOL, 0);
-#endif
-
-    this->add("enable_bloom",       S_BOOL,  false);
+    // UI
+    this->add("uiscale",            S_FLOAT, 1.3f);
     this->add("render_gui",         S_BOOL,  true);
     this->add("render_edev_labels", S_BOOL,  true);
-
 
     this->add("fv",                 S_INT32,   2); /* settings file version */
     this->add("jail_cursor",        S_BOOL,  false);
@@ -141,10 +148,6 @@ _settings::init()
     this->add("score_automatically_submit", S_BOOL, true);
 
     this->add("has_opened_classic_puzzles", S_BOOL, false);
-
-#ifdef TMS_BACKEND_EMSCRIPTEN
-    apply_very_bad_settings();
-#endif
 
     sprintf(this->filename, "%s/settings.ini", tms_storage_path());
     FILE *fh;
