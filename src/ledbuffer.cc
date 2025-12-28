@@ -43,6 +43,7 @@ void ledbuffer::_init()
 
     indices = new tms::gbuffer(7*3*LEDBUFFER_MAX*sizeof(uint16_t));
     indices->usage = TMS_GBUFFER_STATIC_DRAW;
+    indices->target = GL_ELEMENT_ARRAY_BUFFER;
 
     va = new tms::varray(1);
     va->map_attribute("position", 4, GL_FLOAT, verts);

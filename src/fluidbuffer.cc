@@ -50,6 +50,7 @@ void fluidbuffer::_init()
 
     indices = new tms::gbuffer(6*FLUIDBUFFER_MAX*sizeof(uint32_t));
     indices->usage = TMS_GBUFFER_STATIC_DRAW;
+    indices->target = GL_ELEMENT_ARRAY_BUFFER;
 
     va = new tms::varray(2);
     va->map_attribute("position", 3, GL_FLOAT, verts);

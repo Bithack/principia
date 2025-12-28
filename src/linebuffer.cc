@@ -92,6 +92,7 @@ void linebuffer::_init()
 
     indices = new tms::gbuffer(6*LINEBUFFER_MAX*sizeof(uint16_t));
     indices->usage = TMS_GBUFFER_STATIC_DRAW;
+    indices->target = GL_ELEMENT_ARRAY_BUFFER;
 
     va = new tms::varray(3);
     va->map_attribute("position", 3, GL_FLOAT, verts);

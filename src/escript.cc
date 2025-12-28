@@ -4306,6 +4306,7 @@ draw_data::draw_data(escript *parent, int width, int height, uint8_t num_channel
 
     this->indices = new tms::gbuffer(6*MAX_SPRITES*sizeof(uint16_t));
     this->indices->usage = TMS_GBUFFER_STATIC_DRAW;
+    this->indices->target = GL_ELEMENT_ARRAY_BUFFER;
 
     this->va = new tms::varray(3);
     this->va->map_attribute("position", 3, GL_FLOAT, verts);

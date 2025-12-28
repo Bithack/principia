@@ -47,6 +47,7 @@ display::_init()
 
     indices = new tms::gbuffer(6*DISPLAY_MAX_TOTAL_SQUARES*sizeof(uint16_t));
     indices->usage = TMS_GBUFFER_STATIC_DRAW;
+    indices->target = GL_ELEMENT_ARRAY_BUFFER;
 
     _va = new tms::varray(1);
     _va->map_attribute("position", 4, GL_FLOAT, verts);
