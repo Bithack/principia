@@ -1,7 +1,5 @@
 #pragma once
 
-#ifdef __cplusplus
-
 #include "misc.hh"
 
 #include <tms/bindings/cpp/cpp.hh>
@@ -16,7 +14,6 @@ class menu_play;
 class loading_screen;
 class settings;
 class p_text;
-#endif
 
 class pkginfo;
 
@@ -128,15 +125,6 @@ struct register_data {
     char password[256];
 };
 
-/*
-struct user {
-    char username[255];
-    bool logged_in;
-};
-*/
-
-#ifdef __cplusplus
-
 class intermediary : public tms::screen
 {
   public:
@@ -174,7 +162,7 @@ extern class principia
     struct action actions[MAX_ACTIONS];
     int num_actions;
 
-    int  focused;
+    bool focused;
     bool loaded;
 
     const char *community_host;
@@ -237,9 +225,3 @@ class open_play_data
         , is_main_puzzle(_is_main_puzzle)
     { }
 };
-
-#else
-void P_add_action(int id, void *data);
-void P_focus(int focus);
-#endif
-

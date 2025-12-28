@@ -139,7 +139,7 @@ class ui
 #endif
 
 #if defined(TMS_BACKEND_PC) && !defined(NO_UI)
-extern int prompt_is_open;
+extern bool prompt_is_open;
 #endif
 
 extern const char* tips[];

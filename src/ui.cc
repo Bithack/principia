@@ -126,7 +126,7 @@ void ui::render(){};
 
 #if defined(NO_UI)
 
-int prompt_is_open = 0;
+bool prompt_is_open = false;
 void ui::init(){};
 void ui::open_dialog(int num, void *data/*=0*/){}
 void ui::open_sandbox_tips(){};

@@ -83,8 +83,6 @@ init_curl()
         tms_fatalf("Unable to create curl mutex.");
     }
 
-    P.focused = 1;
-
     tms_infof("Initializing curl (v" LIBCURL_VERSION ")...");
     CURLcode r = curl_global_init(CURL_GLOBAL_ALL);
     if (r != CURLE_OK) {

@@ -2510,9 +2510,8 @@ game::render()
 {
     /* only delay on android */
 #ifdef TMS_BACKEND_ANDROID
-    if (!P.focused) {
+    if (!P.focused)
         SDL_Delay(500);
-    }
 #endif
 
     int ierr;
@@ -9961,7 +9960,7 @@ game::handle_input(tms::event *ev, int action)
             this->hov_text->active = false;
 #endif
 
-            P.focused = 1;
+            P.focused = true;
             break;
 
         case TMS_EV_POINTER_UP:

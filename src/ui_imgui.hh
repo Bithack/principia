@@ -2749,20 +2749,20 @@ namespace UiAnimal {
             for (int i = 0; i < NUM_ANIMAL_TYPES; ++i) {
                 if (ImGui::MenuItem(animal_data[i].name)) {
                     entity* e = G->selection.e;
-    
+
                     if (e && e->g_id == O_ANIMAL) {
                         W->add_action(e->id, ACTION_SET_ANIMAL_TYPE, UINT_TO_VOID((uint32_t)i));
-    
+
                         P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
                         P.add_action(ACTION_RESELECT, 0);
                     }
                 }
             }
-    
+
             ImGui::EndPopup();
         }
     }
-    
+
 }
 
 static void ui_init() {
@@ -2800,7 +2800,7 @@ static void ui_layout() {
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
 
 #if defined(TMS_BACKEND_PC) && !defined(NO_UI)
-int prompt_is_open = 0;
+bool prompt_is_open = false;
 #endif
 
 static void update_imgui_ui_scale() {

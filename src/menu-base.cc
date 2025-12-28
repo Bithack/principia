@@ -171,11 +171,8 @@ menu_base::render()
     return T_OK;
 #endif
 
-    if (!P.focused) {
-#ifndef TMS_BACKEND_IOS
+    if (!P.focused)
         SDL_Delay(100);
-#endif
-    }
 
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);

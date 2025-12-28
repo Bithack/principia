@@ -1299,6 +1299,7 @@ tproject_init(void)
     P.message = 0;
     P.new_version_available = false;
     P.curl = 0;
+    P.focused = true;
 
     tms_infof("tproject_init called");
     srand((unsigned)time(0));
@@ -2019,19 +2020,4 @@ principia::get_light_normal()
     tvec3 light = (tvec3){0.5, 1.3, 0.6}; // X,Y,Z normals
     tvec3_normalize(&light);
     return light;
-}
-
-extern "C" void
-P_focus(int focus)
-{
-    P.focused = focus?true:false;
-
-    if (focus) sm::resume_all();
-    else sm::pause_all();
-}
-
-extern "C" void
-P_add_action(int id, void *data)
-{
-    P.add_action(id, data);
 }

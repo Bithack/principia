@@ -133,7 +133,7 @@ menu_main::handle_input(tms::event *ev, int action)
     if (ev->type == TMS_EV_POINTER_DOWN) {
         if (!P.focused) {
             if (prompt_is_open) return T_OK;
-            else P.focused = 1;
+            else P.focused = true;
         }
     }
 #endif
