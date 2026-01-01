@@ -35,10 +35,13 @@ static void apply_very_bad_settings()
     #define ENABLE_SHADOWS_DEFAULT false
     #define ENABLE_AO_DEFAULT false
     #define WINDOW_RESIZABLE_DEFAULT true
+    // XXX: Setting workers to anything other than 0 to disable it causes lockups
+    #define NUM_WORKERS_DEFAULT 0
 #else
     #define ENABLE_SHADOWS_DEFAULT true
     #define ENABLE_AO_DEFAULT true
     #define WINDOW_RESIZABLE_DEFAULT false
+    #define NUM_WORKERS_DEFAULT SDL_GetCPUCount()
 #endif
 
 #ifdef TMS_BACKEND_MOBILE
@@ -137,7 +140,7 @@ _settings::init()
     this->add("tutorial", S_UINT32, 0);
     this->add("display_fps", S_UINT8, 0);
 
-    this->add("num_workers", S_UINT8, SDL_GetCPUCount());
+    this->add("num_workers", S_UINT8, NUM_WORKERS_DEFAULT);
     tms_infof("num workers (real): %d", SDL_GetCPUCount());
 
     this->add("dna_sandbox_back", S_BOOL, false);
