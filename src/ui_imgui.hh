@@ -1,18 +1,23 @@
-
+#include "adventure.hh"
+#include "animal.hh"
 #include "creature.hh"
+#include "decorations.hh"
 #include "entity.hh"
 #include "faction.hh"
 #include "game.hh"
+#include "item.hh"
 #include "main.hh"
 #include "material.hh"
 #include "misc.hh"
 #include "object_factory.hh"
 #include "pkgman.hh"
+#include "polygon.hh"
 #include "robot_base.hh"
 #include "settings.hh"
 #include "simplebg.hh"
 #include "soundmanager.hh"
 #include "speaker.hh"
+#include "treasure_chest.hh"
 #include "ui.hh"
 #include "world.hh"
 
@@ -25,6 +30,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <map>
+#include <stdexcept>
 #include <string>
 #include <thread>
 #include <utility>
@@ -234,6 +240,12 @@ namespace UiNewLevel { static void open(); static void layout(); }
 namespace UiFrequency { static void open(bool is_range, entity *e = G->selection.e); static void layout(); }
 namespace UiConfirm { void open(const char* text, const char* button1, principia_action action1, const char* button2, principia_action action2, const char* button3, principia_action action3, struct confirm_data  _confirm_data); void layout(); }
 namespace UiAnimal { static void open(); static void layout(); }
+namespace UiRobot { static void open(); static void layout(); }
+namespace UiSticky { static void open(); static void layout(); }
+namespace UiTreasureChest { static void open(); static void layout(); }
+namespace UiPolygon { static void open(); static void layout(); }
+namespace UiRubber { static void open(); static void layout(); }
+namespace UiDecoration { static void open(); static void layout(); }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
 #ifdef DEBUG
@@ -884,6 +896,11 @@ namespace UiLogin {
                 P.add_action(ACTION_LOGIN, data);
             }
             ImGui::EndDisabled();
+            ImGui::SameLine();
+            if (ImGui::Button("  Register  ") || (can_submit && activate)) {
+                COMMUNITY_URL("register");
+                ui::open_url(url);
+            }
 
             ImGui::SameLine();
 
@@ -2762,7 +2779,690 @@ namespace UiAnimal {
             ImGui::EndPopup();
         }
     }
+}
 
+namespace UiRobot {
+    static std::vector<uint32_t> equipment;
+    static bool do_open = false;
+    static bool needs_refresh = true;
+    static entity* last_selected = nullptr;
+
+    static void open() {
+        entity* e = G->selection.e;
+
+        last_selected = e;
+        needs_refresh = false;
+
+        if (e->properties[ROBOT_PROPERTY_HEAD].v.i8 < 0 || e->properties[ROBOT_PROPERTY_HEAD].v.i8 >= NUM_HEAD_TYPES) {
+            e->properties[ROBOT_PROPERTY_HEAD].v.i8 = 0;
+        }
+        if (e->properties[ROBOT_PROPERTY_HEAD_EQUIPMENT].v.i8 < 0 || e->properties[ROBOT_PROPERTY_HEAD_EQUIPMENT].v.i8 >= NUM_HEAD_EQUIPMENT_TYPES) {
+            e->properties[ROBOT_PROPERTY_HEAD_EQUIPMENT].v.i8 = 0;
+        }
+        if (e->properties[ROBOT_PROPERTY_BACK].v.i8 < 0 || e->properties[ROBOT_PROPERTY_BACK].v.i8 >= NUM_BACK_EQUIPMENT_TYPES) {
+            e->properties[ROBOT_PROPERTY_BACK].v.i8 = 0;
+        }
+        if (e->properties[ROBOT_PROPERTY_FRONT].v.i8 < 0 || e->properties[ROBOT_PROPERTY_FRONT].v.i8 >= NUM_FRONT_EQUIPMENT_TYPES) {
+            e->properties[ROBOT_PROPERTY_FRONT].v.i8 = 0;
+        }
+        if (e->properties[ROBOT_PROPERTY_FEET].v.i8 < 0 || e->properties[ROBOT_PROPERTY_FEET].v.i8 >= NUM_FEET_TYPES) {
+            e->properties[ROBOT_PROPERTY_FEET].v.i8 = 0;
+        }
+        if (e->properties[ROBOT_PROPERTY_BOLT_SET].v.i8 < 0 || e->properties[ROBOT_PROPERTY_BOLT_SET].v.i8 >= NUM_BOLT_SETS) {
+            e->properties[ROBOT_PROPERTY_BOLT_SET].v.i8 = 0;
+        }
+
+        if (e->properties[ROBOT_PROPERTY_STATE].v.i8 < CREATURE_IDLE || e->properties[ROBOT_PROPERTY_STATE].v.i8 > CREATURE_DEAD) {
+            e->properties[ROBOT_PROPERTY_STATE].v.i8 = CREATURE_IDLE;
+        }
+        if (e->properties[ROBOT_PROPERTY_ROAMING].v.i8 != 0 && e->properties[ROBOT_PROPERTY_ROAMING].v.i8 != 1) {
+            e->properties[ROBOT_PROPERTY_ROAMING].v.i8 = 0;
+        }
+        if (e->properties[ROBOT_PROPERTY_DIR].v.i8 < 0 || e->properties[ROBOT_PROPERTY_DIR].v.i8 > 2) {
+            e->properties[ROBOT_PROPERTY_DIR].v.i8 = 1;
+        }
+        if (e->properties[ROBOT_PROPERTY_FACTION].v.i8 < 0 || e->properties[ROBOT_PROPERTY_FACTION].v.i8 >= NUM_FACTIONS) {
+            e->properties[ROBOT_PROPERTY_FACTION].v.i8 = FACTION_ENEMY;
+        }
+
+        equipment.clear();
+        if (e->properties[ROBOT_PROPERTY_EQUIPMENT].v.s.buf) {
+            std::vector<char*> eq_parts = p_split(e->properties[ROBOT_PROPERTY_EQUIPMENT].v.s.buf, e->properties[ROBOT_PROPERTY_EQUIPMENT].v.s.len, ";");
+            for (char* part : eq_parts) {
+                uint32_t item_id = atoi(part);
+                if (item_id < NUM_ITEMS) {
+                    equipment.push_back(item_id);
+                }
+            }
+        }
+
+        do_open = true;
+    }
+
+    static void layout() {
+        handle_do_open(&do_open, "Robot Settings:");
+        if (ImGui::BeginPopupModal("Robot Settings:", nullptr, MODAL_FLAGS)) {
+            entity* e = G->selection.e;
+            if (e != last_selected) {
+                last_selected = e;
+                needs_refresh = true;
+            }
+            creature* c = dynamic_cast<creature*>(e);
+            // Default State
+            bool isAdventure = (e->id == G->state.adventure_id && W->is_adventure());
+            if (isAdventure) {
+                ImGui::BeginDisabled();
+            }
+
+            ImGui::Text("Default State");
+            int state = e->properties[ROBOT_PROPERTY_STATE].v.i8;
+            if (ImGui::RadioButton("Idle", &state, CREATURE_IDLE)) {
+                e->properties[ROBOT_PROPERTY_STATE].v.i8 = static_cast<uint8_t>(state);
+            }
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Walking", &state, CREATURE_WALK)) {
+                e->properties[ROBOT_PROPERTY_STATE].v.i8 = static_cast<uint8_t>(state);
+            }
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Dead", &state, CREATURE_DEAD)) {
+                e->properties[ROBOT_PROPERTY_STATE].v.i8 = static_cast<uint8_t>(state);
+            }
+            ImGui::SeparatorText("");
+
+            // Roaming
+            bool roaming = e->properties[ROBOT_PROPERTY_ROAMING].v.i8 != 0;
+            if (ImGui::Checkbox("Roaming", &roaming)) {
+                e->properties[ROBOT_PROPERTY_ROAMING].v.i8 = roaming ? 1 : 0;
+            }
+
+            // Initial Direction
+            ImGui::SeparatorText("Initial Direction");
+            int direction = e->properties[ROBOT_PROPERTY_DIR].v.i8;
+            if (ImGui::RadioButton("Left", &direction, 0)) {
+                e->properties[ROBOT_PROPERTY_DIR].v.i8 = static_cast<uint8_t>(direction);
+                ((robot_base*)e)->set_i_dir(DIR_LEFT);
+            }
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Random", &direction, 1)) {
+                e->properties[ROBOT_PROPERTY_DIR].v.i8 = static_cast<uint8_t>(direction);
+                ((robot_base*)e)->set_i_dir(0.f);
+            }
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Right", &direction, 2)) {
+                e->properties[ROBOT_PROPERTY_DIR].v.i8 = static_cast<uint8_t>(direction);
+                ((robot_base*)e)->set_i_dir(DIR_RIGHT);
+            }
+            ImGui::Separator();
+            if (isAdventure) {
+                ImGui::EndDisabled();
+            }
+
+            // Faction
+            ImGui::SeparatorText("Faction");
+            int faction = e->properties[ROBOT_PROPERTY_FACTION].v.i8;
+            for (int x = 0; x < NUM_FACTIONS; ++x) {
+                if (ImGui::RadioButton(factions[x].name, &faction, x)) {
+                    e->properties[ROBOT_PROPERTY_FACTION].v.i8 = static_cast<uint8_t>(faction);
+                    ((robot_base*)e)->set_faction(faction);
+                }
+            }
+            if (faction >= NUM_FACTIONS) {
+                e->properties[ROBOT_PROPERTY_FACTION].v.i8 = FACTION_ENEMY;
+                ((robot_base*)e)->set_faction(FACTION_ENEMY);
+            }
+
+            // Equipment
+            ImGui::SeparatorText("Equipment");
+            auto item_cb_append = [&e](const char* labelPrefix, uint8_t* equipment, int numTypes, const int* itemArray, bool hasFeature = true) {
+                if (!hasFeature) return;
+                int globalItemId = (*equipment < numTypes) ? itemArray[*equipment] : 0;
+                std::string currentLabel = item::get_ui_name(globalItemId);
+                if (currentLabel.empty() || globalItemId == 0) {
+                    currentLabel = "None";
+                }
+                if (ImGui::BeginCombo(labelPrefix, currentLabel.c_str())) {
+                    if (ImGui::Selectable("None", *equipment == 0)) {
+                        *equipment = 0;
+                        needs_refresh = true;
+                    }
+                    for (int i = 0; i < numTypes; ++i) {
+                        int itemId = itemArray[i];
+                        if (itemId <= 0 || itemId >= NUM_ITEMS) {
+                            continue;
+                        }
+                        const char* label = item::get_ui_name(itemId);
+                        if (label == nullptr || strlen(label) == 0) {
+                            label = "Unknown Item";
+                        }
+                        bool selected = (globalItemId == itemId);
+                        if (ImGui::Selectable(label, selected)) {
+                            *equipment = static_cast<uint8_t>(i);
+                            needs_refresh = true;
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+            };
+            if (c->has_feature(CREATURE_FEATURE_HEAD)) {
+                item_cb_append("Head", &e->properties[ROBOT_PROPERTY_HEAD].v.i8, NUM_HEAD_TYPES, _head_to_item);
+                item_cb_append("Head Equipment", &e->properties[ROBOT_PROPERTY_HEAD_EQUIPMENT].v.i8, NUM_HEAD_EQUIPMENT_TYPES, _head_equipment_to_item);
+            } else {
+                ImGui::BeginDisabled();
+                item_cb_append("Head", &e->properties[ROBOT_PROPERTY_HEAD].v.i8, NUM_HEAD_TYPES, _head_to_item, false);
+                item_cb_append("Head Equipment", &e->properties[ROBOT_PROPERTY_HEAD_EQUIPMENT].v.i8, NUM_HEAD_EQUIPMENT_TYPES, _head_equipment_to_item, false);
+                ImGui::EndDisabled();
+            }
+            if (c->has_feature(CREATURE_FEATURE_BACK_EQUIPMENT)) {
+                item_cb_append("Back Equipment", &e->properties[ROBOT_PROPERTY_BACK].v.i8, NUM_BACK_EQUIPMENT_TYPES, _back_to_item);
+            } else {
+                ImGui::BeginDisabled();
+                item_cb_append("Back Equipment", &e->properties[ROBOT_PROPERTY_BACK].v.i8, NUM_BACK_EQUIPMENT_TYPES, _back_to_item, false);
+                ImGui::EndDisabled();
+            }
+            if (c->has_feature(CREATURE_FEATURE_FRONT_EQUIPMENT)) {
+                item_cb_append("Front Equipment", &e->properties[ROBOT_PROPERTY_FRONT].v.i8, NUM_FRONT_EQUIPMENT_TYPES, _front_to_item);
+            } else {
+                ImGui::BeginDisabled();
+                item_cb_append("Front Equipment", &e->properties[ROBOT_PROPERTY_FRONT].v.i8, NUM_FRONT_EQUIPMENT_TYPES, _front_to_item, false);
+                ImGui::EndDisabled();
+            }
+            item_cb_append("Feet", &e->properties[ROBOT_PROPERTY_FEET].v.i8, NUM_FEET_TYPES, _feet_to_item);
+            item_cb_append("Bolt Set", &e->properties[ROBOT_PROPERTY_BOLT_SET].v.i8, NUM_BOLT_SETS, _bolt_to_item);
+
+            if (needs_refresh) {
+                equipment.clear();
+                if (e->properties[ROBOT_PROPERTY_EQUIPMENT].v.s.buf) {
+                    std::vector<char*> eq_parts = p_split(e->properties[ROBOT_PROPERTY_EQUIPMENT].v.s.buf, e->properties[ROBOT_PROPERTY_EQUIPMENT].v.s.len, ";");
+                    for (char* part : eq_parts) {
+                        uint32_t item_id = atoi(part);
+                        if (item_id < NUM_ITEMS && item_id != 0 && item_id != 1) {
+                            equipment.push_back(item_id);
+                        }
+                    }
+                }
+                needs_refresh = false;
+            }
+
+            ImGui::SeparatorText("Equipped items");
+            if (ImGui::BeginListBox("##EquipmentList", ImVec2(0, ImGui::GetTextLineHeight() * 10))) {
+                for (int x = 0; x < NUM_ITEMS; ++x) {
+                    struct item_option* io = &item_options[x];
+                    if (io->category != ITEM_CATEGORY_WEAPON &&
+                        io->category != ITEM_CATEGORY_TOOL &&
+                        io->category != ITEM_CATEGORY_CIRCUIT) {
+                        continue;
+                    }
+                    bool equipped = std::find(equipment.begin(), equipment.end(), x) != equipment.end();
+                    std::string label = item::get_ui_name(x);
+                    if (equipped) {
+                        label += " (Equipped)";
+                    }
+                    if (ImGui::Selectable(label.c_str())) {
+                        if (equipped) {
+                            equipment.erase(std::remove(equipment.begin(), equipment.end(), x), equipment.end());
+                        } else {
+                            equipment.push_back(x);
+                        }
+                    }
+                }
+                ImGui::EndListBox();
+            }
+
+            // Buttons
+            ImGui::SeparatorText("");
+            if (ImGui::Button("Apply")) {
+                std::vector<int> equippedItems;
+
+                auto push_if_valid = [&](uint8_t typeSpecificId, const int* itemArray, int numTypes) {
+                    if (typeSpecificId < numTypes && typeSpecificId > 0) {
+                        int globalItemId = itemArray[typeSpecificId];
+                        if (globalItemId > 0 && globalItemId < NUM_ITEMS) {
+                            equippedItems.push_back(globalItemId);
+                        }
+                    }
+                };
+
+                push_if_valid(e->properties[ROBOT_PROPERTY_HEAD].v.i8, _head_to_item, NUM_HEAD_TYPES);
+                push_if_valid(e->properties[ROBOT_PROPERTY_HEAD_EQUIPMENT].v.i8, _head_equipment_to_item, NUM_HEAD_EQUIPMENT_TYPES);
+                push_if_valid(e->properties[ROBOT_PROPERTY_BACK].v.i8, _back_to_item, NUM_BACK_EQUIPMENT_TYPES);
+                push_if_valid(e->properties[ROBOT_PROPERTY_FRONT].v.i8, _front_to_item, NUM_FRONT_EQUIPMENT_TYPES);
+                push_if_valid(e->properties[ROBOT_PROPERTY_FEET].v.i8, _feet_to_item, NUM_FEET_TYPES);
+                push_if_valid(e->properties[ROBOT_PROPERTY_BOLT_SET].v.i8, _bolt_to_item, NUM_BOLT_SETS);
+                for (uint32_t itemId : equipment) {
+                    if (itemId < NUM_ITEMS && itemId != 0 && itemId != 1) {
+                        equippedItems.push_back(itemId);
+                    }
+                }
+
+                std::stringstream ss;
+                for (size_t i = 0; i < equippedItems.size(); ++i) {
+                    if (i > 0) ss << ";";
+                    ss << equippedItems[i];
+                }
+                e->set_property(ROBOT_PROPERTY_EQUIPMENT, ss.str().c_str());
+                ui::message("Robot properties saved!");
+                P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
+                P.add_action(ACTION_RESELECT, 0);
+                W->add_action(e->id, ACTION_CALL_ON_LOAD);
+                ImGui::CloseCurrentPopup();
+                last_selected = nullptr;
+                needs_refresh = true;
+            }
+
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel")) {
+                ImGui::CloseCurrentPopup();
+                last_selected = nullptr;
+                needs_refresh = true;
+            }
+            ImGui::EndPopup();
+        }
+    }
+}
+
+namespace UiSticky {
+    static bool do_open = false;
+    static bool center_x = true;
+    static bool center_y = true;
+    static int font_size = 2;
+    static std::string text = "Hello!";
+
+    static void open() {
+        entity* e = G->selection.e;
+        text = e->properties[0].v.s.buf ? e->properties[0].v.s.buf : "Hello!";
+        center_x = e->properties[1].v.i8 != 0;
+        center_y = e->properties[2].v.i8 != 0;
+        font_size = e->properties[3].v.i8;
+        do_open = true;
+    }
+
+    static void layout() {
+
+
+        handle_do_open(&do_open, "Sticky Note");
+        if (ImGui::BeginPopupModal("Sticky Note", nullptr, MODAL_FLAGS)) {
+            ImGui::Checkbox("Center X", &center_x);
+            ImGui::SameLine();
+            ImGui::Checkbox("Center Y", &center_y);
+            ImGui::Spacing();
+            ImGui::SliderInt("Font Size", &font_size, 0, 3);
+            ImGui::SeparatorText("Text");
+            ImGui::InputTextMultiline("##text", &text, ImVec2(300, ImGui::GetTextLineHeight() * 10));
+
+            ImGui::Spacing();
+            ImGui::SeparatorText("");
+            if (ImGui::Button("Apply")) {
+                entity* e = G->selection.e;
+                if (e->properties[0].v.s.buf) {
+                    free(e->properties[0].v.s.buf);
+                }
+                e->properties[0].v.s.buf = strdup(text.c_str());
+                e->properties[1].v.i8 = static_cast<uint8_t>(center_x);
+                e->properties[2].v.i8 = static_cast<uint8_t>(center_y);
+                e->properties[3].v.i8 = static_cast<uint8_t>(font_size);
+
+                P.add_action(ACTION_SET_STICKY_TEXT, text.c_str());
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel")) {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+}
+
+namespace UiTreasureChest {
+    static bool do_open = false;
+    static int selected_index = -1;
+    static int selected_entity = 0;
+    static int selected_sub_entity = 0;
+    static int selected_count = 1;
+
+    struct ChestItem {
+        int g_id;
+        int sub_id;
+        int count;
+    };
+
+    static std::vector<ChestItem> chest_items = {};
+
+    static void open() {
+        do_open = true;
+        entity* e = G->selection.e;
+        chest_items.clear();
+        selected_index = -1;
+
+        if (e && e->g_id == O_TREASURE_CHEST) {
+            char* str = strdup(e->properties[0].v.s.buf);
+            std::vector<treasure_chest_item> parsed_items = treasure_chest::parse_items(str);
+            free(str);
+            for (const auto& item : parsed_items) {
+                chest_items.push_back({ item.g_id, item.sub_id, item.count });
+            }
+        }
+    }
+
+    static void layout() {
+        handle_do_open(&do_open, "Treasure chest");
+        if (ImGui::BeginPopupModal("Treasure chest", REF_TRUE, MODAL_FLAGS)) {
+            entity* e = G->selection.e;
+
+            // Entities
+            std::vector<std::string> entity_labels;
+            std::vector<const char*> entity_label_ptrs;
+            for (const auto& obj : menu_objects) {
+                if (obj.e != nullptr) {
+                    entity_labels.push_back(obj.e->get_name());
+                }
+            }
+            for (auto& label : entity_labels) {
+                entity_label_ptrs.push_back(label.c_str());
+            }
+            if (!entity_label_ptrs.empty()) {
+                static int prev_selected_entity = -1;
+                if (ImGui::Combo("##Entity", &selected_entity, entity_label_ptrs.data(), (int)entity_label_ptrs.size())) {
+                    selected_sub_entity = 0;
+                    prev_selected_entity = selected_entity;
+                }
+            }
+            else {
+                ImGui::TextDisabled("No entities");
+            }
+
+            // Sub-Entities
+            std::vector<std::string> sub_entity_labels;
+            std::vector<const char*> sub_entity_ptrs;
+            if (selected_entity >= 0 && selected_entity < menu_objects.size()) {
+                entity* selected_entity_ptr = menu_objects[selected_entity].e;
+                if (selected_entity_ptr) {
+                    int g_id = selected_entity_ptr->g_id;
+
+                    if (g_id == O_ITEM) {
+                        for (int i = 0; i < NUM_ITEMS; ++i) {
+                            sub_entity_labels.emplace_back(item_options[i].name);
+                        }
+                    } else if (g_id == O_RESOURCE) {
+                        for (int i = 0; i < NUM_RESOURCES; ++i) {
+                            sub_entity_labels.emplace_back(resource_data[i].name);
+                        }
+                    }
+
+                    for (auto& label : sub_entity_labels) {
+                        sub_entity_ptrs.push_back(label.c_str());
+                    }
+
+                    if (!sub_entity_ptrs.empty()) {
+                        ImGui::Combo("##SubEntity", &selected_sub_entity, sub_entity_ptrs.data(), (int)sub_entity_ptrs.size());
+                    } else {
+                        ImGui::TextDisabled("No sub-entities");
+                    }
+                }
+            }
+
+            // (consider adding amount limit)
+            ImGui::InputInt("Amount", &selected_count);
+            if (selected_count < 1){
+                selected_count = 1;
+            }
+
+            static std::vector<treasure_chest_item> parsed_items;
+            parsed_items.clear();
+            if (e && e->g_id == O_TREASURE_CHEST) {
+                char* str = strdup(e->properties[0].v.s.buf);
+                parsed_items = treasure_chest::parse_items(str);
+                free(str);
+            }
+
+            ImGui::Separator();
+            if (ImGui::Button("Add entity")) {
+                if (selected_entity >= 0 && selected_entity < menu_objects.size()) {
+                    entity* selected_entity_ptr = menu_objects[selected_entity].e;
+                    if (selected_entity_ptr) {
+                        chest_items.push_back({ selected_entity_ptr->g_id, selected_sub_entity, selected_count });
+                    }
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Remove selected")) {
+                if (selected_index >= 0 && selected_index < chest_items.size()) {
+                    chest_items.erase(chest_items.begin() + selected_index);
+                    selected_index = -1;
+                }
+            }
+
+            // Table
+            ImGui::Separator();
+            if (ImGui::BeginTable("ChestItems", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+                ImGui::TableSetupColumn("Entity");
+                ImGui::TableSetupColumn("Sub-Entity");
+                ImGui::TableSetupColumn("Count");
+                ImGui::TableHeadersRow();
+
+                for (int i = 0; i < chest_items.size(); ++i) {
+                    auto& item = chest_items[i];
+                    ImGui::TableNextRow();
+
+                    const char* g_name = "Unknown";
+                    const char* sub_name = "-";
+
+                    switch (item.g_id) {
+                        case O_ITEM:
+                            g_name = "Item";
+                            if (item.sub_id >= 0 && item.sub_id < NUM_ITEMS) {
+                                sub_name = item_options[item.sub_id].name;
+                            }
+                            break;
+
+                        case O_RESOURCE:
+                            g_name = "Resource";
+                            if (item.sub_id >= 0 && item.sub_id < NUM_RESOURCES) {
+                                sub_name = resource_data[item.sub_id].name;
+                            }
+                            break;
+
+                        default: {
+                            // (no sub-entity)
+                            entity* e = of::create(item.g_id);
+                            if (e) {
+                                g_name = e->get_name();
+                                delete e;
+                            }
+                            break;
+                        }
+                    }
+
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::PushID(i);
+                    bool is_selected = (i == selected_index);
+                    if (ImGui::RadioButton(g_name, is_selected)) {
+                        selected_index = i;
+                    }
+                    ImGui::PopID();
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::TextUnformatted(sub_name);
+
+                    ImGui::TableSetColumnIndex(2);
+                    ImGui::Text("%d", item.count);
+                }
+
+                ImGui::EndTable();
+            }
+
+            ImGui::Spacing();
+            ImGui::SeparatorText("");
+            if (ImGui::Button("Apply")) {
+                if (e && e->g_id == O_TREASURE_CHEST) {
+                    treasure_chest* tc = static_cast<treasure_chest*>(e);
+                    std::stringstream ss;
+                    for (size_t i = 0; i < chest_items.size(); ++i) {
+                        if (i > 0) ss << ";";
+                        ss << chest_items[i].g_id << ":" << chest_items[i].sub_id << ":" << chest_items[i].count;
+                    }
+                    tc->set_property(0, ss.str().c_str());
+                    P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
+                    P.add_action(ACTION_RESELECT, 0);
+                }
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel")) {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+}
+
+namespace UiPolygon {
+    static bool do_open = false;
+    static int sublayer_depth = 1;
+    static bool front_align = false;
+
+    static void open() {
+        do_open = true;
+    }
+
+    static void layout() {
+        handle_do_open(&do_open, "Polygon");
+        ImGui::SetNextWindowSize(ImVec2(350, 0));
+
+        if (ImGui::BeginPopupModal("Polygon", nullptr, MODAL_FLAGS)) {
+            entity *e = G->selection.e;
+
+            ImGui::Text("Sublayer Depth");
+            ImGui::SliderInt("##depth", &sublayer_depth, 1, 4);
+
+            ImGui::Checkbox("Front Align", &front_align);
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("Sublayer depth from front instead of back");
+            }
+
+            ImGui::Spacing();
+            ImGui::SeparatorText("");
+            if (ImGui::Button("Apply")) {
+                if (e && e->g_id == O_PLASTIC_POLYGON) {
+                    ((polygon*)e)->do_recreate_shape = true;
+
+                    e->properties[1].v.i8 = static_cast<uint8_t>(front_align ? 1 : 0);
+                    e->properties[0].v.i8 = static_cast<uint8_t>(sublayer_depth - 1);
+
+                    P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
+                    P.add_action(ACTION_RESELECT, 0);
+                }
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel")) {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+}
+
+namespace UiRubber {
+    static bool do_open = false;
+    static float restitution = 0.5f;
+    static float friction = 1.8f;
+
+    static void open() {
+        entity* e = G->selection.e;
+        restitution = e->properties[1].v.f;
+        friction = e->properties[2].v.f;
+        do_open = true;
+    }
+
+    static void layout() {
+        handle_do_open(&do_open, "Rubber");
+        if (ImGui::BeginPopupModal("Rubber", REF_TRUE, MODAL_FLAGS)) {
+
+            ImGui::SliderFloat("Restitution", &restitution, 0.0f, 1.0f);
+            ImGui::SliderFloat("Friction", &friction, 1.0f, 10.0f);
+
+            ImGui::Spacing();
+            ImGui::SeparatorText("");
+            if (ImGui::Button("Apply")) {
+                entity* e = G->selection.e;
+                if (e && (e->g_id == O_WHEEL || e->g_id == O_RUBBER_BEAM)) {
+                    e->properties[1].v.f = restitution;
+                    e->properties[2].v.f = friction;
+                    P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
+                    P.add_action(ACTION_RESELECT, 0);
+                    do_open = false;
+                    ImGui::CloseCurrentPopup();
+                }
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel")) {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+
+}
+
+namespace UiDecoration {
+    static bool do_open = false;
+    static int selected_index = 0;
+
+    static void open() {
+        selected_index = 0;
+        do_open = true;
+    }
+
+    static void layout() {
+        handle_do_open(&do_open, "Decoration type");
+        if (ImGui::BeginPopupModal("Decoration type", nullptr, MODAL_FLAGS)) {
+            if (ImGui::BeginCombo(" ", decorations[selected_index].name)) {
+                for (int i = 0; i < NUM_DECORATIONS; ++i) {
+                    bool is_selected = (selected_index == i);
+                    if (ImGui::Selectable(decorations[i].name, is_selected)) {
+                        selected_index = i;
+                    }
+                    if (is_selected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+
+            ImGui::Spacing();
+            ImGui::SeparatorText("");
+            if (ImGui::Button("Apply")) {
+                entity* e = G->selection.e;
+                if (e && e->g_id == O_DECORATION) {
+                    ((decoration*)e)->set_decoration_type((uint32_t)selected_index);
+                    ((decoration*)e)->do_recreate_shape = true;
+
+                    P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
+                    P.add_action(ACTION_RESELECT, 0);
+                }
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel")) {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
 }
 
 static void ui_init() {
@@ -2795,6 +3495,12 @@ static void ui_layout() {
     UiFrequency::layout();
     UiConfirm::layout();
     UiAnimal::layout();
+    UiRobot::layout();
+    UiSticky::layout();
+    UiTreasureChest::layout();
+    UiPolygon::layout();
+    UiRubber::layout();
+    UiDecoration::layout();
 }
 
 //*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
@@ -2966,6 +3672,24 @@ void ui::open_dialog(int num, void *data) {
             break;
         case DIALOG_ANIMAL:
             UiAnimal::open();
+            break;
+        case DIALOG_ROBOT:
+            UiRobot::open();
+            break;
+        case DIALOG_STICKY:
+            UiSticky::open();
+            break;
+        case DIALOG_TREASURE_CHEST:
+            UiTreasureChest::open();
+            break;
+        case DIALOG_POLYGON:
+            UiPolygon::open();
+            break;
+        case DIALOG_RUBBER:
+            UiRubber::open();
+            break;
+        case DIALOG_DECORATION:
+            UiDecoration::open();
             break;
         default:
             tms_errorf("dialog %d not implemented yet", num);
