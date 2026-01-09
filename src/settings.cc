@@ -83,7 +83,6 @@ _settings::init()
     // Postprocessing
     this->add("postprocess",        S_BOOL,  false);
     this->add("enable_bloom",       S_BOOL,  false);
-    this->add("discard_framebuffer",S_BOOL,  -1);
     this->add("gamma_correct",      S_BOOL,  GAMMA_CORRECT_DEFAULT);
 
     // VSync

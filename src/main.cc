@@ -164,7 +164,7 @@ disconnect_all(entity *e, void *userdata)
     e->disconnect_all();
 }
 
-void (* _glDiscardFramebufferEXT)(GLenum target, GLsizei num, const GLenum *d) = 0;
+
 
 static int shader_loader(int step);
 static int level_loader(int step);
@@ -185,13 +185,8 @@ gi_end(void)
     if (!settings["shadow_map_depth_texture"]->is_true()) {
         GLenum discards[] = {GL_DEPTH_ATTACHMENT};
 
-        if (settings["discard_framebuffer"]->v.b && _glDiscardFramebufferEXT == 0) {
-            _glDiscardFramebufferEXT = (void (*)(GLenum , GLsizei , const GLenum *))SDL_GL_GetProcAddress("glDiscardFramebufferEXT");
-        }
-
-        if (_glDiscardFramebufferEXT) {
-            _glDiscardFramebufferEXT(GL_FRAMEBUFFER, 1, discards);
-        }
+        if (glad_glDiscardFramebufferEXT)
+            glDiscardFramebufferEXT(GL_FRAMEBUFFER, 1, discards);
     }
 
     glEnable(GL_CULL_FACE);
@@ -280,16 +275,6 @@ end(void)
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, 0);
     glActiveTexture(GL_TEXTURE0);
-
-#if 0
-    if (settings["postprocess"]->v.b) {
-        GLenum discards[] = {GL_DEPTH_ATTACHMENT};
-        if (settings["discard_framebuffer"]->v.b && _glDiscardFramebufferEXT) {
-            _glDiscardFramebufferEXT(GL_FRAMEBUFFER, 1, discards);
-        }
-    }
-#endif
-
 }
 
 void
@@ -1228,10 +1213,6 @@ tproject_quit(void)
 void
 setup_opengl_settings()
 {
-    if (settings["discard_framebuffer"]->is_uninitialized()) {
-        settings["discard_framebuffer"]->v.b = ((bool)strstr(_tms.gl_extensions, "discard_framebuffer") ? 1 : 0);
-    }
-
 #ifdef TMS_BACKEND_MOBILE
     if (settings["shadow_map_precision"]->is_uninitialized()) {
         settings["shadow_map_precision"]->v.i = 0;
