@@ -2847,7 +2847,7 @@ namespace UiRobot {
                 last_selected = e;
                 needs_refresh = true;
             }
-            creature* c = dynamic_cast<creature*>(e);
+            creature* c = static_cast<creature*>(e);
             // Default State
             bool isAdventure = (e->id == G->state.adventure_id && W->is_adventure());
             if (isAdventure) {
