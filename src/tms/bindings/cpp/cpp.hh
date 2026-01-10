@@ -114,11 +114,6 @@ namespace tms
               return tms_texture_upload(this);
           }
 
-          inline int download()
-          {
-              return tms_texture_download(this);
-          }
-
           inline int bind()
           {
               return tms_texture_bind(this);

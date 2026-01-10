@@ -481,14 +481,11 @@ tms_texture_set_filtering(struct tms_texture *tex, int filter)
             glEnable(GL_TEXTURE_2D);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-#ifndef TMS_USE_GLES
+
             if (glad_glGenerateMipmap)
                 glGenerateMipmap(GL_TEXTURE_2D);
             else
                 glGenerateMipmapEXT(GL_TEXTURE_2D);
-#else
-            glGenerateMipmap(GL_TEXTURE_2D);
-#endif
         } else {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
@@ -496,21 +493,6 @@ tms_texture_set_filtering(struct tms_texture *tex, int filter)
     }
 
     tex->filter = filter;
-}
-
-/**
- * @relates tms_texture
- **/
-int
-tms_texture_download(struct tms_texture *tex)
-{
-    /* XXX */
-    /*
-    glBindTexture(GL_TEXTURE_2D, tex->gl_texture);
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_UNSIGNED_BYTE, tex->data);
-    tms_infof("err: %d", glGetError());
-    */
-    return T_OK;
 }
 
 /**

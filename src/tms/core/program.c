@@ -59,13 +59,10 @@ tms_program_load_uniforms(struct tms_program *p)
         }
 
         switch (type) {
-#ifndef TMS_USE_GLES
             case GL_SAMPLER_1D:
             case GL_SAMPLER_3D:
             case GL_SAMPLER_1D_SHADOW:
             case GL_SAMPLER_2D_SHADOW:
-#endif
-
             case GL_SAMPLER_2D:
             case GL_SAMPLER_CUBE:
                 /* bind samplers with names like tex_N to texture unit N,

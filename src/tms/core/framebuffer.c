@@ -543,16 +543,10 @@ tms_fb_init(struct tms_fb* fb)
 {
     int ierr;
     fb->toggle = 0;
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d before tms_fb_init", ierr);
-#ifndef TMS_USE_GLES
     if (glad_glGenFramebuffers)
         glGenFramebuffers(fb->double_buffering ? 2 : 1, fb->fb_o);
     else
         glGenFramebuffersEXT(fb->double_buffering ? 2 : 1, fb->fb_o);
-#else
-    glGenFramebuffers(fb->double_buffering ? 2 : 1, fb->fb_o);
-#endif
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d after tms_fb_init", ierr);
 }
 
 void
@@ -572,71 +566,17 @@ tms_fb_free(struct tms_fb *fb)
 }
 
 void
-tms_fb_attach_depth(struct tms_fb *fb, int attachment, int name)
-{
-    //if (fb->double_buffering)
-        //tms_fatalf("tms_fb_attach functions not compatible with double buffered fb's");
-
-    tms_fatalf("not implemented");
-
-    /*
-    for (int x=0; x<(fb->double_buffering ? 2 : 1); x++) {
-        glBindFramebuffer(GL_FRAMEBUFFER, fb->fb_o[x]);
-        fb->fb_depth[x] = name;
-        glBindRenderbuffer(GL_RENDERBUFFER, fb->fb_depth[x]);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, fb->fb_depth[x]);
-
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            tms_fatalf("JSDAKLJDKLASKDJKLAJ");
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    */
-
-}
-
-void
-tms_fb_enable_depth_and_stencil(struct tms_fb *fb)
-{
-    tms_fatalf("not implemented");
-    /*
-    for (int x=0; x<(fb->double_buffering ? 2 : 1); x++) {
-        glBindFramebuffer(GL_FRAMEBUFFER, fb->fb_o[x]);
-
-        glGenRenderbuffers(1, &fb->fb_depth[x]);
-        glBindRenderbuffer(GL_RENDERBUFFER, fb->fb_depth[x]);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, fb->width, fb->height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, fb->fb_depth[x]);
-
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    */
-
-}
-
-void
 tms_fb_enable_depth(struct tms_fb *fb, int format)
 {
     int ierr;
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_enable_depth (begin)", ierr);
 
     for (int x=0; x<(fb->double_buffering ? 2 : 1); x++) {
-#ifndef TMS_USE_GLES
         if (glad_glBindFramebuffer)
             glBindFramebuffer(GL_FRAMEBUFFER, fb->fb_o[x]);
         else
             glBindFramebufferEXT(GL_FRAMEBUFFER, fb->fb_o[x]);
-#else
-        glBindFramebuffer(GL_FRAMEBUFFER, fb->fb_o[x]);
-#endif
 
-        tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_enable_depth %d 1", ierr, x);
-
-        //tms_infof("enable depth after bind %d", glGetError());
-
-#ifndef TMS_USE_GLES
         if (glad_glGenRenderbuffers) {
             glGenRenderbuffers(1, &fb->fb_depth[x]);
             glBindRenderbuffer(GL_RENDERBUFFER, fb->fb_depth[x]);
@@ -644,58 +584,29 @@ tms_fb_enable_depth(struct tms_fb *fb, int format)
             glGenRenderbuffersEXT(1, &fb->fb_depth[x]);
             glBindRenderbufferEXT(GL_RENDERBUFFER, fb->fb_depth[x]);
         }
-#else
-        glGenRenderbuffers(1, &fb->fb_depth[x]);
-        glBindRenderbuffer(GL_RENDERBUFFER, fb->fb_depth[x]);
-#endif
 
-        tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_enable_depth %d 2-3", ierr, x);
-        //tms_infof("enable depth after bindrender %d", glGetError());
-        //glRenderbufferStorage(GL_RENDERBUFFER, format, fb->width, fb->height);
-        //
-
-#ifdef TMS_USE_GLES
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, fb->width, fb->height);
-#else
         if (glad_glRenderbufferStorage)
             glRenderbufferStorage(GL_RENDERBUFFER, format, fb->width, fb->height);
         else
             glRenderbufferStorageEXT(GL_RENDERBUFFER, format, fb->width, fb->height);
-#endif
-        tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_enable_depth %d 4", ierr, x);
 
-#ifndef TMS_USE_GLES
         if (glad_glFramebufferRenderbuffer)
             glad_glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fb->fb_depth[x]);
         else
             glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fb->fb_depth[x]);
-#else
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fb->fb_depth[x]);
-#endif
 
-        tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_enable_depth %d 5", ierr, x);
-        //tms_infof("enable depth after hello %d", glGetError());
-
-#ifndef TMS_USE_GLES
-        if (glad_glBindRenderbuffer) {
+        if (glad_glBindRenderbuffer)
             glBindRenderbuffer(GL_RENDERBUFFER, 0);
-        } else {
+        else
             glBindRenderbufferEXT(GL_RENDERBUFFER, 0);
-        }
-#else
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-#endif
-        tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_enable_depth %d 6", ierr, x);
+
     }
 
-#ifndef TMS_USE_GLES
     if (glad_glBindFramebuffer)
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     else
         glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-#else
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-#endif
+
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_enable_depth 7 (end)", ierr);
 }
 
@@ -703,14 +614,10 @@ void
 tms_fb_enable_depth_texture(struct tms_fb *fb, int format)
 {
     for (int x=0; x<(fb->double_buffering ? 2 : 1); x++) {
-#ifndef TMS_USE_GLES
         if (glad_glBindFramebuffer)
             glad_glBindFramebuffer(GL_FRAMEBUFFER, fb->fb_o[x]);
         else
             glad_glBindFramebufferEXT(GL_FRAMEBUFFER, fb->fb_o[x]);
-#else
-        glBindFramebuffer(GL_FRAMEBUFFER, fb->fb_o[x]);
-#endif
 
         glGenTextures(1, &fb->fb_depth[x]);
         glBindTexture(GL_TEXTURE_2D, fb->fb_depth[x]);
@@ -725,23 +632,15 @@ tms_fb_enable_depth_texture(struct tms_fb *fb, int format)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-        //glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, fb->fb_depth[x], 0);
 
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-#ifndef TMS_USE_GLES
     if (glad_glBindFramebuffer)
         glad_glBindFramebuffer(GL_FRAMEBUFFER, 0);
     else
         glad_glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-#else
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-#endif
 }
 
 void
@@ -756,83 +655,43 @@ tms_fb_add_texture(struct tms_fb *fb, int format,
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture (begin)", ierr);
 
     for (int x=0; x<(fb->double_buffering ? 2 : 1); x++) {
-        //tms_infof("add texture before bind %d", glGetError());
-#ifndef TMS_USE_GLES
+
         if (glad_glBindFramebuffer)
             glBindFramebuffer(GL_FRAMEBUFFER, fb->fb_o[x]);
         else
             glBindFramebufferEXT(GL_FRAMEBUFFER, fb->fb_o[x]);
-#else
-        glBindFramebuffer(GL_FRAMEBUFFER, fb->fb_o[x]);
-#endif
-        tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 1", ierr, x);
 
         glGenTextures(1, &fb->fb_texture[x][fb->num_textures]);
-        tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 2", ierr, x);
 
         glBindTexture(GL_TEXTURE_2D, fb->fb_texture[x][fb->num_textures]);
-        tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 3", ierr, x);
 
-#ifndef TMS_USE_GLES
-        if (format == GL_R32F) {
-            //glTexImage2D(GL_TEXTURE_2D, 0, format, fb->width, fb->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        // Note: GL_R32F, GL_RGB16F and GL_RGB32F aren't supported in OpenGL ES 2.0
+        if (format == GL_R32F)
             glTexImage2D(GL_TEXTURE_2D, 0, format, fb->width, fb->height, 0, GL_RED, GL_FLOAT, 0);
-            tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 4", ierr, x);
-        } else
-        if (format == GL_RGB16F) {
-            //glTexImage2D(GL_TEXTURE_2D, 0, format, fb->width, fb->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        else if (format == GL_RGB16F)
             glTexImage2D(GL_TEXTURE_2D, 0, format, fb->width, fb->height, 0, GL_RGB, GL_FLOAT, 0);
-            tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 4", ierr, x);
-        } else
-        if (format == GL_RGB32F) {
-            //glTexImage2D(GL_TEXTURE_2D, 0, format, fb->width, fb->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        else if (format == GL_RGB32F)
             glTexImage2D(GL_TEXTURE_2D, 0, format, fb->width, fb->height, 0, GL_RGB, GL_FLOAT, 0);
-            tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 4", ierr, x);
-        } else
-#endif
-        if (format == GL_ALPHA) {
-            //glTexImage2D(GL_TEXTURE_2D, 0, format, fb->width, fb->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        else if (format == GL_ALPHA)
             glTexImage2D(GL_TEXTURE_2D, 0, format, fb->width, fb->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-            tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 5", ierr, x);
-        } else if (format == GL_RGBA4) {
+        else if (format == GL_RGBA4)
             glTexImage2D(GL_TEXTURE_2D, 0, format, fb->width, fb->height, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, 0);
-            tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 6", ierr, x);
-        } else if (format == GL_RGB565) {
+        else if (format == GL_RGB565)
             glTexImage2D(GL_TEXTURE_2D, 0, format, fb->width, fb->height, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, 0);
-            tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 7", ierr, x);
-        } else {
+        else
             glTexImage2D(GL_TEXTURE_2D, 0, format, fb->width, fb->height, 0, format, GL_UNSIGNED_BYTE, 0);
-            tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 8", ierr, x);
-        }
-
-        //tms_infof("add texture after teximage2d %d", glGetError());
 
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
-        tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 9", ierr, x);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
-        tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 10", ierr, x);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter_min);
-        tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 11", ierr, x);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter_mag);
-        tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 12", ierr, x);
 
-        //tms_infof("add texture after parameters %d", glGetError());
-
-#ifndef TMS_USE_GLES
         if (glad_glFramebufferTexture2D)
             glad_glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+fb->num_textures, GL_TEXTURE_2D, fb->fb_texture[x][fb->num_textures], 0);
         else
             glad_glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+fb->num_textures, GL_TEXTURE_2D, fb->fb_texture[x][fb->num_textures], 0);
-#else
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+fb->num_textures,
-                GL_TEXTURE_2D, fb->fb_texture[x][fb->num_textures], 0);
-#endif
-        tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 13", ierr, x);
-
-        //tms_infof("add texture after fbtex2d %d", glGetError());
 
         glBindTexture(GL_TEXTURE_2D, 0);
-        tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 14", ierr, x);
 
 		/* update draw buffers */
         GLenum bufs[fb->num_textures+1];
@@ -849,14 +708,11 @@ tms_fb_add_texture(struct tms_fb *fb, int format,
 
     fb->num_textures ++;
 
-#ifndef TMS_USE_GLES
     if (glad_glBindFramebuffer)
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     else
         glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-#else
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-#endif
+
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture 16 (end)", ierr);
 }
 
@@ -890,9 +746,6 @@ tms_fb_swap_blur3x3(struct tms_fb *f)
 
     tms_program_bind(prg);
     tms_fb_swap(f, prg);
-/*
-    tms_program_bind(blur3x3v_program);
-    tms_fb_swap(f, blur3x3v_program);*/
 
     glEnable(GL_DEPTH_TEST);
 }
@@ -966,24 +819,18 @@ tms_fb_bind_last_textures(struct tms_fb *fb, int first_unit)
 static int _bind(struct tms_fb *f)
 {
     if (f != 0) {
-#ifndef TMS_USE_GLES
         if (glad_glBindFramebuffer)
             glBindFramebuffer(GL_FRAMEBUFFER, f->fb_o[f->toggle]);
         else
             glBindFramebufferEXT(GL_FRAMEBUFFER, f->fb_o[f->toggle]);
-#else
-        glBindFramebuffer(GL_FRAMEBUFFER, f->fb_o[f->toggle]);
-#endif
+
         glViewport(0, 0, f->width, f->height);
     } else {
-#ifndef TMS_USE_GLES
         if (glad_glBindFramebuffer)
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         else
             glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
-#else
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-#endif
+
         glViewport(0, 0, tms.opengl_width, tms.opengl_height);
     }
 

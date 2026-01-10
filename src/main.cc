@@ -244,11 +244,6 @@ begin(void)
     glDepthMask(0xff);
     glCullFace(GL_BACK);
 
-    //glActiveTexture(GL_TEXTURE3);
-    //glBindTexture(GL_TEXTURE_2D, gi_fb->fb_texture[gi_fb->toggle][0]);
-    //glBindTexture(GL_TEXTURE_2D, gi_fb->fb_texture[gi_fb->toggle][0]);
-    //tms_fb_bind_current_textures(gi_fb, GL_TEXTURE3);
-
     if (gi_fb) {
         if (settings["shadow_map_depth_texture"]->is_true()) {
             glActiveTexture(GL_TEXTURE3);
@@ -258,7 +253,6 @@ begin(void)
         }
     }
     if (ao_fb) tms_fb_bind_current_textures(ao_fb, GL_TEXTURE4);
-    //glBindTexture(GL_TEXTURE_2D, gi_fb->fb_texture[gi_fb->toggle][0]);
     glActiveTexture(GL_TEXTURE0);
 
     //glFinish();

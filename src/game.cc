@@ -1207,10 +1207,8 @@ game::init_framebuffers()
 #ifndef TMS_USE_GLES
     if (settings["postprocess"]->v.b) {
         tms_infof("Postprocess time");
-        //this->main_fb = tms_fb_alloc(_tms.window_width/2., _tms.window_height/2., 0);
         this->main_fb = tms_fb_alloc(_tms.window_width, _tms.window_height, 0);
         tms_fb_add_texture(this->main_fb, GL_RGBA, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
-        //tms_fb_add_texture(this->main_fb, GL_RGB, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
         tms_fb_enable_depth(this->main_fb, GL_DEPTH_COMPONENT16);
 
         this->bloom_fb = tms_fb_alloc(_tms.window_width, _tms.window_height, 1);
@@ -1269,7 +1267,6 @@ game::init_graphs()
     this->gi_graph = this->get_scene()->create_graph(1);
     this->gi_graph->sorting[0] = TMS_SORT_PRIO;
     this->gi_graph->sorting[1] = TMS_SORT_SHADER;
-    //this->gi_graph->sorting[2] = TMS_SORT_TEXTURE0;
     this->gi_graph->sorting[2] = TMS_SORT_VARRAY;
     this->gi_graph->sorting[3] = TMS_SORT_MESH;
     this->gi_graph->sort_depth = 4;
@@ -2516,9 +2513,8 @@ game::render()
 
     int ierr;
 
-    if ((ierr = glGetError()) != 0) {
+    if ((ierr = glGetError()) != 0)
         tms_errorf("gl error %d in game::render begin", ierr);
-    }
 
 #ifdef PROFILING
     Uint32 ss = SDL_GetTicks();
@@ -2528,18 +2524,13 @@ game::render()
 
     display::reset();
     ledbuffer::reset();
-    //tms_assertf((ierr = glGetError()) == 0, "gl error %d after led reset", ierr);
     spritebuffer::reset();
     fluidbuffer::reset();
     linebuffer::reset();
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d after linebuffer reset", ierr);
     textbuffer::reset();
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d after textbuffer reset", ierr);
     cable::reset_counter();
-    //tms_assertf((ierr = glGetError()) == 0, "gl error %d after cable reset", ierr);
     rope::reset_counter();
     plant::reset_counter();
-    //
 
     if (gui_spritesheet::tmp_atlas_modified) {
         tms_texture_upload(&gui_spritesheet::tmp_atlas->texture);
@@ -2559,7 +2550,6 @@ game::render()
     vdist.x -= this->last_static_update.x;
     vdist.y -= this->last_static_update.y;
     vdist.z -= this->last_static_update.z;
-    //vdist.z =0;
 
     float dist = tvec3_magnitude(&vdist);
 
@@ -2820,31 +2810,23 @@ game::render()
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render before upload", ierr);
     display::upload();
-    //tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render after display::upload", ierr);
     ledbuffer::upload();
-    //tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render after ledbuffer::upload", ierr);
     spritebuffer::upload();
     fluidbuffer::upload();
-    //tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render after spritebuffer::upload", ierr);
     linebuffer::upload();
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render after linebuffer::upload", ierr);
     textbuffer::upload();
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render after textbuffer::upload", ierr);
     rope::upload_buffers();
-    //tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render after rope::upload", ierr);
     cable::upload_buffers();
-    //tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render after cable::upload", ierr);
     pixel::upload_buffers();
     tpixel::upload_buffers();
     polygon::upload_buffers();
     plant::upload_buffers();
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render after plant::upload_buffers", ierr);
+    tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render after upload", ierr);
 
     GLenum err;
     do {
         err = glGetError();
     } while (err != GL_NO_ERROR);
-
 
 #ifdef PROFILING
     tms_infof("upload: %d", SDL_GetTicks() - ss);
@@ -2863,17 +2845,8 @@ game::render()
 # endif
 #endif
 
-    //glClear(GL_COLOR_BUFFER_BIT);
-    //return T_OK;
-    //tms_infof("RENDER");
-
     glViewport(0,0,_tms.opengl_width, _tms.opengl_height);
 
-
-    //glFinish();
-    //tms_infof("buffer shit %u", SDL_GetTicks() - start_time);
-
-    //tms_assertf(glGetError() == 0, "error before gi render");
     /* create shadow map */
     glDisable(GL_BLEND);
 
@@ -2889,7 +2862,6 @@ game::render()
             tms_fb_unbind(tms_pipeline_get_framebuffer(1));
         }
     }
-
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render after shadow render", ierr);
 
     //tms_debugf("cam before render ao %f", this->cam->_position.z);
@@ -2897,19 +2869,17 @@ game::render()
         glDisable(GL_BLEND);
         this->ao_graph->render(this->ao_cam, this);
 
-        if (tms_pipeline_get_framebuffer(3)->width == 512) {
+        if (tms_pipeline_get_framebuffer(3)->width == 512)
             tms_fb_swap_blur5x5(tms_pipeline_get_framebuffer(3));
-        } else {
+        else
             tms_fb_swap_blur3x3(tms_pipeline_get_framebuffer(3));
-        }
     }
+
 #ifndef TMS_USE_GLES
-    if (settings["postprocess"]->v.b) {
-        //tms_assertf(glGetError() == 0, "error before main fb bind");
+    if (settings["postprocess"]->v.b)
         tms_fb_bind(this->main_fb);
-        //tms_assertf(glGetError() == 0, "error after main fb bind");
-    }
 #endif
+
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render after shadow/ao", ierr);
     glDisable(GL_BLEND);
 
@@ -2918,9 +2888,8 @@ game::render()
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render before bg", ierr);
 
 #ifndef TMS_USE_GLES
-    if (settings["gamma_correct"]->v.b && !settings["postprocess"]->v.b) {
+    if (settings["gamma_correct"]->v.b && !settings["postprocess"]->v.b)
         glEnable(GL_FRAMEBUFFER_SRGB);
-    }
 #endif
 
     if (this->state.abo_architect_mode) {
@@ -3061,34 +3030,27 @@ game::render()
         glDisable(GL_BLEND);
 
 #if 0
-        if (settings["gamma_correct"]->v.b) {
+        if (settings["gamma_correct"]->v.b)
             tms_fb_render(this->main_fb, prg_output);
-        } else {
+        else
             tms_fb_render(this->main_fb, _tms_fb_copy_program);
-        }
 #endif
 
-        if (settings["gamma_correct"]->v.b) {
+        if (settings["gamma_correct"]->v.b)
             glEnable(GL_FRAMEBUFFER_SRGB);
-        }
 
         tms_fb_render(this->main_fb, _tms_fb_copy_program);
 
-        if (settings["gamma_correct"]->v.b) {
+        if (settings["gamma_correct"]->v.b)
             glDisable(GL_FRAMEBUFFER_SRGB);
-        }
 
         glBindTexture(GL_TEXTURE_2D, this->main_fb->fb_texture[0][0]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-#ifndef TMS_USE_GLES
         if (glad_glGenerateMipmap)
             glGenerateMipmap(GL_TEXTURE_2D);
         else
             glGenerateMipmapEXT(GL_TEXTURE_2D);
-#else
-        glGenerateMipmap(GL_TEXTURE_2D);
-#endif
 
         glDisable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);
@@ -3099,14 +3061,10 @@ game::render()
         glDisable(GL_DEPTH_TEST);
 
         glBindTexture(GL_TEXTURE_2D, this->bloom_fb->fb_texture[this->bloom_fb->toggle][0]);
-#ifndef TMS_USE_GLES
         if (glad_glGenerateMipmap)
             glGenerateMipmap(GL_TEXTURE_2D);
         else
             glGenerateMipmapEXT(GL_TEXTURE_2D);
-#else
-        glGenerateMipmap(GL_TEXTURE_2D);
-#endif
 
         for (int x=0; x<7; x++) {
             glBlendColor(1.f, 1.f, 1.f, .05f);
@@ -3154,18 +3112,15 @@ game::render()
     glDisable(GL_DEPTH_TEST);
 
     if (W->is_paused() || W->level.type == LCAT_ADVENTURE) {
-        if (this->get_mode() == GAME_MODE_SELECT_CONN_TYPE) {
+        if (this->get_mode() == GAME_MODE_SELECT_CONN_TYPE)
             this->render_conn_types();
-        } else {
+        else
             this->render_connections();
-        }
-
     }
 
     if (W->is_paused()) {
-        if (this->get_mode() == GAME_MODE_CONN_EDIT) {
+        if (this->get_mode() == GAME_MODE_CONN_EDIT)
             this->render_existing_connections();
-        }
 
         this->render_selected_connection();
     }
