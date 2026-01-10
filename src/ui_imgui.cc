@@ -21,11 +21,6 @@
 #include <SDL_opengl.h>
 #include <SDL_syswm.h>
 
-#include "imgui.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_internal.h"
-#include "imgui_stdlib.h"
-
 #include "ui_imgui_impl_tms.hh"
 
 #include <cstdio>
@@ -153,16 +148,12 @@ static void principia_style() {
     ImVec4* colors = style->Colors;
 
     //Rounding
+    style->FramePadding = ImVec2(10, 5);
+    style->ItemSpacing  = ImVec2(8, 6);
     style->FrameRounding  = style->GrabRounding  = 2.3f;
     style->WindowRounding = style->PopupRounding = style->ChildRounding = 3.0f;
 
     //style->FrameBorderSize = .5;
-
-    //TODO style
-    //colors[ImGuiCol_WindowBg]    = rgba(0xfdfdfdff);
-    //colors[ImGuiCol_ScrollbarBg] = rgba(0x767676ff);
-    //colors[ImGuiCol_ScrollbarGrab] = rgba(0x767676ff);
-    //colors[ImGuiCol_ScrollbarGrabActive] = rgba(0xb1b1b1);
 }
 
 static bool init_ready = false;
