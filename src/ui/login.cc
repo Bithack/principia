@@ -21,10 +21,6 @@ namespace UiLogin {
                 break;
             case SIGNAL_LOGIN_FAILED:
                 login_status = LoginStatus::ResultFailure;
-                P.user_id = 0;
-                P.username = nullptr;
-                username = "";
-                password = "";
                 break;
         }
     }
@@ -64,6 +60,10 @@ namespace UiLogin {
             activate |= ImGui::InputTextWithHint("###password", "Password", &password, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_Password);
 
             ImGui::EndDisabled();
+
+            ImGui::Dummy(ImVec2(0.0f, 10.0f));
+            ImGui::Separator();
+            ImGui::Dummy(ImVec2(0.0f, 3.0f));
 
             bool can_submit =
                 (login_status != LoginStatus::LoggingIn) &&
