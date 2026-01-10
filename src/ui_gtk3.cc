@@ -1,5 +1,58 @@
+/**
+ * Note: The GTK3 dialog backend is deprecated and will be replaced with the
+ * Imgui backend on desktop platforms when it is finished. Don't spend any
+ * more time than absolutely necessary on this backend.
+ */
 
-#ifdef TMS_BACKEND_PC
+#include "ui.hh"
+#include "adventure.hh"
+#include "anchor.hh"
+#include "animal.hh"
+#include "beam.hh"
+#include "command.hh"
+#include "decorations.hh"
+#include "display.hh"
+#include "escript.hh"
+#include "faction.hh"
+#include "factory.hh"
+#include "fxemitter.hh"
+#include "game.hh"
+#include "item.hh"
+#include "jumper.hh"
+#include "key_listener.hh"
+#include "main.hh"
+#include "menu-play.hh"
+#include "object_factory.hh"
+#include "pkgman.hh"
+#include "polygon.hh"
+#include "prompt.hh"
+#include "resource.hh"
+#include "robot_base.hh"
+#include "sequencer.hh"
+#include "settings.hh"
+#include "sfxemitter.hh"
+#include "simplebg.hh"
+#include "soundmanager.hh"
+#include "speaker.hh"
+#include "timer.hh"
+#include "treasure_chest.hh"
+#include "wheel.hh"
+
+#include <SDL.h>
+#include <tms/core/tms.h>
+
+#ifdef BUILD_VALGRIND
+#include <valgrind/valgrind.h>
+#endif
+
+#include <sstream>
+
+#if defined(TMS_BACKEND_PC) && !defined(PRINCIPIA_BACKEND_IMGUI) && !defined(NO_UI)
+
+#define SAVE_REGULAR 0
+#define SAVE_COPY 1
+
+#define MAX_GRAVITY 75.f
 
 // fuckgtk3
 #pragma GCC diagnostic push
@@ -81,7 +134,6 @@ typedef struct {
     long   time;
 } oc_column;
 
-bool prompt_is_open = false;
 GtkDialog *cur_prompt = 0;
 
 enum mark_type {
@@ -11632,6 +11684,8 @@ ui::alert(const char *text, uint8_t alert_type/*=ALERT_INFORMATION*/)
 
     gdk_display_flush(gdk_display_get_default());
 }
+
+void ui::render() {}
 
 #pragma GCC diagnostic pop
 

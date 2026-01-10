@@ -109,7 +109,6 @@ struct confirm_data
     { }
 };
 
-#ifdef __cplusplus
 class ui
 {
   public:
@@ -136,11 +135,8 @@ class ui
     static void alert(const char *text, uint8_t alert_type=ALERT_INFORMATION);
     static void render();
 };
-#endif
 
-#if defined(TMS_BACKEND_PC) && !defined(NO_UI)
 extern bool prompt_is_open;
-#endif
 
 extern const char* tips[];
 extern const int num_tips;

@@ -3,58 +3,9 @@
 
 #include "main.hh"
 #include "game.hh"
-#include "menu_main.hh"
-#include "menu-play.hh"
-#include "loading_screen.hh"
 #include "game-message.hh"
-#include "beam.hh"
-#include "wheel.hh"
-#include "pixel.hh"
-#include "command.hh"
-#include "i1o1gate.hh"
-#include "pkgman.hh"
-#include "object_factory.hh"
-#include "box.hh"
-#include "settings.hh"
-#include "fxemitter.hh"
-#include "i0o1gate.hh"
-#include "i2o0gate.hh"
-#include "display.hh"
-#include "prompt.hh"
-#include "robot_base.hh"
-#include "adventure.hh"
-#include "speaker.hh"
-#include "timer.hh"
-#include "jumper.hh"
-#include "item.hh"
-#include "escript.hh"
-#include "tpixel.hh"
-#include "factory.hh"
-#include "faction.hh"
-#include "anchor.hh"
-#include "resource.hh"
-#include "animal.hh"
-#include "simplebg.hh"
-#include "soundman.hh"
-#include "polygon.hh"
-#include "treasure_chest.hh"
-#include "decorations.hh"
-#include "sequencer.hh"
-#include "sfxemitter.hh"
-#include "key_listener.hh"
-#include "soundmanager.hh"
 
 #include <tms/core/tms.h>
-#ifdef BUILD_VALGRIND
-#include <valgrind/valgrind.h>
-#endif
-
-#include <sstream>
-
-#define SAVE_REGULAR 0
-#define SAVE_COPY 1
-
-#define MAX_GRAVITY 75.f
 
 const char *tips[] = {
 #ifdef TMS_BACKEND_PC
@@ -81,6 +32,8 @@ const char *tips[] = {
 const int num_tips = sizeof(tips)/sizeof(char*);
 int ctip = -1;
 int ui::next_action = ACTION_IGNORE;
+
+bool prompt_is_open = false;
 
 void
 ui::message(const char *msg, bool long_duration)
@@ -111,55 +64,7 @@ ui::messagef(const char *format, ...)
 #ifndef TMS_BACKEND_ANDROID
 void ui::open_url(const char *url)
 {
-    ui:messagef("Opening the page in your web browser...", url);
-#if SDL_VERSION_ATLEAST(2,0,14)
+    ui::messagef("Opening the page in your web browser...", url);
     SDL_OpenURL(url);
-#else
-    #error "SDL2 2.0.14+ is required for this platform"
-#endif
 }
-#endif
-
-#if !defined(PRINCIPIA_BACKEND_IMGUI)
-void ui::render(){};
-#endif
-
-#if defined(NO_UI)
-
-bool prompt_is_open = false;
-void ui::init(){};
-void ui::open_dialog(int num, void *data/*=0*/){}
-void ui::open_sandbox_tips(){};
-void ui::emit_signal(int num, void *data/*=0*/){};
-void ui::quit(){};
-void ui::set_next_action(int action_id){};
-void ui::open_error_dialog(const char *error_msg){};
-void
-ui::confirm(const char *text,
-        const char *button1, principia_action action1,
-        const char *button2, principia_action action2,
-        const char *button3/*=0*/, principia_action action3/*=ACTION_IGNORE*/,
-        struct confirm_data _confirm_data/*=none*/
-        )
-{
-    P.add_action(action1.action_id, 0);
-}
-void ui::alert(const char*, uint8_t/*=ALERT_INFORMATION*/) {};
-
-#elif defined(PRINCIPIA_BACKEND_IMGUI)
-
-#include "ui_imgui.hh"
-
-#elif defined(TMS_BACKEND_ANDROID)
-
-#include "ui_android.hh"
-
-#elif defined(TMS_BACKEND_PC)
-
-#include "ui_gtk3.hh"
-
-#else
-
-#error "No dialog functions, to compile without please define NO_UI"
-
 #endif
