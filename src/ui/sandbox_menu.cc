@@ -170,66 +170,43 @@ namespace UiSandboxMenu {
                 ImGui::Separator();
             }
 
-            //"Level properties"
-            if (ImGui::MenuItem("Level properties")) {
+            if (ImGui::MenuItem("Level properties"))
                 UiLevelProperties::open();
-                ImGui::CloseCurrentPopup();
-            }
 
-            if (ImGui::MenuItem("New level")) {
+            if (ImGui::MenuItem("New level"))
                 UiNewLevel::open();
-                ImGui::CloseCurrentPopup();
-            }
 
             //"Save": update current save
-            if (can_update_save && ImGui::MenuItem("Save")) {
+            // TODO: Fix this to work just like in the GTK backend
+            if (can_update_save && ImGui::MenuItem("Save"))
                 P.add_action(ACTION_SAVE, 0);
-                ImGui::CloseCurrentPopup();
-            }
 
             //"Save as...": create a new save
-            if (is_sandbox && ImGui::MenuItem("Save copy")) {
-                //TODO
+            if (is_sandbox && ImGui::MenuItem("Save copy"))
                 UiSave::open();
-                ImGui::CloseCurrentPopup();
-            }
 
             // Open the Level Manager
-            if (ImGui::MenuItem("Open")) {
+            if (ImGui::MenuItem("Open"))
                 UiLevelManager::open();
-                ImGui::CloseCurrentPopup();
+
+            if (is_sandbox && P.user_id && ImGui::MenuItem("Publish online")) {
+                // TODO: Open publish dialog
             }
 
-            //"Publish online"
-            if (is_sandbox) {
-                ImGui::BeginDisabled(!P.user_id);
-                ImGui::MenuItem("Publish online");
-                ImGui::EndDisabled();
-            }
+            if ((!P.user_id && !P.username) && ImGui::MenuItem("Log in"))
+                UiLogin::open();
 
-            if (P.user_id && P.username) {
-                // blah
-            } else {
-                if (ImGui::MenuItem("Log in")) {
-                    UiLogin::open();
-                };
-            }
-
-            if (ImGui::MenuItem("Settings")) {
+            if (ImGui::MenuItem("Settings"))
                 UiSettings::open();
-            }
 
-            if (ImGui::MenuItem("Back to menu")) {
+            if (ImGui::MenuItem("Back to menu"))
                 P.add_action(ACTION_GOTO_MAINMENU, 0);
-            }
 
-            if (ImGui::MenuItem("Help: Principia Wiki")) {
+            if (ImGui::MenuItem("Help: Principia Wiki"))
                 ui::open_url("https://principia-web.se/wiki/");
-            }
 
-            if (ImGui::MenuItem("Help: Getting Started")) {
+            if (ImGui::MenuItem("Help: Getting Started"))
                 ui::open_url("https://principia-web.se/wiki/Getting_Started");
-            }
 
             ImGui::EndMenu();
         }

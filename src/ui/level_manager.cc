@@ -175,17 +175,15 @@ namespace UiLevelManager {
                         bool allow_delete = io.KeyShift;
                         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, allow_delete ? 1. : .6);
                         if (ImGui::Button("Delete##delete-sandbox-level")) {
-                            G->lock();
                             if (allow_delete && G->delete_level(level->id_type, level->id, level->save_id)) {
                                 //If deleting current local level, remove it's local_id
                                 //This disables the "save" option
-                                if ((level->id_type == LEVEL_LOCAL) && (level->id == W->level.local_id)) {
+                                if ((level->id_type == LEVEL_LOCAL) && (level->id == W->level.local_id))
                                     W->level.local_id = 0;
-                                }
+
                                 //Reload the list of levels
                                 reload_level_list();
                             }
-                            G->unlock();
                         }
                         ImGui::PopStyleVar();
                         if (!allow_delete) ImGui::SetItemTooltip("Hold Shift to unlock");
