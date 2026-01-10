@@ -128,6 +128,7 @@ file(GLOB SRCS
 if(BACKEND_IMGUI)
 	file(GLOB IMGUI_SRCS
 		lib/imgui/*.cpp
+		lib/imgui/misc/freetype/*.cpp
 		src/ui/*.cc)
 	list(APPEND SRCS ${IMGUI_SRCS})
 endif()
