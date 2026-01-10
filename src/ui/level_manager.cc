@@ -101,8 +101,8 @@ namespace UiLevelManager {
             ImGui::Separator();
 
             //Actual level list
-            ImGui::BeginChild("save_list_child", ImVec2(0., 500.), false, FRAME_FLAGS | ImGuiWindowFlags_NavFlattened);
-            if (ImGui::BeginTable("save_list", 5, ImGuiTableFlags_NoSavedSettings | ImGuiWindowFlags_NavFlattened | ImGuiTableFlags_Borders)) {
+            ImGui::BeginChild("save_list_child", ImVec2(0., 500.), ImGuiChildFlags_NavFlattened, FRAME_FLAGS);
+            if (ImGui::BeginTable("save_list", 5, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_Borders)) {
                 //Setup table columns
                 ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed);
                 ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);

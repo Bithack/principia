@@ -138,7 +138,7 @@ namespace UiQuickadd {
             }
 
             const float area_height = ImGui::GetTextLineHeightWithSpacing() * 7.25f + ImGui::GetStyle().FramePadding.y * 2.0f;
-            if (ImGui::BeginChildFrame(ImGui::GetID("qsbox"), ImVec2(-FLT_MIN, area_height), ImGuiWindowFlags_NavFlattened)) {
+            if (ImGui::BeginChild(ImGui::GetID("qsbox"), ImVec2(-FLT_MIN, area_height), ImGuiChildFlags_FrameStyle)) {
                 for (int i = 0; i < search_results.size(); i++) {
                     ImGui::PushID(i);
                     SearchItem item = haystack[search_results[i]];
@@ -155,7 +155,7 @@ namespace UiQuickadd {
                         ImGui::CloseCurrentPopup();
                     }
                 }
-                ImGui::EndChildFrame();
+                ImGui::EndChild();
             }
             ImGui::EndPopup();
         }

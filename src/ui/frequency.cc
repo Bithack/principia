@@ -109,7 +109,7 @@ static uint32_t __always_zero = 0;
             );
 
             ImVec2 size = ImVec2(0., 133.);
-            if (ImGui::BeginChild(ImGui::GetID("###x-table-frame"), size, false, FRAME_FLAGS | ImGuiWindowFlags_NavFlattened)) {
+            if (ImGui::BeginChild(ImGui::GetID("###x-table-frame"), size, ImGuiChildFlags_NavFlattened, FRAME_FLAGS)) {
                 if (ImGui::BeginTable("###x-table", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_NoSavedSettings)) {
                     ImGui::TableSetupColumn("###", ImGuiTableColumnFlags_WidthFixed);
                     ImGui::TableSetupColumn("Object");
