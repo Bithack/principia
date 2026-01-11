@@ -4,9 +4,13 @@
 #include "world.hh"
 #include "ui.hh"
 
-#include "SDL_ttf.h"
+#include "font.hh"
+#include "gui.hh"
+#include <SDL.h>
 
 #include <cstddef>
+#include <cstdlib>
+#include <cstring>
 
 #define NUM_SLOTS 33
 
@@ -31,20 +35,151 @@
 
 static bool slots[NUM_SLOTS];
 static bool initialized = false;
-static TTF_Font *ttf_font[NUM_SIZES];
+static p_font *note_font[NUM_SIZES];
 static SDL_Surface *surface;
 static int spacing[NUM_SIZES];
 tms_texture sticky::texture;
 
-void sticky::_init(void) {
-    TTF_Init();
+// Decode one UTF-8 codepoint; advance *s. Returns codepoint or -1 on end/error.
+// TODO: Use SDL_StepUTF8() when we're on SDL3
+static int utf8_next(const char **s) {
+    const unsigned char *p = (const unsigned char*)*s;
+    if (*p == 0) return -1;
+    if (*p < 0x80) { int cp = *p; *s += 1; return cp; }
+    if ((*p & 0xE0) == 0xC0) {
+        unsigned char b0 = p[0], b1 = p[1];
+        if ((b1 & 0xC0) != 0x80) { *s += 1; return '?'; }
+        int cp = ((b0 & 0x1F) << 6) | (b1 & 0x3F); *s += 2; return cp;
+    } else if ((*p & 0xF0) == 0xE0) {
+        unsigned char b0 = p[0], b1 = p[1], b2 = p[2];
+        if ((b1 & 0xC0) != 0x80 || (b2 & 0xC0) != 0x80) { *s += 1; return '?'; }
+        int cp = ((b0 & 0x0F) << 12) | ((b1 & 0x3F) << 6) | (b2 & 0x3F); *s += 3; return cp;
+    } else if ((*p & 0xF8) == 0xF0) {
+        unsigned char b0 = p[0], b1 = p[1], b2 = p[2], b3 = p[3];
+        if ((b1 & 0xC0) != 0x80 || (b2 & 0xC0) != 0x80 || (b3 & 0xC0) != 0x80) { *s += 1; return '?'; }
+        int cp = ((b0 & 0x07) << 18) | ((b1 & 0x3F) << 12) | ((b2 & 0x3F) << 6) | (b3 & 0x3F); *s += 4; return cp;
+    }
+    *s += 1; return '?';
+}
 
+// Convert UTF-8 string to Latin-1 in dst (dst_sz bytes). Returns number of bytes written (excluding null).
+static int utf8_to_latin1(const char *src, char *dst, int dst_sz) {
+    const char *p = src;
+    int out = 0;
+    while (*p && out + 1 < dst_sz) {
+        int cp = utf8_next(&p);
+        if (cp < 0)
+            break;
+        if (cp == '\n') {
+            dst[out++] = '\n';
+            continue;
+        }
+
+        dst[out++] = ((cp >= 0 && cp <= 255) ? (unsigned char)cp : '?');
+    }
+    dst[out] = 0;
+    return out;
+}
+
+// Measure ASCII/UTF8 (ASCII-focused) width/height using p_font advances.
+static void note_font_measure(p_font *f, const char *text, int *out_w, int *out_h) {
+    size_t len = strlen(text);
+    char *buf = (char*)malloc(len + 1);
+    if (!buf) { if (out_w) *out_w = 0; if (out_h) *out_h = f->height; return; }
+    utf8_to_latin1(text, buf, (int)len + 1);
+
+    int w = 0;
+    for (const unsigned char *p = (const unsigned char*)buf; *p; ++p) {
+        struct glyph *g = f->get_glyph(*p);
+        if (!g)
+            continue;
+
+        if (g->newline)
+            break;
+        w += g->ax;
+    }
+    if (out_w) *out_w = w;
+    if (out_h) *out_h = f->height;
+    free(buf);
+}
+
+// Render text into an 8-bit SDL surface where each pixel is a glyph alpha value.
+// Slightly modified from SDL_TTF
+static SDL_Surface* note_render_shaded(p_font *f, const char *text) {
+    int w, h;
+    note_font_measure(f, text, &w, &h);
+    if (w <= 0) w = 1;
+    if (h <= 0) h = 1;
+
+    SDL_Surface *srf = SDL_CreateRGBSurfaceWithFormat(0, w, h, 8, SDL_PIXELFORMAT_INDEX8);
+    if (!srf) return NULL;
+
+    // populate palette (white entries, alpha is simulated by byte value copied out later)
+    SDL_Color pal[256];
+    for (int i = 0; i < 256; ++i) {
+        pal[i].r = 0xFF;
+        pal[i].g = 0xFF;
+        pal[i].b = 0xFF;
+    }
+    if (srf->format && srf->format->palette) SDL_SetPaletteColors(srf->format->palette, pal, 0, 256);
+
+    // clear
+    memset(srf->pixels, 0, srf->pitch * srf->h);
+
+    // Convert UTF-8 to Latin1 first, then render by byte.
+    size_t len = strlen(text);
+    char *buf = (char*)malloc(len + 1);
+    if (!buf) return NULL;
+    utf8_to_latin1(text, buf, (int)len + 1);
+
+    int x_cursor = 0;
+    for (const unsigned char *p = (const unsigned char*)buf; *p; ++p) {
+        struct glyph *g = f->get_glyph(*p);
+        if (!g) continue;
+        if (g->newline) break;
+
+        if (g->m_sprite_buf && g->bw > 0 && g->bh > 0) {
+            int dest_x = x_cursor + g->bl;
+            int dest_y = f->ascent - g->bt;
+
+            for (int gy = 0; gy < g->bh; ++gy) {
+                for (int gx = 0; gx < g->bw; ++gx) {
+                    int sx = dest_x + gx;
+                    int sy = dest_y + gy;
+                    if (sx < 0 || sx >= w || sy < 0 || sy >= h)
+                        continue;
+                    unsigned char val = g->m_sprite_buf[gy * g->bw + gx];
+
+                    // Don't draw transparent pixels (may cut off previous glyphs)
+                    if (val == 0)
+                        continue;
+
+                    ((unsigned char*)srf->pixels)[sy * srf->pitch + sx] = val;
+                }
+            }
+        }
+
+        x_cursor += g ? g->ax : 0;
+    }
+
+    return srf;
+}
+
+void sticky::_init(void) {
     int unused;
 
     for (int size_idx = 0; size_idx < NUM_SIZES; size_idx++) {
         int font_size = FONT_SCALING_FACTOR * (double)(16 + 6 * size_idx);
-        ttf_font[size_idx] = TTF_OpenFont(NOTE_FONT, font_size);
-        TTF_SizeUTF8(ttf_font[size_idx], " ", &spacing[size_idx], &unused);
+        note_font[size_idx] = new p_font(gui_spritesheet::atlas_text, NOTE_FONT, font_size, true);
+
+        int w = 0;
+        const char *sp = " ";
+        for (const unsigned char *c = (const unsigned char*)sp; *c; ++c) {
+            struct glyph *g = note_font[size_idx]->get_glyph(*c);
+            if (g) w += g->ax;
+        }
+
+        spacing[size_idx] = w;
     }
 
     //texture = tms_texture_alloc();
@@ -58,10 +193,11 @@ void sticky::_init(void) {
 
 void sticky::_deinit(void) {
     for (int x=0; x<NUM_SIZES; x++) {
-        TTF_CloseFont(ttf_font[x]);
+        if (note_font[x]) {
+            delete note_font[x];
+            note_font[x] = nullptr;
+        }
     }
-
-    TTF_Quit();
 }
 
 sticky::sticky() {
@@ -173,7 +309,7 @@ void sticky::add_word(const char *word, int len) {
         this->lines[this->currline][write_len] = 0;
     }
 
-    TTF_SizeUTF8(ttf_font[this->properties[3].v.i8], this->lines[this->currline], &w, &h);
+    note_font_measure(note_font[this->properties[3].v.i8], this->lines[this->currline], &w, &h);
 
     if (w > WIDTH) {
         char p[STICKY_MAX_PER_LINE];
@@ -181,7 +317,7 @@ void sticky::add_word(const char *word, int len) {
         p[STICKY_MAX_PER_LINE-1] = '\0';
         do {
             p[strlen(p)-1] = 0;
-            TTF_SizeUTF8(ttf_font[this->properties[3].v.i8], p, &w, NULL);
+            note_font_measure(note_font[this->properties[3].v.i8], p, &w, NULL);
         } while (w > WIDTH);
         this->lines[this->currline][this->linelen[this->currline]] = 0;
 
@@ -228,21 +364,19 @@ void sticky::draw_text(const char *txt) {
 
     unsigned char *buf = tms_texture_get_buffer(&sticky::texture);
 
-    int line_skip = TTF_FontLineSkip(ttf_font[this->properties[3].v.i8]);
+    int line_skip = note_font[this->properties[3].v.i8]->lineskip;
 
     for (size_t text_line = 0; text_line < this->currline; text_line++) {
         /* Skip any lines that do not contain any content */
         if (this->linelen[text_line] == 0) continue;
 
-        SDL_Surface *srf = TTF_RenderUTF8_Shaded(
-            ttf_font[this->properties[3].v.i8],
-            this->lines[text_line],
-            (SDL_Color){0xff, 0xff, 0xff, 0xff},
-            (SDL_Color){0x00, 0x00, 0x00, 0x00}
+        SDL_Surface *srf = note_render_shaded(
+            note_font[this->properties[3].v.i8],
+            this->lines[text_line]
         );
 
         if (srf == NULL) {
-            tms_errorf("Error creating SDL Surface:%s", TTF_GetError());
+            tms_errorf("Error creating SDL Surface:%s", SDL_GetError());
             continue;
         }
 
