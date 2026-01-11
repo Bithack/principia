@@ -69,12 +69,14 @@ class p_font
   public:
     int orig_height;
 
-    glyph glyphs[128-CHAR_OFFSET];
+    glyph glyphs[256-CHAR_OFFSET];
+    bool extended;
     FT_Face face;
     SDL_RWops *rw;
-
+    FT_UInt *glyph_indices_local;
     p_font(const char *font_path, int height);
     p_font(struct tms_atlas *atlas, const char *font_path, int height);
+    p_font(struct tms_atlas *atlas, const char *font_path, int height, bool extended_charset);
     ~p_font();
 
     int height;

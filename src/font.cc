@@ -85,19 +85,16 @@ init_p_font(p_font *font, const char *font_path)
     FT_Open_Args args;
     FT_Stream stream;
     font->rw = SDL_RWFromFile(font_path, "rb");
-    if (font->rw == NULL) {
+    if (font->rw == NULL)
         tms_fatalf("Unable to open font file: %s", SDL_GetError());
-    }
 
     int position = SDL_RWtell(font->rw);
-    if (position < 0) {
+    if (position < 0)
         tms_fatalf("Unable to seek in font stream.");
-    }
 
     stream = (FT_Stream)malloc(sizeof(*stream));
-    if (!stream) {
+    if (!stream)
         tms_fatalf("Out of memory.");
-    }
 
     stream->read = RWread;
     stream->descriptor.pointer = font->rw;
@@ -111,14 +108,12 @@ init_p_font(p_font *font, const char *font_path)
 
     error = FT_Open_Face(gui_spritesheet::ft, &args, 0, &font->face);
 
-    if (error) {
+    if (error)
         tms_fatalf("Unable to open font: 0x%04X", error);
-    }
 
     error = FT_Set_Char_Size(font->face, 0, font->orig_height * 64, 0, 0);
-    if (error) {
+    if (error)
         tms_fatalf("Unable to set font size: 0x%04X", error);
-    }
 
     FT_Fixed scale = font->face->size->metrics.y_scale;
     font->ascent  = FT_CEIL(FT_MulFix(font->face->ascender, scale));
@@ -128,10 +123,10 @@ init_p_font(p_font *font, const char *font_path)
 
     if (!p_font::glyph_indices) {
         p_font::glyph_indices = new FT_UInt[128];
-        for (int i=CHAR_OFFSET; i<128; ++i) {
+        for (int i = CHAR_OFFSET; i < 128; ++i)
             p_font::glyph_indices[i] = FT_Get_Char_Index(font->face, i);
-        }
     }
+    font->glyph_indices_local = nullptr;
 }
 
 p_font::p_font(const char *font_path, int height)
@@ -140,14 +135,17 @@ p_font::p_font(const char *font_path, int height)
     init_p_font(this, font_path);
 }
 
-p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height)
+
+p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height, bool extended_charset)
     : orig_height(height)
 {
     init_p_font(this, font_path);
-
     FT_Error error;
 
-    //FT_Set_Pixel_Sizes(this->face, 0, this->height);
+    this->glyph_indices_local = nullptr;
+    this->extended = extended_charset;
+
+    // rest of atlas-loading code (duplicate of other ctor)
     FT_GlyphSlot slot = this->face->glyph;
     FT_Glyph_Metrics *metrics;
     FT_Glyph ft_glyph;
@@ -160,29 +158,33 @@ p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height)
     int ft_glyph_top = 0;
     int ft_glyph_left = 0;
 
-    for (int i=CHAR_OFFSET; i<128; ++i) {
+    if (extended_charset) {
+        this->glyph_indices_local = new FT_UInt[256];
+        for (int i = CHAR_OFFSET; i < 256; ++i) {
+            tms_infof("Getting glyph index for char code %d", i);
+            this->glyph_indices_local[i] = FT_Get_Char_Index(this->face, i);
+        }
+    }
+
+    for (int i = CHAR_OFFSET; i < (extended_charset ? 256 : 128); ++i) {
         cur_glyph = this->get_glyph(i);
 
-        if (FT_Load_Glyph(face, glyph_indices[i], FT_LOAD_NO_BITMAP)) {
+        FT_UInt idx = this->glyph_indices_local ? this->glyph_indices_local[i] : glyph_indices[i];
+
+        if (FT_Load_Glyph(face, idx, FT_LOAD_NO_BITMAP))
             tms_fatalf("Loading character %c failed.", i);
-            continue;
-        }
 
         /* Render outline */
         FT_Stroker stroker;
         FT_BitmapGlyph ft_bitmap_glyph;
         error = FT_Stroker_New(gui_spritesheet::ft, &stroker);
 
-        if (error) {
+        if (error)
             tms_fatalf("Error creating stroker");
-            continue;
-        }
 
         error = FT_Get_Glyph(this->face->glyph, &ft_glyph);
-        if (error) {
+        if (error)
             tms_fatalf("Error getting glyph");
-            continue;
-        }
 
         FT_Stroker_Set(stroker,
                        this->height * OUTLINE_MODIFIER,
@@ -191,16 +193,12 @@ p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height)
                        0);
 
         error = FT_Glyph_Stroke(&ft_glyph, stroker, 1);
-        if (error) {
+        if (error)
             tms_fatalf("Error Applying stroke to glyph");
-            continue;
-        }
 
         error = FT_Glyph_To_Bitmap(&ft_glyph, FT_RENDER_MODE_NORMAL, 0, 1);
-        if (error) {
+        if (error)
             tms_fatalf("Error doing glyph to bitmap");
-            continue;
-        }
 
         slot            = this->face->glyph;
         metrics         = &slot->metrics;
@@ -225,10 +223,8 @@ p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height)
         memcpy(cur_glyph->m_outline_buf, ft_bitmap.buffer, ft_bitmap_width*ft_bitmap_rows);
 
         /* Render bitmap */
-        if (FT_Load_Glyph(face, glyph_indices[i], FT_LOAD_RENDER)) {
+        if (FT_Load_Glyph(face, idx, FT_LOAD_RENDER))
             tms_fatalf("Loading character %c failed.", i);
-            continue;
-        }
 
         slot            = this->face->glyph;
         metrics         = &slot->metrics;
@@ -247,20 +243,18 @@ p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height)
         cur_glyph->bl = ft_glyph_left;
         cur_glyph->bt = ft_glyph_top;
 
-        if (FT_IS_SCALABLE(this->face)) {
-            cur_glyph->minx = FT_FLOOR(metrics->horiBearingX);
-            cur_glyph->maxx = cur_glyph->minx + FT_CEIL(metrics->width);
-            cur_glyph->maxy = FT_FLOOR(metrics->horiBearingY);
-            cur_glyph->miny = cur_glyph->maxy - FT_CEIL(metrics->height);
-            cur_glyph->yoffset = this->ascent - cur_glyph->maxy;
-            cur_glyph->advance = FT_CEIL(metrics->horiAdvance);
-            cur_glyph->ax = cur_glyph->advance;
-            //cur_glyph->ay = cur_glyph->miny;
-            cur_glyph->index = glyph_indices[i];
-            //tms_fatalf("is scalable");
-        } else {
-            tms_fatalf("is not scalable");
-        }
+        if (!FT_IS_SCALABLE(this->face))
+            tms_fatalf("font is not scalable!");
+
+        cur_glyph->minx = FT_FLOOR(metrics->horiBearingX);
+        cur_glyph->maxx = cur_glyph->minx + FT_CEIL(metrics->width);
+        cur_glyph->maxy = FT_FLOOR(metrics->horiBearingY);
+        cur_glyph->miny = cur_glyph->maxy - FT_CEIL(metrics->height);
+        cur_glyph->yoffset = this->ascent - cur_glyph->maxy;
+        cur_glyph->advance = FT_CEIL(metrics->horiAdvance);
+        cur_glyph->ax = cur_glyph->advance;
+        //cur_glyph->ay = cur_glyph->miny;
+        cur_glyph->index = idx;
 
         cur_glyph->m_sprite_buf = (unsigned char*)malloc(ft_bitmap_width*ft_bitmap_rows);
         memcpy(cur_glyph->m_sprite_buf, ft_bitmap.buffer, ft_bitmap_width*ft_bitmap_rows);
@@ -276,13 +270,22 @@ p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height)
     }
 }
 
+p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height)
+    : orig_height(height)
+{
+    // call the other ctor
+    p_font(atlas, font_path, height, false);
+}
+
 p_font::~p_font()
 {
-    if (this->rw) {
+    if (this->rw)
         this->rw->close(rw);
-    }
 
-    //FT_Done_Face(this->face);
+    if (this->glyph_indices_local) {
+        delete [] this->glyph_indices_local;
+        this->glyph_indices_local = nullptr;
+    }
 }
 
 static struct glyph* nl_glyph = 0;
@@ -290,25 +293,22 @@ static struct glyph* nl_glyph = 0;
 struct glyph*
 p_font::get_glyph(int c)
 {
-    if (c >= CHAR_OFFSET && c <= 128) {
+    if (c >= CHAR_OFFSET && c <= (extended ? 256 : 128)) {
         return &this->glyphs[c-CHAR_OFFSET];
     }
 
     switch (c) {
-        case '\n':
-            {
-                if (!nl_glyph) {
-                    nl_glyph = (struct glyph*)calloc(1, sizeof(struct glyph));
-                    nl_glyph->newline = true;
-                }
-
-                return nl_glyph;
+        case '\n': {
+            if (!nl_glyph) {
+                nl_glyph = (struct glyph*)calloc(1, sizeof(struct glyph));
+                nl_glyph->newline = true;
             }
-            break;
+
+            return nl_glyph;
+        } break;
     }
 
     return 0;
-
 }
 
 void
