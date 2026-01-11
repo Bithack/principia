@@ -37,7 +37,7 @@
 #include "treasure_chest.hh"
 #include "ui.hh"
 #include "wheel.hh"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <sstream>
 #include <tms/cpp.hh>
 
@@ -70,9 +70,9 @@
 
 static gboolean _close_all_dialogs(gpointer unused);
 
-SDL_bool   ui_ready = SDL_FALSE;
-SDL_cond  *ui_cond;
-SDL_mutex *ui_lock;
+bool   ui_ready = false;
+SDL_Condition  *ui_cond;
+SDL_Mutex *ui_lock;
 static gboolean _sig_ui_ready(gpointer unused);
 
 typedef std::map<int, std::pair<int, int> > freq_container;
@@ -5016,7 +5016,8 @@ save_settings()
     tms_infof("done!");
 
 #ifdef TMS_BACKEND_WINDOWS
-    SDL_EventState(SDL_SYSWMEVENT, settings["emulate_touch"]->is_true() ? SDL_ENABLE : SDL_DISABLE);
+    SDL_EventState(SDL_EVENT_SYSWM,
+                   settings["emulate_touch"]->is_true() ? SDL_ENABLE : SDL_DISABLE);
 #endif
 
     P.can_reload_graphics = true;
@@ -7707,7 +7708,7 @@ int _gtk_loop(void *p)
 
         soundman_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
         for (int x=0; x<SND__NUM; x++) {
-            gtk_combo_box_text_append_text(soundman_cb, sm::sound_lookup[x]->name);
+            //gtk_combo_box_text_append_text(soundman_cb, sm::sound_lookup[x]->name);
         }
 
         soundman_catch_all = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Catch all"));
@@ -7729,7 +7730,7 @@ int _gtk_loop(void *p)
 
         sfx2_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
         for (int x=0; x<SND__NUM; x++) {
-            gtk_combo_box_text_append_text(sfx2_cb, sm::sound_lookup[x]->name);
+            //gtk_combo_box_text_append_text(sfx2_cb, sm::sound_lookup[x]->name);
         }
 
         sfx2_sub_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
@@ -9927,8 +9928,8 @@ static gboolean
 _sig_ui_ready(gpointer unused)
 {
     SDL_LockMutex(ui_lock);
-    ui_ready = SDL_TRUE;
-    SDL_CondSignal(ui_cond);
+    ui_ready = true;
+    SDL_SignalCondition(ui_cond);
     SDL_UnlockMutex(ui_lock);
 
     return false;
@@ -9937,8 +9938,8 @@ _sig_ui_ready(gpointer unused)
 void ui::init()
 {
     ui_lock = SDL_CreateMutex();
-    ui_cond = SDL_CreateCond();
-    ui_ready = SDL_FALSE;
+    ui_cond = SDL_CreateCondition();
+    ui_ready = false;
 
     SDL_Thread *gtk_thread;
 
@@ -11436,7 +11437,7 @@ static void wait_ui_ready()
 
     SDL_LockMutex(ui_lock);
     if (!ui_ready) {
-        SDL_CondWaitTimeout(ui_cond, ui_lock, 4000);
+        SDL_WaitConditionTimeout(ui_cond, ui_lock, 4000);
         if (!ui_ready) tms_fatalf("Could not initialise game (GTK not ready)");
     }
     SDL_UnlockMutex(ui_lock);

@@ -9,7 +9,7 @@
 #include "soundmanager.hh"
 #include "game.hh"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 p_text *pscreen::text_username;
 game_message *pscreen::message;
@@ -247,17 +247,17 @@ pscreen::handle_input(tms::event *ev, int action)
                 uint32_t flags = SDL_GetWindowFlags(_tms._window);
 
                 if (settings["window_resizable"]->v.b) {
-                    if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP)
+                    if (flags & SDL_WINDOW_FULLSCREEN)
                         SDL_SetWindowFullscreen(_tms._window, 0);
                     else
-                        SDL_SetWindowFullscreen(_tms._window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                        SDL_SetWindowFullscreen(_tms._window, SDL_WINDOW_FULLSCREEN);
                 } else {
                     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Principia",
                         "Principia does not support resizing the window while in-game. For fullscreen changes to take effect, please restart the game.",
                         0);
                 }
 
-                settings["window_fullscreen"]->v.b = (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == 0;
+                settings["window_fullscreen"]->v.b = (flags & SDL_WINDOW_FULLSCREEN) == 0;
                 break;
 #endif
         }

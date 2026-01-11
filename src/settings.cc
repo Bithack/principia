@@ -39,7 +39,7 @@ static void apply_very_bad_settings()
     #define ENABLE_SHADOWS_DEFAULT true
     #define ENABLE_AO_DEFAULT true
     #define WINDOW_RESIZABLE_DEFAULT false
-    #define NUM_WORKERS_DEFAULT SDL_GetCPUCount()
+    #define NUM_WORKERS_DEFAULT SDL_GetNumLogicalCPUCores()
 #endif
 
 #ifdef TMS_BACKEND_MOBILE
@@ -138,7 +138,7 @@ _settings::init()
     this->add("display_fps", S_UINT8, 0);
 
     this->add("num_workers", S_UINT8, NUM_WORKERS_DEFAULT);
-    tms_infof("num workers (real): %d", SDL_GetCPUCount());
+    tms_infof("num workers (real): %d", SDL_GetNumLogicalCPUCores());
 
     this->add("dna_sandbox_back", S_BOOL, false);
     this->add("hide_tips", S_BOOL, false);

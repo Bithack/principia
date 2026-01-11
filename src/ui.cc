@@ -2,7 +2,7 @@
 #include "game-message.hh"
 #include "game.hh"
 #include "main.hh"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <tms/cpp.hh>
 
 const char *tips[] = {

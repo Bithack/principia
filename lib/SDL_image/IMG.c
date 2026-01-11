@@ -49,19 +49,12 @@ SDL_COMPILE_TIME_ASSERT(SDL_IMAGE_PATCHLEVEL_max, SDL_IMAGE_PATCHLEVEL <= 99);
 /* Table of image detection and loading functions */
 static struct {
     const char *type;
-    int (SDLCALL *is)(SDL_RWops *src);
-    SDL_Surface *(SDLCALL *load)(SDL_RWops *src);
+    int (SDLCALL *is)(SDL_IOStream *src);
+    SDL_Surface *(SDLCALL *load)(SDL_IOStream *src);
 } supported[] = {
     { "JPG", IMG_isJPG, IMG_LoadJPG_RW },
     { "PNG", IMG_isPNG, IMG_LoadPNG_RW },
 };
-
-const SDL_version *IMG_Linked_Version(void)
-{
-    static SDL_version linked_version;
-    SDL_IMAGE_VERSION(&linked_version);
-    return(&linked_version);
-}
 
 extern int IMG_InitJPG(void);
 extern void IMG_QuitJPG(void);
@@ -105,7 +98,7 @@ void IMG_Quit()
 /* Load an image from a file */
 SDL_Surface *IMG_Load(const char *file)
 {
-    SDL_RWops *src = SDL_RWFromFile(file, "rb");
+    SDL_IOStream *src = SDL_IOFromFile(file, "rb");
     const char *ext = SDL_strrchr(file, '.');
     if (ext) {
         ext++;
@@ -118,7 +111,7 @@ SDL_Surface *IMG_Load(const char *file)
 }
 
 /* Load an image from an SDL datasource (for compatibility) */
-SDL_Surface *IMG_Load_RW(SDL_RWops *src, int freesrc)
+SDL_Surface *IMG_Load_RW(SDL_IOStream *src, int freesrc)
 {
     return IMG_LoadTyped_RW(src, freesrc, NULL);
 }
@@ -137,7 +130,8 @@ static int IMG_string_equals(const char *str1, const char *str2)
 }
 
 /* Load an image from an SDL datasource, optionally specifying the type */
-SDL_Surface *IMG_LoadTyped_RW(SDL_RWops *src, int freesrc, const char *type)
+SDL_Surface *IMG_LoadTyped_RW(SDL_IOStream *src, int freesrc,
+                              const char *type)
 {
     int i;
     SDL_Surface *image;
@@ -149,10 +143,10 @@ SDL_Surface *IMG_LoadTyped_RW(SDL_RWops *src, int freesrc, const char *type)
     }
 
     /* See whether or not this data source can handle seeking */
-    if ( SDL_RWseek(src, 0, RW_SEEK_CUR) < 0 ) {
+    if (SDL_SeekIO(src, 0, SDL_IO_SEEK_CUR) < 0 ) {
         IMG_SetError("Can't seek in this data source");
         if (freesrc)
-            SDL_RWclose(src);
+            SDL_CloseIO(src);
         return(NULL);
     }
 
@@ -172,12 +166,12 @@ SDL_Surface *IMG_LoadTyped_RW(SDL_RWops *src, int freesrc, const char *type)
 #endif
         image = supported[i].load(src);
         if (freesrc)
-            SDL_RWclose(src);
+            SDL_CloseIO(src);
         return image;
     }
 
     if ( freesrc ) {
-        SDL_RWclose(src);
+        SDL_CloseIO(src);
     }
     IMG_SetError("Unsupported image format");
     return NULL;

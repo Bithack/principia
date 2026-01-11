@@ -156,7 +156,7 @@ main(int argc, char **argv)
     do {
         while (SDL_PollEvent(&ev)) {
             switch (ev.type) {
-                case SDL_QUIT:
+                case SDL_EVENT_QUIT :
                     _tms.state = TMS_STATE_QUITTING;
                     break;
             }
@@ -353,7 +353,7 @@ tbackend_init_surface()
     uint32_t flags = 0;
 
     flags |= SDL_WINDOW_OPENGL;
-    flags |= SDL_WINDOW_SHOWN;
+    flags |= 0;
 
     tms_infof("Creating window...");
     _window = SDL_CreateWindow("Principia Screenshotter", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _tms.window_width, _tms.window_height, flags);

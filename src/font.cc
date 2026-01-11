@@ -66,14 +66,14 @@ static unsigned long RWread(
     unsigned long count
 )
 {
-    SDL_RWops *src;
+    SDL_IOStream *src;
 
-    src = (SDL_RWops *)stream->descriptor.pointer;
-    SDL_RWseek(src, (int)offset, RW_SEEK_SET);
+    src = (SDL_IOStream *)stream->descriptor.pointer;
+    SDL_SeekIO(src, (int)offset, SDL_IO_SEEK_SET);
     if (count == 0) {
         return 0;
     }
-    return SDL_RWread( src, buffer, 1, (int)count );
+    return SDL_ReadIO( src, buffer, 1 * (int)count);
 }
 
 void
@@ -84,11 +84,11 @@ init_p_font(p_font *font, const char *font_path)
     FT_Error error;
     FT_Open_Args args;
     FT_Stream stream;
-    font->rw = SDL_RWFromFile(font_path, "rb");
+    font->rw = SDL_IOFromFile(font_path, "rb");
     if (font->rw == NULL)
         tms_fatalf("Unable to open font file: %s", SDL_GetError());
 
-    int position = SDL_RWtell(font->rw);
+    int position = SDL_TellIO(font->rw);
     if (position < 0)
         tms_fatalf("Unable to seek in font stream.");
 
@@ -99,9 +99,9 @@ init_p_font(p_font *font, const char *font_path)
     stream->read = RWread;
     stream->descriptor.pointer = font->rw;
     stream->pos = (unsigned long)position;
-    SDL_RWseek(font->rw, 0, RW_SEEK_END);
-    stream->size = (unsigned long)(SDL_RWtell(font->rw) - position);
-    SDL_RWseek(font->rw, position, RW_SEEK_SET);
+    SDL_SeekIO(font->rw, 0, SDL_IO_SEEK_END);
+    stream->size = (unsigned long)(SDL_TellIO(font->rw) - position);
+    SDL_SeekIO(font->rw, position, SDL_IO_SEEK_SET);
 
     args.flags = FT_OPEN_STREAM;
     args.stream = stream;
@@ -277,7 +277,7 @@ p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height)
 p_font::~p_font()
 {
     if (this->rw)
-        this->rw->close(rw);
+        SDL_CloseIO(this->rw);
 
     if (this->glyph_indices_local) {
         delete [] this->glyph_indices_local;

@@ -99,7 +99,8 @@ tms_model_shift_mesh_uv(struct tms_model *m,
     return ret;
 }
 
-extern struct tms_mesh * load_3ds_model(struct tms_model *model, SDL_RWops *fp, int *status);
+extern struct tms_mesh * load_3ds_model(struct tms_model *model,
+					SDL_IOStream *fp, int *status);
 
 struct tms_mesh *
 tms_model_load(struct tms_model *m, const char *filename, int *status)
@@ -108,14 +109,14 @@ tms_model_load(struct tms_model *m, const char *filename, int *status)
 
     *status = T_ERR;
 
-    SDL_RWops *fp = SDL_RWFromFile(filename,"rb");
+    SDL_IOStream *fp = SDL_IOFromFile(filename,"rb");
 
     if (!fp)
         tms_fatalf("Could not open model file: %s", filename);
 
     ret = load_3ds_model(m, fp, status);
 
-    SDL_RWclose(fp);
+    SDL_CloseIO(fp);
 
     return ret;
 }

@@ -29,9 +29,8 @@
 #ifndef SDL_IMAGE_H_
 #define SDL_IMAGE_H_
 
-#include "SDL.h"
-#include "SDL_version.h"
-#include "begin_code.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_version.h>
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -79,16 +78,6 @@ extern "C" {
      (SDL_IMAGE_MAJOR_VERSION > X || SDL_IMAGE_MINOR_VERSION > Y || SDL_IMAGE_PATCHLEVEL >= Z))
 
 /**
- * This function gets the version of the dynamically linked SDL_image library.
- *
- * it should NOT be used to fill a version structure, instead you should use
- * the SDL_IMAGE_VERSION() macro.
- *
- * \returns SDL_image version
- */
-extern DECLSPEC const SDL_version * SDLCALL IMG_Linked_Version(void);
-
-/**
  * Initialization flags
  */
 typedef enum
@@ -100,47 +89,47 @@ typedef enum
 /**
  * Initialize SDL_image.
  */
-extern DECLSPEC int SDLCALL IMG_Init(int flags);
+extern int SDLCALL IMG_Init(int flags);
 
 /**
  * Deinitialize SDL_image.
  */
-extern DECLSPEC void SDLCALL IMG_Quit(void);
+extern void SDLCALL IMG_Quit(void);
 
 /**
  * Load an image from an SDL data source into a software surface.
  */
-extern DECLSPEC SDL_Surface * SDLCALL IMG_LoadTyped_RW(SDL_RWops *src, int freesrc, const char *type);
+extern SDL_Surface * SDLCALL IMG_LoadTyped_RW(SDL_IOStream *src, int freesrc, const char *type);
 
 /**
  * Load an image from a filesystem path into a software surface.
  */
-extern DECLSPEC SDL_Surface * SDLCALL IMG_Load(const char *file);
+extern SDL_Surface * SDLCALL IMG_Load(const char *file);
 
 /**
  * Load an image from an SDL data source into a software surface.
  */
-extern DECLSPEC SDL_Surface * SDLCALL IMG_Load_RW(SDL_RWops *src, int freesrc);
+extern SDL_Surface * SDLCALL IMG_Load_RW(SDL_IOStream *src, int freesrc);
 
 /**
  * Detect JPG image data on a readable/seekable SDL_RWops.
  */
-extern DECLSPEC int SDLCALL IMG_isJPG(SDL_RWops *src);
+extern int SDLCALL IMG_isJPG(SDL_IOStream *src);
 
 /**
  * Detect PNG image data on a readable/seekable SDL_RWops.
  */
-extern DECLSPEC int SDLCALL IMG_isPNG(SDL_RWops *src);
+extern int SDLCALL IMG_isPNG(SDL_IOStream *src);
 
 /**
  * Load a JPG image directly.
  */
-extern DECLSPEC SDL_Surface * SDLCALL IMG_LoadJPG_RW(SDL_RWops *src);
+extern SDL_Surface * SDLCALL IMG_LoadJPG_RW(SDL_IOStream *src);
 
 /**
  * Load a PNG image directly.
  */
-extern DECLSPEC SDL_Surface * SDLCALL IMG_LoadPNG_RW(SDL_RWops *src);
+extern SDL_Surface * SDLCALL IMG_LoadPNG_RW(SDL_IOStream *src);
 
 /**
  * Report SDL_image errors
@@ -160,6 +149,5 @@ extern DECLSPEC SDL_Surface * SDLCALL IMG_LoadPNG_RW(SDL_RWops *src);
 #ifdef __cplusplus
 }
 #endif
-#include "close_code.h"
 
 #endif /* SDL_IMAGE_H_ */

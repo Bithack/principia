@@ -428,6 +428,9 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy)
 	int is32bit;
 	int i, src_converted;
 	int flipx, flipy;
+	const SDL_PixelFormatDetails* details;
+	SDL_Palette* pal_src;
+	SDL_Palette* pal_dst;
 
 	/*
 	* Sanity check
@@ -438,8 +441,9 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy)
 	/*
 	* Determine if source surface is 32bit or 8bit
 	*/
-	is32bit = (src->format->BitsPerPixel == 32);
-	if ((is32bit) || (src->format->BitsPerPixel == 8)) {
+	details = SDL_GetPixelFormatDetails(src->format);
+	is32bit = (details->bits_per_pixel == 32);
+	if ((is32bit) || (details->bits_per_pixel == 8)) {
 		/*
 		* Use source surface 'as is'
 		*/
@@ -450,13 +454,7 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy)
 		* New source surface is 32bit with a defined RGBA ordering
 		*/
 		rz_src =
-			SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32,
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-			0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000
-#else
-			0xff000000,  0x00ff0000, 0x0000ff00, 0x000000ff
-#endif
-			);
+			SDL_CreateSurface(src->w, src->h, SDL_PIXELFORMAT_RGBA32);
 		if (rz_src == NULL) {
 			return NULL;
 		}
@@ -482,14 +480,13 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy)
 		* Target surface is 32bit with source RGBA/ABGR ordering
 		*/
 		rz_dst =
-			SDL_CreateRGBSurface(SDL_SWSURFACE, dstwidth, dstheight + GUARD_ROWS, 32,
-			rz_src->format->Rmask, rz_src->format->Gmask,
-			rz_src->format->Bmask, rz_src->format->Amask);
+			SDL_CreateSurface(dstwidth, dstheight + GUARD_ROWS, rz_src->format);
 	} else {
 		/*
 		* Target surface is 8bit
 		*/
-		rz_dst = SDL_CreateRGBSurface(SDL_SWSURFACE, dstwidth, dstheight + GUARD_ROWS, 8, 0, 0, 0, 0);
+		rz_dst = SDL_CreateSurface(dstwidth, dstheight + GUARD_ROWS, SDL_PIXELFORMAT_INDEX8);
+		pal_dst = SDL_CreateSurfacePalette(rz_dst);
 	}
 
 	/* Check target */
@@ -498,7 +495,7 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy)
 		* Cleanup temp surface
 		*/
 		if (src_converted) {
-			SDL_FreeSurface(rz_src);
+			SDL_DestroySurface(rz_src);
 		}
 		return NULL;
 	}
@@ -525,10 +522,11 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy)
 		/*
 		* Copy palette and colorkey info
 		*/
-		for (i = 0; i < rz_src->format->palette->ncolors; i++) {
-			rz_dst->format->palette->colors[i] = rz_src->format->palette->colors[i];
+		pal_src = SDL_GetSurfacePalette(rz_src);
+		for (i = 0; i < pal_src->ncolors; i++) {
+			pal_dst->colors[i] = pal_src->colors[i];
 		}
-		rz_dst->format->palette->ncolors = rz_src->format->palette->ncolors;
+		pal_dst->ncolors = pal_src->ncolors;
 		/*
 		* Call the 8bit transformation routine to do the zooming
 		*/
@@ -545,7 +543,7 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy)
 	* Cleanup temp surface
 	*/
 	if (src_converted) {
-		SDL_FreeSurface(rz_src);
+		SDL_DestroySurface(rz_src);
 	}
 
 	/*

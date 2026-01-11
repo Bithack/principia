@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "SDL_clipboard.h"
 #include "SDL_stdinc.h"
 #include "SDL_syswm.h"

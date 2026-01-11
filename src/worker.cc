@@ -26,7 +26,7 @@ bool            w_solve_allow_sleep;
 
 b2ContactManager *w_collide_contact_manager;
 std::vector<b2Contact*>  w_collide_destroy_list;
-SDL_mutex               *w_collide_destroy_lock;
+SDL_Mutex               *w_collide_destroy_lock;
 
 std::set<entity*>       *w_updatec_set;
 struct tms_graph        *w_updatec_graph;
@@ -59,7 +59,7 @@ w_init()
 
         for (int x=0; x<MAX_WORKERS; x++) {
             w_workers[x].mtx = SDL_CreateMutex();
-            w_workers[x].cond = SDL_CreateCond();
+            w_workers[x].cond = SDL_CreateCondition();
         }
     }
 
@@ -136,7 +136,7 @@ w_run(int runmode, void *data)
 
                 w_workers[x].status = W_RUNNING;
                 w_workers[x].msg = runmode;
-                SDL_CondSignal(w_workers[x].cond);
+                SDL_SignalCondition(w_workers[x].cond);
             }
             SDL_UnlockMutex(w_workers[x].mtx);
 
@@ -169,7 +169,7 @@ _worker_main(void *in)
         w_workers[x].status = W_WAITING;
 
         while (w_workers[x].msg == W_RUN_NULL) {
-            SDL_CondWait(w_workers[x].cond, w_workers[x].mtx);
+            SDL_WaitCondition(w_workers[x].cond, w_workers[x].mtx);
         }
 
         r_msg = w_workers[x].msg;

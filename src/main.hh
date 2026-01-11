@@ -147,7 +147,7 @@ extern class principia {
 
     std::vector<pscreen*> screens;
 
-    SDL_mutex      *curl_mutex;
+    SDL_Mutex      *curl_mutex;
     void           *curl;
 
     // LOL
@@ -169,7 +169,7 @@ extern class principia {
 
     bool new_version_available;
 
-    SDL_mutex *action_mutex;
+    SDL_Mutex *action_mutex;
     bool       can_reload_graphics;
     bool       can_set_settings;
 

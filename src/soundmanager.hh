@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef SCREENSHOT_BUILD
+#if 0
 #define ENABLE_SOUND
 #endif
 

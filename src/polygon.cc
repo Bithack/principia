@@ -327,7 +327,7 @@ polygon::set_shape()
         this->layer_mask = 1 + (d > 0)*2 + (d > 1)*4 + (d > 2) * 8;
     } else {
         /* back alignment */
-        this->layer_mask = 8 + (d > 0)*4 + (d > 1)*2 + (d > 2) * 1;
+        this->layer_mask = 8 + (d > 0)*4 + (d > 1)*2 + (d > 2);
     }
 
     if (this->body) this->recreate_shape();

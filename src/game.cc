@@ -79,6 +79,8 @@
 #include <iterator>
 #include <map>
 
+#include <SDL3/SDL.h>
+
 #include "SDL2_rotozoom.h"
 
 #define MAX_COPY_ENTITIES 10
@@ -684,8 +686,10 @@ try_activate_slider(int slot)
                 G->wdg_base_y = _tms.window_height/2;
                 SDL_WarpMouseInWindow((SDL_Window*)_tms._window, G->wdg_base_x, G->wdg_base_y);
             } else {
-                SDL_GetMouseState(&G->wdg_base_x, &G->wdg_base_y);
-                G->wdg_base_y = _tms.window_height - G->wdg_base_y;
+                float mx, my;
+                SDL_GetMouseState(&mx, &my);
+                G->wdg_base_x = (int)mx;
+                G->wdg_base_y = _tms.window_height - (int)my;
             }
 
             tms_wdg_set_active(wdg_misc[slot], 1);
@@ -1389,7 +1393,7 @@ game::pause()
     ui::open_dialog(CLOSE_ABSOLUTELY_ALL_DIALOGS);
 
 #ifdef TMS_BACKEND_PC
-    SDL_SetWindowGrab((SDL_Window*)_tms._window, SDL_FALSE);
+    SDL_SetWindowMouseGrab(_tms._window, false);
 #endif
 
     return T_OK;
@@ -1553,11 +1557,9 @@ game::step(double dt)
     if (settings["rc_lock_cursor"]->v.b) {
         if ((this->active_hori_wdg && !this->active_hori_wdg->is_radial())
                 || (this->active_vert_wdg && !this->active_vert_wdg->is_radial())) {
-            SDL_ShowCursor(0);
-            //SDL_SetRelativeMouseMode(SDL_TRUE);
+            SDL_ShowCursor();
         } else {
-            SDL_ShowCursor(1);
-            //SDL_SetRelativeMouseMode(SDL_FALSE);
+            SDL_HideCursor();
         }
     }
 #endif
@@ -5409,7 +5411,7 @@ game::do_pause()
     W->save_cache(W->level_id_type, W->level.local_id);
 
 #ifdef TMS_BACKEND_PC
-    SDL_SetWindowGrab((SDL_Window*)_tms._window, SDL_FALSE);
+    SDL_SetWindowMouseGrab((SDL_Window*)_tms._window, false);
 #endif
     if (this->state.test_playing && !W->is_puzzle()) {
         tms_infof("returning to sandbox");
@@ -5922,9 +5924,9 @@ game::handle_input_playing(tms::event *ev, int action)
                 this->state.waiting = false;
 #ifdef TMS_BACKEND_PC
                 if (settings["jail_cursor"]->v.b == true) {
-                    SDL_SetWindowGrab((SDL_Window*)_tms._window, SDL_TRUE);
+                    SDL_SetWindowMouseGrab(_tms._window, true);
                 } else {
-                    SDL_SetWindowGrab((SDL_Window*)_tms._window, SDL_FALSE);
+                    SDL_SetWindowMouseGrab(_tms._window, false);
                 }
 #endif
 
@@ -7261,6 +7263,7 @@ game::player_can_build()
 void
 game::create_icon()
 {
+#if 0 // SDL3 MIGRATION XXX
     GLuint err;
     float cam_width = (float)_tms.window_height;
     float cam_height = (float)_tms.window_height;
@@ -7317,9 +7320,9 @@ game::create_icon()
             W->level.icon[y*128+x] = (uint8_t)new_c&0xff;
         }
     }
-    SDL_FreeSurface(n);
+    SDL_DestroySurface(n);
 
-    SDL_FreeSurface(srf);
+    SDL_DestroySurface(srf);
 
     tms_fb_unbind(this->icon_fb);
 
@@ -7328,6 +7331,7 @@ game::create_icon()
 #endif
 
     if ((err = glGetError()) != 0) tms_infof("icon creation done: %u", err);
+#endif
 }
 
 /* resize the current level to fit the borders around the content */
@@ -7680,7 +7684,7 @@ game::handle_input_paused(tms::event *ev, int action)
                     if (this->selection.e != 0) {
                         this->set_mode(GAME_MODE_ROTATE);
 
-                        int mx, my;
+                        float mx, my;
                         SDL_GetMouseState(&mx, &my);
                         this->rot_mouse_pos = tvec2f(mx, my);
                         this->rot_mouse_base = this->selection.e->gr ? this->selection.e->gr->get_angle() : this->selection.e->get_angle();
@@ -8108,7 +8112,7 @@ game::handle_input_paused(tms::event *ev, int action)
             if (!this->selection.e) {
                 this->set_mode(GAME_MODE_DEFAULT);
             } else {
-                int mx, my;
+                float mx, my;
                 SDL_GetMouseState(&mx, &my);
                 float dist = my - this->rot_mouse_pos.y;
                 dist *= 1.f/100.f;
@@ -8132,7 +8136,7 @@ game::handle_input_paused(tms::event *ev, int action)
             if (!this->selection.e) {
                 this->set_mode(GAME_MODE_DEFAULT);
             } else {
-                int mx, my;
+                float mx, my;
                 SDL_GetMouseState(&mx, &my);
                 float dist_x = mx - this->rot_mouse_pos.x;
                 float dist_y = my - this->rot_mouse_pos.y;
@@ -10355,9 +10359,9 @@ game::editor_construct_entity(uint32_t g_id, int pid/*=0*/, bool force_on_pid/*=
 
     tvec3 pos;
 #ifdef TMS_BACKEND_PC
-    int mx, my;
+    float mx, my;
     SDL_GetMouseState(&mx, &my);
-    W->get_layer_point(this->cam, mx, _tms.window_height-my, 0.f, &pos);
+    W->get_layer_point(this->cam, (int)mx, _tms.window_height-(int)my, 0.f, &pos);
 #else
     if (force_on_pid) {
         W->get_layer_point(this->cam, touch_proj[pid].x, touch_proj[pid].y, 0.f, &pos);
@@ -10485,9 +10489,9 @@ game::editor_construct_item(uint32_t item_id)
 
     tvec3 pos;
 #ifdef TMS_BACKEND_PC
-    int mx, my;
+    float mx, my;
     SDL_GetMouseState(&mx, &my);
-    W->get_layer_point(this->cam, mx, _tms.window_height-my, 0.f, &pos);
+    W->get_layer_point(this->cam, (int)mx, _tms.window_height-(int)my, 0.f, &pos);
 #else
     pos = this->cam->_position;
 #endif
@@ -10539,9 +10543,9 @@ game::editor_construct_decoration(uint32_t decoration_id)
 
     tvec3 pos;
 #ifdef TMS_BACKEND_PC
-    int mx, my;
+    float mx, my;
     SDL_GetMouseState(&mx, &my);
-    W->get_layer_point(this->cam, mx, _tms.window_height-my, 0.f, &pos);
+    W->get_layer_point(this->cam, (int)mx, _tms.window_height-(int)my, 0.f, &pos);
 #else
     pos = this->cam->_position;
 #endif
@@ -10592,8 +10596,10 @@ void
 game::refresh_last_cursor_pos()
 {
 #ifdef TMS_BACKEND_PC
-    SDL_GetMouseState(&this->last_cursor_pos_x, &this->last_cursor_pos_y);
-    this->last_cursor_pos_y = _tms.window_height - this->last_cursor_pos_y;
+    float mx, my;
+    SDL_GetMouseState(&mx, &my);
+    this->last_cursor_pos_x = (int)mx;
+    this->last_cursor_pos_y = _tms.window_height - (int)my;
 #endif
 }
 

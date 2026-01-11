@@ -417,7 +417,7 @@ void sticky::draw_text(const char *txt) {
                 }
             }
         }
-        SDL_FreeSurface(srf);
+        SDL_DestroySurface(srf);
     }
 }
 

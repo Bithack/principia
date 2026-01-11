@@ -22,12 +22,11 @@
 /* This is a PNG image file loading framework */
 
 #include "SDL_image.h"
+#include <SDL3/SDL_surface.h>
 
 #define WANT_LIBPNG
 
 /* This code was originally written by Philippe Lavoie (2 November 1998) */
-
-#include "SDL_endian.h"
 
 #ifdef macintosh
 #define MACOS
@@ -157,7 +156,7 @@ void IMG_QuitPNG()
 }
 
 /* See if an image is contained in a data source */
-int IMG_isPNG(SDL_RWops *src)
+int IMG_isPNG(SDL_IOStream *src)
 {
     Sint64 start;
     int is_PNG;
@@ -167,9 +166,9 @@ int IMG_isPNG(SDL_RWops *src)
         return 0;
     }
 
-    start = SDL_RWtell(src);
+    start = SDL_TellIO(src);
     is_PNG = 0;
-    if ( SDL_RWread(src, magic, 1, sizeof(magic)) == sizeof(magic) ) {
+    if (SDL_ReadIO(src, magic, 1 * sizeof(magic)) == sizeof(magic) ) {
         if ( magic[0] == 0x89 &&
              magic[1] == 'P' &&
              magic[2] == 'N' &&
@@ -177,19 +176,19 @@ int IMG_isPNG(SDL_RWops *src)
             is_PNG = 1;
         }
     }
-    SDL_RWseek(src, start, RW_SEEK_SET);
+    SDL_SeekIO(src, start, SDL_IO_SEEK_SET);
     return(is_PNG);
 }
 
 /* Load a PNG type image from an SDL datasource */
 static void png_read_data(png_structp ctx, png_bytep area, png_size_t size)
 {
-    SDL_RWops *src;
+    SDL_IOStream *src;
 
-    src = (SDL_RWops *)lib.png_get_io_ptr(ctx);
-    SDL_RWread(src, area, size, 1);
+    src = (SDL_IOStream *)lib.png_get_io_ptr(ctx);
+    SDL_ReadIO(src, area, size);
 }
-SDL_Surface *IMG_LoadPNG_RW(SDL_RWops *src)
+SDL_Surface *IMG_LoadPNG_RW(SDL_IOStream *src)
 {
     Sint64 start;
     const char *error;
@@ -212,7 +211,7 @@ SDL_Surface *IMG_LoadPNG_RW(SDL_RWops *src)
         /* The error message has been set in SDL_RWFromFile */
         return NULL;
     }
-    start = SDL_RWtell(src);
+    start = SDL_TellIO(src);
 
     if ( (IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) == 0 ) {
         return NULL;
@@ -338,8 +337,8 @@ SDL_Surface *IMG_LoadPNG_RW(SDL_RWops *src)
 #endif
     }
 
-    surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
-            bit_depth*num_channels, Rmask,Gmask,Bmask,Amask);
+    surface = SDL_CreateSurface(width, height,
+                                SDL_GetPixelFormatForMasks(bit_depth * num_channels, Rmask, Gmask, Bmask, Amask));
 
     if ( surface == NULL ) {
         error = SDL_GetError();
@@ -349,12 +348,12 @@ SDL_Surface *IMG_LoadPNG_RW(SDL_RWops *src)
     if (ckey != -1) {
         if (color_type != PNG_COLOR_TYPE_PALETTE) {
             /* FIXME: Should these be truncated or shifted down? */
-            ckey = SDL_MapRGB(surface->format,
+            ckey = SDL_MapSurfaceRGB(surface,
                          (Uint8)transv->red,
                          (Uint8)transv->green,
                          (Uint8)transv->blue);
         }
-        SDL_SetColorKey(surface, SDL_TRUE, ckey);
+        SDL_SetSurfaceColorKey(surface, true, ckey);
     }
 
     /* Create the array of pointers to image data */
@@ -380,7 +379,7 @@ SDL_Surface *IMG_LoadPNG_RW(SDL_RWops *src)
     */
 
     /* Load the palette, if any */
-    palette = surface->format->palette;
+    palette = SDL_GetSurfacePalette(surface);
     if ( palette ) {
         int png_num_palette;
         png_colorp png_palette;
@@ -412,9 +411,9 @@ done:   /* Clean up and return */
         SDL_free(row_pointers);
     }
     if ( error ) {
-        SDL_RWseek(src, start, RW_SEEK_SET);
+        SDL_SeekIO(src, start, SDL_IO_SEEK_SET);
         if ( surface ) {
-            SDL_FreeSurface(surface);
+            SDL_DestroySurface(surface);
             surface = NULL;
         }
         IMG_SetError("%s", error);

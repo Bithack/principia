@@ -11,7 +11,7 @@ struct mdl_vert {
 
 struct tms_mesh *
 load_3ds_model(struct tms_model *model,
-               SDL_RWops *fp, int *status)
+               SDL_IOStream *fp, int *status)
 {
     uint16_t chunk_id;
     uint32_t chunk_len;
@@ -27,13 +27,13 @@ load_3ds_model(struct tms_model *model,
     size_t sz;
 
     long filesz;
-    SDL_RWseek(fp, 0, SEEK_END);
-    filesz = SDL_RWtell(fp);
-    SDL_RWseek(fp, 0, SEEK_SET);
+    SDL_SeekIO(fp, 0, SEEK_END);
+    filesz = SDL_TellIO(fp);
+    SDL_SeekIO(fp, 0, SEEK_SET);
 
-    while (SDL_RWtell(fp) < filesz) {
-        SDL_RWread(fp, &chunk_id, 2, 1);
-        SDL_RWread(fp, &chunk_len, 4, 1);
+    while (SDL_TellIO(fp) < filesz) {
+        SDL_ReadIO(fp, &chunk_id, 2);
+        SDL_ReadIO(fp, &chunk_len, 4);
 
         //tms_debugf("chunk id: %x, chunk size: %d", chunk_id, chunk_len);
 
@@ -46,7 +46,7 @@ load_3ds_model(struct tms_model *model,
                 //tms_debugf("found object chunk");
                 int x;
                 for (x=0; x<OBJ_NAME_MAX-1; x++) {
-                    SDL_RWread(fp, &object_name[x], 1, 1);
+                    SDL_ReadIO(fp, &object_name[x], 1);
 
                     if (object_name[x] == '\0')
                         break;
@@ -59,7 +59,7 @@ load_3ds_model(struct tms_model *model,
                 break;
 
             case 0x4110: /* vertices list */
-                SDL_RWread(fp, &num_items, 2, 1);
+                SDL_ReadIO(fp, &num_items, 2);
 
                 //tms_debugf("found vertices chunk, num items: %d", num_items);
 
@@ -78,13 +78,13 @@ load_3ds_model(struct tms_model *model,
                 vertex_buf = (struct mdl_vert *)(model->vertices->buf+sz);
 
                 for (int x=0; x<num_items; x++) {
-                    SDL_RWread(fp, &vertex_buf[x].pos, 4, 3);
+                    SDL_ReadIO(fp, &vertex_buf[x].pos, 4 * 3);
                     vertex_buf[x].nor = (tvec3){0,0,0};
                 }
                 break;
 
             case 0x4120: /* faces list */
-                SDL_RWread(fp, &num_items, 2, 1);
+                SDL_ReadIO(fp, &num_items, 2);
                 // tms_debugf("found faces chunk, num items: %d", num_items);
                 tms_assertf(num_indices == 0, "face list specified more than once, not supported");
                 num_indices = num_items * 3;
@@ -95,7 +95,7 @@ load_3ds_model(struct tms_model *model,
 
                 for (int x=0; x<num_items; x++) {
                     uint16_t _i[4];
-                    SDL_RWread(fp, &_i, sizeof(uint16_t)*4, 1);
+                    SDL_ReadIO(fp, &_i, (sizeof(uint16_t) * 4));
 
                     /* calculate this face's normal and update the vertices */
                     tvec3 a = vertex_buf[_i[0]].pos;
@@ -117,19 +117,20 @@ load_3ds_model(struct tms_model *model,
                 break;
 
             case 0x4140: /* texture coordinates */
-                SDL_RWread(fp, &num_items, 2, 1);
+                SDL_ReadIO(fp, &num_items, 2);
 
                 // tms_debugf("found uv mapping chunk, num items: %d", num_items);
                 tms_assertf(num_vertices != 0, "oops! texture coordinates specified before vertices list, unsupported at this time");
                 //tms_assertf(num_items*sizeof(struct mdl_vert) == vertices->size, "number texture coordinates does not match number of vertices");
 
-                for (int x=0; x<num_items; x++)
-                    SDL_RWread(fp, &vertex_buf[x].uv, 4, 2);
+                for (int x=0; x<num_items; x++) {
+                    SDL_ReadIO(fp, &vertex_buf[x].uv, 4 * 2);
+                }
 
                 break;
 
             default:
-                SDL_RWseek(fp, chunk_len-6, SEEK_CUR);
+                SDL_SeekIO(fp, chunk_len-6, SEEK_CUR);
                 break;
         }
     }

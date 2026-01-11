@@ -37,7 +37,7 @@ Andreas Schiffler -- aschiffler at ferzkopp dot net
 extern "C" {
 #endif
 
-	#include "SDL.h"
+	#include <SDL3/SDL.h>
 
 	extern SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy);
 

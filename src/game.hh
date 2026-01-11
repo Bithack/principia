@@ -493,7 +493,7 @@ class game : public pscreen
     p_text *help_dragpanel;
 
   protected:
-    SDL_mutex *_lock;
+    SDL_Mutex *_lock;
 
     tvec3 last_static_update;
     bool do_static_update;

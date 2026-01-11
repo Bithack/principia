@@ -5,8 +5,11 @@
  * http://www.libpng.org/pub/png/src/libpng-LICENSE.txt
  */
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <png.h>
+
+// SDL3 migration XXX
+#if 0
 
 #define SUCCESS 0
 #define ERROR -1
@@ -32,11 +35,11 @@ static void png_error_SDL(png_structp ctx, png_const_charp str)
 }
 static void png_write_SDL(png_structp png_ptr, png_bytep data, png_size_t length)
 {
-	SDL_RWops *rw = (SDL_RWops*)png_get_io_ptr(png_ptr);
-	SDL_RWwrite(rw, data, sizeof(png_byte), length);
+	SDL_IOStream *rw = (SDL_IOStream*)png_get_io_ptr(png_ptr);
+	SDL_WriteIO(rw, data, sizeof(png_byte) * length);
 }
 
-int SDL_SavePNG_RW(SDL_Surface *surface, SDL_RWops *dst, int freedst)
+int SDL_SavePNG_RW(SDL_Surface *surface, SDL_IOStream *dst, int freedst)
 {
 	png_structp png_ptr;
 	png_infop info_ptr;
@@ -55,14 +58,14 @@ int SDL_SavePNG_RW(SDL_Surface *surface, SDL_RWops *dst, int freedst)
 	if (!surface)
 	{
 		SDL_SetError("Argument 1 to SDL_SavePNG_RW can't be NULL, expecting SDL_Surface*\n");
-		if (freedst) SDL_RWclose(dst);
+		if (freedst) SDL_CloseIO(dst);
 		return (ERROR);
 	}
 	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, png_error_SDL, NULL); /* err_ptr, err_fn, warn_fn */
 	if (!png_ptr)
 	{
 		SDL_SetError("Unable to png_create_write_struct on %s\n", PNG_LIBPNG_VER_STRING);
-		if (freedst) SDL_RWclose(dst);
+		if (freedst) SDL_CloseIO(dst);
 		return (ERROR);
 	}
 	info_ptr = png_create_info_struct(png_ptr);
@@ -70,13 +73,13 @@ int SDL_SavePNG_RW(SDL_Surface *surface, SDL_RWops *dst, int freedst)
 	{
 		SDL_SetError("Unable to png_create_info_struct\n");
 		png_destroy_write_struct(&png_ptr, NULL);
-		if (freedst) SDL_RWclose(dst);
+		if (freedst) SDL_CloseIO(dst);
 		return (ERROR);
 	}
 	if (setjmp(png_jmpbuf(png_ptr)))	/* All other errors, see also "png_error_SDL" */
 	{
 		png_destroy_write_struct(&png_ptr, &info_ptr);
-		if (freedst) SDL_RWclose(dst);
+		if (freedst) SDL_CloseIO(dst);
 		return (ERROR);
 	}
 
@@ -129,6 +132,8 @@ int SDL_SavePNG_RW(SDL_Surface *surface, SDL_RWops *dst, int freedst)
 
 	/* Done */
 	png_destroy_write_struct(&png_ptr, &info_ptr);
-	if (freedst) SDL_RWclose(dst);
+	if (freedst) SDL_CloseIO(dst);
 	return (SUCCESS);
 }
+
+#endif

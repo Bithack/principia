@@ -2,7 +2,7 @@
 #include "pipe.hh"
 #include "settings.hh"
 #include "version.hh"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <glad/gl.h>
 #include <signal.h>
 #include <stdio.h>
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 
     setup_pipe(argc, argv);
 
-    char* exedir = SDL_GetBasePath();
+    const char* exedir = SDL_GetBasePath();
     tms_infof("chdirring to %s", exedir);
     chdir(exedir);
 #endif
@@ -137,7 +137,6 @@ int main(int argc, char **argv)
     tms_storage_create_dirs();
 
     SDL_SetHint(SDL_HINT_APP_NAME, "Principia");
-    SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
 
     redirect_log_output();
 
@@ -145,6 +144,7 @@ int main(int argc, char **argv)
 
     find_data_dir();
 
+#if 0 // SDL3 MIGRATION XXX
     SDL_version compiled;
     SDL_VERSION(&compiled);
     tms_infof("Compiled against SDL v%u.%u.%u",
@@ -154,6 +154,7 @@ int main(int argc, char **argv)
     SDL_GetVersion(&linked);
     tms_infof("Linked against SDL v%u.%u.%u",
         linked.major, linked.minor, linked.patch);
+#endif
 
     tms_infof("Initializing SDL...");
     SDL_Init(SDL_INIT_VIDEO);
@@ -163,16 +164,19 @@ int main(int argc, char **argv)
     _tms.window_height = 720;
 
 #elif !defined(TMS_BACKEND_ANDROID)
-    SDL_DisplayMode mode;
-    SDL_GetCurrentDisplayMode(0, &mode);
+    // SDL3 migration XXX
+    /*const SDL_DisplayMode *mode = SDL_GetCurrentDisplayMode(0);
+
     _tms.window_width = 1280;
 
-    if (mode.w <= 1280)
-        _tms.window_width = (int)((double)mode.w * .9);
-    else if (mode.w >= 2100 && mode.h > 1100)
+    if (mode->w <= 1280)
+        _tms.window_width = (int)((double)mode->w * .9);
+    else if (mode->w >= 2100 && mode->h > 1100)
         _tms.window_width = 1920;
 
-    _tms.window_height = (int)((double)_tms.window_width * .5625);
+    _tms.window_height = (int)((double)_tms.window_width * .5625);*/
+    _tms.window_width = 1280;
+    _tms.window_height = 720;
 
     tms_infof("set initial res to %dx%d", _tms.window_width, _tms.window_height);
 #endif
@@ -219,63 +223,59 @@ static void mainloop()
 
     while (SDL_PollEvent(&ev)) {
         switch (ev.type) {
-            case SDL_WINDOWEVENT: {
-                switch (ev.window.event) {
 #ifdef __ANDROID__
-                    case SDL_WINDOWEVENT_MINIMIZED:
-                        tproject_soft_pause();
-                        do_step = 0;
-                        break;
+                case SDL_EVENT_WINDOW_MINIMIZED :
+                    tproject_soft_pause();
+                    do_step = 0;
+                    break;
 
-                    case SDL_WINDOWEVENT_RESTORED:
-                        tproject_soft_resume();
-                        do_step = 1;
-                        break;
+                case SDL_EVENT_WINDOW_RESTORED :
+                    tproject_soft_resume();
+                    do_step = 1;
+                    break;
 #else
-                    case SDL_WINDOWEVENT_RESIZED: {
-                        tms_infof("Window %d resized to %dx%d",
-                                ev.window.windowID, ev.window.data1,
-                                ev.window.data2);
-                        int w = ev.window.data1;
-                        int h = ev.window.data2;
+                case SDL_EVENT_WINDOW_RESIZED : {
+                    tms_infof("Window %d resized to %dx%d",
+                            ev.window.windowID, ev.window.data1,
+                            ev.window.data2);
+                    int w = ev.window.data1;
+                    int h = ev.window.data2;
 
-                        _tms.window_width  = _tms.opengl_width  = w;
-                        _tms.window_height = _tms.opengl_height = h;
+                    _tms.window_width  = _tms.opengl_width  = w;
+                    _tms.window_height = _tms.opengl_height = h;
 
-                        tproject_window_size_changed();
-                    } break;
-                    case SDL_WINDOWEVENT_MAXIMIZED:
-                        settings["window_maximized"]->v.b = true;
-                        break;
-                    case SDL_WINDOWEVENT_RESTORED:
-                        settings["window_maximized"]->v.b = false;
-                        break;
+                    tproject_window_size_changed();
+                } break;
+                case SDL_EVENT_WINDOW_MAXIMIZED :
+                    settings["window_maximized"]->v.b = true;
+                    break;
+                case SDL_EVENT_WINDOW_RESTORED :
+                    settings["window_maximized"]->v.b = false;
+                    break;
 #endif
-                }
-            } break;
 
-            case SDL_QUIT:
+            case SDL_EVENT_QUIT :
                 _tms.state = TMS_STATE_QUITTING;
                 break;
 
-            case SDL_KEYDOWN:
+            case SDL_EVENT_KEY_DOWN :
                 T_intercept_input(ev);
-                keys[ev.key.keysym.scancode] = 1;
+                keys[ev.key.scancode] = 1;
                 break;
 
-            case SDL_KEYUP:
+            case SDL_EVENT_KEY_UP :
                 T_intercept_input(ev);
-                keys[ev.key.keysym.scancode] = 0;
+                keys[ev.key.scancode] = 0;
                 break;
 
-            case SDL_FINGERDOWN:
-            case SDL_FINGERUP:
-            case SDL_FINGERMOTION:
-            case SDL_MOUSEWHEEL:
-            case SDL_MOUSEBUTTONDOWN:
-            case SDL_MOUSEBUTTONUP:
-            case SDL_MOUSEMOTION:
-            case SDL_TEXTINPUT:
+            case SDL_EVENT_FINGER_DOWN :
+            case SDL_EVENT_FINGER_UP :
+            case SDL_EVENT_FINGER_MOTION :
+            case SDL_EVENT_MOUSE_WHEEL :
+            case SDL_EVENT_MOUSE_BUTTON_DOWN :
+            case SDL_EVENT_MOUSE_BUTTON_UP :
+            case SDL_EVENT_MOUSE_MOTION :
+            case SDL_EVENT_TEXT_INPUT :
                 T_intercept_input(ev);
             break;
         }
@@ -295,7 +295,7 @@ static void mainloop()
 int
 tbackend_init_surface()
 {
-    uint32_t flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
+    uint32_t flags = SDL_WINDOW_OPENGL | 0;
 
 #ifdef TMS_BACKEND_ANDROID
     flags |= SDL_WINDOW_FULLSCREEN;
@@ -310,14 +310,14 @@ tbackend_init_surface()
         flags |= SDL_WINDOW_MAXIMIZED;
 
     if (settings["window_fullscreen"]->v.b)
-        flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        flags |= SDL_WINDOW_FULLSCREEN;
 
     if (settings["window_resizable"]->v.b)
         flags |= SDL_WINDOW_RESIZABLE;
 #endif
 
     tms_infof("Creating window...");
-    _window = SDL_CreateWindow("Principia", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+    _window = SDL_CreateWindow("Principia",
 		_tms.window_width, _tms.window_height, flags);
 
     if (_window == NULL) {
@@ -328,7 +328,7 @@ tbackend_init_surface()
     _tms._window = _window;
 
 #ifdef TMS_BACKEND_ANDROID
-    SDL_GL_GetDrawableSize(_window, &_tms.window_width, &_tms.window_height);
+    SDL_GetWindowSizeInPixels(_window, &_tms.window_width, &_tms.window_height);
 
     float density_x, density_y;
     SDL_GetDisplayDPI(0, NULL, &density_x, &density_y);
@@ -408,15 +408,15 @@ T_intercept_input(SDL_Event ev)
     int f;
 
     switch (ev.type) {
-        case SDL_KEYDOWN:
+        case SDL_EVENT_KEY_DOWN :
             if (ev.key.repeat)
                 spec.type = TMS_EV_KEY_REPEAT;
             else
                 spec.type = TMS_EV_KEY_PRESS;
 
-            spec.data.key.keycode = ev.key.keysym.scancode;
+            spec.data.key.keycode = ev.key.scancode;
 
-            spec.data.key.mod = ev.key.keysym.mod;
+            spec.data.key.mod = ev.key.mod;
             switch (spec.data.key.keycode) {
                 case TMS_KEY_LEFT_CTRL: spec.data.key.mod |= TMS_MOD_LCTRL; break;
                 case TMS_KEY_RIGHT_CTRL: spec.data.key.mod |= TMS_MOD_RCTRL; break;
@@ -425,35 +425,35 @@ T_intercept_input(SDL_Event ev)
             }
             break;
 
-        case SDL_KEYUP:
+        case SDL_EVENT_KEY_UP :
             spec.type = TMS_EV_KEY_UP;
-            spec.data.key.keycode = ev.key.keysym.scancode;
+            spec.data.key.keycode = ev.key.scancode;
 
-            spec.data.key.mod = ev.key.keysym.mod;
+            spec.data.key.mod = ev.key.mod;
             break;
 
-        case SDL_FINGERDOWN:
+        case SDL_EVENT_FINGER_DOWN :
             spec.type = TMS_EV_POINTER_DOWN;
-            spec.data.button.pointer_id = ev.tfinger.fingerId;
+            spec.data.button.pointer_id = ev.tfinger.fingerID;
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
             break;
 
-        case SDL_FINGERUP:
+        case SDL_EVENT_FINGER_UP :
             spec.type = TMS_EV_POINTER_UP;
-            spec.data.button.pointer_id = ev.tfinger.fingerId;
+            spec.data.button.pointer_id = ev.tfinger.fingerID;
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
             break;
 
-        case SDL_FINGERMOTION:
+        case SDL_EVENT_FINGER_MOTION :
             spec.type = TMS_EV_POINTER_DRAG;
-            spec.data.button.pointer_id = ev.tfinger.fingerId;
+            spec.data.button.pointer_id = ev.tfinger.fingerID;
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
             break;
 
-        case SDL_MOUSEBUTTONDOWN:
+        case SDL_EVENT_MOUSE_BUTTON_DOWN :
             if (ev.button.which == SDL_TOUCH_MOUSEID)
                 return T_OK;
 
@@ -468,7 +468,7 @@ T_intercept_input(SDL_Event ev)
 
             break;
 
-        case SDL_MOUSEBUTTONUP:
+        case SDL_EVENT_MOUSE_BUTTON_UP :
             if (ev.button.which == SDL_TOUCH_MOUSEID)
                 return T_OK;
 
@@ -483,7 +483,7 @@ T_intercept_input(SDL_Event ev)
 
             break;
 
-        case SDL_MOUSEMOTION:
+        case SDL_EVENT_MOUSE_MOTION :
             if (ev.button.which == SDL_TOUCH_MOUSEID)
                 return T_OK;
 
@@ -502,14 +502,17 @@ T_intercept_input(SDL_Event ev)
 
             break;
 
-        case SDL_MOUSEWHEEL:
+        case SDL_EVENT_MOUSE_WHEEL:
             spec.type = TMS_EV_POINTER_SCROLL;
             spec.data.scroll.x = ev.wheel.x;
             spec.data.scroll.y = ev.wheel.y;
-            SDL_GetMouseState(&spec.data.scroll.mouse_x, &spec.data.scroll.mouse_y);
+            float mx, my;
+            SDL_GetMouseState(&mx, &my);
+            spec.data.scroll.mouse_x = (int)mx;
+            spec.data.scroll.mouse_y = (int)my;
             break;
 
-        case SDL_TEXTINPUT:
+        case SDL_EVENT_TEXT_INPUT :
             spec.type = TMS_EV_TEXT_INPUT;
             std::copy(ev.text.text, ev.text.text + 32, spec.data.text.text);
             break;

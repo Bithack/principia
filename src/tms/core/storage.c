@@ -1,15 +1,11 @@
 #include "storage.h"
 #include "tms/backend/print.h"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
-#ifdef __ANDROID__
-    #include <SDL3_polyfills.h>
-#endif
 
 #ifdef TMS_BACKEND_WINDOWS
     #include <direct.h>
@@ -64,7 +60,7 @@ _create_dir(const char *path, mode_t mode)
 const char *tms_storage_path(void)
 {
 #ifdef __ANDROID__
-    return SDL_AndroidGetExternalStoragePath();
+    return SDL_GetAndroidExternalStoragePath();
 #elif defined(__EMSCRIPTEN__)
     return SDL_GetPrefPath("Bithack", "Principia");
 #elif defined(SCREENSHOT_BUILD)
@@ -248,8 +244,10 @@ static void migrate_principia_data() {
             snprintf(newpath, sizeof(newpath), "%s/principia", xdg);
 
 #elif defined(TMS_BACKEND_ANDROID)
-        snprintf(oldpath, sizeof(oldpath), "%s", SDL_AndroidGetExternalStoragePath());
-        snprintf(newpath, sizeof(newpath), "%s", SDL_AndroidGetExternalStoragePath());
+        snprintf(oldpath, sizeof(oldpath), "%s",
+                 SDL_GetAndroidExternalStoragePath());
+        snprintf(newpath, sizeof(newpath), "%s",
+                 SDL_GetAndroidExternalStoragePath());
 #else
         // No migration for this platform
         return;

@@ -41,13 +41,13 @@
 #include "treasure_chest.hh"
 #include "ui.hh"
 #include "wheel.hh"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <sstream>
 #include <tms/cpp.hh>
 
 #if defined(TMS_BACKEND_ANDROID)
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "network.hh"
 #include <jni.h>
 #include <sstream>
@@ -89,8 +89,8 @@ void ui::emit_signal(int signal_id, void *data/*=0*/)
         default:
             {
                 /* By default, passthrough the signal to the Java part */
-                JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
-                jobject activity = (jobject)SDL_AndroidGetActivity();
+                JNIEnv *env = (JNIEnv *) SDL_GetAndroidJNIEnv();
+                jobject activity = (jobject) SDL_GetAndroidActivity();
                 jclass cls = env->GetObjectClass(activity);
 
                 jmethodID mid = env->GetStaticMethodID(cls, "emit_signal", "(I)V");
@@ -107,8 +107,8 @@ void ui::emit_signal(int signal_id, void *data/*=0*/)
 
 void ui::open_url(const char *url)
 {
-    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
-    jobject activity = (jobject)SDL_AndroidGetActivity();
+    JNIEnv *env = (JNIEnv *) SDL_GetAndroidJNIEnv();
+    jobject activity = (jobject) SDL_GetAndroidActivity();
     jclass cls = env->GetObjectClass(activity);
 
     jmethodID mid = env->GetStaticMethodID(cls, "open_url", "(Ljava/lang/String;)V");
@@ -127,8 +127,8 @@ ui::confirm(const char *text,
         struct confirm_data _confirm_data/*=none*/
         )
 {
-    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
-    jobject activity = (jobject)SDL_AndroidGetActivity();
+    JNIEnv *env = (JNIEnv *) SDL_GetAndroidJNIEnv();
+    jobject activity = (jobject) SDL_GetAndroidActivity();
     jclass cls = env->GetObjectClass(activity);
 
     jmethodID mid = env->GetStaticMethodID(cls, "confirm", "(Ljava/lang/String;Ljava/lang/String;IJLjava/lang/String;IJLjava/lang/String;IJZ)V");
@@ -165,8 +165,8 @@ void
 ui::open_dialog(int num, void *data/*=0*/)
 {
     if (num == DIALOG_LEVEL_INFO) {
-        JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
-        jobject activity = (jobject)SDL_AndroidGetActivity();
+        JNIEnv *env = (JNIEnv *) SDL_GetAndroidJNIEnv();
+        jobject activity = (jobject) SDL_GetAndroidActivity();
         jclass cls = env->GetObjectClass(activity);
 
         jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
@@ -180,8 +180,8 @@ ui::open_dialog(int num, void *data/*=0*/)
         return;
     }
 
-    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
-    jobject activity = (jobject)SDL_AndroidGetActivity();
+    JNIEnv *env = (JNIEnv *) SDL_GetAndroidJNIEnv();
+    jobject activity = (jobject) SDL_GetAndroidActivity();
     jclass cls = env->GetObjectClass(activity);
 
     jmethodID mid = env->GetStaticMethodID(cls, "open_dialog", "(IZ)V");
@@ -200,8 +200,8 @@ ui::quit()
 void
 ui::open_sandbox_tips()
 {
-    JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
-    jobject activity = (jobject)SDL_AndroidGetActivity();
+    JNIEnv *env = (JNIEnv *) SDL_GetAndroidJNIEnv();
+    jobject activity = (jobject) SDL_GetAndroidActivity();
     jclass cls = env->GetObjectClass(activity);
 
     jmethodID mid = env->GetStaticMethodID(cls, "showSandboxTips", "()V");

@@ -1232,7 +1232,7 @@ game::repair_station_handle_event(tms::event *ev)
 
         case TMS_EV_POINTER_SCROLL:
             {
-                int mx, my;
+                float mx, my;
                 SDL_GetMouseState(&mx, &my);
 
                 if (mx < inventory_width) {

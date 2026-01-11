@@ -14,7 +14,7 @@
 #endif
 
 #include <tms/cpp.hh>
-#include <SDL_rwops.h>
+#include <SDL3/SDL.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_OUTLINE_H
@@ -72,8 +72,9 @@ class p_font
     glyph glyphs[256-CHAR_OFFSET];
     bool extended;
     FT_Face face;
-    SDL_RWops *rw;
     FT_UInt *glyph_indices_local;
+    SDL_IOStream *rw;
+
     p_font(const char *font_path, int height);
     p_font(struct tms_atlas *atlas, const char *font_path, int height);
     p_font(struct tms_atlas *atlas, const char *font_path, int height, bool extended_charset);

@@ -31,7 +31,7 @@
 
 /** @relates tms @{ **/
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include <tms/core/err.h>
 #include <tms/math/vector.h>
 #include <tms/core/settings.h>

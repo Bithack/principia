@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Box2D/Box2D.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <vector>
 #include <set>
 
@@ -43,8 +43,8 @@ struct wdata_updatec {
 struct worker {
     int        status;
     int        msg;
-    SDL_mutex *mtx;
-    SDL_cond  *cond;
+    SDL_Mutex *mtx;
+    SDL_Condition  *cond;
     SDL_Thread *thr;
 
     union {
@@ -66,7 +66,7 @@ extern bool              w_solve_allow_sleep;
 /* shared data between collide workers */
 extern b2ContactManager        *w_collide_contact_manager;
 extern std::vector<b2Contact*>  w_collide_destroy_list;
-extern SDL_mutex               *w_collide_destroy_lock;
+extern SDL_Mutex               *w_collide_destroy_lock;
 
 /* shared data between custom update workers */
 extern std::set<entity*>       *w_updatec_set;

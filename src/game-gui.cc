@@ -23,8 +23,9 @@
 #include "text.hh"
 #include "gui.hh"
 #if defined(TMS_BACKEND_LINUX) && defined(DEBUG)
-#define CREATE_SANDBOX_TEXTURES
-#include "savepng.h"
+// SDL3 migration XXX
+//#define CREATE_SANDBOX_TEXTURES
+//#include "savepng.h"
 #endif
 
 #ifndef UINT32_MAX

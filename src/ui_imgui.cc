@@ -7,11 +7,14 @@
 #include "settings.hh"
 #include "ui.hh"
 #include "ui_imgui_impl_tms.hh"
-#include <SDL.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_opengl.h>
+#include <SDL3/SDL_syswm.h>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <stdexcept>
 #include <string>
 #include <tms/cpp.hh>
 #include <vector>

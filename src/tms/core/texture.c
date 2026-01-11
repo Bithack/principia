@@ -134,7 +134,7 @@ tms_texture_load(struct tms_texture *tex, const char *filename)
 {
     int status;
 
-    SDL_RWops *rw = SDL_RWFromFile(filename,"rb");
+    SDL_IOStream *rw = SDL_IOFromFile(filename,"rb");
 
     if (!rw) {
         tms_infof("file not found: '%s'", SDL_GetError());
@@ -154,7 +154,7 @@ tms_texture_load(struct tms_texture *tex, const char *filename)
     tex->width = s->w;
     tex->height = s->h;
     //tex->num_channels = 3 + s->format->Amask?1:0;
-    tex->num_channels = s->format->BytesPerPixel;
+    tex->num_channels = SDL_GetPixelFormatDetails(s->format)->bytes_per_pixel;
 
     //tms_infof("bpp %d", s->format->BytesPerPixel);
 
@@ -170,7 +170,7 @@ tms_texture_load(struct tms_texture *tex, const char *filename)
         }
     }
 
-    SDL_FreeSurface(s);
+    SDL_DestroySurface(s);
     //SDL_RWclose(rw);
 
     return T_OK;
@@ -219,7 +219,7 @@ tms_texture_load_mem2(struct tms_texture *tex, const char *buf, size_t size, int
 {
     int status;
 
-    SDL_RWops *rw = SDL_RWFromConstMem(buf, size);
+    SDL_IOStream *rw = SDL_IOFromConstMem(buf, size);
 
     if (!rw) {
         tms_errorf("Error creating RW from memory: %s", SDL_GetError());
@@ -239,7 +239,9 @@ tms_texture_load_mem2(struct tms_texture *tex, const char *buf, size_t size, int
     tex->width = s->w;
     tex->height = s->h;
     //tex->num_channels = 3 + s->format->Amask?1:0;
-    tex->num_channels = s->format->BytesPerPixel;
+    // fix this for SDL3
+    //tex->num_channels = s->format->BytesPerPixel;
+    tex->num_channels = SDL_GetPixelFormatDetails(s->format)->bytes_per_pixel;
 
     //tms_infof("bpp %d", s->format->BytesPerPixel);
 
@@ -255,7 +257,7 @@ tms_texture_load_mem2(struct tms_texture *tex, const char *buf, size_t size, int
         }
     }
 
-    SDL_FreeSurface(s);
+    SDL_DestroySurface(s);
     //SDL_RWclose(rw);
 
     return T_OK;

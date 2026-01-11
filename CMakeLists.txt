@@ -34,7 +34,7 @@ if(ANDROID)
 
 else()
 	if(NOT EMSCRIPTEN)
-		find_package(SDL2 REQUIRED)
+		find_package(SDL3 REQUIRED)
 	endif()
 
 	set(OpenGL_GL_PREFERENCE GLVND)
@@ -172,8 +172,8 @@ if(NOT SCREENSHOT_BUILD)
 		add_definitions(-DBUILD_CURL)
 	endif()
 
-	file(GLOB SDL_mixer_SRCS lib/SDL_mixer/*.c)
-	list(APPEND SRCS ${SDL_mixer_SRCS})
+	#file(GLOB SDL_mixer_SRCS lib/SDL_mixer/*.c)
+	#list(APPEND SRCS ${SDL_mixer_SRCS})
 endif()
 
 
@@ -230,10 +230,7 @@ if(NOT EMSCRIPTEN)
 	    PNG::PNG
 	    ZLIB::ZLIB)
 
-	if(WIN32)
-		list(APPEND LIBS SDL2::SDL2main)
-	endif()
-	list(APPEND LIBS SDL2::SDL2)
+	list(APPEND LIBS SDL3::SDL3)
 
 	if(NOT SCREENSHOT_BUILD AND NOT EMSCRIPTEN)
 		list(APPEND LIBS ${CURL_LIBRARIES})
