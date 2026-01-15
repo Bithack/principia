@@ -2713,12 +2713,6 @@ world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_i
 
         }
 
-        if (!sandbox && this->level.visibility == LEVEL_LOCKED && G->state.pkg == 0) {
-            ui::message("This level is locked and can only be played from inside a package.");
-            tms_errorf("locked level");
-            return false;
-        }
-
         this->level_id_type = id_type;
         if (is_autosave) {
             this->level.local_id = this->level.autosave_id;
