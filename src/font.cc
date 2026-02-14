@@ -271,10 +271,8 @@ p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height, bool 
 }
 
 p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height)
-    : orig_height(height)
+    : p_font(atlas, font_path, height, false)
 {
-    // call the other ctor
-    p_font(atlas, font_path, height, false);
 }
 
 p_font::~p_font()
