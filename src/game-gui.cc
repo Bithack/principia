@@ -1458,34 +1458,7 @@ game::init_gui(void)
     this->set_surface(new tms::surface());
     this->get_surface()->atlas = gui_spritesheet::atlas;
 
-    menu_height = _tms.opengl_height;
-
-    /*
-    menu_xdim = settings["uiscale"]->v.f * _tms.xppcm;
-    menu_ydim = settings["uiscale"]->v.f * _tms.yppcm;
-    */
-    menu_xdim = 1.f * _tms.xppcm;
-    menu_ydim = 1.f * _tms.yppcm;
-
-    float w = 3.f * menu_xdim;
-    menu_scale = w/this->get_menu_width();
-    real_menu_width =  _tms.xppcm;
-    _menu_width = real_menu_width;
-
-    menu_max_width = _tms.window_width * .8f;
-    menu_min_width = _tms.xppcm/4.f;
-
-    s_size = menu_xdim;
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 2", ierr);
-
-    b_w = (int)(.5f * menu_xdim);
-    b_h = (int)(.5f * menu_ydim);
-    b_w_pad = (int)((float)b_w + .1f * menu_xdim);
-    b_h_pad = (int)((float)b_h + .1f * menu_ydim);
-    b_y = (int)((float)b_h/2.f + .1f * menu_ydim);
-
-    b_margin_y = .14f * menu_ydim;
-    b_margin_x = .14f * menu_xdim;
+    this->resize_gui();
 
     menu_graph = new tms::graph(2);
 
@@ -1507,8 +1480,6 @@ game::init_gui(void)
     menu_cam->fov = 45.f;
     menu_cam->near = -1.f;
     menu_cam->far = 1.f;
-
-    menu_cat_width = this->get_menu_width();
 
     int n=0;
     for (n=0; n<of::num_categories; n++) {
@@ -2411,27 +2382,39 @@ game::refresh_widgets()
 }
 
 void
-game::refresh_gui(void)
+game::resize_gui()
 {
     menu_height = _tms.opengl_height;
+
     menu_xdim = 1.f * _tms.xppcm;
     menu_ydim = 1.f * _tms.yppcm;
+
     float w = 3.f * menu_xdim;
     menu_scale = w/_menu_width;
     real_menu_width = _tms.xppcm;
     this->set_menu_width(real_menu_width);
+
     menu_max_width = _tms.window_width * .8f;
     menu_min_width = _tms.xppcm/4.f;
+
     s_size = menu_xdim;
+
     b_w = (int)(.5f * menu_xdim);
     b_h = (int)(.5f * menu_ydim);
     b_w_pad = (int)((float)b_w + .1f * menu_xdim);
     b_h_pad = (int)((float)b_h + .1f * menu_ydim);
     b_y = (int)((float)b_h/2.f + .1f * menu_ydim);
+
     menu_cat_width = this->get_menu_width();
 
     b_margin_y = .14f * menu_ydim;
     b_margin_x = .14f * menu_xdim;
+}
+
+void
+game::refresh_gui(void)
+{
+    this->resize_gui();
 
     this->wm->init_areas();
     this->wm->rearrange();

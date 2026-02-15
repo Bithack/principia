@@ -697,6 +697,7 @@ class game : public pscreen
     void on_play();
     void on_pause();
 
+    void resize_gui();
     void refresh_gui(void);
     void window_size_changed();
     void create_sandbox_menu();
