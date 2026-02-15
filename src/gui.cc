@@ -821,7 +821,6 @@ gui_spritesheet::upload_text_atlas()
     tms_texture_upload(&atlas_text->texture);
 
     gui_spritesheet::text_atlas_modified = false;
-    tms_debugf("Done");
 }
 
 void

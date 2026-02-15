@@ -287,7 +287,6 @@ init_framebuffers(void)
     }
 
     if (settings["enable_shadows"]->v.b) {
-        tms_infof("SM(%u,%u)", settings["shadow_map_resx"]->v.i,settings["shadow_map_resy"]->v.i);
         gi_fb = tms_fb_alloc(settings["shadow_map_resx"]->v.i,settings["shadow_map_resy"]->v.i,  (settings["swap_shadow_map"]->v.b?1:0));
         /* XXX use RGB is only shadows, RGBA if shadows+gi */
         //tms_fb_add_texture(gi_fb, GL_RGB, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
@@ -324,7 +323,6 @@ init_framebuffers(void)
     }
 
     if (settings["enable_ao"]->v.i) {
-        tms_infof("AO!!!!!!");
         int res = settings["ao_map_res"]->v.i == 512 ? 512 : (
                   settings["ao_map_res"]->v.i == 256 ? 256 :
                   128);
@@ -1931,6 +1929,7 @@ initial_loader(int step)
 
         case 17:
             {
+#if 0
                 uint32_t total = 0;
                 for (int x=0; x<step; x++) {
                     tms_infof("%27s: %u", load_step_name[x], loader_times[x]);
@@ -1938,6 +1937,7 @@ initial_loader(int step)
                 }
 
                 tms_infof("%27s: %u", "Total", total);
+#endif
 
                 ui::emit_signal(SIGNAL_QUICKADD_REFRESH);
             }

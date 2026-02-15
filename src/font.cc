@@ -161,7 +161,6 @@ p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height, bool 
     if (extended_charset) {
         this->glyph_indices_local = new FT_UInt[256];
         for (int i = CHAR_OFFSET; i < 256; ++i) {
-            tms_infof("Getting glyph index for char code %d", i);
             this->glyph_indices_local[i] = FT_Get_Char_Index(this->face, i);
         }
     }
