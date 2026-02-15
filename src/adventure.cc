@@ -964,8 +964,8 @@ adventure::handle_input_playing(tms::event *ev, int action)
             robot *r = static_cast<robot*>(adventure::player);
 
             /* click handlign to switch weapon and tool */
-            static const float weapon_tol_x = icon_width/2.f + _tms.xppcm*.1f;
-            static const float weapon_tol_y = icon_height/2.f + _tms.yppcm*.1f;
+            const float weapon_tol_x = icon_width/2.f + _tms.xppcm*.1f;
+            const float weapon_tol_y = icon_height/2.f + _tms.yppcm*.1f;
 
             for (int x=0; x<adventure::num_weapons; x++) {
                 if (fabsf(weapon_icon_pos[x].x - sp.x) < weapon_tol_x
@@ -1542,7 +1542,7 @@ adventure::render()
     icon_height = roundf(_tms.yppcm / 2.5f);
     margin_x = _tms.xppcm / 15.f;
     margin_y = _tms.yppcm / 15.f;
-    static float base_x = margin_x + (.5f * _tms.xppcm)/2.f;// + (icon_width / 2.f);
+    float base_x = margin_x + (.5f * _tms.xppcm)/2.f;// + (icon_width / 2.f);
     float base_y = _tms.window_height - G->wm->get_margin_y() - (1.0f * _tms.yppcm)/2.f;
 
     /* calculate how much space we have to work with */
