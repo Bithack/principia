@@ -142,9 +142,8 @@ int main(int argc, char **argv)
 
     tms_storage_create_dirs();
 
-#ifdef SDL_HINT_APP_NAME
     SDL_SetHint(SDL_HINT_APP_NAME, "Principia");
-#endif
+    SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
 
     redirect_log_output();
 
