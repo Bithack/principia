@@ -29,7 +29,7 @@ struct vertex2 {
     tvec3 nor;
 } __attribute__ ((packed));
 
-static void init()
+static void init_gearbox()
 {
     num_mslots = 0;
 
@@ -140,7 +140,7 @@ gearbox::get_body(uint8_t n)
 gearbox::gearbox()
 {
     if (!initialized) {
-        init();
+        init_gearbox();
     }
 
     this->set_flag(ENTITY_DO_STEP,      true);
@@ -480,12 +480,11 @@ gearbox::~gearbox()
 void
 gearbox::set_position(float x, float y, uint8_t frame)
 {
-    tms_infof("set position");
-    switch (frame) {
-        case 0:
+    if (frame == 0) {
+        if (this->body)
             this->body->SetTransform(b2Vec2(x,y), this->body->GetAngle());
+        if (this->body2)
             this->body2->SetTransform(this->local_to_world(b2Vec2(1.4f+.8f, 0.f), 0), this->body2->GetAngle());
-            break;
     }
 }
 
