@@ -1280,8 +1280,7 @@ tproject_init(void)
     setup_opengl_settings();
     settings.save();
 
-    _tms.xppcm *= settings["uiscale"]->v.f;
-    _tms.yppcm *= settings["uiscale"]->v.f;
+    P.update_uiscale(settings["uiscale"]->v.f);
 
 #ifdef NO_UI
     settings["render_gui"]->set(false);
@@ -1987,6 +1986,26 @@ principia::add_action(int id, void *data)
         P.num_actions ++;
     }
     SDL_UnlockMutex(P.action_mutex);
+}
+
+static bool has_updated_uiscale = false;
+static float base_xppcm = 0.f;
+static float base_yppcm = 0.f;
+
+void principia::update_uiscale(float scale) {
+    if (!has_updated_uiscale) {
+        base_xppcm = _tms.xppcm;
+        base_yppcm = _tms.yppcm;
+    }
+
+    _tms.xppcm = base_xppcm * scale;
+    _tms.yppcm = base_yppcm * scale;
+
+    if (!has_updated_uiscale) {
+        has_updated_uiscale = true;
+    } else {
+        tproject_window_size_changed();
+    }
 }
 
 tvec3

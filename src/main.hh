@@ -195,6 +195,8 @@ extern class principia
     };
 
     tvec3 get_light_normal();
+
+    void update_uiscale(float new_uiscale);
 } P;
 
 struct principia_action

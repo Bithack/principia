@@ -4955,6 +4955,11 @@ save_settings()
         save_setting_row(r);
     }
 
+#if 0
+    // TODO: Dynamic update of UI scale without restart
+    P.update_uiscale(settings["uiscale"]->v.f);
+#endif
+
     sm::load_settings();
 
     strcpy(tmp, get_cb_val(settings_shadow_res));
