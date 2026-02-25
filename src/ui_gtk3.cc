@@ -2537,6 +2537,14 @@ on_escript_external_editor_toggled(GtkToggleButton *tb, gpointer userdata)
     }
 }
 
+static void
+on_escript_open_external_cache_clicked(GtkWidget *w, gpointer user_data)
+{
+    char url[2048];
+    snprintf(url, 2047, "file://%s", pkgman::get_cache_path(W->level_id_type));
+    ui::open_url(url);
+}
+
 void
 on_escript_show(GtkWidget *wdg, void *unused)
 {
@@ -9443,6 +9451,11 @@ int _gtk_loop(void *p)
 
         gtk_box_pack_start(escript_external_box, GTK_WIDGET(escript_external_file_path), false, false, 5);
         gtk_box_pack_start(escript_external_box, new_clbl("Open the file path above with your favourite code editor and edit the code there.\nBefore you press play in Principia, remember to save the external file!\nThe file will be created when you press the Save-button."), false, false, 5);
+
+        /* Button to open the local cache directory in the system file browser */
+        GtkWidget *escript_open_cache_btn = gtk_button_new_with_label("Open script folder");
+        g_signal_connect(escript_open_cache_btn, "clicked", G_CALLBACK(on_escript_open_external_cache_clicked), NULL);
+        gtk_box_pack_start(escript_external_box, escript_open_cache_btn, false, false, 5);
 
         GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0));
         gtk_box_pack_start(GTK_BOX(hbox), new_lbl("  "), false, false, 0);
