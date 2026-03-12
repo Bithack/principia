@@ -3495,6 +3495,10 @@ game::render_sandbox_menu()
         if(category_selector_alpha > 1.f) category_selector_alpha = 1.f;
     }
 
+    // Hide menu and quickadd buttons when category selector is open
+    this->wdg_menu->alpha = !category_selector_alpha;
+    this->wdg_quickadd->alpha = !category_selector_alpha;
+
     glBindTexture(GL_TEXTURE_2D, this->texts->texture.gl_texture);
     if (category_selector_alpha > 0.f) {
         tms_ddraw_set_color(this->get_surface()->ddraw, TVEC3_INLINE(menu_white), 1.f*category_selector_alpha);
@@ -3520,13 +3524,10 @@ game::render_sandbox_menu()
 
         x1 -= width/2.f;
 
-        for (int x=0; x<of::num_categories; x++) {
-            float cw = (ch / catsprites[curr_category]->height) * catsprites[curr_category]->width;
-
-            int c = x;
-
-            float h = ch * .8;
+        for (int c = 0; c < of::num_categories; c++) {
+            float h = ch * .8f;
             float w = (h / catsprites[c]->height) * catsprites[c]->width;
+
             tms_ddraw_set_color(this->get_surface()->ddraw, TVEC3_INLINE(menu_black), 1.f*category_selector_alpha);
             tms_ddraw_sprite(this->get_surface()->ddraw, catsprites[c],
                     x1+w/2.f + _tms.xppcm * .1f,
