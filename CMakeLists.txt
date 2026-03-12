@@ -159,7 +159,7 @@ endif()
 
 # Optional luasocket functionality
 
-if(NOT SCREENSHOT_BUILD AND NOT ANDROID AND NOT EMSCRIPTEN)
+if(NOT SCREENSHOT_BUILD AND NOT EMSCRIPTEN)
 	option(USE_LUASOCKET "Build with Luasocket support" TRUE)
 else()
 	set(USE_LUASOCKET FALSE)
