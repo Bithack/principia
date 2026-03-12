@@ -140,52 +140,21 @@ game::reset_touch_gui()
 void
 game::add_menu_item(int cat, entity *e)
 {
-    if (!e) {
-        return;
-    }
+    struct menu_obj o = {
+        .e = e,
+        .pos = static_cast<int>(menu_objects.size()),
+        .category = cat,
+        .highlighted = false,
+    };
 
-    static struct tms_sprite sss;
-    sss.tr=(tvec2){0.f,0.f};
-    sss.bl=(tvec2){0.f,0.f};
-    sss.width=0.f;
-    sss.height=0.f;
-
-    int ierr;
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::add_menu_item (g_id: %d) 1", ierr, e->g_id);
-
-    //cat = 0;
-
-    struct menu_obj o;
-    o.highlighted = false;
-    o.category = cat;
-    o.e = e;
-    o.pos = menu_objects.size();
-
-    gid_to_menu_pos[o.e->g_id] = o.pos;
+    gid_to_menu_pos[e->g_id] = o.pos;
 
     o.name = this->text_small->add_to_atlas(this->texts, e->get_name());
-
-    if (!o.name) {
-        o.name = &sss;
-    } else {
-        o.name->width *= gui_spritesheet::text_factor;
-        o.name->height *= gui_spritesheet::text_factor;
-    }
+    o.name->width *= gui_spritesheet::text_factor;
+    o.name->height *= gui_spritesheet::text_factor;
 
     menu_objects.push_back(o);
     menu_objects_cat[cat].push_back(o.pos);
-
-    //e->_pos = b2Vec2(0.f, -o.pos * 2.f);
-    e->_pos = e->menu_pos;
-
-    if (e->g_id == O_SIGNAL_CABLE || e->g_id == O_POWER_CABLE || e->g_id == O_INTERFACE_CABLE) {
-        e->set_position(e->menu_pos);
-    }
-    e->_angle = 0.0f;
-
-    game::update_ghost_entity(e);
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::add_menu_item (g_id: %d) 5", ierr, e->g_id);
-    //tms_entity_update_with_children(static_cast<tms_entity*>(e));
 }
 
 static void
@@ -1511,28 +1480,19 @@ game::init_gui(void)
                 tms_errorf("Error creating %d", gid);
                 continue;
             }
-            tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui menu_item loop (g_id: %d)", ierr, gid);
             this->add_menu_item(y, e);
-            tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui menu_item loop after adding menu_item (g_id: %d)", ierr, gid);
             num_objects ++;
         }
     }
 
     item::_init();
 
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 4", ierr);
-
     struct tms_texture *tex = tms_texture_alloc();
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 5", ierr);
 
     tms_texture_upload(&this->texts->texture);
 
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 9", ierr);
-
     this->init_gearbox_edit();
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 11", ierr);
     this->init_sandbox_menu();
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 12", ierr);
 
     tms_infof("Number of objects in menu: %d", num_objects);
 

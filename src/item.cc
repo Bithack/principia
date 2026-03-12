@@ -1792,25 +1792,13 @@ item::write_quickinfo(char *out)
 void
 item::_init()
 {
-    static struct tms_sprite sss;
-    sss.tr=(tvec2){0.f,0.f};
-    sss.bl=(tvec2){0.f,0.f};
-    sss.width=0.f;
-    sss.height=0.f;
-
-    int ierr;
-
     for (int x=0; x<NUM_ITEMS; ++x) {
         struct item_option *io = &item_options[x];
 
         io->name_spr = G->text_small->add_to_atlas(G->texts, io->name);
 
-        if (!io->name_spr) {
-            io->name_spr = &sss;
-        } else {
-            io->name_spr->width *= gui_spritesheet::text_factor;
-            io->name_spr->height *= gui_spritesheet::text_factor;
-        }
+        io->name_spr->width *= gui_spritesheet::text_factor;
+        io->name_spr->height *= gui_spritesheet::text_factor;
     }
 }
 
