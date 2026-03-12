@@ -2547,7 +2547,7 @@ game::create_sandbox_menu()
             entity *e = menu_objects[n].e;
 
             char override_path[512];
-            snprintf(override_path, 512, "../data-src/override/%u.png", e->g_id);
+            snprintf(override_path, 512, "./data-src/override/%u.png", e->g_id);
 
             if (!file_exists(override_path)) {
                 cam->width = 2.0f * 1.f/e->menu_scale;
@@ -2612,7 +2612,7 @@ game::create_sandbox_menu()
             entity *e = menu_objects[n].e;
 
             char override_path[512];
-            snprintf(override_path, 512, "../data-src/override/%u.png", e->g_id);
+            snprintf(override_path, 512, "./data-src/override/%u.png", e->g_id);
 
             if (file_exists(override_path)) {
                 struct tms_texture tex;
@@ -2764,10 +2764,11 @@ game::create_sandbox_menu()
 
     tms_assertf(glGetError() == 0, "VAFAN s 4");
     tms_infof("Sandbox textures generated successfully. Running ./utils/update-sandbox-menu.sh ...");
-    system("../utils/update-sandbox-menu.sh");
+    system("./utils/update-sandbox-menu.sh");
     tms_infof("OK!");
-    exit(0);
+    return;
 #endif
+
     tms_infof("Creating sandbox menu only supported on Linux in DEBUG mode");
 }
 
