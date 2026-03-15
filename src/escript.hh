@@ -19,6 +19,8 @@
 
 #define ESCRIPT_EXTERNAL_PATH_LEN 1024
 
+extern escript *current_escript;
+
 struct lua_State;
 class receiver_base;
 

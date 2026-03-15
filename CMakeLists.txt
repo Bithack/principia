@@ -110,6 +110,7 @@ file(GLOB SRCS
 	src/tms/modules/3ds.c
 
 	src/*.cc
+	src/luascript/*.cc
 	src/*.c
 
 	lib/GLAD/src/gl.c
