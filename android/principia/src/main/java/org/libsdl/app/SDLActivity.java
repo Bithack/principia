@@ -2088,8 +2088,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                     Log.v("Principia", "set arg "+url);
                     PrincipiaBackend.setarg(url);
                     SDLActivity.wv_dialog.dismiss();
-                } else if (true) {
-                    // FIXME: Also IF HOST CONTAINS QUERY ?printable=yes
+                } else if (host.contains(PrincipiaBackend.getCommunityHost())) {
                     Log.v("Principia", "Load url "+url);
                     view.stopLoading();
                     view.loadUrl(url);
