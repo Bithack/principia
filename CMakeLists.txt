@@ -274,6 +274,11 @@ if(EMSCRIPTEN)
 	set(CMAKE_EXE_LINKER_FLAGS " ${LIBRARY_FLAGS} -pthread -sPTHREAD_POOL_SIZE=20 -sINITIAL_MEMORY=2013265920 -sALLOW_MEMORY_GROWTH=1 -sTOTAL_STACK=16Mb -sFETCH=1")
 endif()
 
+if(WIN32)
+	# Clang 22 made this an error which breaks compilation, downgrade to warning again
+	string(APPEND COMMON_FLAGS " -Wno-error=incompatible-pointer-types ")
+endif()
+
 set(COMMON_FLAGS_DEBUG "${COMMON_FLAGS} -O0 -ggdb -DDEBUG=1")
 set(COMMON_FLAGS_RELEASE "${COMMON_FLAGS} -DNDEBUG=1 -fomit-frame-pointer")
 
