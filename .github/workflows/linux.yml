@@ -25,7 +25,7 @@ jobs:
       image: debian:bullseye
       env: { LANG: "C.UTF-8" }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install deps
         run: |
@@ -44,13 +44,15 @@ jobs:
           CXX: clang++-16
 
       - name: Upload output as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: Principia-x86_64.AppImage
           path: build/Principia-x86_64.AppImage
+          archive: false
+          if-no-files-found: error
 
       - name: Upload debug symbols as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-appimage-dbgsym
           path: build/principia.debug
+          if-no-files-found: error

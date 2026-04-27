@@ -25,7 +25,7 @@ jobs:
       image: emscripten/emsdk:latest
       env: { LANG: "C.UTF-8" }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install deps
         run: |
@@ -40,7 +40,8 @@ jobs:
           DESTDIR=../web ninja install
 
       - name: Save apk artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: principia-wasm
           path: web/
+          if-no-files-found: error

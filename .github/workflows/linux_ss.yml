@@ -20,7 +20,7 @@ jobs:
   linux_ss:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install deps
         run: |
@@ -34,7 +34,8 @@ jobs:
           ninja -j4
 
       - name: Upload output as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: screenshotter_artifact
           path: build/principia
+          if-no-files-found: error
