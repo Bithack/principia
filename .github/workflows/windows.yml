@@ -65,12 +65,12 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           path: build/principia-setup.exe
-          archive: false
+          #archive: false
           if-no-files-found: error
 
       - name: Upload output as artifact
         uses: actions/upload-artifact@v7
         with:
           path: build/principia-portable.7z
-          archive: false
+          #archive: false
           if-no-files-found: error

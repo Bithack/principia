@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           path: build/Principia-x86_64.AppImage
-          archive: false
+          #archive: false
           if-no-files-found: error
 
       - name: Upload debug symbols as artifact

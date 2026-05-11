@@ -41,5 +41,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           path: android/principia/build/outputs/apk/release/principia-release-unsigned.apk
-          archive: false
+          #archive: false
           if-no-files-found: error
