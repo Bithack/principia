@@ -46,6 +46,7 @@ jobs:
       - name: Upload output as artifact
         uses: actions/upload-artifact@v7
         with:
+          name: Principia-x86_64.AppImage
           path: build/Principia-x86_64.AppImage
           #archive: false
           if-no-files-found: error

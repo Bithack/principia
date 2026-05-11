@@ -40,6 +40,7 @@ jobs:
       - name: Save apk artifact
         uses: actions/upload-artifact@v7
         with:
+          name: principia-release-unsigned.apk
           path: android/principia/build/outputs/apk/release/principia-release-unsigned.apk
           #archive: false
           if-no-files-found: error
