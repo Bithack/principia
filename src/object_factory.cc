@@ -107,6 +107,7 @@
 #include "seesaw.hh"
 #include "sequencer.hh"
 #include "sfxemitter.hh"
+#include "shape_extruder.hh"
 #include "shelf.hh"
 #include "sincos.hh"
 #include "sinewave.hh"
@@ -351,7 +352,7 @@ static entity* new_snap(void){return new snapgate();};
 static entity* new_var_getter(void){return new var_getter();};
 static entity* new_var_setter(void){return new var_setter();};
 static entity* new_sequencer(void){return new sequencer();};
-static entity* new_ghost(void){return new ghost();};
+static entity* new_shape_extruder(void){return new shape_extruder();};
 static entity* new_cursorfield(void){return new cursorfield();};
 static entity* new_escript(void){return new escript();};
 static entity* new_ldecay(void){return new ldecay();};
@@ -574,7 +575,7 @@ static entity* (*c_creator[])(void) = {
     &new_var_setter,
     &new_snap,
     &new_sequencer,
-    &new_ghost, /* 180 */
+    &new_shape_extruder, /* 180 */
     &new_ldecay,
     &new_elimit,
     &new_cursorfield,

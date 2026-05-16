@@ -53,6 +53,7 @@
 #include "screenshot_marker.hh"
 #include "scup.hh"
 #include "settings.hh"
+#include "shape_extruder.hh"
 #include "simplebg.hh"
 #include "soundman.hh"
 #include "soundmanager.hh"
@@ -3349,7 +3350,7 @@ game::render()
                 case O_SHAPE_EXTRUDER: {
                     // Draw bounding box of Shape extruder
 
-                    ghost *g = static_cast<ghost*>(this->selection.e);
+                    shape_extruder *g = static_cast<shape_extruder*>(this->selection.e);
                     if (g->conn_ll) {
                         tms_ddraw_set_color(this->dd, 0.0f, 0.0f, 1.0f, 1.0f);
                         composable *other = static_cast<composable*>(g->c.o);
@@ -4930,7 +4931,7 @@ game::set_control_panel(entity *e)
     wdg_misc_i = 0;
 
     if (this->current_panel) {
-        if (this->current_panel->is_rc()) {
+        if (this->current_panel->is_control_panel()) {
             /* If we are already connected to a panel and it's an RC,
              * call the panel_disconnected for the RC.
              *
@@ -4968,7 +4969,7 @@ game::set_control_panel(entity *e)
         return;
     }
 
-    panel *p = (e && e->is_rc() ? static_cast<panel*>(e) : 0);
+    panel *p = (e && e->is_control_panel() ? static_cast<panel*>(e) : 0);
     creature *c = (e && e->is_creature() ? static_cast<creature*>(e) : 0);
 
     this->current_panel = e;

@@ -7,9 +7,7 @@
 #include "rack.hh"
 #include "game.hh"
 
-void
-connection::update(void)
-{
+void connection::update(void) {
     this->layer = this->e->get_layer();
     this->layer_mask = this->e->layer_mask;
 
@@ -22,33 +20,23 @@ connection::update(void)
     this->sublayer_dist = this->e->sublayer_dist(this->o);
 }
 
-/**
- * Updates the relative angle between the bodies
- **/
-void
-connection::update_relative_angle(bool force)
-{
+void connection::update_relative_angle(bool force) {
     if (!force) {
         b2Joint *j = this->j;
         if (j) {
             b2JointType t = j->GetType();
 
-            if (t != e_revoluteJoint && t != e_pivotJoint) {
+            if (t != e_revoluteJoint && t != e_pivotJoint)
                 return;
-            }
         }
     }
 
+    tms_infof("update relative angle for connection %p", this);
+    tms_infof("object 1: %p, object 2: %p", this->e, this->o);
     this->relative_angle = -(this->o->get_angle(this->f[1]) - this->e->get_angle(this->f[0]));
 }
 
-/**
- * Apply is called the first time the connection is created
- **/
-void
-connection::apply(void)
-{
-    //tms_infof("apply joint : %f %f, %p", this->p.x, this->p.y, this);
+void connection::apply() {
     this->update_relative_angle(true);
 
     if (this->type != CONN_GEAR) {
@@ -68,7 +56,6 @@ connection::apply(void)
     this->sublayer_dist = this->e->sublayer_dist(this->o);
 
     if (!this->fixed) {
-        //tms_infof("adding to bodies");
         this->e->add_connection(this);
         this->o->add_connection(this);
     }
@@ -76,88 +63,61 @@ connection::apply(void)
     this->pending = false;
 }
 
-void
-connection::destroy_joint()
-{
+void connection::destroy_joint() {
     if (this->j) {
         if (!this->owned || this->e->connection_destroy_joint(this) == false)
             this->e->get_body(this->f[0])->GetWorld()->DestroyJoint(this->j);
 
         this->j = 0;
-
     }
 
     this->remove_self_ent();
 }
 
-void
-connection::remove_self_ent()
-{
-    if (this->self_ent) {
-        if (this->self_ent->scene) {
-            G->remove_entity(this->self_ent);
-        }
-
-        delete this->self_ent;
-        this->self_ent = 0;
-    }
-}
-
-void
-connection::create_self_ent(bool add)
-{
-    if (this->render_type == CONN_RENDER_HIDE) {
+void connection::remove_self_ent() {
+    if (!this->self_ent)
         return;
-    }
 
-    switch (this->type) {
-        case CONN_PIVOT:
-        case CONN_WELD:
-        case CONN_PLATE:
-            this->self_ent = new connection_entity(this, this->type);
-            break;
-    }
+    if (this->self_ent->scene)
+        G->remove_entity(this->self_ent);
 
-    if (this->self_ent && add) {
-        if (this->self_ent->scene == 0) {
-            G->add_entity(this->self_ent);
-        }
-    }
+    delete this->self_ent;
+    this->self_ent = 0;
 }
 
-void
-connection::update_render_type()
-{
+void connection::create_self_ent(bool add) {
+    if (this->render_type == CONN_RENDER_HIDE)
+        return;
+
+    if (this->type == CONN_PIVOT || this->type == CONN_WELD || this->type == CONN_PLATE)
+        this->self_ent = new connection_entity(this, this->type);
+
+    if (this->self_ent && add && this->self_ent->scene == 0)
+        G->add_entity(this->self_ent);
+}
+
+void connection::update_render_type() {
     tms_debugf("Update render type. Self ent: %p", this->self_ent);
     bool add = (this->self_ent && this->self_ent->scene);
 
     this->remove_self_ent();
 
-    switch (this->render_type) {
-        case CONN_RENDER_HIDE:
-            break;
+    if (this->render_type == CONN_RENDER_HIDE)
+        return;
 
-        default:
-            if (!this->self_ent) {
-                this->create_self_ent(add);
-            }
-            break;
-    }
+    if (!this->self_ent)
+        this->create_self_ent(add);
 }
 
-void
-connection::create_joint(bool add)
-{
-    if (this->type == CONN_GROUP) {
+void connection::create_joint(bool add) {
+    if (this->type == CONN_GROUP)
         return;
-    }
 
     if (!this->self_ent) {
         this->create_self_ent(add);
     } else {
-        if (this->self_ent->mesh == mesh_factory::get_mesh(MODEL_PLATEJOINT_DAMAGED)) {
+        if (this->self_ent->mesh == mesh_factory::get_mesh(MODEL_PLATEJOINT_DAMAGED))
             this->self_ent->set_mesh(mesh_factory::get_mesh(MODEL_PLATEJOINT));
-        }
     }
 
     //tms_infof("group: %p, body: %p, %d", this->e->group, this->e->body, this->f[0]);
@@ -181,7 +141,7 @@ connection::create_joint(bool add)
         switch (this->type) {
             case CONN_CUSTOM: this->e->connection_create_joint(this); break;
 
-            case CONN_RACK:{
+            case CONN_RACK: {
                 gear *g = static_cast<gear*>(this->e); /* always this order */
                 rack *r = static_cast<rack*>(this->o);
 
@@ -193,10 +153,9 @@ connection::create_joint(bool add)
                 this->j = b2->CreateJoint(&gjd);
 
                 r->update_limits();
-                }
-                break;
+            } break;
 
-            case CONN_GEAR:{
+            case CONN_GEAR: {
                 gear *g0 = static_cast<gear*>(this->e);
                 gear *g1 = static_cast<gear*>(this->o);
                 float ratio = 1.f;
@@ -207,13 +166,6 @@ connection::create_joint(bool add)
                     }
                 }
 
-                /*
-                if (((gear*)this->e)->get_num_gear_conns() < ((gear*)this->o)->get_num_gear_conns()) {
-                    ((gear*)this->e)->fix_position(this->o);
-                } else
-                    ((gear*)this->o)->fix_position(this->e);
-                    */
-
                 gjd.bodyA = this->e->get_body(this->f[0]);
                 gjd.bodyB = this->o->get_body(this->f[1]);
                 gjd.joint1 = ((gear*)this->e)->joint;
@@ -223,8 +175,7 @@ connection::create_joint(bool add)
                 gjd.ratio = ratio;
                 gjd.collideConnected = true;
                 this->j = b2->CreateJoint(&gjd);
-                }
-                break;
+            } break;
 
             case CONN_PIVOT:
                 if (this->e->is_wheel() && this->o->is_wheel() && this->e->get_layer() != this->o->get_layer()) {
@@ -256,53 +207,47 @@ connection::create_joint(bool add)
                 break;
 
             case CONN_PLATE:
-            case CONN_WELD:
-                {
-                    if (this->e->is_wheel() && this->o->is_wheel() && this->e->get_layer() != this->o->get_layer()) {
-                        wjd.localAnchorA = this->e->local_to_body(b2Vec2(0.f, 0.f), this->f[0]);
-                        wjd.localAnchorB = this->o->local_to_body(b2Vec2(0.f, 0.f), this->f[1]);
-                    } else {
-                        wjd.localAnchorA = this->e->local_to_body(this->p, this->f[0]);
-                        wjd.localAnchorB = this->o->local_to_body(this->p_s, this->f[1]);
-                    }
-
-                    wjd.bodyA = this->e->get_body(this->f[0]);
-                    wjd.bodyB = this->o->get_body(this->f[1]);
-
-                    if (wjd.bodyA->GetType() == b2_staticBody && wjd.bodyB->GetType() == b2_staticBody) {
-                        this->j = 0;
-                        tms_debugf("skipping joint between static bodies");
-                        break;
-                    }
-
-                    wjd.referenceAngle = this->o->get_body(this->f[1])->GetAngle() - this->e->get_body(this->f[0])->GetAngle()
-                        - (this->o->get_angle(this->f[1]) - this->e->get_angle(this->f[0])) - this->relative_angle;
-
-                    //wjd.referenceAngle = this->o->get_angle(this->f[1]) - this->e->get_angle(this->f[0]);
-                    wjd.collideConnected = false;
-                    wjd.frequencyHz = 0.f;
-
-                    if (false && this->tolerant && !W->is_paused())
-                        wjd.frequencyHz = 40.f;
-
-                    this->j = b2->CreateJoint(&wjd);
-
-                    b2Vec2 pp = this->e->local_to_world(wjd.localAnchorA, this->f[0]);
-                    tms_debugf("applied plate, to world = %f %f, f = %u, id <%u,%u>", pp.x, pp.y, this->f[0], this->e->id, this->o->id);
+            case CONN_WELD: {
+                if (this->e->is_wheel() && this->o->is_wheel() && this->e->get_layer() != this->o->get_layer()) {
+                    wjd.localAnchorA = this->e->local_to_body(b2Vec2(0.f, 0.f), this->f[0]);
+                    wjd.localAnchorB = this->o->local_to_body(b2Vec2(0.f, 0.f), this->f[1]);
+                } else {
+                    wjd.localAnchorA = this->e->local_to_body(this->p, this->f[0]);
+                    wjd.localAnchorB = this->o->local_to_body(this->p_s, this->f[1]);
                 }
-                break;
 
-            default:
-                {
-                    tms_errorf("invalid joint type %d", this->type);
+                wjd.bodyA = this->e->get_body(this->f[0]);
+                wjd.bodyB = this->o->get_body(this->f[1]);
+
+                if (wjd.bodyA->GetType() == b2_staticBody && wjd.bodyB->GetType() == b2_staticBody) {
+                    this->j = 0;
+                    tms_debugf("skipping joint between static bodies");
+                    break;
                 }
-                break;
+
+                wjd.referenceAngle = this->o->get_body(this->f[1])->GetAngle() - this->e->get_body(this->f[0])->GetAngle()
+                    - (this->o->get_angle(this->f[1]) - this->e->get_angle(this->f[0])) - this->relative_angle;
+
+                //wjd.referenceAngle = this->o->get_angle(this->f[1]) - this->e->get_angle(this->f[0]);
+                wjd.collideConnected = false;
+                wjd.frequencyHz = 0.f;
+
+                if (false && this->tolerant && !W->is_paused())
+                    wjd.frequencyHz = 40.f;
+
+                this->j = b2->CreateJoint(&wjd);
+
+                b2Vec2 pp = this->e->local_to_world(wjd.localAnchorA, this->f[0]);
+                tms_debugf("applied plate, to world = %f %f, f = %u, id <%u,%u>", pp.x, pp.y, this->f[0], this->e->id, this->o->id);
+            } break;
+
+            default: {
+                tms_errorf("invalid joint type %d", this->type);
+            } break;
         }
 
-        if (this->max_force < INFINITY) {
-            //tms_infof("joint is destructable");
+        if (this->max_force < INFINITY) // joint is destructable
             G->add_destructable_joint(this->j, this->max_force);
-        }
     } else
         this->j = 0;
 
@@ -314,22 +259,18 @@ connection::create_joint(bool add)
     }
 }
 
-b2Vec2 connection::get_position()
-{
+b2Vec2 connection::get_position() {
     return this->e->local_to_world(this->p, this->f[0]);
 }
 
-connection_entity::connection_entity(connection *c, int type)
-{
+connection_entity::connection_entity(connection *c, int type) {
     this->conn = c;
     this->curr_update_method = this->update_method = ENTITY_UPDATE_JOINT;
 
-    //((struct tms_entity*)this)->update = 0;
-    //
     this->conn->type = type;
 
     if ((c->e->layer_mask & c->o->layer_mask) == 0 && c->o->get_layer() == c->e->get_layer()) {
-        /* breadboard, sublayer plank */
+        // special case for e.g. breadboard, sublayer plank
         type = CONN_PIVOT;
     }
 
@@ -341,31 +282,18 @@ connection_entity::connection_entity(connection *c, int type)
     tmat4_load_identity(this->M);
     tmat3_load_identity(this->N);
 
-
     switch (type) {
-        case CONN_WELD: case CONN_PLATE:
-            if (c->render_type == CONN_RENDER_NAIL || (c->multilayer)) {
+        case CONN_PLATE:
+            if (c->render_type == CONN_RENDER_NAIL || (c->multilayer))
                 this->set_mesh(mesh_factory::get_mesh(MODEL_PIVOTJOINT));
-            } else {
+            else
                 this->set_mesh(mesh_factory::get_mesh(MODEL_PLATEJOINT));
-            }
             break;
-   /*     case CONN_WELD:
-             if (c->multilayer)
-                 this->set_mesh(tms_meshfactory_get_cylinder());
-             else
-                 this->set_mesh(mesh_factory::weldjoint);
-             break;*/
         case CONN_PIVOT:
             this->set_mesh(mesh_factory::get_mesh(MODEL_PIVOTJOINT));
-             this->curr_update_method = this->update_method = ENTITY_UPDATE_JOINT_PIVOT;
-             break;
+            this->curr_update_method = this->update_method = ENTITY_UPDATE_JOINT_PIVOT;
+            break;
     }
 
-    /*
-    if (c->render_type == CONN_RENDER_NAIL)
-        this->set_material(&m_conn);
-    else
-    */
-        this->set_material(&m_conn_no_ao);
+    this->set_material(&m_conn_no_ao);
 }

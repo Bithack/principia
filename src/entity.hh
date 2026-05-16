@@ -17,20 +17,20 @@ class game;
 class world;
 class base_prompt;
 
-struct worth
-{
+/// Struct representing the worth of an entity in terms of mineral resources and oil
+struct worth {
     uint32_t resources[NUM_RESOURCES];
     float oil;
 
     worth();
 
-    /* Add num resources */
+    /// Add num resources
     struct worth& add(uint8_t resource_type, uint32_t num);
 
-    /* Add oil */
+    /// Add oil
     struct worth& add_oil(float val);
 
-    /* Add resources and oil from another worth object */
+    /// Add resources and oil from another worth object
     struct worth& add(const struct worth& worth);
 };
 
@@ -183,27 +183,32 @@ class connection;
 #define JOINT_TYPE_SCUP         4
 #define JOINT_TYPE_RAGDOLL      5
 
+/// Data attached to connection joints
 class joint_info {
   public:
     int type;
     void *data;
     bool should_destroy;
-    joint_info(int type, void *data)
-    {
+    joint_info(int type, void *data) {
         this->type = type;
         this->data = data;
         this->should_destroy = true;
     }
-    joint_info(){this->should_destroy=true;};
 
-    void destroy() const { if (this->should_destroy) delete this; }
+    joint_info() {
+        this->should_destroy = true;
+    }
+
+    void destroy() const {
+        if (this->should_destroy)
+            delete this;
+    }
 
   protected:
     ~joint_info() {}
 };
 
-class connection
-{
+class connection {
   private:
     void remove_self_ent();
     void create_self_ent(bool add);
@@ -215,38 +220,43 @@ class connection
     entity *self_ent;
     b2Joint *j;
 
-    /* if the connection has an owner, e is the owner */
+    /// if the connection has an owner, e is the owner
     entity *e;
     entity *o;
 
-    bool fixed; /* can't be removed */
-    bool tolerant; /* if this joint allows slight displacement */
+    /// can't be removed
+    bool fixed;
+    /// if this joint allows slight displacement
+    bool tolerant;
+    /// if this connection has been destroyed during simulation
     bool destroyed;
 
-    /* layer of the connection, if the connection spans multiple layers,
-     * this is the lowest layer of the two */
+    /// layer of the connection, if the connection spans multiple layers,
+    /// this is the lowest layer of the two
     int layer;
 
-    /* sublayer mask of the connection, if the connection span multiple sublayers,
-     * this is the lowest sublayer of the two */
+    /// sublayer mask of the connection, if the connection span multiple sublayers,
+    /// this is the lowest sublayer of the two
     int layer_mask;
 
     int sublayer_dist;
 
-    /* if this connection is active, the point is in e's local
-     * coordinate frame, otherwise it is a world point */
-    b2Vec2 p, p_s; /* p_s is the secondary local anchor if weld or pivot joint */
+    /// if this connection is active, the point is in e's local
+    /// coordinate frame, otherwise it is a world point.
+    /// p_s is the secondary local anchor if weld or pivot joint
+    b2Vec2 p, p_s;
 
-    /* Coordinate frames for 'e' and 'o' */
+    /// Coordinate frames for 'e' and 'o'
     uint8_t f[2];
 
     bool owned;
     uint8_t o_index;
     bool pending;
-    bool multilayer; /* true if the connection spans two layers,
-                                the rendered nail will not be rotated */
+    /// true if the connection spans two layers, the rendered nail will not be rotated
+    bool multilayer;
 
-    float relative_angle; /* relative angle of the entities level version 22 */
+    /// relative angle of the entities (level revision >= 22)
+    float relative_angle;
 
     float angle;
     uint8_t render_type;
@@ -254,19 +264,22 @@ class connection
     uint8_t option;
 
     float max_force;
-    float damping; /* level VERSION 8, damping for rotary joints */
+    /// damping for rotary joints (level revision >= 8)
+    float damping;
 
-    uint32_t e_data; /* level version 28 (1.5) information about e */
-    uint32_t o_data; /* level version 28 (1.5) information about o */
+    /// information about e (level version >= 28)
+    uint32_t e_data;
+    /// information about o (level version >= 28)
+    uint32_t o_data;
 
-    /* we keep track of where this conn was last written or read */
+    /// we keep track of where this conn was last written or read
     size_t write_ptr;
+    /// we keep track of where this conn was last written or read
     size_t write_size;
 
     connection *next[2];
 
-    connection()
-    {
+    connection() {
         this->write_ptr = 0;
         this->write_size = 0;
         this->reset();
@@ -274,35 +287,33 @@ class connection
 
     b2Vec2 get_position();
 
+    /// Updates the relative angle between the bodies
     void update_relative_angle(bool force);
 
-    inline void init_owned(int index, entity *e)
-    {
+    /// Initialise connection, being owned by an entity
+    inline void init_owned(int index, entity *e) {
         this->reset();
         this->e = e;
         this->o_index = index;
     }
 
-    inline entity *get_other(entity *e)
-    {
-        if (e == this->e) {
+    /// Get the other entity in the connection
+    inline entity *get_other(entity *e) {
+        if (e == this->e)
             return this->o;
-        } else {
+        else
             return this->e;
-        }
     }
 
-    inline connection *get_next(entity *e)
-    {
-        if (e == this->e) {
+    /// Get the next connection for the given entity
+    inline connection *get_next(entity *e) {
+        if (e == this->e)
             return next[0];
-        } else {
+        else
             return next[1];
-        }
     }
 
-    inline void reset(void)
-    {
+    inline void reset() {
         this->ji = 0;
         this->layer_mask = 0;
         this->sublayer_dist = 0;
@@ -334,21 +345,21 @@ class connection
         destroyed = false;
     }
 
-    void update(void);
-    void apply(void);
+    void update();
+    /// Apply is called the first time the connection is created
+    void apply();
     void create_joint(bool add);
-    void destroy_joint(void);
+    void destroy_joint();
 
+    /// Update how the connection is rendered in-game
     void update_render_type();
 
-    connection *clone()
-    {
+    connection *clone() {
         return new connection(*this);
     }
 };
 
-class property
-{
+class property {
   public:
     uint8_t type;
     union {
@@ -361,53 +372,60 @@ class property
         } s;
     } v;
 
-    property()
-    {
+    property() {
         clear();
     }
-    void clear()
-    {
+
+    void clear() {
         type = 0;
         memset(&this->v, 0, sizeof(this->v));
     }
 
-    /* The receiving function is responsible for freeing the return value */
+    /// Serialise the property to a string.
+    /// The receiving function is responsible for freeing the return value
     char* stringify();
 
+    /// Parse serialised property string back
     void parse(char *buf);
 };
 
 struct entity_listener {
     entity *self;
     void *userdata;
-    void (*cb)(entity* self,void* userdata);
+    void (*cb)(entity* self, void* userdata);
 };
 
-/**
- *
- * entity pointer is stored in UserData of fixtures
- * uint8 frame ID is stored in the body's UserData
- **/
+/// Main class for entities, including but not limited to objects as visible by players in-game.
+///
+/// - Entity pointer is stored in UserData of fixtures
+/// - uint8 frame ID is stored in the body's UserData
 class entity : public tms::entity
 {
   protected:
     void easy_update();
 
     /* shape creation functions, should be called from add_to_world */
-    void create_rect(b2BodyType type, float width, float height, m *m){create_rect(type,width,height,m,NULL);};
+    void create_rect(b2BodyType type, float width, float height, m *m) {
+        create_rect(type,width,height,m,NULL);
+    }
+
     void create_rect(b2BodyType type, float width, float height, m *m, b2Fixture **fixture_out=NULL);
     void create_circle(b2BodyType type, float radius, m *mat);
 
-    void create_rect(b2BodyType type, float width, float height, struct tms_material *mat){create_rect(type,width,height,static_cast<m*>(mat),NULL);};
-    void create_circle(b2BodyType type, float radius, struct tms_material* mat){ create_circle(type,radius,static_cast<m*>(mat)); };
+    void create_rect(b2BodyType type, float width, float height, struct tms_material *mat) {
+        create_rect(type,width,height,static_cast<m*>(mat),NULL);
+    }
+
+    void create_circle(b2BodyType type, float radius, struct tms_material* mat) {
+        create_circle(type,radius,static_cast<m*>(mat));
+    }
 
     float m_scale;
-    float width; /* approximate width of the object, used for the menu rendering
-                    and for positioning the rotation anchor */
+    /// Approximate width of the object, used for e.g. positioning the rotation anchor
+    float width;
 
   public:
-    inline void fastbody_update()
-    {
+    inline void fastbody_update() {
         const b2Transform &t = this->body->GetTransform();
 
         //tmat4_load_identity(this->M);
@@ -428,37 +446,30 @@ class entity : public tms::entity
     void unsubscribe(entity *target);
     void signal(int event);
 
-    inline float get_scale() const
-    {
+    inline float get_scale() const {
         return this->m_scale;
     }
 
-    void set_scale(float new_scale)
-    {
+    void set_scale(float new_scale) {
         float old_scale = this->get_scale();
-
         this->m_scale = new_scale;
-
         this->scale_changed(old_scale, new_scale);
     }
 
-    inline float get_width() const
-    {
+    inline float get_width() const {
         return this->width * this->get_scale();
     }
 
-    virtual void scale_changed(float old_scale, float new_scale)
-    {
+    virtual void scale_changed(float old_scale, float new_scale) {
         this->recreate_fixtures(false);
     }
 
     virtual void recreate_fixtures(bool initial) { }
 
     virtual void set_color(tvec4 c) {}
-    virtual tvec4 get_color() {return tvec4f(0.f, 0.f, 0.f, 0.f);}
+    virtual tvec4 get_color() {return tvec4f(0.f, 0.f, 0.f, 0.f); }
 
-    void set_color4(float r, float g, float b, float a=1.0f)
-    {
+    void set_color4(float r, float g, float b, float a=1.0f) {
         this->set_color(tvec4f(r, g, b, a));
     }
 
@@ -469,11 +480,12 @@ class entity : public tms::entity
     int curr_update_method;
     b2Body *body;
     uint8_t layer_mask;
-    //entity *owner;
     property *properties;
     uint8_t num_properties;
 
-    p_gid g_id; /* global object type identifier */
+    /// Global object type identifier
+    p_gid g_id;
+    /// ID of entity it was emitted by, for e.g. weapon projectiles
     uint32_t emitted_by;
     uint32_t emit_step;
 
@@ -485,7 +497,7 @@ class entity : public tms::entity
     b2Vec2 menu_pos;
     b2Vec2 old_pos;
 
-    /* Used as a base for connection-checking */
+    /// Used as a base for connection-checking
     b2Vec2 query_sides[4];
     float query_len;
 
@@ -493,12 +505,12 @@ class entity : public tms::entity
     float _angle;
     int dialog_id;
 
-    /* default state contains velocity and angular velocity of a single body */
+    /// default state contains velocity and angular velocity of a single body
     float state[3];
     size_t state_ptr;
     size_t state_size;
 
-    /* we keep track of where this entity was last written or read */
+    /// we keep track of where this entity was last written or read
     size_t write_ptr;
     size_t write_size;
 
@@ -510,13 +522,11 @@ class entity : public tms::entity
     uint8_t protection_status;
     void update_protection_status();
 
-    virtual void set_moveable(bool moveable)
-    {
+    virtual void set_moveable(bool moveable) {
         this->set_flag(ENTITY_IS_MOVEABLE, moveable);
     }
 
-    bool is_moveable()
-    {
+    bool is_moveable() {
         return this->flag_active(ENTITY_IS_MOVEABLE);
     }
 
@@ -529,87 +539,130 @@ class entity : public tms::entity
 
     uint64_t flags;
 
-    virtual uint32_t get_fixture_connection_data(b2Fixture *f){return 0;};
+    virtual uint32_t get_fixture_connection_data(b2Fixture *f) {
+        return 0;
+    }
 
-    inline bool flag_active(uint64_t flag)
-    {
+    inline bool flag_active(uint64_t flag) {
         return this->flags & flag;
     }
 
-    float get_total_mass()
-    {
+    float get_total_mass() {
         float mass = 0.f;
         b2Body *b;
 
-        for (int x=0; x<this->get_num_bodies(); x++) {
-            if ((b = this->get_body(x))) {
+        for (int x=0; x<this->get_num_bodies(); x++)
+            if ((b = this->get_body(x)))
                 mass += b->GetMass();
-            }
-        }
 
         return mass;
     }
 
-    inline void set_flag(uint64_t flag, bool v)
-    {
-        if (v) {
+    inline void set_flag(uint64_t flag, bool v) {
+        if (v)
             this->flags |= flag;
-        } else {
+        else
             this->flags &= ~flag;
-        }
     }
 
-    /* Returns true if the entity has a wireless functionality, meaning it
-     * has at least one property and that first property is used for as
-     * a wireless frequency. */
-    inline bool is_wireless()
-    {
+    /// Returns true if the entity has a wireless functionality, meaning it
+    /// has at least one property and that first property is used for as
+    /// a wireless frequency.
+    inline bool is_wireless() {
         return (this->g_id == O_RECEIVER || this->g_id == O_TRANSMITTER || this->g_id == O_MINI_TRANSMITTER);
     }
 
-    inline bool is_item()
-    {
-        return (this->g_id == O_ITEM);
+    inline bool is_item() {
+        return this->g_id == O_ITEM;
     }
 
-    inline bool is_prompt_compatible()
-    {
+    inline bool is_prompt_compatible() {
         return this->flag_active(ENTITY_IS_PROMPT);
     }
 
-    virtual bool is_zappable() { return this->flag_active(ENTITY_IS_ZAPPABLE); }
+    virtual bool is_zappable() {
+        return this->flag_active(ENTITY_IS_ZAPPABLE);
+    }
 
-    inline bool is_explosive() { return this->flag_active(ENTITY_IS_EXPLOSIVE); }
-    inline bool is_compressable() { return this->flag_active(ENTITY_CAN_BE_COMPRESSED); }
-    inline bool is_static() { return this->flag_active(ENTITY_IS_STATIC); }
-    inline bool is_bullet() { return this->flag_active(ENTITY_IS_BULLET); }
-    inline bool is_creature() { return this->flag_active(ENTITY_IS_CREATURE); }
-    inline bool is_robot() { return this->flag_active(ENTITY_IS_ROBOT); }
-    inline bool is_control_panel() { return this->flag_active(ENTITY_IS_CONTROL_PANEL); }
-    inline bool is_rc() { return this->flag_active(ENTITY_IS_CONTROL_PANEL); }
-    inline bool is_edevice() { return this->flag_active(ENTITY_IS_EDEVICE); }
-    inline bool is_interactive() { return this->flag_active(ENTITY_IS_INTERACTIVE); }
-    inline bool is_composable() { return this->flag_active(ENTITY_IS_COMPOSABLE); }
-    inline bool is_wheel() { return (this->type == ENTITY_WHEEL || this->type == ENTITY_GEAR); }
-    inline bool is_gearbox() { return (this->g_id == O_GEARBOX); }
-    inline bool allow_connections() { return this->flag_active(ENTITY_ALLOW_CONNECTIONS); }
-    inline bool has_tracker() { return this->flag_active(ENTITY_HAS_TRACKER); }
-    virtual bool is_locked() { return this->flag_active(ENTITY_IS_LOCKED); }
+    inline bool is_explosive() {
+        return this->flag_active(ENTITY_IS_EXPLOSIVE);
+    }
 
-    /* If this function returns true, then when the entity is to be deleted by
-     * pressing Delete or the "remove entity" widget, a confirmation will be shown. */
-    virtual bool requires_delete_confirmation() { return false; }
+    /// Can entity be compressed by the compressor item?
+    inline bool is_compressable() {
+        return this->flag_active(ENTITY_CAN_BE_COMPRESSED);
+    }
+
+    inline bool is_static() {
+        return this->flag_active(ENTITY_IS_STATIC);
+    }
+
+    inline bool is_bullet() {
+        return this->flag_active(ENTITY_IS_BULLET);
+    }
+
+    inline bool is_creature() {
+        return this->flag_active(ENTITY_IS_CREATURE);
+    }
+
+    inline bool is_robot() {
+        return this->flag_active(ENTITY_IS_ROBOT);
+    }
+
+    inline bool is_control_panel() {
+        return this->flag_active(ENTITY_IS_CONTROL_PANEL);
+    }
+
+    inline bool is_edevice() {
+        return this->flag_active(ENTITY_IS_EDEVICE);
+    }
+
+    inline bool is_interactive() {
+        return this->flag_active(ENTITY_IS_INTERACTIVE);
+    }
+
+    inline bool is_composable() {
+        return this->flag_active(ENTITY_IS_COMPOSABLE);
+    }
+
+    inline bool is_wheel() {
+        return (this->type == ENTITY_WHEEL || this->type == ENTITY_GEAR);
+    }
+
+    inline bool is_gearbox() {
+        return (this->g_id == O_GEARBOX);
+    }
+
+    inline bool allow_connections() {
+        return this->flag_active(ENTITY_ALLOW_CONNECTIONS);
+    }
+
+    inline bool has_tracker() {
+        return this->flag_active(ENTITY_HAS_TRACKER);
+    }
+
+    virtual bool is_locked() {
+        return this->flag_active(ENTITY_IS_LOCKED);
+    }
+
+    /// If this function returns true, then when the entity is to be deleted by
+    /// pressing Delete or the "remove entity" widget, a confirmation will be shown.
+    virtual bool requires_delete_confirmation() {
+        return false;
+    }
+
     bool is_motor();
+
     bool is_high_prio();
 
-    bool interacted_with; /* if the player has interacted with this entity
-                             allows us to bypass auto protect and platform protect */
+    /// if the player has interacted with this entity.
+    /// allows us to bypass auto protect and platform protect
+    bool interacted_with;
 
     entity();
     virtual ~entity();
 
-    inline int sublayer_dist(entity *e)
-    {
+    inline int sublayer_dist(entity *e) {
         int l0 = this->get_layer()*4;
         int l1 = e->get_layer()*4;
 
@@ -636,25 +689,33 @@ class entity : public tms::entity
 
     virtual void prepare_fadeout();
 
-    virtual void ghost_update(){update();}
+    virtual void ghost_update() {
+        update();
+    }
 
-    virtual void construct(){}
+    virtual void construct() {}
 
-    virtual edevice *get_edevice(){return 0;}
-    virtual base_prompt *get_base_prompt(){return 0;}
+    virtual edevice *get_edevice() { return 0; }
+    virtual base_prompt *get_base_prompt() { return 0; }
     virtual activator *get_activator() { return 0; }
     void sidecheck(connection *c);
     void sidecheck4(connection *cc);
 
+    /**
+     * Get all chunks that this entity is intersecting with
+     * We can get that info by looping through all bodies and checking their
+     * contacts.
+     *
+     * Static bodies don't collide with the sensors so for static bodies
+     * we instead calculate chunk intersection using width and height
+     */
     void get_chunk_intersections(std::set<chunk_pos> *chunks);
 
     virtual void remove_connection(connection *cr);
     virtual void destroy_connection(connection *cr);
     virtual void disconnect_all();
 
-    b2Joint*
-    find_pivot(int dir, bool recursive)
-    {
+    b2Joint* find_pivot(int dir, bool recursive) {
         if (this->is_wheel()) {
             connection *c = this->conn_ll;
 
@@ -673,20 +734,16 @@ class entity : public tms::entity
         }
 
         return 0;
-    };
+    }
 
-    inline void
-    add_connection(connection *c)
-    {
+    inline void add_connection(connection *c) {
         //tms_infof("%p add connection %p", this, c);
         connection *bkp = this->conn_ll;
         this->conn_ll = c;
         c->next[(this == c->e) ? 0:1] = bkp;
     }
 
-    inline bool
-    connected_to(entity *e)
-    {
+    inline bool connected_to(entity *e) {
         if (!this->conn_ll) return false;
 
         connection *c = this->conn_ll;
@@ -713,89 +770,81 @@ class entity : public tms::entity
             int layer=-1
             );
 
-    inline m* get_material(void)
-    {
+    inline m* get_material(void) {
         return (m *)this->material;
     }
 
-    virtual b2PolygonShape* get_resizable_shape(){return 0;};
-    virtual int get_resizable_vertices(int *out){return 0;};
-    virtual int get_resizable_edges(int *out){return 0;};
-    virtual bool on_resize_vertex(int v, b2Vec2 new_pos){return false;};
-    virtual bool on_resize_edge(int e, float movement){return false;};
+    virtual b2PolygonShape* get_resizable_shape() { return 0; }
+    virtual int get_resizable_vertices(int *out) { return 0; }
+    virtual int get_resizable_edges(int *out) { return 0; }
+    virtual bool on_resize_vertex(int v, b2Vec2 new_pos) { return false; }
+    virtual bool on_resize_edge(int e, float movement) { return false; }
 
-    virtual const char *get_slider_label(int s){return 0;};
-    virtual const char *get_slider_tooltip(int s){return 0;};
-    virtual float get_slider_snap(int s){return 0.f;};
-    virtual float get_slider_value(int s){return 0.f;};
-    virtual void on_slider_change(int s, float value){};
+    virtual const char *get_slider_label(int s) { return 0; }
+    virtual const char *get_slider_tooltip(int s) { return 0; }
+    virtual float get_slider_snap(int s) { return 0.f; }
+    virtual float get_slider_value(int s) {return 0.f; }
+    virtual void on_slider_change(int s, float value) {}
 
-    virtual entity *get_property_entity(void){return this;};
+    virtual entity *get_property_entity(void) {return this; }
 
-    virtual void update_effects(){};
+    virtual void update_effects() {}
     virtual void update();
-    virtual void step(){};
-    virtual void mstep(){};
-    virtual void tick(){};
-    virtual void pre_step(){};
+    virtual void step() {}
+    virtual void mstep() {}
+    virtual void tick() {}
+    virtual void pre_step() {}
     virtual void set_layer(int z);
     void set_prio(int z);
 
-    // this is only fired in play-mode
-    virtual int handle_event(uint32_t type, uint64_t pointer_id, tvec2 pos){return EVENT_CONT;};
+    /// this is only fired in play-mode
+    virtual int handle_event(uint32_t type, uint64_t pointer_id, tvec2 pos) { return EVENT_CONT; }
 
     virtual void set_position(float x, float y, uint8_t frame=0);
     inline void set_position(b2Vec2 p, uint8_t frame=0) { set_position(p.x, p.y, frame); }
 
     virtual b2Vec2 get_position();
-    virtual b2Vec2 get_position(uint8_t frame){return local_to_world(b2Vec2(0.f,0.f), frame);};
+    virtual b2Vec2 get_position(uint8_t frame) { return local_to_world(b2Vec2(0.f,0.f), frame); }
 
     virtual void set_angle(float a);
-    virtual void set_angle(float a,uint8_t frame){set_angle(a);};
+    virtual void set_angle(float a,uint8_t frame) { set_angle(a); }
 
     virtual float get_angle();
-    virtual float get_angle(uint8_t frame){return get_angle();};
+    virtual float get_angle(uint8_t frame) { return get_angle(); }
 
     virtual void add_to_world()=0;
     virtual void remove_from_world();
-    virtual void connection_create_joint(connection *c){};
-    virtual bool connection_destroy_joint(connection *c){return false;};
+    virtual void connection_create_joint(connection *c) { }
+    virtual bool connection_destroy_joint(connection *c) { return false; }
 
     /* state reading/writing */
     virtual void restore();
     virtual void write_state(lvlinfo *lvl, lvlbuf *lb);
     virtual void read_state(lvlinfo *lvl, lvlbuf *lb);
 
-    virtual void toggle_axis_rot(){};
+    virtual void toggle_axis_rot() {}
     virtual void set_locked(bool locked, bool immediate=true);
     virtual void load_flags(uint64_t f);
     virtual uint64_t save_flags();
-    virtual bool get_axis_rot(){return this->flag_active(ENTITY_AXIS_ROT);};
+    virtual bool get_axis_rot() { return this->flag_active(ENTITY_AXIS_ROT); }
     virtual const char *get_axis_rot_tooltip() { return "Toggle axis rotation"; }
-    virtual struct tms_sprite * get_axis_rot_sprite(){return 0;};
+    virtual struct tms_sprite * get_axis_rot_sprite() { return 0; }
 
     /* "editor" events */
     /* XXX */
     virtual void on_grab(game *g);
     virtual void on_release(game *g);
 
-    virtual void on_grab_playing(){};
-    virtual void on_release_playing(){};
+    virtual void on_grab_playing() {}
+    virtual void on_release_playing() {}
 
     virtual void on_touch(b2Fixture *my, b2Fixture *other);
     virtual void on_untouch(b2Fixture *my, b2Fixture *other);
 
-    virtual void on_paused_touch(b2Fixture *my, b2Fixture *other){};
-    virtual void on_paused_untouch(b2Fixture *my, b2Fixture *other){};
+    virtual void on_paused_touch(b2Fixture *my, b2Fixture *other) {}
+    virtual void on_paused_untouch(b2Fixture *my, b2Fixture *other) {}
 
-    /*
-    virtual void collision_begin(b2Contact *c, int order) = 0;
-    virtual void collision_presolve(b2Contact *c, int order) = 0;
-    virtual void collision_postsolve(b2Contact *c, int order) = 0;
-    virtual void collision_end(b2Contact *c, int order) = 0;
-    */
-
-    inline int get_layer(){return this->prio;};
+    inline int get_layer() { return this->prio; }
 
     virtual bool compatible_with(entity *o);
 
@@ -809,12 +858,11 @@ class entity : public tms::entity
 
     virtual uint32_t get_num_bodies();
     virtual b2Body *get_body(uint8_t frame);
-    virtual void find_pairs(){};
+    virtual void find_pairs() {}
 
     virtual const char *get_name(void) = 0;
 
-    virtual const char *get_real_name(void)
-    {
+    virtual const char *get_real_name(void) {
         return this->get_name();
     }
 
@@ -823,42 +871,36 @@ class entity : public tms::entity
     virtual void write_object_id(char *out);
 
     virtual void pre_write(void);
-    virtual void post_write(void){};
-    virtual void on_load(bool created, bool has_state){};
-    virtual connection* load_connection(connection &conn){return 0;};
+    virtual void post_write(void) {}
+    virtual void on_load(bool created, bool has_state) {}
+    virtual connection* load_connection(connection &conn) { return 0; }
 
-    inline void initialize_interactive(void)
-    {
+    inline void initialize_interactive(void) {
         this->in_dragfield = 0;
         this->interactive_hp = 1.f;
-    };
+    }
 
-    /* Init is always called, regardless if the entity
-     * has a state to be loaded or not. */
-    virtual void init() {};
+    /// Init is always called, regardless if the entity has a state to be loaded or not.
+    virtual void init() {}
 
-    /* Setup is called after init if the entity has no
-     * state to load from */
-    virtual void setup()
-    {
+    /// Setup is called after init if the entity has no state to load from
+    virtual void setup() {
         this->listeners.clear();
         this->subscriptions.clear();
-    };
+    }
 
-    virtual void on_pause()
-    {
+    virtual void on_pause() {
         this->subscriptions.clear();
         this->listeners.clear();
-    };
+    }
 
-    virtual void on_absorb() {};
+    virtual void on_absorb() {}
 
-    inline void on_entity_play()
-    {
+    inline void on_entity_play() {
         this->interacted_with = false;
     }
 
-    virtual bool allow_connection(entity *asker, uint8_t frame, b2Vec2 p){return true;};
+    virtual bool allow_connection(entity *asker, uint8_t frame, b2Vec2 p) { return true; }
     virtual bool enjoys_connection(uint32_t g_id) { return false; }
 
     /* Zappable stuff */
@@ -873,16 +915,14 @@ class entity : public tms::entity
     void set_property(uint8_t id, uint32_t v);
     void set_property(uint8_t id, const char *v);
     void set_propertyi8(uint8_t id, uint8_t v);
-    inline void set_property(uint8_t id, uint8_t v){set_property(id, (uint32_t)v);};
-    inline void set_property(uint8_t id, uint16_t v){set_property(id, (uint32_t)v);};
+    inline void set_property(uint8_t id, uint8_t v) { set_property(id, (uint32_t)v); }
+    inline void set_property(uint8_t id, uint16_t v) { set_property(id, (uint32_t)v); }
     void set_property(uint8_t id, const char *v, uint32_t len);
 
     void set_num_properties(uint8_t num);
-    void reset_flags(void);
 
-    /* this takes a value between 0.0 and 1.0 and converts it to the proper density scale value */
-    void help_set_density_scale(float value)
-    {
+    /// this takes a value between 0.0 and 1.0 and converts it to the proper density scale value
+    void help_set_density_scale(float value) {
         this->set_density_scale(ENTITY_DENSITY_SCALE_MIN + value*(ENTITY_DENSITY_SCALE_MAX-ENTITY_DENSITY_SCALE_MIN));
     }
 
@@ -890,7 +930,7 @@ class entity : public tms::entity
     static tvec2 get_nearest_point(const b2Vec2 &query_point, b2Fixture *fx);
 
     virtual void set_density_scale(float v) {}
-    virtual float get_density_scale(){return 1.f;};
+    virtual float get_density_scale() { return 1.f; }
 
     virtual uint32_t get_sub_id() { return 0; }
 
@@ -899,19 +939,17 @@ class entity : public tms::entity
     friend class connection;
 };
 
-class entity_simpleconnect : public entity, public b2RayCastCallback
-{
+class entity_simpleconnect : public entity, public b2RayCastCallback {
   public:
     b2Vec2 query_pt;
-    b2Vec2 query_vec; /* Set in the constructor of the
-                         object, direction of raycast */
+    /// Set in the constructor of the object, direction of raycast
+    b2Vec2 query_vec;
     entity *query_result;
     b2Fixture *query_result_fx;
     uint8_t query_frame;
     connection c;
 
-    entity_simpleconnect()
-    {
+    entity_simpleconnect() {
         this->c.init_owned(0, this);
         this->c.type = CONN_GROUP;
         this->query_vec = b2Vec2(0.f, -.5f);
@@ -923,13 +961,11 @@ class entity_simpleconnect : public entity, public b2RayCastCallback
     void find_pairs();
 };
 
-class entity_multiconnect : public entity
-{
+class entity_multiconnect : public entity {
   public:
     connection c_side[4];
 
-    entity_multiconnect()
-    {
+    entity_multiconnect() {
         this->c_side[0].init_owned(0, this); this->c_side[0].type = CONN_GROUP;
         this->c_side[1].init_owned(1, this); this->c_side[1].type = CONN_GROUP;
         this->c_side[2].init_owned(2, this); this->c_side[2].type = CONN_GROUP;
@@ -938,23 +974,6 @@ class entity_multiconnect : public entity
 
     connection *load_connection(connection &conn);
     void find_pairs();
-};
-
-class ghost : public entity, public b2QueryCallback
-{
-  public:
-    connection c;
-
-    ghost();
-    void update();
-    const char *get_name(){return "Shape Extruder";};
-    void init();
-    bool ReportFixture(b2Fixture *f);
-    void find_pairs();
-    void add_to_world();
-    connection* load_connection(connection &conn);
-    void connection_create_joint(connection *c);
-    bool connection_destroy_joint(connection *c);
 };
 
 void entity_fast_update(struct tms_entity *t);
