@@ -46,12 +46,7 @@ bool lax_search(const std::string& where, const std::string& what) {
 }
 
 void ImGui_CenterNextWindow() {
-    ImGuiIO& io = ImGui::GetIO();
-    ImGui::SetNextWindowPos(
-        ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f),
-        ImGuiCond_Always, //ImGuiCond_Appearing,
-        ImVec2(0.5f, 0.5f)
-    );
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 }
 
 void ImGui_BeginScaleFont(float scale) {
@@ -154,6 +149,8 @@ static void principia_style() {
     style->WindowRounding = style->PopupRounding = style->ChildRounding = 3.0f;
 
     //style->FrameBorderSize = .5;
+
+    colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.05f, 0.05f, 0.05f, 0.35f);
 }
 
 static bool init_ready = false;

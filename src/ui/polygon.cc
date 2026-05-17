@@ -8,6 +8,11 @@ namespace UiPolygon {
 
     void open() {
         do_open = true;
+        entity* e = G->selection.e;
+        if (e && e->g_id == O_PLASTIC_POLYGON) {
+            sublayer_depth = (e->properties[0].v.i8 & 0x7) + 1;
+            front_align = (e->properties[1].v.i8 & 0x1) != 0;
+        }
     }
 
     void layout() {
@@ -27,7 +32,7 @@ namespace UiPolygon {
 
             ImGui::Spacing();
             ImGui::SeparatorText("");
-            if (ImGui::Button("Apply")) {
+            if (ImGui::Button("Save")) {
                 if (e && e->g_id == O_PLASTIC_POLYGON) {
                     ((polygon*)e)->do_recreate_shape = true;
 

@@ -208,7 +208,7 @@ namespace UiSandboxMenu {
             if (ImGui::MenuItem("Help: Getting Started"))
                 ui::open_url("https://principia-web.se/wiki/Getting_Started");
 
-            ImGui::EndMenu();
+            ImGui::EndPopup();
         }
     }
 }

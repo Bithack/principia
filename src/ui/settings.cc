@@ -342,6 +342,7 @@ namespace UiSettings {
 
                 //This assumes separator height == 1. which results in actual height of 0
                 float button_area_height =
+                    1 + 
                     ImGui::GetStyle().ItemSpacing.y + //Separator spacing
                     (ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.); // Buttons
                 if (ImGui::GetContentRegionAvail().y > button_area_height) {

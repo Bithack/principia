@@ -29,7 +29,7 @@ static uint64_t __ref;
 
 //constants
 #define FRAME_FLAGS ImGuiWindowFlags_NoSavedSettings
-#define MODAL_FLAGS (FRAME_FLAGS | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize)
+#define MODAL_FLAGS (FRAME_FLAGS | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize)
 #define POPUP_FLAGS (FRAME_FLAGS | ImGuiWindowFlags_NoMove)
 #define LEVEL_NAME_LEN_SOFT_LIMIT 250
 #define LEVEL_NAME_LEN_HARD_LIMIT 254

@@ -31,7 +31,7 @@ namespace UiSticky {
 
             ImGui::Spacing();
             ImGui::SeparatorText("");
-            if (ImGui::Button("Apply")) {
+            if (ImGui::Button("Save")) {
                 entity* e = G->selection.e;
                 if (e->properties[0].v.s.buf) {
                     free(e->properties[0].v.s.buf);

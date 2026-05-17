@@ -184,7 +184,7 @@ namespace UiTreasureChest {
 
             ImGui::Spacing();
             ImGui::SeparatorText("");
-            if (ImGui::Button("Apply")) {
+            if (ImGui::Button("Save")) {
                 if (e && e->g_id == O_TREASURE_CHEST) {
                     treasure_chest* tc = static_cast<treasure_chest*>(e);
                     std::stringstream ss;

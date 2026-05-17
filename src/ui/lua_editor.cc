@@ -67,7 +67,7 @@ namespace UiLuaEditor {
 
             ImGui::Spacing();
 
-            if (ImGui::Button("Save (Ctrl+S)") | (io.KeyCtrl && ImGui::IsKeyReleased(ImGuiKey_S))) {
+            if (ImGui::Button("Save (Ctrl+S)") || (io.KeyCtrl && ImGui::IsKeyReleased(ImGuiKey_S))) {
                 flash_controller();
                 reload_code();
             }
