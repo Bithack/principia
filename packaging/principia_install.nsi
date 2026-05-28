@@ -1,4 +1,6 @@
 SetCompressor lzma
+XPStyle on
+ManifestDPIAware true
 
 !include "MUI2.nsh"
 
