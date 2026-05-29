@@ -71,7 +71,7 @@ static const char *level_version_strings[] = {
 
 #define LCAT_PARTIAL     100
 
-/* entity property types */
+// entity property types
 #define P_INT    0
 #define P_FLT    1
 #define P_STR    2
@@ -93,8 +93,12 @@ static const char *level_version_strings[] = {
 #include "progress.hh"
 #include "const.hh"
 
-inline const char *level_version_string(int level_version)
-{
+class lvlbuf;
+class pkginfo;
+
+#endif
+
+inline const char *level_version_string(int level_version) {
     const char *ret = level_version_strings[level_version];
 
     if (ret)
@@ -103,10 +107,7 @@ inline const char *level_version_string(int level_version)
         return "N/A";
 }
 
-#ifdef DEBUG
-
-static const char *level_type_string(uint8_t level_type)
-{
+static const char *level_type_string(uint8_t level_type) {
     switch (level_type) {
         case LCAT_PARTIAL:      return "Partial";
         case LCAT_PUZZLE:       return "Puzzle";
@@ -126,15 +127,7 @@ static const char *level_visibility_string(uint8_t level_visibility)
     }
 }
 
-#endif
-
-class lvlbuf;
-class pkginfo;
-
-#endif
-
-struct lvlfile
-{
+struct lvlfile {
     uint32_t id;
     uint32_t save_id;
     int id_type;
@@ -158,14 +151,9 @@ struct lvlfile
 #endif
 } __attribute__ ((__packed__));
 
-#ifndef __cplusplus
-struct lvlfile* pkgman_get_levels(int level_type);
-#endif
-
 #ifdef __cplusplus
 
-class pkgman
-{
+class pkgman {
   public:
     static uint32_t get_next_level_id();
     static uint32_t get_next_object_id();
@@ -183,36 +171,36 @@ class pkgman
     static bool get_level_data(int level_type, uint32_t id, uint32_t save_id, char *o_name, uint8_t *o_version);
     static pkginfo* get_pkgs(int type);
 
-    static bool mtime_asc(lvlfile* a, lvlfile* b)
-    {
+    static bool mtime_asc(lvlfile* a, lvlfile* b) {
         return a->mtime < b->mtime;
     }
 
-    static bool mtime_desc(lvlfile* a, lvlfile* b)
-    {
+    static bool mtime_desc(lvlfile* a, lvlfile* b) {
         return a->mtime > b->mtime;
     }
 };
 
-class pkginfo
-{
+class pkginfo {
   public:
     uint8_t   version;
     uint32_t  id;
     uint32_t  community_id;
-    uint8_t   type; /* local, db, main */
+    /// local, db, main
+    uint8_t   type;
     char      name[256];
     uint8_t   num_levels;
     uint32_t *levels;
-    uint8_t   unlock_count; /* how many levels to unlock past
-                               the last completed */
-    uint8_t   first_is_menu; /* if enabled, the first level in the package is used level selection screen */
-    uint8_t   return_on_finish; /* always return to level selection screen/level when a level is finished, instead of proceeding to the next level */
+    /// how many levels to unlock past the last completed level
+    uint8_t   unlock_count;
+    /// if enabled, the first level in the package is used as level selection screen
+    uint8_t   first_is_menu;
+    /// always return to level selection screen/level when a level is finished, instead of proceeding to the next level
+    uint8_t   return_on_finish;
 
-    pkginfo  *next; /* if used as a linked list, as returned by pkgman::get_pkgs() */
+    /// if used as a linked list, as returned by pkgman::get_pkgs()
+    pkginfo  *next;
 
-    pkginfo()
-    {
+    pkginfo() {
         version = 0;
         community_id = 0;
         type = LEVEL_LOCAL;
@@ -225,30 +213,24 @@ class pkginfo
         name[0] = '\0';
     }
 
-    uint32_t
-    get_next_level(uint32_t id)
-    {
+    uint32_t get_next_level(uint32_t id) {
         if (this->return_on_finish) {
-            if (this->first_is_menu) {
+            if (this->first_is_menu)
                 return this->levels[0];
-            } else {
-                return 0; /* return to pkg screen */
-            }
+            else
+                return 0; // return to pkg screen
         }
 
-        /* find the level in the package, return the next level or 0 if it was the last level */
+        // find the level in the package, return the next level or 0 if it was the last level
         for (int x=0; x<this->num_levels-1; x++) {
-            if (this->levels[x] == id) {
+            if (this->levels[x] == id)
                 return this->levels[x+1];
-            }
         }
 
         return 0;
-    };
+    }
 
-    bool
-    is_level_locked(uint8_t index)
-    {
+    bool is_level_locked(uint8_t index) {
         uint8_t i_unlocked = 0;
         int x = 0;
 
@@ -262,43 +244,31 @@ class pkginfo
 
         for (; x<index; ++x) {
             lvl_progress *p = progress::get_level_progress(this->type, this->levels[x]);
-            if (p->completed) {
+            if (p->completed)
                 i_unlocked++;
-            }
         }
 
-        if ((index - i_unlocked) < this->unlock_count) {
-            /*
-            printf("--------------- %d is unlocked [%d >= %d (%d)]\n",
-                    index, i_unlocked, this->unlock_count, (this->unlock_count-i_unlocked));
-                    */
+        if ((index - i_unlocked) < this->unlock_count)
             return false;
-        }
 
-        //printf("------------- %d is LOCKED [%d >= %d]\n", index, i_unlocked, this->unlock_count);
         return true;
     }
 
-    uint8_t
-    get_level_index(uint32_t id)
-    {
+    uint8_t get_level_index(uint32_t id) {
         for (int x=0; x<this->num_levels; x++)
             if (this->levels[x] == id) return x;
 
         return 0;
     }
 
-    uint32_t
-    get_level_by_index(uint8_t index)
-    {
+    uint32_t get_level_by_index(uint8_t index) {
         if (index < this->num_levels)
             return this->levels[index];
 
         return 0;
     }
 
-    void clear_levels()
-    {
+    void clear_levels() {
         this->num_levels = 0;
 
         if (this->levels) {
@@ -307,9 +277,8 @@ class pkginfo
         }
     }
 
-    bool add_level(uint32_t id)
-    {
-        /* make sure it isnt already added */
+    bool add_level(uint32_t id) {
+        // make sure it isnt already added
         for (int x=0; x<this->num_levels; x++)
             if (this->levels[x] == id) return false;
 
@@ -327,56 +296,55 @@ class pkginfo
     bool save();
 };
 
-/* level flags */
-#define LVL_DISABLE_LAYER_SWITCH                (1ULL << 0)  /* if adventure mode, manual layer switching of robot. if puzzle mode, layer switching of objects */
-#define LVL_DISABLE_INTERACTIVE                 (1ULL << 1)  /* disable interaction with all interactive objects */
-#define LVL_DISABLE_FALL_DAMAGE                 (1ULL << 2)  /* disable fall damage for all robots */
-#define LVL_DISABLE_CONNECTIONS                 (1ULL << 3)  /* puzzle mode, disable connection creating */
-#define LVL_DISABLE_STATIC_CONNS                (1ULL << 4)  /* puzzle mode, disable planks to static objects such as platforms */
-#define LVL_DISABLE_JUMP                        (1ULL << 5)  /* adventure mode, disable manual jumping */
-#define LVL_DISABLE_ROBOT_HIT_SCORE             (1ULL << 6)  /* disable score increase by shooting other robots */ /* TODO: fix this */
-#define LVL_DISABLE_ZOOM                        (1ULL << 7)  /* disable zoom */ /* TODO: What modes and states should this be enabled in? */
-#define LVL_DISABLE_CAM_MOVEMENT                (1ULL << 8)  /* disable camera movement */ /* TODO: What modes and states should this be enabled in? */
-#define LVL_DISABLE_INITIAL_WAIT                (1ULL << 9)  /* disable the initial waiting time when starting a level */
-#define LVL_UNLIMITED_ENEMY_VISION              (1ULL << 10) /* enemies always see the player from any distance and always target the player */
-#define LVL_ENABLE_INTERACTIVE_DESTRUCTION      (1ULL << 11) /* enable shooting interactive objects to destroy them */
-#define LVL_ABSORB_DEAD_ENEMIES                 (1ULL << 12) /* dead robots will be absorbed after a short interval */
-#define LVL_SNAP                                (1ULL << 13) /* snap object by default for puzzle levels */
-#define LVL_NAIL_CONNS                          (1ULL << 14) /* Use nail-shaped connections for planks and beams */
-#define LVL_DISABLE_CONTINUE_BUTTON             (1ULL << 15) /* Disable the continue button */
-#define LVL_SINGLE_LAYER_EXPLOSIONS             (1ULL << 16) /* Explosives reach only one layer */
-#define LVL_DISABLE_DAMAGE                      (1ULL << 17) /* robots cannot take damage */
-#define LVL_DISABLE_3RD_LAYER                   (1ULL << 18) /* disable third layer */
-#define LVL_PORTRAIT_MODE                       (1ULL << 19) /* portrait mode */
-#define LVL_DISABLE_RC_CAMERA_SNAP              (1ULL << 20) /* disable the camera from moving to a newly selected RC */
-#define LVL_DISABLE_PHYSICS                     (1ULL << 21) /* disable physics simulation */
-#define LVL_DO_NOT_REQUIRE_DRAGFIELD            (1ULL << 22) /* disable the need for dragfields to interact with interactive objects. */
-#define LVL_DISABLE_ROBOT_SPECIAL_ACTION        (1ULL << 23) /* disable the robots special action (boxing) */
-#define LVL_DISABLE_ADVENTURE_MAX_ZOOM          (1ULL << 24) /* disable the special adventure zoom */
-#define LVL_DISABLE_ROAM_LAYER_SWITCH           (1ULL << 25) /* disable roam robots ability to layerswitch */
-#define LVL_CHUNKED_LEVEL_LOADING               (1ULL << 26) /* load level in chunks */
-#define LVL_DISABLE_CAVEVIEW                    (1ULL << 27) /* disable caveview */
-#define LVL_DISABLE_ROCKET_TRIGGER_EXPLOSIVES   (1ULL << 28) /* disable the rocket and thrusters ability to trigger explosives */
+// level flags
+#define LVL_DISABLE_LAYER_SWITCH                (1ULL << 0)  // if adventure mode, manual layer switching of robot. if puzzle mode, layer switching of objects
+#define LVL_DISABLE_INTERACTIVE                 (1ULL << 1)  // disable interaction with all interactive objects
+#define LVL_DISABLE_FALL_DAMAGE                 (1ULL << 2)  // disable fall damage for all robots
+#define LVL_DISABLE_CONNECTIONS                 (1ULL << 3)  // puzzle mode, disable connection creating
+#define LVL_DISABLE_STATIC_CONNS                (1ULL << 4)  // puzzle mode, disable planks to static objects such as platforms
+#define LVL_DISABLE_JUMP                        (1ULL << 5)  // adventure mode, disable manual jumping
+#define LVL_DISABLE_ROBOT_HIT_SCORE             (1ULL << 6)  // disable score increase by shooting other robots (TODO: fix this)
+#define LVL_DISABLE_ZOOM                        (1ULL << 7)  // disable zoom (TODO: What modes and states should this be enabled in?)
+#define LVL_DISABLE_CAM_MOVEMENT                (1ULL << 8)  // disable camera movement (TODO: What modes and states should this be enabled in?)
+#define LVL_DISABLE_INITIAL_WAIT                (1ULL << 9)  // disable the initial waiting time when starting a level
+#define LVL_UNLIMITED_ENEMY_VISION              (1ULL << 10) // enemies always see the player from any distance and always target the player
+#define LVL_ENABLE_INTERACTIVE_DESTRUCTION      (1ULL << 11) // enable shooting interactive objects to destroy them
+#define LVL_ABSORB_DEAD_ENEMIES                 (1ULL << 12) // dead robots will be absorbed after a short interval
+#define LVL_SNAP                                (1ULL << 13) // snap object by default for puzzle levels
+#define LVL_NAIL_CONNS                          (1ULL << 14) // Use nail-shaped connections for planks and beams
+#define LVL_DISABLE_CONTINUE_BUTTON             (1ULL << 15) // Disable the continue button
+#define LVL_SINGLE_LAYER_EXPLOSIONS             (1ULL << 16) // Explosives reach only one layer
+#define LVL_DISABLE_DAMAGE                      (1ULL << 17) // robots cannot take damage
+#define LVL_DISABLE_3RD_LAYER                   (1ULL << 18) // disable third layer
+#define LVL_PORTRAIT_MODE                       (1ULL << 19) // portrait mode
+#define LVL_DISABLE_RC_CAMERA_SNAP              (1ULL << 20) // disable the camera from moving to a newly selected RC
+#define LVL_DISABLE_PHYSICS                     (1ULL << 21) // disable physics simulation
+#define LVL_DO_NOT_REQUIRE_DRAGFIELD            (1ULL << 22) // disable the need for dragfields to interact with interactive objects.
+#define LVL_DISABLE_ROBOT_SPECIAL_ACTION        (1ULL << 23) // disable the robots special action (boxing)
+#define LVL_DISABLE_ADVENTURE_MAX_ZOOM          (1ULL << 24) // disable the special adventure zoom
+#define LVL_DISABLE_ROAM_LAYER_SWITCH           (1ULL << 25) // disable roam robots ability to layerswitch
+#define LVL_CHUNKED_LEVEL_LOADING               (1ULL << 26) // load level in chunks
+#define LVL_DISABLE_CAVEVIEW                    (1ULL << 27) // disable caveview
+#define LVL_DISABLE_ROCKET_TRIGGER_EXPLOSIVES   (1ULL << 28) // disable the rocket and thrusters ability to trigger explosives
 #define LVL_STORE_SCORE_ON_GAME_OVER            (1ULL << 29)
 #define LVL_ALLOW_HIGH_SCORE_SUBMISSIONS        (1ULL << 30)
 #define LVL_LOWER_SCORE_IS_BETTER               (1ULL << 31)
-#define LVL_DISABLE_ENDSCREENS                  (1ULL << 32) /* disable any end-game sound or messages */
+#define LVL_DISABLE_ENDSCREENS                  (1ULL << 32) // disable any end-game sound or messages
 #define LVL_ALLOW_QUICKSAVING                   (1ULL << 33)
 #define LVL_ALLOW_RESPAWN_WITHOUT_CHECKPOINT    (1ULL << 34)
 #define LVL_DEAD_CREATURE_DESTRUCTION           (1ULL << 35)
 #define LVL_AUTOMATICALLY_SUBMIT_SCORE          (1ULL << 36)
 #define LVL_ENABLE_LUASOCKET                    (1ULL << 37)
 
-/* level format */
+// level format
 class lvlinfo
 {
   public:
-    uint32_t local_id; /* id used locally.
-                          Unique for local levels,
-                          equal to community_id for downloaded community levels,
-                          unique for MAIN levels */
+    /// id used locally. Unique for local levels, equal to community_id for downloaded community levels, unique for MAIN levels
+    uint32_t local_id;
 
-    uint32_t save_id; /* id of the current save */
+    /// id of the current save
+    uint32_t save_id;
 
     uint8_t  version;
     uint8_t  type;
@@ -393,7 +361,7 @@ class lvlinfo
     bool     show_score;
     uint8_t  bg;
     uint32_t bg_color;
-    uint16_t size_x[2]; /* board size */
+    uint16_t size_x[2]; // board size
     uint16_t size_y[2];
     uint8_t  velocity_iterations, position_iterations;
     uint32_t final_score;
@@ -408,11 +376,11 @@ class lvlinfo
     float min_y;
     float max_y;
 
-    /* level version 26 new stuff */
+    // level version 26 new stuff
     float prismatic_tolerance;
     float pivot_tolerance;
 
-    /* level version 28 (1.5) */
+    // level version 28 (1.5)
     uint64_t seed;
     float    linear_damping;
     float    angular_damping;
@@ -423,39 +391,48 @@ class lvlinfo
   private:
     uint32_t adventure_id;
   public:
-    inline uint32_t get_adventure_id()
-    {
+    inline uint32_t get_adventure_id() {
         return this->adventure_id;
     }
 
-    inline void set_adventure_id(uint32_t id)
-    {
+    inline void set_adventure_id(uint32_t id) {
         this->adventure_id = id;
     }
 
+    /// make sure things added in later version are not used by old levels
     void sanity_check();
 
-    char     name[256]; /* NOT null terminated */
+    /// NOT null terminated
+    char     name[256];
     uint8_t  icon[128*128];
-    char    *descr; /* null terminated, can be null */
+    /// null terminated, can be null
+    char    *descr;
 
     uint32_t num_groups;
     uint32_t num_entities;
     uint32_t num_connections;
     uint32_t num_cables;
 
-    /* level version 28 */
+    // level version 28
     uint32_t num_chunks;
     uint32_t state_size;
-    uint32_t num_gentypes; /* number of occupied but pending gentypes */
+    /// number of occupied but pending gentypes
+    uint32_t num_gentypes;
 
-    void create(int type, uint64_t seed=0, uint32_t version=0);
+    /// Create a new level
+    void create(int type, uint64_t seed = 0, uint32_t version = 0);
+
     bool read(lvlbuf *lb, bool skip_description);
-    bool read(lvlbuf *lb) { return this->read(lb, false); }
+    bool read(lvlbuf *lb) {
+        return this->read(lb, false);
+    }
+
     void write(lvlbuf *lb);
-    int get_size() const; /* get size of level header */
-    inline bool flag_active(uint64_t flag) const
-    {
+
+    /// get size of level header
+    int get_size() const;
+
+    inline bool flag_active(uint64_t flag) const {
         return this->flags & flag;
     }
 
@@ -477,8 +454,7 @@ class lvlinfo
     void print() const;
 };
 
-class lvlbuf
-{
+class lvlbuf {
   public:
     uint64_t size;
     uint64_t cap;
@@ -487,8 +463,7 @@ class lvlbuf
     int rp;
     bool sparse_resize;
 
-    lvlbuf()
-    {
+    lvlbuf() {
         size = 0;
         cap = 0;
         buf = 0;
@@ -499,12 +474,11 @@ class lvlbuf
 
     void ensure(uint64_t s);
 
-    inline void reset(void)
-    {
+    inline void reset() {
         this->clear();
     }
-    inline void clear(void)
-    {
+
+    inline void clear() {
         this->rp = 0;
         this->size = 0;
         if (this->cap > this->min_cap*2) {
@@ -513,17 +487,74 @@ class lvlbuf
         }
     }
 
-    inline bool eof(void){return this->rp >= this->size;};
-    inline bool eof(int s){return this->rp + s > this->size;};
+    inline bool eof() {
+        return this->rp >= this->size;
+    }
 
-    inline bool r_bool(void)
-    {
+    inline bool eof(int s) {
+        return this->rp + s > this->size;
+    }
+
+    inline bool r_bool() {
         return (this->r_uint8() != 0);
     }
 
-    inline uint8_t r_uint8(void){if (eof(1)) return 0; uint8_t r = *(buf+rp); rp+=sizeof(uint8_t); return r;};
-    inline uint64_t r_uint64(void)
-    {
+    // Read routines
+
+    /// Read unsigned 8-bit integer
+    inline uint8_t r_uint8() {
+        if (eof(1))
+            return 0;
+
+        uint8_t r = *(buf+rp);
+        rp += sizeof(uint8_t);
+        return r;
+    }
+
+    /// Read unsigned 16-bit integer
+    inline uint16_t r_uint16() {
+        if (eof(sizeof(uint16_t)))
+            return 0;
+
+        uint16_t r;
+        if (rp & 1) {
+            r = 0;
+            r |= (*(uint8_t*)(buf+rp));
+            r |= (*(uint8_t*)(buf+rp+1)) << 8;
+        } else r = *(uint16_t*)(buf+rp);
+        rp+=sizeof(uint16_t);
+        return r;
+    }
+
+    /// Read unsigned 32-bit integer
+    inline uint32_t r_uint32() {
+        if (eof(sizeof(uint32_t)))
+            return 0;
+
+        uint32_t r;
+
+        if ((rp) & 3) {
+            r = 0;
+
+            // the address is misaligned, alternative fetch
+            r |= (*(uint8_t*)(buf+rp));
+            r |= (*(uint8_t*)(buf+rp+1)) << 8;
+            r |= (*(uint8_t*)(buf+rp+2)) << 16;
+            r |= (*(uint8_t*)(buf+rp+3)) << 24;
+        } else
+            r = *(uint32_t*)(buf+rp);
+
+        rp += sizeof(uint32_t);
+        return r;
+    }
+
+    /// Read signed 32-bit integer
+    inline int32_t r_int32() {
+        return static_cast<int32_t>(r_uint32());
+    }
+
+    /// Read unsigned 64-bit integer
+    inline uint64_t r_uint64() {
         if (eof(sizeof(uint64_t)))
             return 0;
 
@@ -531,158 +562,191 @@ class lvlbuf
         uint64_t v2 = this->r_uint32();
 
         return v1 | (v2 << 32);
-    };
+    }
 
-    inline int32_t r_int32(){return static_cast<int32_t>(r_uint32());};
+    /// Read signed 64-bit integer
+    inline int64_t r_int64() {
+        return static_cast<int64_t>(r_uint64());
+    }
 
-    inline int64_t r_int64(){return static_cast<int64_t>(r_uint64());};
-
-    inline uint32_t r_uint32(void)
-    {
-        if (eof(sizeof(uint32_t)))
-            return 0;
-
-        uint32_t r;
-
-        if ((rp) & 3) {
-            /* the address is misaligned, alternative fetch */
-
-            r = 0;
-            r|=(*(uint8_t*)(buf+rp));
-            r|=(*(uint8_t*)(buf+rp+1)) << 8;
-            r|=(*(uint8_t*)(buf+rp+2)) << 16;
-            r|=(*(uint8_t*)(buf+rp+3)) << 24;
-
-            /*
-            int offs = rp & 3;
-            uint32_t first = *(uint32_t*)(buf+(rp & ~3));
-            uint32_t second = *(uint32_t*)(buf+(rp & ~3) + 4);
-            first <<= offs * 8;
-            second >>= (4-offs) *8;
-            r = first | second;
-            */
-        } else
-            r = *(uint32_t*)(buf+rp);
-        rp+=sizeof(uint32_t);
-        return r;
-    };
-    inline uint16_t r_uint16(void){
-        if (eof(sizeof(uint16_t)))
-            return 0;
-        uint16_t r;
-        if (rp & 1) {
-            r = 0;
-            r|=(*(uint8_t*)(buf+rp));
-            r|=(*(uint8_t*)(buf+rp+1)) << 8;
-        } else r = *(uint16_t*)(buf+rp);
-        rp+=sizeof(uint16_t);
-        return r;
-    };
-    inline float r_float(void){
+    /// Read 32-bit float
+    inline float r_float() {
         if (eof(sizeof(float)))
             return 0;
+
         float r;
         if ((rp) & 3) {
-            /* the address is misaligned, we need to do two fetches */
-
+            // the address is misaligned, we need to do two fetches
             uint32_t r2 = 0;
-            r2|=(*(uint8_t*)(buf+rp));
-            r2|=(*(uint8_t*)(buf+rp+1)) << 8;
-            r2|=(*(uint8_t*)(buf+rp+2)) << 16;
-            r2|=(*(uint8_t*)(buf+rp+3)) << 24;
+            r2 |= (*(uint8_t*)(buf+rp));
+            r2 |= (*(uint8_t*)(buf+rp+1)) << 8;
+            r2 |= (*(uint8_t*)(buf+rp+2)) << 16;
+            r2 |= (*(uint8_t*)(buf+rp+3)) << 24;
 
-            /*
-            int offs = rp & 3;
-            uint32_t first = *(uint32_t*)(buf+(rp & ~3));
-            uint32_t second = *(uint32_t*)(buf+(rp & ~3) + 4);
-            first <<= offs * 8;
-            second >>= (4-offs) *8;
-
-            first |= second;
-            memcpy(&r, &first, sizeof(uint32_t));
-            */
             memcpy(&r, &r2, sizeof(uint32_t));
-            //r = first | second;
         } else
             r = *(float*)(buf+rp);
-        rp+=sizeof(float);
+
+        rp += sizeof(float);
         return r;
-    };
-    inline void r_buf(char *out, uint32_t len){if (eof(len)) memset(out, 0, len); else memcpy(out, buf+rp, len); rp+=len;};
+    }
 
-    inline void w_s_uint64(uint64_t i) {ensure(sizeof(uint64_t)); w_uint64(i);};
-    inline void w_uint64(uint64_t i)
-    {
-        uint32_t ln = i & 0xffffffff;
-        uint32_t mn = i >> 32;
-        this->w_uint32(ln);
-        this->w_uint32(mn);
-    };
+    /// Read raw buffer
+    inline void r_buf(char *out, uint32_t len) {
+        if (eof(len))
+            memset(out, 0, len);
+        else
+            memcpy(out, buf + rp, len);
 
-    inline void w_id(uint32_t id){w_uint32(id);};
-    inline void w_s_id(uint32_t id){w_s_uint32(id);};
-    inline uint32_t r_id(){return r_uint32();};
+        rp += len;
+    }
 
-    inline void w_int32(int32_t i) {w_uint32(static_cast<uint32_t>(i));};
-    inline void w_s_int32(int32_t i) {w_s_uint32(static_cast<uint32_t>(i));};
+    /// Read ID (32-bit int)
+    inline uint32_t r_id() {
+        return r_uint32();
+    }
 
-    inline void w_int64(int64_t i) {w_uint64(static_cast<uint64_t>(i));};
-    inline void w_s_int64(int64_t i) {w_s_uint64(static_cast<uint64_t>(i));};
+    // Write routines
 
-    inline void w_s_uint32(uint32_t i) {ensure(sizeof(uint32_t)); w_uint32(i);};
+    /// Write unsigned 8-bit integer
+    inline void w_uint8(uint8_t i) {
+        *(uint8_t*)(buf + size) = i;
+        size += sizeof(uint8_t);
+    }
+
+    /// Write signed 8-bit integer (automatically expand capacity if needed)
+    inline void w_s_uint8(uint8_t i) {
+        ensure(sizeof(uint8_t));
+        w_uint8(i);
+    }
+
+    /// Write unsigned 16-bit integer
+    inline void w_uint16(uint16_t i) {
+        *(uint8_t*)(buf+size) = (uint8_t)(i & 0xff);
+        *(uint8_t*)(buf+size+1) = (uint8_t)((i & 0xff00) >> 8);
+        size += 2;
+    }
+
+    /// Write unsigned 16-bit integer (automatically expand capacity if needed)
+    inline void w_s_uint16(uint16_t i) {
+        ensure(sizeof(uint16_t));
+        w_uint16(i);
+    }
+
+    /// Write unsigned 32-bit integer
     inline void w_uint32(uint32_t i) {
-        /* *(uint32_t*)(buf+size) = i; size+=sizeof(uint32_t); */
         *(uint8_t*)(buf+size) = (uint8_t)(i & 0xff);
         *(uint8_t*)(buf+size+1) = (uint8_t)((i & 0xff00) >> 8);
         *(uint8_t*)(buf+size+2) = (uint8_t)((i & 0xff0000) >> 16);
         *(uint8_t*)(buf+size+3) = (uint8_t)((i & 0xff000000) >> 24);
-        size+=4;
-    };
+        size += 4;
+    }
 
-    inline void w_s_uint16(uint16_t i) {ensure(sizeof(uint16_t)); w_uint16(i);};
-    inline void w_uint16(uint16_t i) {
-        /* *(uint16_t*)(buf+size) = i; size+=sizeof(uint16_t);*/
-        *(uint8_t*)(buf+size) = (uint8_t)(i & 0xff);
-        *(uint8_t*)(buf+size+1) = (uint8_t)((i & 0xff00) >> 8);
-        size+=2;
-    };
+    /// Write unsigned 32-bit integer (automatically expand capacity if needed)
+    inline void w_s_uint32(uint32_t i) {
+        ensure(sizeof(uint32_t));
+        w_uint32(i);
+    }
 
-    inline void w_s_float(float i) {ensure(sizeof(float)); w_float(i);};
+    /// Write signed 32-bit integer
+    inline void w_int32(int32_t i) {
+        w_uint32(static_cast<uint32_t>(i));
+    }
+
+    /// Write signed 32-bit integer (automatically expand capacity if needed)
+    inline void w_s_int32(int32_t i) {
+        w_s_uint32(static_cast<uint32_t>(i));
+    }
+
+    /// Write unsigned 64-bit integer
+    inline void w_uint64(uint64_t i) {
+        uint32_t ln = i & 0xffffffff;
+        uint32_t mn = i >> 32;
+        this->w_uint32(ln);
+        this->w_uint32(mn);
+    }
+
+    /// Write unsigned 64-bit integer (automatically expand capacity if needed)
+    inline void w_s_uint64(uint64_t i) {
+        ensure(sizeof(uint64_t));
+        w_uint64(i);
+    }
+
+    /// Write signed 64-bit integer
+    inline void w_int64(int64_t i) {
+        w_uint64(static_cast<uint64_t>(i));
+    }
+
+    /// Write signed 64-bit integer (automatically expand capacity if needed)
+    inline void w_s_int64(int64_t i) {
+        w_s_uint64(static_cast<uint64_t>(i));
+    }
+
+    /// Write ID (32-bit int)
+    inline void w_id(uint32_t id){
+        w_uint32(id);
+    }
+
+    /// Write ID (32-bit int, automatically expand capacity if needed)
+    inline void w_s_id(uint32_t id) {
+        w_s_uint32(id);
+    }
+
+    /// Write 32-bit float
     inline void w_float(float i) {
-        /* *(float*)(buf+size) = i;*/
         union {float vf; uint32_t vi;} u;
         u.vf = i;
         *(uint8_t*)(buf+size) = (uint8_t)(u.vi & 0xff);
         *(uint8_t*)(buf+size+1) = (uint8_t)((u.vi & 0xff00) >> 8);
         *(uint8_t*)(buf+size+2) = (uint8_t)((u.vi & 0xff0000) >> 16);
         *(uint8_t*)(buf+size+3) = (uint8_t)((u.vi & 0xff000000) >> 24);
-        size+=4;
-    };
-    inline void w_s_bool(bool v)
-    {
-        w_s_uint8(v ? 1 : 0);
+        size += 4;
     }
-    inline void w_bool(bool v)
-    {
+
+    /// Write 32-bit float (automatically expand capacity if needed)
+    inline void w_s_float(float i) {
+        ensure(sizeof(float));
+        w_float(i);
+    }
+
+    /// Write boolean
+    inline void w_bool(bool v) {
         w_uint8(v ? 1 : 0);
     }
-    inline void w_s_uint8(uint8_t i) {ensure(sizeof(uint8_t)); w_uint8(i);};
-    inline void w_uint8(uint8_t i) {*(uint8_t*)(buf+size) = i; size+=sizeof(uint8_t);};
-    inline void w_s_buf(const char* s, uint32_t len) {ensure(len); w_buf(s, len);};
-    inline void w_buf(const char* s, uint32_t len) {memcpy(this->buf+this->size, s, len); size+=len;};
 
+    /// Write boolean (automatically expand capacity if needed)
+    inline void w_s_bool(bool v) {
+        w_s_uint8(v ? 1 : 0);
+    }
+
+    /// Write raw buffer
+    inline void w_buf(const char* s, uint32_t len) {
+        memcpy(this->buf + this->size, s, len);
+        size += len;
+    }
+
+    /// Write raw buffer (automatically expand capacity if needed)
+    inline void w_s_buf(const char* s, uint32_t len) {
+        ensure(len);
+        w_buf(s, len);
+    }
+
+    /// Compress buffer with zlib
     void zcompress(const lvlinfo &level, unsigned char **dest, uint64_t *dest_len) const;
+
+    /// Decompress zlib compressed buffer
     void zuncompress(const lvlinfo &level);
 };
 
-/* class used for reading and editing level properties without
- * modifying level contents */
-class lvledit
-{
+/**
+ * Class used for reading and editing level properties without
+ * modifying level contents
+ */
+class lvledit {
   private:
     int header_size;
 
-    int      lvl_type;
+    int lvl_type;
 
   public:
     lvlbuf  lb;
@@ -695,14 +759,21 @@ class lvledit
         this->lb.cap = 20480;
         this->lb.size = 0;
         this->lb.buf = (unsigned char*)malloc(20480);
-    };
+    }
 
     ~lvledit() {
-        if (this->lb.buf) free(this->lb.buf);
+        if (this->lb.buf)
+            free(this->lb.buf);
     }
 
     bool open(int lvl_type, uint32_t lvl_id);
     bool save();
+
+    /**
+     * The open_from_path and save_to_path methods are mainly used for the lvledit tool,
+     * which means it doesn't check any of the vitals (i.e. if the
+     * level is stored in the apk or outside.)
+     */
     bool open_from_path(const char *path);
     bool save_to_path(const char *path);
 

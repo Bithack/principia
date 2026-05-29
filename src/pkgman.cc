@@ -10,10 +10,11 @@
     #include <windows.h>
 #endif
 
-/* for lvledit command line tool */
+// for lvledit command line tool
 #ifdef _NO_TMS
     #include <stdlib.h>
     #include <stdio.h>
+    #include <cinttypes>
 
     #define tms_infof(...)
     #define tms_warnf(...)
@@ -38,10 +39,7 @@ static const char *_dir_names[] = {
 lvlbuf tmpbuf;
 lvlinfo tmplvl;
 
-/* create a new level */
-void
-lvlinfo::create(int type, uint64_t seed/*=0*/, uint32_t version/*=0*/)
-{
+void lvlinfo::create(int type, uint64_t seed, uint32_t version) {
     this->local_id = 0;
     this->save_id = 0;
     this->version = (version ? version : LEVEL_VERSION);
@@ -143,12 +141,9 @@ lvlinfo::create(int type, uint64_t seed/*=0*/, uint32_t version/*=0*/)
     this->num_gentypes = 0;
 }
 
-/* make sure things added in later version are not used by old levels */
-void
-lvlinfo::sanity_check()
-{
+void lvlinfo::sanity_check() {
     if (this->version < LEVEL_VERSION_1_5) {
-        /* remove flags added in 1.5 */
+        // remove flags added in 1.5
         this->flags &= ~(
                 LVL_CHUNKED_LEVEL_LOADING |
                 LVL_DISABLE_CAVEVIEW |
@@ -161,7 +156,7 @@ lvlinfo::sanity_check()
                 LVL_DEAD_CREATURE_DESTRUCTION
             );
 
-        /* add flags added in 1.5 that must be enabled by default */
+        // add flags added in 1.5 that must be enabled by default
         this->flags |= (
                 LVL_ALLOW_RESPAWN_WITHOUT_CHECKPOINT
             );
@@ -177,69 +172,64 @@ lvlinfo::sanity_check()
     }
 }
 
-int
-lvlinfo::get_size() const
-{
-    return sizeof(uint8_t)  /* version */
-          +sizeof(uint8_t)  /* type */
-          +sizeof(uint32_t) /* community_id */
-          +(this->version >= LEVEL_VERSION_1_5 ? sizeof(uint32_t) : 0) /* autosave_id */
-          +sizeof(uint32_t) /* revision */
-          +sizeof(uint32_t) /* parent_id */
-          +sizeof(uint8_t)  /* name_len */
-          +sizeof(uint16_t) /* descr_len */
-          +sizeof(uint8_t)  /* allow_derivatives */
-          +(this->version >= 3 ? sizeof(uint8_t) : 0) /* visibility */
-          +(this->version >= 7 ? sizeof(uint32_t) : 0) /* parent_revision */
-          +(this->version >= 7 ? sizeof(uint8_t) : 0) /* pause_on_finish */
-          +(this->version >= 7 ? sizeof(uint8_t) : 0) /* show_score */
+int lvlinfo::get_size() const {
+    return sizeof(uint8_t)  // version
+         + sizeof(uint8_t)  // type
+         + sizeof(uint32_t) // community_id
+         + (this->version >= LEVEL_VERSION_1_5 ? sizeof(uint32_t) : 0) // autosave_id
+         + sizeof(uint32_t) // revision
+         + sizeof(uint32_t) // parent_id
+         + sizeof(uint8_t)  // name_len
+         + sizeof(uint16_t) // descr_len
+         + sizeof(uint8_t)  // allow_derivatives
+         + (this->version >= 3 ? sizeof(uint8_t) : 0) // visibility
+         + (this->version >= 7 ? sizeof(uint32_t) : 0) // parent_revision
+         + (this->version >= 7 ? sizeof(uint8_t) : 0) // pause_on_finish
+         + (this->version >= 7 ? sizeof(uint8_t) : 0) // show_score
 
-          +sizeof(uint8_t)  /* bg */
-          +(this->version >= LEVEL_VERSION_1_5 ? sizeof(uint32_t) : 0) /* bg color, stored as uint32_t */
+         + sizeof(uint8_t)  // bg
+         + (this->version >= LEVEL_VERSION_1_5 ? sizeof(uint32_t) : 0) // bg color, stored as uint32_t
 
-          +sizeof(uint16_t)  /* size_x */
-          +sizeof(uint16_t)  /* size_y */
-          +(this->version>=12 ? sizeof(uint16_t) : 0)  /* size_x 2 */
-          +(this->version>=12 ? sizeof(uint16_t) : 0)  /* size_y 2 */
+         + sizeof(uint16_t)  // size_x
+         + sizeof(uint16_t)  // size_y
+         + (this->version>=12 ? sizeof(uint16_t) : 0)  // size_x 2
+         + (this->version>=12 ? sizeof(uint16_t) : 0)  // size_y 2
 
-          +sizeof(uint8_t)  /* velocity_iterations */
-          +sizeof(uint8_t)  /* position_iterations */
-          +sizeof(uint32_t)  /* final_score */
-          +sizeof(float)  /* sandbox_cam_x */
-          +sizeof(float)  /* sandbox_cam_y */
-          +sizeof(float)  /* sandbox_cam_zoom */
-          +(this->version >= 3 ? sizeof(float) : 0)  /* gravity_x */
-          +(this->version >= 3 ? sizeof(float) : 0)  /* gravity_y */
-          +(this->version >= 13 ? sizeof(float)*4 : 0) /* bounds */
-          +(this->version >= 9 ? sizeof(uint64_t) : 0)  /* flags */
+         + sizeof(uint8_t)  // velocity_iterations
+         + sizeof(uint8_t)  // position_iterations
+         + sizeof(uint32_t)  // final_score
+         + sizeof(float)  // sandbox_cam_x
+         + sizeof(float)  // sandbox_cam_y
+         + sizeof(float)  // sandbox_cam_zoom
+         + (this->version >= 3 ? sizeof(float) : 0)  // gravity_x
+         + (this->version >= 3 ? sizeof(float) : 0)  // gravity_y
+         + (this->version >= 13 ? sizeof(float)*4 : 0) // bounds
+         + (this->version >= 9 ? sizeof(uint64_t) : 0)  // flags
 
-          +(this->version >= LEVEL_VERSION_1_4 ? sizeof(float) : 0)  /* prismatic_tolerance */
-          +(this->version >= LEVEL_VERSION_1_4 ? sizeof(float) : 0)  /* pivot_tolerance */
+         + (this->version >= LEVEL_VERSION_1_4 ? sizeof(float) : 0)  // prismatic_tolerance
+         + (this->version >= LEVEL_VERSION_1_4 ? sizeof(float) : 0)  // pivot_tolerance
 
-          +(this->version >= LEVEL_VERSION_1_5 ? sizeof(uint64_t) : 0)  /* seed */
-          +(this->version >= LEVEL_VERSION_1_5 ? sizeof(uint32_t) : 0)  /* adventure_id */
+         + (this->version >= LEVEL_VERSION_1_5 ? sizeof(uint64_t) : 0)  // seed
+         + (this->version >= LEVEL_VERSION_1_5 ? sizeof(uint32_t) : 0)  // adventure_id
 
-          /* num groups, entities, connections, cables, chunks, state_size, num_gentypes */
-          +(this->version >= LEVEL_VERSION_1_5 ? 7 * sizeof(uint32_t) : 4 * sizeof(uint16_t))
+          // num groups, entities, connections, cables, chunks, state_size, num_gentypes
+         + (this->version >= LEVEL_VERSION_1_5 ? 7 * sizeof(uint32_t) : 4 * sizeof(uint16_t))
 
-          +(this->version >= LEVEL_VERSION_1_5 ? sizeof(float) : 0) /* linear damping */
-          +(this->version >= LEVEL_VERSION_1_5 ? sizeof(float) : 0) /* angular damping */
-          +(this->version >= LEVEL_VERSION_1_5 ? sizeof(float) : 0) /* joint friction */
-          +(this->version >= LEVEL_VERSION_1_5 ? sizeof(float) : 0)  /* dead enemy absorb time */
-          +(this->version >= LEVEL_VERSION_1_5 ? sizeof(float) : 0)  /* time before player can respawn */
-          +(this->version >= LEVEL_VERSION_1_5 ? sizeof(uint64_t) : 0)  /* compression buffer length */
+         + (this->version >= LEVEL_VERSION_1_5 ? sizeof(float) : 0) // linear damping
+         + (this->version >= LEVEL_VERSION_1_5 ? sizeof(float) : 0) // angular damping
+         + (this->version >= LEVEL_VERSION_1_5 ? sizeof(float) : 0) // joint friction
+         + (this->version >= LEVEL_VERSION_1_5 ? sizeof(float) : 0)  // dead enemy absorb time
+         + (this->version >= LEVEL_VERSION_1_5 ? sizeof(float) : 0)  // time before player can respawn
+         + (this->version >= LEVEL_VERSION_1_5 ? sizeof(uint64_t) : 0)  // compression buffer length
 
-          +this->name_len
-          +(this->version >= 6 ? 128*128 : 0)
-          +this->descr_len;
+         + this->name_len
+         + (this->version >= 6 ? 128*128 : 0)
+         + this->descr_len;
 }
 
-void
-lvlinfo::write(lvlbuf *lb)
-{
+void lvlinfo::write(lvlbuf *lb) {
     this->sanity_check();
 
-    //printf("Writing a lvl with type %d", this->type);
     lb->ensure(this->get_size());
 
     lb->w_uint8(this->version);
@@ -360,9 +350,7 @@ lvlinfo::write(lvlbuf *lb)
     }
 }
 
-bool
-lvlinfo::read(lvlbuf *lb, bool skip_description)
-{
+bool lvlinfo::read(lvlbuf *lb, bool skip_description) {
     this->version = lb->r_uint8();
     if (this->version > LEVEL_VERSION) {
         return false;
@@ -414,7 +402,6 @@ lvlinfo::read(lvlbuf *lb, bool skip_description)
         } else {
             this->size_x[0] = lb->r_uint16();
             this->size_y[0] = lb->r_uint16();
-            //tms_infof("read sizes %u %u", this->size_x[0], this->size_y[0]);
             this->size_x[1] = this->size_x[0];
             this->size_y[1] = this->size_y[0];
         }
@@ -528,833 +515,7 @@ lvlinfo::read(lvlbuf *lb, bool skip_description)
     return true;
 }
 
-uint32_t get_next_id(const char *storage, const char *ext) {
-    char path[1024];
-    struct stat s;
-
-    // Check IDs up to 2 billion. Ought to be enough for everyone.
-    for (uint32_t x = 1; x < 2e9; x++) {
-        snprintf(path, 1023, "%s/%d.%s", storage, x, ext);
-        int i = stat(path, &s);
-
-        if (i == -1)
-            return x;
-    }
-
-    return 0;
-}
-
-uint32_t
-pkgman::get_next_pkg_id()
-{
-    return get_next_id(pkgman::get_pkg_path(LEVEL_LOCAL), "ppkg");
-}
-
-uint32_t
-pkgman::get_next_level_id()
-{
-    return get_next_id(pkgman::get_level_path(LEVEL_LOCAL), "plvl");
-}
-
-uint32_t
-pkgman::get_next_object_id()
-{
-    return get_next_id(pkgman::get_level_path(LEVEL_LOCAL), "pobj");
-}
-
-bool
-pkginfo::save()
-{
-    if (this->type < 0 || this->type >= 3) {
-        tms_errorf("invalid level type");
-        return false;
-    }
-
-    char path[1024];
-    char *storage = (char*)pkgman::get_pkg_path(this->type);
-    snprintf(path, 1023, "%s/%d.ppkg", storage, this->id);
-
-    FILE *fp = fopen(path, "wb");
-
-    if (fp) {
-        /* always update the version to the latest on save */
-        this->version = PKG_VERSION;
-
-        fwrite(&this->version, 1, 1, fp);
-        fwrite(&this->community_id, 1, sizeof(uint32_t), fp);
-        fwrite(this->name, 1, 255, fp);
-        fwrite(&this->unlock_count, 1, sizeof(uint8_t), fp);
-        fwrite(&this->first_is_menu, 1, sizeof(uint8_t), fp);
-        fwrite(&this->return_on_finish, 1, sizeof(uint8_t), fp);
-        fwrite(&this->num_levels, 1, sizeof(uint8_t), fp);
-
-        for (int x=0; x<this->num_levels; x++) {
-            fwrite(&this->levels[x], 1, sizeof(uint32_t), fp);
-        }
-
-        fclose(fp);
-    } else {
-        tms_errorf("could not open: %s", path);
-        return false;
-    }
-
-    return true;
-}
-
-bool
-pkginfo::open(int type, uint32_t id)
-{
-    if (type < 0 || type >= 4) {
-        tms_errorf("invalid level type");
-        return "";
-    }
-
-    char path[1024];
-    char *storage = (char*)pkgman::get_pkg_path(type);
-    snprintf(path, 1023, "%s/%d.ppkg", storage, id);
-
-    this->type = type;
-    this->id = id;
-
-    if (this->levels) free(this->levels);
-    this->levels = 0;
-    this->num_levels = 0;
-    this->name[0] = '\0';
-    this->name[255] = '\0';
-
-    FILE_IN_ASSET(type == LEVEL_MAIN);
-
-    FILE *fp = _fopen(path, "rb");
-
-    if (fp) {
-        _fread(&this->version, 1, 1, fp);
-        if (this->version >= 2)
-            _fread(&this->community_id, 1, sizeof(uint32_t), fp);
-        else
-            this->community_id = 0;
-
-        _fread(this->name, 1, 255, fp);
-
-        if (this->version >= 3)
-            _fread(&this->unlock_count, 1, sizeof(uint8_t), fp);
-
-        if (this->version >= 1) {
-            _fread(&this->first_is_menu, 1, sizeof(uint8_t), fp);
-            _fread(&this->return_on_finish, 1, sizeof(uint8_t), fp);
-        }
-
-        _fread(&this->num_levels, 1, sizeof(uint8_t), fp);
-
-        if (this->num_levels)
-            this->levels = (uint32_t*)malloc(this->num_levels * sizeof(uint32_t));
-
-        for (int x=0; x<this->num_levels; x++) {
-            _fread(&this->levels[x], 1, sizeof(uint32_t), fp);
-        }
-
-        _fclose(fp);
-    } else {
-        return false;
-    }
-
-    return true;
-}
-
-const char *
-pkgman::get_pkg_path(int type)
-{
-    if (type < 0 || type >= 4) {
-        tms_errorf("invalid level type");
-        return "";
-    }
-
-    if (!_pkg_path[type][0]) {
-        if (type == LEVEL_MAIN)
-            /* main levels are stored internally in data/ */
-            snprintf(_pkg_path[type], 1023, "data/pkg");
-        else if (type == LEVEL_DB)
-            snprintf(_pkg_path[type], 1023, "%s/pkg/db", tms_storage_cache_path());
-        else
-            snprintf(_pkg_path[type], 1023, "%s/packages", tms_storage_path());
-    }
-
-    return _pkg_path[type];
-}
-
-const char *
-pkgman::get_level_ext(int level_type)
-{
-    if (level_type == LEVEL_PARTIAL) return "pobj";
-    else if (level_type >= LEVEL_LOCAL_STATE) return "psav";
-    else return "plvl";
-}
-
-const char *
-pkgman::get_level_path(int level_type)
-{
-    if (level_type == LEVEL_PARTIAL) level_type = LEVEL_LOCAL;
-
-    if (level_type >= LEVEL_LOCAL_STATE) {
-        if (!_state_path[0])
-            snprintf(_state_path, 1023, "%s/saves", tms_storage_path());
-
-        return _state_path;
-    }
-
-    if (level_type < 0 || level_type >= 4) {
-        tms_errorf("invalid level type");
-        return "";
-    }
-
-    if (!_level_path[level_type][0]) {
-        if (level_type == LEVEL_MAIN)
-            /* main levels are stored internally in data/ */
-            snprintf(_level_path[level_type], 1023, "data/lvl");
-        else if (level_type == LEVEL_SYS)
-            snprintf(_level_path[level_type], 1023, "%s/cache/local", tms_storage_cache_path());
-        else if (level_type == LEVEL_DB)
-            snprintf(_level_path[level_type], 1023, "%s/lvl/db", tms_storage_cache_path());
-        else
-            snprintf(_level_path[level_type], 1023, "%s/levels", tms_storage_path());
-    }
-
-    return _level_path[level_type];
-}
-
-const char *
-pkgman::get_state_prefix(int level_type)
-{
-    if (level_type >= LEVEL_LOCAL_STATE)
-        level_type -= LEVEL_LOCAL_STATE;
-
-    if (level_type == LEVEL_LOCAL)
-        return "local";
-    else if (level_type == LEVEL_DB)
-        return "db";
-
-    tms_errorf("Unknown state prefix for level type %d", level_type);
-    return "unknown";
-}
-
-const char *
-pkgman::get_cache_path(int level_type)
-{
-    if (level_type == LEVEL_PARTIAL) level_type = LEVEL_LOCAL;
-
-    if (level_type >= LEVEL_LOCAL_STATE) {
-        if (!_cache_state_path[0]) {
-            snprintf(_cache_state_path, 1023,
-                    "%s/cache/sav",
-                    tms_storage_cache_path());
-        }
-
-        return _cache_state_path;
-    }
-
-    if (level_type < 0 || level_type >= 4) {
-        tms_errorf("invalid level type");
-        return "";
-    }
-
-    if (!_cache_path[level_type][0]) {
-        snprintf(_cache_path[level_type], 1023,
-                "%s/cache/%s",
-                tms_storage_cache_path(),
-                _dir_names[level_type]);
-    }
-
-    return _cache_path[level_type];
-}
-
-void
-pkgman::get_level_full_path(int level_type, uint32_t id, uint32_t save_id, char *output)
-{
-    if (level_type >= LEVEL_LOCAL_STATE) {
-        snprintf(output, 1023, "%s/%s.%d.%u.%s",
-                pkgman::get_level_path(level_type),
-                pkgman::get_state_prefix(level_type),
-                id,
-                save_id,
-                pkgman::get_level_ext(level_type));
-    } else {
-        snprintf(output, 1023, "%s/%d.%s",
-                pkgman::get_level_path(level_type),
-                id,
-                pkgman::get_level_ext(level_type));
-    }
-}
-
-void
-pkgman::get_cache_full_path(int level_type, uint32_t id, uint32_t save_id, char *output)
-{
-    if (level_type >= LEVEL_LOCAL_STATE) {
-        snprintf(output, 1023, "%s/%s.%u.%u.pcache",
-                pkgman::get_cache_path(level_type),
-                pkgman::get_state_prefix(level_type),
-                id,
-                save_id);
-    } else {
-        snprintf(output, 1023, "%s/%d.pcache",
-                pkgman::get_cache_path(level_type),
-                id);
-    }
-}
-
-bool
-pkgman::get_level_name(int level_type, uint32_t id, uint32_t save_id, char *output)
-{
-    char filename[1024];
-
-    pkgman::get_level_full_path(level_type, id, save_id, filename);
-
-    FILE_IN_ASSET(level_type == LEVEL_MAIN);
-
-    FILE *fp = _fopen(filename, "rb");
-    if (fp) {
-        tmpbuf.reset();
-        tmpbuf.ensure(sizeof(lvlinfo));
-
-        _fread(tmpbuf.buf, 1, sizeof(lvlinfo), fp);
-        tmpbuf.size = sizeof(lvlinfo);
-
-        tmplvl.read(&tmpbuf, true);
-
-        if (tmplvl.name_len == 0) {
-            strcpy(output, "<no name>");
-        } else {
-            memcpy(output, tmplvl.name, tmplvl.name_len*sizeof(char));
-            output[tmplvl.name_len] = '\0';
-        }
-
-        _fclose(fp);
-
-        return true;
-    } else {
-        strcpy(output, "<no name>");
-        tms_warnf("unable to open file for lid %u", id);
-    }
-
-    return false;
-}
-
-bool
-pkgman::get_level_data(int level_type, uint32_t id, uint32_t save_id, char *o_name, uint8_t *o_version)
-{
-    char filename[1024];
-
-    pkgman::get_level_full_path(level_type, id, save_id, filename);
-
-    FILE_IN_ASSET(level_type == LEVEL_MAIN);
-
-    FILE *fp = _fopen(filename, "rb");
-    if (fp) {
-        tmpbuf.reset();
-        tmpbuf.ensure(sizeof(lvlinfo));
-
-        _fread(tmpbuf.buf, 1, sizeof(lvlinfo), fp);
-        tmpbuf.size = sizeof(lvlinfo);
-
-        tmplvl.read(&tmpbuf, true);
-
-        if (tmplvl.name_len == 0) {
-            strcpy(o_name, "<no name>");
-        } else {
-            memcpy(o_name, tmplvl.name, tmplvl.name_len*sizeof(char));
-            o_name[tmplvl.name_len] = '\0';
-        }
-
-        *o_version = tmplvl.version;
-
-        _fclose(fp);
-
-        return true;
-    } else {
-        tms_warnf("unable to open file for lid %u", id);
-    }
-
-    return false;
-}
-
-pkginfo*
-pkgman::get_pkgs(int type)
-{
-    if (type < 0 || type >= 4)
-        return 0;
-
-    const char *path = pkgman::get_pkg_path(type);
-
-    DIR *dir;
-    struct dirent *ent;
-    pkginfo *first = 0, *curr = 0;
-
-    if ((dir = opendir(path))) {
-
-        while ((ent = readdir(dir))) {
-            int len = strlen(ent->d_name);
-            if (len > 5 && memcmp(&ent->d_name[len-5], ".ppkg", 5) == 0) {
-                uint32_t pkg_id = atoi(ent->d_name);
-
-                if (pkg_id != 0) {
-                    pkginfo *ff = new pkginfo();
-
-                    if (ff->open(type, pkg_id)) {
-                        if (curr) curr->next = ff;
-                        if (!first) first = ff;
-                        curr = ff;
-                    } else {
-                        tms_errorf("could not open pkg %d", pkg_id);
-                        delete ff;
-                    }
-                }
-            }
-        }
-        closedir(dir);
-    }
-
-    return first;
-}
-
-#ifdef TMS_BACKEND_WINDOWS
-time_t
-filetime_to_timet(FILETIME & ft)
-{
-    ULARGE_INTEGER ull;
-    ull.LowPart = ft.dwLowDateTime;
-    ull.HighPart = ft.dwHighDateTime;
-    return ull.QuadPart / 10000000ULL - 11644473600ULL;
-}
-#endif
-
-lvlfile*
-pkgman::get_levels(int level_type)
-{
-    bool state = false;
-
-    int orig_level_type = level_type;
-
-    if (level_type >= LEVEL_LOCAL_STATE) {
-        level_type -= LEVEL_LOCAL_STATE;
-        state = true;
-    }
-
-    if (level_type < 0 || level_type >= 5) {
-        tms_warnf("unknown level type");
-        return 0;
-    }
-
-    char ext[6];
-    snprintf(ext, 6, ".%s", pkgman::get_level_ext(orig_level_type));
-    const char *path = pkgman::get_level_path(orig_level_type);
-
-#ifdef TMS_BACKEND_WINDOWS
-    wchar_t tmp[1024];
-#else
-    char tmp[1024];
-#endif
-
-    DIR *dir;
-    struct dirent *ent;
-    lvlfile *first = 0, *last = 0;
-
-    if ((dir = opendir(path))) {
-
-        while ((ent = readdir(dir))) {
-            int len = strlen(ent->d_name);
-
-            if (len > 5 && memcmp(&ent->d_name[len-5], ext, 5) == 0) {
-                uint32_t level_id = 0;
-                uint32_t save_id = 0;
-                uint8_t state_level_type = LEVEL_LOCAL_STATE;
-
-                if (state) {
-                    /* State format: {0:s:type}.{1:d:id}.{2:d:save_id}.{3:s:ext} */
-                    if (ent->d_name[0] == 'l') {
-                        state_level_type = LEVEL_LOCAL_STATE;
-                    } else if (ent->d_name[0] == 'd') {
-                        state_level_type = LEVEL_DB_STATE;
-                    }
-                    char *level_id_c = strchr(ent->d_name, '.');
-                    level_id = atoi(level_id_c+1);
-                    save_id = atoi(strchr(level_id_c+1, '.')+1);
-                } else {
-                    /* Regular level format: {0:d:id}.{1:s:save_id} */
-                    level_id = atoi(ent->d_name);
-
-                    save_id = atoi(strchr(ent->d_name, '.')+1);
-                }
-
-                time_t mtime;
-                char date[21];
-
-#ifdef TMS_BACKEND_WINDOWS
-                WIN32_FILE_ATTRIBUTE_DATA data;
-                wsprintf(tmp, L"%hs\\%hs", path, ent->d_name);
-
-                GetFileAttributesEx((LPCWSTR)(tmp), GetFileExInfoStandard, &data);
-
-                FILETIME time = data.ftLastWriteTime;
-                SYSTEMTIME sys_time, local_time;
-
-                FileTimeToSystemTime(&time, &sys_time);
-                SystemTimeToTzSpecificLocalTime(0, &sys_time, &local_time);
-                snprintf(date, 20, "%04d-%02d-%02d %02d:%02d:%02d", local_time.wYear, local_time.wMonth, local_time.wDay, local_time.wHour, local_time.wMinute, local_time.wSecond);
-                mtime = filetime_to_timet(time);
-#else
-                snprintf(tmp, 1023, "%s/%s", path, ent->d_name);
-                struct stat st;
-                stat(tmp, &st);
-                strftime(date, 20, "%Y-%m-%d %H:%M:%S", gmtime((time_t*)&(st.st_mtime)));
-                mtime = st.st_mtime;
-#endif
-
-                if (level_id != 0 || state) {
-                    lvlfile *ff = new lvlfile((state ? state_level_type : level_type), level_id);
-                    strcpy(ff->modified_date, date);
-                    ff->mtime = mtime;
-                    ff->save_id = save_id;
-
-                    /**
-                     * For state searches, we do not care about the original level type.
-                     * The original level type is merely there to notify us that it's states
-                     * we are looking for.
-                     * The level type of the current state is discerned via the filename
-                     * using the first "dotted" argument (level or db).
-                     **/
-                    if (pkgman::get_level_data((state ? state_level_type : orig_level_type), level_id, save_id, ff->name, &ff->version)) {
-                        if (!first) {
-                            first = ff;
-                        } else {
-                            /* loop through and insert the lvlfile as soon as the date is newer */
-
-                            lvlfile *l = first, *prev = 0;
-                            while (l) {
-                                if (strcmp(ff->modified_date, l->modified_date) > 0) {
-                                    break;
-                                }
-                                prev = l;
-                                l = l->next;
-                            }
-
-                            if (!prev) {
-                                ff->next = first;
-                                first = ff;
-                            } else {
-                                ff->next = prev->next;
-                                prev->next = ff;
-                            }
-                        }
-                    } else {
-                        tms_warnf("Unable to get level name for lid %u", level_id);
-                        delete ff;
-                    }
-                }
-            }
-        }
-        closedir(dir);
-    } else {
-        tms_errorf("could not open directory %s", path);
-    }
-
-    return first;
-}
-
-uint32_t
-pkgman::get_latest_level_id(int level_type)
-{
-    lvlfile *level = pkgman::get_levels(LEVEL_LOCAL);
-
-    uint32_t latest_id = 0;
-    time_t latest_mtime = 0;
-
-    while (level) {
-        if (level->mtime > latest_mtime) {
-            latest_id = level->id;
-            latest_mtime = level->mtime;
-        }
-
-        lvlfile *next = level->next;
-        delete level;
-        level = next;
-    }
-
-    return latest_id;
-}
-
-extern "C" struct lvlfile* pkgman_get_levels(int level_type)
-{
-    return pkgman::get_levels(level_type);
-}
-
-bool
-lvledit::open(int lvl_type, uint32_t lvl_id)
-{
-    char filename[1024];
-
-    const char *ext, *path;
-    ext = pkgman::get_level_ext(lvl_type);
-    path = pkgman::get_level_path(lvl_type);
-
-    if (lvl_id == 0) {
-        snprintf(filename, 1023, "%s/.autosave", pkgman::get_level_path(lvl_type));
-    } else {
-        snprintf(filename, 1023, "%s/%d.%s", pkgman::get_level_path(lvl_type), lvl_id, ext);
-    }
-
-    this->lvl_type = 0;
-    this->lvl_id = 0;
-
-    FILE_IN_ASSET(lvl_type == LEVEL_MAIN);
-
-    FILE *fp = _fopen(filename, "rb");
-
-    if (fp) {
-        _fseek(fp, 0, SEEK_END);
-        long size = _ftell(fp);
-        _fseek(fp, 0, SEEK_SET);
-
-        if (size > 2*1024*1024) {
-            tms_fatalf("file too big");
-        }
-
-        this->lb.reset();
-        this->lb.size = 0;
-        this->lb.ensure((int)size);
-
-        _fread(this->lb.buf, 1, size, fp);
-
-        _fclose(fp);
-
-        this->lb.size = size;
-        this->lvl.read(&this->lb);
-        this->header_size = this->lvl.get_size();
-        this->lvl_type = lvl_type;
-        this->lvl_id = lvl_id;
-    } else {
-        return false;
-    }
-
-    return true;
-}
-
-/* This method is mainly used for the lvledit tool,
- * which means it doesn't check any of the vitals (i.e. if the
- * level is stored in the apk or outside.) */
-bool
-lvledit::open_from_path(const char *path)
-{
-    FILE *fp = fopen(path, "rb");
-
-    if (fp) {
-        fseek(fp, 0, SEEK_END);
-        long size = ftell(fp);
-        fseek(fp, 0, SEEK_SET);
-
-        if (size > 2*1024*1024) {
-            tms_fatalf("file too big");
-        }
-
-        this->lb.reset();
-        this->lb.size = 0;
-        this->lb.ensure((int)size);
-
-        fread(this->lb.buf, 1, size, fp);
-
-        fclose(fp);
-
-        this->lb.size = size;
-        bool r = this->lvl.read(&this->lb);
-        if (!r) {
-            fprintf(stderr, "uh oh\n");
-        }
-        this->header_size = this->lvl.get_size();
-    } else {
-        return false;
-    }
-
-    return true;
-}
-
-/* IMPORTANT: keep this in sync with of::read() */
-void
-lvledit::print_gids()
-{
-    this->lb.rp = this->lvl.get_size();
-
-    uint32_t num_groups = this->lvl.num_groups;
-    uint32_t num_entities = this->lvl.num_entities;
-
-    /* skip groups */
-#if 0
-    this->lb.rp +=
-        num_groups *
-        (
-          sizeof(uint32_t)/*id*/
-          +sizeof(float)/*pos.x*/
-          +sizeof(float)/*pos.y*/
-          +sizeof(float)/*angle*/
-          +(version >= LEVEL_VERSION_1_5 ? sizeof(uint32_t) : 0)
-        );
-#endif
-    for (int x=0; x<num_groups; ++x) {
-        lb.r_uint32(); /* id */
-        lb.rp += sizeof(float) /* pos.x */
-               + sizeof(float) /* pos.y */
-               + sizeof(float);/* angle */
-
-        if (this->lvl.version >= LEVEL_VERSION_1_5) {
-            uint32_t state_size = lb.r_uint32();
-            lb.rp += state_size;
-        }
-    }
-
-    for (int x=0; x<num_entities; ++x) {
-        uint8_t np;
-        uint8_t nc = 0;
-        uint32_t state_size = 0;
-
-        uint8_t g_id = lb.r_uint8(); /* g_id */
-        lb.r_uint32(); /* id */
-        lb.r_uint16(); /* group_id half */
-        lb.r_uint16(); /* group id half */
-
-        printf("%s%u",((x>0)?"\n":""), g_id); /* g_id */
-
-        np = lb.r_uint8(); /* num properties */
-
-        if (this->lvl.version >= LEVEL_VERSION_1_5) {
-            nc = lb.r_uint8(); /* num chunks */
-            state_size = lb.r_uint32(); /* state size */
-        }
-
-        (void)lb.r_float(); /* pos.x */
-        (void)lb.r_float(); /* pos.y */
-        (void)lb.r_float(); /* angle */
-        (void)lb.r_uint8(); /* layer */
-
-        if (this->lvl.version >= LEVEL_VERSION_1_5) {
-            lb.r_uint64(); /* state flags */
-            /* this includes moveable and axisrot */
-
-            for (int x=0; x<nc; x++) {
-                lb.r_int32(); /* chunk x */
-                lb.r_int32(); /* chunk y */
-            }
-
-            /* skip state buffer */
-            lb.rp += state_size;
-        } else {
-            (void)lb.r_uint8(); /* axisrot */
-            if (this->lvl.version >= 10) {
-                (void)lb.r_uint8(); /* moveable */
-            }
-        }
-
-        for (int x=0; x<np; x++) {
-            uint8_t type = lb.r_uint8();
-
-            switch (type) {
-                case P_INT8: lb.r_uint8(); break;
-                case P_INT: case P_ID: lb.r_uint32(); break;
-                case P_FLT: lb.r_float(); break;
-                case P_STR:
-                    {
-                        if (this->lvl.version >= LEVEL_VERSION_1_5) {
-                            uint32_t len = lb.r_uint32();
-                            lb.rp += len;
-                        } else {
-                            uint16_t len = lb.r_uint16();
-                            lb.rp += len;
-                        }
-                    }
-                    break;
-                default: fprintf(stderr, "invalid object property %d", type); exit(1);
-            }
-        }
-    }
-}
-
-bool
-lvledit::save(void)
-{
-    if (this->lvl.get_size() != this->header_size) {
-        /* new header size does not match old header size,
-         * we need to perform a memmove on the object data */
-
-        int diff = this->lvl.get_size() - this->header_size;
-
-        if (diff > 0)
-            this->lb.ensure(diff);
-
-        char *header_end = (char*)this->lb.buf + this->header_size;
-        memmove(header_end + diff, header_end, this->lb.size - this->header_size);
-
-        this->header_size += diff;
-        this->lb.size += diff;
-    }
-
-    int saved_size = this->lb.size;
-    this->lb.size = 0;
-    this->lvl.write(&this->lb);
-    this->lb.size = saved_size;
-
-    char filename[1024];
-    snprintf(filename, 1023, "%s/%d.%s", pkgman::get_level_path(this->lvl_type), this->lvl_id, pkgman::get_level_ext(this->lvl_type));
-
-    FILE *fp = fopen(filename, "wb");
-
-    if (fp) {
-        fwrite(this->lb.buf, 1, this->lb.size, fp);
-        fclose(fp);
-
-        return true;
-    }
-
-    tms_errorf("could not open file '%s' for writing", filename);
-    return false;
-}
-
-bool
-lvledit::save_to_path(const char *path)
-{
-    if (this->lvl.get_size() != this->header_size) {
-        /* new header size does not match old header size,
-         * we need to perform a memmove on the object data */
-
-        int diff = this->lvl.get_size() - this->header_size;
-
-        if (diff > 0)
-            this->lb.ensure(diff);
-
-        char *header_end = (char*)this->lb.buf + this->header_size;
-        memmove(header_end + diff, header_end, this->lb.size - this->header_size);
-
-        this->header_size += diff;
-        this->lb.size += diff;
-    }
-
-    int saved_size = this->lb.size;
-    this->lb.size = 0;
-    this->lvl.write(&this->lb);
-    this->lb.size = saved_size;
-
-    FILE *fp = fopen(path, "wb");
-
-    if (fp) {
-        fwrite(this->lb.buf, 1, this->lb.size, fp);
-        fclose(fp);
-
-        return true;
-    }
-
-    tms_errorf("could not open file '%s' for writing", path);
-    return false;
-}
-
-#ifdef DEBUG
-
-void
-lvlinfo::print() const
-{
+void lvlinfo::print() const {
     printf("Level headers:\n");
 
     printf("Level version:       %u\t(%s)\n",
@@ -1518,16 +679,795 @@ lvlinfo::print() const
             this->num_cables);
 }
 
+uint32_t get_next_id(const char *storage, const char *ext) {
+    char path[1024];
+    struct stat s;
+
+    // Check IDs up to 2 billion. Ought to be enough for everyone.
+    for (uint32_t x = 1; x < 2e9; x++) {
+        snprintf(path, 1023, "%s/%d.%s", storage, x, ext);
+        int i = stat(path, &s);
+
+        if (i == -1)
+            return x;
+    }
+
+    return 0;
+}
+
+uint32_t pkgman::get_next_pkg_id() {
+    return get_next_id(pkgman::get_pkg_path(LEVEL_LOCAL), "ppkg");
+}
+
+uint32_t pkgman::get_next_level_id() {
+    return get_next_id(pkgman::get_level_path(LEVEL_LOCAL), "plvl");
+}
+
+uint32_t pkgman::get_next_object_id() {
+    return get_next_id(pkgman::get_level_path(LEVEL_LOCAL), "pobj");
+}
+
+bool pkginfo::save() {
+    if (this->type >= 3) {
+        tms_errorf("invalid level type");
+        return false;
+    }
+
+    char path[1024];
+    char *storage = (char*)pkgman::get_pkg_path(this->type);
+    snprintf(path, 1023, "%s/%d.ppkg", storage, this->id);
+
+    FILE *fp = fopen(path, "wb");
+
+    if (fp) {
+        // always update the version to the latest on save
+        this->version = PKG_VERSION;
+
+        fwrite(&this->version, 1, 1, fp);
+        fwrite(&this->community_id, 1, sizeof(uint32_t), fp);
+        fwrite(this->name, 1, 255, fp);
+        fwrite(&this->unlock_count, 1, sizeof(uint8_t), fp);
+        fwrite(&this->first_is_menu, 1, sizeof(uint8_t), fp);
+        fwrite(&this->return_on_finish, 1, sizeof(uint8_t), fp);
+        fwrite(&this->num_levels, 1, sizeof(uint8_t), fp);
+
+        for (int x=0; x<this->num_levels; x++) {
+            fwrite(&this->levels[x], 1, sizeof(uint32_t), fp);
+        }
+
+        fclose(fp);
+    } else {
+        tms_errorf("could not open: %s", path);
+        return false;
+    }
+
+    return true;
+}
+
+bool pkginfo::open(int type, uint32_t id) {
+    if (type < 0 || type >= 4) {
+        tms_errorf("invalid level type");
+        return "";
+    }
+
+    char path[1024];
+    char *storage = (char*)pkgman::get_pkg_path(type);
+    snprintf(path, 1023, "%s/%d.ppkg", storage, id);
+
+    this->type = type;
+    this->id = id;
+
+    if (this->levels) free(this->levels);
+    this->levels = 0;
+    this->num_levels = 0;
+    this->name[0] = '\0';
+    this->name[255] = '\0';
+
+    FILE_IN_ASSET(type == LEVEL_MAIN);
+
+    FILE *fp = _fopen(path, "rb");
+
+    if (fp) {
+        _fread(&this->version, 1, 1, fp);
+        if (this->version >= 2)
+            _fread(&this->community_id, 1, sizeof(uint32_t), fp);
+        else
+            this->community_id = 0;
+
+        _fread(this->name, 1, 255, fp);
+
+        if (this->version >= 3)
+            _fread(&this->unlock_count, 1, sizeof(uint8_t), fp);
+
+        if (this->version >= 1) {
+            _fread(&this->first_is_menu, 1, sizeof(uint8_t), fp);
+            _fread(&this->return_on_finish, 1, sizeof(uint8_t), fp);
+        }
+
+        _fread(&this->num_levels, 1, sizeof(uint8_t), fp);
+
+        if (this->num_levels)
+            this->levels = (uint32_t*)malloc(this->num_levels * sizeof(uint32_t));
+
+        for (int x=0; x<this->num_levels; x++) {
+            _fread(&this->levels[x], 1, sizeof(uint32_t), fp);
+        }
+
+        _fclose(fp);
+    } else {
+        return false;
+    }
+
+    return true;
+}
+
+const char *pkgman::get_pkg_path(int type) {
+    if (type < 0 || type >= 4) {
+        tms_errorf("invalid level type");
+        return "";
+    }
+
+    if (!_pkg_path[type][0]) {
+        if (type == LEVEL_MAIN)
+            // main levels are stored internally in data/
+            snprintf(_pkg_path[type], 1023, "data/pkg");
+        else if (type == LEVEL_DB)
+            snprintf(_pkg_path[type], 1023, "%s/pkg/db", tms_storage_cache_path());
+        else
+            snprintf(_pkg_path[type], 1023, "%s/packages", tms_storage_path());
+    }
+
+    return _pkg_path[type];
+}
+
+const char *pkgman::get_level_ext(int level_type) {
+    if (level_type == LEVEL_PARTIAL) return "pobj";
+    else if (level_type >= LEVEL_LOCAL_STATE) return "psav";
+    else return "plvl";
+}
+
+const char *pkgman::get_level_path(int level_type) {
+    if (level_type == LEVEL_PARTIAL) level_type = LEVEL_LOCAL;
+
+    if (level_type >= LEVEL_LOCAL_STATE) {
+        if (!_state_path[0])
+            snprintf(_state_path, 1023, "%s/saves", tms_storage_path());
+
+        return _state_path;
+    }
+
+    if (level_type < 0 || level_type >= 4) {
+        tms_errorf("invalid level type");
+        return "";
+    }
+
+    if (!_level_path[level_type][0]) {
+        if (level_type == LEVEL_MAIN)
+            // main levels are stored internally in data/
+            snprintf(_level_path[level_type], 1023, "data/lvl");
+        else if (level_type == LEVEL_SYS)
+            snprintf(_level_path[level_type], 1023, "%s/cache/local", tms_storage_cache_path());
+        else if (level_type == LEVEL_DB)
+            snprintf(_level_path[level_type], 1023, "%s/lvl/db", tms_storage_cache_path());
+        else
+            snprintf(_level_path[level_type], 1023, "%s/levels", tms_storage_path());
+    }
+
+    return _level_path[level_type];
+}
+
+const char *pkgman::get_state_prefix(int level_type) {
+    if (level_type >= LEVEL_LOCAL_STATE)
+        level_type -= LEVEL_LOCAL_STATE;
+
+    if (level_type == LEVEL_LOCAL)
+        return "local";
+    else if (level_type == LEVEL_DB)
+        return "db";
+
+    tms_errorf("Unknown state prefix for level type %d", level_type);
+    return "unknown";
+}
+
+const char *pkgman::get_cache_path(int level_type) {
+    if (level_type == LEVEL_PARTIAL) level_type = LEVEL_LOCAL;
+
+    if (level_type >= LEVEL_LOCAL_STATE) {
+        if (!_cache_state_path[0]) {
+            snprintf(_cache_state_path, 1023,
+                    "%s/cache/sav",
+                    tms_storage_cache_path());
+        }
+
+        return _cache_state_path;
+    }
+
+    if (level_type < 0 || level_type >= 4) {
+        tms_errorf("invalid level type");
+        return "";
+    }
+
+    if (!_cache_path[level_type][0]) {
+        snprintf(_cache_path[level_type], 1023,
+                "%s/cache/%s",
+                tms_storage_cache_path(),
+                _dir_names[level_type]);
+    }
+
+    return _cache_path[level_type];
+}
+
+void pkgman::get_level_full_path(int level_type, uint32_t id, uint32_t save_id, char *output) {
+    if (level_type >= LEVEL_LOCAL_STATE) {
+        snprintf(output, 1023, "%s/%s.%d.%u.%s",
+                pkgman::get_level_path(level_type),
+                pkgman::get_state_prefix(level_type),
+                id,
+                save_id,
+                pkgman::get_level_ext(level_type));
+    } else {
+        snprintf(output, 1023, "%s/%d.%s",
+                pkgman::get_level_path(level_type),
+                id,
+                pkgman::get_level_ext(level_type));
+    }
+}
+
+void pkgman::get_cache_full_path(int level_type, uint32_t id, uint32_t save_id, char *output) {
+    if (level_type >= LEVEL_LOCAL_STATE) {
+        snprintf(output, 1023, "%s/%s.%u.%u.pcache",
+                pkgman::get_cache_path(level_type),
+                pkgman::get_state_prefix(level_type),
+                id,
+                save_id);
+    } else {
+        snprintf(output, 1023, "%s/%d.pcache",
+                pkgman::get_cache_path(level_type),
+                id);
+    }
+}
+
+bool pkgman::get_level_name(int level_type, uint32_t id, uint32_t save_id, char *output) {
+    char filename[1024];
+
+    pkgman::get_level_full_path(level_type, id, save_id, filename);
+
+    FILE_IN_ASSET(level_type == LEVEL_MAIN);
+
+    FILE *fp = _fopen(filename, "rb");
+    if (fp) {
+        tmpbuf.reset();
+        tmpbuf.ensure(sizeof(lvlinfo));
+
+        _fread(tmpbuf.buf, 1, sizeof(lvlinfo), fp);
+        tmpbuf.size = sizeof(lvlinfo);
+
+        tmplvl.read(&tmpbuf, true);
+
+        if (tmplvl.name_len == 0) {
+            strcpy(output, "<no name>");
+        } else {
+            memcpy(output, tmplvl.name, tmplvl.name_len*sizeof(char));
+            output[tmplvl.name_len] = '\0';
+        }
+
+        _fclose(fp);
+
+        return true;
+    } else {
+        strcpy(output, "<no name>");
+        tms_warnf("unable to open file for lid %u", id);
+    }
+
+    return false;
+}
+
+bool pkgman::get_level_data(int level_type, uint32_t id, uint32_t save_id, char *o_name, uint8_t *o_version) {
+    char filename[1024];
+
+    pkgman::get_level_full_path(level_type, id, save_id, filename);
+
+    FILE_IN_ASSET(level_type == LEVEL_MAIN);
+
+    FILE *fp = _fopen(filename, "rb");
+    if (fp) {
+        tmpbuf.reset();
+        tmpbuf.ensure(sizeof(lvlinfo));
+
+        _fread(tmpbuf.buf, 1, sizeof(lvlinfo), fp);
+        tmpbuf.size = sizeof(lvlinfo);
+
+        tmplvl.read(&tmpbuf, true);
+
+        if (tmplvl.name_len == 0) {
+            strcpy(o_name, "<no name>");
+        } else {
+            memcpy(o_name, tmplvl.name, tmplvl.name_len*sizeof(char));
+            o_name[tmplvl.name_len] = '\0';
+        }
+
+        *o_version = tmplvl.version;
+
+        _fclose(fp);
+
+        return true;
+    } else {
+        tms_warnf("unable to open file for lid %u", id);
+    }
+
+    return false;
+}
+
+pkginfo *pkgman::get_pkgs(int type) {
+    if (type < 0 || type >= 4)
+        return 0;
+
+    const char *path = pkgman::get_pkg_path(type);
+
+    DIR *dir;
+    struct dirent *ent;
+    pkginfo *first = 0, *curr = 0;
+
+    if ((dir = opendir(path))) {
+
+        while ((ent = readdir(dir))) {
+            int len = strlen(ent->d_name);
+            if (len > 5 && memcmp(&ent->d_name[len-5], ".ppkg", 5) == 0) {
+                uint32_t pkg_id = atoi(ent->d_name);
+
+                if (pkg_id != 0) {
+                    pkginfo *ff = new pkginfo();
+
+                    if (ff->open(type, pkg_id)) {
+                        if (curr) curr->next = ff;
+                        if (!first) first = ff;
+                        curr = ff;
+                    } else {
+                        tms_errorf("could not open pkg %d", pkg_id);
+                        delete ff;
+                    }
+                }
+            }
+        }
+        closedir(dir);
+    }
+
+    return first;
+}
+
+#ifdef TMS_BACKEND_WINDOWS
+time_t filetime_to_timet(FILETIME & ft) {
+    ULARGE_INTEGER ull;
+    ull.LowPart = ft.dwLowDateTime;
+    ull.HighPart = ft.dwHighDateTime;
+    return ull.QuadPart / 10000000ULL - 11644473600ULL;
+}
 #endif
 
-void
-lvlbuf::ensure(uint64_t s)
-{
+lvlfile *pkgman::get_levels(int level_type) {
+    bool state = false;
+
+    int orig_level_type = level_type;
+
+    if (level_type >= LEVEL_LOCAL_STATE) {
+        level_type -= LEVEL_LOCAL_STATE;
+        state = true;
+    }
+
+    if (level_type < 0 || level_type >= 5) {
+        tms_warnf("unknown level type");
+        return 0;
+    }
+
+    char ext[6];
+    snprintf(ext, 6, ".%s", pkgman::get_level_ext(orig_level_type));
+    const char *path = pkgman::get_level_path(orig_level_type);
+
+#ifdef TMS_BACKEND_WINDOWS
+    wchar_t tmp[1024];
+#else
+    char tmp[1024];
+#endif
+
+    DIR *dir;
+    struct dirent *ent;
+    lvlfile *first = 0, *last = 0;
+
+    if ((dir = opendir(path))) {
+
+        while ((ent = readdir(dir))) {
+            int len = strlen(ent->d_name);
+
+            if (len > 5 && memcmp(&ent->d_name[len-5], ext, 5) == 0) {
+                uint32_t level_id = 0;
+                uint32_t save_id = 0;
+                uint8_t state_level_type = LEVEL_LOCAL_STATE;
+
+                if (state) {
+                    // State format: {0:s:type}.{1:d:id}.{2:d:save_id}.{3:s:ext}
+                    if (ent->d_name[0] == 'l')
+                        state_level_type = LEVEL_LOCAL_STATE;
+                    else if (ent->d_name[0] == 'd')
+                        state_level_type = LEVEL_DB_STATE;
+
+                    char *level_id_c = strchr(ent->d_name, '.');
+                    level_id = atoi(level_id_c+1);
+                    save_id = atoi(strchr(level_id_c+1, '.')+1);
+                } else {
+                    // Regular level format: {0:d:id}.{1:s:save_id}
+                    level_id = atoi(ent->d_name);
+
+                    save_id = atoi(strchr(ent->d_name, '.')+1);
+                }
+
+                time_t mtime;
+                char date[21];
+
+#ifdef TMS_BACKEND_WINDOWS
+                WIN32_FILE_ATTRIBUTE_DATA data;
+                wsprintf(tmp, L"%hs\\%hs", path, ent->d_name);
+
+                GetFileAttributesEx((LPCWSTR)(tmp), GetFileExInfoStandard, &data);
+
+                FILETIME time = data.ftLastWriteTime;
+                SYSTEMTIME sys_time, local_time;
+
+                FileTimeToSystemTime(&time, &sys_time);
+                SystemTimeToTzSpecificLocalTime(0, &sys_time, &local_time);
+                snprintf(date, 20, "%04d-%02d-%02d %02d:%02d:%02d", local_time.wYear, local_time.wMonth, local_time.wDay, local_time.wHour, local_time.wMinute, local_time.wSecond);
+                mtime = filetime_to_timet(time);
+#else
+                snprintf(tmp, 1023, "%s/%s", path, ent->d_name);
+                struct stat st;
+                stat(tmp, &st);
+                strftime(date, 20, "%Y-%m-%d %H:%M:%S", gmtime((time_t*)&(st.st_mtime)));
+                mtime = st.st_mtime;
+#endif
+
+                if (level_id != 0 || state) {
+                    lvlfile *ff = new lvlfile((state ? state_level_type : level_type), level_id);
+                    strcpy(ff->modified_date, date);
+                    ff->mtime = mtime;
+                    ff->save_id = save_id;
+
+                    /**
+                     * For state searches, we do not care about the original level type.
+                     * The original level type is merely there to notify us that it's states
+                     * we are looking for.
+                     * The level type of the current state is discerned via the filename
+                     * using the first "dotted" argument (level or db).
+                     **/
+                    if (pkgman::get_level_data((state ? state_level_type : orig_level_type), level_id, save_id, ff->name, &ff->version)) {
+                        if (!first) {
+                            first = ff;
+                        } else {
+                            // loop through and insert the lvlfile as soon as the date is newer
+
+                            lvlfile *l = first, *prev = 0;
+                            while (l) {
+                                if (strcmp(ff->modified_date, l->modified_date) > 0) {
+                                    break;
+                                }
+                                prev = l;
+                                l = l->next;
+                            }
+
+                            if (!prev) {
+                                ff->next = first;
+                                first = ff;
+                            } else {
+                                ff->next = prev->next;
+                                prev->next = ff;
+                            }
+                        }
+                    } else {
+                        tms_warnf("Unable to get level name for lid %u", level_id);
+                        delete ff;
+                    }
+                }
+            }
+        }
+        closedir(dir);
+    } else {
+        tms_errorf("could not open directory %s", path);
+    }
+
+    return first;
+}
+
+uint32_t pkgman::get_latest_level_id(int level_type) {
+    lvlfile *level = pkgman::get_levels(LEVEL_LOCAL);
+
+    uint32_t latest_id = 0;
+    time_t latest_mtime = 0;
+
+    while (level) {
+        if (level->mtime > latest_mtime) {
+            latest_id = level->id;
+            latest_mtime = level->mtime;
+        }
+
+        lvlfile *next = level->next;
+        delete level;
+        level = next;
+    }
+
+    return latest_id;
+}
+
+extern "C" struct lvlfile* pkgman_get_levels(int level_type) {
+    return pkgman::get_levels(level_type);
+}
+
+// lvledit
+
+bool lvledit::open(int lvl_type, uint32_t lvl_id) {
+    char filename[1024];
+
+    const char *ext = pkgman::get_level_ext(lvl_type);
+    const char *path = pkgman::get_level_path(lvl_type);
+
+    if (lvl_id == 0)
+        snprintf(filename, 1023, "%s/.autosave", path);
+    else
+        snprintf(filename, 1023, "%s/%d.%s", path, lvl_id, ext);
+
+    this->lvl_type = 0;
+    this->lvl_id = 0;
+
+    FILE_IN_ASSET(lvl_type == LEVEL_MAIN);
+
+    FILE *fp = _fopen(filename, "rb");
+
+    if (fp) {
+        _fseek(fp, 0, SEEK_END);
+        long size = _ftell(fp);
+        _fseek(fp, 0, SEEK_SET);
+
+        if (size > 2*1024*1024) {
+            tms_fatalf("file too big");
+        }
+
+        this->lb.reset();
+        this->lb.size = 0;
+        this->lb.ensure((int)size);
+
+        _fread(this->lb.buf, 1, size, fp);
+
+        _fclose(fp);
+
+        this->lb.size = size;
+        this->lvl.read(&this->lb);
+        this->header_size = this->lvl.get_size();
+        this->lvl_type = lvl_type;
+        this->lvl_id = lvl_id;
+    } else {
+        return false;
+    }
+
+    return true;
+}
+
+bool lvledit::save() {
+    if (this->lvl.get_size() != this->header_size) {
+        // new header size does not match old header size,
+        // we need to perform a memmove on the object data
+
+        int diff = this->lvl.get_size() - this->header_size;
+
+        if (diff > 0)
+            this->lb.ensure(diff);
+
+        char *header_end = (char*)this->lb.buf + this->header_size;
+        memmove(header_end + diff, header_end, this->lb.size - this->header_size);
+
+        this->header_size += diff;
+        this->lb.size += diff;
+    }
+
+    int saved_size = this->lb.size;
+    this->lb.size = 0;
+    this->lvl.write(&this->lb);
+    this->lb.size = saved_size;
+
+    char filename[1024];
+    snprintf(filename, 1023, "%s/%d.%s", pkgman::get_level_path(this->lvl_type), this->lvl_id, pkgman::get_level_ext(this->lvl_type));
+
+    FILE *fp = fopen(filename, "wb");
+
+    if (fp) {
+        fwrite(this->lb.buf, 1, this->lb.size, fp);
+        fclose(fp);
+
+        return true;
+    }
+
+    tms_errorf("could not open file '%s' for writing", filename);
+    return false;
+}
+
+bool lvledit::open_from_path(const char *path) {
+    FILE *fp = fopen(path, "rb");
+
+    if (fp) {
+        fseek(fp, 0, SEEK_END);
+        long size = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+
+        if (size > 2*1024*1024) {
+            tms_fatalf("file too big");
+        }
+
+        this->lb.reset();
+        this->lb.size = 0;
+        this->lb.ensure((int)size);
+
+        fread(this->lb.buf, 1, size, fp);
+
+        fclose(fp);
+
+        this->lb.size = size;
+        bool r = this->lvl.read(&this->lb);
+        if (!r) {
+            fprintf(stderr, "uh oh\n");
+        }
+        this->header_size = this->lvl.get_size();
+    } else {
+        return false;
+    }
+
+    return true;
+}
+
+bool lvledit::save_to_path(const char *path) {
+    if (this->lvl.get_size() != this->header_size) {
+        // new header size does not match old header size,
+        // we need to perform a memmove on the object data
+
+        int diff = this->lvl.get_size() - this->header_size;
+
+        if (diff > 0)
+            this->lb.ensure(diff);
+
+        char *header_end = (char*)this->lb.buf + this->header_size;
+        memmove(header_end + diff, header_end, this->lb.size - this->header_size);
+
+        this->header_size += diff;
+        this->lb.size += diff;
+    }
+
+    int saved_size = this->lb.size;
+    this->lb.size = 0;
+    this->lvl.write(&this->lb);
+    this->lb.size = saved_size;
+
+    FILE *fp = fopen(path, "wb");
+
+    if (fp) {
+        fwrite(this->lb.buf, 1, this->lb.size, fp);
+        fclose(fp);
+
+        return true;
+    }
+
+    tms_errorf("could not open file '%s' for writing", path);
+    return false;
+}
+
+void lvledit::print_gids() {
+    // IMPORTANT: keep this in sync with of::read()
+    this->lb.rp = this->lvl.get_size();
+
+    uint32_t num_groups = this->lvl.num_groups;
+    uint32_t num_entities = this->lvl.num_entities;
+
+    // skip groups
+#if 0
+    this->lb.rp +=
+        num_groups *
+        (
+          sizeof(uint32_t) // id
+          +sizeof(float) // pos.x
+          +sizeof(float) // pos.y
+          +sizeof(float) // angle
+          +(version >= LEVEL_VERSION_1_5 ? sizeof(uint32_t) : 0)
+        );
+#endif
+    for (uint32_t x = 0; x < num_groups; ++x) {
+        lb.r_uint32();  // id
+        lb.rp += sizeof(float) // pos.x
+               + sizeof(float) // pos.y
+               + sizeof(float);// angle
+
+        if (this->lvl.version >= LEVEL_VERSION_1_5) {
+            uint32_t state_size = lb.r_uint32();
+            lb.rp += state_size;
+        }
+    }
+
+    for (uint32_t x = 0; x < num_entities; ++x) {
+        uint8_t np;
+        uint8_t nc = 0;
+        uint32_t state_size = 0;
+
+        uint8_t g_id = lb.r_uint8(); // g_id
+        lb.r_uint32(); // id
+        lb.r_uint16(); // group_id half
+        lb.r_uint16(); // group id half
+
+        printf("%s%u",((x>0)?"\n":""), g_id); // g_id
+
+        np = lb.r_uint8(); // num properties
+
+        if (this->lvl.version >= LEVEL_VERSION_1_5) {
+            nc = lb.r_uint8(); // num chunks
+            state_size = lb.r_uint32(); // state size
+        }
+
+        (void)lb.r_float(); // pos.x
+        (void)lb.r_float(); // pos.y
+        (void)lb.r_float(); // angle
+        (void)lb.r_uint8(); // layer
+
+        if (this->lvl.version >= LEVEL_VERSION_1_5) {
+            lb.r_uint64(); // state flags
+            // this includes moveable and axisrot
+
+            for (int x=0; x<nc; x++) {
+                lb.r_int32(); // chunk x
+                lb.r_int32(); // chunk y
+            }
+
+            // skip state buffer
+            lb.rp += state_size;
+        } else {
+            (void)lb.r_uint8(); // axisrot
+            if (this->lvl.version >= 10) {
+                (void)lb.r_uint8(); // moveable
+            }
+        }
+
+        for (int x=0; x<np; x++) {
+            uint8_t type = lb.r_uint8();
+
+            switch (type) {
+                case P_INT8:
+                    lb.r_uint8();
+                    break;
+
+                case P_INT:
+                case P_ID:
+                    lb.r_uint32();
+                    break;
+
+                case P_FLT:
+                    lb.r_float();
+                    break;
+
+                case P_STR:
+                    if (this->lvl.version >= LEVEL_VERSION_1_5) {
+                        uint32_t len = lb.r_uint32();
+                        lb.rp += len;
+                    } else {
+                        uint16_t len = lb.r_uint16();
+                        lb.rp += len;
+                    }
+                break;
+
+                default: fprintf(stderr, "invalid object property %d", type); exit(1);
+            }
+        }
+    }
+}
+
+// lvlbuf
+
+void lvlbuf::ensure(uint64_t s) {
     uint64_t ns = this->size + s;
     if (ns > this->cap) {
         uint64_t old_cap = this->cap;
         if (this->sparse_resize) {
-            /* round up to nearest power of two */
+            // round up to nearest power of two
             this->cap = ns;
             this->cap --;
             this->cap |= this->cap >> 1;
@@ -1544,9 +1484,7 @@ lvlbuf::ensure(uint64_t s)
     }
 }
 
-void
-lvlbuf::zcompress(const lvlinfo &level, unsigned char **dest, uint64_t *dest_len) const
-{
+void lvlbuf::zcompress(const lvlinfo &level, unsigned char **dest, uint64_t *dest_len) const {
     uint64_t header_size = level.get_size();
 
     *dest_len = compressBound(this->size-header_size);
@@ -1554,7 +1492,7 @@ lvlbuf::zcompress(const lvlinfo &level, unsigned char **dest, uint64_t *dest_len
 
     int ret = compress(*dest, (uLong*)dest_len, this->buf+header_size, this->size-header_size);
 
-    /* TODO: Better error-handling */
+    // TODO: Better error-handling
     switch (ret) {
         case Z_OK:
             tms_infof("zcompress success");
@@ -1580,9 +1518,7 @@ lvlbuf::zcompress(const lvlinfo &level, unsigned char **dest, uint64_t *dest_len
     tms_infof("Compression status: Old: %" PRIu64 ". New: %" PRIu64 ". Total: %.2f", this->size-header_size, *dest_len, (float)(float)*dest_len/((this->size-header_size)));
 }
 
-void
-lvlbuf::zuncompress(const lvlinfo &level)
-{
+void lvlbuf::zuncompress(const lvlinfo &level) {
     uint64_t header_size = level.get_size();
 
     uLong dest_len = level.compression_length;
@@ -1590,7 +1526,7 @@ lvlbuf::zuncompress(const lvlinfo &level)
 
     int ret = uncompress(dest, &dest_len, this->buf+header_size, this->size-header_size);
 
-    /* TODO: Better error-handling */
+    // TODO: Better error-handling
     switch (ret) {
         case Z_OK:
             tms_infof("zuncompress success");
