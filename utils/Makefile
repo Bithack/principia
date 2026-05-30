@@ -1,4 +1,4 @@
-SUBDIRS := lvl-icon-extractor lvledit progress-get
+SUBDIRS := lvl-icon-extractor lvlbuf-decompressor lvledit progress-get
 
 .PHONY: all clean $(SUBDIRS)
 

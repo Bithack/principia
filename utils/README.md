@@ -10,5 +10,6 @@ This directory contains utility scripts and programs used for Principia developm
 Most of these programs rely on source files from the main Principia codebase and need to be compiled to run. Likely only works on Linux. You can use the `Makefile` in each directory or run `make` in the `utils` directory to build all of them.
 
 - `lvl-icon-extractor`: Extract the embedded level icon in a Principia level file
+- `lvlbuf-decompressor`: Decompress the level buffer of a Principia level file
 - `lvledit`: Edit metadata of Principia level files
 - `progress-get`: Get leaderboard score for a given level from a data.bin file
