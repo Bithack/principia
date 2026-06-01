@@ -4,13 +4,12 @@ This is a C program that generates a featured list file (`fl.cache`) from JSON d
 The program requires the jansson library for JSON parsing, and will attempt to statically link against it by default. You can do `make STATIC=0` to link dynamically instead.
 
 ## Usage
-There are two optional arguments for specifying the input JSON file and output `fl.cache` file. The default values are below:
 
 ```bash
-./featured-list-creator data/data.json fl.cache
+featured-list-creator <input-json> <output-file>
 ```
 
-## Format
+## JSON Format
 The format of the input JSON file is as follows:
 
 ```json

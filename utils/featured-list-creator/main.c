@@ -17,7 +17,7 @@ void write(FILE *f, const char* value) {
 
 int main(int argc, char *argv[]) {
     if (argc < 3) {
-        printf("Usage: %s [data.json] [fl.cache]\n", argv[0]);
+        printf("Usage: %s <data.json> <fl.cache>\n", argv[0]);
         return 1;
     }
 
