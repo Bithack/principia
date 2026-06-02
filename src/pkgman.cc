@@ -943,9 +943,7 @@ bool pkgman::get_level_data(int level_type, uint32_t id, uint32_t save_id, char 
 
     pkgman::get_level_full_path(level_type, id, save_id, filename);
 
-    FILE_IN_ASSET(level_type == LEVEL_MAIN);
-
-    FILE *fp = _fopen(filename, "rb");
+    FILE *fp = fopen(filename, "rb");
 
     if (!fp) {
         tms_warnf("unable to open file for lid %u", id);
@@ -955,7 +953,7 @@ bool pkgman::get_level_data(int level_type, uint32_t id, uint32_t save_id, char 
     tmpbuf.reset();
     tmpbuf.ensure(sizeof(lvlinfo));
 
-    _fread(tmpbuf.buf, 1, sizeof(lvlinfo), fp);
+    fread(tmpbuf.buf, 1, sizeof(lvlinfo), fp);
     tmpbuf.size = sizeof(lvlinfo);
 
     tmplvl.read(&tmpbuf, true);
@@ -969,7 +967,7 @@ bool pkgman::get_level_data(int level_type, uint32_t id, uint32_t save_id, char 
 
     *o_version = tmplvl.version;
 
-    _fclose(fp);
+    fclose(fp);
 
     return true;
 }
@@ -1196,8 +1194,6 @@ bool lvledit::open(int lvl_type, uint32_t lvl_id) {
     this->lvl_type = 0;
     this->lvl_id = 0;
 
-    FILE_IN_ASSET(lvl_type == LEVEL_MAIN);
-
     if (!open_from_path(filename)) {
         tms_errorf("could not open level file '%s'", filename);
         return false;
@@ -1228,9 +1224,9 @@ bool lvledit::open_from_path(const char *path) {
         return false;
     }
 
-    _fseek(fp, 0, SEEK_END);
-    long size = _ftell(fp);
-    _fseek(fp, 0, SEEK_SET);
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
 
     if (size > 2*1024*1024) {
         tms_fatalf("file too big");
@@ -1240,9 +1236,9 @@ bool lvledit::open_from_path(const char *path) {
     this->lb.size = 0;
     this->lb.ensure((int)size);
 
-    _fread(this->lb.buf, 1, size, fp);
+    fread(this->lb.buf, 1, size, fp);
 
-    _fclose(fp);
+    fclose(fp);
 
     this->lb.size = size;
     this->lvl.read(&this->lb);
