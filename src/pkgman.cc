@@ -933,38 +933,9 @@ void pkgman::get_cache_full_path(int level_type, uint32_t id, uint32_t save_id, 
 }
 
 bool pkgman::get_level_name(int level_type, uint32_t id, uint32_t save_id, char *output) {
-    char filename[1024];
-
-    pkgman::get_level_full_path(level_type, id, save_id, filename);
-
-    FILE_IN_ASSET(level_type == LEVEL_MAIN);
-
-    FILE *fp = _fopen(filename, "rb");
-    if (fp) {
-        tmpbuf.reset();
-        tmpbuf.ensure(sizeof(lvlinfo));
-
-        _fread(tmpbuf.buf, 1, sizeof(lvlinfo), fp);
-        tmpbuf.size = sizeof(lvlinfo);
-
-        tmplvl.read(&tmpbuf, true);
-
-        if (tmplvl.name_len == 0) {
-            strcpy(output, "<no name>");
-        } else {
-            memcpy(output, tmplvl.name, tmplvl.name_len*sizeof(char));
-            output[tmplvl.name_len] = '\0';
-        }
-
-        _fclose(fp);
-
-        return true;
-    } else {
-        strcpy(output, "<no name>");
-        tms_warnf("unable to open file for lid %u", id);
-    }
-
-    return false;
+    uint8_t o_version;
+    pkgman::get_level_data(level_type, id, save_id, output, &o_version);
+    return true;
 }
 
 bool pkgman::get_level_data(int level_type, uint32_t id, uint32_t save_id, char *o_name, uint8_t *o_version) {
@@ -975,32 +946,32 @@ bool pkgman::get_level_data(int level_type, uint32_t id, uint32_t save_id, char 
     FILE_IN_ASSET(level_type == LEVEL_MAIN);
 
     FILE *fp = _fopen(filename, "rb");
-    if (fp) {
-        tmpbuf.reset();
-        tmpbuf.ensure(sizeof(lvlinfo));
 
-        _fread(tmpbuf.buf, 1, sizeof(lvlinfo), fp);
-        tmpbuf.size = sizeof(lvlinfo);
-
-        tmplvl.read(&tmpbuf, true);
-
-        if (tmplvl.name_len == 0) {
-            strcpy(o_name, "<no name>");
-        } else {
-            memcpy(o_name, tmplvl.name, tmplvl.name_len*sizeof(char));
-            o_name[tmplvl.name_len] = '\0';
-        }
-
-        *o_version = tmplvl.version;
-
-        _fclose(fp);
-
-        return true;
-    } else {
+    if (!fp) {
         tms_warnf("unable to open file for lid %u", id);
+        return false;
     }
 
-    return false;
+    tmpbuf.reset();
+    tmpbuf.ensure(sizeof(lvlinfo));
+
+    _fread(tmpbuf.buf, 1, sizeof(lvlinfo), fp);
+    tmpbuf.size = sizeof(lvlinfo);
+
+    tmplvl.read(&tmpbuf, true);
+
+    if (tmplvl.name_len == 0) {
+        strcpy(o_name, "<no name>");
+    } else {
+        memcpy(o_name, tmplvl.name, tmplvl.name_len*sizeof(char));
+        o_name[tmplvl.name_len] = '\0';
+    }
+
+    *o_version = tmplvl.version;
+
+    _fclose(fp);
+
+    return true;
 }
 
 pkginfo *pkgman::get_pkgs(int type) {
@@ -1078,104 +1049,109 @@ lvlfile *pkgman::get_levels(int level_type) {
     struct dirent *ent;
     lvlfile *first = 0, *last = 0;
 
-    if ((dir = opendir(path))) {
+    dir = opendir(path);
 
-        while ((ent = readdir(dir))) {
-            int len = strlen(ent->d_name);
+    if (!dir) {
+        tms_errorf("could not open directory %s", path);
+        return first;
+    }
 
-            if (len > 5 && memcmp(&ent->d_name[len-5], ext, 5) == 0) {
-                uint32_t level_id = 0;
-                uint32_t save_id = 0;
-                uint8_t state_level_type = LEVEL_LOCAL_STATE;
+    while ((ent = readdir(dir))) {
+        int len = strlen(ent->d_name);
 
-                if (state) {
-                    // State format: {0:s:type}.{1:d:id}.{2:d:save_id}.{3:s:ext}
-                    if (ent->d_name[0] == 'l')
-                        state_level_type = LEVEL_LOCAL_STATE;
-                    else if (ent->d_name[0] == 'd')
-                        state_level_type = LEVEL_DB_STATE;
+        if (!(len > 5 && memcmp(&ent->d_name[len-5], ext, 5) == 0))
+            continue;
 
-                    char *level_id_c = strchr(ent->d_name, '.');
-                    level_id = atoi(level_id_c+1);
-                    save_id = atoi(strchr(level_id_c+1, '.')+1);
-                } else {
-                    // Regular level format: {0:d:id}.{1:s:save_id}
-                    level_id = atoi(ent->d_name);
+        uint32_t level_id = 0;
+        uint32_t save_id = 0;
+        uint8_t state_level_type = LEVEL_LOCAL_STATE;
 
-                    save_id = atoi(strchr(ent->d_name, '.')+1);
-                }
+        if (state) {
+            // State format: {0:s:type}.{1:d:id}.{2:d:save_id}.{3:s:ext}
+            if (ent->d_name[0] == 'l')
+                state_level_type = LEVEL_LOCAL_STATE;
+            else if (ent->d_name[0] == 'd')
+                state_level_type = LEVEL_DB_STATE;
 
-                time_t mtime;
-                char date[21];
+            char *level_id_c = strchr(ent->d_name, '.');
+            level_id = atoi(level_id_c+1);
+            save_id = atoi(strchr(level_id_c+1, '.')+1);
+        } else {
+            // Regular level format: {0:d:id}.{1:s:save_id}
+            level_id = atoi(ent->d_name);
+
+            save_id = atoi(strchr(ent->d_name, '.')+1);
+        }
+
+        time_t mtime;
+        char date[21];
 
 #ifdef TMS_BACKEND_WINDOWS
-                WIN32_FILE_ATTRIBUTE_DATA data;
-                wsprintf(tmp, L"%hs\\%hs", path, ent->d_name);
+        WIN32_FILE_ATTRIBUTE_DATA data;
+        wsprintf(tmp, L"%hs\\%hs", path, ent->d_name);
 
-                GetFileAttributesEx((LPCWSTR)(tmp), GetFileExInfoStandard, &data);
+        GetFileAttributesEx((LPCWSTR)(tmp), GetFileExInfoStandard, &data);
 
-                FILETIME time = data.ftLastWriteTime;
-                SYSTEMTIME sys_time, local_time;
+        FILETIME time = data.ftLastWriteTime;
+        SYSTEMTIME sys_time, local_time;
 
-                FileTimeToSystemTime(&time, &sys_time);
-                SystemTimeToTzSpecificLocalTime(0, &sys_time, &local_time);
-                snprintf(date, 20, "%04d-%02d-%02d %02d:%02d:%02d", local_time.wYear, local_time.wMonth, local_time.wDay, local_time.wHour, local_time.wMinute, local_time.wSecond);
-                mtime = filetime_to_timet(time);
+        FileTimeToSystemTime(&time, &sys_time);
+        SystemTimeToTzSpecificLocalTime(0, &sys_time, &local_time);
+        snprintf(date, 20, "%04d-%02d-%02d %02d:%02d:%02d", local_time.wYear, local_time.wMonth, local_time.wDay, local_time.wHour, local_time.wMinute, local_time.wSecond);
+        mtime = filetime_to_timet(time);
 #else
-                snprintf(tmp, 1023, "%s/%s", path, ent->d_name);
-                struct stat st;
-                stat(tmp, &st);
-                strftime(date, 20, "%Y-%m-%d %H:%M:%S", gmtime((time_t*)&(st.st_mtime)));
-                mtime = st.st_mtime;
+        snprintf(tmp, 1023, "%s/%s", path, ent->d_name);
+        struct stat st;
+        stat(tmp, &st);
+        strftime(date, 20, "%Y-%m-%d %H:%M:%S", gmtime((time_t*)&(st.st_mtime)));
+        mtime = st.st_mtime;
 #endif
 
-                if (level_id != 0 || state) {
-                    lvlfile *ff = new lvlfile((state ? state_level_type : level_type), level_id);
-                    strcpy(ff->modified_date, date);
-                    ff->mtime = mtime;
-                    ff->save_id = save_id;
+        if (!(level_id != 0 || state))
+            continue;
 
-                    /**
-                     * For state searches, we do not care about the original level type.
-                     * The original level type is merely there to notify us that it's states
-                     * we are looking for.
-                     * The level type of the current state is discerned via the filename
-                     * using the first "dotted" argument (level or db).
-                     **/
-                    if (pkgman::get_level_data((state ? state_level_type : orig_level_type), level_id, save_id, ff->name, &ff->version)) {
-                        if (!first) {
-                            first = ff;
-                        } else {
-                            // loop through and insert the lvlfile as soon as the date is newer
+        lvlfile *ff = new lvlfile((state ? state_level_type : level_type), level_id);
+        strcpy(ff->modified_date, date);
+        ff->mtime = mtime;
+        ff->save_id = save_id;
 
-                            lvlfile *l = first, *prev = 0;
-                            while (l) {
-                                if (strcmp(ff->modified_date, l->modified_date) > 0) {
-                                    break;
-                                }
-                                prev = l;
-                                l = l->next;
-                            }
+        /**
+         * For state searches, we do not care about the original level type.
+         * The original level type is merely there to notify us that it's states
+         * we are looking for.
+         * The level type of the current state is discerned via the filename
+         * using the first "dotted" argument (level or db).
+         **/
+        if (!pkgman::get_level_data((state ? state_level_type : orig_level_type), level_id, save_id, ff->name, &ff->version)) {
+            tms_warnf("Unable to get level name for lid %u", level_id);
+            delete ff;
+            continue;
+        }
 
-                            if (!prev) {
-                                ff->next = first;
-                                first = ff;
-                            } else {
-                                ff->next = prev->next;
-                                prev->next = ff;
-                            }
-                        }
-                    } else {
-                        tms_warnf("Unable to get level name for lid %u", level_id);
-                        delete ff;
-                    }
+        if (!first) {
+            first = ff;
+        } else {
+            // loop through and insert the lvlfile as soon as the date is newer
+
+            lvlfile *l = first, *prev = 0;
+            while (l) {
+                if (strcmp(ff->modified_date, l->modified_date) > 0) {
+                    break;
                 }
+                prev = l;
+                l = l->next;
+            }
+
+            if (!prev) {
+                ff->next = first;
+                first = ff;
+            } else {
+                ff->next = prev->next;
+                prev->next = ff;
             }
         }
-        closedir(dir);
-    } else {
-        tms_errorf("could not open directory %s", path);
     }
+    closedir(dir);
 
     return first;
 }
@@ -1213,113 +1189,64 @@ bool lvledit::open(int lvl_type, uint32_t lvl_id) {
     const char *path = pkgman::get_level_path(lvl_type);
 
     if (lvl_id == 0)
-        snprintf(filename, 1023, "%s/.autosave", path);
+        snprintf(filename, 1024, "%s/.autosave", path);
     else
-        snprintf(filename, 1023, "%s/%d.%s", path, lvl_id, ext);
+        snprintf(filename, 1024, "%s/%d.%s", path, lvl_id, ext);
 
     this->lvl_type = 0;
     this->lvl_id = 0;
 
     FILE_IN_ASSET(lvl_type == LEVEL_MAIN);
 
-    FILE *fp = _fopen(filename, "rb");
-
-    if (fp) {
-        _fseek(fp, 0, SEEK_END);
-        long size = _ftell(fp);
-        _fseek(fp, 0, SEEK_SET);
-
-        if (size > 2*1024*1024) {
-            tms_fatalf("file too big");
-        }
-
-        this->lb.reset();
-        this->lb.size = 0;
-        this->lb.ensure((int)size);
-
-        _fread(this->lb.buf, 1, size, fp);
-
-        _fclose(fp);
-
-        this->lb.size = size;
-        this->lvl.read(&this->lb);
-        this->header_size = this->lvl.get_size();
-        this->lvl_type = lvl_type;
-        this->lvl_id = lvl_id;
-    } else {
+    if (!open_from_path(filename)) {
+        tms_errorf("could not open level file '%s'", filename);
         return false;
     }
+
+    this->lvl_type = lvl_type;
+    this->lvl_id = lvl_id;
 
     return true;
 }
 
 bool lvledit::save() {
-    if (this->lvl.get_size() != this->header_size) {
-        // new header size does not match old header size,
-        // we need to perform a memmove on the object data
-
-        int diff = this->lvl.get_size() - this->header_size;
-
-        if (diff > 0)
-            this->lb.ensure(diff);
-
-        char *header_end = (char*)this->lb.buf + this->header_size;
-        memmove(header_end + diff, header_end, this->lb.size - this->header_size);
-
-        this->header_size += diff;
-        this->lb.size += diff;
-    }
-
-    int saved_size = this->lb.size;
-    this->lb.size = 0;
-    this->lvl.write(&this->lb);
-    this->lb.size = saved_size;
-
     char filename[1024];
-    snprintf(filename, 1023, "%s/%d.%s", pkgman::get_level_path(this->lvl_type), this->lvl_id, pkgman::get_level_ext(this->lvl_type));
 
-    FILE *fp = fopen(filename, "wb");
+    const char *ext = pkgman::get_level_ext(lvl_type);
+    const char *path = pkgman::get_level_path(lvl_type);
 
-    if (fp) {
-        fwrite(this->lb.buf, 1, this->lb.size, fp);
-        fclose(fp);
+    snprintf(filename, 1024, "%s/%d.%s", path, this->lvl_id, ext);
 
-        return true;
-    }
-
-    tms_errorf("could not open file '%s' for writing", filename);
-    return false;
+    return save_to_path(filename);
 }
 
 bool lvledit::open_from_path(const char *path) {
     FILE *fp = fopen(path, "rb");
 
-    if (fp) {
-        fseek(fp, 0, SEEK_END);
-        long size = ftell(fp);
-        fseek(fp, 0, SEEK_SET);
-
-        if (size > 2*1024*1024) {
-            tms_fatalf("file too big");
-        }
-
-        this->lb.reset();
-        this->lb.size = 0;
-        this->lb.ensure((int)size);
-
-        fread(this->lb.buf, 1, size, fp);
-
-        fclose(fp);
-
-        this->lb.size = size;
-        bool r = this->lvl.read(&this->lb);
-        if (!r) {
-            fprintf(stderr, "uh oh\n");
-        }
-        this->header_size = this->lvl.get_size();
-    } else {
+    if (!fp) {
+        tms_errorf("could not open file '%s'", path);
         return false;
     }
+
+    _fseek(fp, 0, SEEK_END);
+    long size = _ftell(fp);
+    _fseek(fp, 0, SEEK_SET);
+
+    if (size > 2*1024*1024) {
+        tms_fatalf("file too big");
+    }
+
+    this->lb.reset();
+    this->lb.size = 0;
+    this->lb.ensure((int)size);
+
+    _fread(this->lb.buf, 1, size, fp);
+
+    _fclose(fp);
+
+    this->lb.size = size;
+    this->lvl.read(&this->lb);
+    this->header_size = this->lvl.get_size();
 
     return true;
 }
@@ -1348,15 +1275,15 @@ bool lvledit::save_to_path(const char *path) {
 
     FILE *fp = fopen(path, "wb");
 
-    if (fp) {
-        fwrite(this->lb.buf, 1, this->lb.size, fp);
-        fclose(fp);
-
-        return true;
+    if (!fp) {
+        tms_errorf("could not open file '%s' for writing", path);
+        return false;
     }
 
-    tms_errorf("could not open file '%s' for writing", path);
-    return false;
+    fwrite(this->lb.buf, 1, this->lb.size, fp);
+    fclose(fp);
+
+    return true;
 }
 
 void lvledit::print_gids() {
