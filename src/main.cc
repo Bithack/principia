@@ -1896,9 +1896,13 @@ initial_loader(int step)
             P.s_loading_screen->set_text("Loading progress...");
             break;
 
-        case 15:
-            progress::init();
+        case 15: {
+            char tmp[1024];
+            const char *storage = tms_storage_path();
+            snprintf(tmp, 1024, "%s/data.bin", storage);
+            progress::init(tmp);
             break;
+        }
 
         case 16:
             {

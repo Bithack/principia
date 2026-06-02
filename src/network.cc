@@ -916,11 +916,6 @@ _submit_score(void *p)
 
     CURLcode r;
 
-    char data_path[1024];
-
-    const char *storage = tms_storage_path();
-    snprintf(data_path, 1023, "%s/data.bin", storage);
-
     int highscore_level_offset = highscore_offset(W->level.community_id);
 
     lvledit lvl;
@@ -975,7 +970,7 @@ _submit_score(void *p)
 
         part = curl_mime_addpart(mime);
         curl_mime_name(part, "data.bin");
-        curl_mime_filedata(part, data_path);
+        curl_mime_filedata(part, progress::path);
 
         char tmp[32];
         sprintf(tmp, "%u", W->level.community_id);
