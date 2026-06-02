@@ -717,29 +717,33 @@ bool pkginfo::save() {
     char *storage = (char*)pkgman::get_pkg_path(this->type);
     snprintf(path, 1023, "%s/%d.ppkg", storage, this->id);
 
+    return save_to_path(path);
+}
+
+bool pkginfo::save_to_path(const char *path) {
     FILE *fp = fopen(path, "wb");
 
-    if (fp) {
-        // always update the version to the latest on save
-        this->version = PKG_VERSION;
-
-        fwrite(&this->version, 1, 1, fp);
-        fwrite(&this->community_id, 1, sizeof(uint32_t), fp);
-        fwrite(this->name, 1, 255, fp);
-        fwrite(&this->unlock_count, 1, sizeof(uint8_t), fp);
-        fwrite(&this->first_is_menu, 1, sizeof(uint8_t), fp);
-        fwrite(&this->return_on_finish, 1, sizeof(uint8_t), fp);
-        fwrite(&this->num_levels, 1, sizeof(uint8_t), fp);
-
-        for (int x=0; x<this->num_levels; x++) {
-            fwrite(&this->levels[x], 1, sizeof(uint32_t), fp);
-        }
-
-        fclose(fp);
-    } else {
+    if (!fp) {
         tms_errorf("could not open: %s", path);
         return false;
     }
+
+    // always update the version to the latest on save
+    this->version = PKG_VERSION;
+
+    fwrite(&this->version, 1, 1, fp);
+    fwrite(&this->community_id, 1, sizeof(uint32_t), fp);
+    fwrite(this->name, 1, 255, fp);
+    fwrite(&this->unlock_count, 1, sizeof(uint8_t), fp);
+    fwrite(&this->first_is_menu, 1, sizeof(uint8_t), fp);
+    fwrite(&this->return_on_finish, 1, sizeof(uint8_t), fp);
+    fwrite(&this->num_levels, 1, sizeof(uint8_t), fp);
+
+    for (int x=0; x<this->num_levels; x++) {
+        fwrite(&this->levels[x], 1, sizeof(uint32_t), fp);
+    }
+
+    fclose(fp);
 
     return true;
 }
@@ -747,7 +751,7 @@ bool pkginfo::save() {
 bool pkginfo::open(int type, uint32_t id) {
     if (type < 0 || type >= 4) {
         tms_errorf("invalid level type");
-        return "";
+        return false;
     }
 
     char path[1024];
@@ -767,36 +771,37 @@ bool pkginfo::open(int type, uint32_t id) {
 
     FILE *fp = _fopen(path, "rb");
 
-    if (fp) {
-        _fread(&this->version, 1, 1, fp);
-        if (this->version >= 2)
-            _fread(&this->community_id, 1, sizeof(uint32_t), fp);
-        else
-            this->community_id = 0;
-
-        _fread(this->name, 1, 255, fp);
-
-        if (this->version >= 3)
-            _fread(&this->unlock_count, 1, sizeof(uint8_t), fp);
-
-        if (this->version >= 1) {
-            _fread(&this->first_is_menu, 1, sizeof(uint8_t), fp);
-            _fread(&this->return_on_finish, 1, sizeof(uint8_t), fp);
-        }
-
-        _fread(&this->num_levels, 1, sizeof(uint8_t), fp);
-
-        if (this->num_levels)
-            this->levels = (uint32_t*)malloc(this->num_levels * sizeof(uint32_t));
-
-        for (int x=0; x<this->num_levels; x++) {
-            _fread(&this->levels[x], 1, sizeof(uint32_t), fp);
-        }
-
-        _fclose(fp);
-    } else {
+    if (!fp) {
+        tms_errorf("could not open: %s", path);
         return false;
     }
+
+    _fread(&this->version, 1, 1, fp);
+    if (this->version >= 2)
+        _fread(&this->community_id, 1, sizeof(uint32_t), fp);
+    else
+        this->community_id = 0;
+
+    _fread(this->name, 1, 255, fp);
+
+    if (this->version >= 3)
+        _fread(&this->unlock_count, 1, sizeof(uint8_t), fp);
+
+    if (this->version >= 1) {
+        _fread(&this->first_is_menu, 1, sizeof(uint8_t), fp);
+        _fread(&this->return_on_finish, 1, sizeof(uint8_t), fp);
+    }
+
+    _fread(&this->num_levels, 1, sizeof(uint8_t), fp);
+
+    if (this->num_levels)
+        this->levels = (uint32_t*)malloc(this->num_levels * sizeof(uint32_t));
+
+    for (int x=0; x<this->num_levels; x++) {
+        _fread(&this->levels[x], 1, sizeof(uint32_t), fp);
+    }
+
+    _fclose(fp);
 
     return true;
 }

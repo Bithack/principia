@@ -180,6 +180,7 @@ class pkgman {
     }
 };
 
+/// Class representing a package of levels (stored as .ppkg files)
 class pkginfo {
   public:
     uint8_t   version;
@@ -292,8 +293,14 @@ class pkginfo {
         return true;
     }
 
+    /// Open package by type and ID.
     bool open(int type, uint32_t id);
+
+    /// Save current package as .ppkg determined by type and ID.
     bool save();
+
+    /// Save package to a specific path, rather than the default path determined by type and ID.
+    bool save_to_path(const char *path);
 };
 
 // level flags
