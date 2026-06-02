@@ -15,3 +15,6 @@ Most of these programs rely on source files from the main Principia codebase and
 - `lvledit`: Edit metadata of Principia level files
 - `package-creator`: Create a Principia package file from JSON data
 - `progress-get`: Get leaderboard score for a given level from a data.bin file
+
+## Kaitai Struct files
+The `kaitai` directory contains Kaitai Struct files that describe some of Principia's file formats.
