@@ -1,4 +1,4 @@
-SUBDIRS := featured-list-creator lvl-icon-extractor lvlbuf-decompressor lvledit package-creator progress-get
+SUBDIRS := featured-list-creator lvl-icon-extractor lvlbuf-decompressor lvledit package-creator progress-dump progress-get
 
 .PHONY: all clean $(SUBDIRS)
 

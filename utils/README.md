@@ -14,6 +14,7 @@ Most of these programs rely on source files from the main Principia codebase and
 - `lvlbuf-decompressor`: Decompress the level buffer of a Principia level file
 - `lvledit`: Edit metadata of Principia level files
 - `package-creator`: Create a Principia package file from JSON data
+- `progress-dump`: Dump the contents of a data.bin file to a human-readable format
 - `progress-get`: Get leaderboard score for a given level from a data.bin file
 
 ## Kaitai Struct files
