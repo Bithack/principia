@@ -5,8 +5,8 @@
 static struct tms_pipeline pipelines[TMS_NUM_PIPELINES] = {0};
 static int n_local_uniforms = 0;
 
-typedef void (*TMS_UNIFORM_FN)(GLint, GLsizei, const GLfloat*);
-typedef void (*TMS_UNIFORM_MAT_FN)(GLint, GLsizei, GLboolean, const GLfloat*);
+typedef PFNGLUNIFORM1FVPROC TMS_UNIFORM_FN;
+typedef PFNGLUNIFORMMATRIX4FVPROC TMS_UNIFORM_MAT_FN;
 
 TMS_UNIFORM_FN uniform_fn[7];
 TMS_UNIFORM_MAT_FN uniform_mat_fn[5];
