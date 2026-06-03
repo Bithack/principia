@@ -75,9 +75,7 @@ static tvec3 TV_MENU_BLACK = MENU_BLACK_F;
 static tvec3 TV_MENU_GRAY  = MENU_GRAY_F;
 #endif
 
-inline bool
-file_exists(const char *path)
-{
+inline bool file_exists(const char *path) {
     struct stat s;
     int i = stat(path, &s);
 
@@ -86,23 +84,17 @@ file_exists(const char *path)
 
 time_t get_mtime(const char *path);
 
-inline uint8_t
-tpixel_mat_to_chunk_mat(uint8_t mat)
-{
+inline uint8_t tpixel_mat_to_chunk_mat(uint8_t mat) {
     return mat + 1;
 }
 
-inline uint8_t
-chunk_mat_to_tpixel_mat(uint8_t mat)
-{
+inline uint8_t chunk_mat_to_tpixel_mat(uint8_t mat) {
     return mat - 1;
 }
 
 std::vector<char*> p_split(const char *str, size_t len, const char *delim);
 
-inline int
-highscore_offset(uint32_t community_id)
-{
+inline int highscore_offset(uint32_t community_id) {
     int offset = 0;
 
     switch (community_id % 10) {

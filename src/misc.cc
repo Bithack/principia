@@ -3,9 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-time_t
-get_mtime(const char *path)
-{
+time_t get_mtime(const char *path) {
     time_t mtime;
     char date[21];
 
@@ -17,9 +15,7 @@ get_mtime(const char *path)
     return mtime;
 }
 
-std::vector<char*>
-p_split(const char *str, size_t len, const char *delim)
-{
+std::vector<char*> p_split(const char *str, size_t len, const char *delim) {
     char *tmp = strdup(str);
     std::vector<char*> ret;
 

@@ -1009,15 +1009,6 @@ pkginfo *pkgman::get_pkgs(int type) {
     return first;
 }
 
-#ifdef TMS_BACKEND_WINDOWS
-time_t filetime_to_timet(FILETIME & ft) {
-    ULARGE_INTEGER ull;
-    ull.LowPart = ft.dwLowDateTime;
-    ull.HighPart = ft.dwHighDateTime;
-    return ull.QuadPart / 10000000ULL - 11644473600ULL;
-}
-#endif
-
 lvlfile *pkgman::get_levels(int level_type) {
     bool state = false;
 
@@ -1037,11 +1028,7 @@ lvlfile *pkgman::get_levels(int level_type) {
     snprintf(ext, 6, ".%s", pkgman::get_level_ext(orig_level_type));
     const char *path = pkgman::get_level_path(orig_level_type);
 
-#ifdef TMS_BACKEND_WINDOWS
-    wchar_t tmp[1024];
-#else
     char tmp[1024];
-#endif
 
     DIR *dir;
     struct dirent *ent;
@@ -1081,29 +1068,11 @@ lvlfile *pkgman::get_levels(int level_type) {
             save_id = atoi(strchr(ent->d_name, '.')+1);
         }
 
-        time_t mtime;
-        char date[21];
-
-#ifdef TMS_BACKEND_WINDOWS
-        WIN32_FILE_ATTRIBUTE_DATA data;
-        wsprintf(tmp, L"%hs\\%hs", path, ent->d_name);
-
-        GetFileAttributesEx((LPCWSTR)(tmp), GetFileExInfoStandard, &data);
-
-        FILETIME time = data.ftLastWriteTime;
-        SYSTEMTIME sys_time, local_time;
-
-        FileTimeToSystemTime(&time, &sys_time);
-        SystemTimeToTzSpecificLocalTime(0, &sys_time, &local_time);
-        snprintf(date, 20, "%04d-%02d-%02d %02d:%02d:%02d", local_time.wYear, local_time.wMonth, local_time.wDay, local_time.wHour, local_time.wMinute, local_time.wSecond);
-        mtime = filetime_to_timet(time);
-#else
         snprintf(tmp, 1023, "%s/%s", path, ent->d_name);
-        struct stat st;
-        stat(tmp, &st);
-        strftime(date, 20, "%Y-%m-%d %H:%M:%S", gmtime((time_t*)&(st.st_mtime)));
-        mtime = st.st_mtime;
-#endif
+        time_t mtime = get_mtime(tmp);
+
+        char date[21];
+        strftime(date, 20, "%Y-%m-%d %H:%M:%S", gmtime((time_t*)&(mtime)));
 
         if (!(level_id != 0 || state))
             continue;
