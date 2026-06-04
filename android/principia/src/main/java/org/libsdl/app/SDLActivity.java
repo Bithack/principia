@@ -64,6 +64,7 @@ import android.app.Dialog;
 import android.app.UiModeManager;
 import android.content.ClipboardManager;
 import android.content.ClipData;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -2096,7 +2097,11 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                     Log.v(TAG, "unhandled url " + url);
                     Log.v(TAG, "host: '" + uri.getHost()+"'");
                     Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                    SDLActivity.mSingleton.startActivity(intent);
+                    try {
+                        SDLActivity.mSingleton.startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        Log.v(TAG, "No app found to open url: " + url);
+                    }
                     SDLActivity.wv_dialog.dismiss();
                 }
 
