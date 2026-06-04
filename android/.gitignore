@@ -1,6 +1,6 @@
 .gradle/
 .idea/
-deps/
+deps
 principia/build/
 *.apk
 *.apk.idsig
