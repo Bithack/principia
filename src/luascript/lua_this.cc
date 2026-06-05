@@ -2,26 +2,6 @@
 #include "escript.hh"
 #include "receiver.hh"
 
-struct lua_vert base[4] = {
-    {
-        (tvec3){.5f,.5f,0.f},
-        (tvec2){.5f, 1.f},
-        (tvec4){0.f, 0.f, 0.f, 0.f},
-    }, {
-        (tvec3){-.5f,.5f,0.f},
-        (tvec2){0.f, 1.f},
-        (tvec4){0.f, 0.f, 0.f, 0.f},
-    }, {
-        (tvec3){-.5f,-.5f,0.f},
-        (tvec2){0.f, .5f},
-        (tvec4){0.f, 0.f, 0.f, 0.f},
-    }, {
-        (tvec3){.5f,-.5f,0.f},
-        (tvec2){.5f, .5f},
-        (tvec4){0.f, 0.f, 0.f, 0.f},
-    }
-};
-
 static uint32_t
 upper_power_of_two(uint32_t v)
 {
@@ -399,7 +379,7 @@ static int l_this_draw_sprite(lua_State *L)
 			tmath_sincos(r, &sn, &cs);
 
 			for (int ix=0; ix<4; ix++) {
-				_b[n*4+ix] = base[ix];
+				_b[n*4+ix] = sprite_base[ix];
 
 				_b[n*4+ix].pos.x *= w;
 				_b[n*4+ix].pos.y *= h;
@@ -428,7 +408,7 @@ static int l_this_draw_sprite(lua_State *L)
 			}
 		} else {
 			for (int ix=0; ix<4; ix++) {
-				_b[n*4+ix] = base[ix];
+				_b[n*4+ix] = sprite_base[ix];
 
 				_b[n*4+ix].pos.x *= w;
 				_b[n*4+ix].pos.y *= h;

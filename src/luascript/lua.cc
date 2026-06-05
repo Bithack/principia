@@ -1,5 +1,25 @@
 #include "lua.hh"
 
+struct lua_vert sprite_base[4] = {
+    {
+        (tvec3){.5f,.5f,0.f},
+        (tvec2){.5f, 1.f},
+        (tvec4){0.f, 0.f, 0.f, 0.f},
+    }, {
+        (tvec3){-.5f,.5f,0.f},
+        (tvec2){0.f, 1.f},
+        (tvec4){0.f, 0.f, 0.f, 0.f},
+    }, {
+        (tvec3){-.5f,-.5f,0.f},
+        (tvec2){0.f, .5f},
+        (tvec4){0.f, 0.f, 0.f, 0.f},
+    }, {
+        (tvec3){.5f,-.5f,0.f},
+        (tvec2){.5f, .5f},
+        (tvec4){0.f, 0.f, 0.f, 0.f},
+    }
+};
+
 bool lua_push_stuff(lua_State *Lsrc, lua_State *Ldst, int pos)
 {
     if (lua_isnumber(Lsrc, pos)) {

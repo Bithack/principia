@@ -389,26 +389,6 @@ plua_foreach(lua_State *L, const int index, void (*cb)(lua_State*, int, void*), 
     }
 }
 
-static struct lua_vert base[4] = {
-    {
-        (tvec3){.5f,.5f,0.f},
-        (tvec2){.5f, 1.f},
-        (tvec4){0.f, 0.f, 0.f, 0.f},
-    }, {
-        (tvec3){-.5f,.5f,0.f},
-        (tvec2){0.f, 1.f},
-        (tvec4){0.f, 0.f, 0.f, 0.f},
-    }, {
-        (tvec3){-.5f,-.5f,0.f},
-        (tvec2){0.f, .5f},
-        (tvec4){0.f, 0.f, 0.f, 0.f},
-    }, {
-        (tvec3){.5f,-.5f,0.f},
-        (tvec2){.5f, .5f},
-        (tvec4){0.f, 0.f, 0.f, 0.f},
-    }
-};
-
 static int
 my_writer(lua_State *L, const void *contents, size_t size, void *ud)
 {
@@ -1561,7 +1541,7 @@ escript::add_static_sprite(float x, float y, float r, float w, float h, int bx, 
             tmath_sincos(r, &sn, &cs);
 
             for (int ix=0; ix<4; ix++) {
-                _b[n*4+ix] = base[ix];
+                _b[n*4+ix] = sprite_base[ix];
 
                 _b[n*4+ix].pos.x *= w;
                 _b[n*4+ix].pos.y *= h;
@@ -1585,7 +1565,7 @@ escript::add_static_sprite(float x, float y, float r, float w, float h, int bx, 
             }
         } else {
             for (int ix=0; ix<4; ix++) {
-                _b[n*4+ix] = base[ix];
+                _b[n*4+ix] = sprite_base[ix];
 
                 _b[n*4+ix].pos.x *= w;
                 _b[n*4+ix].pos.y *= h;

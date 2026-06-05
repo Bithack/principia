@@ -44,6 +44,8 @@ struct lua_vert {
     tvec4 color;
 };
 
+extern struct lua_vert sprite_base[4];
+
 /*
  * Recursive function to push stuff!
  * Can currently handle:
