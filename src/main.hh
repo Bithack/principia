@@ -125,8 +125,7 @@ struct register_data {
     char password[256];
 };
 
-class intermediary : public tms::screen
-{
+class intermediary : public tms::screen {
   public:
     int (*loader)(int);
     tms::screen *next;
@@ -138,8 +137,7 @@ class intermediary : public tms::screen
     void window_size_changed();
 };
 
-extern class principia
-{
+extern class principia {
   public:
     ~principia();
     intermediary   *s_intermediary;
@@ -181,26 +179,22 @@ extern class principia
     float default_diffuse;
 
     void add_action(int id, void *data);
-    void add_action(int id, uint32_t data=0)
-    {
+    void add_action(int id, uint32_t data=0) {
         this->add_action(id, UINT_TO_VOID(data));
-    };
-    void add_action(int id, int data=0)
-    {
+    }
+    void add_action(int id, int data=0) {
         this->add_action(id, INT_TO_VOID(data));
-    };
-    void add_action(int id, const char *data)
-    {
+    }
+    void add_action(int id, const char *data) {
         this->add_action(id, (void*)data);
-    };
+    }
 
     tvec3 get_light_normal();
 
     void update_uiscale(float new_uiscale);
 } P;
 
-struct principia_action
-{
+struct principia_action {
     int action_id;
     void *action_data;
 
