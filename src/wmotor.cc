@@ -4,9 +4,6 @@
 #include "model.hh"
 #include "material.hh"
 
-#define SPEED 20.f
-#define TORQUE 1000.f
-
 class wmotor_query_cb : public b2QueryCallback
 {
   public:
@@ -53,7 +50,6 @@ wmotor::wmotor()
     tmat3_load_identity(this->N);
 
     this->set_num_properties(0);
-    //this->properties[0].v.f = .5f;
 
     this->update_method = ENTITY_UPDATE_STATIC;
 
@@ -147,35 +143,3 @@ wmotor::load_connection(connection &conn)
     this->c = conn;
     return &this->c;
 }
-
-/*
-bool
-wmotor::solve_electronics()
-{
-    if (!this->s_in[0].is_ready())
-        return false;
-    if (!this->s_in[1].is_ready())
-        return false;
-
-    float v = this->s_in[0].get_value();
-    float tradeoff = this->s_in[1].p ? this->s_in[1].get_value() : this->properties[0].v.f;
-
-    tradeoff = .02f + tradeoff*.96f;
-
-    float voltage = tradeoff * v * SPEED;
-    float current = (1.f-tradeoff) * v * TORQUE;
-
-    b2RevoluteJoint *j = this->c.j;
-
-    if (j) {
-        if (voltage <= 0.f || current <= 0.f) {
-            j->EnableMotor(false);
-        } else {
-            j->SetMotorSpeed(voltage);
-            j->SetMaxMotorTorque(current);
-            j->EnableMotor(true);
-        }
-    }
-    return true;
-}
-*/
