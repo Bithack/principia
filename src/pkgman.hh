@@ -86,11 +86,8 @@ static const char *level_version_strings[] = {
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include <time.h>
 
 #ifdef __cplusplus
-
-#include "progress.hh"
 #include "const.hh"
 
 class lvlbuf;
@@ -117,8 +114,7 @@ static const char *level_type_string(uint8_t level_type) {
     }
 }
 
-static const char *level_visibility_string(uint8_t level_visibility)
-{
+static const char *level_visibility_string(uint8_t level_visibility) {
     switch (level_visibility) {
         case LEVEL_VISIBLE:     return "Visible";
         case LEVEL_LOCKED:      return "Locked";
@@ -138,8 +134,7 @@ struct lvlfile {
     struct lvlfile *next;
 
 #ifdef __cplusplus
-    lvlfile(int id_type, uint32_t id)
-    {
+    lvlfile(int id_type, uint32_t id) {
         this->save_id = 0;
         this->id_type = id_type;
         this->id = id;
@@ -214,46 +209,9 @@ class pkginfo {
         name[0] = '\0';
     }
 
-    uint32_t get_next_level(uint32_t id) {
-        if (this->return_on_finish) {
-            if (this->first_is_menu)
-                return this->levels[0];
-            else
-                return 0; // return to pkg screen
-        }
+    uint32_t get_next_level(uint32_t id);
 
-        // find the level in the package, return the next level or 0 if it was the last level
-        for (int x=0; x<this->num_levels-1; x++) {
-            if (this->levels[x] == id)
-                return this->levels[x+1];
-        }
-
-        return 0;
-    }
-
-    bool is_level_locked(uint8_t index) {
-        uint8_t i_unlocked = 0;
-        int x = 0;
-
-        if (index >= this->num_levels) return true;
-        if (this->unlock_count == 0) return false;
-
-        if (this->first_is_menu) {
-            x = 1;
-            i_unlocked++;
-        }
-
-        for (; x<index; ++x) {
-            lvl_progress *p = progress::get_level_progress(this->type, this->levels[x]);
-            if (p->completed)
-                i_unlocked++;
-        }
-
-        if ((index - i_unlocked) < this->unlock_count)
-            return false;
-
-        return true;
-    }
+    bool is_level_locked(uint8_t index);
 
     uint8_t get_level_index(uint32_t id) {
         for (int x=0; x<this->num_levels; x++)
@@ -278,20 +236,7 @@ class pkginfo {
         }
     }
 
-    bool add_level(uint32_t id) {
-        // make sure it isnt already added
-        for (int x=0; x<this->num_levels; x++)
-            if (this->levels[x] == id) return false;
-
-        this->levels = (uint32_t*)realloc(this->levels, sizeof(uint32_t)*(this->num_levels+1));
-
-        if (!this->levels) exit(1);
-
-        this->levels[this->num_levels] = id;
-        this->num_levels ++;
-
-        return true;
-    }
+    bool add_level(uint32_t id);
 
     /// Open package by type and ID.
     bool open(int type, uint32_t id);

@@ -3,6 +3,7 @@
 #include <time.h>
 #include <dirent.h>
 
+#include "progress.hh"
 #include "zlib.h"
 #include "misc.hh"
 
@@ -679,71 +680,60 @@ void lvlinfo::print() const {
             this->num_cables);
 }
 
-uint32_t get_next_id(const char *storage, const char *ext) {
-    char path[1024];
-    struct stat s;
+// pkginfo
 
-    // Check IDs up to 2 billion. Ought to be enough for everyone.
-    for (uint32_t x = 1; x < 2e9; x++) {
-        snprintf(path, 1023, "%s/%d.%s", storage, x, ext);
-        int i = stat(path, &s);
+uint32_t pkginfo::get_next_level(uint32_t id) {
+    if (this->return_on_finish) {
+        if (this->first_is_menu)
+            return this->levels[0];
+        else
+            return 0; // return to pkg screen
+    }
 
-        if (i == -1)
-            return x;
+    // find the level in the package, return the next level or 0 if it was the last level
+    for (int x=0; x<this->num_levels-1; x++) {
+        if (this->levels[x] == id)
+            return this->levels[x+1];
     }
 
     return 0;
 }
 
-uint32_t pkgman::get_next_pkg_id() {
-    return get_next_id(pkgman::get_pkg_path(LEVEL_LOCAL), "ppkg");
-}
+bool pkginfo::is_level_locked(uint8_t index) {
+    uint8_t i_unlocked = 0;
+    int x = 0;
 
-uint32_t pkgman::get_next_level_id() {
-    return get_next_id(pkgman::get_level_path(LEVEL_LOCAL), "plvl");
-}
+    if (index >= this->num_levels) return true;
+    if (this->unlock_count == 0) return false;
 
-uint32_t pkgman::get_next_object_id() {
-    return get_next_id(pkgman::get_level_path(LEVEL_LOCAL), "pobj");
-}
+    if (this->first_is_menu) {
+        x = 1;
+        i_unlocked++;
+    }
 
-bool pkginfo::save() {
-    if (this->type >= 3) {
-        tms_errorf("invalid level type");
+    for (; x<index; ++x) {
+        lvl_progress *p = progress::get_level_progress(this->type, this->levels[x]);
+        if (p->completed)
+            i_unlocked++;
+    }
+
+    if ((index - i_unlocked) < this->unlock_count)
         return false;
-    }
 
-    char path[1024];
-    char *storage = (char*)pkgman::get_pkg_path(this->type);
-    snprintf(path, 1023, "%s/%d.ppkg", storage, this->id);
-
-    return save_to_path(path);
+    return true;
 }
 
-bool pkginfo::save_to_path(const char *path) {
-    FILE *fp = fopen(path, "wb");
+bool pkginfo::add_level(uint32_t id) {
+    // make sure it isnt already added
+    for (int x=0; x<this->num_levels; x++)
+        if (this->levels[x] == id) return false;
 
-    if (!fp) {
-        tms_errorf("could not open: %s", path);
-        return false;
-    }
+    this->levels = (uint32_t*)realloc(this->levels, sizeof(uint32_t)*(this->num_levels+1));
 
-    // always update the version to the latest on save
-    this->version = PKG_VERSION;
+    if (!this->levels) exit(1);
 
-    fwrite(&this->version, 1, 1, fp);
-    fwrite(&this->community_id, 1, sizeof(uint32_t), fp);
-    fwrite(this->name, 1, 255, fp);
-    fwrite(&this->unlock_count, 1, sizeof(uint8_t), fp);
-    fwrite(&this->first_is_menu, 1, sizeof(uint8_t), fp);
-    fwrite(&this->return_on_finish, 1, sizeof(uint8_t), fp);
-    fwrite(&this->num_levels, 1, sizeof(uint8_t), fp);
-
-    for (int x=0; x<this->num_levels; x++) {
-        fwrite(&this->levels[x], 1, sizeof(uint32_t), fp);
-    }
-
-    fclose(fp);
+    this->levels[this->num_levels] = id;
+    this->num_levels ++;
 
     return true;
 }
@@ -804,6 +794,77 @@ bool pkginfo::open(int type, uint32_t id) {
     _fclose(fp);
 
     return true;
+}
+
+bool pkginfo::save() {
+    if (this->type >= 3) {
+        tms_errorf("invalid level type");
+        return false;
+    }
+
+    char path[1024];
+    char *storage = (char*)pkgman::get_pkg_path(this->type);
+    snprintf(path, 1023, "%s/%d.ppkg", storage, this->id);
+
+    return save_to_path(path);
+}
+
+bool pkginfo::save_to_path(const char *path) {
+    FILE *fp = fopen(path, "wb");
+
+    if (!fp) {
+        tms_errorf("could not open: %s", path);
+        return false;
+    }
+
+    // always update the version to the latest on save
+    this->version = PKG_VERSION;
+
+    fwrite(&this->version, 1, 1, fp);
+    fwrite(&this->community_id, 1, sizeof(uint32_t), fp);
+    fwrite(this->name, 1, 255, fp);
+    fwrite(&this->unlock_count, 1, sizeof(uint8_t), fp);
+    fwrite(&this->first_is_menu, 1, sizeof(uint8_t), fp);
+    fwrite(&this->return_on_finish, 1, sizeof(uint8_t), fp);
+    fwrite(&this->num_levels, 1, sizeof(uint8_t), fp);
+
+    for (int x=0; x<this->num_levels; x++) {
+        fwrite(&this->levels[x], 1, sizeof(uint32_t), fp);
+    }
+
+    fclose(fp);
+
+    return true;
+}
+
+// pkgman
+
+static uint32_t get_next_id(const char *storage, const char *ext) {
+    char path[1024];
+    struct stat s;
+
+    // Check IDs up to 2 billion. Ought to be enough for everyone.
+    for (uint32_t x = 1; x < 2e9; x++) {
+        snprintf(path, 1023, "%s/%d.%s", storage, x, ext);
+        int i = stat(path, &s);
+
+        if (i == -1)
+            return x;
+    }
+
+    return 0;
+}
+
+uint32_t pkgman::get_next_pkg_id() {
+    return get_next_id(pkgman::get_pkg_path(LEVEL_LOCAL), "ppkg");
+}
+
+uint32_t pkgman::get_next_level_id() {
+    return get_next_id(pkgman::get_level_path(LEVEL_LOCAL), "plvl");
+}
+
+uint32_t pkgman::get_next_object_id() {
+    return get_next_id(pkgman::get_level_path(LEVEL_LOCAL), "pobj");
 }
 
 const char *pkgman::get_pkg_path(int type) {

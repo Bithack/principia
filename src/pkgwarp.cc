@@ -1,6 +1,7 @@
 #include "pkgwarp.hh"
 #include "game.hh"
 #include "pkgman.hh"
+#include "progress.hh"
 #include "ui.hh"
 
 pkgwarp::pkgwarp()

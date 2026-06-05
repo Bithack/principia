@@ -1,6 +1,7 @@
 #include "crc.hh"
 #include "pkgman.hh"
 
+#include <algorithm>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
