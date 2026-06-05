@@ -1681,8 +1681,6 @@ static int initial_loader(int step) {
             // initialize worker threads
             w_init();
 
-            of::init();
-
             P.s_loading_screen->set_text("Loading materials...");
             break;
 

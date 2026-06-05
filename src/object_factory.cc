@@ -148,31 +148,31 @@
 #include "esub.hh"
 #include "player_activator.hh"
 
-static entity* new_plank(void){return new beam(BEAM_THICK);};
-static entity* new_thinplank(void){return new beam(BEAM_THIN);};
-static entity* new_robot(void){return new robot();};
-static entity* new_shelf(void){return new shelf();};
-static entity* new_xorgate(void){return new xorgate();};
-static entity* new_orgate(void){return new orgate();};
+static entity* new_plank() { return new beam(BEAM_THICK); }
+static entity* new_thinplank() { return new beam(BEAM_THIN); }
+static entity* new_robot() { return new robot(); }
+static entity* new_shelf() { return new shelf(); }
+static entity* new_xorgate() { return new xorgate(); }
+static entity* new_orgate() { return new orgate(); }
 
-static entity* new_andgate(void){return new andgate();};
-static entity* new_invertergate(void){return new invertergate();};
-static entity* new_integergate(void){return new integergate();};
-static entity* new_ceilgate(void){return new ceilgate();};
-static entity* new_squaregate(void){return new squaregate();};
-static entity* new_sqrtgate(void){return new sqrtgate();};
-static entity* new_ball_wood(void){return new ball(0);};
-static entity* new_ball_iron(void){return new ball(1);};
-static entity* new_generator(void){return new generator();};
-static entity* new_powercable(void){return new cable(CABLE_BLACK);};
-static entity* new_signalcable(void){return new cable(CABLE_RED);};
-static entity* new_ifacecable(void){return new cable(CABLE_BLUE);};
-static entity* new_wmotor(void){return new wmotor();};
-static entity* new_gear(void){return new gear();};
-static entity* new_trampoline(void){return new trampoline();};
-static entity* new_debugger(void){return new tester();};
-static entity* new_button(void){return new button(0);};
-static entity* new_rope(void){return new rope();};
+static entity* new_andgate() { return new andgate(); }
+static entity* new_invertergate() { return new invertergate(); }
+static entity* new_integergate() { return new integergate(); }
+static entity* new_ceilgate() { return new ceilgate(); }
+static entity* new_squaregate() { return new squaregate(); }
+static entity* new_sqrtgate() { return new sqrtgate(); }
+static entity* new_ball_wood() { return new ball(0); }
+static entity* new_ball_iron() { return new ball(1); }
+static entity* new_generator() { return new generator(); }
+static entity* new_powercable() { return new cable(CABLE_BLACK); }
+static entity* new_signalcable() { return new cable(CABLE_RED); }
+static entity* new_ifacecable() { return new cable(CABLE_BLUE); }
+static entity* new_wmotor() { return new wmotor(); }
+static entity* new_gear() { return new gear(); }
+static entity* new_trampoline() { return new trampoline(); }
+static entity* new_debugger() { return new tester(); }
+static entity* new_button() { return new button(0); }
+static entity* new_rope() { return new rope(); }
 static entity* new_sticky(void)
 {
     sticky *s = new sticky();
@@ -183,214 +183,216 @@ static entity* new_sticky(void)
         return static_cast<entity*>(s);
     }
 };
-static entity* new_breadboard(void){return new breadboard();};
-static entity* new_nandgate(void){return new nandgate();};
-static entity* new_motor(void){return new motor(MOTOR_TYPE_DEFAULT);};
-static entity* new_wheel(void){return new wheel();};
-static entity* new_cup(void){return new cup();};
-static entity* new_cylinder(void){return new cylinder(0);};
-static entity* new_goal(void){return new goal();};
-static entity* new_command(void){return new command();};
-static entity* new_smallpanel(void){return new panel(PANEL_SMALL);};
-static entity* new_xsmallpanel(void){return new panel(PANEL_XSMALL);};
-static entity* new_mpanel(void){return new panel(PANEL_MEDIUM);};
-static entity* new_bigpanel(void){return new panel(PANEL_BIG);};
-static entity* new_sparsifier(void){return new sparsifier();};
-static entity* new_besserwisser(void){return new besserwisser();};
-static entity* new_magnet(void){return new magnet(0);};
-static entity* new_electromagnet(void){return new magnet(1);};
-static entity* new_railstraight(void){return new rail(RAIL_STRAIGHT);};
-static entity* new_railskewed(void){return new rail(RAIL_SKEWED);};
-static entity* new_railskewed2(void){return new rail(RAIL_SKEWED2);};
-static entity* new_rail45deg(void){return new rail(RAIL_45DEG);};
-static entity* new_servomotor(void){return new motor(MOTOR_TYPE_SERVO);};
-static entity* new_simplemotor(void){return new motor(MOTOR_TYPE_SIMPLE);};
-static entity* new_gyroscope(void){return new gyroscope();};
-static entity* new_lmotor(void){return new lmotor(false);};
-static entity* new_lsmotor(void){return new lmotor(true);};
-static entity* new_magplug(void){return new magplug();};
-static entity* new_magsock(void){return new magsock();};
-static entity* new_switch(void){return new switcher();};
-static entity* new_fifo(void){return new fifo();};
-static entity* new_cavg(void){return new cavg();};
-static entity* new_epsilon(void){return new epsilon();};
-static entity* new_mavg(void){return new mavg();};
-static entity* new_seesaw(void){return new seesaw();};
-static entity* new_pivot(void){return new pivot_1();};
-static entity* new_pivot2(void){return new pivot_2();};
-static entity* new_ragdoll(void){return new ragdoll();};
-static entity* new_clamp(void){return new clamp();};
-static entity* new_toggler(void){return new toggler();};
-static entity* new_pipeline(void){return new pipeline();};
-static entity* new_splank(void){return new splank();};
-static entity* new_interfaceclip(void){return new clip(CLIP_INTERFACE);};
-static entity* new_signalclip(void){return new clip(CLIP_SIGNAL);};
-static entity* new_gearbox(void){return new gearbox();};
-static entity* new_ctrlmini(void){return new ctrlmini();};
-static entity* new_ctrlservo(void){return new ctrlservo();};
-static entity* new_ctrlfplus(void){return new ctrlfplus();};
-static entity* new_battery3v(void){return new battery(BATTERY_3V);};
-static entity* new_damper1(void){return new damper_1();};
-static entity* new_damper2(void){return new damper_2();};
-static entity* new_gameman(void){return new gameman();};
-static entity* new_robotman(void){return new robotman();};
-static entity* new_chunk(void){return 0;};
-static entity* new_rubberbeam(void){return new beam(BEAM_RUBBER);};
-static entity* new_corner(void){return new corner();};
-static entity* new_scanner(void){return new scanner();};
-static entity* new_tiltmeter(void){return new tiltmeter();};
-static entity* new_thruster(void){return new rocket(0);};
-static entity* new_rocket(void){return new rocket(1);};
-static entity* new_proximitysensor(void){return new proximitysensor();};
-static entity* new_ysplitter(void){return new ysplitter();};
-static entity* new_valueshift(void){return new valueshift();};
-static entity* new_togglebutton(void){return new button(1);};
-static entity* new_ifgate(void){return new ifgate();};
-static entity* new_idfield(void){return new objectfield(OBJECT_FIELD_ID);};
-static entity* new_objectfield(void){return new objectfield(OBJECT_FIELD_OBJECT);};
-static entity* new_target_setter(void){return new objectfield(OBJECT_FIELD_TARGET_SETTER);};
-static entity* new_interactive_cylinder(void){return new cylinder(1);};
-static entity* new_dragfield(void){return new dragfield();};
-static entity* new_emitter(void){return new emitter(1);};
-static entity* new_miniemitter(void){return new emitter(0);};
-static entity* new_landmine(void){return new explosive(EXPLOSIVE_LANDMINE);};
-static entity* new_bomb(void){return new explosive(EXPLOSIVE_BOMB);};
-static entity* new_absorber(void){return new absorber(1);};
-static entity* new_miniabsorber(void){return new absorber(0);};
-static entity* new_timer(void){return new timer();};
-static entity* new_conveyor(void){return new conveyor();};
-static entity* new_plasticbeam(void){return new beam(BEAM_PLASTIC);};
-static entity* new_woodbox(void){return new box(0);};
-static entity* new_resistor(void){return new resistor();};
-static entity* new_rubberband1(void){return new rubberband_1();};
-static entity* new_rubberband2(void){return new rubberband_2();};
-static entity* new_angulardamper(void){return new angulardamper();};
-static entity* new_object_finder(void){return new object_finder();};
-static entity* new_sincos(void){return new esincos();};
-static entity* new_sinewave(void){return new sinewave();};
-static entity* new_erandom(void){return new erandom();};
-static entity* new_memory(void){return new memory();};
-static entity* new_impact_sensor(void){return new impact_sensor(false);};
-static entity* new_pressure_sensor(void){return new impact_sensor(true);};
-static entity* new_gravity_manager(void){return new gravityman(GRAVITY_MANAGER);};
-static entity* new_gravity_setter(void){return new gravityman(GRAVITY_SETTER);};
-static entity* new_sawtooth(void){return new sawtooth();};
-static entity* new_jumper(void){return new jumper();};
-static entity* new_ibox(void){return new box(1);};
-static entity* new_pbox(void){return new box(2);};
-static entity* new_iball(void){return new ball(2);};
-static entity* new_halfunpack(void){return new halfunpack();};
-static entity* new_halfpack(void){return new halfpack();};
-static entity* new_eatan2(void){return new eatan2();};
-static entity* new_pointer(void){return new pointer();};
-static entity* new_spikes(void){return new spikes();};
-static entity* new_sum(void){return new sum();};
-static entity* new_avg(void){return new avg();};
-static entity* new_muladd(void){return new muladd();};
-static entity* new_screenshot_marker(void){return new screenshot_marker();};
-static entity* new_pixel(void){return new pixel();};
-static entity* new_tpixel(void){return new tpixel();};
-static entity* new_transmitter(void){return new transmitter(0);};
-static entity* new_receiver(void) { return new receiver(); };
-static entity* new_broadcaster(void){return new transmitter(1);};
-static entity* new_fan(void){return new fan();};
-static entity* new_min(void){return new emin();};
-static entity* new_max(void){return new emax();};
-static entity* new_backpack(void){return new backpack();};
-static entity* new_stabilizer(void){return new estabilizer();};
-static entity* new_pkgwarp(void){return new pkgwarp();};
-static entity* new_pkgstatus(void){return new pkgstatus();};
-static entity* new_camtargeter(void){return new camtargeter();};
-static entity* new_condenser(void){return new condenser();};
-static entity* new_fxemitter(void){return new fxemitter();};
-static entity* new_emul(void){return new emul();};
-static entity* new_esub(void){return new esub();};
-static entity* new_minitransmitter(void){return new mini_transmitter();};
-static entity* new_checkpoint(void){return new checkpoint();};
-static entity* new_spikebot(void){return new spikebot();};
-static entity* new_mini_spikebot(void){return new mini_spikebot();};
-static entity* new_minibot(void){return new minibot();};
-static entity* new_companion(void){return new companion();};
-static entity* new_bomber(void){return new bomber();};
-static entity* new_lobber(void){return new lobber();};
-static entity* new_hpcontrol(void){return new hp_control();};
-static entity* new_laser(void){entity *e = new scanner(); e->set_property(0, 1.f); return e;};
-static entity* new_multiemitter(void){return new emitter(2);};
-static entity* new_angularvelmeter(void){return new angularvelmeter();};
-static entity* new_mirror(void){return new mirror();};
-static entity* new_lasersensor(void){return new laser_sensor();};
-static entity* new_velmeter(void){return new velmeter();};
-static entity* new_wrapadd(void){return new wrapadd();};
-static entity* new_wrapsub(void){return new wrapsub();};
-static entity* new_wrapdist(void){return new ewrapdist();};
-static entity* new_eventlistener(void){return new eventlistener();};
-static entity* new_passive_display(void){return new passive_display();};
-static entity* new_rcactivator(void){return new rcactivator();};
-static entity* new_cursor_finder(void){return new cursor_finder();};
-static entity* new_autoabsorber(void){return new autoabsorber();};
-static entity* new_weight(void){return new weight();};
-static entity* new_decay(void){return new decay();};
-static entity* new_zoomer(void){return new zoomer();};
-static entity* new_timectrl(void){return new timectrl();};
-static entity* new_prompt(void){return new prompt();};
-static entity* new_graph(void){return new egraph();};
-static entity* new_wrapcondenser(void){return new wrapcondenser();};
-static entity* new_ifelse(void){return new ifelse();};
-static entity* new_sfxemitter(void)
-{
-    if (W->level.version < LEVEL_VERSION_1_5_1) {
+static entity* new_breadboard() { return new breadboard(); }
+static entity* new_nandgate() { return new nandgate(); }
+static entity* new_motor() { return new motor(MOTOR_TYPE_DEFAULT); }
+static entity* new_wheel() { return new wheel(); }
+static entity* new_cup() { return new cup(); }
+static entity* new_cylinder() { return new cylinder(0); }
+static entity* new_goal() { return new goal(); }
+static entity* new_command() { return new command(); }
+static entity* new_smallpanel() { return new panel(PANEL_SMALL); }
+static entity* new_xsmallpanel() { return new panel(PANEL_XSMALL); }
+static entity* new_mpanel() { return new panel(PANEL_MEDIUM); }
+static entity* new_bigpanel() { return new panel(PANEL_BIG); }
+static entity* new_sparsifier() { return new sparsifier(); }
+static entity* new_besserwisser() { return new besserwisser(); }
+static entity* new_magnet() { return new magnet(0); }
+static entity* new_electromagnet() { return new magnet(1); }
+static entity* new_railstraight() { return new rail(RAIL_STRAIGHT); }
+static entity* new_railskewed() { return new rail(RAIL_SKEWED); }
+static entity* new_railskewed2() { return new rail(RAIL_SKEWED2); }
+static entity* new_rail45deg() { return new rail(RAIL_45DEG); }
+static entity* new_servomotor() { return new motor(MOTOR_TYPE_SERVO); }
+static entity* new_simplemotor() { return new motor(MOTOR_TYPE_SIMPLE); }
+static entity* new_gyroscope() { return new gyroscope(); }
+static entity* new_lmotor() { return new lmotor(false); }
+static entity* new_lsmotor() { return new lmotor(true); }
+static entity* new_magplug() { return new magplug(); }
+static entity* new_magsock() { return new magsock(); }
+static entity* new_switch() { return new switcher(); }
+static entity* new_fifo() { return new fifo(); }
+static entity* new_cavg() { return new cavg(); }
+static entity* new_epsilon() { return new epsilon(); }
+static entity* new_mavg() { return new mavg(); }
+static entity* new_seesaw() { return new seesaw(); }
+static entity* new_pivot() { return new pivot_1(); }
+static entity* new_pivot2() { return new pivot_2(); }
+static entity* new_ragdoll() { return new ragdoll(); }
+static entity* new_clamp() { return new clamp(); }
+static entity* new_toggler() { return new toggler(); }
+static entity* new_pipeline() { return new pipeline(); }
+static entity* new_splank() { return new splank(); }
+static entity* new_interfaceclip() { return new clip(CLIP_INTERFACE); }
+static entity* new_signalclip() { return new clip(CLIP_SIGNAL); }
+static entity* new_gearbox() { return new gearbox(); }
+static entity* new_ctrlmini() { return new ctrlmini(); }
+static entity* new_ctrlservo() { return new ctrlservo(); }
+static entity* new_ctrlfplus() { return new ctrlfplus(); }
+static entity* new_battery3v() { return new battery(BATTERY_3V); }
+static entity* new_damper1() { return new damper_1(); }
+static entity* new_damper2() { return new damper_2(); }
+static entity* new_gameman() { return new gameman(); }
+static entity* new_robotman() { return new robotman(); }
+static entity* new_chunk() { return 0; }
+static entity* new_rubberbeam() { return new beam(BEAM_RUBBER); }
+static entity* new_corner() { return new corner(); }
+static entity* new_scanner() { return new scanner(); }
+static entity* new_tiltmeter() { return new tiltmeter(); }
+static entity* new_thruster() { return new rocket(0); }
+static entity* new_rocket() { return new rocket(1); }
+static entity* new_proximitysensor() { return new proximitysensor(); }
+static entity* new_ysplitter() { return new ysplitter(); }
+static entity* new_valueshift() { return new valueshift(); }
+static entity* new_togglebutton() { return new button(1); }
+static entity* new_ifgate() { return new ifgate(); }
+static entity* new_idfield() { return new objectfield(OBJECT_FIELD_ID); }
+static entity* new_objectfield() { return new objectfield(OBJECT_FIELD_OBJECT); }
+static entity* new_target_setter() { return new objectfield(OBJECT_FIELD_TARGET_SETTER); }
+static entity* new_interactive_cylinder() { return new cylinder(1); }
+static entity* new_dragfield() { return new dragfield(); }
+static entity* new_emitter() { return new emitter(1); }
+static entity* new_miniemitter() { return new emitter(0); }
+static entity* new_landmine() { return new explosive(EXPLOSIVE_LANDMINE); }
+static entity* new_bomb() { return new explosive(EXPLOSIVE_BOMB); }
+static entity* new_absorber() { return new absorber(1); }
+static entity* new_miniabsorber() { return new absorber(0); }
+static entity* new_timer() { return new timer(); }
+static entity* new_conveyor() { return new conveyor(); }
+static entity* new_plasticbeam() { return new beam(BEAM_PLASTIC); }
+static entity* new_woodbox() { return new box(0); }
+static entity* new_resistor() { return new resistor(); }
+static entity* new_rubberband1() { return new rubberband_1(); }
+static entity* new_rubberband2() { return new rubberband_2(); }
+static entity* new_angulardamper() { return new angulardamper(); }
+static entity* new_object_finder() { return new object_finder(); }
+static entity* new_sincos() { return new esincos(); }
+static entity* new_sinewave() { return new sinewave(); }
+static entity* new_erandom() { return new erandom(); }
+static entity* new_memory() { return new memory(); }
+static entity* new_impact_sensor() { return new impact_sensor(false); }
+static entity* new_pressure_sensor() { return new impact_sensor(true); }
+static entity* new_gravity_manager() { return new gravityman(GRAVITY_MANAGER); }
+static entity* new_gravity_setter() { return new gravityman(GRAVITY_SETTER); }
+static entity* new_sawtooth() { return new sawtooth(); }
+static entity* new_jumper() { return new jumper(); }
+static entity* new_ibox() { return new box(1); }
+static entity* new_pbox() { return new box(2); }
+static entity* new_iball() { return new ball(2); }
+static entity* new_halfunpack() { return new halfunpack(); }
+static entity* new_halfpack() { return new halfpack(); }
+static entity* new_eatan2() { return new eatan2(); }
+static entity* new_pointer() { return new pointer(); }
+static entity* new_spikes() { return new spikes(); }
+static entity* new_sum() { return new sum(); }
+static entity* new_avg() { return new avg(); }
+static entity* new_muladd() { return new muladd(); }
+static entity* new_screenshot_marker() { return new screenshot_marker(); }
+static entity* new_pixel() { return new pixel(); }
+static entity* new_tpixel() { return new tpixel(); }
+static entity* new_transmitter() { return new transmitter(0); }
+static entity* new_receiver() { return new receiver(); }
+static entity* new_broadcaster() { return new transmitter(1); }
+static entity* new_fan() { return new fan(); }
+static entity* new_min() { return new emin(); }
+static entity* new_max() { return new emax(); }
+static entity* new_backpack() { return new backpack(); }
+static entity* new_stabilizer() { return new estabilizer(); }
+static entity* new_pkgwarp() { return new pkgwarp(); }
+static entity* new_pkgstatus() { return new pkgstatus(); }
+static entity* new_camtargeter() { return new camtargeter(); }
+static entity* new_condenser() { return new condenser(); }
+static entity* new_fxemitter() { return new fxemitter(); }
+static entity* new_emul() { return new emul(); }
+static entity* new_esub() { return new esub(); }
+static entity* new_minitransmitter() { return new mini_transmitter(); }
+static entity* new_checkpoint() { return new checkpoint(); }
+static entity* new_spikebot() { return new spikebot(); }
+static entity* new_mini_spikebot() { return new mini_spikebot(); }
+static entity* new_minibot() { return new minibot(); }
+static entity* new_companion() { return new companion(); }
+static entity* new_bomber() { return new bomber(); }
+static entity* new_lobber() { return new lobber(); }
+static entity* new_hpcontrol() { return new hp_control(); }
+static entity* new_laser() {
+    entity *e = new scanner();
+    e->set_property(0, 1.f);
+    return e;
+}
+static entity* new_multiemitter() { return new emitter(2); }
+static entity* new_angularvelmeter() { return new angularvelmeter(); }
+static entity* new_mirror() { return new mirror(); }
+static entity* new_lasersensor() { return new laser_sensor(); }
+static entity* new_velmeter() { return new velmeter(); }
+static entity* new_wrapadd() { return new wrapadd(); }
+static entity* new_wrapsub() { return new wrapsub(); }
+static entity* new_wrapdist() { return new ewrapdist(); }
+static entity* new_eventlistener() { return new eventlistener(); }
+static entity* new_passive_display() { return new passive_display(); }
+static entity* new_rcactivator() { return new rcactivator(); }
+static entity* new_cursor_finder() { return new cursor_finder(); }
+static entity* new_autoabsorber() { return new autoabsorber(); }
+static entity* new_weight() { return new weight(); }
+static entity* new_decay() { return new decay(); }
+static entity* new_zoomer() { return new zoomer(); }
+static entity* new_timectrl() { return new timectrl(); }
+static entity* new_prompt() { return new prompt(); }
+static entity* new_graph() { return new egraph(); }
+static entity* new_wrapcondenser() { return new wrapcondenser(); }
+static entity* new_ifelse() { return new ifelse(); }
+static entity* new_sfxemitter() {
+    if (W->level.version < LEVEL_VERSION_1_5_1)
         return new sfxemitter();
-    } else {
+    else
         return new sfxemitter_2();
-    }
-};
-static entity* new_cmpe(void){return new cmpe();};
-static entity* new_cmpl(void){return new cmpl();};
-static entity* new_cmple(void){return new cmple();};
-static entity* new_speaker(void){return new speaker();};
-static entity* new_snap(void){return new snapgate();};
-static entity* new_var_getter(void){return new var_getter();};
-static entity* new_var_setter(void){return new var_setter();};
-static entity* new_sequencer(void){return new sequencer();};
-static entity* new_shape_extruder(void){return new shape_extruder();};
-static entity* new_cursorfield(void){return new cursorfield();};
-static entity* new_escript(void){return new escript();};
-static entity* new_ldecay(void){return new ldecay();};
-static entity* new_elimit(void){return new elimit();};
-static entity* new_item(void){return new item();};
-static entity* new_oilrig(void){return new oilrig();};
-static entity* new_factory(void){return new factory(FACTORY_GENERIC);};
-static entity* new_crane(void){return new crane();};
-static entity* new_fluid(void){return new fluid();};
-static entity* new_localgravity(void){return new localgravity();};
-static entity* new_autoprotector(void){return new autoprotector();};
-static entity* new_active_display(void){return new active_display();};
-static entity* new_boundary(void){return new boundary();};
-static entity* new_suction_cup(void){return new scup();};
-static entity* new_robot_factory(void){return new factory(FACTORY_ROBOT);};
-static entity* new_armory(void){return new factory(FACTORY_ARMORY);};
-static entity* new_separator(void){return new beam(BEAM_SEP);};
-static entity* new_room(void){return new room();};
-static entity* new_oil_mixer(void){return new factory(FACTORY_OIL_MIXER);};
-static entity* new_repair_station(void){return new repair_station();};
-static entity* new_guardpoint(void){return new anchor(ANCHOR_GUARDPOINT);};
-static entity* new_ladder(void){return new ladder();};
-static entity* new_resource(void){return new resource();};
-static entity* new_plant(void){return new plant();};
-static entity* new_vendor(void){return new vendor();};
-static entity* new_animal(void){return new animal(ANIMAL_TYPE_COW);};
-static entity* new_soundman(void){return new soundman();};
-static entity* new_player_activator(void){return new player_activator();};
-static entity* new_plastic_polygon(void){return new polygon(MATERIAL_PLASTIC);};
-static entity* new_key_listener(void){return new key_listener();};
-static entity* new_statesaver(void){return new statesaver();};
-static entity* new_ifselect(void){return new ifselect();};
-static entity* new_camera_rotator(void){return new camera_rotator();};
-static entity* new_level_manager(void){return new levelman();};
-static entity* new_treasure_chest(void){return new treasure_chest();};
-static entity* new_decoration(void){return new decoration();};
-static entity* new_megasplitter(void){return new megasplitter();};
-static entity* new_ladder_step(void){return new ladder_step();};
+}
+static entity* new_cmpe() { return new cmpe(); }
+static entity* new_cmpl() { return new cmpl(); }
+static entity* new_cmple() { return new cmple(); }
+static entity* new_speaker() { return new speaker(); }
+static entity* new_snap() { return new snapgate(); }
+static entity* new_var_getter() { return new var_getter(); }
+static entity* new_var_setter() { return new var_setter(); }
+static entity* new_sequencer() { return new sequencer(); }
+static entity* new_shape_extruder() { return new shape_extruder(); }
+static entity* new_cursorfield() { return new cursorfield(); }
+static entity* new_escript() { return new escript(); }
+static entity* new_ldecay() { return new ldecay(); }
+static entity* new_elimit() { return new elimit(); }
+static entity* new_item() { return new item(); }
+static entity* new_oilrig() { return new oilrig(); }
+static entity* new_factory() { return new factory(FACTORY_GENERIC); }
+static entity* new_crane() { return new crane(); }
+static entity* new_fluid() { return new fluid(); }
+static entity* new_localgravity() { return new localgravity(); }
+static entity* new_autoprotector() { return new autoprotector(); }
+static entity* new_active_display() { return new active_display(); }
+static entity* new_boundary() { return new boundary(); }
+static entity* new_suction_cup() { return new scup(); }
+static entity* new_robot_factory() { return new factory(FACTORY_ROBOT); }
+static entity* new_armory() { return new factory(FACTORY_ARMORY); }
+static entity* new_separator() { return new beam(BEAM_SEP); }
+static entity* new_room() { return new room(); }
+static entity* new_oil_mixer() { return new factory(FACTORY_OIL_MIXER); }
+static entity* new_repair_station() { return new repair_station(); }
+static entity* new_guardpoint() { return new anchor(ANCHOR_GUARDPOINT); }
+static entity* new_ladder() { return new ladder(); }
+static entity* new_resource() { return new resource(); }
+static entity* new_plant() { return new plant(); }
+static entity* new_vendor() { return new vendor(); }
+static entity* new_animal() { return new animal(ANIMAL_TYPE_COW); }
+static entity* new_soundman() { return new soundman(); }
+static entity* new_player_activator() { return new player_activator(); }
+static entity* new_plastic_polygon() { return new polygon(MATERIAL_PLASTIC); }
+static entity* new_key_listener() { return new key_listener(); }
+static entity* new_statesaver() { return new statesaver(); }
+static entity* new_ifselect() { return new ifselect(); }
+static entity* new_camera_rotator() { return new camera_rotator(); }
+static entity* new_level_manager() { return new levelman(); }
+static entity* new_treasure_chest() { return new treasure_chest(); }
+static entity* new_decoration() { return new decoration(); }
+static entity* new_megasplitter() { return new megasplitter(); }
+static entity* new_ladder_step() { return new ladder_step(); }
 
 uint32_t of::_id = 1;
 
@@ -626,29 +628,29 @@ static entity* (*c_creator[])(void) = {
 static int num_creators = sizeof(c_creator)/sizeof(void*);
 
 static const char *categories[] = {
- "Basic",
- "Mechanics",
- "Electronics",
- "Robotics",
- "Signal-i1o1",
- "Signal-i2o1",
- "Signal-misc",
- "Tools/effects",
- "Interaction",
- "Game",
+    "Basic",
+    "Mechanics",
+    "Electronics",
+    "Robotics",
+    "Signal-i1o1",
+    "Signal-i2o1",
+    "Signal-misc",
+    "Tools/effects",
+    "Interaction",
+    "Game",
 };
 
 static const char *category_hints[] = {
- "bas",
- "mech",
- "elec",
- "rob",
- "s-i1",
- "s-i2",
- "s-m",
- "t/fx",
- "i",
- "game",
+    "bas",
+    "mech",
+    "elec",
+    "rob",
+    "s-i1",
+    "s-i2",
+    "s-m",
+    "t/fx",
+    "i",
+    "game",
 };
 
 /* Basic */
@@ -931,53 +933,36 @@ static int *ids[] = {
     c0_ids, c1_ids, c2_ids, c3_ids, c4_ids, c5_ids, c6_ids,c7_ids,c8_ids,c9_ids
 };
 
-void
-of::init(void)
-{
-
-}
-
-int of::get_gid(int category, int child)
-{
+int of::get_gid(int category, int child) {
     /* TODO: bounds check */
     return ids[category][child];
 }
 
-int of::get_num_objects(int cat)
-{
+int of::get_num_objects(int cat) {
     return num_objects[cat];
 }
 
-const char *
-of::get_category_name(int x)
-{
+const char *of::get_category_name(int x) {
     return categories[x];
 }
 
-const char *
-of::get_category_hint(int x)
-{
+const char *of::get_category_hint(int x) {
     return category_hints[x];
 }
 
-static entity*
-_create(p_gid id)
-{
+static entity *_create(p_gid id) {
     entity *e = 0;
 
     if (id < num_creators)
         e = ((*c_creator[id]))();
 
-    if (e) {
+    if (e)
         e->g_id = id;
-    }
 
     return e;
 }
 
-item *
-of::create_item(uint32_t item_id)
-{
+item *of::create_item(uint32_t item_id) {
     item *e = static_cast<item*>(_create(O_ITEM));
     if (e) {
         e->id = of::get_next_id();
@@ -987,21 +972,16 @@ of::create_item(uint32_t item_id)
     return e;
 }
 
-entity*
-of::create(p_gid g_id)
-{
+entity *of::create(p_gid g_id) {
     entity *e = _create(g_id);
 
-    if (e) {
+    if (e)
         e->id = of::get_next_id();
-    }
 
     return e;
 }
 
-entity*
-of::create_with_id(p_gid g_id, p_id id)
-{
+entity *of::create_with_id(p_gid g_id, p_id id) {
     entity *e = _create(g_id);
 
     if (e) {
@@ -1015,9 +995,7 @@ of::create_with_id(p_gid g_id, p_id id)
  * lvledit::print_gids()
  * and
  * chunk_preloader::preload_entity() */
-entity*
-of::read(lvlbuf *lb, uint8_t version, uint32_t id_modifier, b2Vec2 displacement, std::vector<chunk_pos> *affected_chunks)
-{
+entity *of::read(lvlbuf *lb, uint8_t version, uint32_t id_modifier, b2Vec2 displacement, std::vector<chunk_pos> *affected_chunks) {
     entity *e;
     p_gid g_id;
     uint8_t np, nc;
@@ -1037,187 +1015,179 @@ of::read(lvlbuf *lb, uint8_t version, uint32_t id_modifier, b2Vec2 displacement,
 
     e = of::create_with_id(g_id, id);
 
-    if (e) {
-        np = lb->r_uint8();
+    if (!e) {
+        tms_errorf("invalid object: %d", g_id);
+        return 0;
+    }
 
-        if (version >= LEVEL_VERSION_1_5) {
-            nc = lb->r_uint8();
-            state_size = lb->r_uint32();
-        } else
-            nc = 0;
+    np = lb->r_uint8();
 
-        e->gr = (group*)(uintptr_t)group_id;
+    if (version >= LEVEL_VERSION_1_5) {
+        nc = lb->r_uint8();
+        state_size = lb->r_uint32();
+    } else
+        nc = 0;
 
-        // XXX: Should this check if id != world->level.adventure_id instead?
-        // XXX: No, it should not
-        if (id >= of::_id && id != 0xffffffff) of::_id = id+1;
+    e->gr = (group*)(uintptr_t)group_id;
 
-        e->g_id = g_id;
+    // XXX: Should this check if id != world->level.adventure_id instead?
+    // XXX: No, it should not
+    if (id >= of::_id && id != 0xffffffff) of::_id = id+1;
 
-        if (np != e->num_properties) {
-            if (np > e->num_properties) {
-                tms_errorf("Too many properties for object %d, will try to compensate.", e->g_id);
-                //np = e->num_properties;
-                //return 0;
-            }
+    e->g_id = g_id;
+
+    if (np != e->num_properties) {
+        if (np > e->num_properties) {
+            tms_errorf("Too many properties for object %d, will try to compensate.", e->g_id);
+            //np = e->num_properties;
+            //return 0;
         }
+    }
 
-        e->_pos.x = lb->r_float();
-        e->_pos.y = lb->r_float();
+    e->_pos.x = lb->r_float();
+    e->_pos.y = lb->r_float();
 
-        /* if we're grouped, the pos is local within the group, do not add displacement
-         * since displacement has already been added to the group itself */
-        if (e->gr == 0) {
-            e->_pos.x += displacement.x;
-            e->_pos.y += displacement.y;
-        }
+    /* if we're grouped, the pos is local within the group, do not add displacement
+        * since displacement has already been added to the group itself */
+    if (e->gr == 0) {
+        e->_pos.x += displacement.x;
+        e->_pos.y += displacement.y;
+    }
 
-        e->_angle = lb->r_float();
-        e->set_layer((int)lb->r_uint8());
+    e->_angle = lb->r_float();
+    e->set_layer((int)lb->r_uint8());
 
-        if (version >= LEVEL_VERSION_1_5) {
-            e->load_flags(lb->r_uint64());
+    if (version >= LEVEL_VERSION_1_5) {
+        e->load_flags(lb->r_uint64());
 
-            for (int x=0; x<nc; x++) {
-                int cx = lb->r_int32(); /* chunk x */
-                int cy = lb->r_int32(); /* chunk y */
+        for (int x=0; x<nc; x++) {
+            int cx = lb->r_int32(); /* chunk x */
+            int cy = lb->r_int32(); /* chunk y */
 
-                if (e->flag_active(ENTITY_STATE_SLEEPING)) {
-                    e->chunk_intersections[x].x = cx;
-                    e->chunk_intersections[x].y = cy;
-                    e->chunk_intersections[x].num_fixtures = 1;
-                    e->num_chunk_intersections++;
-                }
-
-                /* if we have a pointer to an "affected chunks" vector, insert info there */
-                if (affected_chunks) {
-                    affected_chunks->push_back(chunk_pos(cx, cy));
-                }
+            if (e->flag_active(ENTITY_STATE_SLEEPING)) {
+                e->chunk_intersections[x].x = cx;
+                e->chunk_intersections[x].y = cy;
+                e->chunk_intersections[x].num_fixtures = 1;
+                e->num_chunk_intersections++;
             }
 
-            e->state_size = state_size;
-            e->state_ptr = lb->rp;
-            lb->rp += state_size;
-        } else {
-            e->set_flag(ENTITY_AXIS_ROT, (bool)lb->r_uint8());
-
-            if (version >= 10) {
-                e->set_moveable((bool)lb->r_uint8());
-            } else {
-                e->set_moveable(true);
-            }
+            /* if we have a pointer to an "affected chunks" vector, insert info there */
+            if (affected_chunks)
+                affected_chunks->push_back(chunk_pos(cx, cy));
         }
 
-        for (int x=0; x<np; x++) {
-            uint8_t type = lb->r_uint8();
+        e->state_size = state_size;
+        e->state_ptr = lb->rp;
+        lb->rp += state_size;
+    } else {
+        e->set_flag(ENTITY_AXIS_ROT, (bool)lb->r_uint8());
 
-            if (x >= e->num_properties) {
-                tms_infof("Skipping property, type %d", type);
+        if (version >= 10)
+            e->set_moveable((bool)lb->r_uint8());
+        else
+            e->set_moveable(true);
+    }
+
+    for (int x=0; x<np; x++) {
+        uint8_t type = lb->r_uint8();
+
+        if (x >= e->num_properties) {
+            tms_infof("Skipping property, type %d", type);
+            switch (type) {
+                case P_INT8: lb->r_uint8(); break;
+                case P_INT: lb->r_uint32(); break;
+                case P_ID: lb->r_uint32(); break;
+                case P_FLT: lb->r_float(); break;
+                case P_STR: {
+                    uint32_t len;
+                    if (version >= LEVEL_VERSION_1_5)
+                        len = lb->r_uint32();
+                    else
+                        len = lb->r_uint16();
+
+                    lb->rp += len;
+                } break;
+            }
+            continue;
+        }
+
+        property *p = &e->properties[x];
+
+        if (type != p->type) {
+            if (p->type == P_FLT && type == P_INT8) {
+                uint8_t v = lb->r_uint8();
+                p->v.f = (float)v;
+
+                tms_infof("Read uint8 %u from file, converted it to float %f", v, p->v.f);
+            } else if (p->type == P_FLT && type == P_INT) {
+                uint32_t v = lb->r_uint32();
+                p->v.f = (float)v;
+
+                tms_infof("Read uint32 %u from file, converted it to float %f", v, p->v.f);
+            } else if (p->type == P_INT && type == P_INT8) {
+                uint8_t v = lb->r_uint8();
+                p->v.i = (uint32_t)v;
+
+                tms_infof("Read uint8 %d from file, converted it to uint32 %d", v, p->v.i);
+            } else if (p->type == P_INT8 && type == P_INT) {
+                uint32_t v = lb->r_uint32();
+                p->v.i8 = (uint8_t)v;
+                tms_infof("Read uint32 %d from file, converted it to uint8 %d", v, p->v.i8);
+            } else if (type == P_INT8 || p->type == P_INT8 || p->type == P_STR || type == P_STR) {
                 switch (type) {
                     case P_INT8: lb->r_uint8(); break;
                     case P_INT: lb->r_uint32(); break;
                     case P_ID: lb->r_uint32(); break;
                     case P_FLT: lb->r_float(); break;
-                    case P_STR:
-                        {
-                            uint32_t len;
-                            if (version >= LEVEL_VERSION_1_5) {
-                                len = lb->r_uint32();
-                            } else {
-                                len = lb->r_uint16();
-                            }
-
-                            lb->rp += len;
-                        }
-                        break;
-                }
-                continue;
-            }
-
-            property *p = &e->properties[x];
-
-            if (type != p->type) {
-                if (p->type == P_FLT && type == P_INT8) {
-                    uint8_t v = lb->r_uint8();
-                    p->v.f = (float)v;
-
-                    tms_infof("Read uint8 %u from file, converted it to float %f", v, p->v.f);
-                } else if (p->type == P_FLT && type == P_INT) {
-                    uint32_t v = lb->r_uint32();
-                    p->v.f = (float)v;
-
-                    tms_infof("Read uint32 %u from file, converted it to float %f", v, p->v.f);
-                } else if (p->type == P_INT && type == P_INT8) {
-                    uint8_t v = lb->r_uint8();
-                    p->v.i = (uint32_t)v;
-
-                    tms_infof("Read uint8 %d from file, converted it to uint32 %d", v, p->v.i);
-                } else if (p->type == P_INT8 && type == P_INT) {
-                    uint32_t v = lb->r_uint32();
-                    p->v.i8 = (uint8_t)v;
-                    tms_infof("Read uint32 %d from file, converted it to uint8 %d", v, p->v.i8);
-                } else if (type == P_INT8 || p->type == P_INT8 || p->type == P_STR || type == P_STR) {
-                    switch (type) {
-                        case P_INT8: lb->r_uint8(); break;
-                        case P_INT: lb->r_uint32(); break;
-                        case P_ID: lb->r_uint32(); break;
-                        case P_FLT: lb->r_float(); break;
-                        case P_STR:
-                                    {
-                                        uint32_t len = 0;
-                                        if (version >= LEVEL_VERSION_1_5) {
-                                            len = lb->r_uint32();
-                                        } else {
-                                            len = lb->r_uint16();
-                                        }
-                                        char *buf = (char*)malloc(len);
-                                        lb->r_buf(buf, len);
-                                        free(buf);
-                                    }
-                                    break;
-                        default: tms_fatalf("invalid object property %d", type);
-                    }
-                    /* TODO: Should it gracefully quit? This should be an error
-                     *       that will sort itself out when the level is re-saved */
-                    tms_errorf("incorrect property type when loading properties");
-                    memset(&p->v, 0, sizeof(p->v));
-                } else if ((p->type == P_INT && type == P_ID)
-                        || (p->type == P_ID && type == P_INT)) {
-                    p->v.i = lb->r_uint32();
-                }
-            } else {
-                switch (type) {
-                    case P_INT8: p->v.i8 = lb->r_uint8(); break;
-                    case P_INT: p->v.i = lb->r_uint32(); break;
-                    case P_ID: p->v.i = lb->r_uint32() + id_modifier; break;
-                    //case P_ID: p->v.i = lb->r_uint32(); break;
-                    case P_FLT: p->v.f = lb->r_float(); break;
-                    case P_STR:
+                    case P_STR: {
+                        uint32_t len = 0;
                         if (version >= LEVEL_VERSION_1_5) {
-                            p->v.s.len = lb->r_uint32();
+                            len = lb->r_uint32();
                         } else {
-                            p->v.s.len = lb->r_uint16();
+                            len = lb->r_uint16();
                         }
-                        p->v.s.buf = (char*)malloc(p->v.s.len+1);
-                        lb->r_buf(p->v.s.buf, p->v.s.len);
-                        p->v.s.buf[p->v.s.len] = '\0';
-                        break;
-
-                    default:
-                        tms_fatalf("invalid object property %d", type);
+                        char *buf = (char*)malloc(len);
+                        lb->r_buf(buf, len);
+                        free(buf);
+                    } break;
+                    default: tms_fatalf("invalid object property %d", type);
                 }
+                /* TODO: Should it gracefully quit? This should be an error
+                 *       that will sort itself out when the level is re-saved */
+                tms_errorf("incorrect property type when loading properties");
+                memset(&p->v, 0, sizeof(p->v));
+            } else if ((p->type == P_INT && type == P_ID)
+                    || (p->type == P_ID && type == P_INT)) {
+                p->v.i = lb->r_uint32();
+            }
+        } else {
+            switch (type) {
+                case P_INT8: p->v.i8 = lb->r_uint8(); break;
+                case P_INT: p->v.i = lb->r_uint32(); break;
+                case P_ID: p->v.i = lb->r_uint32() + id_modifier; break;
+                //case P_ID: p->v.i = lb->r_uint32(); break;
+                case P_FLT: p->v.f = lb->r_float(); break;
+                case P_STR:
+                    if (version >= LEVEL_VERSION_1_5)
+                        p->v.s.len = lb->r_uint32();
+                    else
+                        p->v.s.len = lb->r_uint16();
+
+                    p->v.s.buf = (char*)malloc(p->v.s.len+1);
+                    lb->r_buf(p->v.s.buf, p->v.s.len);
+                    p->v.s.buf[p->v.s.len] = '\0';
+                    break;
+
+                default:
+                    tms_fatalf("invalid object property %d", type);
             }
         }
-    } else {
-        tms_errorf("invalid object: %d", g_id);
     }
 
     return e;
 }
 
-group *
-of::read_group(lvlbuf *lb, uint8_t version, uint32_t id_modifier, b2Vec2 displacement)
-{
+group *of::read_group(lvlbuf *lb, uint8_t version, uint32_t id_modifier, b2Vec2 displacement) {
     /* XXX keep in sync with chunk_preload::read_group() */
 
     group *g = new group();
@@ -1237,9 +1207,7 @@ of::read_group(lvlbuf *lb, uint8_t version, uint32_t id_modifier, b2Vec2 displac
     return g;
 }
 
-void
-of::write_group(lvlbuf *lb, uint8_t version, group *e, uint32_t id_modifier, b2Vec2 displacement, bool write_states/*=false*/)
-{
+void of::write_group(lvlbuf *lb, uint8_t version, group *e, uint32_t id_modifier, b2Vec2 displacement, bool write_states/*=false*/) {
     lb->ensure(
              4 /* id */
             +4 /* pos x */
@@ -1280,9 +1248,7 @@ of::write_group(lvlbuf *lb, uint8_t version, group *e, uint32_t id_modifier, b2V
     e->write_size = lb->size - e->write_ptr;
 }
 
-void
-of::write(lvlbuf *lb, uint8_t version, entity *e, uint32_t id_modifier, b2Vec2 displacement, bool write_states/*=false*/)
-{
+void of::write(lvlbuf *lb, uint8_t version, entity *e, uint32_t id_modifier, b2Vec2 displacement, bool write_states/*=false*/) {
     e->write_ptr = lb->size;
 
     /* XXX GID XXX */
@@ -1369,9 +1335,8 @@ of::write(lvlbuf *lb, uint8_t version, entity *e, uint32_t id_modifier, b2Vec2 d
     } else {
         lb->w_uint8((uint8_t)e->flag_active(ENTITY_AXIS_ROT));
 
-        if (version >= 10) {
+        if (version >= 10)
             lb->w_uint8((uint8_t)e->is_moveable());
-        }
     }
 
     for (int x=0; x<e->num_properties; x++) {
@@ -1403,15 +1368,11 @@ of::write(lvlbuf *lb, uint8_t version, entity *e, uint32_t id_modifier, b2Vec2 d
     e->write_size = lb->size - e->write_ptr;
 }
 
-uint32_t
-of::get_next_id(void)
-{
+uint32_t of::get_next_id() {
     return of::_id++;
 }
 
-const char *
-of::get_object_name_by_gid(uint32_t gid)
-{
+const char *of::get_object_name_by_gid(uint32_t gid) {
     // ~~oh dear I think this is hacky~~
     // The old implementation would read from object help text data, but since that
     // is gone now, this was the best I could come up with. This method is basically
@@ -1421,7 +1382,6 @@ of::get_object_name_by_gid(uint32_t gid)
         const char* obj_name = obj->get_name();
         delete obj;
         return obj_name;
-    } else {
+    } else
         return "Nonexistant object";
-    }
 }

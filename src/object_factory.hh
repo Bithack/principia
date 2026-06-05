@@ -245,7 +245,8 @@ class group;
 class of
 {
   public:
-    static uint32_t _id; /* global entity id counter */
+    /// global entity id counter
+    static uint32_t _id;
 
     static const int num_categories = 10;
 
@@ -259,8 +260,6 @@ class of
     static item *create_item(uint32_t item_id);
     static entity *create_with_id(p_gid g_id, uint32_t id);
 
-    static void init(void);
-
     static entity* read(lvlbuf *lb, uint8_t version, uint32_t id_modifier=0, b2Vec2 displacement=b2Vec2(0.f,0.f), std::vector<chunk_pos> *affected_chunks=0);
     static void write(lvlbuf *lb, uint8_t version, entity *e, uint32_t id_modifier=0, b2Vec2 displacement=b2Vec2(0.f,0.f), bool write_states=false);
 
@@ -268,5 +267,5 @@ class of
     static void write_group(lvlbuf *lb, uint8_t version, group *e, uint32_t id_modifier=0, b2Vec2 displacement=b2Vec2(0.f,0.f), bool write_states=false);
 
     static int get_gid(int category, int child);
-    static uint32_t get_next_id(void);
+    static uint32_t get_next_id();
 };
