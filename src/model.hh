@@ -2,8 +2,6 @@
 
 #include <tms/bindings/cpp/cpp.hh>
 
-extern int cur_mesh;
-
 enum {
     MODEL_PLANK1,
     MODEL_PLANK2,
@@ -362,17 +360,31 @@ struct model_load_data {
     struct tms_model *model;
 };
 
-class mesh_factory
-{
+class lvlbuf;
+
+class mesh_factory {
+  private:
+    static char cache_path[512];
+    static bool use_cache;
+    static bool open_cache(lvlbuf *lb);
+    static bool read_cache(lvlbuf *lb);
+    static bool write_cache(lvlbuf *lb);
+    static bool save_cache(lvlbuf *lb);
+
   public:
     static struct model_load_data models[NUM_MODELS];
+    static int cur_mesh;
 
-    static inline struct tms_mesh *get_mesh(int model)
-    {
+    static inline struct tms_mesh *get_mesh(int model) {
         return mesh_factory::models[model].mesh;
     }
 
-    static void init_models(void);
-    static bool load_next(void);
-    static void upload_models(void);
+    /// Initialise models, loading cached model data if it exists
+    static void init_models();
+
+    /// Load the next model, return false if there are no more models to load
+    static bool load_next();
+
+    /// Upload all loaded models to the GPU
+    static void upload_models();
 };

@@ -1693,7 +1693,7 @@ static int initial_loader(int step) {
             mesh_factory::init_models();
 
             char msg[128];
-            snprintf(msg, 127, "Loading model %d/%d", cur_mesh+1, NUM_MODELS);
+            snprintf(msg, 127, "Loading model %d/%d", mesh_factory::cur_mesh+1, NUM_MODELS);
             P.s_loading_screen->set_text(msg);
         } break;
 
@@ -1706,7 +1706,7 @@ static int initial_loader(int step) {
                 }
 
                 char msg[128];
-                snprintf(msg, 127, "Loading model %d/%d", cur_mesh+1, NUM_MODELS);
+                snprintf(msg, 127, "Loading model %d/%d", mesh_factory::cur_mesh+1, NUM_MODELS);
                 P.s_loading_screen->set_text(msg);
 
                 if (ret) {
