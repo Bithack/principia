@@ -86,6 +86,7 @@ static const char *level_version_strings[] = {
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 #ifdef __cplusplus
 #include "const.hh"
