@@ -54,7 +54,7 @@ forward_slider_on_change(struct tms_wdg *w, float values[2])
 }
 
 static float cooldown_time = 0.f;
-static bool initialized = false;
+static bool gui_init = false;
 static int _menu_width = 200;
 static int menu_min_width;
 static int menu_max_width;
@@ -1407,14 +1407,13 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
 void
 game::init_gui(void)
 {
-    if (initialized) {
+    if (gui_init)
         return;
-    }
 
     int ierr;
     tms_infof("Initializing GUI ");
 
-    initialized = true;
+    gui_init = true;
 
     this->text_small = new p_text(font::small);
 

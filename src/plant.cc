@@ -106,7 +106,7 @@ enum {
     SERIALIZE_BRANCH_END    = 3,
 };
 
-static bool initialized = false;
+bool plant::initialized = false;
 static struct tms_gbuffer *ibuf = 0;
 static struct tms_gbuffer *vbuf = 0;
 static struct tms_varray  *va = 0;
@@ -123,8 +123,7 @@ struct vertex {
     tvec2 tex;
 } __attribute__ ((packed));
 
-static void _init()
-{
+void plant::_init() {
     vbuf = tms_gbuffer_alloc(MAX_BRANCHES*sizeof(struct vertex)*QUALITY*MAX_SECTIONS);
     ibuf = tms_gbuffer_alloc(MAX_BRANCHES*MAX_SECTIONS * (QUALITY) * 6 * sizeof(short));
 

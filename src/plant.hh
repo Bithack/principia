@@ -156,6 +156,9 @@ class plant : public entity_simpleconnect
     float      pending_timer;
     b2Vec2     pending_normal;
 
+    static bool initialized;
+    static void _init();
+
     inline float rand_range(tvec2 v)
     {
         float r = (float)rand()/(float)RAND_MAX;
@@ -236,7 +239,7 @@ class plant : public entity_simpleconnect
     }
 
     void set_position(float x, float y, uint8_t frame);
-    
+
     connection *load_connection(connection &c);
     void connection_create_joint(connection *c);
     bool connection_destroy_joint(connection *c);

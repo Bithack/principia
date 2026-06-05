@@ -55,4 +55,7 @@ class gearbox : public edev, public b2QueryCallback
         edevice* solve_electronics();
 
         void create_gearjoint();
+
+        static bool initialized;
+        static void _init();
 };

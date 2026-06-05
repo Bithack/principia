@@ -111,6 +111,7 @@ class cable : public entity
     static struct tms_entity *get_entity(void);
     static void reset_counter(void);
     static void upload_buffers(void);
+    static bool initialized;
     static void _init(void);
 
     friend class plug;

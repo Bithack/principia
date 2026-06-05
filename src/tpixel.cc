@@ -177,7 +177,7 @@ struct tpixel_material tpixel_materials[NUM_TPIXEL_MATERIALS] = {
     },
 };
 
-static bool initialized = false;
+bool tpixel::initialized = false;
 static bool _modified = false;
 
 struct vertex {

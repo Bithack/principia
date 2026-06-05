@@ -11,7 +11,7 @@ static const char *FONT_PATH = "data/fonts/Roboto-Bold.ttf";
 //static const char *FONT_PATH = "data/fonts/DejaVuSans.ttf";
 //static const char *FONT_PATH = "data/fonts/DejaVuSans-Bold.ttf";
 
-static bool initialized = false;
+bool gui_spritesheet::initialized = false;
 static bool font_init = false;
 
 SDL_Color C_WHITE = {MENU_WHITE, 0xFF};
@@ -826,9 +826,8 @@ gui_spritesheet::upload_text_atlas()
 void
 gui_spritesheet::init()
 {
-    if (initialized) {
+    if (initialized)
         return;
-    }
 
     initialized = true;
 

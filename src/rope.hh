@@ -55,6 +55,7 @@ class rope : public entity,
     static void reset_counter(void);
     static void upload_buffers(void);
     static void _init();
+    static bool initialized;
 
     uint32_t get_num_bodies();
     b2Body* get_body(uint8_t frame);

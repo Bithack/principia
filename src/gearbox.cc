@@ -9,7 +9,7 @@
 static struct tms_varray *va;
 static struct tms_gbuffer *vbuf;
 static struct tms_gbuffer *ibuf;
-static bool initialized = false;
+bool gearbox::initialized = false;
 
 static gearbox *mslots[MAX_MSLOTS];
 static int num_mslots;
@@ -29,7 +29,7 @@ struct vertex2 {
     tvec3 nor;
 } __attribute__ ((packed));
 
-static void init_gearbox()
+void gearbox::_init()
 {
     num_mslots = 0;
 
@@ -139,9 +139,8 @@ gearbox::get_body(uint8_t n)
 
 gearbox::gearbox()
 {
-    if (!initialized) {
-        init_gearbox();
-    }
+    if (!initialized)
+        _init();
 
     this->set_flag(ENTITY_DO_STEP,      true);
     this->set_flag(ENTITY_HAS_CONFIG,   true);

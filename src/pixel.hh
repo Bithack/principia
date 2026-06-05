@@ -22,6 +22,7 @@ class pixel : public basepixel,
   public:
     pixel();
 
+    static bool initialized;
     static void initialize();
     static struct tms_entity *get_entity(int x);
     static void reset_counter();

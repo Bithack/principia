@@ -11,7 +11,7 @@
 
 #define MAX_ROPES 20
 
-static bool initialized = false;
+bool rope::initialized = false;
 static struct tms_mesh   *_mesh;
 static struct tms_entity *_e;
 static float _cam_x = 0.f, _cam_y = 0.f;

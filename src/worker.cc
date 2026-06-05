@@ -34,7 +34,7 @@ struct tms_graph        *w_updatec_graph;
 
 std::set<entity*>       *w_mstep_set;
 
-static bool initialized = false;
+static bool workers_init = false;
 static int num_running_workers = 0;
 
 bool
@@ -52,8 +52,8 @@ w_get_num_workers()
 void
 w_init()
 {
-    if (!initialized) {
-        initialized = true;
+    if (!workers_init) {
+        workers_init = true;
         num_running_workers = 0;
 
         w_collide_destroy_lock = SDL_CreateMutex();

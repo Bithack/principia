@@ -4,7 +4,7 @@
 #include "game.hh"
 #include "ui.hh"
 
-static bool initialized = false;
+bool pixel::initialized = false;
 static bool _modified = false;
 
 struct vertex {
@@ -135,9 +135,8 @@ pixel::upload_buffers(void)
 
 pixel::pixel()
 {
-    if (!initialized) {
+    if (!initialized)
         initialize();
-    }
 
     this->last_size = -1.f;
 

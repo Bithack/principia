@@ -319,4 +319,7 @@ class chunk_window : public tms::entity
     void set(b2Vec2 lower, b2Vec2 upper);
 
     void recreate_caveview_texture(float px, float py, float ax, float ay);
+
+    static bool initialized;
+    static void _init();
 };

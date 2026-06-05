@@ -34,10 +34,11 @@
 //
 
 static bool slots[NUM_SLOTS];
-static bool initialized = false;
+
 static p_font *note_font[NUM_SIZES];
 static SDL_Surface *surface;
 static int spacing[NUM_SIZES];
+bool sticky::initialized = false;
 tms_texture sticky::texture;
 
 // Decode one UTF-8 codepoint; advance *s. Returns codepoint or -1 on end/error.
@@ -201,9 +202,8 @@ void sticky::_deinit(void) {
 }
 
 sticky::sticky() {
-    if (!initialized) {
+    if (!initialized)
         _init();
-    }
 
     for (int x=0; x<STICKY_MAX_LINES; ++x) {
         memset(&this->lines[x], 0, STICKY_MAX_PER_LINE);

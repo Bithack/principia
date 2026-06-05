@@ -31,7 +31,7 @@ struct cvert {
     tvec2 u;
 } __attribute__((packed));
 
-static bool initialized = false;
+bool cable::initialized = false;
 
 static struct tms_mesh   *_mesh;
 static struct tms_entity *_e;

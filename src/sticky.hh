@@ -22,6 +22,7 @@ class sticky : public entity
   public:
     static tms_texture texture;
 
+    static bool initialized;
     static void _init();
     static void _deinit();
 

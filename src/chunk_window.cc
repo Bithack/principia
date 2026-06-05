@@ -12,7 +12,7 @@ static struct tms_mesh    *mesh_pool[MAX_CHUNKS];
 static tms::gbuffer *vbuf[MAX_CHUNKS];
 static struct tms_varray  *va[MAX_CHUNKS];
 static struct tms_gbuffer *ibuf;
-static bool   initialized;
+bool chunk_window::initialized = false;
 
 static struct tms_mesh    *grass_pool[MAX_CHUNKS];
 static struct tms_gbuffer *grass_vbuf[MAX_CHUNKS];
@@ -39,9 +39,7 @@ struct cvert {
 static int vertices_per_tpixel;
 static int indices_per_tpixel;
 
-static void
-_init()
-{
+void chunk_window::_init() {
     initialized = true;
 
     struct tms_mesh *mm = mesh_factory::get_mesh(MODEL_BOX_TEX);
@@ -119,9 +117,8 @@ chunk_window::chunk_window()
 void
 chunk_window::reset()
 {
-    if (!initialized) {
+    if (!initialized)
         _init();
-    }
 
     memset(this->slots, 0, sizeof(this->slots));
 
