@@ -1,8 +1,15 @@
 #pragma once
 
+#include "tms/math/vector.h"
 #include <stdint.h>
 
 class entity;
+
+struct cvert {
+    tvec3 p;
+    tvec3 n;
+    tvec2 u;
+} __attribute__((packed));
 
 struct chunk_pos {
     int x, y;

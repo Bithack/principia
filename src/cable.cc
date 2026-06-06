@@ -20,16 +20,10 @@
 
 #define NUM_SUBDIVISIONS 3
 
-struct vertex {
+struct cable_vert {
     tvec3 pos;
     tvec3 nor;
 } __attribute__ ((packed));
-
-struct cvert {
-    tvec3 p;
-    tvec3 n;
-    tvec2 u;
-} __attribute__((packed));
 
 bool cable::initialized = false;
 
@@ -64,7 +58,7 @@ cable::_init(void)
     /* initialize cable buffers */
     {
         points_per_cable = (int)pow(2.f, (float)(NUM_SUBDIVISIONS))+1;
-        buf = new tms::gbuffer(MAX_CABLES * points_per_cable * QUALITY * sizeof(struct vertex));
+        buf = new tms::gbuffer(MAX_CABLES * points_per_cable * QUALITY * sizeof(struct cable_vert));
         ibuf = new tms::gbuffer(MAX_CABLES * (points_per_cable-1) * (QUALITY) * 6 * sizeof(uint16_t));
 
         buf->usage = GL_STREAM_DRAW;
@@ -126,7 +120,7 @@ cable::_init(void)
         plug_ibuf->target = GL_ELEMENT_ARRAY_BUFFER;
 
         for (int x=0; x<3; x++) {
-            plug_buf[x] = new tms::gbuffer(MAX_PLUGS * vertices_per_plug * sizeof(struct vertex));
+            plug_buf[x] = new tms::gbuffer(MAX_PLUGS * vertices_per_plug * sizeof(struct cable_vert));
             plug_buf[x]->usage = GL_STREAM_DRAW;
 
             plug_va[x] = new tms::varray(2);
@@ -204,7 +198,7 @@ cable::upload_buffers(void)
     _mesh->i_start = 0;
     _mesh->i_count = counter*(ibuf->size/MAX_CABLES) / sizeof(uint16_t);
     if (counter)
-        buf->upload_partial(counter * points_per_cable * 4 * sizeof(struct vertex)); /* this 4 = QUALITY? */
+        buf->upload_partial(counter * points_per_cable * 4 * sizeof(struct cable_vert)); /* this 4 = QUALITY? */
 
     for (int x=0; x<3; x++) {
         int count = plug_counter[x];
@@ -215,7 +209,7 @@ cable::upload_buffers(void)
         plug_mesh[x]->i_count = count*(indices_per_plug);
 
         if (count) {
-            plug_buf[x]->upload_partial((count*vertices_per_plug) * sizeof(struct vertex));
+            plug_buf[x]->upload_partial((count*vertices_per_plug) * sizeof(struct cable_vert));
         }
     }
 }
@@ -447,8 +441,8 @@ cable::update(void)
         this->create_joint(); /* update the length of the cable every frame if we are paused */
     }
 
-    int base = num*(((buf->size/MAX_CABLES))/sizeof(struct vertex));
-    struct vertex *v = ((struct vertex*)buf->get_buffer())+base;
+    int base = num*(((buf->size/MAX_CABLES))/sizeof(struct cable_vert));
+    cable_vert *v = ((cable_vert *)buf->get_buffer())+base;
 
     float cable_z = fmaxf(this->p[0]->get_layer(), this->p[1]->get_layer()) * LAYER_DEPTH;
 
@@ -805,13 +799,13 @@ plug_base::update(void)
         if (num > MAX_PLUGS - 1) num = MAX_PLUGS - 1;
 
         int base = (num*vertices_per_plug);
-        struct vertex *v = ((struct vertex*)plug_buf[l]->get_buffer());
+        cable_vert *v = ((cable_vert *)plug_buf[l]->get_buffer());
         v += base;
 
         struct tms_mesh *mm = mesh_factory::get_mesh(MODEL_PLUG_SIMPLE);
         struct tms_gbuffer *r_vbuf = mm->vertex_array->gbufs[0].gbuf;
 
-        struct cvert *rv = (struct cvert*)((char*)tms_gbuffer_get_buffer(r_vbuf)+mm->v_start);
+        cvert *rv = (cvert *)((char*)tms_gbuffer_get_buffer(r_vbuf)+mm->v_start);
         int num_rv = mm->v_count;
 
         for (int x=0; x<num_rv; x++) {
@@ -1057,4 +1051,3 @@ plug_base::on_release(game *g)
         }
     }
 }
-

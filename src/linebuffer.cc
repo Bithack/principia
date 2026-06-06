@@ -17,7 +17,7 @@ static float cam_y = 0.f;
 static int n = 0;
 static int n2 = 0;
 
-struct vert {
+struct linebuf_vert {
     tvec3 pos;
     tvec2 uv;
     tvec4 color;
@@ -84,10 +84,10 @@ void linebuffer::_init()
 {
     tms_infof("Initializing linebuffer");
 
-    verts = new tms::gbuffer(4*LINEBUFFER_MAX*sizeof(struct vert));
+    verts = new tms::gbuffer(4*LINEBUFFER_MAX*sizeof(struct linebuf_vert));
     verts->usage = TMS_GBUFFER_STREAM_DRAW;
 
-    verts2 = new tms::gbuffer(4*LINEBUFFER_MAX*sizeof(struct vert));
+    verts2 = new tms::gbuffer(4*LINEBUFFER_MAX*sizeof(struct linebuf_vert));
     verts2->usage = TMS_GBUFFER_STREAM_DRAW;
 
     indices = new tms::gbuffer(6*LINEBUFFER_MAX*sizeof(uint16_t));
@@ -131,7 +131,7 @@ void linebuffer::add(
             )
 {
     if (n < LINEBUFFER_MAX) {
-        struct vert *_b = (struct vert*)verts->get_buffer();
+        linebuf_vert *_b = (linebuf_vert*)verts->get_buffer();
 
         b2Vec2 tangent = b2Vec2((y2-y1), -(x2-x1));
         tangent *= 1.f / tangent.Length();
@@ -190,7 +190,7 @@ void linebuffer::add2(
             )
 {
     if (n2 < LINEBUFFER_MAX) {
-        struct vert *_b = (struct vert*)verts2->get_buffer();
+        linebuf_vert *_b = (linebuf_vert *)verts2->get_buffer();
 
         b2Vec2 tangent = b2Vec2((y2-y1), -(x2-x1));
         tangent *= 1.f / tangent.Length();
@@ -251,10 +251,10 @@ void linebuffer::upload()
         mesh2->i_count = n2*6;
     }
     if (n) {
-        verts->upload_partial(n*4*sizeof(struct vert));
+        verts->upload_partial(n*4*sizeof(struct linebuf_vert));
     }
     if (n2) {
-        verts2->upload_partial(n2*4*sizeof(struct vert));
+        verts2->upload_partial(n2*4*sizeof(struct linebuf_vert));
     }
 }
 

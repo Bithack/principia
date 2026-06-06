@@ -10,12 +10,12 @@ static tms::entity *e2;
 
 static uint32_t n = 0;
 
-struct vert {
+struct fluidbuf_vert {
     tvec3 pos;
     tvec3 uv;
 };
 
-static struct vert base[4];
+static fluidbuf_vert base[4];
 
 void fluidbuffer::reset()
 {
@@ -45,7 +45,7 @@ void fluidbuffer::_init()
 {
     tms_infof("Initializing fluidbuffer...");
 
-    verts = new tms::gbuffer(4*(FLUIDBUFFER_MAX)*sizeof(struct vert));
+    verts = new tms::gbuffer(4*(FLUIDBUFFER_MAX)*sizeof(struct fluidbuf_vert));
     verts->usage = TMS_GBUFFER_STREAM_DRAW;
 
     indices = new tms::gbuffer(6*FLUIDBUFFER_MAX*sizeof(uint32_t));
@@ -71,19 +71,19 @@ void fluidbuffer::_init()
 
     indices->upload();
 
-    base[0] = (struct vert){
+    base[0] = (fluidbuf_vert){
         (tvec3){.5f,.5f,0.f},
         (tvec3){.5f, 1.f, 0.f}
     };
-    base[1] = (struct vert){
+    base[1] = (fluidbuf_vert){
         (tvec3){-.5f,.5f,0.f},
         (tvec3){0.f, 1.f, 0.f},
     };
-    base[2] = (struct vert){
+    base[2] = (fluidbuf_vert){
         (tvec3){-.5f,-.5f,0.f},
         (tvec3){0.f, .75f, 0.f},
     };
-    base[3] = (struct vert){
+    base[3] = (fluidbuf_vert){
         (tvec3){.5f,-.5f,0.f},
         (tvec3){.5f, .75f, 0.f},
     };
@@ -100,7 +100,7 @@ void fluidbuffer::add(
     uint32_t particle_limit = ((W->level.version <= LEVEL_VERSION_1_5_1) ? FLUIDBUFFER_MAX_1_5_1 : FLUIDBUFFER_MAX);
     if (n >= particle_limit) return;
 
-    struct vert *vert_buf = (struct vert*) verts->get_buffer();
+    fluidbuf_vert *vert_buf = (fluidbuf_vert *) verts->get_buffer();
     for (int ix=0; ix<4; ix++) {
         vert_buf[n*4+ix] = base[ix];
 
@@ -124,5 +124,5 @@ void fluidbuffer::upload()
         mesh->i_start = 0;
         mesh->i_count = n*6;
     }
-    if (n) verts->upload_partial(n*4*sizeof(struct vert));
+    if (n) verts->upload_partial(n*4*sizeof(struct fluidbuf_vert));
 }

@@ -180,17 +180,11 @@ struct tpixel_material tpixel_materials[NUM_TPIXEL_MATERIALS] = {
 bool tpixel::initialized = false;
 static bool _modified = false;
 
-struct vertex {
+struct tpixel_vert {
     tvec3 pos;
     tvec3 nor;
     tvec2 uv;
 } __attribute__ ((packed));
-
-struct cvert {
-    tvec3 p;
-    tvec3 n;
-    tvec2 u;
-} __attribute__((packed));
 
 static struct tms_mesh   *_mesh[3];
 static struct tms_entity *_e[3];
@@ -225,7 +219,7 @@ tpixel::initialize()
 
         for (int x=0; x<3; x++) {
 
-            _buf[x] = new tms::gbuffer(MAX_TPIXELS * vertices_per_tpixel * sizeof(struct vertex));
+            _buf[x] = new tms::gbuffer(MAX_TPIXELS * vertices_per_tpixel * sizeof(struct tpixel_vert));
             _buf[x]->usage = GL_STREAM_DRAW;
 
             _va[x] = new tms::varray(3);
@@ -294,7 +288,7 @@ tpixel::upload_buffers(void)
         _mesh[x]->i_count = (count*indices_per_tpixel);
 
         if (count)
-            _buf[x]->upload_partial((count*vertices_per_tpixel) * sizeof(struct vertex));
+            _buf[x]->upload_partial((count*vertices_per_tpixel) * sizeof(struct tpixel_vert));
     }
 }
 
@@ -464,7 +458,7 @@ tpixel::update()
             int num = __sync_fetch_and_add(&_counter[l], 1);
 
             int base = (num*vertices_per_tpixel);
-            struct vertex *v = ((struct vertex*)_buf[l]->get_buffer());
+            tpixel_vert *v = ((tpixel_vert*)_buf[l]->get_buffer());
             v += base;
 
             struct tms_mesh *mm = mesh_factory::get_mesh(MODEL_BOX_TEX);

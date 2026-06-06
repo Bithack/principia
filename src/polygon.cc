@@ -9,7 +9,7 @@ struct tms_gbuffer *ibuf;
 polygon            *slots[MAX_POLYGONS];
 bool                modified; /* if the vertex buffer has been modified */
 
-struct vertex {
+struct poly_vert {
     tvec3 pos;
     tvec3 nor;
     tvec3 col;
@@ -18,7 +18,7 @@ struct vertex {
 void
 polygon::_init()
 {
-    vbuf = tms_gbuffer_alloc(20 * MAX_POLYGONS * sizeof(struct vertex));
+    vbuf = tms_gbuffer_alloc(20 * MAX_POLYGONS * sizeof(struct poly_vert));
     vbuf->usage = GL_STATIC_DRAW;
 
     ibuf = tms_gbuffer_alloc(90 * MAX_POLYGONS * sizeof(uint16_t));
@@ -351,7 +351,7 @@ polygon::update_mesh()
         return;
     }
 
-    struct vertex *v = (struct vertex*)tms_gbuffer_get_buffer(vbuf);
+    poly_vert *v = (poly_vert *)tms_gbuffer_get_buffer(vbuf);
     v += this->slot*20;
 
     float depth = (std::min((int)this->properties[0].v.i8, 3)+1.f) * .25f;

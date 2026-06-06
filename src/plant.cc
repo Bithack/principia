@@ -116,7 +116,7 @@ static bool buffer_modified = false;
 
 static int                 counter;
 
-struct vertex {
+struct plant_vert {
     tvec3 pos;
     tvec3 nor;
     tvec3 tan;
@@ -124,7 +124,7 @@ struct vertex {
 } __attribute__ ((packed));
 
 void plant::_init() {
-    vbuf = tms_gbuffer_alloc(MAX_BRANCHES*sizeof(struct vertex)*QUALITY*MAX_SECTIONS);
+    vbuf = tms_gbuffer_alloc(MAX_BRANCHES*sizeof(struct plant_vert)*QUALITY*MAX_SECTIONS);
     ibuf = tms_gbuffer_alloc(MAX_BRANCHES*MAX_SECTIONS * (QUALITY) * 6 * sizeof(short));
 
     vbuf->usage = GL_STREAM_DRAW;
@@ -1379,7 +1379,7 @@ plant::break_branch(plant_branch *br, plant_section *s, bool create_resources)
 }
 
 int
-plant::update_mesh(plant_section *s, struct vertex *v, int y, bool search_only)
+plant::update_mesh(plant_section *s, struct plant_vert *v, int y, bool search_only)
 {
     plant_branch *extensions[64]; /* XXX */
     int num_extensions = 0;
@@ -1451,7 +1451,7 @@ plant::update_mesh(plant_section *s, struct vertex *v, int y, bool search_only)
 }
 
 int
-plant::mesh_add_section(struct vertex *v, int y, b2Vec2 bp, b2Vec2 axis, float width)
+plant::mesh_add_section(struct plant_vert *v, int y, b2Vec2 bp, b2Vec2 axis, float width)
 {
     static const float step = (M_PI*2.f) / (float)QUALITY;
 
@@ -1487,7 +1487,7 @@ plant::mesh_add_section(struct vertex *v, int y, b2Vec2 bp, b2Vec2 axis, float w
  * since each section renders at the end point
  **/
 int
-plant::mesh_add_pre_branch_sections(plant_branch *br, struct vertex *v, int y)
+plant::mesh_add_pre_branch_sections(plant_branch *br, struct plant_vert *v, int y)
 {
     y = this->mesh_add_section(v, y, br->first->get_start_point(), br->first->get_vector(), 0.f);
     y = this->mesh_add_section(v, y, br->first->get_start_point(), br->first->get_vector(), br->first->get_width()*1.5f);
@@ -1496,7 +1496,7 @@ plant::mesh_add_pre_branch_sections(plant_branch *br, struct vertex *v, int y)
 }
 
 int
-plant::mesh_add_post_branch_sections(plant_branch *br, struct vertex *v, int y)
+plant::mesh_add_post_branch_sections(plant_branch *br, struct plant_vert *v, int y)
 {
     return this->mesh_add_section(v, y, br->last->get_end_point(), br->last->get_vector(), 0.f);
 }
@@ -1511,7 +1511,7 @@ void
 plant::upload_buffers()
 {
     if (buffer_modified) {
-        tms_gbuffer_upload_partial(vbuf, (top_slot+1)*sizeof(struct vertex)*QUALITY*MAX_SECTIONS);
+        tms_gbuffer_upload_partial(vbuf, (top_slot+1)*sizeof(struct plant_vert)*QUALITY*MAX_SECTIONS);
         buffer_modified = false;
     } else {
         //tms_debugf("no branch modified");
@@ -1578,7 +1578,7 @@ plant::update_meshes(plant_branch *br)
     plant_section *s = br->first;
     plant_section *last = br->last;
 
-    struct vertex *v = (struct vertex*)tms_gbuffer_get_buffer(vbuf);
+    plant_vert *v = (plant_vert *)tms_gbuffer_get_buffer(vbuf);
     v += br->slot * QUALITY*MAX_SECTIONS;
 
     int y = this->update_mesh(s, v, 0, !do_update);

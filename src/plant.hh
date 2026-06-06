@@ -268,10 +268,10 @@ class plant : public entity_simpleconnect
     plant_leaf *create_leaf(plant_branch *br);
 
     void update_meshes(plant_branch *br);
-    int update_mesh(plant_section *s, struct vertex *v, int y, bool search_only);
-    int mesh_add_pre_branch_sections(plant_branch *br, struct vertex *v, int y);
-    int mesh_add_post_branch_sections(plant_branch *br, struct vertex *v, int y);
-    int mesh_add_section(struct vertex *v, int y, b2Vec2 position, b2Vec2 axis, float width);
+    int update_mesh(plant_section *s, struct plant_vert *v, int y, bool search_only);
+    int mesh_add_pre_branch_sections(plant_branch *br, struct plant_vert *v, int y);
+    int mesh_add_post_branch_sections(plant_branch *br, struct plant_vert *v, int y);
+    int mesh_add_section(struct plant_vert *v, int y, b2Vec2 position, b2Vec2 axis, float width);
 
     void settle();
 

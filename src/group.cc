@@ -18,12 +18,6 @@ struct plastic_vert {
     tvec3 color;
 } __attribute__ ((packed));
 
-struct cvert {
-    tvec3 p;
-    tvec3 n;
-    tvec2 u;
-} __attribute__((packed));
-
 void
 group::update()
 {
@@ -124,12 +118,6 @@ void
 group::create_mesh(void)
 {
     float rm[16];
-
-    struct cvert {
-        tvec3 p;
-        tvec3 n;
-        tvec2 u;
-    } __attribute__((packed));
 
     struct vert {
         tvec3 p;

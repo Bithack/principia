@@ -13,13 +13,13 @@ static tms::entity *e2;
 static int n = 0;
 static int n2 = 0;
 
-struct vert {
+struct spritebuf_vert {
     tvec3 pos;
     tvec2 uv;
     tvec4 color;
 };
 
-static struct vert base[4];
+static spritebuf_vert base[4];
 
 void spritebuffer::reset()
 {
@@ -67,10 +67,10 @@ void spritebuffer::_init()
 {
     tms_infof("Initializing spritebuffer...");
 
-    verts = new tms::gbuffer(4*SPRITEBUFFER_MAX*sizeof(struct vert));
+    verts = new tms::gbuffer(4*SPRITEBUFFER_MAX*sizeof(struct spritebuf_vert));
     verts->usage = TMS_GBUFFER_STREAM_DRAW;
 
-    verts2 = new tms::gbuffer(4*SPRITEBUFFER_MAX*sizeof(struct vert));
+    verts2 = new tms::gbuffer(4*SPRITEBUFFER_MAX*sizeof(struct spritebuf_vert));
     verts2->usage = TMS_GBUFFER_STREAM_DRAW;
 
     indices = new tms::gbuffer(6*SPRITEBUFFER_MAX*sizeof(uint16_t));
@@ -102,22 +102,22 @@ void spritebuffer::_init()
 
     indices->upload();
 
-    base[0] = (struct vert){
+    base[0] = (spritebuf_vert){
         (tvec3){.5f,.5f,0.f},
         (tvec2){.5f, 1.f},
         (tvec4){0.f, 0.f, 0.f, 0.f},
     };
-    base[1] = (struct vert){
+    base[1] = (spritebuf_vert){
         (tvec3){-.5f,.5f,0.f},
         (tvec2){0.f, 1.f},
         (tvec4){0.f, 0.f, 0.f, 0.f},
     };
-    base[2] = (struct vert){
+    base[2] = (spritebuf_vert){
         (tvec3){-.5f,-.5f,0.f},
         (tvec2){0.f, .75f},
         (tvec4){0.f, 0.f, 0.f, 0.f},
     };
-    base[3] = (struct vert){
+    base[3] = (spritebuf_vert){
         (tvec3){.5f,-.5f,0.f},
         (tvec2){.5f, .75f},
         (tvec4){0.f, 0.f, 0.f, 0.f},
@@ -135,7 +135,7 @@ spritebuffer::add(float x, float y, float z,
     tmath_sincos(rot, &sn, &cs);
 
     if (n < SPRITEBUFFER_MAX) {
-        struct vert *_b = (struct vert*)verts->get_buffer();
+        spritebuf_vert *_b = (spritebuf_vert*)verts->get_buffer();
         for (int ix=0; ix<4; ix++) {
             _b[n*4+ix] = base[ix];
 
@@ -169,7 +169,7 @@ spritebuffer::add(float x, float y, float z,
         float w, float h, int sprite)
 {
     if (n < SPRITEBUFFER_MAX) {
-        struct vert *_b = (struct vert*)verts->get_buffer();
+        spritebuf_vert *_b = (spritebuf_vert*)verts->get_buffer();
         for (int ix=0; ix<4; ix++) {
             _b[n*4+ix] = base[ix];
 
@@ -201,7 +201,7 @@ spritebuffer::add2(float x, float y, float z,
     tmath_sincos(rot, &sn, &cs);
 
     if (n2 < SPRITEBUFFER_MAX) {
-        struct vert *_b = (struct vert*)verts2->get_buffer();
+        spritebuf_vert *_b = (spritebuf_vert*)verts2->get_buffer();
         for (int ix=0; ix<4; ix++) {
             _b[n2*4+ix] = base[ix];
 
@@ -235,7 +235,7 @@ spritebuffer::add2(float x, float y, float z,
         float w, float h, int sprite)
 {
     if (n2 < SPRITEBUFFER_MAX) {
-        struct vert *_b = (struct vert*)verts2->get_buffer();
+        spritebuf_vert *_b = (spritebuf_vert*)verts2->get_buffer();
         for (int ix=0; ix<4; ix++) {
             _b[n2*4+ix] = base[ix];
 
@@ -268,7 +268,7 @@ void spritebuffer::upload()
         mesh2->i_start = 0;
         mesh2->i_count = n2*6;
     }
-    if (n) verts->upload_partial(n*4*sizeof(struct vert));
-    if (n2) verts2->upload_partial(n2*4*sizeof(struct vert));
+    if (n) verts->upload_partial(n*4*sizeof(struct spritebuf_vert));
+    if (n2) verts2->upload_partial(n2*4*sizeof(struct spritebuf_vert));
 }
 

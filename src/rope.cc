@@ -21,7 +21,7 @@ static tms::gbuffer *ibuf = 0;
 
 static volatile int counter = 1;
 
-struct vertex {
+struct rope_vert {
     tvec3 pos;
     tvec3 nor;
     tvec2 tex;
@@ -35,7 +35,7 @@ rope::_init()
 
     b2Vec2 dir;
 
-    buf = new tms::gbuffer(MAX_ROPES * ROPE_LENGTH * QUALITY * sizeof(struct vertex));
+    buf = new tms::gbuffer(MAX_ROPES * ROPE_LENGTH * QUALITY * sizeof(struct rope_vert));
     ibuf = new tms::gbuffer(MAX_ROPES * (ROPE_LENGTH-1) * (QUALITY) * 6 * sizeof(short));
 
     buf->usage = GL_STREAM_DRAW;
@@ -54,7 +54,7 @@ rope::_init()
     tmat4_load_identity(_e->M);
     tmat3_load_identity(_e->N);
 
-    struct vertex *v = (struct vertex*)buf->get_buffer();
+    rope_vert *v = (rope_vert *)buf->get_buffer();
     short *id = (short*)ibuf->get_buffer();
 
     int num_i = 0;
@@ -151,7 +151,7 @@ rope::upload_buffers(void)
     _mesh->i_start = 0;
     _mesh->i_count = counter*(ibuf->size/MAX_ROPES) / sizeof(uint16_t);
     if (counter)
-        buf->upload_partial(counter * QUALITY * ROPE_LENGTH * sizeof(struct vertex));
+        buf->upload_partial(counter * QUALITY * ROPE_LENGTH * sizeof(struct rope_vert));
     //ibuf->upload();
 }
 
@@ -406,8 +406,8 @@ rope::ghost_update(void)
 
     if (this->num >= MAX_ROPES) this->num = MAX_ROPES-1;
 
-    int base = this->num*(((buf->size/MAX_ROPES))/sizeof(struct vertex));
-    struct vertex *v = ((struct vertex*)buf->get_buffer()) + base;
+    int base = this->num*(((buf->size/MAX_ROPES))/sizeof(struct rope_vert));
+    rope_vert *v = ((rope_vert *)buf->get_buffer()) + base;
 
     this->refresh_predef_form();
 
@@ -506,8 +506,8 @@ rope::update(void)
 
     if (this->num >= MAX_ROPES) this->num = MAX_ROPES-1;
 
-    int base = this->num*(((buf->size/MAX_ROPES))/sizeof(struct vertex));
-    struct vertex *v = ((struct vertex*)buf->get_buffer()) + base;
+    int base = this->num*(((buf->size/MAX_ROPES))/sizeof(struct rope_vert));
+    rope_vert *v = ((rope_vert *)buf->get_buffer()) + base;
 
     float step = (M_PI*2.f) / (float)QUALITY;
 
