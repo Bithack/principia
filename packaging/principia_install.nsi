@@ -5,11 +5,11 @@ ManifestDPIAware true
 !include "MUI2.nsh"
 
 !define MUI_ICON "..\packaging\icon.ico"
-!define VER_MAJOR 2025
-!define VER_MINOR 04
-!define VER_BUILD 05
+!define VER_MAJOR 2026
+!define VER_MINOR 06
+!define VER_BUILD 06
 
-!define VERSION "2025.04.05"
+!define VERSION "2026.06.06"
 
 Name "Principia"
 OutFile "principia-setup.exe"
