@@ -1,0 +1,3 @@
+Principia has a new directory structure for user data. The game should migrate automatically when updating.
+
+This update also contains a number of bugfixes on Android and other improvements, see the Changelog for a full list.
