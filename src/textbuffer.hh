@@ -1,7 +1,7 @@
 #pragma once
 
 #include "text.hh"
-#include "tms/bindings/cpp/cpp.hh"
+#include <tms/cpp.hh>
 
 #define TEXTBUFFER_MAX 512
 

@@ -1,9 +1,8 @@
 #pragma once
 
 #include "mood.hh"
-
-#include <tms/math/vector.h>
 #include <inttypes.h>
+#include <tms/cpp.hh>
 
 #define ENEMY    0
 #define FRIENDLY 1

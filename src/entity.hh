@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tms/bindings/cpp/cpp.hh>
+#include <tms/cpp.hh>
 #include <Box2D/Box2D.h>
 
 #include "pkgman.hh"

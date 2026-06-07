@@ -1,22 +1,18 @@
+#include "main.hh"
+#include "pipe.hh"
+#include "settings.hh"
+#include "version.hh"
 #include <SDL.h>
+#include <glad/gl.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
-#include <sys/stat.h>
 #include <sys/file.h>
+#include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <tms/cpp.hh>
 #include <unistd.h>
-
-#include <tms/core/project.h>
-#include <tms/core/event.h>
-#include <tms/core/tms.h>
-
-#include <glad/gl.h>
-
-#include "settings.hh"
-#include "main.hh"
-#include "version.hh"
 
 #ifdef TMS_BACKEND_WINDOWS
     #include <windows.h>
@@ -30,8 +26,6 @@
 #ifdef TMS_BACKEND_EMSCRIPTEN
     #include <emscripten.h>
 #endif
-
-#include "pipe.hh"
 
 FILE *_f_out = stdout;
 

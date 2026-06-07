@@ -4,10 +4,9 @@
 #include "main.hh"
 #include "network.hh"
 #include "pkgman.hh"
-#include "tms/backend/print.h"
-#include "tms/core/err.h"
 #include <cstdlib>
 #include <emscripten/fetch.h>
+#include <tms/cpp.hh>
 
 /**
  * Emscripten-based level downloader using emscripten_fetch (async callbacks).

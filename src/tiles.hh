@@ -1,9 +1,8 @@
 #pragma once
 
-#include <cstring>
-#include <inttypes.h>
 #include <deque>
-#include <tms/math/vector.h>
+#include <inttypes.h>
+#include <tms/cpp.hh>
 
 enum {
     TILE_NOMAD_HIDEOUT_FULL,

@@ -1,18 +1,8 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include <tms/core/tms.h>
-#include <tms/core/ddraw.h>
-#include <tms/core/shader.h>
-#include <tms/core/program.h>
-#include <tms/core/pipeline.h>
-#include <tms/core/gbuffer.h>
-#include <tms/core/varray.h>
-#include <tms/core/mesh.h>
-#include <tms/core/atlas.h>
-#include <tms/core/texture.h>
-#include <tms/core/backend.h>
-#include <tms/math/matrix.h>
+#include <tms/core/glob.h>
+#include <tms/math/glob.h>
 
 static int initialized = 0;
 static struct tms_shader *shader   = 0;

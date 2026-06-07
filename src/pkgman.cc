@@ -1,11 +1,10 @@
 #include "pkgman.hh"
+#include "misc.hh"
+#include "progress.hh"
+#include <dirent.h>
 #include <sys/stat.h>
 #include <time.h>
-#include <dirent.h>
-
-#include "progress.hh"
-#include "zlib.h"
-#include "misc.hh"
+#include <zlib.h>
 
 #ifdef TMS_BACKEND_WINDOWS
     #include <windows.h>
@@ -25,7 +24,7 @@
     static const char *tms_storage_path() { return "/tmp/"; }
     static const char *tms_storage_cache_path() { return "/tmp/"; }
 #else
-    #include <tms/bindings/cpp/cpp.hh>
+    #include <tms/cpp.hh>
 #endif
 
 static char _level_path[4][1024];

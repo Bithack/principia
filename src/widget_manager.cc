@@ -1,20 +1,17 @@
 #include "widget_manager.hh"
-#include "text.hh"
 #include "game.hh"
 #include "gui.hh"
-#include "ui.hh"
-#include "misc.hh"
-#include "menu_shared.hh"
-#include "menu_main.hh"
-#include "menu_create.hh"
 #include "menu-play.hh"
+#include "menu_create.hh"
+#include "menu_main.hh"
+#include "menu_shared.hh"
+#include "misc.hh"
 #include "settings.hh"
 #include "soundmanager.hh"
-
-#include <tms/core/wdg.h>
-#include <tms/bindings/cpp/cpp.hh>
-
+#include "text.hh"
+#include "ui.hh"
 #include <algorithm>
+#include <tms/cpp.hh>
 
 #define TOOLTIP_ACTIVATION_TIME 0.2f
 

@@ -1,10 +1,9 @@
 #pragma once
 
-#include <map>
-#include <Box2D/Box2D.h>
-#include <tms/math/vector.h>
 #include "creature.hh"
-
+#include <Box2D/Box2D.h>
+#include <map>
+#include <tms/cpp.hh>
 
 class entity;
 class creature;

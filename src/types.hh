@@ -1,7 +1,7 @@
 #pragma once
 
-#include "tms/math/vector.h"
 #include <stdint.h>
+#include <tms/cpp.hh>
 
 class entity;
 

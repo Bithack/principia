@@ -11,9 +11,7 @@
 #include "imgui_stdlib.h"
 #include "imgui_impl_opengl3.h"
 
-#include "tms/core/tms.h"
-#include "tms/core/event.h"
-#include "tms/core/err.h"
+#include <tms/cpp.hh>
 
 static int tms_mouse_button_to_imgui(int btn) {
     switch (btn) {

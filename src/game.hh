@@ -1,16 +1,15 @@
 #pragma once
 
-#include "misc.hh"
-#include "pscreen.hh"
 #include "entity.hh"
-#include <tms/bindings/cpp/cpp.hh>
-#include <set>
-#include <map>
+#include "misc.hh"
 #include "panel.hh"
-#include "types.hh"
-
+#include "pscreen.hh"
 #include "text.hh"
+#include "types.hh"
 #include "world.hh"
+#include <map>
+#include <set>
+#include <tms/cpp.hh>
 
 #define OFFS_REPAIR_STATION 0.f, 3.f
 

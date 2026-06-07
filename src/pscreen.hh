@@ -1,9 +1,9 @@
 #pragma once
 
 #include "font.hh"
-#include <tms/bindings/cpp/cpp.hh>
-#include <deque>
 #include "game-graph.hh"
+#include <deque>
+#include <tms/cpp.hh>
 
 class p_text;
 class p_font;

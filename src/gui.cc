@@ -3,7 +3,7 @@
 #include "font.hh"
 #include "settings.hh"
 #include "misc.hh"
-#include <tms/bindings/cpp/cpp.hh>
+#include <tms/cpp.hh>
 
 #define FONT_CACHE_VERSION 34
 

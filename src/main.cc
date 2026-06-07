@@ -1,6 +1,5 @@
 #include "game.hh"
 #include "main.hh"
-#include "tms/core/err.h"
 #include "loading_screen.hh"
 #include "soundmanager.hh"
 #include "ui.hh"
@@ -45,11 +44,7 @@
 
 #include <sys/stat.h>
 
-#include <tms/core/tms.h>
-#include <tms/core/framebuffer.h>
-#include <tms/core/entity.h>
-#include <tms/core/pipeline.h>
-#include <tms/bindings/cpp/cpp.hh>
+#include <tms/cpp.hh>
 
 #include "network.hh"
 

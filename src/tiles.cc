@@ -1,9 +1,8 @@
 #include "tiles.hh"
 #include "object_factory.hh"
-
 #include <stdio.h>
-#include <tms/backend/print.h>
 #include <string.h>
+#include <tms/cpp.hh>
 
 struct tile_load_data tile_factory::tiles[NUM_TILES] = {
     { "data/tiles/nomad_hideout_0.txt" },

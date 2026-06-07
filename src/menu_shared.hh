@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tms/bindings/cpp/cpp.hh>
 #include "main.hh"
+#include <tms/cpp.hh>
 
 class p_text;
 

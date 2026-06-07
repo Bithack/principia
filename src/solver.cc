@@ -1,7 +1,7 @@
 #include "solver.hh"
 #include "entity.hh"
 #include "gear.hh"
-#include <tms/bindings/cpp/cpp.hh>
+#include <tms/cpp.hh>
 
 #define NUM_HANDLERS 13
 

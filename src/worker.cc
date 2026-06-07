@@ -1,11 +1,10 @@
 #include "worker.hh"
 #include "entity.hh"
 #include "settings.hh"
-
-#include <tms/core/graph.h>
-#include <Box2D/Dynamics/b2Island.h>
-#include <Box2D/Dynamics/b2ContactManager.h>
 #include <Box2D/Dynamics/Contacts/b2Contact.h>
+#include <Box2D/Dynamics/b2ContactManager.h>
+#include <Box2D/Dynamics/b2Island.h>
+#include <tms/cpp.hh>
 
 static int  _worker_main(void *in);
 static void _w_do_solve(struct worker *w);

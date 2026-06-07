@@ -1,9 +1,7 @@
 #pragma once
 
 #include "misc.hh"
-
-#include <tms/bindings/cpp/cpp.hh>
-
+#include <tms/cpp.hh>
 #include <vector>
 
 class pscreen;

@@ -2,6 +2,7 @@
 #include "menu_main.hh"
 #include "settings.hh"
 #include "text.hh"
+#include <tms/cpp.hh>
 
 loading_screen::loading_screen()
 {

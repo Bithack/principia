@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tms/bindings/cpp/cpp.hh>
+#include <tms/cpp.hh>
 
 enum {
     MODEL_PLANK1,

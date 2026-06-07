@@ -1,7 +1,7 @@
 #pragma once
 
 #include "font.hh"
-#include <tms/math/glob.h>
+#include <tms/cpp.hh>
 
 namespace tms
 {

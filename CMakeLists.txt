@@ -107,8 +107,7 @@ include_directories(
 file(GLOB SRCS
 	src/tms/core/*.c
 	src/tms/math/*.c
-	src/tms/util/*.c
-	src/tms/bindings/cpp/cpp.cc
+	src/tms/cpp.cc
 	src/tms/modules/3ds.c
 
 	src/*.c

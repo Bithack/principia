@@ -1,8 +1,8 @@
 #pragma once
 
-#include <tms/bindings/cpp/cpp.hh>
 #include "menu-base.hh"
 #include "pkgman.hh"
+#include <tms/cpp.hh>
 
 class menu_pkg : public menu_base
 {

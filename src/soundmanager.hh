@@ -5,7 +5,7 @@
 #endif
 
 #include "const.hh"
-#include <tms/core/tms.h>
+#include <tms/cpp.hh>
 
 #ifdef ENABLE_SOUND
 #include "SDL_mixer.h"

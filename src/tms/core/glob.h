@@ -20,6 +20,7 @@
 #include "screen.h"
 #include "settings.h"
 #include "shader.h"
+#include "storage.h"
 #include "surface.h"
 #include "texture.h"
 #include "tms.h"

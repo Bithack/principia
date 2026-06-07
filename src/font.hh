@@ -13,7 +13,7 @@
 #define FT_FLOOR(X) ((X & -64) / 64)
 #endif
 
-#include <tms/math/vector.h>
+#include <tms/cpp.hh>
 #include <SDL_rwops.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H

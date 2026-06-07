@@ -1,12 +1,9 @@
 #pragma once
 
-#include "pscreen.hh"
 #include "font.hh"
-
-#include <tms/core/wdg.h>
-#include <tms/bindings/cpp/cpp.hh>
-
+#include "pscreen.hh"
 #include <deque>
+#include <tms/cpp.hh>
 
 #define TMS_WDG_LABEL   1000
 #define TMS_WDG_KNOB    1001

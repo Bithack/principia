@@ -2,7 +2,7 @@
 #include "text.hh"
 #include "pscreen.hh"
 
-#include <tms/core/glob.h>
+#include <tms/cpp.hh>
 
 static double DEFAULT_ALPHA_MULTIPLIER = 4.0;
 

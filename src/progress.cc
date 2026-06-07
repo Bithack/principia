@@ -9,7 +9,7 @@
 #define tms_infof(...)
 #define tms_errorf(...)
 #else
-#include <tms/bindings/cpp/cpp.hh>
+#include <tms/cpp.hh>
 #endif
 
 #define WARNING_STR "Warning: if you edit this file manually, you risk losing all your game data."

@@ -3,9 +3,7 @@
 #include "pscreen.hh"
 #include "settings.hh"
 
-#include <tms/bindings/cpp/cpp.hh>
-#include <tms/core/tms.h>
-#include <tms/core/ddraw.h>
+#include <tms/cpp.hh>
 
 #include <limits>
 

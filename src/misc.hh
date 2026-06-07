@@ -6,7 +6,7 @@
 #include <cstdint>
 
 #ifndef _NO_TMS
-#include <tms/math/vector.h>
+#include <tms/cpp.hh>
 #endif
 
 #if defined(TMS_BACKEND_ANDROID)

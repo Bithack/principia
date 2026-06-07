@@ -1,7 +1,5 @@
-#include <tms/core/tms.h>
 #include "settings.hh"
-#include <cmath>
-#include "game.hh"
+#include <tms/cpp.hh>
 
 #ifdef BUILD_VALGRIND
 #include <valgrind/valgrind.h>

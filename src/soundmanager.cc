@@ -1,8 +1,8 @@
 #include "soundmanager.hh"
-#include "settings.hh"
 #include "const.hh"
-#include <tms/math/misc.h>
+#include "settings.hh"
 #include <Box2D/Box2D.h>
+#include <tms/cpp.hh>
 
 sm_sound*
 sm::get_sound_by_id(uint32_t sound_id)

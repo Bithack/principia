@@ -1,7 +1,7 @@
 #pragma once
 
 #include "entity.hh"
-#include "tms/bindings/cpp/cpp.hh"
+#include <tms/cpp.hh>
 #include <set>
 
 #define CABLE_BLACK 0

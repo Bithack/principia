@@ -4,7 +4,6 @@
  * more time than absolutely necessary on this backend.
  */
 
-#include "ui.hh"
 #include "adventure.hh"
 #include "anchor.hh"
 #include "animal.hh"
@@ -36,16 +35,15 @@
 #include "speaker.hh"
 #include "timer.hh"
 #include "treasure_chest.hh"
+#include "ui.hh"
 #include "wheel.hh"
-
 #include <SDL.h>
-#include <tms/core/tms.h>
+#include <sstream>
+#include <tms/cpp.hh>
 
 #ifdef BUILD_VALGRIND
 #include <valgrind/valgrind.h>
 #endif
-
-#include <sstream>
 
 #if defined(TMS_BACKEND_PC) && !defined(PRINCIPIA_BACKEND_IMGUI) && !defined(NO_UI)
 

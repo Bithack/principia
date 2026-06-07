@@ -1,30 +1,20 @@
 #ifdef PRINCIPIA_BACKEND_IMGUI
 
 #include "ui_imgui.hh"
-
 #include "game.hh"
 #include "main.hh"
 #include "misc.hh"
 #include "settings.hh"
 #include "ui.hh"
-
-#include "tms/backend/print.h"
-
+#include "ui_imgui_impl_tms.hh"
+#include <SDL.h>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
-#include <stdexcept>
-#include <string>
-#include <vector>
-
-#include <SDL.h>
-#include <SDL_opengl.h>
-#include <SDL_syswm.h>
-
-#include "ui_imgui_impl_tms.hh"
-
-#include <cstdio>
 #include <cstdlib>
+#include <string>
+#include <tms/cpp.hh>
+#include <vector>
 
 // Misc helper functions
 

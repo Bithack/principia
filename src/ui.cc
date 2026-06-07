@@ -1,11 +1,9 @@
 #include "ui.hh"
-#include <SDL.h>
-
-#include "main.hh"
-#include "game.hh"
 #include "game-message.hh"
-
-#include <tms/core/tms.h>
+#include "game.hh"
+#include "main.hh"
+#include <SDL.h>
+#include <tms/cpp.hh>
 
 const char *tips[] = {
 #ifdef TMS_BACKEND_PC

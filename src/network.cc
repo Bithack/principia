@@ -7,10 +7,9 @@
 #include "object_factory.hh"
 #include "progress.hh"
 #include "text.hh"
-#include "tms/backend/print.h"
-#include "tms/core/err.h"
 #include "ui.hh"
 #include "version.hh"
+#include <tms/cpp.hh>
 
 /* Publish level variables */
 uint32_t      _publish_lvl_community_id;

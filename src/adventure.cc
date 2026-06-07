@@ -1,21 +1,21 @@
 #include "adventure.hh"
-#include "game.hh"
-#include <tms/bindings/cpp/cpp.hh>
-#include "settings.hh"
-#include "ui.hh"
 #include "backpack.hh"
 #include "checkpoint.hh"
-#include "object_factory.hh"
-#include "panel.hh"
-#include "tpixel.hh"
-#include "fxemitter.hh"
-#include "robot.hh"
-#include "widget_manager.hh"
 #include "factory.hh"
+#include "fxemitter.hh"
+#include "game.hh"
+#include "gui.hh"
 #include "item.hh"
 #include "misc.hh"
+#include "object_factory.hh"
+#include "panel.hh"
 #include "plant.hh"
-#include "gui.hh"
+#include "robot.hh"
+#include "settings.hh"
+#include "tpixel.hh"
+#include "ui.hh"
+#include "widget_manager.hh"
+#include <tms/cpp.hh>
 
 #define MINING_INTERVAL 75000
 #define MINING_DAMAGE   1.f

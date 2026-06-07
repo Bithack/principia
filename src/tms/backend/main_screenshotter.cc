@@ -1,30 +1,22 @@
 // Linux screenshot build backend
 
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <sys/time.h>
-#include <sys/file.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <pwd.h>
-#include <libgen.h>
-
-#include <tms/core/project.h>
-#include <tms/core/event.h>
-#include <tms/core/tms.h>
-
-#include <glad/gl.h>
-
-#include "settings.hh"
 #include "game.hh"
 #include "main.hh"
 #include "pkgman.hh"
 #include "screenshot_marker.hh"
-
+#include "settings.hh"
+#include <errno.h>
+#include <fcntl.h>
+#include <glad/gl.h>
+#include <libgen.h>
 #include <png.h>
-
-#include "tms/bindings/cpp/cpp.hh"
+#include <pwd.h>
+#include <sys/file.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <tms/cpp.hh>
+#include <unistd.h>
 
 #define STEP_QUIT       -1
 
