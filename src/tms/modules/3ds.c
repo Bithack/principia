@@ -3,7 +3,7 @@
 
 #define OBJ_NAME_MAX 32
 
-struct vertex {
+struct mdl_vert {
     tvec3 pos;
     tvec3 nor;
     tvec2 uv;
@@ -18,7 +18,7 @@ load_3ds_model(struct tms_model *model,
     uint16_t num_items;
     char object_name[OBJ_NAME_MAX];
 
-    struct vertex *vertex_buf = 0;
+    struct mdl_vert *vertex_buf = 0;
     uint16_t *index_buf = 0;
     uint16_t base_index;
 
@@ -68,14 +68,14 @@ load_3ds_model(struct tms_model *model,
 
                 sz = model->vertices->size;
 
-                base_index = sz / sizeof(struct vertex);
+                base_index = sz / sizeof(struct mdl_vert);
 
                 if (base_index > 0x7fff) {
                     //tms_infof("WARNING TOO MANY INDICES ----------------------------------------h");
                 }
                 //tms_infof("base index:%d", base_index);
-                tms_gbuffer_realloc(model->vertices, sz + num_items * sizeof(struct vertex));
-                vertex_buf = (struct vertex *)(model->vertices->buf+sz);
+                tms_gbuffer_realloc(model->vertices, sz + num_items * sizeof(struct mdl_vert));
+                vertex_buf = (struct mdl_vert *)(model->vertices->buf+sz);
 
                 for (int x=0; x<num_items; x++) {
                     SDL_RWread(fp, &vertex_buf[x].pos, 4, 3);
@@ -121,7 +121,7 @@ load_3ds_model(struct tms_model *model,
 
                 // tms_debugf("found uv mapping chunk, num items: %d", num_items);
                 tms_assertf(num_vertices != 0, "oops! texture coordinates specified before vertices list, unsupported at this time");
-                //tms_assertf(num_items*sizeof(struct vertex) == vertices->size, "number texture coordinates does not match number of vertices");
+                //tms_assertf(num_items*sizeof(struct mdl_vert) == vertices->size, "number texture coordinates does not match number of vertices");
 
                 for (int x=0; x<num_items; x++)
                     SDL_RWread(fp, &vertex_buf[x].uv, 4, 2);
@@ -143,8 +143,8 @@ load_3ds_model(struct tms_model *model,
 
     struct tms_mesh *mesh = tms_model_create_mesh(model);
 
-    mesh->i_start = ((char*)index_buf - model->indices->buf) / 2;// / sizeof(struct vertex);
-    mesh->i_count = num_indices;// / sizeof(struct vertex);
+    mesh->i_start = ((char*)index_buf - model->indices->buf) / 2;// / sizeof(struct mdl_vert);
+    mesh->i_count = num_indices;// / sizeof(struct mdl_vert);
 
     mesh->v_start = ((char*)vertex_buf - model->vertices->buf);
     mesh->v_count = num_vertices;

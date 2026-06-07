@@ -105,11 +105,6 @@ include_directories(
 	${CMAKE_CURRENT_BINARY_DIR})
 
 file(GLOB SRCS
-	src/tms/core/*.c
-	src/tms/math/*.c
-	src/tms/cpp.cc
-	src/tms/modules/3ds.c
-
 	src/*.c
 
 	lib/GLAD/src/gl.c
@@ -119,6 +114,7 @@ file(GLOB SRCS
 
 if(UNITY_BUILD)
 	list(APPEND SRCS
+		src/tms/_unity_chunk.c
 		src/_unity_chunk.cc
 		src/game.cc
 		src/game-gearbox-edit.cc
@@ -131,6 +127,11 @@ if(UNITY_BUILD)
 		lib/Box2D/_unity_chunk.cc)
 else()
 	file(GLOB MAIN_SRCS
+		src/tms/core/*.c
+		src/tms/math/*.c
+		src/tms/cpp.cc
+		src/tms/modules/3ds.c
+
 		src/*.cc
 		src/luascript/*.cc
 
@@ -193,16 +194,16 @@ if(USE_LUASOCKET)
 	list(APPEND SRCS ${LUASOCKET_SRCS})
 endif()
 
+if(NOT UNITY_BUILD)
+	if(SCREENSHOT_BUILD)
+		set(BACKEND_SRC main_screenshotter.cc)
+	else()
+		set(BACKEND_SRC main.cc)
+		list(APPEND SRCS src/tms/backend/pipe.cc)
+	endif()
 
-if(SCREENSHOT_BUILD)
-	set(BACKEND_SRC main_screenshotter.cc)
-else()
-	set(BACKEND_SRC main.cc)
-	list(APPEND SRCS src/tms/backend/pipe.cc)
+	list(APPEND SRCS src/tms/backend/${BACKEND_SRC})
 endif()
-
-list(APPEND SRCS src/tms/backend/${BACKEND_SRC})
-
 
 if(WIN32)
 	list(APPEND SRCS packaging/principia.rc)

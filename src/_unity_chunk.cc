@@ -232,4 +232,13 @@
 #include "luascript/lua_world.cc"
 #include "luascript/lua.cc"
 
+#if SCREENSHOT_BUILD
+	#include "tms/backend/main_screenshotter.cc"
+#else
+	#include "tms/backend/main.cc"
+	#include "tms/backend/pipe.cc"
+#endif
+
+#include "tms/cpp.cc"
+
 #endif

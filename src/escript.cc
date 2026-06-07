@@ -1076,7 +1076,7 @@ escript::solve_electronics()
     return 0;
 }
 
-static unsigned char keys[5] = {0x41, 0xf3, 0x1a, 0x44, 0x14};
+static unsigned char encryption_keys[5] = {0x41, 0xf3, 0x1a, 0x44, 0x14};
 
 #define IS_ENCRYPTED(ver) \
         ver >= LEVEL_VERSION_1_5 \
@@ -1126,7 +1126,7 @@ escript::on_load(bool created, bool has_state)
         // For old level versions above 1.5+, LuaScript code is encrypted
         if (IS_ENCRYPTED(W->level.version)) {
             for (uint32_t x=0; x<this->properties[0].v.s.len; ++x) {
-                this->properties[0].v.s.buf[x] ^= keys[x%5];
+                this->properties[0].v.s.buf[x] ^= encryption_keys[x%5];
             }
         }
     }
@@ -1140,7 +1140,7 @@ escript::pre_write()
     // For old level versions above 1.5+, LuaScript code is encrypted
     if (IS_ENCRYPTED(W->level.version)) {
         for (uint32_t x=0; x<this->properties[0].v.s.len; ++x) {
-            this->properties[0].v.s.buf[x] ^= keys[x%5];
+            this->properties[0].v.s.buf[x] ^= encryption_keys[x%5];
         }
     }
 }
@@ -1153,7 +1153,7 @@ escript::post_write()
     // For old level versions above 1.5+, LuaScript code is encrypted
     if (IS_ENCRYPTED(W->level.version)) {
         for (uint32_t x=0; x<this->properties[0].v.s.len; ++x) {
-            this->properties[0].v.s.buf[x] ^= keys[x%5];
+            this->properties[0].v.s.buf[x] ^= encryption_keys[x%5];
         }
     }
 }
