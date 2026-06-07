@@ -1,18 +1,18 @@
 #include "textbuffer.hh"
 #include "material.hh"
 
-static tms::gbuffer *verts;
-static tms::gbuffer *verts2;
-static tms::gbuffer *indices;
-static tms::varray *va;
-static tms::varray *va2;
-static tms::mesh *mesh;
-static tms::mesh *mesh2;
-static tms::entity *e;
-static tms::entity *e2;
+tms::gbuffer *textbuffer::verts;
+tms::gbuffer *textbuffer::verts2;
+tms::gbuffer *textbuffer::indices;
+tms::varray *textbuffer::va;
+tms::varray *textbuffer::va2;
+tms::mesh *textbuffer::mesh;
+tms::mesh *textbuffer::mesh2;
+tms::entity *textbuffer::e;
+tms::entity *textbuffer::e2;
 
-static int n = 0;
-static int n2 = 0;
+int textbuffer::n = 0;
+int textbuffer::n2 = 0;
 
 struct textbuf_vert {
     tvec3 pos;
@@ -20,7 +20,7 @@ struct textbuf_vert {
     tvec4 color;
 };
 
-static textbuf_vert base[4];
+textbuf_vert textbuffer::base[4];
 
 void textbuffer::_init()
 {

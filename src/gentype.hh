@@ -34,6 +34,10 @@ enum {
 
 extern uint32_t _gentype_id;
 
+static inline bool is_surface_level(int pos_y, float *heights) {
+    return ((pos_y+1)*8.f > heights[7] && (pos_y)*8.f < heights[7]);
+}
+
 struct gentype_generator
 {
     const char *name;

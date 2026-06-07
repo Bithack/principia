@@ -108,7 +108,7 @@ class tpixel : public basepixel
 
     tpixel();
 
-    static bool initialized;
+
     static void initialize();
     static struct tms_entity *get_entity(int x);
     static void reset_counter();
@@ -139,6 +139,21 @@ class tpixel : public basepixel
     float get_slider_value(int s);
     const char *get_slider_label(int s){if (s==0)return basepixel::get_slider_label(s);else return "Material";};
     void on_slider_change(int s, float value);
+
+  private:
+    static bool initialized;
+    static bool _modified;
+
+    static tms_mesh   *_mesh[3];
+    static tms_entity *_e[3];
+    static tms::varray *_va[3];
+    static tms::gbuffer *_buf[3];
+    static tms::gbuffer *_ibuf;
+    static volatile int _counter[3];
+
+    static int vertices_per_tpixel, indices_per_tpixel;
+
+    static float _cam_x, _cam_y;
 };
 
 #endif

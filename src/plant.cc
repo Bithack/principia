@@ -107,14 +107,14 @@ enum {
 };
 
 bool plant::initialized = false;
-static struct tms_gbuffer *ibuf = 0;
-static struct tms_gbuffer *vbuf = 0;
-static struct tms_varray  *va = 0;
+tms_gbuffer *plant::ibuf = 0;
+tms_gbuffer *plant::vbuf = 0;
+tms_varray  *plant::va = 0;
 static int branch_slots[MAX_BRANCHES];
 static int top_slot = 0;
 static bool buffer_modified = false;
 
-static int                 counter;
+int plant::counter = 0;
 
 struct plant_vert {
     tvec3 pos;

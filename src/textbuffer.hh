@@ -20,4 +20,20 @@ class textbuffer
     static void add_text(const char *text, p_font *font, float x, float y, float z, float r, float g, float b, float a, float scale, uint8_t horizontal_align=ALIGN_CENTER, uint8_t vertical_align=ALIGN_CENTER, bool bg=false);
     static void add_text2(const char *text, p_font *font, float x, float y, float z, float r, float g, float b, float a, float scale, uint8_t horizontal_align=ALIGN_CENTER, uint8_t vertical_align=ALIGN_CENTER);
     static void add_bg(float x, float y, float z, float r, float g, float b, float a, float w, float h);
+
+  private:
+    static tms::gbuffer *verts;
+    static tms::gbuffer *verts2;
+    static tms::gbuffer *indices;
+    static tms::varray *va;
+    static tms::varray *va2;
+    static tms::mesh *mesh;
+    static tms::mesh *mesh2;
+    static tms::entity *e;
+    static tms::entity *e2;
+
+    static int n;
+    static int n2;
+
+    static struct textbuf_vert base[4];
 };

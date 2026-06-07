@@ -6,10 +6,10 @@
 
 #define MAX_MSLOTS 32
 
-static struct tms_varray *va;
-static struct tms_gbuffer *vbuf;
-static struct tms_gbuffer *ibuf;
 bool gearbox::initialized = false;
+tms_varray *gearbox::va;
+tms_gbuffer *gearbox::vbuf;
+tms_gbuffer *gearbox::ibuf;
 
 static gearbox *mslots[MAX_MSLOTS];
 static int num_mslots;
@@ -43,8 +43,8 @@ void gearbox::_init()
     initialized = true;
 }
 
-static void
-addmesh(struct tms_mesh *from, float dx, float dy, int *num_v, int *num_i)
+void
+gearbox::addmesh(struct tms_mesh *from, float dx, float dy, int *num_v, int *num_i)
 {
     gb_vert *v = (gb_vert *)(from->vertex_array->gbufs[0].gbuf->buf+from->v_start);
     uint16_t *i = (uint16_t*)(from->indices->buf+from->i_start*sizeof(uint16_t));
@@ -72,8 +72,8 @@ addmesh(struct tms_mesh *from, float dx, float dy, int *num_v, int *num_i)
     (*num_i) += from->i_count;
 }
 
-static void
-recreate_meshes()
+void
+gearbox::recreate_meshes()
 {
     //tms_infof("recreate meshes- ------------------------------------------------------");
     vp = 0;

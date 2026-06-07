@@ -1,5 +1,9 @@
 #pragma once
 
+#include "entity.hh"
+#include "tms/bindings/cpp/cpp.hh"
+#include <set>
+
 #define CABLE_BLACK 0
 #define CABLE_RED   1
 #define CABLE_BLUE  2
@@ -18,9 +22,6 @@
 #define PLUG_MINI_TRANSMITTER 4
 
 #define CABLE_MAX_EXTRA_LENGTH 5.f
-
-#include "entity.hh"
-#include <set>
 
 class ifdevice;
 class edevice;
@@ -111,8 +112,15 @@ class cable : public entity
     static struct tms_entity *get_entity(void);
     static void reset_counter(void);
     static void upload_buffers(void);
-    static bool initialized;
     static void _init(void);
+
+  private:
+    static bool initialized;
+    static tms_mesh *_mesh;
+    static tms_entity *_e;
+    static tms::varray *va;
+    static tms::gbuffer *buf;
+    static tms::gbuffer *ibuf;
 
     friend class plug;
 };

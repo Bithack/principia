@@ -156,7 +156,7 @@ class plant : public entity_simpleconnect
     float      pending_timer;
     b2Vec2     pending_normal;
 
-    static bool initialized;
+
     static void _init();
 
     inline float rand_range(tvec2 v)
@@ -338,4 +338,11 @@ class plant : public entity_simpleconnect
 
     plant_section root_section;
     plant_branch root_branch;
+
+  private:
+    static bool initialized;
+    static tms_gbuffer *ibuf;
+    static tms_gbuffer *vbuf;
+    static tms_varray  *va;
+    static int counter;
 };

@@ -72,6 +72,13 @@ class display : public brcomp_multiconnect
     int      num_symbols;
     int      active_symbol;
     bool     active;
+
+  private:
+    static tms::mesh *_mesh;
+    static tms::entity *_e;
+    static tms::gbuffer *verts;
+    static tms::gbuffer *indices;
+    static tms::varray *_va;
 };
 
 class passive_display : public display

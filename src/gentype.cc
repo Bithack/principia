@@ -162,11 +162,6 @@ const struct terrain_edit default_tileset[] =
 
 const int NUM_DEFAULT_TILES = sizeof(default_tileset)/sizeof(default_tileset[0]);
 
-static inline bool is_surface_level(int pos_y, float *heights)
-{
-    return ((pos_y+1)*8.f > heights[7] && (pos_y)*8.f < heights[7]);
-}
-
 static inline bool check_depth_range(int chunk_y, float *heights, float min_y, float max_y)
 {
     float h = heights[7];

@@ -112,4 +112,11 @@ class polygon : public composable, public b2RayCastCallback
     void find_pairs();
     float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction);
     connection *load_connection(connection &conn);
+
+  private:
+    static tms_varray  *va;
+    static tms_gbuffer *vbuf;
+    static tms_gbuffer *ibuf;
+    static polygon            *slots[MAX_POLYGONS];
+    static bool                modified;
 };

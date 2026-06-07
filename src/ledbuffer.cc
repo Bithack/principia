@@ -3,15 +3,15 @@
 
 #define RADIUS .04f
 
-static tms::gbuffer *verts;
-static tms::gbuffer *indices;
-static tms::varray *va;
-static tms::mesh *mesh;
-static tms::entity *e;
+tms::gbuffer *ledbuffer::verts;
+tms::gbuffer *ledbuffer::indices;
+tms::varray *ledbuffer::va;
+tms::mesh *ledbuffer::mesh;
+tms::entity *ledbuffer::e;
 
-static int n = 0;
+int ledbuffer::n = 0;
 
-static tvec4 base[9];
+tvec4 ledbuffer::base[9];
 
 void ledbuffer::reset()
 {

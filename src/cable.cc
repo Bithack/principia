@@ -27,11 +27,11 @@ struct cable_vert {
 
 bool cable::initialized = false;
 
-static struct tms_mesh   *_mesh;
-static struct tms_entity *_e;
-static tms::varray *va = 0;
-static tms::gbuffer *buf = 0;
-static tms::gbuffer *ibuf = 0;
+tms_mesh     *cable::_mesh;
+tms_entity   *cable::_e;
+tms::varray  *cable::va = 0;
+tms::gbuffer *cable::buf = 0;
+tms::gbuffer *cable::ibuf = 0;
 
 static volatile int plug_counter[3] = {0,0,0};
 static struct tms_mesh   *plug_mesh[3];

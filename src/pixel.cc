@@ -13,17 +13,17 @@ struct pixel_vert {
     tvec3 col;
 } __attribute__ ((packed));
 
-static struct tms_mesh   *_mesh[3];
-static struct tms_entity *_e[3];
-static tms::varray *_va[3];
-static tms::gbuffer *_buf[3];
-static tms::gbuffer *_ibuf;
+tms_mesh   *pixel::_mesh[3];
+tms_entity *pixel::_e[3];
+tms::varray *pixel::_va[3];
+tms::gbuffer *pixel::_buf[3];
+tms::gbuffer *pixel::_ibuf;
 static volatile int _counter[3] = {0,0,0};
 
 static int vertices_per_pixel = 0;
 static int indices_per_pixel = 0;
 
-static float _cam_x = 0.f, _cam_y = 0.f;
+float pixel::_cam_x = 0.f, pixel::_cam_y = 0.f;
 
 #define MAX_PIXELS 8192*2
 

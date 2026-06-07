@@ -178,7 +178,7 @@ struct tpixel_material tpixel_materials[NUM_TPIXEL_MATERIALS] = {
 };
 
 bool tpixel::initialized = false;
-static bool _modified = false;
+bool tpixel::_modified = false;
 
 struct tpixel_vert {
     tvec3 pos;
@@ -186,17 +186,17 @@ struct tpixel_vert {
     tvec2 uv;
 } __attribute__ ((packed));
 
-static struct tms_mesh   *_mesh[3];
-static struct tms_entity *_e[3];
-static tms::varray *_va[3];
-static tms::gbuffer *_buf[3];
-static tms::gbuffer *_ibuf;
-static volatile int _counter[3] = {0,0,0};
+tms_mesh   *tpixel::_mesh[3];
+tms_entity *tpixel::_e[3];
+tms::varray *tpixel::_va[3];
+tms::gbuffer *tpixel::_buf[3];
+tms::gbuffer *tpixel::_ibuf;
+volatile int tpixel::_counter[3] = {0,0,0};
 
-static int vertices_per_tpixel = 0;
-static int indices_per_tpixel = 0;
+int tpixel::vertices_per_tpixel = 0;
+int tpixel::indices_per_tpixel = 0;
 
-static float _cam_x = 0.f, _cam_y = 0.f;
+float tpixel::_cam_x = 0.f, tpixel::_cam_y = 0.f;
 
 #define MAX_TPIXELS 8192*2
 

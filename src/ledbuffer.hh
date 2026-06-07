@@ -14,4 +14,14 @@ class ledbuffer
     static void upload();
     static void add(float x, float y, float z, float col);
     static tms::entity *get_entity();
+
+  private:
+    static tms::gbuffer *verts;
+    static tms::gbuffer *indices;
+    static tms::varray *va;
+    static tms::mesh *mesh;
+    static tms::entity *e;
+
+    static int n;
+    static tvec4 base[9];
 };

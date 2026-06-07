@@ -12,14 +12,14 @@
 #define MAX_ROPES 20
 
 bool rope::initialized = false;
-static struct tms_mesh   *_mesh;
-static struct tms_entity *_e;
-static float _cam_x = 0.f, _cam_y = 0.f;
-static tms::varray *va = 0;
-static tms::gbuffer *buf = 0;
-static tms::gbuffer *ibuf = 0;
+tms::varray *rope::va = 0;
+tms::gbuffer *rope::buf = 0;
+tms::gbuffer *rope::ibuf = 0;
+tms_mesh   *rope::_mesh;
+tms_entity *rope::_e;
+float rope::_cam_x = 0.f, rope::_cam_y = 0.f;
 
-static volatile int counter = 1;
+volatile int rope::counter = 1;
 
 struct rope_vert {
     tvec3 pos;

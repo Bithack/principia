@@ -14,4 +14,15 @@ class fluidbuffer
     //static void add(float x, float y, float z, float r, float g, float b, float a, float w, float h);
     static void add(float x, float y, float z, float pressure, float w, float h);
     static tms::entity *get_entity();
+
+  private:
+    static tms::gbuffer *verts;
+    static tms::gbuffer *indices;
+    static tms::varray *va;
+    static tms::mesh *mesh;
+    static tms::entity *e;
+    static tms::entity *e2;
+
+    static uint32_t n;
+    static struct fluidbuf_vert base[4];
 };

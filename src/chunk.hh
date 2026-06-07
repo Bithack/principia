@@ -320,6 +320,13 @@ class chunk_window : public tms::entity
 
     void recreate_caveview_texture(float px, float py, float ax, float ay);
 
-    static bool initialized;
     static void _init();
+
+  private:
+    static bool initialized;
+
+    static tms_mesh *mesh_pool[MAX_CHUNKS];
+    static tms::gbuffer *vbuf[MAX_CHUNKS];
+    static tms_varray *va[MAX_CHUNKS];
+    static tms::gbuffer *ibuf;
 };

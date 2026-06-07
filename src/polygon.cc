@@ -3,11 +3,11 @@
 #include "game.hh"
 #include "ui.hh"
 
-struct tms_varray  *va;
-struct tms_gbuffer *vbuf;
-struct tms_gbuffer *ibuf;
-polygon            *slots[MAX_POLYGONS];
-bool                modified; /* if the vertex buffer has been modified */
+tms_varray  *polygon::va;
+tms_gbuffer *polygon::vbuf;
+tms_gbuffer *polygon::ibuf;
+polygon     *polygon::slots[MAX_POLYGONS];
+bool         polygon::modified; // if the vertex buffer has been modified
 
 struct poly_vert {
     tvec3 pos;

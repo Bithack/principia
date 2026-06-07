@@ -8,11 +8,12 @@
 #include "noise.h"
 #include "misc.hh"
 
-static struct tms_mesh    *mesh_pool[MAX_CHUNKS];
-static tms::gbuffer *vbuf[MAX_CHUNKS];
-static struct tms_varray  *va[MAX_CHUNKS];
-static struct tms_gbuffer *ibuf;
 bool chunk_window::initialized = false;
+
+tms_mesh     *chunk_window::mesh_pool[MAX_CHUNKS];
+tms::gbuffer *chunk_window::vbuf[MAX_CHUNKS];
+tms_varray   *chunk_window::va[MAX_CHUNKS];
+tms::gbuffer  *chunk_window::ibuf;
 
 static struct tms_mesh    *grass_pool[MAX_CHUNKS];
 static struct tms_gbuffer *grass_vbuf[MAX_CHUNKS];
@@ -45,7 +46,7 @@ void chunk_window::_init() {
         ibuf->usage = GL_STATIC_DRAW;
         ibuf->target = GL_ELEMENT_ARRAY_BUFFER;
 
-        uint16_t *i = (uint16_t*)tms_gbuffer_get_buffer(ibuf);
+        uint16_t *i = (uint16_t*)ibuf->get_buffer();
         uint16_t *ri = (uint16_t*)((char*)tms_gbuffer_get_buffer(mm->indices)+mm->i_start*2);
         uint16_t ibase = mm->v_start / sizeof(struct cvert);
 
@@ -55,7 +56,7 @@ void chunk_window::_init() {
             }
         }
 
-        tms_gbuffer_upload(ibuf);
+        ibuf->upload();
     }
 
     {

@@ -1,21 +1,21 @@
 #include "fluidbuffer.hh"
 #include "world.hh"
 
-static tms::gbuffer *verts;
-static tms::gbuffer *indices;
-static tms::varray *va;
-static tms::mesh *mesh;
-static tms::entity *e;
-static tms::entity *e2;
+tms::gbuffer *fluidbuffer::verts;
+tms::gbuffer *fluidbuffer::indices;
+tms::varray *fluidbuffer::va;
+tms::mesh *fluidbuffer::mesh;
+tms::entity *fluidbuffer::e;
+tms::entity *fluidbuffer::e2;
 
-static uint32_t n = 0;
+uint32_t fluidbuffer::n = 0;
 
 struct fluidbuf_vert {
     tvec3 pos;
     tvec3 uv;
 };
 
-static fluidbuf_vert base[4];
+fluidbuf_vert fluidbuffer::base[4];
 
 void fluidbuffer::reset()
 {

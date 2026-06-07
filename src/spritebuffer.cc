@@ -1,17 +1,17 @@
 #include "spritebuffer.hh"
 
-static tms::gbuffer *verts;
-static tms::gbuffer *verts2;
-static tms::gbuffer *indices;
-static tms::varray *va;
-static tms::varray *va2;
-static tms::mesh *mesh;
-static tms::mesh *mesh2;
-static tms::entity *e;
-static tms::entity *e2;
+tms::gbuffer *spritebuffer::verts;
+tms::gbuffer *spritebuffer::verts2;
+tms::gbuffer *spritebuffer::indices;
+tms::varray *spritebuffer::va;
+tms::varray *spritebuffer::va2;
+tms::mesh *spritebuffer::mesh;
+tms::mesh *spritebuffer::mesh2;
+tms::entity *spritebuffer::e;
+tms::entity *spritebuffer::e2;
 
-static int n = 0;
-static int n2 = 0;
+int spritebuffer::n = 0;
+int spritebuffer::n2 = 0;
 
 struct spritebuf_vert {
     tvec3 pos;
@@ -19,7 +19,7 @@ struct spritebuf_vert {
     tvec4 color;
 };
 
-static spritebuf_vert base[4];
+spritebuf_vert spritebuffer::base[4];
 
 void spritebuffer::reset()
 {

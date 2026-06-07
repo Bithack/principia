@@ -75,4 +75,14 @@ class rope : public entity,
 
     /* (num_bodies + ROPE_LENGTH) * 3 */
     float state[(2 + ROPE_LENGTH) * 3];
+
+  private:
+    static tms::varray *va;
+    static tms::gbuffer *buf;
+    static tms::gbuffer *ibuf;
+    static tms_mesh   *_mesh;
+    static tms_entity *_e;
+    static float _cam_x, _cam_y;
+
+    static volatile int counter;
 };

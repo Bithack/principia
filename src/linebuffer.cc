@@ -1,21 +1,21 @@
 #include "linebuffer.hh"
 #include "game.hh"
 
-static tms::gbuffer *verts;
-static tms::gbuffer *verts2;
-static tms::gbuffer *indices;
-static tms::varray *va;
-static tms::varray *va2;
-static tms::mesh *mesh;
-static tms::mesh *mesh2;
-static tms::entity *e;
-static tms::entity *e2;
+tms::gbuffer *linebuffer::verts;
+tms::gbuffer *linebuffer::verts2;
+tms::gbuffer *linebuffer::indices;
+tms::varray *linebuffer::va;
+tms::varray *linebuffer::va2;
+tms::mesh *linebuffer::mesh;
+tms::mesh *linebuffer::mesh2;
+tms::entity *linebuffer::e;
+tms::entity *linebuffer::e2;
 
 static float cam_x = 0.f;
 static float cam_y = 0.f;
 
-static int n = 0;
-static int n2 = 0;
+int linebuffer::n = 0;
+int linebuffer::n2 = 0;
 
 struct linebuf_vert {
     tvec3 pos;
