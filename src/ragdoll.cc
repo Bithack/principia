@@ -714,3 +714,5 @@ ragdoll::on_slider_change(int s, float value)
         this->recreate_head_joint(true);
     }
 }
+
+#undef FRICTION

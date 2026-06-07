@@ -525,3 +525,7 @@ lmotor::restore()
         j->SetMaxMotorForce(this->_force);
     }
 }
+
+#undef SPEED
+#undef FORCE
+#undef FRICTION

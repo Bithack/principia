@@ -4713,3 +4713,5 @@ robot_parts::pickaxe::pickaxe(creature *c)
     this->mass = 0.375f;
     this->plant_dmg_multiplier = .4f;
 }
+
+#undef HEAD_SPEED_UP

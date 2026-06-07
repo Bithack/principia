@@ -475,3 +475,9 @@ void sticky::update(void) {
         tmat3_copy_mat4_sub3x3(this->N, this->M);
     }
 }
+
+#undef WIDTH
+#undef HEIGHT
+
+#undef TEX_WIDTH
+#undef TEX_HEIGHT

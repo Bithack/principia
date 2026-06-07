@@ -5,7 +5,7 @@
 #include "fxemitter.hh"
 #include "game.hh"
 
-#define FORCE 300.f
+#define BOOM_FORCE 300.f
 
 explosive::explosive(int explosive_type)
 {
@@ -165,7 +165,7 @@ explosive::trigger()
     b2Vec2 p = this->get_position();
 
     W->explode(this, trigger_point, this->get_layer(), 20,
-            (W->level.version >= LEVEL_VERSION_1_5 ? FORCE*this->properties[2].v.f : FORCE),
+            (W->level.version >= LEVEL_VERSION_1_5 ? BOOM_FORCE*this->properties[2].v.f : BOOM_FORCE),
             this->properties[1].v.f,
             (W->level.version >= LEVEL_VERSION_1_5 ? .5f : 1.f)
             );
@@ -222,3 +222,5 @@ explosive::on_slider_change(int s, float value)
         G->show_numfeed(this->properties[1].v.f);
     }
 }
+
+#undef BOOM_FORCE

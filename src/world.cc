@@ -3114,3 +3114,5 @@ world::query_aabb(b2QueryCallback *callback,
     G->unlock();
 #endif
 }
+
+#undef RAY_LENGTH

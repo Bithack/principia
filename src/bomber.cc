@@ -125,3 +125,4 @@ bomber::attack(int add_cooldown)
     this->attack_timer += add_cooldown;
 }
 
+#undef SHOOT_VELOCITY

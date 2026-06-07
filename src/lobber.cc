@@ -96,3 +96,5 @@ lobber::attack(int add_cooldown)
     this->attack_timer = LOBBER_RELOAD_TIME;
     this->attack_timer += add_cooldown;
 }
+
+#undef SHOOT_VELOCITY

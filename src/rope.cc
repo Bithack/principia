@@ -778,3 +778,5 @@ void
 rope::step()
 {
 }
+
+#undef WIDTH

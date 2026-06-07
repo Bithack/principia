@@ -422,3 +422,6 @@ motor::on_slider_change(int s, float value)
         G->show_numfeed(value * 8.f * SPEED);
     }
 }
+
+#undef SPEED
+#undef TORQUE

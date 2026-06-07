@@ -303,3 +303,4 @@ trampoline::tpad::update()
     tmat3_copy_mat4_sub3x3(this->N, this->M);
 }
 
+#undef SPEED

@@ -6,8 +6,7 @@
 #define NUM_RAYS    5
 #define RAY_LENGTH  10.f
 #define FAN_WIDTH   1.f
-
-#define FORCE 2.f
+#define FAN_FORCE 2.f
 
 fan::fan()
     : blade_rot(0.f)
@@ -137,7 +136,7 @@ fan::solve_electronics()
         return this->s_in[0].get_connected_edevice();
     }
 
-    this->force = (this->s_in[0].get_value() * FORCE) / (float)NUM_RAYS;
+    this->force = (this->s_in[0].get_value() * FAN_FORCE) / (float)NUM_RAYS;
 
     return 0;
 }
@@ -159,3 +158,8 @@ fan::cb_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor
 
     return -1.f;
 }
+
+#undef NUM_RAYS
+#undef RAY_LENGTH
+#undef FAN_WIDTH
+#undef FAN_FORCE

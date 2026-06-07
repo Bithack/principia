@@ -337,3 +337,6 @@ rubberband_1::step(void)
         }
     }
 }
+
+#undef WIDTH
+#undef MIN_WIDTH

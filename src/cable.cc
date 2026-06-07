@@ -1051,3 +1051,6 @@ plug_base::on_release(game *g)
         }
     }
 }
+
+#undef QUALITY
+#undef WIDTH

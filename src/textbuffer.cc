@@ -22,6 +22,9 @@ struct textbuf_vert {
 
 textbuf_vert textbuffer::base[4];
 
+#define TEX_WIDTH  1024.f
+#define TEX_HEIGHT 1024.f
+
 void textbuffer::_init()
 {
     tms_infof("Initializing textbuffer...");
@@ -161,9 +164,6 @@ textbuffer::add_char(glyph *gl,
     int tx = 530;
     int ty = 1024;
 
-#define TEX_WIDTH  1024.f
-#define TEX_HEIGHT 1024.f
-
     tvec2 uvb = {(float)bx / TEX_WIDTH, (float)by / TEX_HEIGHT};
     tvec2 uvt = {(float)tx / TEX_WIDTH, (float)ty / TEX_HEIGHT};
 
@@ -237,9 +237,6 @@ textbuffer::add_char2(glyph *gl,
     int by = 950;
     int tx = 530;
     int ty = 1024;
-
-#define TEX_WIDTH  1024.f
-#define TEX_HEIGHT 1024.f
 
     tvec2 uvb = {(float)bx / TEX_WIDTH, (float)by / TEX_HEIGHT};
     tvec2 uvt = {(float)tx / TEX_WIDTH, (float)ty / TEX_HEIGHT};
@@ -422,3 +419,6 @@ textbuffer::add_text2(const char *text, p_font *font,
         }
     }
 }
+
+#undef TEX_WIDTH
+#undef TEX_HEIGHT

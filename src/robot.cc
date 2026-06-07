@@ -540,3 +540,6 @@ robot::modify_aim(float da)
 
     w->set_arm_angle(w->get_arm_angle() + da, 0.1f);
 }
+
+#undef HEAD_SPEED_UP
+#undef HEAD_SPEED_DOWN

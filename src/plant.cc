@@ -1992,3 +1992,4 @@ plant::set_position(float x, float y, uint8_t frame)
     }
 }
 
+#undef QUALITY
