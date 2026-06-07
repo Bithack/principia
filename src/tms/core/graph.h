@@ -1,5 +1,4 @@
-#ifndef _GRAPH__H_
-#define _GRAPH__H_
+#pragma once
 
 #include <tms/core/pipeline.h>
 
@@ -92,5 +91,3 @@ void tms_graph_set_sort_callback(struct tms_graph *g, int sort, int (*fun)(struc
 
 int tms_graph_add_entity_with_children(struct tms_graph *g, struct tms_entity *e);
 int tms_graph_remove_entity_with_children(struct tms_graph *g, struct tms_entity *e);
-
-#endif

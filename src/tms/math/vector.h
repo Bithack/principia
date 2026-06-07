@@ -1,5 +1,4 @@
-#ifndef _TMATH_VECTOR__H_
-#define _TMATH_VECTOR__H_
+#pragma once
 
 #include <math.h>
 
@@ -264,5 +263,3 @@ static inline float tvec2_detf(float ax, float ay, float bx, float by)
 {
     return ax * by - ay*bx;
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _TMS_ENTITY__H_
-#define _TMS_ENTITY__H_
+#pragma once
 
 /** @relates tms_entity @{ **/
 
@@ -101,5 +100,3 @@ static inline int tms_entity_get_type(struct tms_entity *e)
 {
     return e->type;
 }
-
-#endif

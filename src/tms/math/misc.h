@@ -1,5 +1,4 @@
-#ifndef _MATH_MISC__H_
-#define _MATH_MISC__H_
+#pragma once
 
 #include <stdlib.h>
 #include <math.h>
@@ -112,6 +111,4 @@ static inline double tmath_logstep_position(double value, double min_value, doub
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

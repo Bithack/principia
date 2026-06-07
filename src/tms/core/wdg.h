@@ -1,5 +1,4 @@
-#ifndef _TMS_WDG__H_
-#define _TMS_WDG__H_
+#pragma once
 
 #define WDG_MAX_P 24
 
@@ -75,6 +74,3 @@ void tms_wdg_radial_render(struct tms_wdg *w, struct tms_surface *s);
 #ifdef __cplusplus
 }
 #endif
-
-#endif
-

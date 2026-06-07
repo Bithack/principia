@@ -1,5 +1,4 @@
-#ifndef _TMS_MODEL__H_
-#define _TMS_MODEL__H_
+#pragma once
 
 struct tms_mesh;
 struct tms_gbuffer;
@@ -30,5 +29,3 @@ struct tms_mesh* tms_model_shift_mesh_uv(struct tms_model *m,
         struct tms_mesh *mesh,
         float dx, float dy);
 void tms_model_upload(struct tms_model *m);
-
-#endif

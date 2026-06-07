@@ -1,5 +1,4 @@
-#ifndef _TMS_MESH__H_
-#define _TMS_MESH__H_
+#pragma once
 
 /** @relates tms_mesh @{ */
 
@@ -50,5 +49,3 @@ static inline void tms_mesh_set_autofree_buffers(struct tms_mesh *m, int f)
 {
     m->autofree_bufs = f;
 }
-
-#endif

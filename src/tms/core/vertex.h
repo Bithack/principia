@@ -1,5 +1,4 @@
-#ifndef _TMS_VERTEX__H_
-#define _TMS_VERTEX__H_
+#pragma once
 
 struct tms_vertex_spec {
     int num_components;
@@ -12,5 +11,3 @@ struct tms_vertex_array {
     struct tms_vertex_spec *vspecs;
     int num_vspecs;
 };
-
-#endif

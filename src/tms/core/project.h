@@ -1,5 +1,4 @@
-#ifndef _TMS_PROJECT__H_
-#define _TMS_PROJECT__H_
+#pragma once
 
 /**
  * declaractions for project-side functions,
@@ -24,6 +23,4 @@ void tproject_quit(void);
 void tproject_step(void);
 #ifdef __cplusplus
 }
-#endif
-
 #endif

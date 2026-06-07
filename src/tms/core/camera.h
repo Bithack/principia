@@ -1,5 +1,4 @@
-#ifndef _TMS_CAMERA__H_
-#define _TMS_CAMERA__H_
+#pragma once
 
 /** @relates tms_camera @{ */
 
@@ -60,5 +59,3 @@ void tms_camera_calculate(struct tms_camera *c);
 
 tvec3 tms_camera_unproject(struct tms_camera *c, float x, float y, float z);
 tvec3 tms_camera_project(struct tms_camera *c, float x, float y, float z);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _PIPELINE__H_
-#define _PIPELINE__H_
+#pragma once
 
 #include <stdarg.h>
 #include <tms/core/tms.h>
@@ -114,5 +113,3 @@ void tms_pipeline_set_uniform1i(int pipeline, const char *name, int val);
 
 void tms_pipeline_set_framebuffer(int p, struct tms_fb *fb);
 struct tms_fb* tms_pipeline_get_framebuffer(int p);
-
-#endif

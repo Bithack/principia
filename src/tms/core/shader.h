@@ -1,5 +1,4 @@
-#ifndef _TMS_SHADER__H_
-#define _TMS_SHADER__H_
+#pragma once
 
 /** @relates tms_shader @{ */
 
@@ -97,5 +96,3 @@ tms_shader_global_define(const char *name, const char *value)
 {
     tms_shader_define(&_tms_global_shader,name,value);
 }
-#endif
-

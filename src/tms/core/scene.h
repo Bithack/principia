@@ -1,5 +1,4 @@
-#ifndef _TMS_SCENE__H_
-#define _TMS_SCENE__H_
+#pragma once
 
 #include <tms/math/vector.h>
 
@@ -37,5 +36,3 @@ void tms_scene_cull_all(struct tms_scene *s);
 
 void tms_scene_clear_graphs(struct tms_scene *s);
 void tms_scene_fill_graphs(struct tms_scene *s);
-
-#endif

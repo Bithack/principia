@@ -1,5 +1,4 @@
-#ifndef _BACKEND__H_
-#define _BACKEND__H_
+#pragma once
 
 #if !defined TMS_BACKEND_PC \
  && !defined TMS_BACKEND_MOBILE
@@ -18,6 +17,4 @@ int tbackend_init_surface(void);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

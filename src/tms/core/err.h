@@ -1,5 +1,4 @@
-#ifndef _TMS_ERR__H_
-#define _TMS_ERR__H_
+#pragma once
 
 enum {
     T_OK = 0,
@@ -12,5 +11,3 @@ enum {
 };
 
 #include <tms/backend/print.h>
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _TMS_UTIL__H_
-#define _TMS_UTIL__H_
+#pragma once
 
 #include <stdint.h>
 
@@ -16,5 +15,3 @@
             a = realloc((a), curr*sizeof(*(a))); \
         } \
     } while (0);
-
-#endif

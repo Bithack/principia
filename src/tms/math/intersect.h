@@ -1,6 +1,4 @@
-
-#ifndef _TMATH_INTERSECT__H_
-#define _TMATH_INTERSECT__H_
+#pragma once
 
 /** @relates tintersect @{ */
 
@@ -80,5 +78,3 @@ tintersect_point_poly_distance(tvec2 *p, tvec2 *verts, int num_verts)
 
     return n_dist;
 }
-
-#endif

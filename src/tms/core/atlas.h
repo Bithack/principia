@@ -1,5 +1,4 @@
-#ifndef _TMS_TEXTUREATLAS__H_
-#define _TMS_TEXTUREATLAS__H_
+#pragma once
 
 #include "texture.h"
 #include <tms/math/vector.h>
@@ -34,5 +33,3 @@ static inline void tms_atlas_reset(struct tms_atlas *t)
     t->current_y = 0;
     t->current_height = 0;
 }
-
-#endif

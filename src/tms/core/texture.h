@@ -1,5 +1,4 @@
-#ifndef _TMS_TEXTURE__H_
-#define _TMS_TEXTURE__H_
+#pragma once
 
 /** @relates tms_texture @{ */
 
@@ -69,5 +68,3 @@ static inline int tms_texture_get_num_channels(struct tms_texture *tex)
 {
     return tex->num_channels;
 }
-
-#endif

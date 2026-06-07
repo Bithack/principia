@@ -1,5 +1,4 @@
-#ifndef _TMS_PROGRAM__H_
-#define _TMS_PROGRAM__H_
+#pragma once
 
 #include <glad/gl.h>
 
@@ -58,5 +57,3 @@ tms_program_bind(struct tms_program *p)
 {
     glUseProgram(p->id);
 }
-
-#endif

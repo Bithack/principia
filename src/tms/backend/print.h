@@ -1,5 +1,4 @@
-#ifndef _BACKEND_PRINT__H_
-#define _BACKEND_PRINT__H_
+#pragma once
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -59,6 +58,4 @@ static inline int _fatal_exit(void) {
 
 #ifndef tms_printf
 	#define tms_printf(...)
-#endif
-
 #endif

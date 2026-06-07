@@ -1,5 +1,4 @@
-#ifndef _TMS_GBUFFER__H_
-#define _TMS_GBUFFER__H_
+#pragma once
 
 #include <stdlib.h>
 #include <glad/gl.h>
@@ -38,5 +37,3 @@ int tms_gbuffer_upload_partial(struct tms_gbuffer *b, size_t size);
 int tms_gbuffer_update(struct tms_gbuffer *b, size_t start_offs, size_t num_bytes);
 int tms_gbuffer_set_usage(struct tms_gbuffer *b, int usage);
 void tms_gbuffer_free(struct tms_gbuffer *b);
-
-#endif

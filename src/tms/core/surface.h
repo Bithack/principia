@@ -1,5 +1,4 @@
-#ifndef _TMS_SURFACE__H_
-#define _TMS_SURFACE__H_
+#pragma once
 
 /** @relates tms_surface @{ */
 
@@ -30,5 +29,3 @@ int tms_surface_render(struct tms_surface *s);
 int tms_surface_step(struct tms_surface *s);
 int tms_surface_init(struct tms_surface *s);
 int tms_surface_handle_input(struct tms_surface *s, const struct tms_event *ev, int action);
-
-#endif

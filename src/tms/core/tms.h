@@ -1,5 +1,4 @@
-#ifndef _TMS__H_
-#define _TMS__H_
+#pragma once
 
 #include <stdint.h>
 #include <stdio.h>
@@ -134,6 +133,4 @@ static inline void tms_convert_to_portrait(int *x, int *y)
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

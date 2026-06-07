@@ -1,5 +1,4 @@
-#ifndef _TMS_SCREEN__H_
-#define _TMS_SCREEN__H_
+#pragma once
 
 #include <stdint.h>
 #include "../math/vector.h"
@@ -100,5 +99,3 @@ int tms_screen_set_scene(struct tms_screen *s, struct tms_scene *scene);
 int tms_screen_set_surface(struct tms_screen *s, struct tms_surface *surf);
 struct tms_surface *tms_screen_get_surface(struct tms_screen *s);
 struct tms_scene *tms_screen_get_scene(struct tms_screen *s);
-
-#endif

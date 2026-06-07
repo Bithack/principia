@@ -1,5 +1,4 @@
-#ifndef _TMS_HASH__H_
-#define _TMS_HASH__H_
+#pragma once
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -50,5 +49,3 @@ uint32_t thash_fn_jenkins(void *key, uint32_t key_size);
 #define thash_add(h, ... ) h->add(h, __VA_ARGS__ )
 #define thash_rm(h, ... ) h->rm(h, __VA_ARGS__ )
 #define thash_get(h, ... ) h->get(h, __VA_ARGS__ )
-
-#endif

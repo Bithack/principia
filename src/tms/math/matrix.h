@@ -1,5 +1,4 @@
-#ifndef _TMS_MATRIX__H_
-#define _TMS_MATRIX__H_
+#pragma once
 
 #include <tms/math/vector.h>
 #include <string.h>
@@ -115,5 +114,3 @@ tmat3_copy_mat4_sub3x3(float *d, float *s)
 }
 
 void tmat3_load_identity(float *m);
-
-#endif

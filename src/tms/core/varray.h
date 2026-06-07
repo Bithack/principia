@@ -1,5 +1,4 @@
-#ifndef _TMS_VARRAY__H_
-#define _TMS_VARRAY__H_
+#pragma once
 
 #include <glad/gl.h>
 #include <stdint.h>
@@ -38,5 +37,3 @@ int tms_varray_map_attribute(struct tms_varray *va, const char *name, int num_co
 int tms_varray_bind_attributes(struct tms_varray *va, int *locations);
 int tms_varray_unbind_attributes(struct tms_varray *va, int *locations);
 void tms_varray_upload_all(struct tms_varray *va);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _TMS_MATERIAL__H_
-#define _TMS_MATERIAL__H_
+#pragma once
 
 #include <stdint.h>
 #include <tms/core/tms.h>
@@ -40,5 +39,3 @@ struct tms_material* tms_material_alloc(void);
 void tms_material_init(struct tms_material *mat);
 struct tms_material* tms_material_dup(struct tms_material *m);
 void tms_material_copy(struct tms_material *dest, struct tms_material *src);
-
-#endif

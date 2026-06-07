@@ -1,5 +1,4 @@
-#ifndef _TMS_DDRAW__H_
-#define _TMS_DDRAW__H_
+#pragma once
 
 #include "tms/math/vector.h"
 
@@ -47,5 +46,3 @@ int tms_ddraw_lcircle(struct tms_ddraw *d, float x, float y, float width, float 
 int tms_ddraw_lcircle3d(struct tms_ddraw *d, float x, float y, float z, float width, float height);
 int tms_ddraw_lsquare(struct tms_ddraw *d, float x, float y, float width, float height);
 int tms_ddraw_lsquare3d(struct tms_ddraw *d, float x, float y, float z, float width, float height);
-
-#endif

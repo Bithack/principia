@@ -1,5 +1,4 @@
-#ifndef _TMS_EVENT__H_
-#define _TMS_EVENT__H_
+#pragma once
 
 #include <tms/core/err.h>
 #include <stdint.h>
@@ -194,6 +193,4 @@ int tms_event_register_raw(tms_event_handler);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

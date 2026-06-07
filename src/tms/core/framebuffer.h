@@ -1,5 +1,4 @@
-#ifndef _TMS_FB__H_
-#define _TMS_FB__H_
+#pragma once
 
 /** @relates tms_fb @{ */
 
@@ -53,6 +52,3 @@ void tms_fb_swap_blur3x3(struct tms_fb *f);
 void tms_fb_render(struct tms_fb *f, struct tms_program *p);
 void tms_fb_render_to(struct tms_fb *f, struct tms_fb *dest, struct tms_program *p);
 void tms_fb_attach_depth(struct tms_fb *fb, int attachment, int name);
-
-#endif
-
