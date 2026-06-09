@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include "SDL_clipboard.h"
 #include "SDL_stdinc.h"
+#include "SDL_syswm.h"
 
 #include "imgui.h"
 #include "imgui_internal.h"
