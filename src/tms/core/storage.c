@@ -119,7 +119,11 @@ const char *tms_storage_cache_path(void)
         snprintf(path, 1024, "%s/cache", SDL_GetBasePath());
     } else { // System
 #ifdef TMS_BACKEND_WINDOWS
-        snprintf(path, 1024, "%s\\Principia", getenv("LOCALAPPDATA"));
+        const char *localappdata = getenv("LOCALAPPDATA");
+        if (localappdata)
+            snprintf(path, 1024, "%s\\Principia", localappdata);
+        else // XP doesn't define LOCALAPPDATA, fallback to another dir in APPDATA
+            snprintf(path, 1024, "%s\\Principia_cache", getenv("APPDATA"));
 #else
         const char *xdg = getenv("XDG_CACHE_HOME");
         if (!xdg)
