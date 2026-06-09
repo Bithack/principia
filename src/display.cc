@@ -634,3 +634,6 @@ active_display::solve_electronics()
 
     return 0;
 }
+
+#undef RSIZE
+#undef SIZE
