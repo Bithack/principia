@@ -41,7 +41,7 @@ jobs:
             gtk3:p
             libpng:p
             libjpeg-turbo:p
-            SDL3:p
+            sdl3:p
             nsis:p
             7zip:p
 

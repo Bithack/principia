@@ -25,12 +25,14 @@ jobs:
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++ libgl-dev libpng-dev libjpeg-dev libfreetype6-dev libsdl3-dev cmake ninja-build --no-install-recommends
+          sudo apt-get install -y g++ libgl-dev libpng-dev libjpeg-dev libfreetype6-dev libsdl3-dev cmake ninja-build \
+            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libegl1-mesa-dev \
+            --no-install-recommends
 
       - name: Build
         run: |
           mkdir build; cd build
-          cmake .. -DSCREENSHOT_BUILD=ON -G Ninja
+          cmake .. -DSCREENSHOT_BUILD=ON -G Ninja -DUSE_VENDORED_SDL3=ON
           ninja -j4
 
       - name: Upload output as artifact
