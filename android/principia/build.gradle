@@ -16,9 +16,7 @@ android {
         versionName "2026.06.06"
 
         externalNativeBuild {
-            ndkBuild {
-                arguments '-j' + Runtime.getRuntime().availableProcessors()
-            }
+            cmake.arguments "-DUSE_VENDORED_SDL3=1"
         }
 
         ndk {

@@ -18,14 +18,14 @@ on:
 
 jobs:
   linux_ss:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++ libgl-dev libpng-dev libjpeg-dev libfreetype6-dev libsdl2-dev cmake ninja-build --no-install-recommends
+          sudo apt-get install -y g++ libgl-dev libpng-dev libjpeg-dev libfreetype6-dev libsdl3-dev cmake ninja-build --no-install-recommends
 
       - name: Build
         run: |

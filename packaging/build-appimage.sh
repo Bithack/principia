@@ -16,7 +16,7 @@ fi
 rm -rf AppDir
 
 # Compile
-cmake .. -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=AppDir/usr/
+cmake .. -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=AppDir/usr/ -DUSE_VENDORED_SDL3=ON
 ninja
 
 # Strip binary and create debug symbol file
@@ -78,9 +78,6 @@ mkdir -p usr/lib/
 for i in "${INCLUDE_LIBS[@]}"; do
 	cp /usr/lib/x86_64-linux-gnu/$i usr/lib/
 done
-
-# Copy our own built SDL2
-cp /usr/lib/libSDL2-2.0.so.0 usr/lib/
 
 # Actually build the appimage
 cd ..

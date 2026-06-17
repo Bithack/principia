@@ -9,9 +9,3 @@ set(JPEG_INCLUDE_DIR ${DEPS}/libjpeg/include)
 set(JPEG_LIBRARY ${DEPS}/libjpeg/libjpeg.a)
 set(PNG_PNG_INCLUDE_DIR ${DEPS}/libpng/include) #what
 set(PNG_LIBRARY ${DEPS}/libpng/libpng.a)
-
-add_library(SDL2::SDL2 STATIC IMPORTED)
-
-set_target_properties(SDL2::SDL2 PROPERTIES
-	INTERFACE_INCLUDE_DIRECTORIES ${DEPS}/SDL2/include/SDL2
-	IMPORTED_LOCATION ${DEPS}/SDL2/libSDL2.a)

@@ -35,7 +35,7 @@ jobs:
       - name: Build
         run: |
           mkdir build; cd build
-          emcmake cmake .. -G Ninja -DCMAKE_INSTALL_PREFIX=
+          emcmake cmake .. -G Ninja -DCMAKE_INSTALL_PREFIX= -DUSE_VENDORED_SDL3=ON
           ninja
           DESTDIR=../web ninja install
 

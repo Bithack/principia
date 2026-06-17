@@ -15,6 +15,8 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
+include(DownloadLib)
+
 add_custom_target(GenerateGitVersion
 	COMMAND ${CMAKE_COMMAND}
 	-D "GENERATE_VERSION_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
@@ -25,18 +27,21 @@ add_custom_target(GenerateGitVersion
 option(UNITY_BUILD "Experimental unity build" FALSE)
 mark_as_advanced(UNITY_BUILD)
 
+option(USE_VENDORED_SDL3 "Build with vendored SDL3 library" FALSE)
+
 # Find core dependencies
 # ----------------------
+
+if(USE_VENDORED_SDL3)
+	include(cmake/SDL.cmake)
+else()
+	find_package(SDL3 REQUIRED)
+endif()
 
 if(ANDROID)
 	cmake_minimum_required(VERSION 3.20)
 	include(PrincipiaAndroidLibs)
-
 else()
-	if(NOT EMSCRIPTEN)
-		find_package(SDL3 REQUIRED)
-	endif()
-
 	set(OpenGL_GL_PREFERENCE GLVND)
 	find_package(OpenGL REQUIRED)
 endif()
@@ -230,8 +235,6 @@ if(NOT EMSCRIPTEN)
 	    PNG::PNG
 	    ZLIB::ZLIB)
 
-	list(APPEND LIBS SDL3::SDL3)
-
 	if(NOT SCREENSHOT_BUILD AND NOT EMSCRIPTEN)
 		list(APPEND LIBS ${CURL_LIBRARIES})
 
@@ -240,6 +243,8 @@ if(NOT EMSCRIPTEN)
 		endif()
 	endif()
 endif()
+
+list(APPEND LIBS SDL3::SDL3)
 
 if(SHOULD_USE_GLES)
 	list(APPEND LIBS GLESv2)
@@ -289,7 +294,7 @@ set(COMMON_FLAGS "-fno-math-errno -fno-trapping-math -fno-signed-zeros")
 
 if(EMSCRIPTEN)
 	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "--preload-file ../data/")
-	set(LIBRARY_FLAGS "-sUSE_FREETYPE=1 -sUSE_LIBJPEG=1 -sUSE_LIBPNG=1 -sUSE_ZLIB=1 -sUSE_SDL=2 -pthread")
+	set(LIBRARY_FLAGS "-sUSE_FREETYPE=1 -sUSE_LIBJPEG=1 -sUSE_LIBPNG=1 -sUSE_ZLIB=1 -pthread")
 	string(APPEND COMMON_FLAGS " ${LIBRARY_FLAGS}")
 	set(CMAKE_EXE_LINKER_FLAGS " ${LIBRARY_FLAGS} -pthread -sPTHREAD_POOL_SIZE=20 -sINITIAL_MEMORY=2013265920 -sALLOW_MEMORY_GROWTH=1 -sTOTAL_STACK=16Mb -sFETCH=1")
 endif()
