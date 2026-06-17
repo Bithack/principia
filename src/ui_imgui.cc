@@ -9,7 +9,6 @@
 #include "ui_imgui_impl_tms.hh"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_opengl.h>
-#include <SDL3/SDL_syswm.h>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -70,12 +69,12 @@ std::vector<uint8_t> *load_ass(const char *path) {
     FILE *file = (FILE*) _fopen(path, "rb");
     tms_assertf(file, "file not found");
 
-    _fseek(file, 0, SEEK_END);
+    _fseek(file, 0, SDL_IO_SEEK_END);
     size_t size = _ftell(file);
     tms_debugf("buf size %d", (int) size);
     void *buffer = malloc(size + 1);
 
-    _fseek(file, 0, SEEK_SET);
+    _fseek(file, 0, SDL_IO_SEEK_SET);
     _fread(buffer, 1, size, file);
     _fclose(file);
 

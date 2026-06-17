@@ -14,6 +14,8 @@
 #include <tms/cpp.hh>
 #include <unistd.h>
 
+#include <SDL3/SDL_main.h>
+
 #ifdef TMS_BACKEND_WINDOWS
     #include <windows.h>
     #include <windowsx.h>
@@ -339,10 +341,9 @@ tbackend_init_surface()
 #ifdef TMS_BACKEND_ANDROID
     SDL_GetWindowSizeInPixels(_window, &_tms.window_width, &_tms.window_height);
 
-    float density_x, density_y;
-    SDL_GetDisplayDPI(0, NULL, &density_x, &density_y);
-    _tms.xppcm = density_x / 2.54f;
-    _tms.yppcm = density_y / 2.54f;
+    float content_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+    _tms.xppcm = 108.f / 2.54f * 1.5f * content_scale;
+    _tms.yppcm = 107.f / 2.54f * 1.5f * content_scale;
 
     tms_infof("Device dimensions: %d %d", _tms.window_width, _tms.window_height);
     tms_infof("Device PPCM: %f %f", _tms.xppcm, _tms.yppcm);
@@ -417,7 +418,7 @@ T_intercept_input(SDL_Event ev)
     int f;
 
     switch (ev.type) {
-        case SDL_EVENT_KEY_DOWN :
+        case SDL_EVENT_KEY_DOWN:
             if (ev.key.repeat)
                 spec.type = TMS_EV_KEY_REPEAT;
             else
@@ -434,35 +435,35 @@ T_intercept_input(SDL_Event ev)
             }
             break;
 
-        case SDL_EVENT_KEY_UP :
+        case SDL_EVENT_KEY_UP:
             spec.type = TMS_EV_KEY_UP;
             spec.data.key.keycode = ev.key.scancode;
 
             spec.data.key.mod = ev.key.mod;
             break;
 
-        case SDL_EVENT_FINGER_DOWN :
+        case SDL_EVENT_FINGER_DOWN:
             spec.type = TMS_EV_POINTER_DOWN;
             spec.data.button.pointer_id = ev.tfinger.fingerID;
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
             break;
 
-        case SDL_EVENT_FINGER_UP :
+        case SDL_EVENT_FINGER_UP:
             spec.type = TMS_EV_POINTER_UP;
             spec.data.button.pointer_id = ev.tfinger.fingerID;
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
             break;
 
-        case SDL_EVENT_FINGER_MOTION :
+        case SDL_EVENT_FINGER_MOTION:
             spec.type = TMS_EV_POINTER_DRAG;
             spec.data.button.pointer_id = ev.tfinger.fingerID;
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
             break;
 
-        case SDL_EVENT_MOUSE_BUTTON_DOWN :
+        case SDL_EVENT_MOUSE_BUTTON_DOWN:
             if (ev.button.which == SDL_TOUCH_MOUSEID)
                 return T_OK;
 
@@ -477,7 +478,7 @@ T_intercept_input(SDL_Event ev)
 
             break;
 
-        case SDL_EVENT_MOUSE_BUTTON_UP :
+        case SDL_EVENT_MOUSE_BUTTON_UP:
             if (ev.button.which == SDL_TOUCH_MOUSEID)
                 return T_OK;
 
@@ -492,7 +493,7 @@ T_intercept_input(SDL_Event ev)
 
             break;
 
-        case SDL_EVENT_MOUSE_MOTION :
+        case SDL_EVENT_MOUSE_MOTION:
             if (ev.button.which == SDL_TOUCH_MOUSEID)
                 return T_OK;
 
@@ -521,7 +522,7 @@ T_intercept_input(SDL_Event ev)
             spec.data.scroll.mouse_y = (int)my;
             break;
 
-        case SDL_EVENT_TEXT_INPUT :
+        case SDL_EVENT_TEXT_INPUT:
             spec.type = TMS_EV_TEXT_INPUT;
             std::copy(ev.text.text, ev.text.text + 32, spec.data.text.text);
             break;

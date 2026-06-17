@@ -276,9 +276,9 @@ read_shader(struct shader_load_data *sld, GLenum type, uint32_t global_flags, ch
 
     _FILE *fh = _fopen(path, "rb");
     if (fh) {
-        _fseek(fh, 0, SEEK_END);
+        _fseek(fh, 0, SDL_IO_SEEK_END);
         long size = _ftell(fh);
-        _fseek(fh, 0, SEEK_SET);
+        _fseek(fh, 0, SDL_IO_SEEK_SET);
 
         *out = (char*)malloc(size+1);
 

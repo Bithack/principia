@@ -2681,9 +2681,9 @@ world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_i
     _FILE *fp = _fopen(filename, "rb");
 
     if (fp) {
-        _fseek(fp, 0, SEEK_END);
+        _fseek(fp, 0, SDL_IO_SEEK_END);
         long size = _ftell(fp);
-        _fseek(fp, 0, SEEK_SET);
+        _fseek(fp, 0, SDL_IO_SEEK_SET);
 
         if (size > 8*1024*1024) {
             // XXX: Is this necessary? can we support larger levels

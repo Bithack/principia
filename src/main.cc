@@ -971,9 +971,9 @@ static void perform_action(int x, void *data) {
             _FILE *fp = _fopen(main_filename, "rb");
 
             if (fp) {
-                _fseek(fp, 0, SEEK_END);
+                _fseek(fp, 0, SDL_IO_SEEK_END);
                 long size = _ftell(fp);
-                _fseek(fp, 0, SEEK_SET);
+                _fseek(fp, 0, SDL_IO_SEEK_SET);
 
                 if (size > 8*1024*1024) {
                     tms_fatalf("Puzzle solution file too big");
