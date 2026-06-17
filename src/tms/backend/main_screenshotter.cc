@@ -133,7 +133,7 @@ main(int argc, char **argv)
         SDL_CreateThread(_pipe_listener, "_pipe_listener", 0);
     }
 
-    char* exedir = SDL_GetBasePath();
+    const char* exedir = SDL_GetBasePath();
     tms_infof("chdirring to %s", exedir);
     (void)chdir(exedir);
 
@@ -141,8 +141,6 @@ main(int argc, char **argv)
 
     tms_infof("Initializing SDL...");
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_DisplayMode mode;
-    SDL_GetCurrentDisplayMode(0, &mode);
 
     tproject_set_args(argc, argv);
     tms_init();
@@ -356,7 +354,7 @@ tbackend_init_surface()
     flags |= 0;
 
     tms_infof("Creating window...");
-    _window = SDL_CreateWindow("Principia Screenshotter", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _tms.window_width, _tms.window_height, flags);
+    _window = SDL_CreateWindow("Principia Screenshotter", _tms.window_width, _tms.window_height, flags);
 
     if (_window == NULL) {
         tms_infof("ERROR: %s", SDL_GetError());

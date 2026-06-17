@@ -18,7 +18,7 @@ int
 loading_screen::pause(void)
 {
     if (settings["vsync"]->v.b) {
-        if (SDL_GL_SetSwapInterval(-1) == -1)
+        if (!SDL_GL_SetSwapInterval(-1))
             SDL_GL_SetSwapInterval(1);
     } else {
         SDL_GL_SetSwapInterval(0);

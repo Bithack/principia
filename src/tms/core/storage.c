@@ -73,7 +73,7 @@ const char *tms_storage_path(void)
     char *path = (char *)malloc(1024);
 
     if (_storage_portable) { // Portable
-        char* exedir = SDL_GetBasePath();
+        const char* exedir = SDL_GetBasePath();
         strcpy(path, exedir);
         strcat(path, "userdata");
     } else { // System

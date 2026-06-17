@@ -144,17 +144,18 @@ int main(int argc, char **argv)
 
     find_data_dir();
 
-#if 0 // SDL3 MIGRATION XXX
-    SDL_version compiled;
-    SDL_VERSION(&compiled);
-    tms_infof("Compiled against SDL v%u.%u.%u",
-        compiled.major, compiled.minor, compiled.patch);
+    const int compiled = SDL_VERSION;
+    const int linked = SDL_GetVersion();
 
-    SDL_version linked;
-    SDL_GetVersion(&linked);
-    tms_infof("Linked against SDL v%u.%u.%u",
-        linked.major, linked.minor, linked.patch);
-#endif
+    tms_infof("Compiled against SDL v%d.%d.%d",
+            SDL_VERSIONNUM_MAJOR(compiled),
+            SDL_VERSIONNUM_MINOR(compiled),
+            SDL_VERSIONNUM_MICRO(compiled));
+
+    tms_infof("Linked against SDL v%d.%d.%d",
+            SDL_VERSIONNUM_MAJOR(linked),
+            SDL_VERSIONNUM_MINOR(linked),
+            SDL_VERSIONNUM_MICRO(linked));
 
     tms_infof("Initializing SDL...");
     SDL_Init(SDL_INIT_VIDEO);
@@ -164,8 +165,16 @@ int main(int argc, char **argv)
     _tms.window_height = 720;
 
 #elif !defined(TMS_BACKEND_ANDROID)
-    // SDL3 migration XXX
-    /*const SDL_DisplayMode *mode = SDL_GetCurrentDisplayMode(0);
+    const SDL_DisplayMode *mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
+    SDL_Point screen;
+    if (mode) {
+        screen.x = mode->w;
+        screen.y = mode->h;
+    } else {
+        tms_errorf("Couldn't get display mode: %s", SDL_GetError());
+        screen.x = 1280;
+        screen.y = 720;
+    }
 
     _tms.window_width = 1280;
 
@@ -174,9 +183,7 @@ int main(int argc, char **argv)
     else if (mode->w >= 2100 && mode->h > 1100)
         _tms.window_width = 1920;
 
-    _tms.window_height = (int)((double)_tms.window_width * .5625);*/
-    _tms.window_width = 1280;
-    _tms.window_height = 720;
+    _tms.window_height = (int)((double)_tms.window_width * .5625);
 
     tms_infof("set initial res to %dx%d", _tms.window_width, _tms.window_height);
 #endif

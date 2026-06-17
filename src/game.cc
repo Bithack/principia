@@ -7263,7 +7263,6 @@ game::player_can_build()
 void
 game::create_icon()
 {
-#if 0 // SDL3 MIGRATION XXX
     GLuint err;
     float cam_width = (float)_tms.window_height;
     float cam_height = (float)_tms.window_height;
@@ -7295,7 +7294,8 @@ game::create_icon()
 
     glViewport(0,0,_tms.opengl_width, _tms.opengl_height);
 
-    SDL_Surface *srf = SDL_CreateRGBSurface(SDL_SWSURFACE, 512, 512, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+    SDL_Surface *srf = SDL_CreateSurface(512, 512,
+            SDL_GetPixelFormatForMasks(32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000));
     glReadPixels(0, 0, 512, 512, GL_RGBA, GL_UNSIGNED_BYTE, srf->pixels);
 
     if ((err = glGetError()) != 0) tms_infof("glReadPixels: %u", err);
@@ -7331,7 +7331,6 @@ game::create_icon()
 #endif
 
     if ((err = glGetError()) != 0) tms_infof("icon creation done: %u", err);
-#endif
 }
 
 /* resize the current level to fit the borders around the content */
@@ -11483,7 +11482,7 @@ game::clamp_entities()
 
     W->groups = new_groups;
 
-    tms_debugf("Done in %u ticks", SDL_GetTicks()-ss);
+    tms_debugf("Done in %" PRIu64 " ticks", SDL_GetTicks()-ss);
     tms_debugf("Old biggest id: %u. New: %u", prev_biggest, id-1);
     tms_debugf("Entities: %u, Cables: %u, Groups: %u",
                num_entities, num_cables, num_groups);

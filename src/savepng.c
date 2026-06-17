@@ -7,9 +7,7 @@
 
 #include <SDL3/SDL.h>
 #include <png.h>
-
-// SDL3 migration XXX
-#if 0
+#include <stdlib.h>
 
 #define SUCCESS 0
 #define ERROR -1
@@ -88,9 +86,10 @@ int SDL_SavePNG_RW(SDL_Surface *surface, SDL_IOStream *dst, int freedst)
 
 	/* Prepare chunks */
 	colortype = PNG_COLOR_MASK_COLOR;
-	if (surface->format->BytesPerPixel > 0
-	&&  surface->format->BytesPerPixel <= 8
-	&& (pal = surface->format->palette))
+	const SDL_PixelFormatDetails *format = SDL_GetPixelFormatDetails(surface->format);
+	if (format->bytes_per_pixel > 0
+	&&  format->bytes_per_pixel <= 8
+	&& (pal = SDL_CreateSurfacePalette(surface)))
 	{
 		colortype |= PNG_COLOR_MASK_PALETTE;
 		pal_ptr = (png_colorp)malloc(pal->ncolors * sizeof(png_color));
@@ -102,7 +101,7 @@ int SDL_SavePNG_RW(SDL_Surface *surface, SDL_IOStream *dst, int freedst)
 		png_set_PLTE(png_ptr, info_ptr, pal_ptr, pal->ncolors);
 		free(pal_ptr);
 	}
-	else if (surface->format->BytesPerPixel > 3 || surface->format->Amask)
+	else if (format->bytes_per_pixel > 3 || format->Amask)
 		colortype |= PNG_COLOR_MASK_ALPHA;
 
 	png_set_IHDR(png_ptr, info_ptr, surface->w, surface->h, 8, colortype,
@@ -111,9 +110,9 @@ int SDL_SavePNG_RW(SDL_Surface *surface, SDL_IOStream *dst, int freedst)
 //	png_set_packing(png_ptr);
 
 	/* Allow BGR surfaces */
-	if (surface->format->Rmask == bmask
-	&& surface->format->Gmask == gmask
-	&& surface->format->Bmask == rmask)
+	if (format->Rmask == bmask
+	&& format->Gmask == gmask
+	&& format->Bmask == rmask)
 		png_set_bgr(png_ptr);
 
 	/* Write everything */
@@ -135,5 +134,3 @@ int SDL_SavePNG_RW(SDL_Surface *surface, SDL_IOStream *dst, int freedst)
 	if (freedst) SDL_CloseIO(dst);
 	return (SUCCESS);
 }
-
-#endif

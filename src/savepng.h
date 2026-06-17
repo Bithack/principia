@@ -1,24 +1,26 @@
-#ifndef _SDL_SAVEPNG
-#define _SDL_SAVEPNG
+#pragma once
+
+#include <SDL3/SDL.h>
+
 /*
  * SDL_SavePNG -- libpng-based SDL_Surface writer.
  *
  * This code is free software, available under zlib/libpng license.
  * http://www.libpng.org/pub/png/src/libpng-LICENSE.txt
  */
-#include <SDL_video.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Save an SDL_Surface as a PNG file.
  *
  * Returns 0 success or -1 on failure, the error message is then retrievable
  * via SDL_GetError().
  */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #define SDL_SavePNG(surface, file) \
-	SDL_SavePNG_RW(surface, SDL_RWFromFile(file, "wb"), 1)
+	SDL_SavePNG_RW(surface, SDL_IOFromFile(file, "wb"), 1)
 
 /*
  * Save an SDL_Surface as a PNG file, using writable RWops.
@@ -30,9 +32,8 @@ extern "C" {
  * Returns 0 success or -1 on failure, the error message is then retrievable
  * via SDL_GetError().
  */
-extern int SDL_SavePNG_RW(SDL_Surface *surface, SDL_RWops *rw, int freedst);
+extern int SDL_SavePNG_RW(SDL_Surface *surface, SDL_IOStream *rw, int freedst);
 
 #ifdef __cplusplus
 }
-#endif
 #endif

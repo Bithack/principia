@@ -1,13 +1,11 @@
 #include "sticky.hh"
-#include "model.hh"
-#include "material.hh"
-#include "world.hh"
-#include "ui.hh"
-
 #include "font.hh"
 #include "gui.hh"
-#include <SDL.h>
-
+#include "material.hh"
+#include "model.hh"
+#include "ui.hh"
+#include "world.hh"
+#include <SDL3/SDL.h>
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
@@ -112,7 +110,7 @@ static SDL_Surface* note_render_shaded(p_font *f, const char *text) {
     if (w <= 0) w = 1;
     if (h <= 0) h = 1;
 
-    SDL_Surface *srf = SDL_CreateRGBSurfaceWithFormat(0, w, h, 8, SDL_PIXELFORMAT_INDEX8);
+    SDL_Surface *srf = SDL_CreateSurface(w, h, SDL_PIXELFORMAT_INDEX8);
     if (!srf) return NULL;
 
     // populate palette (white entries, alpha is simulated by byte value copied out later)
@@ -122,7 +120,9 @@ static SDL_Surface* note_render_shaded(p_font *f, const char *text) {
         pal[i].g = 0xFF;
         pal[i].b = 0xFF;
     }
-    if (srf->format && srf->format->palette) SDL_SetPaletteColors(srf->format->palette, pal, 0, 256);
+    SDL_Palette *palette = SDL_CreateSurfacePalette(srf);
+    if (srf->format && palette)
+        SDL_SetPaletteColors(palette, pal, 0, 256);
 
     // clear
     memset(srf->pixels, 0, srf->pitch * srf->h);
