@@ -332,6 +332,8 @@ tbackend_init_surface()
         exit(1);
     }
 
+    SDL_SetWindowFillDocument(_window, true);
+
     _tms._window = _window;
 
 #ifdef TMS_BACKEND_ANDROID
