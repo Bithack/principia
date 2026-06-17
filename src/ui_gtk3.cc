@@ -5015,11 +5015,6 @@ save_settings()
 
     tms_infof("done!");
 
-#ifdef TMS_BACKEND_WINDOWS
-    SDL_EventState(SDL_EVENT_SYSWM,
-                   settings["emulate_touch"]->is_true() ? SDL_ENABLE : SDL_DISABLE);
-#endif
-
     P.can_reload_graphics = true;
 }
 
