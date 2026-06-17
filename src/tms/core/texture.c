@@ -134,15 +134,7 @@ tms_texture_load(struct tms_texture *tex, const char *filename)
 {
     int status;
 
-    SDL_IOStream *rw = SDL_IOFromFile(filename,"rb");
-
-    if (!rw) {
-        tms_infof("file not found: '%s'", SDL_GetError());
-        return T_ERR;
-    }
-
-    SDL_Surface *s = IMG_Load_RW(rw, 1);
-
+    SDL_Surface *s = IMG_Load(filename);
     if (!s) {
         tms_errorf("could not open file: %s", filename);
         return T_ERR;
@@ -226,10 +218,10 @@ tms_texture_load_mem2(struct tms_texture *tex, const char *buf, size_t size, int
         return T_COULD_NOT_OPEN;
     }
 
-    SDL_Surface *s = IMG_Load_RW(rw, freesrc);
+    SDL_Surface *s = IMG_Load_IO(rw, freesrc);
 
     if (!s) {
-        tms_errorf("Error calling IMG_Load_RW: %s", IMG_GetError());
+        tms_errorf("Error calling IMG_Load_IO: %s", SDL_GetError());
         return T_COULD_NOT_OPEN;
     }
 

@@ -24,7 +24,7 @@
 #include "gui.hh"
 #if defined(TMS_BACKEND_LINUX) && defined(DEBUG)
 #define CREATE_SANDBOX_TEXTURES
-#include "savepng.h"
+#include "SDL_image.h"
 #endif
 
 #ifndef UINT32_MAX
@@ -2506,7 +2506,7 @@ game::create_sandbox_menu()
             entity *e = menu_objects[n].e;
 
             char override_path[512];
-            snprintf(override_path, 512, "./data-src/override/%u.png", e->g_id);
+            snprintf(override_path, 512, "data-src/override/%u.png", e->g_id);
 
             if (!file_exists(override_path)) {
                 cam->width = 2.0f * 1.f/e->menu_scale;
@@ -2572,54 +2572,54 @@ game::create_sandbox_menu()
             entity *e = menu_objects[n].e;
 
             char override_path[512];
-            snprintf(override_path, 512, "./data-src/override/%u.png", e->g_id);
+            snprintf(override_path, 512, "data-src/override/%u.png", e->g_id);
 
-            if (!file_exists(override_path))
-                continue;
+            if (file_exists(override_path)) {
+                struct tms_texture tex;
+                tms_texture_load(&tex, override_path);
 
-            struct tms_texture tex;
-            tms_texture_load(&tex, override_path);
+                ix = x%5;
+                iy = x/5;
 
-            ix = x%5;
-            iy = x/5;
+                menu_objects[n].image.bl.x = SIZE_PER_MENU_ITEM / (float)twidth  * (float)ix;
+                menu_objects[n].image.bl.y = SIZE_PER_MENU_ITEM / (float)theight * (float)iy;
 
-            menu_objects[n].image.bl.x = SIZE_PER_MENU_ITEM / (float)twidth  * (float)ix;
-            menu_objects[n].image.bl.y = SIZE_PER_MENU_ITEM / (float)theight * (float)iy;
+                menu_objects[n].image.tr.x = SIZE_PER_MENU_ITEM / (float)twidth  * (float)(ix+1);
+                menu_objects[n].image.tr.y = SIZE_PER_MENU_ITEM / (float)theight * (float)(iy+1);
 
-            menu_objects[n].image.tr.x = SIZE_PER_MENU_ITEM / (float)twidth  * (float)(ix+1);
-            menu_objects[n].image.tr.y = SIZE_PER_MENU_ITEM / (float)theight * (float)(iy+1);
+                menu_objects[n].image.width  = SIZE_PER_MENU_ITEM;
+                menu_objects[n].image.height = SIZE_PER_MENU_ITEM;
 
-            menu_objects[n].image.width  = SIZE_PER_MENU_ITEM;
-            menu_objects[n].image.height = SIZE_PER_MENU_ITEM;
+                SDL_Surface *img_srf = SDL_CreateSurface(SIZE_PER_MENU_ITEM, SIZE_PER_MENU_ITEM,
+                    SDL_GetPixelFormatForMasks(32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000));
 
-            SDL_Surface *img_srf = SDL_CreateSurface(SIZE_PER_MENU_ITEM, SIZE_PER_MENU_ITEM,
-                SDL_GetPixelFormatForMasks(32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000));
+                size_t buf_size = tex.width * tex.height * tex.num_channels;
 
-            size_t buf_size = tex.width * tex.height * tex.num_channels;
+                SDL_Rect src_rect, dst_rect;
 
-            SDL_Rect src_rect, dst_rect;
+                static const int CROP = 10;
 
-            static const int CROP = 10;
+                src_rect.x = CROP;
+                src_rect.y = CROP;
+                src_rect.w = SIZE_PER_MENU_ITEM - (CROP*2);
+                src_rect.h = SIZE_PER_MENU_ITEM - (CROP*2);
+                dst_rect.x = (SIZE_PER_MENU_ITEM * (float)ix)   + CROP;
+                dst_rect.y = (SIZE_PER_MENU_ITEM * (float)(iy)) + CROP;
+                dst_rect.w = SIZE_PER_MENU_ITEM - (CROP*2);
+                dst_rect.h = SIZE_PER_MENU_ITEM - (CROP*2);
 
-            src_rect.x = CROP;
-            src_rect.y = CROP;
-            src_rect.w = SIZE_PER_MENU_ITEM - (CROP*2);
-            src_rect.h = SIZE_PER_MENU_ITEM - (CROP*2);
-            dst_rect.x = (SIZE_PER_MENU_ITEM * (float)ix)   + CROP;
-            dst_rect.y = (SIZE_PER_MENU_ITEM * (float)(iy)) + CROP;
-            dst_rect.w = SIZE_PER_MENU_ITEM - (CROP*2);
-            dst_rect.h = SIZE_PER_MENU_ITEM - (CROP*2);
+                uint8_t *dst = (uint8_t*)img_srf->pixels;
+                uint8_t *src = (uint8_t*)tex.data;
 
-            uint8_t *dst = (uint8_t*)img_srf->pixels;
-            uint8_t *src = (uint8_t*)tex.data;
+                for (int j=0; j<buf_size; ++j) {
+                    *dst++ = *src++;
+                }
 
-            for (int j=0; j<buf_size; ++j) {
-                *dst++ = *src++;
+                SDL_BlitSurface(img_srf, &src_rect, srf, &dst_rect);
+
+                SDL_DestroySurface(img_srf);
+
             }
-
-            SDL_BlitSurface(img_srf, &src_rect, srf, &dst_rect);
-
-            SDL_DestroySurface(img_srf);
 
             ++ n;
         }
@@ -2627,7 +2627,7 @@ game::create_sandbox_menu()
         tms_infof("saved: %s", name);
 
         /* Save the surface as a PNG file. */
-        SDL_SavePNG(srf, name);
+        IMG_SavePNG(srf, name);
         SDL_DestroySurface(srf);
 
         tms_fb_unbind(fb);
@@ -2711,7 +2711,7 @@ game::create_sandbox_menu()
             SDL_GetPixelFormatForMasks(32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000));
         glReadPixels(0, 0, twidth, theight, GL_RGBA, GL_UNSIGNED_BYTE, srf->pixels);
         tms_infof("saved: items.png");
-        SDL_SavePNG(srf, "items.png");
+        IMG_SavePNG(srf, "items.png");
         SDL_DestroySurface(srf);
 
         tms_fb_unbind(fb);

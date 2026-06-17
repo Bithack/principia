@@ -1,6 +1,6 @@
 /*
   SDL_image:  An example image loading library for use with SDL
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -19,18 +19,11 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-/**
- *  \file SDL_image.h
- *
- *  Header file for SDL_image library
- *
- * A simple library to load images of various formats as SDL surfaces
- */
 #ifndef SDL_IMAGE_H_
 #define SDL_IMAGE_H_
 
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_version.h>
+#include <SDL3/SDL_begin_code.h>
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -38,116 +31,49 @@ extern "C" {
 #endif
 
 /**
- * Printable format: "%d.%d.%d", MAJOR, MINOR, PATCHLEVEL
- */
-#define SDL_IMAGE_MAJOR_VERSION 2
-#define SDL_IMAGE_MINOR_VERSION 9
-#define SDL_IMAGE_PATCHLEVEL    0
-
-/**
- * This macro can be used to fill a version structure with the compile-time
- * version of the SDL_image library.
- */
-#define SDL_IMAGE_VERSION(X)                        \
-{                                                   \
-    (X)->major = SDL_IMAGE_MAJOR_VERSION;           \
-    (X)->minor = SDL_IMAGE_MINOR_VERSION;           \
-    (X)->patch = SDL_IMAGE_PATCHLEVEL;              \
-}
-
-#if SDL_IMAGE_MAJOR_VERSION < 3 && SDL_MAJOR_VERSION < 3
-/**
- *  This is the version number macro for the current SDL_image version.
- *
- *  In versions higher than 2.9.0, the minor version overflows into
- *  the thousands digit: for example, 2.23.0 is encoded as 4300.
- *  This macro will not be available in SDL 3.x or SDL_image 3.x.
- *
- *  Deprecated, use SDL_IMAGE_VERSION_ATLEAST or SDL_IMAGE_VERSION instead.
- */
-#define SDL_IMAGE_COMPILEDVERSION \
-    SDL_VERSIONNUM(SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL)
-#endif /* SDL_IMAGE_MAJOR_VERSION < 3 && SDL_MAJOR_VERSION < 3 */
-
-/**
- *  This macro will evaluate to true if compiled with SDL_image at least X.Y.Z.
- */
-#define SDL_IMAGE_VERSION_ATLEAST(X, Y, Z) \
-    ((SDL_IMAGE_MAJOR_VERSION >= X) && \
-     (SDL_IMAGE_MAJOR_VERSION > X || SDL_IMAGE_MINOR_VERSION >= Y) && \
-     (SDL_IMAGE_MAJOR_VERSION > X || SDL_IMAGE_MINOR_VERSION > Y || SDL_IMAGE_PATCHLEVEL >= Z))
-
-/**
- * Initialization flags
- */
-typedef enum
-{
-    IMG_INIT_JPG    = 0x00000001,
-    IMG_INIT_PNG    = 0x00000002
-} IMG_InitFlags;
-
-/**
- * Initialize SDL_image.
- */
-extern int SDLCALL IMG_Init(int flags);
-
-/**
- * Deinitialize SDL_image.
- */
-extern void SDLCALL IMG_Quit(void);
-
-/**
- * Load an image from an SDL data source into a software surface.
- */
-extern SDL_Surface * SDLCALL IMG_LoadTyped_RW(SDL_IOStream *src, int freesrc, const char *type);
-
-/**
  * Load an image from a filesystem path into a software surface.
  */
-extern SDL_Surface * SDLCALL IMG_Load(const char *file);
+extern SDL_DECLSPEC SDL_Surface * SDLCALL IMG_Load(const char *file);
 
 /**
  * Load an image from an SDL data source into a software surface.
  */
-extern SDL_Surface * SDLCALL IMG_Load_RW(SDL_IOStream *src, int freesrc);
+extern SDL_DECLSPEC SDL_Surface * SDLCALL IMG_Load_IO(SDL_IOStream *src, bool closeio);
 
 /**
- * Detect JPG image data on a readable/seekable SDL_RWops.
+ * Detect JPG image data on a readable/seekable SDL_IOStream.
  */
-extern int SDLCALL IMG_isJPG(SDL_IOStream *src);
+extern SDL_DECLSPEC bool SDLCALL IMG_isJPG(SDL_IOStream *src);
 
 /**
- * Detect PNG image data on a readable/seekable SDL_RWops.
+ * Detect PNG image data on a readable/seekable SDL_IOStream.
  */
-extern int SDLCALL IMG_isPNG(SDL_IOStream *src);
+extern SDL_DECLSPEC bool SDLCALL IMG_isPNG(SDL_IOStream *src);
 
 /**
  * Load a JPG image directly.
  */
-extern SDL_Surface * SDLCALL IMG_LoadJPG_RW(SDL_IOStream *src);
+extern SDL_DECLSPEC SDL_Surface * SDLCALL IMG_LoadJPG_IO(SDL_IOStream *src);
 
 /**
  * Load a PNG image directly.
  */
-extern SDL_Surface * SDLCALL IMG_LoadPNG_RW(SDL_IOStream *src);
+extern SDL_DECLSPEC SDL_Surface * SDLCALL IMG_LoadPNG_IO(SDL_IOStream *src);
 
 /**
- * Report SDL_image errors
- *
- * \sa IMG_GetError
+ * Save an SDL_Surface into a PNG image file.
  */
-#define IMG_SetError    SDL_SetError
+extern SDL_DECLSPEC bool SDLCALL IMG_SavePNG(SDL_Surface *surface, const char *file);
 
 /**
- * Get last SDL_image error
- *
- * \sa IMG_SetError
+ * Save an SDL_Surface into PNG image data, via an SDL_IOStream.
  */
-#define IMG_GetError    SDL_GetError
+extern SDL_DECLSPEC bool SDLCALL IMG_SavePNG_IO(SDL_Surface *surface, SDL_IOStream *dst, bool closeio);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }
 #endif
+#include <SDL3/SDL_close_code.h>
 
 #endif /* SDL_IMAGE_H_ */

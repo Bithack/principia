@@ -1,6 +1,6 @@
 /*
   SDL_image:  An example image loading library for use with SDL
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -21,136 +21,56 @@
 
 /* This is a JPEG image file loading framework */
 
-#include "SDL_image.h"
+#include <SDL_image.h>
 
 #include <stdio.h>
 #include <setjmp.h>
 
 #include <jpeglib.h>
 
-#ifdef JPEG_TRUE  /* MinGW version of jpeg-8.x renamed TRUE to JPEG_TRUE etc. */
-    typedef JPEG_boolean boolean;
-    #define TRUE JPEG_TRUE
-    #define FALSE JPEG_FALSE
-#endif
-
 /* Define this for fast loading and not as good image quality */
 /*#define FAST_JPEG*/
 
-/* Define this for quicker (but less perfect) JPEG identification */
-#define FAST_IS_JPEG
-
-static struct {
-    int loaded;
-    void *handle;
-    void (*jpeg_calc_output_dimensions) (j_decompress_ptr cinfo);
-    void (*jpeg_CreateDecompress) (j_decompress_ptr cinfo, int version, size_t structsize);
-    void (*jpeg_destroy_decompress) (j_decompress_ptr cinfo);
-    boolean (*jpeg_finish_decompress) (j_decompress_ptr cinfo);
-    int (*jpeg_read_header) (j_decompress_ptr cinfo, boolean require_image);
-    JDIMENSION (*jpeg_read_scanlines) (j_decompress_ptr cinfo, JSAMPARRAY scanlines, JDIMENSION max_lines);
-    boolean (*jpeg_resync_to_restart) (j_decompress_ptr cinfo, int desired);
-    boolean (*jpeg_start_decompress) (j_decompress_ptr cinfo);
-    void (*jpeg_CreateCompress) (j_compress_ptr cinfo, int version, size_t structsize);
-    void (*jpeg_start_compress) (j_compress_ptr cinfo, boolean write_all_tables);
-    void (*jpeg_set_quality) (j_compress_ptr cinfo, int quality, boolean force_baseline);
-    void (*jpeg_set_defaults) (j_compress_ptr cinfo);
-    JDIMENSION (*jpeg_write_scanlines) (j_compress_ptr cinfo, JSAMPARRAY scanlines, JDIMENSION num_lines);
-    void (*jpeg_finish_compress) (j_compress_ptr cinfo);
-    void (*jpeg_destroy_compress) (j_compress_ptr cinfo);
-    struct jpeg_error_mgr * (*jpeg_std_error) (struct jpeg_error_mgr * err);
-} lib;
-
-#ifdef LOAD_JPG_DYNAMIC
-#define FUNCTION_LOADER(FUNC, SIG) \
-    lib.FUNC = (SIG) SDL_LoadFunction(lib.handle, #FUNC); \
-    if (lib.FUNC == NULL) { SDL_UnloadObject(lib.handle); return -1; }
-#else
-#define FUNCTION_LOADER(FUNC, SIG) \
-    lib.FUNC = FUNC;
-#endif
-
-int IMG_InitJPG()
-{
-    if ( lib.loaded == 0 ) {
-#ifdef LOAD_JPG_DYNAMIC
-        lib.handle = SDL_LoadObject(LOAD_JPG_DYNAMIC);
-        if ( lib.handle == NULL ) {
-            return -1;
-        }
-#endif
-        FUNCTION_LOADER(jpeg_calc_output_dimensions, void (*) (j_decompress_ptr cinfo))
-        FUNCTION_LOADER(jpeg_CreateDecompress, void (*) (j_decompress_ptr cinfo, int version, size_t structsize))
-        FUNCTION_LOADER(jpeg_destroy_decompress, void (*) (j_decompress_ptr cinfo))
-        FUNCTION_LOADER(jpeg_finish_decompress, boolean (*) (j_decompress_ptr cinfo))
-        FUNCTION_LOADER(jpeg_read_header, int (*) (j_decompress_ptr cinfo, boolean require_image))
-        FUNCTION_LOADER(jpeg_read_scanlines, JDIMENSION (*) (j_decompress_ptr cinfo, JSAMPARRAY scanlines, JDIMENSION max_lines))
-        FUNCTION_LOADER(jpeg_resync_to_restart, boolean (*) (j_decompress_ptr cinfo, int desired))
-        FUNCTION_LOADER(jpeg_start_decompress, boolean (*) (j_decompress_ptr cinfo))
-        FUNCTION_LOADER(jpeg_CreateCompress, void (*) (j_compress_ptr cinfo, int version, size_t structsize))
-        FUNCTION_LOADER(jpeg_start_compress, void (*) (j_compress_ptr cinfo, boolean write_all_tables))
-        FUNCTION_LOADER(jpeg_set_quality, void (*) (j_compress_ptr cinfo, int quality, boolean force_baseline))
-        FUNCTION_LOADER(jpeg_set_defaults, void (*) (j_compress_ptr cinfo))
-        FUNCTION_LOADER(jpeg_write_scanlines, JDIMENSION (*) (j_compress_ptr cinfo, JSAMPARRAY scanlines, JDIMENSION num_lines))
-        FUNCTION_LOADER(jpeg_finish_compress, void (*) (j_compress_ptr cinfo))
-        FUNCTION_LOADER(jpeg_destroy_compress, void (*) (j_compress_ptr cinfo))
-        FUNCTION_LOADER(jpeg_std_error, struct jpeg_error_mgr * (*) (struct jpeg_error_mgr * err))
-    }
-    ++lib.loaded;
-
-    return 0;
-}
-void IMG_QuitJPG()
-{
-    if ( lib.loaded == 0 ) {
-        return;
-    }
-    if ( lib.loaded == 1 ) {
-#ifdef LOAD_JPG_DYNAMIC
-        SDL_UnloadObject(lib.handle);
-#endif
-    }
-    --lib.loaded;
-}
-
 /* See if an image is contained in a data source */
-int IMG_isJPG(SDL_IOStream *src)
+bool IMG_isJPG(SDL_IOStream *src)
 {
     Sint64 start;
-    int is_JPG;
-    int in_scan;
+    bool is_JPG;
+    bool in_scan;
     Uint8 magic[4];
 
     /* This detection code is by Steaphan Greene <stea@cs.binghamton.edu> */
     /* Blame me, not Sam, if this doesn't work right. */
     /* And don't forget to report the problem to the the sdl list too! */
 
-    if ( !src )
-        return 0;
+    if (!src) {
+        return false;
+    }
+
     start = SDL_TellIO(src);
-    is_JPG = 0;
-    in_scan = 0;
-    if (SDL_ReadIO(src, magic, 2) ) {
+    is_JPG = false;
+    in_scan = false;
+    if (SDL_ReadIO(src, magic, 2) == 2) {
         if ( (magic[0] == 0xFF) && (magic[1] == 0xD8) ) {
-            is_JPG = 1;
-            while (is_JPG == 1) {
-                if(SDL_ReadIO(src, magic, 1 * 2) != 2) {
-                    is_JPG = 0;
-                } else if( (magic[0] != 0xFF) && (in_scan == 0) ) {
-                    is_JPG = 0;
-                } else if( (magic[0] != 0xFF) || (magic[1] == 0xFF) ) {
+            is_JPG = true;
+            while (is_JPG) {
+                if (SDL_ReadIO(src, magic, 2) != 2) {
+                    is_JPG = false;
+                } else if ( (magic[0] != 0xFF) && !in_scan ) {
+                    is_JPG = false;
+                } else if ( (magic[0] != 0xFF) || (magic[1] == 0xFF) ) {
                     /* Extra padding in JPEG (legal) */
                     /* or this is data and we are scanning */
                     SDL_SeekIO(src, -1, SDL_IO_SEEK_CUR);
-                } else if(magic[1] == 0xD9) {
+                } else if (magic[1] == 0xD9) {
                     /* Got to end of good JPEG */
                     break;
-                } else if( (in_scan == 1) && (magic[1] == 0x00) ) {
+                } else if ( in_scan && (magic[1] == 0x00) ) {
                     /* This is an encoded 0xFF within the data */
-                } else if( (magic[1] >= 0xD0) && (magic[1] < 0xD9) ) {
+                } else if ( (magic[1] >= 0xD0) && (magic[1] < 0xD9) ) {
                     /* These have nothing else */
-                } else if(SDL_ReadIO(src, magic+2, 1 * 2) != 2) {
-                    is_JPG = 0;
+                } else if (SDL_ReadIO(src, magic+2, 2) != 2) {
+                    is_JPG = false;
                 } else {
                     /* Yes, it's big-endian */
                     Sint64 innerStart;
@@ -159,23 +79,20 @@ int IMG_isJPG(SDL_IOStream *src)
                     innerStart = SDL_TellIO(src);
                     size = (magic[2] << 8) + magic[3];
                     end = SDL_SeekIO(src, size-2, SDL_IO_SEEK_CUR);
-                    if ( end != innerStart + size - 2 ) is_JPG = 0;
+                    if ( end != innerStart + size - 2 ) {
+                        is_JPG = false;
+                    }
                     if ( magic[1] == 0xDA ) {
                         /* Now comes the actual JPEG meat */
-#ifdef  FAST_IS_JPEG
                         /* Ok, I'm convinced.  It is a JPEG. */
                         break;
-#else
-                        /* I'm not convinced.  Prove it! */
-                        in_scan = 1;
-#endif
                     }
                 }
             }
         }
     }
     SDL_SeekIO(src, start, SDL_IO_SEEK_SET);
-    return(is_JPG);
+    return is_JPG;
 }
 
 #define INPUT_BUFFER_SIZE   4096
@@ -193,7 +110,6 @@ typedef struct {
 static void init_source (j_decompress_ptr cinfo)
 {
     /* We don't actually need to do anything */
-    (void)cinfo;
     return;
 }
 
@@ -203,11 +119,10 @@ static void init_source (j_decompress_ptr cinfo)
 static boolean fill_input_buffer (j_decompress_ptr cinfo)
 {
     my_source_mgr * src = (my_source_mgr *) cinfo->src;
-    int nbytes;
+    size_t nbytes;
 
-    nbytes = (int)/* FIXME MIGRATION: double-check if you use the returned value of SDL_RWread() */
-        SDL_ReadIO(src->ctx, src->buffer, 1 * INPUT_BUFFER_SIZE);
-    if (nbytes <= 0) {
+    nbytes = SDL_ReadIO(src->ctx, src->buffer, INPUT_BUFFER_SIZE);
+    if (nbytes == 0) {
         /* Insert a fake EOI marker */
         src->buffer[0] = (Uint8) 0xFF;
         src->buffer[1] = (Uint8) JPEG_EOI;
@@ -259,7 +174,6 @@ static void skip_input_data (j_decompress_ptr cinfo, long num_bytes)
 static void term_source (j_decompress_ptr cinfo)
 {
     /* We don't actually need to do anything */
-    (void)cinfo;
     return;
 }
 
@@ -268,7 +182,7 @@ static void term_source (j_decompress_ptr cinfo)
  * The caller must have already opened the stream, and is responsible
  * for closing it after finishing decompression.
  */
-static void jpeg_SDL_RW_src (j_decompress_ptr cinfo, SDL_IOStream *ctx)
+static void jpeg_SDL_IO_src (j_decompress_ptr cinfo, SDL_IOStream *ctx)
 {
   my_source_mgr *src;
 
@@ -290,7 +204,7 @@ static void jpeg_SDL_RW_src (j_decompress_ptr cinfo, SDL_IOStream *ctx)
   src->pub.init_source = init_source;
   src->pub.fill_input_buffer = fill_input_buffer;
   src->pub.skip_input_data = skip_input_data;
-  src->pub.resync_to_restart = lib.jpeg_resync_to_restart; /* use default method */
+  src->pub.resync_to_restart = jpeg_resync_to_restart; /* use default method */
   src->pub.term_source = term_source;
   src->ctx = ctx;
   src->pub.bytes_in_buffer = 0; /* forces fill_input_buffer on first read */
@@ -311,105 +225,113 @@ static void my_error_exit(j_common_ptr cinfo)
 static void output_no_message(j_common_ptr cinfo)
 {
     /* do nothing */
-    (void)cinfo;
 }
 
-/* Load a JPEG type image from an SDL datasource */
-SDL_Surface *IMG_LoadJPG_RW(SDL_IOStream *src)
-{
-    Sint64 start;
+struct loadjpeg_vars {
+    const char *error;
+    SDL_Surface *surface;
     struct jpeg_decompress_struct cinfo;
-    JSAMPROW rowptr[1];
-    SDL_Surface *volatile surface = NULL;
     struct my_error_mgr jerr;
+};
 
-    if ( !src ) {
-        /* The error message has been set in SDL_RWFromFile */
-        return NULL;
-    }
-    start = SDL_TellIO(src);
-
-    if ( (IMG_Init(IMG_INIT_JPG) & IMG_INIT_JPG) == 0 ) {
-        return NULL;
-    }
+/* Load a JPEG type image from an SDL datasource */
+static bool LIBJPEG_LoadJPG_IO(SDL_IOStream *src, struct loadjpeg_vars *vars)
+{
+    JSAMPROW rowptr[1];
 
     /* Create a decompression structure and load the JPEG header */
-    cinfo.err = lib.jpeg_std_error(&jerr.errmgr);
-    jerr.errmgr.error_exit = my_error_exit;
-    jerr.errmgr.output_message = output_no_message;
-#ifdef _MSC_VER
-#pragma warning(disable:4611)   /* warning C4611: interaction between '_setjmp' and C++ object destruction is non-portable */
-#endif
-    if(setjmp(jerr.escape)) {
+    vars->cinfo.err = jpeg_std_error(&vars->jerr.errmgr);
+    vars->jerr.errmgr.error_exit = my_error_exit;
+    vars->jerr.errmgr.output_message = output_no_message;
+    if (setjmp(vars->jerr.escape)) {
         /* If we get here, libjpeg found an error */
-        lib.jpeg_destroy_decompress(&cinfo);
-        if ( surface != NULL ) {
-            SDL_DestroySurface(surface);
-        }
-        SDL_SeekIO(src, start, SDL_IO_SEEK_SET);
-        IMG_SetError("JPEG loading error");
-        return NULL;
+        jpeg_destroy_decompress(&vars->cinfo);
+        vars->error = "JPEG loading error";
+        return false;
     }
 
-    lib.jpeg_create_decompress(&cinfo);
-    jpeg_SDL_RW_src(&cinfo, src);
-    lib.jpeg_read_header(&cinfo, TRUE);
+    jpeg_create_decompress(&vars->cinfo);
+    jpeg_SDL_IO_src(&vars->cinfo, src);
+    jpeg_read_header(&vars->cinfo, TRUE);
 
-    if(cinfo.num_components == 4) {
+    if (vars->cinfo.num_components == 4) {
         /* Set 32-bit Raw output */
-        cinfo.out_color_space = JCS_CMYK;
-        cinfo.quantize_colors = FALSE;
-        lib.jpeg_calc_output_dimensions(&cinfo);
-
+        vars->cinfo.out_color_space = JCS_CMYK;
+        vars->cinfo.quantize_colors = FALSE;
+        jpeg_calc_output_dimensions(&vars->cinfo);
 
         /* Allocate an output surface to hold the image */
-        surface = SDL_CreateSurface(cinfo.output_width, cinfo.output_height,
-                                    SDL_PIXELFORMAT_ARGB8888)
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                           ;
-#else
-                           0x0000FF00, 0x00FF0000, 0xFF000000, 0x000000FF);
-#endif
-        //surface = SDL_CreateRGBSurfaceWithFormat(0, cinfo.output_width, cinfo.output_height, 0, SDL_PIXELFORMAT_BGRA32);
+        vars->surface = SDL_CreateSurface(vars->cinfo.output_width, vars->cinfo.output_height, SDL_PIXELFORMAT_RGBA32);
     } else {
         /* Set 24-bit RGB output */
-        cinfo.out_color_space = JCS_RGB;
-        cinfo.quantize_colors = FALSE;
+        vars->cinfo.out_color_space = JCS_RGB;
+        vars->cinfo.quantize_colors = FALSE;
 #ifdef FAST_JPEG
-        cinfo.scale_num   = 1;
-        cinfo.scale_denom = 1;
-        cinfo.dct_method = JDCT_FASTEST;
-        cinfo.do_fancy_upsampling = FALSE;
+        vars->cinfo.scale_num   = 1;
+        vars->cinfo.scale_denom = 1;
+        vars->cinfo.dct_method = JDCT_FASTEST;
+        vars->cinfo.do_fancy_upsampling = FALSE;
 #endif
-        lib.jpeg_calc_output_dimensions(&cinfo);
+        jpeg_calc_output_dimensions(&vars->cinfo);
 
         /* Allocate an output surface to hold the image */
-        surface = SDL_CreateSurface(cinfo.output_width, cinfo.output_height,
-                                    SDL_PIXELFORMAT_RGB24)
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-#else
-                    0xFF0000, 0x00FF00, 0x0000FF,
-#endif
-                    ;
-        //surface = SDL_CreateRGBSurfaceWithFormat(0, cinfo.output_width, cinfo.output_height, 0, SDL_PIXELFORMAT_RGB24);
+        vars->surface = SDL_CreateSurface(vars->cinfo.output_width, vars->cinfo.output_height, SDL_PIXELFORMAT_RGB24);
     }
 
-    if ( surface == NULL ) {
-        lib.jpeg_destroy_decompress(&cinfo);
-        SDL_SeekIO(src, start, SDL_IO_SEEK_SET);
-        IMG_SetError("Out of memory");
-        return NULL;
+    if (!vars->surface) {
+        jpeg_destroy_decompress(&vars->cinfo);
+        return false;
     }
 
     /* Decompress the image */
-    lib.jpeg_start_decompress(&cinfo);
-    while ( cinfo.output_scanline < cinfo.output_height ) {
-        rowptr[0] = (JSAMPROW)(Uint8 *)surface->pixels +
-                            cinfo.output_scanline * surface->pitch;
-        lib.jpeg_read_scanlines(&cinfo, rowptr, (JDIMENSION) 1);
+    jpeg_start_decompress(&vars->cinfo);
+    while (vars->cinfo.output_scanline < vars->cinfo.output_height) {
+        rowptr[0] = (JSAMPROW)(Uint8 *)vars->surface->pixels +
+                            vars->cinfo.output_scanline * vars->surface->pitch;
+        jpeg_read_scanlines(&vars->cinfo, rowptr, (JDIMENSION) 1);
     }
-    lib.jpeg_finish_decompress(&cinfo);
-    lib.jpeg_destroy_decompress(&cinfo);
+    jpeg_finish_decompress(&vars->cinfo);
+    jpeg_destroy_decompress(&vars->cinfo);
 
-    return(surface);
+    if (vars->cinfo.num_components == 4) {
+        // The CMYK image is essentially RGBA composed over black
+        SDL_Surface *output = SDL_CreateSurface(vars->cinfo.output_width, vars->cinfo.output_height, SDL_PIXELFORMAT_RGB24);
+        if (!output) {
+            return false;
+        }
+
+        SDL_BlitSurface(vars->surface, NULL, output, NULL);
+        SDL_DestroySurface(vars->surface);
+        vars->surface = output;
+    }
+    return true;
+}
+
+SDL_Surface *IMG_LoadJPG_IO(SDL_IOStream *src)
+{
+    Sint64 start;
+    struct loadjpeg_vars vars;
+
+    if (!src) {
+        /* The error message has been set in SDL_IOFromFile */
+        return NULL;
+    }
+
+    start = SDL_TellIO(src);
+    SDL_zero(vars);
+
+    if (LIBJPEG_LoadJPG_IO(src, &vars)) {
+        return vars.surface;
+    }
+
+    /* this may clobber a set error if seek fails: don't care. */
+    SDL_SeekIO(src, start, SDL_IO_SEEK_SET);
+    if (vars.surface) {
+        SDL_DestroySurface(vars.surface);
+    }
+    if (vars.error) {
+        SDL_SetError("%s", vars.error);
+    }
+
+    return NULL;
 }

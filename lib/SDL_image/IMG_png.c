@@ -1,6 +1,6 @@
 /*
   SDL_image:  An example image loading library for use with SDL
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -21,402 +21,438 @@
 
 /* This is a PNG image file loading framework */
 
-#include "SDL_image.h"
-#include <SDL3/SDL_surface.h>
-
-#define WANT_LIBPNG
-
-/* This code was originally written by Philippe Lavoie (2 November 1998) */
-
-#ifdef macintosh
-#define MACOS
-#endif
+#include <SDL_image.h>
 #include <png.h>
 
-/* Check for the older version of libpng */
-#if (PNG_LIBPNG_VER_MAJOR == 1)
-#if (PNG_LIBPNG_VER_MINOR < 5)
-#define LIBPNG_VERSION_12
-typedef png_bytep png_const_bytep;
-typedef png_color *png_const_colorp;
-typedef png_color_16 *png_const_color_16p;
-#endif
-#if (PNG_LIBPNG_VER_MINOR < 4)
-typedef png_structp png_const_structp;
-typedef png_infop png_const_infop;
-#endif
-#if (PNG_LIBPNG_VER_MINOR < 6)
-typedef png_structp png_structrp;
-typedef png_infop png_inforp;
-typedef png_const_structp png_const_structrp;
-typedef png_const_infop png_const_inforp;
-/* noconst15: version < 1.6 doesn't have const, >= 1.6 adds it */
-/* noconst16: version < 1.6 does have const, >= 1.6 removes it */
-typedef png_structp png_noconst15_structrp;
-typedef png_inforp png_noconst15_inforp;
-typedef png_const_inforp png_noconst16_inforp;
-#else
-typedef png_const_structp png_noconst15_structrp;
-typedef png_const_inforp png_noconst15_inforp;
-typedef png_inforp png_noconst16_inforp;
-#endif
-#else
-typedef png_const_structp png_noconst15_structrp;
-typedef png_const_inforp png_noconst15_inforp;
-typedef png_inforp png_noconst16_inforp;
-#endif
-
-static struct {
-    int loaded;
-    void *handle;
-    png_infop (*png_create_info_struct) (png_noconst15_structrp png_ptr);
-    png_structp (*png_create_read_struct) (png_const_charp user_png_ver, png_voidp error_ptr, png_error_ptr error_fn, png_error_ptr warn_fn);
-    void (*png_destroy_read_struct) (png_structpp png_ptr_ptr, png_infopp info_ptr_ptr, png_infopp end_info_ptr_ptr);
-    png_uint_32 (*png_get_IHDR) (png_noconst15_structrp png_ptr, png_noconst15_inforp info_ptr, png_uint_32 *width, png_uint_32 *height, int *bit_depth, int *color_type, int *interlace_method, int *compression_method, int *filter_method);
-    png_voidp (*png_get_io_ptr) (png_noconst15_structrp png_ptr);
-    png_byte (*png_get_channels) (png_const_structrp png_ptr, png_const_inforp info_ptr);
-    png_uint_32 (*png_get_PLTE) (png_const_structrp png_ptr, png_noconst16_inforp info_ptr, png_colorp *palette, int *num_palette);
-    png_uint_32 (*png_get_tRNS) (png_const_structrp png_ptr, png_inforp info_ptr, png_bytep *trans, int *num_trans, png_color_16p *trans_values);
-    png_uint_32 (*png_get_valid) (png_const_structrp png_ptr, png_const_inforp info_ptr, png_uint_32 flag);
-    void (*png_read_image) (png_structrp png_ptr, png_bytepp image);
-    void (*png_read_info) (png_structrp png_ptr, png_inforp info_ptr);
-    void (*png_read_update_info) (png_structrp png_ptr, png_inforp info_ptr);
-    void (*png_set_expand) (png_structrp png_ptr);
-    void (*png_set_gray_to_rgb) (png_structrp png_ptr);
-    void (*png_set_packing) (png_structrp png_ptr);
-    void (*png_set_read_fn) (png_structrp png_ptr, png_voidp io_ptr, png_rw_ptr read_data_fn);
-    void (*png_set_strip_16) (png_structrp png_ptr);
-    int (*png_set_interlace_handling) (png_structrp png_ptr);
-    int (*png_sig_cmp) (png_const_bytep sig, png_size_t start, png_size_t num_to_check);
-#ifdef PNG_SETJMP_SUPPORTED
-#ifndef LIBPNG_VERSION_12
-    jmp_buf* (*png_set_longjmp_fn) (png_structrp, png_longjmp_ptr, size_t);
-#endif
-#endif
-} lib;
-
-#ifdef LOAD_PNG_DYNAMIC
-#define FUNCTION_LOADER(FUNC, SIG) \
-    lib.FUNC = (SIG) SDL_LoadFunction(lib.handle, #FUNC); \
-    if (lib.FUNC == NULL) { SDL_UnloadObject(lib.handle); return -1; }
-#else
-#define FUNCTION_LOADER(FUNC, SIG) \
-    lib.FUNC = FUNC;
-#endif
-
-int IMG_InitPNG()
-{
-    if ( lib.loaded == 0 ) {
-#ifdef LOAD_PNG_DYNAMIC
-        lib.handle = SDL_LoadObject(LOAD_PNG_DYNAMIC);
-        if ( lib.handle == NULL ) {
-            return -1;
-        }
-#endif
-        FUNCTION_LOADER(png_create_info_struct, png_infop (*) (png_noconst15_structrp png_ptr))
-        FUNCTION_LOADER(png_create_read_struct, png_structp (*) (png_const_charp user_png_ver, png_voidp error_ptr, png_error_ptr error_fn, png_error_ptr warn_fn))
-        FUNCTION_LOADER(png_destroy_read_struct, void (*) (png_structpp png_ptr_ptr, png_infopp info_ptr_ptr, png_infopp end_info_ptr_ptr))
-        FUNCTION_LOADER(png_get_IHDR, png_uint_32 (*) (png_noconst15_structrp png_ptr, png_noconst15_inforp info_ptr, png_uint_32 *width, png_uint_32 *height, int *bit_depth, int *color_type, int *interlace_method, int *compression_method, int *filter_method))
-        FUNCTION_LOADER(png_get_io_ptr, png_voidp (*) (png_noconst15_structrp png_ptr))
-        FUNCTION_LOADER(png_get_channels, png_byte (*) (png_const_structrp png_ptr, png_const_inforp info_ptr))
-        FUNCTION_LOADER(png_get_PLTE, png_uint_32 (*) (png_const_structrp png_ptr, png_noconst16_inforp info_ptr, png_colorp *palette, int *num_palette))
-        FUNCTION_LOADER(png_get_tRNS, png_uint_32 (*) (png_const_structrp png_ptr, png_inforp info_ptr, png_bytep *trans, int *num_trans, png_color_16p *trans_values))
-        FUNCTION_LOADER(png_get_valid, png_uint_32 (*) (png_const_structrp png_ptr, png_const_inforp info_ptr, png_uint_32 flag))
-        FUNCTION_LOADER(png_read_image, void (*) (png_structrp png_ptr, png_bytepp image))
-        FUNCTION_LOADER(png_read_info, void (*) (png_structrp png_ptr, png_inforp info_ptr))
-        FUNCTION_LOADER(png_read_update_info, void (*) (png_structrp png_ptr, png_inforp info_ptr))
-        FUNCTION_LOADER(png_set_expand, void (*) (png_structrp png_ptr))
-        FUNCTION_LOADER(png_set_gray_to_rgb, void (*) (png_structrp png_ptr))
-        FUNCTION_LOADER(png_set_packing, void (*) (png_structrp png_ptr))
-        FUNCTION_LOADER(png_set_read_fn, void (*) (png_structrp png_ptr, png_voidp io_ptr, png_rw_ptr read_data_fn))
-        FUNCTION_LOADER(png_set_strip_16, void (*) (png_structrp png_ptr))
-        FUNCTION_LOADER(png_set_interlace_handling, int (*) (png_structrp png_ptr))
-        FUNCTION_LOADER(png_sig_cmp, int (*) (png_const_bytep sig, png_size_t start, png_size_t num_to_check))
-#ifdef PNG_SETJMP_SUPPORTED
-#ifndef LIBPNG_VERSION_12
-        FUNCTION_LOADER(png_set_longjmp_fn, jmp_buf* (*) (png_structrp, png_longjmp_ptr, size_t))
-#endif
-#endif
-    }
-    ++lib.loaded;
-
-    return 0;
-}
-void IMG_QuitPNG()
-{
-    if ( lib.loaded == 0 ) {
-        return;
-    }
-    if ( lib.loaded == 1 ) {
-#ifdef LOAD_PNG_DYNAMIC
-        SDL_UnloadObject(lib.handle);
-#endif
-    }
-    --lib.loaded;
-}
+extern bool IMG_InitPNG(void);
+extern SDL_Surface *IMG_LoadPNG_LIBPNG(SDL_IOStream *src);
+extern bool IMG_SavePNG_LIBPNG(SDL_Surface *surface, SDL_IOStream *dst, bool closeio);
 
 /* See if an image is contained in a data source */
-int IMG_isPNG(SDL_IOStream *src)
+bool IMG_isPNG(SDL_IOStream *src)
 {
     Sint64 start;
-    int is_PNG;
+    bool is_PNG;
     Uint8 magic[4];
 
-    if ( !src ) {
-        return 0;
+    if (!src) {
+        return false;
     }
 
     start = SDL_TellIO(src);
-    is_PNG = 0;
-    if (SDL_ReadIO(src, magic, 1 * sizeof(magic)) == sizeof(magic) ) {
-        if ( magic[0] == 0x89 &&
-             magic[1] == 'P' &&
-             magic[2] == 'N' &&
-             magic[3] == 'G' ) {
-            is_PNG = 1;
+    is_PNG = false;
+    if (SDL_ReadIO(src, magic, sizeof(magic)) == sizeof(magic)) {
+        if (magic[0] == 0x89 &&
+            magic[1] == 'P' &&
+            magic[2] == 'N' &&
+            magic[3] == 'G') {
+            is_PNG = true;
         }
     }
     SDL_SeekIO(src, start, SDL_IO_SEEK_SET);
-    return(is_PNG);
+    return is_PNG;
+}
+
+typedef png_const_structrp png_noconst15_structrp;
+typedef png_const_inforp png_noconst15_inforp;
+typedef png_inforp png_noconst16_inforp;
+
+#define libpng_get_uint_32(buf)           \
+   (((png_uint_32)( *(buf)     ) << 24) + \
+    ((png_uint_32)(*((buf) + 1)) << 16) + \
+    ((png_uint_32)(*((buf) + 2)) <<  8) + \
+    ((png_uint_32)(*((buf) + 3))))
+
+
+static void png_read_data(png_structp png_ptr, png_bytep area, png_size_t size)
+{
+    SDL_IOStream *src = (SDL_IOStream *)png_get_io_ptr(png_ptr);
+    if (SDL_ReadIO(src, area, size) != size) {
+        png_error(png_ptr, "Failed to read all expected data from SDL_IOStream for PNG image.");
+    }
+}
+
+static void png_write_data(png_structp png_ptr, png_bytep src, png_size_t size)
+{
+    SDL_IOStream *dst = (SDL_IOStream *)png_get_io_ptr(png_ptr);
+    if (SDL_WriteIO(dst, src, size) != size) {
+        png_error(png_ptr, "Failed to write all expected data to SDL_IOStream for PNG image.");
+    }
+}
+
+static void png_flush_data(png_structp png_ptr)
+{
+    png_write_flush(png_ptr);
+}
+
+struct png_load_vars
+{
+    const char *error;
+    SDL_Surface *surface;
+    png_structp png_ptr;
+    png_infop info_ptr;
+    png_bytep *row_pointers;
+    png_colorp color_ptr;
+    SDL_Surface *source_surface_for_save;
+
+    png_uint_32 width, height;
+    int bit_depth, color_type, interlace_type;
+    Uint32 format;
+    unsigned char header[8];
+    png_colorp png_palette;
+    int num_palette;
+    png_bytep trans;
+    int num_trans;
+    png_color_16p trans_values;
+};
+
+static bool LIBPNG_LoadPNG_IO_Internal(SDL_IOStream *src, struct png_load_vars *vars)
+{
+    if (SDL_ReadIO(src, vars->header, sizeof(vars->header)) != sizeof(vars->header)) {
+        vars->error = "Failed to read PNG header from SDL_IOStream";
+        return false;
+    }
+    if (png_sig_cmp(vars->header, 0, 8)) {
+        vars->error = "Not a valid PNG file signature";
+        return false;
+    }
+
+    vars->png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (vars->png_ptr == NULL) {
+        vars->error = "Couldn't allocate memory for PNG read struct";
+        return false;
+    }
+    vars->info_ptr = png_create_info_struct(vars->png_ptr);
+    if (vars->info_ptr == NULL) {
+        vars->error = "Couldn't create image information for PNG file";
+        return false;
+    }
+
+    if (setjmp(*png_set_longjmp_fn(vars->png_ptr, longjmp, sizeof(jmp_buf)))) {
+        vars->error = "Error during PNG read operation";
+        return false;
+    }
+
+    png_set_read_fn(vars->png_ptr, src, png_read_data);
+    png_set_sig_bytes(vars->png_ptr, 8);
+
+    png_read_info(vars->png_ptr, vars->info_ptr);
+    png_get_IHDR(vars->png_ptr, vars->info_ptr, &vars->width, &vars->height, &vars->bit_depth,
+                     &vars->color_type, &vars->interlace_type, NULL, NULL);
+
+    // Only convert non-palette formats to RGB/RGBA
+    // TODO: Convert this to a colour key - the specs say that there's
+    // only one transparent colour for non-palette images
+    if (vars->color_type != PNG_COLOR_TYPE_PALETTE) {
+        if (png_get_valid(vars->png_ptr, vars->info_ptr, PNG_INFO_tRNS)) {
+            png_set_tRNS_to_alpha(vars->png_ptr);
+            vars->color_type |= PNG_COLOR_MASK_ALPHA;
+        }
+    }
+
+    /* SDL doesn't currently support this format, so we convert to RGB for now. */
+    if (vars->color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
+        png_set_gray_to_rgb(vars->png_ptr);
+    }
+
+    if (vars->color_type == PNG_COLOR_TYPE_PALETTE ||
+        vars->color_type == PNG_COLOR_TYPE_GRAY) {
+        if (vars->bit_depth == 1) {
+            vars->format = SDL_PIXELFORMAT_INDEX1MSB;
+        } else if (vars->bit_depth == 2) {
+            vars->format = SDL_PIXELFORMAT_INDEX2MSB;
+        } else if (vars->bit_depth == 4) {
+            vars->format = SDL_PIXELFORMAT_INDEX4MSB;
+        } else /* if (vars->bit_depth == 8) */ {
+            vars->format = SDL_PIXELFORMAT_INDEX8;
+        }
+    } else if (vars->bit_depth == 16) {
+        if (vars->color_type & PNG_COLOR_MASK_ALPHA) {
+            vars->format = SDL_PIXELFORMAT_RGBA64;
+        } else {
+            vars->format = SDL_PIXELFORMAT_RGB48;
+        }
+    } else {
+        if (vars->color_type & PNG_COLOR_MASK_ALPHA) {
+            vars->format = SDL_PIXELFORMAT_RGBA32;
+        } else {
+            vars->format = SDL_PIXELFORMAT_RGB24;
+        }
+    }
+
+    png_read_update_info(vars->png_ptr, vars->info_ptr);
+    png_get_IHDR(vars->png_ptr, vars->info_ptr, &vars->width, &vars->height, &vars->bit_depth,
+                     &vars->color_type, &vars->interlace_type, NULL, NULL);
+
+    vars->surface = SDL_CreateSurface(vars->width, vars->height, vars->format);
+    if (vars->surface == NULL) {
+        vars->error = SDL_GetError();
+        return false;
+    }
+
+    // For palette images, set up the palette
+    if (vars->color_type == PNG_COLOR_TYPE_PALETTE) {
+        if (png_get_PLTE(vars->png_ptr, vars->info_ptr, &vars->png_palette, &vars->num_palette)) {
+            SDL_Palette *palette = SDL_CreateSurfacePalette(vars->surface);
+            if (!palette) {
+                vars->error = "Failed to create palette for PNG image";
+                return false;
+            }
+
+            for (int i = 0; i < palette->ncolors; i++) {
+                palette->colors[i].r = vars->png_palette[i].red;
+                palette->colors[i].g = vars->png_palette[i].green;
+                palette->colors[i].b = vars->png_palette[i].blue;
+                palette->colors[i].a = 255;
+            }
+
+            if (png_get_tRNS(vars->png_ptr, vars->info_ptr, &vars->trans, &vars->num_trans, &vars->trans_values)) {
+                for (int i = 0; i < vars->num_trans && i < palette->ncolors; i++) {
+                    palette->colors[i].a = vars->trans[i];
+                }
+                SDL_SetSurfaceBlendMode(vars->surface, SDL_BLENDMODE_BLEND);
+            }
+        }
+    } else if (vars->color_type == PNG_COLOR_TYPE_GRAY) {
+        SDL_Palette *palette = SDL_CreateSurfacePalette(vars->surface);
+        if (!palette) {
+            vars->error = "Failed to create palette for PNG image";
+            return false;
+        }
+
+        for (int i = 0; i < palette->ncolors; i++) {
+            palette->colors[i].r = (i * 255) / palette->ncolors;
+            palette->colors[i].g = (i * 255) / palette->ncolors;
+            palette->colors[i].b = (i * 255) / palette->ncolors;
+            palette->colors[i].a = 255;
+        }
+    }
+
+    vars->row_pointers = (png_bytep *)SDL_malloc(sizeof(png_bytep) * vars->height);
+    if (!vars->row_pointers) {
+        vars->error = "Out of memory allocating row pointers";
+        return false;
+    }
+    for (png_uint_32 y = 0; y < vars->height; y++) {
+        vars->row_pointers[y] = (png_bytep)((Uint8 *)vars->surface->pixels + y * (size_t)vars->surface->pitch);
+    }
+
+    png_read_image(vars->png_ptr, vars->row_pointers);
+
+#if SDL_BYTEORDER != SDL_BIG_ENDIAN
+    if (vars->format == SDL_PIXELFORMAT_RGBA64) {
+        Uint16 *pixels = (Uint16 *)vars->surface->pixels;
+        int num_pixels = vars->width * vars->height * 4;
+        for (int i = 0; i < num_pixels; i++) {
+            pixels[i] = SDL_Swap16(pixels[i]);
+        }
+    }
+#endif
+
+    return true;
 }
 
 /* Load a PNG type image from an SDL datasource */
-static void png_read_data(png_structp ctx, png_bytep area, png_size_t size)
+SDL_Surface *IMG_LoadPNG_IO(SDL_IOStream *src)
 {
-    SDL_IOStream *src;
+    Sint64 start_pos;
+    bool success = false;
 
-    src = (SDL_IOStream *)lib.png_get_io_ptr(ctx);
-    SDL_ReadIO(src, area, size);
+    if (!src) {
+        SDL_SetError("SDL_IOStream is NULL");
+        return NULL;
+    }
+
+    start_pos = SDL_TellIO(src);
+
+    struct png_load_vars vars;
+    SDL_zero(vars);
+
+    success = LIBPNG_LoadPNG_IO_Internal(src, &vars);
+
+    if (vars.png_ptr) {
+        png_destroy_read_struct(&vars.png_ptr,
+                                    vars.info_ptr ? &vars.info_ptr : (png_infopp)NULL,
+                                    (png_infopp)NULL);
+    }
+    if (vars.row_pointers) {
+        SDL_free(vars.row_pointers);
+    }
+
+    if (success) {
+        return vars.surface;
+    } else {
+        SDL_SeekIO(src, start_pos, SDL_IO_SEEK_SET);
+        if (vars.surface) {
+            SDL_DestroySurface(vars.surface);
+        }
+        if (vars.error) {
+            SDL_SetError("%s", vars.error);
+        }
+        return NULL;
+    }
 }
-SDL_Surface *IMG_LoadPNG_RW(SDL_IOStream *src)
+
+// Save PNGs
+
+struct png_save_vars
 {
-    Sint64 start;
     const char *error;
-    SDL_Surface *volatile surface;
+    SDL_Surface *surface;
     png_structp png_ptr;
     png_infop info_ptr;
-    png_uint_32 width, height;
-    int bit_depth, color_type, interlace_type, num_channels;
-    Uint32 Rmask;
-    Uint32 Gmask;
-    Uint32 Bmask;
-    Uint32 Amask;
+    png_bytep *row_pointers;
+    png_colorp color_ptr;
+    SDL_Surface *source_surface_for_save;
+
+    Uint8 transparent_table[256];
     SDL_Palette *palette;
-    png_bytep *volatile row_pointers;
-    int row, i;
-    int ckey;
-    png_color_16 *transv;
+    int png_color_type;
+    int bit_depth; // default to 8
+};
 
-    if ( !src ) {
-        /* The error message has been set in SDL_RWFromFile */
-        return NULL;
+static bool LIBPNG_SavePNG_IO_Internal(struct png_save_vars *vars, SDL_Surface *surface, SDL_IOStream *dst)
+{
+    vars->source_surface_for_save = surface;
+
+    vars->png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (vars->png_ptr == NULL) {
+        vars->error = "Couldn't allocate memory for PNG write struct";
+        return false;
     }
-    start = SDL_TellIO(src);
-
-    if ( (IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) == 0 ) {
-        return NULL;
-    }
-
-    /* Initialize the data we will clean up when we're done */
-    error = NULL;
-    png_ptr = NULL; info_ptr = NULL; row_pointers = NULL; surface = NULL;
-
-    /* Create the PNG loading context structure */
-    png_ptr = lib.png_create_read_struct(PNG_LIBPNG_VER_STRING,
-                      NULL,NULL,NULL);
-    if (png_ptr == NULL){
-        error = "Couldn't allocate memory for PNG file or incompatible PNG dll";
-        goto done;
+    vars->info_ptr = png_create_info_struct(vars->png_ptr);
+    if (vars->info_ptr == NULL) {
+        vars->error = "Couldn't create image information for PNG file";
+        return false;
     }
 
-     /* Allocate/initialize the memory for image information.  REQUIRED. */
-    info_ptr = lib.png_create_info_struct(png_ptr);
-    if (info_ptr == NULL) {
-        error = "Couldn't create image information for PNG file";
-        goto done;
+    if (setjmp(*png_set_longjmp_fn(vars->png_ptr, longjmp, sizeof(jmp_buf)))) {
+        vars->error = "Error during PNG write operation";
+        return false;
     }
 
-    /* Set error handling if you are using setjmp/longjmp method (this is
-     * the normal method of doing things with libpng).  REQUIRED unless you
-     * set up your own error handlers in png_create_read_struct() earlier.
-     */
+    png_set_write_fn(vars->png_ptr, dst, png_write_data, png_flush_data);
 
-#ifdef PNG_SETJMP_SUPPORTED
-#ifdef _MSC_VER
-#pragma warning(disable:4611)   /* warning C4611: interaction between '_setjmp' and C++ object destruction is non-portable */
-#endif
-#ifndef LIBPNG_VERSION_12
-    if ( setjmp(*lib.png_set_longjmp_fn(png_ptr, longjmp, sizeof (jmp_buf))) )
-#else
-    if ( setjmp(png_ptr->jmpbuf) )
-#endif
-    {
-        error = "Error reading the PNG file.";
-        goto done;
-    }
-#endif
-    /* Set up the input control */
-    lib.png_set_read_fn(png_ptr, src, png_read_data);
+    vars->palette = SDL_GetSurfacePalette(surface);
+    if (vars->palette) {
+        const int ncolors = vars->palette->ncolors;
+        int i;
+        int last_transparent = -1;
 
-    /* Read PNG header info */
-    lib.png_read_info(png_ptr, info_ptr);
-    lib.png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth,
-            &color_type, &interlace_type, NULL, NULL);
-
-    /* tell libpng to strip 16 bit/color files down to 8 bits/color */
-    lib.png_set_strip_16(png_ptr);
-
-    /* tell libpng to de-interlace (if the image is interlaced) */
-    lib.png_set_interlace_handling(png_ptr);
-
-    /* Extract multiple pixels with bit depths of 1, 2, and 4 from a single
-     * byte into separate bytes (useful for paletted and grayscale images).
-     */
-    lib.png_set_packing(png_ptr);
-
-    /* scale greyscale values to the range 0..255 */
-    if (color_type == PNG_COLOR_TYPE_GRAY)
-        lib.png_set_expand(png_ptr);
-
-    /* For images with a single "transparent colour", set colour key;
-       if more than one index has transparency, or if partially transparent
-       entries exist, use full alpha channel */
-    ckey = -1;
-    if (lib.png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
-        int num_trans;
-        Uint8 *trans;
-        lib.png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, &transv);
-        if (color_type == PNG_COLOR_TYPE_PALETTE) {
-            /* Check if all tRNS entries are opaque except one */
-            int j, t = -1;
-            for (j = 0; j < num_trans; j++) {
-                if (trans[j] == 0) {
-                    if (t >= 0) {
-                        break;
-                    }
-                    t = j;
-                } else if (trans[j] != 255) {
-                    break;
-                }
+        vars->color_ptr = (png_colorp)SDL_malloc(sizeof(png_color) * ncolors);
+        if (vars->color_ptr == NULL) {
+            vars->error = "Couldn't allocate palette for PNG file";
+            return false;
+        }
+        for (i = 0; i < ncolors; i++) {
+            vars->color_ptr[i].red = vars->palette->colors[i].r;
+            vars->color_ptr[i].green = vars->palette->colors[i].g;
+            vars->color_ptr[i].blue = vars->palette->colors[i].b;
+            if (vars->palette->colors[i].a != 255) {
+                last_transparent = i;
             }
-            if (j == num_trans) {
-                /* exactly one transparent index */
-                ckey = t;
-            } else {
-                /* more than one transparent index, or translucency */
-                lib.png_set_expand(png_ptr);
+        }
+        png_set_PLTE(vars->png_ptr, vars->info_ptr, vars->color_ptr, ncolors);
+        vars->png_color_type = PNG_COLOR_TYPE_PALETTE;
+
+        if (last_transparent >= 0) {
+            for (i = 0; i <= last_transparent; ++i) {
+                vars->transparent_table[i] = vars->palette->colors[i].a;
             }
-        } else {
-            ckey = 0; /* actual value will be set later */
+            png_set_tRNS(vars->png_ptr, vars->info_ptr, vars->transparent_table, last_transparent + 1, NULL);
+        }
+    } else if (surface->format == SDL_PIXELFORMAT_RGB24) {
+        vars->png_color_type = PNG_COLOR_TYPE_RGB;
+    } else if (!SDL_ISPIXELFORMAT_ALPHA(surface->format)) {
+        vars->png_color_type = PNG_COLOR_TYPE_RGB;
+        vars->source_surface_for_save = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGB24);
+        if (!vars->source_surface_for_save) {
+            vars->error = SDL_GetError();
+            return false;
+        }
+    } else {
+        vars->png_color_type = PNG_COLOR_TYPE_RGBA;
+        vars->source_surface_for_save = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
+        if (!vars->source_surface_for_save) {
+            vars->error = SDL_GetError();
+            return false;
         }
     }
 
-    if ( color_type == PNG_COLOR_TYPE_GRAY_ALPHA )
-        lib.png_set_gray_to_rgb(png_ptr);
+    png_set_IHDR(vars->png_ptr, vars->info_ptr, vars->source_surface_for_save->w, vars->source_surface_for_save->h,
+                     vars->bit_depth, vars->png_color_type, PNG_INTERLACE_NONE,
+                     PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
-    lib.png_read_update_info(png_ptr, info_ptr);
+    png_write_info(vars->png_ptr, vars->info_ptr);
 
-    lib.png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth,
-            &color_type, &interlace_type, NULL, NULL);
-
-    /* Allocate the SDL surface to hold the image */
-    Rmask = Gmask = Bmask = Amask = 0 ;
-    num_channels = lib.png_get_channels(png_ptr, info_ptr);
-    if ( num_channels >= 3 ) {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-        Rmask = 0x000000FF;
-        Gmask = 0x0000FF00;
-        Bmask = 0x00FF0000;
-        Amask = (num_channels == 4) ? 0xFF000000 : 0;
-#else
-        int s = (num_channels == 4) ? 0 : 8;
-        Rmask = 0xFF000000 >> s;
-        Gmask = 0x00FF0000 >> s;
-        Bmask = 0x0000FF00 >> s;
-        Amask = 0x000000FF >> s;
-#endif
+    vars->row_pointers = (png_bytep *)SDL_malloc(sizeof(png_bytep) * vars->source_surface_for_save->h);
+    if (!vars->row_pointers) {
+        vars->error = "Out of memory allocating row pointers";
+        return false;
+    }
+    for (int row = 0; row < (int)vars->source_surface_for_save->h; row++) {
+        vars->row_pointers[row] = (png_bytep)((Uint8 *)vars->source_surface_for_save->pixels + row * (size_t)vars->source_surface_for_save->pitch);
     }
 
-    surface = SDL_CreateSurface(width, height,
-                                SDL_GetPixelFormatForMasks(bit_depth * num_channels, Rmask, Gmask, Bmask, Amask));
+    png_write_image(vars->png_ptr, vars->row_pointers);
+    png_write_end(vars->png_ptr, vars->info_ptr);
 
-    if ( surface == NULL ) {
-        error = SDL_GetError();
-        goto done;
+    return true;
+}
+
+bool IMG_SavePNG_IO(SDL_Surface *surface, SDL_IOStream *dst, bool closeio)
+{
+    if (!surface) {
+        return SDL_InvalidParamError("surface");
     }
 
-    if (ckey != -1) {
-        if (color_type != PNG_COLOR_TYPE_PALETTE) {
-            /* FIXME: Should these be truncated or shifted down? */
-            ckey = SDL_MapSurfaceRGB(surface,
-                         (Uint8)transv->red,
-                         (Uint8)transv->green,
-                         (Uint8)transv->blue);
-        }
-        SDL_SetSurfaceColorKey(surface, true, ckey);
+    if (SDL_ISPIXELFORMAT_INDEXED(surface->format) && !SDL_GetSurfacePalette(surface)) {
+        return SDL_SetError("Indexed surfaces must have a palette");
     }
 
-    /* Create the array of pointers to image data */
-    row_pointers = (png_bytep*) SDL_malloc(sizeof(png_bytep)*height);
-    if (!row_pointers) {
-        error = "Out of memory";
-        goto done;
-    }
-    for (row = 0; row < (int)height; row++) {
-        row_pointers[row] = (png_bytep)
-                (Uint8 *)surface->pixels + row*surface->pitch;
+    if (!surface || !dst) {
+        SDL_SetError("Surface or SDL_IOStream is NULL");
+        return false;
     }
 
-    /* Read the entire image in one go */
-    lib.png_read_image(png_ptr, row_pointers);
+    struct png_save_vars vars;
+    bool result = false;
 
-    /* and we're done!  (png_read_end() can be omitted if no processing of
-     * post-IDAT text/time/etc. is desired)
-     * In some cases it can't read PNG's created by some popular programs (ACDSEE),
-     * we do not want to process comments, so we omit png_read_end
+    SDL_zero(vars);
+    vars.bit_depth = 8;
 
-    lib.png_read_end(png_ptr, info_ptr);
-    */
+    result = LIBPNG_SavePNG_IO_Internal(&vars, surface, dst);
 
-    /* Load the palette, if any */
-    palette = SDL_GetSurfacePalette(surface);
-    if ( palette ) {
-        int png_num_palette;
-        png_colorp png_palette;
-        lib.png_get_PLTE(png_ptr, info_ptr, &png_palette, &png_num_palette);
-        if (color_type == PNG_COLOR_TYPE_GRAY) {
-            palette->ncolors = 256;
-            for (i = 0; i < 256; i++) {
-                palette->colors[i].r = (Uint8)i;
-                palette->colors[i].g = (Uint8)i;
-                palette->colors[i].b = (Uint8)i;
-            }
-        } else if (png_num_palette > 0 ) {
-            palette->ncolors = png_num_palette;
-            for ( i=0; i<png_num_palette; ++i ) {
-                palette->colors[i].b = png_palette[i].blue;
-                palette->colors[i].g = png_palette[i].green;
-                palette->colors[i].r = png_palette[i].red;
-            }
-        }
+    if (vars.png_ptr) {
+        png_destroy_write_struct(&vars.png_ptr, &vars.info_ptr);
+    }
+    if (vars.color_ptr) {
+        SDL_free(vars.color_ptr);
+    }
+    if (vars.row_pointers) {
+        SDL_free(vars.row_pointers);
+    }
+    if (vars.source_surface_for_save && vars.source_surface_for_save != surface) {
+        SDL_DestroySurface(vars.source_surface_for_save);
     }
 
-done:   /* Clean up and return */
-    if ( png_ptr ) {
-        lib.png_destroy_read_struct(&png_ptr,
-                                info_ptr ? &info_ptr : (png_infopp)0,
-                                (png_infopp)0);
+    if (!result && vars.error) {
+        SDL_SetError("%s", vars.error);
     }
-    if ( row_pointers ) {
-        SDL_free(row_pointers);
+
+    if (closeio) {
+        result &= SDL_CloseIO(dst);
     }
-    if ( error ) {
-        SDL_SeekIO(src, start, SDL_IO_SEEK_SET);
-        if ( surface ) {
-            SDL_DestroySurface(surface);
-            surface = NULL;
-        }
-        IMG_SetError("%s", error);
+
+    return result;
+}
+
+bool IMG_SavePNG(SDL_Surface *surface, const char *file)
+{
+    SDL_IOStream *dst = SDL_IOFromFile(file, "wb");
+    if (dst) {
+        return IMG_SavePNG_IO(surface, dst, true);
+    } else {
+        return false;
     }
-    return(surface);
 }
