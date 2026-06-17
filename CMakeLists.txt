@@ -172,8 +172,8 @@ if(NOT SCREENSHOT_BUILD)
 		add_definitions(-DBUILD_CURL)
 	endif()
 
-	#file(GLOB SDL_mixer_SRCS lib/SDL_mixer/*.c)
-	#list(APPEND SRCS ${SDL_mixer_SRCS})
+	file(GLOB SDL_mixer_SRCS lib/SDL_mixer/*.c)
+	list(APPEND SRCS ${SDL_mixer_SRCS})
 endif()
 
 

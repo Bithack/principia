@@ -1000,16 +1000,17 @@ void
 sm::init()
 {
     tms_infof("Initializing audio device...");
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
-        tms_infof("Error: %s\n", Mix_GetError());
+    SDL_AudioSpec soundmanager_spec = {SDL_AUDIO_S16, 2, 44100};
+    if (!Mix_OpenAudio(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &soundmanager_spec)) {
+        tms_infof("Error: %s\n", SDL_GetError());
         sm::initialized = false;
     } else {
         Mix_ChannelFinished(&channel_finished_cb);
         sm::initialized = true;
 
         /* verbose some info about the audio subsystem */
-        tms_infof(">> Audio Device: %s", SDL_GetAudioDeviceName(0,0));
-        tms_infof(">> Audio Driver: %s", SDL_GetAudioDriver(0));
+        tms_infof(">> Audio Device: %s", SDL_GetAudioDeviceName(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK));
+        tms_infof(">> Audio Driver: %s", SDL_GetCurrentAudioDriver());
     }
 
     /* sm must be initialized after settings has been initialized */
