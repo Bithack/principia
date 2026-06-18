@@ -274,7 +274,7 @@ if(UNITY_BUILD)
 endif()
 
 if(WIN32)
-	add_definitions(-D_WIN32_WINNT=0x0501 -DUNICODE)
+	add_definitions(-D_WIN32_WINNT=0x0501)
 elseif(SCREENSHOT_BUILD)
 	add_definitions(-DNO_UI -DSCREENSHOT_BUILD)
 endif()

@@ -6,10 +6,6 @@
 #include <time.h>
 #include <zlib.h>
 
-#ifdef TMS_BACKEND_WINDOWS
-    #include <windows.h>
-#endif
-
 // for lvledit command line tool
 #ifdef _NO_TMS
     #include <stdlib.h>

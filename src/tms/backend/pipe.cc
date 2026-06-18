@@ -16,24 +16,15 @@
 #include <glad/gl.h>
 
 #ifdef TMS_BACKEND_WINDOWS
+    #include <windows.h>
 
-#include <windows.h>
-#include <windowsx.h>
-
-#include "shlwapi.h"
-
-char *_tmp[]={0,0};
-static HANDLE pipe_h;
-static uint8_t buf[512];
-
+    static HANDLE pipe_h;
 #else
-
+    static int pipe_h;
+#endif
 
 static char *_args[2] = {0,0};
-static int pipe_h;
 static char buf[1024];
-
-#endif
 
 int _pipe_listener(void *p)
 {
@@ -44,15 +35,15 @@ int _pipe_listener(void *p)
         tms_infof("Client connected, reading...");
 
         if (ReadFile(pipe_h, buf, 511, &num_read, 0)) {
-            tms_infof("read %u bytes:", num_read);
+            tms_infof("read %lu bytes:", num_read);
             buf[num_read] = '\0';
             tms_infof("%s", buf);
 
-            _tmp[1] = (char*)buf;
+            _args[1] = buf;
 
-            tproject_set_args(2, _tmp);
+            tproject_set_args(2, _args);
         } else
-            tms_infof("error reading from pipe: %d", GetLastError());
+            tms_infof("error reading from pipe: %lu", GetLastError());
 
         FlushFileBuffers(pipe_h);
         DisconnectNamedPipe(pipe_h);
@@ -101,7 +92,7 @@ void setup_pipe(int argc, char **argv)
 {
 #ifdef TMS_BACKEND_WINDOWS
 
-    pipe_h = CreateNamedPipe(
+    pipe_h = CreateNamedPipeW(
             L"\\\\.\\pipe\\principia-process",
             PIPE_ACCESS_INBOUND,
             PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
@@ -117,7 +108,7 @@ void setup_pipe(int argc, char **argv)
         tms_infof("Forwarding arguments through pipe...");
 
         while (1) {
-            pipe_h = CreateFile(
+            pipe_h = CreateFileW(
                     L"\\\\.\\pipe\\principia-process",
                     GENERIC_WRITE,
                     0,
@@ -136,7 +127,7 @@ void setup_pipe(int argc, char **argv)
             }
 
             tms_infof("Waiting for pipe...");
-            if (!WaitNamedPipe((LPCWSTR)pipe_h, 3000))
+            if (!WaitNamedPipeW((LPCWSTR)pipe_h, 3000))
                 tms_errorf("Failed, waited too long.");
         }
 
@@ -158,7 +149,7 @@ void setup_pipe(int argc, char **argv)
         CloseHandle(pipe_h);
 
         /* bring the window to the front */
-        HWND h = FindWindow(NULL, L"Principia");
+        HWND h = FindWindowW(NULL, L"Principia");
         SetForegroundWindow(h);
         exit(0);
     } else {
@@ -212,3 +203,4 @@ void setup_pipe(int argc, char **argv)
     }
 #endif
 }
+

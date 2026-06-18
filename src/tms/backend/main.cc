@@ -3,6 +3,7 @@
 #include "settings.hh"
 #include "version.hh"
 #include <SDL3/SDL.h>
+#include <clocale>
 #include <glad/gl.h>
 #include <signal.h>
 #include <stdio.h>
@@ -14,16 +15,8 @@
 #include <tms/cpp.hh>
 #include <unistd.h>
 
+// Include for SDL's main function wrapper
 #include <SDL3/SDL_main.h>
-
-#ifdef TMS_BACKEND_WINDOWS
-    #include <windows.h>
-    #include <windowsx.h>
-    #include <clocale>
-    #include "shlwapi.h"
-#else
-    #include <pwd.h>
-#endif
 
 #ifdef TMS_BACKEND_EMSCRIPTEN
     #include <emscripten.h>

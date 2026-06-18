@@ -184,12 +184,7 @@ inline const void init_io() {
     platform_io.Platform_GetClipboardTextFn = GetClipboardTextFn;
     platform_io.Platform_SetClipboardTextFn = SetClipboardTextFn;
 
-    //set PlatformHandleRaw
-    ImGuiViewport* main_viewport = ImGui::GetMainViewport();
-    main_viewport->PlatformHandleRaw = nullptr;
-#ifdef TMS_BACKEND_WINDOWS
-    viewport->PlatformHandleRaw = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
-#endif
+    // PlatformHandleRaw is never used by imgui, so don't do anything with it
 }
 
 inline int ImGui_ImplTMS_Init_Platform() {

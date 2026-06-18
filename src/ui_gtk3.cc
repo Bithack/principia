@@ -63,11 +63,6 @@
 #include <gtksourceview/gtksource.h>
 #endif
 
-#ifdef TMS_BACKEND_WINDOWS
-#include <windows.h>
-#include <shellapi.h>
-#endif
-
 static gboolean _close_all_dialogs(gpointer unused);
 
 bool   ui_ready = false;

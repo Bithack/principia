@@ -182,8 +182,8 @@ static void move_matching_files(const char *srcdir, const char *dstdir, const ch
     wchar_t pattern[MAX_PATH];
     swprintf(pattern, MAX_PATH, L"%hs\\*.%hs", srcdir, ext);
 
-    WIN32_FIND_DATA ffd;
-    HANDLE hFind = FindFirstFile(pattern, &ffd);
+    WIN32_FIND_DATAW ffd;
+    HANDLE hFind = FindFirstFileW(pattern, &ffd);
     if (hFind == INVALID_HANDLE_VALUE) return;
 
     do {
@@ -193,8 +193,8 @@ static void move_matching_files(const char *srcdir, const char *dstdir, const ch
         swprintf(src, MAX_PATH, L"%hs\\%s", srcdir, ffd.cFileName);
         swprintf(dst, MAX_PATH, L"%hs\\%s", dstdir, ffd.cFileName);
 
-        MoveFile(src, dst);
-    } while (FindNextFile(hFind, &ffd) != 0);
+        MoveFileW(src, dst);
+    } while (FindNextFileW(hFind, &ffd) != 0);
 
     FindClose(hFind);
 #else
