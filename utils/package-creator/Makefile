@@ -1,7 +1,7 @@
 BIN = ../bin
 PRINCIPIA = ../..
 PROGRAM = package-creator
-SRCS := main.cc $(PRINCIPIA)/src/pkgman.cc $(PRINCIPIA)/src/rand.c
+SRCS := main.cc $(PRINCIPIA)/src/pkgman.cc
 
 # always static unless you do STATIC=0
 STATIC ?= 1

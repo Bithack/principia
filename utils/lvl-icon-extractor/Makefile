@@ -1,7 +1,7 @@
 BIN = ../bin
 PRINCIPIA = ../..
 PROGRAM = lvl-icon-extractor
-SRCS := main.cc $(PRINCIPIA)/src/pkgman.cc $(PRINCIPIA)/src/rand.c
+SRCS := main.cc $(PRINCIPIA)/src/pkgman.cc
 
 CXX ?= g++
 CXXFLAGS ?= -D_NO_TMS -O2 -ffunction-sections -fdata-sections
