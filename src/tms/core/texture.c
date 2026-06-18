@@ -145,12 +145,7 @@ tms_texture_load(struct tms_texture *tex, const char *filename)
     tex->gamma_corrected = 0;
     tex->width = s->w;
     tex->height = s->h;
-    //tex->num_channels = 3 + s->format->Amask?1:0;
     tex->num_channels = SDL_GetPixelFormatDetails(s->format)->bytes_per_pixel;
-
-    //tms_infof("bpp %d", s->format->BytesPerPixel);
-
-    //tms_assertf(tex->num_channels == s->format->BytesPerPixel, "unsupported texture type BLAH");
 
     tex->data = malloc(tex->width*tex->height*tex->num_channels);
 
@@ -163,7 +158,6 @@ tms_texture_load(struct tms_texture *tex, const char *filename)
     }
 
     SDL_DestroySurface(s);
-    //SDL_RWclose(rw);
 
     return T_OK;
 }
@@ -207,7 +201,7 @@ tms_texture_load_mem(struct tms_texture *tex, const char *buf,
  * @relates tms_texture
  **/
 int
-tms_texture_load_mem2(struct tms_texture *tex, const char *buf, size_t size, int freesrc)
+tms_texture_load_mem2(struct tms_texture *tex, const char *buf, size_t size, int freesrc, const char *type)
 {
     int status;
 
@@ -218,10 +212,10 @@ tms_texture_load_mem2(struct tms_texture *tex, const char *buf, size_t size, int
         return T_COULD_NOT_OPEN;
     }
 
-    SDL_Surface *s = IMG_Load_IO(rw, freesrc);
+    SDL_Surface *s = IMG_LoadTyped_IO(rw, freesrc, type);
 
     if (!s) {
-        tms_errorf("Error calling IMG_Load_IO: %s", SDL_GetError());
+        tms_errorf("Error loading image: %s", SDL_GetError());
         return T_COULD_NOT_OPEN;
     }
 
@@ -230,14 +224,7 @@ tms_texture_load_mem2(struct tms_texture *tex, const char *buf, size_t size, int
     tex->gamma_corrected = 0;
     tex->width = s->w;
     tex->height = s->h;
-    //tex->num_channels = 3 + s->format->Amask?1:0;
-    // fix this for SDL3
-    //tex->num_channels = s->format->BytesPerPixel;
     tex->num_channels = SDL_GetPixelFormatDetails(s->format)->bytes_per_pixel;
-
-    //tms_infof("bpp %d", s->format->BytesPerPixel);
-
-    //tms_assertf(tex->num_channels == s->format->BytesPerPixel, "unsupported texture type BLAH");
 
     tex->data = malloc(tex->width*tex->height*tex->num_channels);
 
@@ -250,7 +237,6 @@ tms_texture_load_mem2(struct tms_texture *tex, const char *buf, size_t size, int
     }
 
     SDL_DestroySurface(s);
-    //SDL_RWclose(rw);
 
     return T_OK;
 }

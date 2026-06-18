@@ -28,73 +28,6 @@
 
 #include <jpeglib.h>
 
-/* Define this for fast loading and not as good image quality */
-/*#define FAST_JPEG*/
-
-/* See if an image is contained in a data source */
-bool IMG_isJPG(SDL_IOStream *src)
-{
-    Sint64 start;
-    bool is_JPG;
-    bool in_scan;
-    Uint8 magic[4];
-
-    /* This detection code is by Steaphan Greene <stea@cs.binghamton.edu> */
-    /* Blame me, not Sam, if this doesn't work right. */
-    /* And don't forget to report the problem to the the sdl list too! */
-
-    if (!src) {
-        return false;
-    }
-
-    start = SDL_TellIO(src);
-    is_JPG = false;
-    in_scan = false;
-    if (SDL_ReadIO(src, magic, 2) == 2) {
-        if ( (magic[0] == 0xFF) && (magic[1] == 0xD8) ) {
-            is_JPG = true;
-            while (is_JPG) {
-                if (SDL_ReadIO(src, magic, 2) != 2) {
-                    is_JPG = false;
-                } else if ( (magic[0] != 0xFF) && !in_scan ) {
-                    is_JPG = false;
-                } else if ( (magic[0] != 0xFF) || (magic[1] == 0xFF) ) {
-                    /* Extra padding in JPEG (legal) */
-                    /* or this is data and we are scanning */
-                    SDL_SeekIO(src, -1, SDL_IO_SEEK_CUR);
-                } else if (magic[1] == 0xD9) {
-                    /* Got to end of good JPEG */
-                    break;
-                } else if ( in_scan && (magic[1] == 0x00) ) {
-                    /* This is an encoded 0xFF within the data */
-                } else if ( (magic[1] >= 0xD0) && (magic[1] < 0xD9) ) {
-                    /* These have nothing else */
-                } else if (SDL_ReadIO(src, magic+2, 2) != 2) {
-                    is_JPG = false;
-                } else {
-                    /* Yes, it's big-endian */
-                    Sint64 innerStart;
-                    Uint32 size;
-                    Sint64 end;
-                    innerStart = SDL_TellIO(src);
-                    size = (magic[2] << 8) + magic[3];
-                    end = SDL_SeekIO(src, size-2, SDL_IO_SEEK_CUR);
-                    if ( end != innerStart + size - 2 ) {
-                        is_JPG = false;
-                    }
-                    if ( magic[1] == 0xDA ) {
-                        /* Now comes the actual JPEG meat */
-                        /* Ok, I'm convinced.  It is a JPEG. */
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    SDL_SeekIO(src, start, SDL_IO_SEEK_SET);
-    return is_JPG;
-}
-
 #define INPUT_BUFFER_SIZE   4096
 typedef struct {
     struct jpeg_source_mgr pub;
@@ -266,12 +199,6 @@ static bool LIBJPEG_LoadJPG_IO(SDL_IOStream *src, struct loadjpeg_vars *vars)
         /* Set 24-bit RGB output */
         vars->cinfo.out_color_space = JCS_RGB;
         vars->cinfo.quantize_colors = FALSE;
-#ifdef FAST_JPEG
-        vars->cinfo.scale_num   = 1;
-        vars->cinfo.scale_denom = 1;
-        vars->cinfo.dct_method = JDCT_FASTEST;
-        vars->cinfo.do_fancy_upsampling = FALSE;
-#endif
         jpeg_calc_output_dimensions(&vars->cinfo);
 
         /* Allocate an output surface to hold the image */

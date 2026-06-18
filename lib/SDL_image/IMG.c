@@ -19,33 +19,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-/* A simple library to load images of various formats as SDL surfaces */
-
 #include <SDL_image.h>
-
-SDL_Surface *IMG_LoadTyped_IO(SDL_IOStream *src, bool closeio, const char *type);
-
-/* Load an image from a file */
-SDL_Surface *IMG_Load(const char *file)
-{
-    SDL_IOStream *src = SDL_IOFromFile(file, "rb");
-    if (!src) {
-        /* The error message has been set in SDL_IOFromFile */
-        return NULL;
-    }
-
-    const char *ext = SDL_strrchr(file, '.');
-    if (ext) {
-        ext++;
-    }
-    return IMG_LoadTyped_IO(src, true, ext);
-}
-
-/* Load an image from an SDL datasource (for compatibility) */
-SDL_Surface *IMG_Load_IO(SDL_IOStream *src, bool closeio)
-{
-    return IMG_LoadTyped_IO(src, closeio, NULL);
-}
 
 /* Load an image from an SDL datasource, optionally specifying the type */
 SDL_Surface *IMG_LoadTyped_IO(SDL_IOStream *src, bool closeio, const char *type)
@@ -67,21 +41,21 @@ SDL_Surface *IMG_LoadTyped_IO(SDL_IOStream *src, bool closeio, const char *type)
         return NULL;
     }
 
-    /* Detect the type of image being loaded */
-    if (IMG_isJPG(src)) {
-        image = IMG_LoadJPG_IO(src);
-        if (closeio) {
-            SDL_CloseIO(src);
+    if (type) {
+        if (SDL_strcasecmp(type, "JPEG") == 0 || SDL_strcasecmp(type, "JPG") == 0) {
+            image = IMG_LoadJPG_IO(src);
+            if (closeio) {
+                SDL_CloseIO(src);
+            }
+            return image;
         }
-        return image;
-    }
-
-    if (IMG_isPNG(src)) {
-        image = IMG_LoadPNG_IO(src);
-        if (closeio) {
-            SDL_CloseIO(src);
+        if (SDL_strcasecmp(type, "PNG") == 0) {
+            image = IMG_LoadPNG_IO(src);
+            if (closeio) {
+                SDL_CloseIO(src);
+            }
+            return image;
         }
-        return image;
     }
 
     if (closeio) {
@@ -89,4 +63,20 @@ SDL_Surface *IMG_LoadTyped_IO(SDL_IOStream *src, bool closeio, const char *type)
     }
     SDL_SetError("Unsupported image format");
     return NULL;
+}
+
+/* Load an image from a file */
+SDL_Surface *IMG_Load(const char *file)
+{
+    SDL_IOStream *src = SDL_IOFromFile(file, "rb");
+    if (!src) {
+        /* The error message has been set in SDL_IOFromFile */
+        return NULL;
+    }
+
+    const char *ext = SDL_strrchr(file, '.');
+    if (ext) {
+        ext++;
+    }
+    return IMG_LoadTyped_IO(src, true, ext);
 }

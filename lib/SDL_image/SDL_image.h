@@ -38,17 +38,7 @@ extern SDL_DECLSPEC SDL_Surface * SDLCALL IMG_Load(const char *file);
 /**
  * Load an image from an SDL data source into a software surface.
  */
-extern SDL_DECLSPEC SDL_Surface * SDLCALL IMG_Load_IO(SDL_IOStream *src, bool closeio);
-
-/**
- * Detect JPG image data on a readable/seekable SDL_IOStream.
- */
-extern SDL_DECLSPEC bool SDLCALL IMG_isJPG(SDL_IOStream *src);
-
-/**
- * Detect PNG image data on a readable/seekable SDL_IOStream.
- */
-extern SDL_DECLSPEC bool SDLCALL IMG_isPNG(SDL_IOStream *src);
+extern SDL_DECLSPEC SDL_Surface * SDLCALL IMG_LoadTyped_IO(SDL_IOStream *src, bool closeio, const char *type);
 
 /**
  * Load a JPG image directly.

@@ -44,7 +44,7 @@ int tms_texture_clear_buffer(struct tms_texture *tex, unsigned char clear_value)
 int tms_texture_free_buffer(struct tms_texture *tex);
 int tms_texture_load(struct tms_texture *tex, const char *filename);
 int tms_texture_load_mem(struct tms_texture *tex, const char *buf, int width, int height, int num_channels);
-int tms_texture_load_mem2(struct tms_texture *tex, const char *buf, size_t size, int freesrc);
+int tms_texture_load_mem2(struct tms_texture *tex, const char *buf, size_t size, int freesrc, const char *type);
 int tms_texture_upload(struct tms_texture *tex);
 int tms_texture_bind(struct tms_texture *tex);
 int tms_texture_flip_y(struct tms_texture *tex);

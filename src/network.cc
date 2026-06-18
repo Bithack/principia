@@ -483,7 +483,7 @@ _get_featured_levels(void *_num)
         lb.r_buf(thumb, thumb_len);
 
         tms::texture *tex = new tms::texture();
-        tex->load_mem2(thumb, thumb_len, 0);
+        tex->load_mem2(thumb, thumb_len, 0, "jpg");
         tex->flip_y();
         tex->add_alpha(1.f);
 

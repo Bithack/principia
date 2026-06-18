@@ -24,46 +24,6 @@
 #include <SDL_image.h>
 #include <png.h>
 
-extern bool IMG_InitPNG(void);
-extern SDL_Surface *IMG_LoadPNG_LIBPNG(SDL_IOStream *src);
-extern bool IMG_SavePNG_LIBPNG(SDL_Surface *surface, SDL_IOStream *dst, bool closeio);
-
-/* See if an image is contained in a data source */
-bool IMG_isPNG(SDL_IOStream *src)
-{
-    Sint64 start;
-    bool is_PNG;
-    Uint8 magic[4];
-
-    if (!src) {
-        return false;
-    }
-
-    start = SDL_TellIO(src);
-    is_PNG = false;
-    if (SDL_ReadIO(src, magic, sizeof(magic)) == sizeof(magic)) {
-        if (magic[0] == 0x89 &&
-            magic[1] == 'P' &&
-            magic[2] == 'N' &&
-            magic[3] == 'G') {
-            is_PNG = true;
-        }
-    }
-    SDL_SeekIO(src, start, SDL_IO_SEEK_SET);
-    return is_PNG;
-}
-
-typedef png_const_structrp png_noconst15_structrp;
-typedef png_const_inforp png_noconst15_inforp;
-typedef png_inforp png_noconst16_inforp;
-
-#define libpng_get_uint_32(buf)           \
-   (((png_uint_32)( *(buf)     ) << 24) + \
-    ((png_uint_32)(*((buf) + 1)) << 16) + \
-    ((png_uint_32)(*((buf) + 2)) <<  8) + \
-    ((png_uint_32)(*((buf) + 3))))
-
-
 static void png_read_data(png_structp png_ptr, png_bytep area, png_size_t size)
 {
     SDL_IOStream *src = (SDL_IOStream *)png_get_io_ptr(png_ptr);

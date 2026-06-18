@@ -91,8 +91,8 @@ namespace tms {
             return tms_texture_load(this, filename);
         }
 
-        inline int load_mem2(const char *buf, size_t size, int freesrc) {
-            return tms_texture_load_mem2(this, buf, size, freesrc);
+        inline int load_mem2(const char *buf, size_t size, int freesrc, const char *type) {
+            return tms_texture_load_mem2(this, buf, size, freesrc, type);
         }
 
         inline int upload() {
