@@ -26,26 +26,11 @@ distribution.
 Andreas Schiffler -- aschiffler at ferzkopp dot net
 
 */
-
-#ifndef _SDL2_rotozoom_h
-#define _SDL2_rotozoom_h
+#pragma once
 
 #include <math.h>
+#include <SDL3/SDL.h>
 
-/* Set up for C function definitions, even when using C++ */
-#ifdef __cplusplus
-extern "C" {
-#endif
+extern SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy);
 
-	#include <SDL3/SDL.h>
-
-	extern SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy);
-
-	extern void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
-
-	/* Ends C function definitions when using C++ */
-#ifdef __cplusplus
-}
-#endif
-
-#endif
+extern void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);

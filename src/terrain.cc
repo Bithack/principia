@@ -3,7 +3,7 @@
 #include "chunk.hh"
 #include "object_factory.hh"
 #include "game.hh"
-#include "noise.h"
+#include "noise.hh"
 #include "plant.hh"
 #include "gentype.hh"
 #include "decorations.hh"

@@ -109,9 +109,7 @@ include_directories(
 	src/
 	${CMAKE_CURRENT_BINARY_DIR})
 
-file(GLOB SRCS
-	src/*.c
-
+file(GLOB SRCS CONFIGURE_DEPENDS
 	lib/GLAD/src/gl.c
 	lib/lua/*.c
 	lib/SDL_image/*.c
@@ -131,7 +129,7 @@ if(UNITY_BUILD)
 
 		lib/Box2D/_unity_chunk.cc)
 else()
-	file(GLOB MAIN_SRCS
+	file(GLOB MAIN_SRCS CONFIGURE_DEPENDS
 		src/tms/core/*.c
 		src/tms/math/*.c
 		src/tms/cpp.cc
@@ -151,7 +149,7 @@ else()
 endif()
 
 if(BACKEND_IMGUI)
-	file(GLOB IMGUI_SRCS
+	file(GLOB IMGUI_SRCS CONFIGURE_DEPENDS
 		lib/imgui/*.cpp
 		lib/imgui/misc/freetype/*.cpp
 		src/ui/*.cc)
@@ -177,7 +175,7 @@ if(NOT SCREENSHOT_BUILD)
 		add_definitions(-DBUILD_CURL)
 	endif()
 
-	file(GLOB SDL_mixer_SRCS lib/SDL_mixer/*.c)
+	file(GLOB SDL_mixer_SRCS CONFIGURE_DEPENDS lib/SDL_mixer/*.c)
 	list(APPEND SRCS ${SDL_mixer_SRCS})
 endif()
 
@@ -193,7 +191,7 @@ endif()
 if(USE_LUASOCKET)
 	add_definitions(-DBUILD_LUASOCKET)
 
-	file(GLOB LUASOCKET_SRCS
+	file(GLOB LUASOCKET_SRCS CONFIGURE_DEPENDS
 		lib/luasocket/*.c)
 
 	list(APPEND SRCS ${LUASOCKET_SRCS})

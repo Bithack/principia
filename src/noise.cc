@@ -1,7 +1,8 @@
-#include "noise.h"
-#include "rand.h"
+#include "noise.hh"
+#include "rand.hh"
 #include <limits.h>
 #include <sys/types.h>
+
 #define FASTFLOOR(x) ( ((x)>0) ? ((int)x) : (((int)x)-1) )
 
 /*

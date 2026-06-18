@@ -1,3 +1,4 @@
+#include "game.hh"
 #include "absorber.hh"
 #include "adventure.hh"
 #include "basepixel.hh"
@@ -16,10 +17,10 @@
 #include "font.hh"
 #include "fxemitter.hh"
 #include "game-message.hh"
-#include "game.hh"
 #include "gravityman.hh"
 #include "grid.hh"
 #include "group.hh"
+#include "gui.hh"
 #include "i0o1gate.hh"
 #include "i1o1gate.hh"
 #include "i2o1gate.hh"
@@ -40,16 +41,18 @@
 #include "panel.hh"
 #include "pixel.hh"
 #include "plant.hh"
+#include "player_activator.hh"
 #include "polygon.hh"
 #include "progress.hh"
 #include "proximitysensor.hh"
 #include "ragdoll.hh"
-#include "rand.h"
+#include "rand.hh"
 #include "rc_activator.hh"
 #include "robot.hh"
 #include "robot_parts.hh"
 #include "robotman.hh"
 #include "rope.hh"
+#include "rotozoom.hh"
 #include "screenshot_marker.hh"
 #include "scup.hh"
 #include "settings.hh"
@@ -58,6 +61,7 @@
 #include "soundman.hh"
 #include "soundmanager.hh"
 #include "spritebuffer.hh"
+#include "terrain.hh" /* for print_screen_point_info */
 #include "text.hh"
 #include "textbuffer.hh"
 #include "tpixel.hh"
@@ -66,22 +70,11 @@
 #include "widget_manager.hh"
 #include "worker.hh"
 #include "world.hh"
-#include "player_activator.hh"
-#include "gui.hh"
-#ifdef DEBUG
-/* for print_screen_point_info */
-#include "terrain.hh"
-#endif
-
+#include <SDL3/SDL.h>
 #include <glad/gl.h>
-#include <unistd.h>
-
 #include <iterator>
 #include <map>
-
-#include <SDL3/SDL.h>
-
-#include "SDL2_rotozoom.h"
+#include <unistd.h>
 
 #define MAX_COPY_ENTITIES 10
 

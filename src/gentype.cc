@@ -6,7 +6,7 @@
 #include "item.hh"
 #include "faction.hh"
 #include "robot.hh"
-#include "noise.h"
+#include "noise.hh"
 #include "ladder.hh"
 #include "tiles.hh"
 #include "factory.hh"

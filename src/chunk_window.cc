@@ -5,7 +5,7 @@
 #include "gentype.hh"
 #include "terrain.hh"
 #include "settings.hh"
-#include "noise.h"
+#include "noise.hh"
 #include "misc.hh"
 
 bool chunk_window::initialized = false;

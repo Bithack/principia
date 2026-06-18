@@ -34,7 +34,7 @@ Andreas Schiffler -- aschiffler at ferzkopp dot net
 #include <stdlib.h>
 #include <string.h>
 
-#include "SDL2_rotozoom.h"
+#include "rotozoom.hh"
 
 /* ---- Internally used structures */
 

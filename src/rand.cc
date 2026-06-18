@@ -1,4 +1,4 @@
-#include "rand.h"
+#include "rand.hh"
 
 /* Period parameters */
 #define N 624
@@ -67,3 +67,6 @@ unsigned long genrand_int32(void)
 
     return y;
 }
+
+#undef N
+#undef M
