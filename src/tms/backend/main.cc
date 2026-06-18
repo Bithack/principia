@@ -226,17 +226,17 @@ static void mainloop()
     while (SDL_PollEvent(&ev)) {
         switch (ev.type) {
 #ifdef __ANDROID__
-                case SDL_EVENT_WINDOW_MINIMIZED :
+                case SDL_EVENT_WINDOW_MINIMIZED:
                     tproject_soft_pause();
                     do_step = 0;
                     break;
 
-                case SDL_EVENT_WINDOW_RESTORED :
+                case SDL_EVENT_WINDOW_RESTORED:
                     tproject_soft_resume();
                     do_step = 1;
                     break;
 #else
-                case SDL_EVENT_WINDOW_RESIZED : {
+                case SDL_EVENT_WINDOW_RESIZED: {
                     tms_infof("Window %d resized to %dx%d",
                             ev.window.windowID, ev.window.data1,
                             ev.window.data2);
@@ -248,36 +248,36 @@ static void mainloop()
 
                     tproject_window_size_changed();
                 } break;
-                case SDL_EVENT_WINDOW_MAXIMIZED :
+                case SDL_EVENT_WINDOW_MAXIMIZED:
                     settings["window_maximized"]->v.b = true;
                     break;
-                case SDL_EVENT_WINDOW_RESTORED :
+                case SDL_EVENT_WINDOW_RESTORED:
                     settings["window_maximized"]->v.b = false;
                     break;
 #endif
 
-            case SDL_EVENT_QUIT :
+            case SDL_EVENT_QUIT:
                 _tms.state = TMS_STATE_QUITTING;
                 break;
 
-            case SDL_EVENT_KEY_DOWN :
+            case SDL_EVENT_KEY_DOWN:
                 T_intercept_input(ev);
                 keys[ev.key.scancode] = 1;
                 break;
 
-            case SDL_EVENT_KEY_UP :
+            case SDL_EVENT_KEY_UP:
                 T_intercept_input(ev);
                 keys[ev.key.scancode] = 0;
                 break;
 
-            case SDL_EVENT_FINGER_DOWN :
-            case SDL_EVENT_FINGER_UP :
-            case SDL_EVENT_FINGER_MOTION :
-            case SDL_EVENT_MOUSE_WHEEL :
-            case SDL_EVENT_MOUSE_BUTTON_DOWN :
-            case SDL_EVENT_MOUSE_BUTTON_UP :
-            case SDL_EVENT_MOUSE_MOTION :
-            case SDL_EVENT_TEXT_INPUT :
+            case SDL_EVENT_FINGER_DOWN:
+            case SDL_EVENT_FINGER_UP:
+            case SDL_EVENT_FINGER_MOTION:
+            case SDL_EVENT_MOUSE_WHEEL:
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
+            case SDL_EVENT_MOUSE_BUTTON_UP:
+            case SDL_EVENT_MOUSE_MOTION:
+            case SDL_EVENT_TEXT_INPUT:
                 T_intercept_input(ev);
             break;
         }
@@ -437,21 +437,21 @@ T_intercept_input(SDL_Event ev)
 
         case SDL_EVENT_FINGER_DOWN:
             spec.type = TMS_EV_POINTER_DOWN;
-            spec.data.button.pointer_id = ev.tfinger.fingerID;
+            spec.data.button.pointer_id = ev.tfinger.fingerID - 1;
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
             break;
 
         case SDL_EVENT_FINGER_UP:
             spec.type = TMS_EV_POINTER_UP;
-            spec.data.button.pointer_id = ev.tfinger.fingerID;
+            spec.data.button.pointer_id = ev.tfinger.fingerID - 1;
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
             break;
 
         case SDL_EVENT_FINGER_MOTION:
             spec.type = TMS_EV_POINTER_DRAG;
-            spec.data.button.pointer_id = ev.tfinger.fingerID;
+            spec.data.button.pointer_id = ev.tfinger.fingerID - 1;
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
             break;
