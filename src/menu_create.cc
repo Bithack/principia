@@ -196,36 +196,6 @@ menu_create::menu_create()
         this->wm->areas[AREA_MENU_RIGHT_HCENTER].set_alpha(0.f);
     }
 
-    {
-        /* CONTEST BASE */
-        this->wdg_contest_thumb = this->wm->create_widget(
-                this->get_surface(), TMS_WDG_BUTTON,
-                BTN_CONTEST, AREA_MENU_BOTTOM_LEFT,
-                0);
-        this->wdg_contest_thumb->priority = 1000;
-        this->wdg_contest_thumb->alpha = 0.f;
-    }
-
-    {
-        /* CONTEST TOP */
-        this->wdg_contest_title = this->wm->create_widget(
-                this->get_surface(), TMS_WDG_LABEL,
-                BTN_CONTEST, AREA_CREATE_CONTEST_TOP);
-        this->wdg_contest_title->priority = 1000;
-    }
-
-    {
-        /* CONTEST BOTTOM */
-        for (int x=0; x<MAX_FEATURED_LEVELS_FETCHED; ++x) {
-            this->wdg_contest_entry[x] = this->wm->create_widget(
-                    this->get_surface(), TMS_WDG_BUTTON,
-                    BTN_ENTITY, AREA_CREATE_CONTEST_BOTTOM,
-                    0);
-            this->wdg_contest_entry[x]->priority = 100-MAX_FEATURED_LEVELS_FETCHED-x;
-            this->wdg_contest_entry[x]->alpha = 0.f;
-        }
-    }
-
     this->refresh_widgets();
 }
 
@@ -330,9 +300,6 @@ menu_create::render()
 
     const int line_thickness = _tms.xppcm * .05f;
     int vert_y = menu_shared::bar_height + MARGIN_Y;
-    if (menu_shared::contest_state > FL_INIT && this->wm->areas[AREA_MENU_BOTTOM_LEFT].enabled) {
-        vert_y += this->wm->areas[AREA_MENU_BOTTOM_LEFT].last_height + MARGIN_Y + MARGIN_Y + line_thickness;
-    }
     int vert_h = _tms.opengl_height - vert_y - menu_shared::bar_height - MARGIN_Y;
     int vert_x = _tms.opengl_width/2.f - line_thickness/2.f;
 
@@ -345,13 +312,6 @@ menu_create::render()
     menu_shared::tex_vert_line->render();
 
     const int hori_x = MARGIN_X;
-
-    if (menu_shared::contest_state > FL_INIT && this->wm->areas[AREA_MENU_BOTTOM_LEFT].enabled) {
-        glViewport(
-                hori_x, vert_y - MARGIN_Y,
-                _tms.opengl_width-MARGIN_X-hori_x, line_thickness);
-        menu_shared::tex_hori_line->render();
-    }
 
     struct widget_area *left = this->wdg_create_new_level->area;
 
@@ -401,53 +361,6 @@ menu_create::refresh_widgets()
 
     if (this->has_autosave) {
         this->wdg_continue->add();
-    }
-
-    if (this->wdg_contest_thumb->s[0]) {
-        this->wdg_contest_thumb->add();
-        this->wdg_contest_title->add();
-        for (int x=0; x<MAX_FEATURED_LEVELS_FETCHED; ++x) {
-            if (this->wdg_contest_entry[x] && this->wdg_contest_entry[x]->s[0]) {
-                this->wdg_contest_entry[x]->add();
-            }
-        }
-    }
-
-    if (menu_shared::contest_state == FL_INIT) {
-        if (menu_shared::contest.sprite) {
-            struct tms_sprite *s = menu_shared::contest.sprite;
-
-            this->wdg_contest_thumb->s[0] = s;
-            tms_infof("height: %.2f", s->height);
-            this->wdg_contest_thumb->size.x = s->width;
-            this->wdg_contest_thumb->size.y = s->height;
-            this->wdg_contest_thumb->data3 = UINT_TO_VOID(menu_shared::contest.id);
-            this->wdg_contest_thumb->add();
-
-            this->wdg_contest_title->data3 = UINT_TO_VOID(menu_shared::contest.id);
-            char tmp[512];
-            snprintf(tmp, 511, "Contest: %s", menu_shared::contest.name);
-            this->wdg_contest_title->set_label(tmp, font::xmedium);
-            this->wdg_contest_title->add();
-
-            for (int x=0; x<MAX_FEATURED_LEVELS_FETCHED; ++x) {
-                if (menu_shared::contest_entries[x].sprite) {
-                    s = menu_shared::contest_entries[x].sprite;
-
-                    this->wdg_contest_entry[x]->s[0] = s;
-                    this->wdg_contest_entry[x]->size.x = s->width;
-                    this->wdg_contest_entry[x]->size.y = s->height;
-                    this->wdg_contest_entry[x]->data3 = UINT_TO_VOID(menu_shared::contest_entries[x].id);
-                    this->wdg_contest_entry[x]->add();
-                }
-            }
-        }
-
-        menu_shared::contest_state = FL_ALPHA_IN;
-
-        /* an extra rearrange to make sure the "browse more community levels"
-         * text is at its proper location */
-        this->wm->rearrange();
     }
 
     if (menu_shared::gs_state == FL_INIT) {

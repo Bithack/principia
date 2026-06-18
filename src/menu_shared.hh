@@ -45,12 +45,7 @@ class menu_shared
     static enum fl_state gs_state;
     static std::vector<struct gs_entry> gs_entries;
 
-    static enum fl_state contest_state;
-    static struct featured_level contest;
-    static struct featured_level contest_entries[MAX_FEATURED_LEVELS_FETCHED];
-
     static float fl_alpha;
-    static float contest_alpha;
     static float gs_alpha;
 
     static p_text *text_version;

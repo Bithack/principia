@@ -62,14 +62,6 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             }
             break;
 
-        case BTN_CONTEST:
-            {
-                uint32_t id = VOID_TO_UINT32(w->data3);
-                COMMUNITY_URL("contest/%u", id);
-                ui::open_url(url);
-            }
-            break;
-
         case BTN_IGNORE: break;
         default:
             return false;

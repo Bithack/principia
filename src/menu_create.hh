@@ -25,15 +25,6 @@ class menu_create : public menu_base
     principia_wdg *wdg_getting_started;
     std::vector<principia_wdg*> wdg_gs_entries;
 
-    /* CONTEST BASE */
-    principia_wdg *wdg_contest_thumb;
-
-    /* CONTEST TOP */
-    principia_wdg *wdg_contest_title;
-
-    /* CONTEST BOTTOM */
-    principia_wdg *wdg_contest_entry[MAX_FEATURED_LEVELS_FETCHED];
-
     bool has_autosave;
 
     bool widget_clicked(principia_wdg *w, uint8_t button_id, int pid);

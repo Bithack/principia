@@ -10,7 +10,6 @@ enum {
     BTN_SETTINGS,
     BTN_BACK,
     BTN_ENTITY,
-    BTN_CONTEST,
 
     BTN_UPDATE,
     BTN_PLAY,

@@ -16,12 +16,7 @@ tms::texture *menu_shared::tex_hori_line;
 enum fl_state menu_shared::fl_state = FL_WORKING;
 struct menu_shared::featured_level menu_shared::fl[MAX_FEATURED_LEVELS_FETCHED];
 
-enum fl_state menu_shared::contest_state = FL_WORKING;
-struct menu_shared::featured_level menu_shared::contest;
-struct menu_shared::featured_level menu_shared::contest_entries[MAX_FEATURED_LEVELS_FETCHED];
-
 float menu_shared::fl_alpha = 0.f;
-float menu_shared::contest_alpha = 0.f;
 float menu_shared::gs_alpha = 0.f;
 
 enum fl_state menu_shared::gs_state = FL_WORKING;
@@ -111,10 +106,8 @@ menu_shared::init()
         menu_shared::tex_hori_line = tex;
     }
 
-    menu_shared::contest.sprite = 0;
     for (int x=0; x<MAX_FEATURED_LEVELS_FETCHED; ++x) {
         menu_shared::fl[x].sprite = 0;
-        menu_shared::contest_entries[x].sprite = 0;
     }
 
     menu_shared::text_version = new p_text(font::medium, ALIGN_CENTER, ALIGN_CENTER);
@@ -171,33 +164,6 @@ menu_shared::step()
 
             P.s_menu_main->get_wm()->areas[AREA_MENU_LEVELS].set_alpha(menu_shared::fl_alpha);
             P.s_menu_main->get_wm()->areas[AREA_MENU_SUB_LEVELS].set_alpha(menu_shared::fl_alpha);
-        } break;
-
-        default:
-            break;
-    }
-
-    switch (menu_shared::contest_state) {
-        case FL_WAITING:
-            if (menu_shared::fl_state > FL_UPLOAD) {
-                menu_shared::contest_state = FL_INIT;
-                P.s_menu_create->get_wm()->areas[AREA_MENU_BOTTOM_LEFT].set_alpha(menu_shared::contest_alpha);
-                P.s_menu_create->get_wm()->areas[AREA_CREATE_CONTEST_TOP].set_alpha(menu_shared::contest_alpha);
-                P.s_menu_create->get_wm()->areas[AREA_CREATE_CONTEST_BOTTOM].set_alpha(menu_shared::contest_alpha);
-            }
-            break;
-
-        case FL_ALPHA_IN: {
-                menu_shared::contest_alpha += _tms.dt*1.f;
-
-                if (menu_shared::contest_alpha > 1.f) {
-                    menu_shared::contest_alpha = 1.f;
-                    menu_shared::contest_state = FL_DONE;
-                }
-
-                P.s_menu_create->get_wm()->areas[AREA_MENU_BOTTOM_LEFT].set_alpha(menu_shared::contest_alpha);
-                P.s_menu_create->get_wm()->areas[AREA_CREATE_CONTEST_TOP].set_alpha(menu_shared::contest_alpha);
-                P.s_menu_create->get_wm()->areas[AREA_CREATE_CONTEST_BOTTOM].set_alpha(menu_shared::contest_alpha);
         } break;
 
         default:
