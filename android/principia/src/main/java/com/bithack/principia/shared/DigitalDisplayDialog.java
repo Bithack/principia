@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
-import org.libsdl.app.PrincipiaBackend;
-import org.libsdl.app.SDLActivity;
+import com.bithack.principia.PrincipiaBackend;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -64,7 +63,7 @@ public class DigitalDisplayDialog {
             ll_dd = (LinearLayout)view.findViewById(R.id.ll_dd);
             ll_wrap = (LinearLayout)view.findViewById(R.id.display_ll_wrap);
 
-            np_initial_position = new com.bithack.principia.shared.NumberPicker(SDLActivity.getContext());
+            np_initial_position = new com.bithack.principia.shared.NumberPicker(PrincipiaActivity.getContext());
             np_initial_position.setRange(MIN_INITIAL_POS, 40);
 
             ll_dd.addView((View)np_initial_position);
@@ -181,7 +180,7 @@ public class DigitalDisplayDialog {
                 public boolean onTouch(View v, MotionEvent event) {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
                         if (num_symbols == 40) {
-                            SDLActivity.message("Maximum number of symbols reached.", 0);
+                            PrincipiaActivity.message("Maximum number of symbols reached.", 0);
                             return false;
                         }
 
@@ -200,7 +199,7 @@ public class DigitalDisplayDialog {
                 public boolean onTouch(View v, MotionEvent event) {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
                         if (num_symbols == 40) {
-                            SDLActivity.message("Maximum number of symbols reached.", 0);
+                            PrincipiaActivity.message("Maximum number of symbols reached.", 0);
                             return false;
                         }
 

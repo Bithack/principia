@@ -1,9 +1,7 @@
 package com.bithack.principia.shared;
 
-import org.libsdl.app.PrincipiaBackend;
-import org.libsdl.app.SDLActivity;
-
 import com.bithack.principia.PrincipiaActivity;
+import com.bithack.principia.PrincipiaBackend;
 import com.bithack.principia.R;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -28,7 +26,7 @@ public class AnimalDialog {
             s_animal = (Spinner)view.findViewById(R.id.s_animal);
             String[] consumables = PrincipiaBackend.getAnimals().split(",.,");
 
-            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(SDLActivity.mSingleton, android.R.layout.select_dialog_item, consumables);
+            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(PrincipiaActivity.mSingleton, android.R.layout.select_dialog_item, consumables);
             s_animal.setAdapter(spinnerArrayAdapter);
 
             _dialog = new AlertDialog.Builder(PrincipiaActivity.mSingleton)

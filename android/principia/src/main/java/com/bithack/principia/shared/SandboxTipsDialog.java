@@ -2,8 +2,7 @@ package com.bithack.principia.shared;
 
 import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
-import org.libsdl.app.PrincipiaBackend;
-import org.libsdl.app.SDLActivity;
+import com.bithack.principia.PrincipiaBackend;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -34,13 +33,13 @@ public class SandboxTipsDialog
                 .setTitle("Tips & tricks")
                 .setPositiveButton("OK", new OnClickListener(){public void onClick(DialogInterface dialog, int which) {}})
                 .setNeutralButton("Next", null)
-                .setNegativeButton("More tips & tricks", new OnClickListener(){public void onClick(DialogInterface dialog, int which){SDLActivity.open_url("https://principia-web.se/wiki/Getting_Started");}})
+                .setNegativeButton("More tips & tricks", new OnClickListener(){public void onClick(DialogInterface dialog, int which){PrincipiaActivity.open_url("https://principia-web.se/wiki/Getting_Started");}})
                 .create();
 
         _dialog.setOnShowListener(new OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
-                SDLActivity.on_show(dialog);
+                PrincipiaActivity.on_show(dialog);
 
                 Button b = _dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
 

@@ -1,7 +1,6 @@
 package com.bithack.principia.shared;
 
-import org.libsdl.app.PrincipiaBackend;
-import org.libsdl.app.SDLActivity;
+import com.bithack.principia.PrincipiaBackend;
 
 import com.bithack.principia.PrincipiaActivity;
 
@@ -23,7 +22,7 @@ public class ImportDialog
     private final String[] level_names;
 
     public static ListView lv;
-    public static ArrayAdapter<Level> list_adapter = new ArrayAdapter<Level>(SDLActivity.mSingleton,
+    public static ArrayAdapter<Level> list_adapter = new ArrayAdapter<Level>(PrincipiaActivity.mSingleton,
             android.R.layout.select_dialog_item);
 
     public ImportDialog(final boolean is_multiemitter)
@@ -32,7 +31,7 @@ public class ImportDialog
 
         AlertDialog.Builder bld = new AlertDialog.Builder(PrincipiaActivity.mSingleton);
 
-        String level_list = PrincipiaBackend.getLevels(SDLActivity.LEVEL_PARTIAL);
+        String level_list = PrincipiaBackend.getLevels(PrincipiaActivity.LEVEL_PARTIAL);
         String[] levels = level_list.split("\n");
 
         level_names = new String[levels.length];
@@ -82,7 +81,7 @@ public class ImportDialog
         this._dialog.setOnShowListener(new OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
-                SDLActivity.on_show(dialog);
+                PrincipiaActivity.on_show(dialog);
                 ListView lv = _dialog.getListView();
                 ImportDialog.lv = lv;
                 if (lv != null) {
@@ -104,7 +103,7 @@ public class ImportDialog
                         }
                     });
                     lv.setAdapter(ImportDialog.list_adapter);
-                    SDLActivity.mSingleton.registerForContextMenu(lv);
+                    PrincipiaActivity.mSingleton.registerForContextMenu(lv);
                 } else {
                     Log.v("Principia", "listview = null");
                 }

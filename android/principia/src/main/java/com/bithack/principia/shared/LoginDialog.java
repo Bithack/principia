@@ -2,8 +2,7 @@ package com.bithack.principia.shared;
 
 import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
-import org.libsdl.app.PrincipiaBackend;
-import org.libsdl.app.SDLActivity;
+import com.bithack.principia.PrincipiaBackend;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -43,7 +42,7 @@ public class LoginDialog
             _dialog.setOnShowListener(new OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialog) {
-                    SDLActivity.on_show(dialog);
+                    PrincipiaActivity.on_show(dialog);
 
                     Button b = _dialog.getButton(AlertDialog.BUTTON_POSITIVE);
 
@@ -55,7 +54,7 @@ public class LoginDialog
                             String password = et_password.getText().toString().trim();
 
                             if (username.length() <= 0 || password.length() <= 0) {
-                                SDLActivity.message("You must enter a valid username and password.", 0);
+                                PrincipiaActivity.message("You must enter a valid username and password.", 0);
                                 return;
                             }
 
@@ -74,7 +73,7 @@ public class LoginDialog
             btn_register_account.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    SDLActivity.open_dialog(SDLActivity.DIALOG_REGISTER);
+                    PrincipiaActivity.open_dialog(PrincipiaActivity.DIALOG_REGISTER);
                     _dialog.dismiss();
                 }
             });

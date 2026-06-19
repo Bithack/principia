@@ -2,8 +2,7 @@ package com.bithack.principia.shared;
 
 import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
-import org.libsdl.app.PrincipiaBackend;
-import org.libsdl.app.SDLActivity;
+import com.bithack.principia.PrincipiaBackend;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -44,7 +43,7 @@ public class RegisterDialog
             _dialog.setOnShowListener(new OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialog) {
-                    SDLActivity.on_show(dialog);
+                    PrincipiaActivity.on_show(dialog);
 
                     Button b = _dialog.getButton(AlertDialog.BUTTON_POSITIVE);
 
@@ -58,22 +57,22 @@ public class RegisterDialog
                             final String email = et_email.getText().toString().trim();
 
                             if (password.length() < 6 || password.length() > 100) {
-                                SDLActivity.message("Your password must be at least 3 and at most 100 characters.", 0);
+                                PrincipiaActivity.message("Your password must be at least 3 and at most 100 characters.", 0);
                                 return;
                             }
 
                             if (!password.equals(password_confirm)) {
-                                SDLActivity.message("The two passwords you entered don't match.", 0);
+                                PrincipiaActivity.message("The two passwords you entered don't match.", 0);
                                 return;
                             }
 
                             if (username.length() < 3 || username.length() > 20) {
-                                SDLActivity.message("Your username must be at least 3 and at most 20 characters.", 0);
+                                PrincipiaActivity.message("Your username must be at least 3 and at most 20 characters.", 0);
                                 return;
                             }
 
                             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                                SDLActivity.message("You must enter a valid email address.", 0);
+                                PrincipiaActivity.message("You must enter a valid email address.", 0);
                                 return;
                             }
 

@@ -2,7 +2,7 @@ package com.bithack.principia.shared;
 
 import java.util.Locale;
 
-import org.libsdl.app.PrincipiaBackend;
+import com.bithack.principia.PrincipiaBackend;
 
 import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;

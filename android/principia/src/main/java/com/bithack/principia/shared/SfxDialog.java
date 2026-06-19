@@ -1,7 +1,6 @@
 package com.bithack.principia.shared;
 
-import org.libsdl.app.PrincipiaBackend;
-import org.libsdl.app.SDLActivity;
+import com.bithack.principia.PrincipiaBackend;
 
 import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
@@ -33,7 +32,7 @@ public class SfxDialog {
             s_sfx = (Spinner)view.findViewById(R.id.s_sfx);
             String[] sound_effects = PrincipiaBackend.getSfxSounds().split(",");
 
-            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(SDLActivity.mSingleton, android.R.layout.select_dialog_item, sound_effects);
+            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(PrincipiaActivity.mSingleton, android.R.layout.select_dialog_item, sound_effects);
             s_sfx.setAdapter(spinnerArrayAdapter);
 
             bld.setTitle("SFX Emitter (Old)");
@@ -68,6 +67,6 @@ public class SfxDialog {
     {
         PrincipiaBackend.setPropertyInt(0, s_sfx.getSelectedItemId());
         PrincipiaBackend.setPropertyInt8(1, sfx_global.isChecked() ? 1 : 0);
-        SDLActivity.message("Saved properties for SFX Emitter.", 0);
+        PrincipiaActivity.message("Saved properties for SFX Emitter.", 0);
     }
 }

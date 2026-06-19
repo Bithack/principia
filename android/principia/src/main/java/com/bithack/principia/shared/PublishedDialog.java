@@ -2,7 +2,7 @@ package com.bithack.principia.shared;
 
 import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
-import org.libsdl.app.PrincipiaBackend;
+import com.bithack.principia.PrincipiaBackend;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

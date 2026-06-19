@@ -2,7 +2,7 @@ package com.bithack.principia.shared;
 
 import java.util.ArrayList;
 
-import org.libsdl.app.PrincipiaBackend;
+import com.bithack.principia.PrincipiaBackend;
 
 import android.util.Log;
 

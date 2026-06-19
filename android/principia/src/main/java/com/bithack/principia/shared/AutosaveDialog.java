@@ -1,7 +1,6 @@
 package com.bithack.principia.shared;
 
-import org.libsdl.app.PrincipiaBackend;
-import org.libsdl.app.SDLActivity;
+import com.bithack.principia.PrincipiaBackend;
 
 import com.bithack.principia.PrincipiaActivity;
 
@@ -20,12 +19,12 @@ public class AutosaveDialog
                 .setMessage("Autosave file detected. Open or remove?")
                 .setPositiveButton("Open", new OnClickListener(){
                     public void onClick(DialogInterface dialog, int which){
-                        PrincipiaBackend.addActionAsInt(SDLActivity.ACTION_OPEN_AUTOSAVE, 0);
+                        PrincipiaBackend.addActionAsInt(PrincipiaActivity.ACTION_OPEN_AUTOSAVE, 0);
                     }}
                 )
                 .setNegativeButton("Remove", new OnClickListener(){
                     public void onClick(DialogInterface dialog, int which){
-                        PrincipiaBackend.addActionAsInt(SDLActivity.ACTION_REMOVE_AUTOSAVE, 0);
+                        PrincipiaBackend.addActionAsInt(PrincipiaActivity.ACTION_REMOVE_AUTOSAVE, 0);
                     }}
                 )
                 .create();

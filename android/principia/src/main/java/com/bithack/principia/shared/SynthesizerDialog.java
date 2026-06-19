@@ -2,8 +2,7 @@ package com.bithack.principia.shared;
 
 import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
-import org.libsdl.app.PrincipiaBackend;
-import org.libsdl.app.SDLActivity;
+import com.bithack.principia.PrincipiaBackend;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -106,12 +105,12 @@ public class SynthesizerDialog {
             synth_freq_vibrato_hz_tv = (TextView)view.findViewById(R.id.synth_freq_vibrato_hz_tv);
             synth_freq_vibrato_extent_tv = (TextView)view.findViewById(R.id.synth_freq_vibrato_extent_tv);
 
-            synth_pulse_width.setOnSeekBarChangeListener(SDLActivity.mSingleton);
-            synth_bitcrushing.setOnSeekBarChangeListener(SDLActivity.mSingleton);
-            synth_volume_vibrato_hz.setOnSeekBarChangeListener(SDLActivity.mSingleton);
-            synth_volume_vibrato_extent.setOnSeekBarChangeListener(SDLActivity.mSingleton);
-            synth_freq_vibrato_hz.setOnSeekBarChangeListener(SDLActivity.mSingleton);
-            synth_freq_vibrato_extent.setOnSeekBarChangeListener(SDLActivity.mSingleton);
+            synth_pulse_width.setOnSeekBarChangeListener(PrincipiaActivity.mSingleton);
+            synth_bitcrushing.setOnSeekBarChangeListener(PrincipiaActivity.mSingleton);
+            synth_volume_vibrato_hz.setOnSeekBarChangeListener(PrincipiaActivity.mSingleton);
+            synth_volume_vibrato_extent.setOnSeekBarChangeListener(PrincipiaActivity.mSingleton);
+            synth_freq_vibrato_hz.setOnSeekBarChangeListener(PrincipiaActivity.mSingleton);
+            synth_freq_vibrato_extent.setOnSeekBarChangeListener(PrincipiaActivity.mSingleton);
 
             sp_waveform = (Spinner)view.findViewById(R.id.synth_waveform);
             sp_waveform.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -131,7 +130,7 @@ public class SynthesizerDialog {
             });
 
             String[] waveforms = PrincipiaBackend.getSynthWaveforms().split(",");
-            ArrayAdapter<String> spinner_aa = new ArrayAdapter<String>(SDLActivity.getContext(), android.R.layout.select_dialog_item, waveforms);
+            ArrayAdapter<String> spinner_aa = new ArrayAdapter<String>(PrincipiaActivity.getContext(), android.R.layout.select_dialog_item, waveforms);
             sp_waveform.setAdapter(spinner_aa);
         }
 

@@ -5,7 +5,7 @@ import com.bithack.principia.R;
 import com.bithack.principia.shared.ConfirmDialog.OnOptionSelectedListener;
 import com.bithack.principia.shared.CustomLinearLayout.OnKeyboardStateChangedListener;
 
-import org.libsdl.app.PrincipiaBackend;
+import com.bithack.principia.PrincipiaBackend;
 
 import android.app.Dialog;
 import android.content.DialogInterface;

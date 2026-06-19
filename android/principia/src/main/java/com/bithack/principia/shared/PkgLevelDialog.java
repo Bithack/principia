@@ -2,8 +2,7 @@ package com.bithack.principia.shared;
 
 import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
-import org.libsdl.app.PrincipiaBackend;
-import org.libsdl.app.SDLActivity;
+import com.bithack.principia.PrincipiaBackend;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -27,7 +26,7 @@ public class PkgLevelDialog {
 
             view = LayoutInflater.from(PrincipiaActivity.mSingleton).inflate(R.layout.pkg_level_id, null);
 
-            np_level_id = new com.bithack.principia.shared.NumberPicker(SDLActivity.getContext());
+            np_level_id = new com.bithack.principia.shared.NumberPicker(PrincipiaActivity.getContext());
             np_level_id.setRange(0, 255);
             np_level_id.setValue(1);
 

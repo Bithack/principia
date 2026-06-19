@@ -1,7 +1,6 @@
 package com.bithack.principia.shared;
 
-import org.libsdl.app.PrincipiaBackend;
-import org.libsdl.app.SDLActivity;
+import com.bithack.principia.PrincipiaBackend;
 
 import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
@@ -33,7 +32,7 @@ public class SoundManDialog {
             s_sounds = (Spinner)view.findViewById(R.id.sm_sounds);
 
             String[] array_data = PrincipiaBackend.getSounds().split(",.,");
-            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(SDLActivity.mSingleton, android.R.layout.select_dialog_item, array_data);
+            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(PrincipiaActivity.mSingleton, android.R.layout.select_dialog_item, array_data);
             s_sounds.setAdapter(spinnerArrayAdapter);
 
             _dialog = new AlertDialog.Builder(PrincipiaActivity.mSingleton)

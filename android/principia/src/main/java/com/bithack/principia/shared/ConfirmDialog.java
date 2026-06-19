@@ -2,8 +2,7 @@ package com.bithack.principia.shared;
 
 import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
-import org.libsdl.app.SDLActivity;
-import org.libsdl.app.PrincipiaBackend;
+import com.bithack.principia.PrincipiaBackend;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -44,7 +43,7 @@ public class ConfirmDialog
     {
         final CheckBox cb;
 
-        AlertDialog dialog = new AlertDialog.Builder(SDLActivity.getContext()).create();
+        AlertDialog dialog = new AlertDialog.Builder(PrincipiaActivity.getContext()).create();
         if (dna_sandbox_back) {
             View view = LayoutInflater.from(PrincipiaActivity.mSingleton).inflate(R.layout.confirm_sandbox, null);
             dialog.setView(view);
@@ -55,8 +54,8 @@ public class ConfirmDialog
             cb = null;
         }
         dialog.setCancelable(true);
-        dialog.setOnShowListener(SDLActivity.mSingleton);
-        dialog.setOnDismissListener(SDLActivity.mSingleton);
+        dialog.setOnShowListener(PrincipiaActivity.mSingleton);
+        dialog.setOnDismissListener(PrincipiaActivity.mSingleton);
         dialog.setButton(DialogInterface.BUTTON_POSITIVE, button1, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int buttonId) {
                 if (mListener != null) {

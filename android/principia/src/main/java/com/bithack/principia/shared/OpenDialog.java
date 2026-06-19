@@ -1,8 +1,6 @@
 package com.bithack.principia.shared;
 
-import org.libsdl.app.PrincipiaBackend;
-import org.libsdl.app.SDLActivity;
-
+import com.bithack.principia.PrincipiaBackend;
 import com.bithack.principia.PrincipiaActivity;
 
 import android.app.AlertDialog;
@@ -25,11 +23,11 @@ public class OpenDialog
 
     public OpenDialog(final boolean is_state)
     {
-        SDLActivity.open_adapter.clear();
+        PrincipiaActivity.open_adapter.clear();
 
         AlertDialog.Builder bld = new AlertDialog.Builder(PrincipiaActivity.mSingleton);
 
-        String level_list = PrincipiaBackend.getLevels(is_state ? SDLActivity.LEVEL_LOCAL_STATE : SDLActivity.LEVEL_LOCAL);
+        String level_list = PrincipiaBackend.getLevels(is_state ? PrincipiaActivity.LEVEL_LOCAL_STATE : PrincipiaActivity.LEVEL_LOCAL);
         Log.v("Principia", "Level list: " + level_list);
         String[] levels = level_list.split("\n");
 
@@ -60,7 +58,7 @@ public class OpenDialog
 
                 Log.v("Principia", "Adding "+name);
 
-                SDLActivity.open_adapter.add(l);
+                PrincipiaActivity.open_adapter.add(l);
 
                 level_names[x] = name;
             }
@@ -82,7 +80,7 @@ public class OpenDialog
             @Override
         public void onShow(DialogInterface dialog)
         {
-            SDLActivity.on_show(dialog);
+            PrincipiaActivity.on_show(dialog);
             ListView lv = _dialog.getListView();
             OpenDialog.lv = lv;
             if (lv != null) {
@@ -92,7 +90,7 @@ public class OpenDialog
                             int position, long id) {
                         Level level = (Level)parent.getAdapter().getItem(position);
                         if (is_state) {
-                            PrincipiaBackend.openState(level.get_level_type(), level.get_id(), level.get_save_id(), SDLActivity.is_cool); /* XXX */
+                            PrincipiaBackend.openState(level.get_level_type(), level.get_id(), level.get_save_id(), PrincipiaActivity.is_cool); /* XXX */
                         } else {
                             PrincipiaBackend.addActionAsInt(PrincipiaActivity.ACTION_OPEN, level.get_id());
                         }
@@ -100,8 +98,8 @@ public class OpenDialog
                     }
 
                 });
-                lv.setAdapter(SDLActivity.open_adapter);
-                SDLActivity.mSingleton.registerForContextMenu(lv);
+                lv.setAdapter(PrincipiaActivity.open_adapter);
+                PrincipiaActivity.mSingleton.registerForContextMenu(lv);
             }
         }
         });

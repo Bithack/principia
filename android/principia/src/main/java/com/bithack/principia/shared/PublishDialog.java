@@ -2,8 +2,7 @@ package com.bithack.principia.shared;
 
 import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
-import org.libsdl.app.PrincipiaBackend;
-import org.libsdl.app.SDLActivity;
+import com.bithack.principia.PrincipiaBackend;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -41,7 +40,7 @@ public class PublishDialog
             _dialog.setOnShowListener(new OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialog) {
-                    SDLActivity.on_show(dialog);
+                    PrincipiaActivity.on_show(dialog);
 
                     Button b = _dialog.getButton(AlertDialog.BUTTON_POSITIVE);
 
@@ -53,7 +52,7 @@ public class PublishDialog
                             String descr = et_descr.getText().toString().trim();
 
                             if (name.length() <= 0) {
-                                SDLActivity.message("You must enter a name for your level!", 0);
+                                PrincipiaActivity.message("You must enter a name for your level!", 0);
                                 return;
                             }
 
@@ -61,7 +60,7 @@ public class PublishDialog
                             PrincipiaBackend.setLevelDescription(descr);
                             PrincipiaBackend.setLevelLocked(cb_locked.isChecked());
 
-                            PrincipiaBackend.addActionAsInt(SDLActivity.ACTION_PUBLISH, 0);
+                            PrincipiaBackend.addActionAsInt(PrincipiaActivity.ACTION_PUBLISH, 0);
 
                             _dialog.dismiss();
                         }

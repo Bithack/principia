@@ -2,8 +2,7 @@ package com.bithack.principia.shared;
 
 import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
-import org.libsdl.app.PrincipiaBackend;
-import org.libsdl.app.SDLActivity;
+import com.bithack.principia.PrincipiaBackend;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -82,9 +81,9 @@ public class VariableDialog {
         String s = et_name.getText().toString().trim().replaceAll("[^a-zA_Z0-9_-]", "");
         if (s.length() > 0 && s.length() < 50) {
             PrincipiaBackend.setPropertyString(0, s);
-            SDLActivity.message("Saved variable name.", 0);
+            PrincipiaActivity.message("Saved variable name.", 0);
         } else {
-            SDLActivity.message("You must enter a valid variable name. a-zA-Z0-9_- allowed.", 0);
+            PrincipiaActivity.message("You must enter a valid variable name. a-zA-Z0-9_- allowed.", 0);
         }
     }
 }

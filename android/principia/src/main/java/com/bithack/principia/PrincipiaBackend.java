@@ -1,4 +1,4 @@
-package org.libsdl.app;
+package com.bithack.principia;
 
 import com.bithack.principia.shared.Settings;
 
@@ -87,7 +87,7 @@ public class PrincipiaBackend
             float creature_absorb_time,
             float player_respawn_time
                 );
-    public static native void setLevelAllowDerivatives(boolean state);
+
     public static native void setLevelLocked(boolean state);
 
     public static native void setarg(String arg);

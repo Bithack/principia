@@ -2,8 +2,7 @@ package com.bithack.principia.shared;
 
 import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
-import org.libsdl.app.PrincipiaBackend;
-import org.libsdl.app.SDLActivity;
+import com.bithack.principia.PrincipiaBackend;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -41,7 +40,7 @@ public class PromptSettingsDialog
             _dialog.setOnShowListener(new OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialog) {
-                    SDLActivity.on_show(dialog);
+                    PrincipiaActivity.on_show(dialog);
 
                     Button b = _dialog.getButton(AlertDialog.BUTTON_POSITIVE);
 
@@ -59,12 +58,12 @@ public class PromptSettingsDialog
                             int message_len = message.length();
 
                             if (message_len <= 0) {
-                                SDLActivity.message("You must enter a message for the prompt.", 0);
+                                PrincipiaActivity.message("You must enter a message for the prompt.", 0);
                                 return;
                             }
 
                             if (b1_len <= 0 && b2_len <= 0 && b3_len <= 0) {
-                                SDLActivity.message("You must use at least one button.", 0);
+                                PrincipiaActivity.message("You must use at least one button.", 0);
                                 return;
                             }
 

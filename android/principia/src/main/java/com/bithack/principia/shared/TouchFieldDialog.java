@@ -6,7 +6,7 @@ import com.bithack.principia.PrincipiaActivity;
 import com.bithack.principia.R;
 import com.bithack.principia.shared.RangeSeekBar.OnRangeSeekBarChangeListener;
 
-import org.libsdl.app.PrincipiaBackend;
+import com.bithack.principia.PrincipiaBackend;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
