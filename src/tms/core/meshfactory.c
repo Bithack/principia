@@ -137,16 +137,16 @@ short cube_indices[] = {
     20+0, 20+1, 20+2, 20+0, 20+2, 20+3,
 };
 
-static struct tms_mesh *square;
-static struct tms_mesh *cube;
-static struct tms_mesh *cylinder;
+static struct tms_mesh *mesh_square;
+static struct tms_mesh *mesh_cube;
+static struct tms_mesh *mesh_cylinder;
 
 #define CQ 12
 
 const struct tms_mesh *
 tms_meshfactory_get_cylinder(void)
 {
-    if (cylinder == 0) {
+    if (mesh_cylinder == 0) {
         float step = (M_PI*2)/(float)CQ;
 
         struct cvert {
@@ -214,16 +214,16 @@ tms_meshfactory_get_cylinder(void)
         tms_gbuffer_upload(ibuf);
         tms_gbuffer_upload(vbuf);
 
-        cylinder = tms_mesh_alloc(va, ibuf);
-        tms_mesh_set_primitive_type(cylinder, TMS_TRIANGLES);
+        mesh_cylinder = tms_mesh_alloc(va, ibuf);
+        tms_mesh_set_primitive_type(mesh_cylinder, TMS_TRIANGLES);
     }
 
-    return cylinder;
+    return mesh_cylinder;
 }
 
 const struct tms_mesh *tms_meshfactory_get_cube(void)
 {
-    if (cube == 0) {
+    if (mesh_cube == 0) {
         struct tms_gbuffer *indices = tms_gbuffer_alloc_fill(cube_indices, sizeof(cube_indices));
         indices->target = GL_ELEMENT_ARRAY_BUFFER;
         struct tms_gbuffer *vertices = tms_gbuffer_alloc_fill(cube_verts, sizeof(cube_verts));
@@ -235,16 +235,16 @@ const struct tms_mesh *tms_meshfactory_get_cube(void)
         tms_gbuffer_upload(indices);
         tms_gbuffer_upload(vertices);
 
-        cube = tms_mesh_alloc(va, indices);
-        tms_mesh_set_autofree_buffers(cube, 1);
+        mesh_cube = tms_mesh_alloc(va, indices);
+        tms_mesh_set_autofree_buffers(mesh_cube, 1);
     }
 
-    return cube;
+    return mesh_cube;
 }
 
 const struct tms_mesh *tms_meshfactory_get_square(void)
 {
-    if (square == 0) {
+    if (mesh_square == 0) {
 
         struct tms_gbuffer *vertices = tms_gbuffer_alloc_fill(square_verts, sizeof(square_verts));
         tms_gbuffer_upload(vertices);
@@ -254,11 +254,11 @@ const struct tms_mesh *tms_meshfactory_get_square(void)
         tms_varray_map_attribute(va, "normal", 3, GL_FLOAT, vertices);
         tms_varray_map_attribute(va, "texcoord", 2, GL_FLOAT, vertices);
 
-        square = tms_mesh_alloc(va, 0);
-        tms_mesh_set_autofree_buffers(square, 1);
-        tms_mesh_set_primitive_type(square, TMS_TRIANGLE_FAN);
+        mesh_square = tms_mesh_alloc(va, 0);
+        tms_mesh_set_autofree_buffers(mesh_square, 1);
+        tms_mesh_set_primitive_type(mesh_square, TMS_TRIANGLE_FAN);
     }
 
-    return square;
+    return mesh_square;
 }
 
