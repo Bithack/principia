@@ -7698,7 +7698,7 @@ int _gtk_loop(void *p)
 
         soundman_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
         for (int x=0; x<SND__NUM; x++) {
-            //gtk_combo_box_text_append_text(soundman_cb, sm::sound_lookup[x]->name);
+            gtk_combo_box_text_append_text(soundman_cb, sm::sound_lookup[x]->name);
         }
 
         soundman_catch_all = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Catch all"));
@@ -7720,7 +7720,7 @@ int _gtk_loop(void *p)
 
         sfx2_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
         for (int x=0; x<SND__NUM; x++) {
-            //gtk_combo_box_text_append_text(sfx2_cb, sm::sound_lookup[x]->name);
+            gtk_combo_box_text_append_text(sfx2_cb, sm::sound_lookup[x]->name);
         }
 
         sfx2_sub_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
