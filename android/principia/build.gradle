@@ -12,8 +12,8 @@ android {
         applicationId "com.bithack.principia"
         minSdk 21
         targetSdk 35
-        versionCode 40
-        versionName "2026.06.06"
+        versionCode 41
+        versionName "2026.06.19"
 
         externalNativeBuild {
             cmake.arguments "-DUSE_VENDORED_SDL3=1"

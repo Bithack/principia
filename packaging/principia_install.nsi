@@ -7,9 +7,9 @@ ManifestDPIAware true
 !define MUI_ICON "..\packaging\icon.ico"
 !define VER_MAJOR 2026
 !define VER_MINOR 06
-!define VER_BUILD 06
+!define VER_BUILD 19
 
-!define VERSION "2026.06.06"
+!define VERSION "2026.06.19"
 
 Name "Principia"
 OutFile "principia-setup.exe"

@@ -2,10 +2,10 @@
 
 #define VER_MAJOR 2026
 #define VER_MINOR 06
-#define VER_PATCH 06
+#define VER_PATCH 19
 
-#define VER_STRING "2026.06.06"
-#define PRODUCT_VER_STRING "2026.06.06"
+#define VER_STRING "2026.06.19"
+#define PRODUCT_VER_STRING "2026.06.19"
 
 1 ICON "icon.ico"
 1 24 "principia.manifest"
