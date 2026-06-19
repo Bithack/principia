@@ -188,19 +188,19 @@ _parse_headers(void *buffer, size_t size, size_t nmemb, void *data)
         char *v = pch+2;
 
         if (data) {
-            if (strcmp(buf, "x-error-message") == 0)
+            if (strcasecmp(buf, "x-error-message") == 0)
                 ((struct header_data*)data)->error_message = strdup(v);
-            else if (strcmp(buf, "x-error-action") == 0)
+            else if (strcasecmp(buf, "x-error-action") == 0)
                 ((struct header_data*)data)->error_action = atoi(v);
-            else if (strcmp(buf, "x-notify-message") == 0)
+            else if (strcasecmp(buf, "x-notify-message") == 0)
                 ((struct header_data*)data)->notify_message = strdup(v);
         }
 
-        if (strcmp(buf, "x-principia-user-id") == 0)
+        if (strcasecmp(buf, "x-principia-user-id") == 0)
             P.user_id = atoi(v);
-        else if (strcmp(buf, "x-principia-user-name") == 0)
+        else if (strcasecmp(buf, "x-principia-user-name") == 0)
             P.username = strdup(v);
-        else if (strcmp(buf, "x-principia-unread") == 0)
+        else if (strcasecmp(buf, "x-principia-unread") == 0)
             P.num_unread_messages = atoi(v);
     }
 
