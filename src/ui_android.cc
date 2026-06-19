@@ -713,14 +713,14 @@ Java_org_libsdl_app_PrincipiaBackend_focusGL(JNIEnv *env, jclass _jcls,
 extern "C" jboolean
 Java_org_libsdl_app_PrincipiaBackend_isPaused(JNIEnv *env, jclass _cls)
 {
-    return (jboolean)(_tms.is_paused == 1 ? true : false);
+    return (jboolean)(_tms.is_paused == true);
 }
 
 extern "C" void
 Java_org_libsdl_app_PrincipiaBackend_setPaused(JNIEnv *env, jclass _cls,
         jboolean b)
 {
-    _tms.is_paused = (b ? 1 : 0);
+    _tms.is_paused = (b ? true : false);
 }
 
 extern "C" void

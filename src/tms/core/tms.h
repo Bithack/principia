@@ -97,7 +97,7 @@ extern struct tms_singleton {
 
     double gamma;
 
-    int is_paused;
+    bool is_paused;
 
     uint64_t time_accum;
     uint64_t delta_cap;
@@ -111,6 +111,7 @@ extern struct tms_singleton {
     SDL_Window *_window;
 } _tms;
 
+int tms_preinit(void);
 int tms_init(void);
 int tms_set_screen(struct tms_screen *screen);
 void tms_step(void);

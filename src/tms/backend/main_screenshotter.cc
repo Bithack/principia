@@ -47,8 +47,6 @@ static FILE *state_fh = NULL;
 static uint32_t snap_step_num = 0;
 
 int screenshot(char *file_name, unsigned int x, unsigned int y, unsigned long width, unsigned long height);
-extern "C" int tbackend_init_surface();
-
 
 void
 set_state(int state)
@@ -143,6 +141,40 @@ main(int argc, char **argv)
     SDL_Init(SDL_INIT_VIDEO);
 
     tproject_set_args(argc, argv);
+
+    tms_preinit();
+
+    _tms.window_width = 1280;
+    _tms.window_height = 720;
+
+    _tms.xppcm = 108.f/2.54f * 1.5f;
+    _tms.yppcm = 107.f/2.54f * 1.5f;
+
+    uint32_t flags = 0;
+
+    flags |= SDL_WINDOW_OPENGL;
+    flags |= 0;
+
+    tms_infof("Creating window...");
+    _window = SDL_CreateWindow("Principia Screenshotter", _tms.window_width, _tms.window_height, flags);
+
+    if (_window == NULL) {
+        tms_infof("ERROR: %s", SDL_GetError());
+        exit(1);
+    }
+
+    _tms._window = _window;
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+    SDL_GL_CreateContext(_window);
+
+    int version = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
+    tms_infof("Loaded GL version %d.%d", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
+
     tms_init();
 
     if (_tms.screen == 0) {
@@ -337,43 +369,6 @@ main(int argc, char **argv)
     remove("principia.state");
 
     return 0;
-}
-
-int
-tbackend_init_surface()
-{
-    _tms.window_width = 1280;
-    _tms.window_height = 720;
-
-    _tms.xppcm = 108.f/2.54f * 1.5f;
-    _tms.yppcm = 107.f/2.54f * 1.5f;
-
-    uint32_t flags = 0;
-
-    flags |= SDL_WINDOW_OPENGL;
-    flags |= 0;
-
-    tms_infof("Creating window...");
-    _window = SDL_CreateWindow("Principia Screenshotter", _tms.window_width, _tms.window_height, flags);
-
-    if (_window == NULL) {
-        tms_infof("ERROR: %s", SDL_GetError());
-        exit(1);
-    }
-
-    _tms._window = _window;
-
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
-    SDL_GL_CreateContext(_window);
-
-    int version = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
-    tms_infof("Loaded GL version %d.%d", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
-
-    return T_OK;
 }
 
 int

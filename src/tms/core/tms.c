@@ -22,17 +22,19 @@ struct tms_singleton _tms = {
     .emulating_portrait = 0,
 };
 
-int
-tms_init(void)
-{
+int tms_preinit(void) {
     tms.framebuffer = 0;
-    tms.is_paused = 0;
+    tms.is_paused = false;
     tms.state = TMS_STATE_DEFAULT;
 
     tproject_preinit();
 
-    tbackend_init_surface();
+    return T_OK;
+}
 
+int
+tms_init(void)
+{
     tms.gl_extensions = (const char*)glGetString(GL_EXTENSIONS);
 
     tmat4_set_ortho(tms.window_projection, 0, tms.window_width, 0, tms.window_height, 1, -1);

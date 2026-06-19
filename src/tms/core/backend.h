@@ -11,8 +11,6 @@
 extern "C" {
 #endif
 
-int tbackend_init_surface(void);
-
 #include "storage.h"
 
 #ifdef __cplusplus

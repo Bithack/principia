@@ -16,11 +16,8 @@
 #include <unistd.h>
 
 // Include for SDL's main function wrapper
+#define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL_main.h>
-
-#ifdef TMS_BACKEND_EMSCRIPTEN
-    #include <emscripten.h>
-#endif
 
 FILE *_f_out = stdout;
 
@@ -30,20 +27,14 @@ int keys[235];
 int mouse_down;
 
 static int T_intercept_input(SDL_Event ev);
-static void mainloop();
 
-extern "C" int tbackend_init_surface();
-
-static void _catch_signal(int signal)
-{
+static void _catch_signal(int signal) {
     tms_errorf("Segmentation fault!");
 
-#ifdef TMS_BACKEND_WINDOWS
     if (_f_out != stdout) {
         fflush(_f_out);
         fclose(_f_out);
     }
-#endif
 
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Principia",
 R"(An unrecoverable error has occurred and Principia will now close.
@@ -105,9 +96,10 @@ static void find_data_dir() {
 #endif
 }
 
-int main(int argc, char **argv)
+static int do_step = 1;
+
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
-    int done = 0;
 
 #ifndef TMS_BACKEND_ANDROID
     signal(SIGSEGV, _catch_signal);
@@ -185,118 +177,8 @@ int main(int argc, char **argv)
 
     tproject_set_args(argc, argv);
 
-    tms_init();
+    tms_preinit();
 
-    if (_tms.screen == 0)
-        tms_fatalf("Context has no initial screen!");
-
-#ifdef TMS_BACKEND_EMSCRIPTEN
-    emscripten_set_main_loop(mainloop, 0, 1);
-#else
-    do {
-        mainloop();
-    } while (_tms.state != TMS_STATE_QUITTING);
-#endif
-
-    tproject_quit();
-
-    SDL_Quit();
-
-    return 0;
-}
-
-static void mainloop()
-{
-    SDL_Event ev;
-    int i;
-    int do_step = 1;
-
-    if (do_step) {
-        for (i = 0; i < 235; ++i) {
-            if (keys[i] == 1) {
-                struct tms_event spec;
-                spec.type = TMS_EV_KEY_DOWN;
-                spec.data.key.keycode = i;
-
-                tms_event_push(spec);
-            }
-        }
-    }
-
-    while (SDL_PollEvent(&ev)) {
-        switch (ev.type) {
-#ifdef __ANDROID__
-                case SDL_EVENT_WINDOW_MINIMIZED:
-                    tproject_soft_pause();
-                    do_step = 0;
-                    break;
-
-                case SDL_EVENT_WINDOW_RESTORED:
-                    tproject_soft_resume();
-                    do_step = 1;
-                    break;
-#else
-                case SDL_EVENT_WINDOW_RESIZED: {
-                    tms_infof("Window %d resized to %dx%d",
-                            ev.window.windowID, ev.window.data1,
-                            ev.window.data2);
-                    int w = ev.window.data1;
-                    int h = ev.window.data2;
-
-                    _tms.window_width  = _tms.opengl_width  = w;
-                    _tms.window_height = _tms.opengl_height = h;
-
-                    tproject_window_size_changed();
-                } break;
-                case SDL_EVENT_WINDOW_MAXIMIZED:
-                    settings["window_maximized"]->v.b = true;
-                    break;
-                case SDL_EVENT_WINDOW_RESTORED:
-                    settings["window_maximized"]->v.b = false;
-                    break;
-#endif
-
-            case SDL_EVENT_QUIT:
-                _tms.state = TMS_STATE_QUITTING;
-                break;
-
-            case SDL_EVENT_KEY_DOWN:
-                T_intercept_input(ev);
-                keys[ev.key.scancode] = 1;
-                break;
-
-            case SDL_EVENT_KEY_UP:
-                T_intercept_input(ev);
-                keys[ev.key.scancode] = 0;
-                break;
-
-            case SDL_EVENT_FINGER_DOWN:
-            case SDL_EVENT_FINGER_UP:
-            case SDL_EVENT_FINGER_MOTION:
-            case SDL_EVENT_MOUSE_WHEEL:
-            case SDL_EVENT_MOUSE_BUTTON_DOWN:
-            case SDL_EVENT_MOUSE_BUTTON_UP:
-            case SDL_EVENT_MOUSE_MOTION:
-            case SDL_EVENT_TEXT_INPUT:
-                T_intercept_input(ev);
-            break;
-        }
-    }
-
-    if (_tms.is_paused == 0) {
-        tms_step();
-        tms_begin_frame();
-        tms_render();
-        SDL_GL_SwapWindow(_window);
-        tms_end_frame();
-    } else {
-        SDL_Delay(100);
-    }
-}
-
-int
-tbackend_init_surface()
-{
     uint32_t flags = SDL_WINDOW_OPENGL | 0;
 
 #ifdef TMS_BACKEND_ANDROID
@@ -324,7 +206,7 @@ tbackend_init_surface()
 
     if (_window == NULL) {
         tms_infof("ERROR: %s", SDL_GetError());
-        exit(1);
+        return SDL_APP_FAILURE;
     }
 
     SDL_SetWindowFillDocument(_window, true);
@@ -379,12 +261,117 @@ graphics card.
 
 If you are on a VM for testing purposes, then you can use Mesa's software renderer to
 get Principia running. (place the Mesa opengl32.dll library next to principia.exe))", 0);
-        exit(1);
+
+        return SDL_APP_FAILURE;
     }
 
 #endif
 
-    return T_OK;
+    tms_init();
+
+    if (_tms.screen == 0) {
+        tms_fatalf("Context has no initial screen!");
+    }
+
+    return SDL_APP_CONTINUE;
+}
+
+void SDL_AppQuit(void *appstate, SDL_AppResult result) {
+    tproject_quit();
+    SDL_Quit();
+}
+
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *ev) {
+    switch (ev->type) {
+        #ifdef __ANDROID__
+            case SDL_EVENT_WINDOW_MINIMIZED:
+                tproject_soft_pause();
+                do_step = 0;
+                break;
+
+            case SDL_EVENT_WINDOW_RESTORED:
+                tproject_soft_resume();
+                do_step = 1;
+                break;
+        #else
+            case SDL_EVENT_WINDOW_RESIZED: {
+                tms_infof("Window %d resized to %dx%d",
+                        ev->window.windowID, ev->window.data1,
+                        ev->window.data2);
+                int w = ev->window.data1;
+                int h = ev->window.data2;
+
+                _tms.window_width  = _tms.opengl_width  = w;
+                _tms.window_height = _tms.opengl_height = h;
+
+                tproject_window_size_changed();
+            } break;
+            case SDL_EVENT_WINDOW_MAXIMIZED:
+                settings["window_maximized"]->v.b = true;
+                break;
+            case SDL_EVENT_WINDOW_RESTORED:
+                settings["window_maximized"]->v.b = false;
+                break;
+        #endif
+
+        case SDL_EVENT_QUIT:
+            _tms.state = TMS_STATE_QUITTING;
+            break;
+
+        case SDL_EVENT_KEY_DOWN:
+            T_intercept_input(*ev);
+            keys[ev->key.scancode] = 1;
+            break;
+
+        case SDL_EVENT_KEY_UP:
+            T_intercept_input(*ev);
+            keys[ev->key.scancode] = 0;
+            break;
+
+        case SDL_EVENT_FINGER_DOWN:
+        case SDL_EVENT_FINGER_UP:
+        case SDL_EVENT_FINGER_MOTION:
+        case SDL_EVENT_MOUSE_WHEEL:
+        case SDL_EVENT_MOUSE_BUTTON_DOWN:
+        case SDL_EVENT_MOUSE_BUTTON_UP:
+        case SDL_EVENT_MOUSE_MOTION:
+        case SDL_EVENT_TEXT_INPUT:
+            T_intercept_input(*ev);
+        break;
+    }
+    return SDL_APP_CONTINUE;
+}
+
+SDL_AppResult SDL_AppIterate(void *appstate) {
+
+    if (do_step) {
+        for (int i = 0; i < 235; ++i) {
+            if (keys[i] == 1) {
+                struct tms_event spec;
+                spec.type = TMS_EV_KEY_DOWN;
+                spec.data.key.keycode = i;
+
+                tms_event_push(spec);
+            }
+        }
+    }
+
+    if (_tms.state == TMS_STATE_QUITTING) {
+        return SDL_APP_SUCCESS;
+    }
+
+    if (_tms.is_paused) {
+        SDL_Delay(100);
+        return SDL_APP_CONTINUE;
+    }
+
+    tms_step();
+    tms_begin_frame();
+    tms_render();
+    SDL_GL_SwapWindow(_window);
+    tms_end_frame();
+
+    return SDL_APP_CONTINUE;
 }
 
 int
@@ -394,8 +381,7 @@ mouse_button_to_pointer_id(int button)
         case SDL_BUTTON_LEFT: return 0;
         case SDL_BUTTON_RIGHT: return 1;
         case SDL_BUTTON_MIDDLE: return 2;
-        //case SDL_BUTTON_WHEELUP: return 3;
-        default:/*case SDL_BUTTON_WHEELDOWN:*/ return 4;
+        default: return 4;
     }
 }
 
