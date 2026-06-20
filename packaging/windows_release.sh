@@ -23,6 +23,4 @@ cd ..
 ../packaging/bundledlls release/principia.exe release/
 
 cp ../packaging/principia_install.nsi .
-cp -r ../packaging/installer/ .
-
 makensis principia_install

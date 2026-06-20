@@ -95,7 +95,7 @@ Function WelcomePageCreate
     ${NSD_SetImage} $Logo "$PLUGINSDIR\${LOGO_FILE}" $BmpHandle
 
     ; Version label
-    ${NSD_CreateLabel} 0u 100u 100% 12u "Installing Principia ${VERSION}"
+    ${NSD_CreateLabel} 0u 100u 100% 15u "Installing Principia ${VERSION}"
     Pop $VersionLabel
     ${NSD_AddStyle} $VersionLabel ${SS_CENTER}
     CreateFont $0 "Segoe UI" 12 700
@@ -213,7 +213,7 @@ Function FinishPageCreate
     ${NSD_SetImage} $Logo "$PLUGINSDIR\${LOGO_FILE}" $BmpHandle
 
     ; Version label
-    ${NSD_CreateLabel} 0u 100u 100% 12u "Principia has been successfully installed"
+    ${NSD_CreateLabel} 0u 100u 100% 15u "Principia has been successfully installed"
     Pop $VersionLabel
     ${NSD_AddStyle} $VersionLabel ${SS_CENTER}
     CreateFont $0 "Segoe UI" 12 700
