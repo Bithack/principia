@@ -123,7 +123,16 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 
     tms_storage_create_dirs();
 
-    SDL_SetHint(SDL_HINT_APP_NAME, "Principia");
+    // The Android app ID is com.bithack.principia because it has always been like that, but for e.g.
+    // Linux we want to use se.principia_web.principia as it's a domain we have better access to for
+    // e.g. Flatpak domain verification and such. SDL does not actually use the app ID currently, but
+    // if they do we want to report something that's consistent with the APK itself.
+#if TMS_BACKEND_ANDROID
+    #define PRINCIPIA_ID "com.bithack.principia"
+#else
+    #define PRINCIPIA_ID "se.principia_web.principia"
+#endif
+    SDL_SetAppMetadata("Principia", principia_version_string(), PRINCIPIA_ID);
 
     redirect_log_output();
 
