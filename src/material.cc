@@ -17,6 +17,7 @@
 
 struct tms_program *menu_bg_program;
 GLuint              menu_bg_color_loc;
+GLuint              menu_bg_scale_loc;
 tms::shader *shader_colored;
 tms::shader *shader_gem;
 tms::shader *shader_breadboard;
@@ -246,22 +247,24 @@ const int colored_bgs[] = {
 };
 
 static const char *menu_bgsources[] = {
-    "attribute vec2 position;"
-    "attribute vec2 texcoord;"
-    "varying lowp vec2 FS_texcoord;"
+    R"(attribute vec2 position;
+    attribute vec2 texcoord;
+    uniform vec2 scale;
+    varying lowp vec2 FS_texcoord;
 
-    "void main(void) {"
-        "FS_texcoord = texcoord * SCALE;"
-        "gl_Position = vec4(position, 0, 1.);"
-    "}",
+    void main(void) {
+        FS_texcoord = texcoord * scale;
+        gl_Position = vec4(position, 0, 1.);
+    })",
 
-    "uniform sampler2D tex_0;"
-    "uniform vec4      color;"
-    "varying lowp vec2 FS_texcoord;"
+    R"(
+    uniform sampler2D tex_0;
+    uniform vec4      color;
+    varying lowp vec2 FS_texcoord;
 
-    "void main(void) {"
-        "gl_FragColor = texture2D(tex_0, FS_texcoord)*color;"
-    "}"
+    void main(void) {
+        gl_FragColor = texture2D(tex_0, FS_texcoord)*color;
+    })"
 };
 
 static void
@@ -1366,13 +1369,11 @@ material_factory::init_shaders()
     setlocale(LC_NUMERIC, "C");
 
     sh = new tms::shader("Menu BG");
-    {char tmp[32];
-    sprintf(tmp, "vec2(%f,%f)", _tms.window_width / 512.f, _tms.window_height / 512.f);
-    tms_shader_define_vs((struct tms_shader*)sh, "SCALE", tmp);}
     sh->compile(GL_VERTEX_SHADER, menu_bgsources[0]);
     sh->compile(GL_FRAGMENT_SHADER, menu_bgsources[1]);
     menu_bg_program = sh->get_program(TMS_NO_PIPELINE);
     menu_bg_color_loc = tms_program_get_uniform(menu_bg_program, "color");
+    menu_bg_scale_loc = tms_program_get_uniform(menu_bg_program, "scale");
 
     SN(shader_shiny);
     SN(shader_edev);

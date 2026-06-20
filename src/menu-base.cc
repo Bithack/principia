@@ -12,6 +12,7 @@
 
 extern struct tms_program *menu_bg_program;
 extern GLuint              menu_bg_color_loc;
+extern GLuint              menu_bg_scale_loc;
 
 bool
 menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
@@ -178,6 +179,7 @@ menu_base::render()
         tms_program_bind(menu_bg_program);
         float hl = 1.f+this->highlight;
         glUniform4f(menu_bg_color_loc, hl, hl, hl, 1.f);
+        glUniform2f(menu_bg_scale_loc, _tms.window_width / 512.f, _tms.window_height / 512.f);
     }
     tms_fb_render(&fb, menu_bg_program);
 
