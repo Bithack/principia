@@ -3,6 +3,7 @@ XPStyle on
 ManifestDPIAware true
 
 !include "MUI2.nsh"
+!include "LogicLib.nsh"
 
 !define MUI_ICON "..\packaging\icon.ico"
 !define VER_MAJOR 2026
@@ -43,17 +44,54 @@ Function .onInit
     File "/oname=$PLUGINSDIR\${LOGO_FILE}" "${LOGO_PATH}"
 FunctionEnd
 
+Function DrawLogo
+    ; Windows 10, version 1607+
+    System::Call 'user32::GetDpiForWindow(p $HWNDPARENT)i .r0'
+
+    ${If} $0 == 0
+        ; Fallback for older Windows versions
+        System::Call 'user32::GetDC(p 0)p .r1'
+        System::Call 'gdi32::GetDeviceCaps(p r1, i 88)i .r0'
+        System::Call 'user32::ReleaseDC(p 0, p r1)'
+    ${EndIf}
+
+    ; Get DPI of the dialog
+    Var /global DialogDPI
+    StrCpy $DialogDPI $0
+
+    ; Scale image size (128x128) according to DPI
+    Var /global ImageSize
+    ; ImageSize = (DPI * 128) / 96
+    IntOp $ImageSize $DialogDPI * 128
+    IntOp $ImageSize $ImageSize / 96
+
+    ; Retrieve scaled window bounds from Win32
+    Var /global DialogWidth
+    System::Call '*(i,i,i,i)i .r0'
+    System::Call 'user32::GetClientRect(p $HWNDPARENT, p r0)'
+    System::Call '*$0(i .r1, i .r2, i .r3, i .r4)'
+    System::Free $0
+    IntOp $DialogWidth $3 - $1
+
+    ; Calculate X coordinate to center the image...
+    Var /global ImageX
+    ; ImageX = (DialogWidth - ImageSize) / 2
+    IntOp $ImageX $DialogWidth - $ImageSize
+    IntOp $ImageX $ImageX / 2
+
+    ; Top Logo
+    Var /global Logo
+    ${NSD_CreateBitmap} $ImageX 10u $ImageSize $ImageSize ""
+    Pop $Logo
+    ${NSD_SetStretchedImage} $Logo "$PLUGINSDIR\${LOGO_FILE}" $0
+FunctionEnd
+
 ; ---
 ; Welcome page
 
 Page Custom WelcomePageCreate WelcomePageLeave
 
-Var Dialog
-Var Logo
-Var VersionLabel
-Var BmpHandle
 Var DirText
-Var DirBrowseBtn
 Var DesktopShortcutCheckbox
 Var CreateDesktopShortcut
 
@@ -81,20 +119,17 @@ done:
 FunctionEnd
 
 Function WelcomePageCreate
-
     nsDialogs::Create 1044
-    Pop $Dialog
+    Pop $0
 
-    ${If} $Dialog == error
+    ${If} $0 == error
         Abort
     ${EndIf}
 
-    ; Top Logo
-    ${NSD_CreateBitmap} 123u 10u 96u 96u ""
-    Pop $Logo
-    ${NSD_SetImage} $Logo "$PLUGINSDIR\${LOGO_FILE}" $BmpHandle
+    Call DrawLogo
 
     ; Version label
+    Var /global VersionLabel
     ${NSD_CreateLabel} 0u 100u 100% 15u "Installing Principia ${VERSION}"
     Pop $VersionLabel
     ${NSD_AddStyle} $VersionLabel ${SS_CENTER}
@@ -121,8 +156,8 @@ Function WelcomePageCreate
 
     ; Browse button
     ${NSD_CreateButton} 255u 169u 55u 16u "Browse"
-    Pop $DirBrowseBtn
-    ${NSD_OnClick} $DirBrowseBtn OnBrowseDir
+    Pop $0
+    ${NSD_OnClick} $0 OnBrowseDir
 
     nsDialogs::Show
 
@@ -197,20 +232,16 @@ var LaunchPrincipiaCheckbox
 var LaunchPrincipia
 
 Function FinishPageCreate
-
     nsDialogs::Create 1044
-    Pop $Dialog
+    Pop $0
 
-    SendMessage $mui.Button.Next ${WM_SETTEXT} 0 "STR:Finish"
-
-    ${If} $Dialog == error
+    ${If} $0 == error
         Abort
     ${EndIf}
 
-    ; Top Logo
-    ${NSD_CreateBitmap} 123u 10u 96u 96u ""
-    Pop $Logo
-    ${NSD_SetImage} $Logo "$PLUGINSDIR\${LOGO_FILE}" $BmpHandle
+    SendMessage $mui.Button.Next ${WM_SETTEXT} 0 "STR:Finish"
+
+    Call DrawLogo
 
     ; Version label
     ${NSD_CreateLabel} 0u 100u 100% 15u "Principia has been successfully installed"
