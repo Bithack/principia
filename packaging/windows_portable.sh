@@ -4,7 +4,7 @@
 
 touch release/portable.txt
 
-cp ../packaging/play_community_level.bat release/
+cp register-protocol-handler.exe release/
 
 cp -r ../data/ release/
 

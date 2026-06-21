@@ -321,6 +321,15 @@ if(NOT APPLE)
 	string(APPEND CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-s ")
 endif()
 
+# Register protocol handler util on Windows
+# -----------------------------------------
+
+if(WIN32)
+	add_executable(register-protocol-handler
+		packaging/register-protocol-handler/main.c
+		packaging/register-protocol-handler/windows.rc)
+endif()
+
 # Installation
 # ------------
 
