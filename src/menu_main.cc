@@ -271,4 +271,5 @@ menu_main::refresh_widgets()
 #endif
 
     this->wm->rearrange();
+    this->wm->rearrange();
 }

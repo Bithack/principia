@@ -385,10 +385,6 @@ menu_create::refresh_widgets()
         }
 
         menu_shared::gs_state = FL_ALPHA_IN;
-
-        /* an extra rearrange to make sure the "browse more community levels"
-         * text is at its proper location */
-        this->wm->rearrange();
     }
 
     this->wm->rearrange();
