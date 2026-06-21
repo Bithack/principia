@@ -358,9 +358,7 @@ int menu_pkg::handle_input(tms::event *ev, int action) {
 
     if (ev->type == TMS_EV_KEY_PRESS) {
         switch (ev->data.key.keycode) {
-#ifdef TMS_BACKEND_MOBILE
             case SDL_SCANCODE_AC_BACK:
-#endif
             case TMS_KEY_B:
             case TMS_KEY_ESC:
                 tms::set_screen(P.s_menu_play);

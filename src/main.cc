@@ -1128,7 +1128,7 @@ void tproject_quit() {
 }
 
 void setup_opengl_settings() {
-#ifdef TMS_BACKEND_MOBILE
+#ifdef TMS_USE_GLES
     if (settings["shadow_map_precision"]->is_uninitialized()) {
         settings["shadow_map_precision"]->v.i = 0;
     }

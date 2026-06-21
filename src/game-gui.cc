@@ -2030,11 +2030,9 @@ game::refresh_widgets()
     if (!W->is_puzzle() || G->state.sandbox)
         this->wdg_menu->add();
 
-#ifdef TMS_BACKEND_MOBILE
-    if (this->state.sandbox) {
+    if (settings["touch_controls"]->v.b && this->state.sandbox) {
         this->wdg_quickadd->add();
     }
-#endif
 
     if (this->get_mode() == GAME_MODE_DRAW && G->brush_layer_inclusion) {
         G->wdg_default_layer->s[0] = gui_spritesheet::get_sprite(S_ILAYER0+tclampi(G->state.edit_layer, 0, 2));

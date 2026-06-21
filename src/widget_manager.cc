@@ -41,22 +41,13 @@ base_touch_up(struct tms_wdg *w, int pid, int bid, int ox, int oy, float rx, flo
     }
 
     bool hovered;
-
-#ifdef TMS_BACKEND_PC
-    if (false && settings["emulate_touch"]->is_true()) {
+    if (settings["touch_controls"]->v.b) {
         float dist = sqrtf((float)(ox*ox + oy*oy));
-
-        tms_infof("DIST: %.2f", dist);
 
         hovered = (dist < w->size.w);
     } else {
         hovered = w->hovered;
     }
-#else
-    float dist = sqrtf((float)(ox*ox + oy*oy));
-
-    hovered = (dist < w->size.w);
-#endif
 
     if (hovered) {
 #ifndef TMS_BACKEND_PC
@@ -345,7 +336,6 @@ principia_wdg::step()
         }
     }
 
-#ifdef TMS_BACKEND_MOBILE
     if (this->type == TMS_WDG_BUTTON) {
         if (this->moved_out) {
             this->down_time = 0.0;
@@ -368,7 +358,6 @@ principia_wdg::step()
             this->down_time = 0.0;
         }
     }
-#endif
 }
 
 /* Emulate a click event. This will only reliably work on a button */

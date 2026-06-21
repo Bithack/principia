@@ -40,7 +40,7 @@ treasure_chest::treasure_chest()
 {
     this->set_flag(ENTITY_ALLOW_CONNECTIONS, false);
     this->set_flag(ENTITY_HAS_ACTIVATOR,    true);
-#ifdef TMS_BACKEND_PC
+#ifndef SDL_PLATFORM_ANDROID
     this->set_flag(ENTITY_HAS_CONFIG,        true);
 #endif
     this->set_flag(ENTITY_DYNAMIC_UNLOADING, true);

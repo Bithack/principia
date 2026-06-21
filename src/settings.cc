@@ -126,8 +126,6 @@ _settings::init()
     this->add("display_grapher_value",      S_BOOL, false);
     this->add("display_wireless_frequency", S_BOOL, true);
 
-    this->add("emulate_touch",      S_BOOL, false);
-
 #ifdef TMS_BACKEND_MOBILE
     this->add("touch_controls",     S_BOOL, true);
 #else

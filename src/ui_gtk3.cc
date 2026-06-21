@@ -472,11 +472,6 @@ struct table_setting_row settings_control_rows[] = {
         "Lock the cursor if you active an RC widgets mouse control.",
         "rc_lock_cursor",
         setting_row_type::create_checkbox()
-    }, {
-        "Emulate touch device",
-        "Enable this if you use an external device other than a mouse to control Principia, such as a Wacom pad.",
-        "emulate_touch",
-        setting_row_type::create_checkbox()
     },
 };
 

@@ -889,7 +889,6 @@ game::factory_handle_event(tms::event *ev)
                 case TMS_KEY_ESC:
                 case TMS_KEY_B:
                 case SDL_SCANCODE_AC_BACK:
-                    tms_infof("DEFAULT!");
                     this->set_mode(GAME_MODE_DEFAULT);
                     return EVENT_DONE;
 

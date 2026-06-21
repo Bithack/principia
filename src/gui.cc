@@ -849,13 +849,13 @@ gui_spritesheet::init()
     t_player_death = new p_text(font::xlarge);
     t_submit_score = new p_text(font::large);
 
-#ifdef TMS_BACKEND_PC
-    t_test_playing_back->set_text("Test-playing level. Press B to return to sandbox.");
-    t_get_ready->set_text("CLICK TO BEGIN");
-#else
-    t_test_playing_back->set_text("Test-playing level. Press Back to return to sandbox.");
-    t_get_ready->set_text("TOUCH TO BEGIN");
-#endif
+    if (settings["touch_controls"]->v.b) {
+        t_test_playing_back->set_text("Test-playing level. Press Back to return to sandbox.");
+        t_get_ready->set_text("TOUCH TO BEGIN");
+    } else {
+        t_test_playing_back->set_text("Test-playing level. Press B to return to sandbox.");
+        t_get_ready->set_text("CLICK TO BEGIN");
+    }
 
     t_continue->set_text("Continue >>");
     t_win->set_text("Level completed!");

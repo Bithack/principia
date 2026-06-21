@@ -50,7 +50,6 @@ namespace UiSettings {
         "first_adventure", "tutorial",
         "menu_speed",
         "smooth_menu",
-        "emulate_touch",
         "rc_lock_cursor",
 #ifdef DEBUG
         "debug",
@@ -238,11 +237,8 @@ namespace UiSettings {
 
                     ImGui::SeparatorText("Display");
 
-                    //VSync option has no effect on Android
-                    #ifdef TMS_BACKEND_PC
                     ImGui::Checkbox("Enable V-Sync", (bool*) &local_settings["vsync"]->v.b);
                     ImGui::SetItemTooltip("Helps eliminate screen tearing by limiting the refresh rate.\nMay introduce a slight input delay.");
-                    #endif
 
                     ImGui::EndTabItem();
                 }
@@ -307,9 +303,6 @@ namespace UiSettings {
 
                     ImGui::Checkbox("Enable on-screen controls", (bool*) &local_settings["touch_controls"]->v.b);
                     ImGui::SetItemTooltip("Enable touch-friendly on-screen controls");
-
-                    ImGui::Checkbox("Emulate touch", (bool*) &local_settings["emulate_touch"]->v.b);
-                    ImGui::SetItemTooltip("Enable this if you use an external device other than a mouse to control Principia, such as a Wacom pad.");
                 }
 
                 bool interface_tab = ImGui::BeginTabItem("Interface");
@@ -342,7 +335,7 @@ namespace UiSettings {
 
                 //This assumes separator height == 1. which results in actual height of 0
                 float button_area_height =
-                    1 + 
+                    1 +
                     ImGui::GetStyle().ItemSpacing.y + //Separator spacing
                     (ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.); // Buttons
                 if (ImGui::GetContentRegionAvail().y > button_area_height) {

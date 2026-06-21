@@ -2829,18 +2829,6 @@ game::render()
     ss = SDL_GetTicks();
 #endif
 
-#ifdef DEBUG
-# ifdef TMS_BACKEND_MOBILE
-    G->show_numfeed(_tms.fps_mean);
-# else
-    if (W->step_count % 120 == 0) {
-        char fps[64];
-        sprintf(fps, "Principia - FPS: %f (%f)", _tms.fps, _tms.fps_mean);
-        SDL_SetWindowTitle((SDL_Window*)_tms._window, fps);
-    }
-# endif
-#endif
-
     glViewport(0,0,_tms.opengl_width, _tms.opengl_height);
 
     /* create shadow map */
@@ -5312,7 +5300,7 @@ game::apply_level_properties()
         this->set_architect_mode(false);
     }
 
-#ifdef TMS_BACKEND_MOBILE
+#ifdef SDL_PLATFORM_ANDROID
     if (W->level.flag_active(LVL_PORTRAIT_MODE)) {
 #else
     if (false) {
@@ -5889,9 +5877,7 @@ game::handle_input_playing(tms::event *ev, int action)
                 || ev->type == TMS_EV_KEY_PRESS) {
                 if (ev->type == TMS_EV_KEY_PRESS) {
                     switch (ev->data.key.keycode) {
-#ifdef TMS_BACKEND_MOBILE
                         case SDL_SCANCODE_AC_BACK:
-#endif
                         case TMS_KEY_B:
                             this->back();
                             return EVENT_DONE;
@@ -6026,9 +6012,7 @@ game::handle_input_playing(tms::event *ev, int action)
                 }
                 break;
 
-#ifdef TMS_BACKEND_MOBILE
             case SDL_SCANCODE_AC_BACK:
-#endif
             case TMS_KEY_B:
             case TMS_KEY_P:
                 if (W->is_adventure()) {
@@ -6069,11 +6053,9 @@ game::handle_input_playing(tms::event *ev, int action)
                 }
                 break;
 
-#ifdef TMS_BACKEND_MOBILE
             case SDL_SCANCODE_MENU:
                 ui::open_dialog(DIALOG_PLAY_MENU);
                 break;
-#endif
         }
     } else if (ev->type == TMS_EV_KEY_DOWN || ev->type == TMS_EV_KEY_REPEAT) {
         if (this->menu_handle_event(ev) == EVENT_DONE) {
@@ -6449,10 +6431,9 @@ game::handle_input_playing(tms::event *ev, int action)
                         bool shift_down = (this->shift_down() && !this->state.abo_architect_mode) || (!this->shift_down() && this->state.abo_architect_mode);
                         bool ctrl_down = this->ctrl_down();
 
-#ifdef TMS_BACKEND_MOBILE
-                        /* On Android and iOS we include alternate snap-methods (holding a second finger down on the screen) */
-                        shift_down = shift_down || snap[0] || snap[1];
-#endif
+                        // On touch platforms we include alternate snap-methods (holding a second finger down on the screen)
+                        if (settings["touch_controls"]->v.b)
+                            shift_down = shift_down || snap[0] || snap[1];
 
                         /**
                          * Holding down shift and ctrl produces 64-angle snapping
@@ -7807,9 +7788,7 @@ game::handle_input_paused(tms::event *ev, int action)
                 }
                 break;
 
-#ifdef TMS_BACKEND_MOBILE
             case SDL_SCANCODE_AC_BACK:
-#endif
             case TMS_KEY_B: this->back(); break;
 
             case TMS_KEY_DELETE:
@@ -8030,13 +8009,11 @@ game::handle_input_paused(tms::event *ev, int action)
                 }
                 break;
 
-#ifdef TMS_BACKEND_MOBILE
             case SDL_SCANCODE_MENU:
                 if (this->state.sandbox) {
                     ui::open_dialog(DIALOG_SANDBOX_MENU);
                 }
                 break;
-#endif
         }
     } else if (ev->type == TMS_EV_KEY_UP) {
         switch (ev->data.key.keycode) {
@@ -8485,12 +8462,9 @@ game::handle_input_paused(tms::event *ev, int action)
                             simple_snap = !simple_snap;
                         }
 
-#ifdef TMS_BACKEND_MOBILE
-                        /* On Android and iOS we include alternate snap-methods (holding a second finger down on the screen) */
-                        if (snap[0] || snap[1]) {
+                        // On touch platforms we include alternate snap-methods (holding a second finger down on the screen)
+                        if (settings["touch_controls"]->v.b && (snap[0] || snap[1]))
                             simple_snap = !simple_snap;
-                        }
-#endif
 
                         bool advanced_snap = false;
 
@@ -8901,12 +8875,10 @@ game::handle_input_paused(tms::event *ev, int action)
             }
         }
 
-#ifdef TMS_BACKEND_PC
-        if (pid == 1) {
+        if (!settings["touch_controls"]->v.b && pid == 1) {
             ui::open_dialog(DIALOG_SANDBOX_MENU);
             return T_OK;
         }
-#endif
 
         moving[pid] = false;
         dragging[pid] = false;

@@ -907,20 +907,17 @@ adventure::handle_input_playing(tms::event *ev, int action)
 
         /* minimum death time before we can respawn */
         if (adventure::death_wait <= 0) {
+            bool wants_to_respawn = false;
+            if (settings["touch_controls"]->v.u8 == 0)
+                wants_to_respawn = ev->type == TMS_EV_KEY_PRESS;
+            else
+                wants_to_respawn = ev->type == TMS_EV_POINTER_DOWN;
 
-#ifdef TMS_BACKEND_MOBILE
-            if (ev->type == TMS_EV_POINTER_DOWN) {
+            if (wants_to_respawn) {
                 adventure::respawn();
                 adventure::player->respawn();
                 return EVENT_DONE;
             }
-#else
-            if (ev->type == TMS_EV_KEY_PRESS) {
-                adventure::respawn();
-                adventure::player->respawn();
-                return EVENT_DONE;
-            }
-#endif
         }
 
         return EVENT_DONE;
@@ -937,10 +934,7 @@ adventure::handle_input_playing(tms::event *ev, int action)
 
         for (int n=0; n<NUM_RESOURCES; ++n) {
             if (adventure::player->get_num_resources(n)
-#ifdef TMS_BACKEND_MOBILE
-                    && n == adventure::last_picked_up_resource
-#endif
-                    ) {
+                    && (!settings["touch_controls"]->v.b || n == adventure::last_picked_up_resource)) {
                 ++num_items;
             }
         }
@@ -1605,10 +1599,9 @@ adventure::render()
 
         for (int n=0; n<NUM_RESOURCES; ++n) {
             if (adventure::player->get_num_resources(n)
-#ifdef TMS_BACKEND_MOBILE
-                    && n == adventure::last_picked_up_resource
-#endif
-                    ) {
+                    // Only show the last picked up resource if touch controls are enabled, to reduce the amount of
+                    // space on screen taken up by different resources if you have a lot of them.
+                    && (!settings["touch_controls"]->v.b || n == adventure::last_picked_up_resource)) {
                 float alpha = 1.f;
                 float extra_scale = adventure::highlight_inventory[n] * .5f;
                 adventure::highlight_inventory[n] *= powf(.008f, _tms.dt);
