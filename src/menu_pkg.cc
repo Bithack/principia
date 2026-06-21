@@ -189,7 +189,7 @@ bool menu_pkg::set_pkg(int type, uint32_t id) {
 }
 
 int menu_pkg::resume() {
-    tms_infof("menu_pkg: resume")
+    tms_infof("menu_pkg: resume");
     active = true;
 
     recalculate_layout();
