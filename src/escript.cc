@@ -717,13 +717,6 @@ escript::init()
 
     register_this(this->L, this);
 
-#ifdef BUILD_LUASOCKET
-    if (W->level.flag_active(LVL_ENABLE_LUASOCKET)) {
-        luaopen_socket_core(this->L);
-        lua_pop(this->L, 1);
-    }
-#endif
-
     //apply blacklist
     for (const char** p = blacklist; *p != NULL; p++) {
         lua_pushnil(L);

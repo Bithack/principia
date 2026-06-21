@@ -6,10 +6,6 @@ extern "C" {
 #include "lualib.h"
 #include "lauxlib.h"
 #include "eris.h"
-
-#ifdef BUILD_LUASOCKET
-#include "luasocket/luasocket.h"
-#endif
 }
 
 // used for version checks

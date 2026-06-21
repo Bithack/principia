@@ -180,23 +180,6 @@ if(NOT SCREENSHOT_BUILD)
 endif()
 
 
-# Optional luasocket functionality
-
-if(NOT SCREENSHOT_BUILD AND NOT EMSCRIPTEN)
-	option(USE_LUASOCKET "Build with Luasocket support" TRUE)
-else()
-	set(USE_LUASOCKET FALSE)
-endif()
-
-if(USE_LUASOCKET)
-	add_definitions(-DBUILD_LUASOCKET)
-
-	file(GLOB LUASOCKET_SRCS CONFIGURE_DEPENDS
-		lib/luasocket/*.c)
-
-	list(APPEND SRCS ${LUASOCKET_SRCS})
-endif()
-
 if(NOT UNITY_BUILD)
 	if(SCREENSHOT_BUILD)
 		set(BACKEND_SRC main_screenshotter.cc)
@@ -252,8 +235,6 @@ endif()
 
 if(ANDROID)
 	list(APPEND LIBS android dl log OpenSLES)
-elseif(WIN32)
-	list(APPEND LIBS ws2_32.lib version.lib shlwapi.lib winmm.lib)
 endif()
 
 target_link_libraries(${PROJECT_NAME} ${LIBS})
