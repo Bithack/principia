@@ -156,7 +156,7 @@ _settings::init()
             this->save();
         } else {
             /* todo: is the dir Principia created before this is called? */
-            tms_infof("another error occured, no permissinos to the dir/file?");
+            tms_infof("another error occurred, no permissinos to the dir/file?");
         }
     } else {
         fclose(fh);
@@ -273,7 +273,7 @@ _settings::save(void)
     FILE *fh = fopen(this->filename, "w+");
 
     if (!fh) {
-        tms_errorf("An error occured when attempting to open settings file.");
+        tms_errorf("An error occurred when attempting to open settings file.");
         return false;
     }
 

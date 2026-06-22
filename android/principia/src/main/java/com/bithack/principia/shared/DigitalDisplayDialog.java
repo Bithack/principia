@@ -132,7 +132,7 @@ public class DigitalDisplayDialog {
                             new_str.setCharAt(y, (isChecked?'1':'0'));
                             symbols.set(cur_symbol, new_str.toString());
                         } catch (StringIndexOutOfBoundsException e) {
-                            Log.e("Principia", "An unknown error occured: " + e.getMessage());
+                            Log.e("Principia", "An unknown error occurred: " + e.getMessage());
                         }
                     }
                 });

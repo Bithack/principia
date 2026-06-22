@@ -2597,7 +2597,7 @@ world::load_partial_from_buffer(lvlbuf *lb, b2Vec2 position,
     W->level.version = old_version;
 
     if (!status) {
-        ui::message("An error occured while reading the object.");
+        ui::message("An error occurred while reading the object.");
     }
 
     return status;

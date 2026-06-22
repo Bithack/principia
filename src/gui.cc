@@ -957,10 +957,10 @@ gui_spritesheet::init()
         tms_debugf("DUMP SPRITE DATA");
 
         if (!write_cache(&lb)) {
-            tms_errorf("An error occured while trying write sprite cache.");
+            tms_errorf("An error occurred while trying write sprite cache.");
         } else {
             if (!save_cache(&lb, cache_path)) {
-                tms_errorf("An error occured while trying to save sprite cache to a file. (not enough permission/disk space?)");
+                tms_errorf("An error occurred while trying to save sprite cache to a file. (not enough permission/disk space?)");
             } else {
                 tms_infof("successfully saved cache");
             }

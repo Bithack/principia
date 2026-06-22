@@ -11591,7 +11591,7 @@ ui::emit_signal(int num, void *data/*=0*/)
             break;
 
         case SIGNAL_LOGIN_FAILED:
-            gtk_label_set_text(login_status, "An error occured.");
+            gtk_label_set_text(login_status, "An error occurred.");
             gtk_widget_set_sensitive(GTK_WIDGET(login_btn_log_in), true);
             return;
 

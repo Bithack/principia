@@ -676,7 +676,7 @@ _publish_pkg(void *_unused)
                             p.save();
                         }
                     } else {
-                        /* we did not recieve any data back, an unknown error occured */
+                        /* we did not recieve any data back, an unknown error occurred */
                         tms_errorf("no data received");
                         _publish_pkg_error = true;
                     }
@@ -689,7 +689,7 @@ _publish_pkg(void *_unused)
                 unlock_curl("publish_pkg");
             } else {
                 //ui::message("An error occurred while uploading levels in package.");
-                tms_errorf("An error occured while uploading the levels contained in the package.");
+                tms_errorf("An error occurred while uploading the levels contained in the package.");
                 _publish_pkg_error = true;
             }
 
@@ -789,7 +789,7 @@ _publish_level(void *p)
                 free(hd.notify_message);
 
             } else {
-                /* we did not recieve any data back, an unknown error occured */
+                /* we did not recieve any data back, an unknown error occurred */
                 tms_errorf("no data received");
                 _publish_lvl_uploading_error = true;
             }
@@ -806,7 +806,7 @@ _publish_level(void *p)
                     break;
 
                 default:
-                    ui::message("An unknown error occured when publishing your level. Check your internet connection.", true);
+                    ui::message("An unknown error occurred when publishing your level. Check your internet connection.", true);
                     break;
             }
             _publish_lvl_uploading = false;
@@ -953,7 +953,7 @@ _submit_score(void *p)
                     break;
 
                 default:
-                    ui::message("An unknown error occured when submitting your score. Check your internet connection and try again.", true);
+                    ui::message("An unknown error occurred when submitting your score. Check your internet connection and try again.", true);
                     break;
             }
         }
@@ -1393,7 +1393,7 @@ _download_level(void *p)
             tms_errorf("wtf? we just downloaded it and couldnt open it");
         }
     } else {
-        tms_debugf("An error occured while downloading the level.");
+        tms_debugf("An error occurred while downloading the level.");
         _play_id = old_id;
     }
 
