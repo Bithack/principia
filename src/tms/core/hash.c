@@ -1,6 +1,6 @@
 
 #include "hash.h"
-#include <tms/backend/print.h>
+#include "print.h"
 
 /**
  * Round up to the nearest power of 2

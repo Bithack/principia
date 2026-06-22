@@ -7,7 +7,6 @@
 #include "screen.h"
 #include "event.h"
 #include "material.h"
-#include "backend.h"
 #include "shader.h"
 #include "project.h"
 #include "hash.h"

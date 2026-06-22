@@ -1,7 +1,7 @@
 #include "gbuffer.h"
+#include "err.h"
+#include "print.h"
 #include <string.h>
-#include <tms/core/err.h>
-#include <tms/backend/print.h>
 
 struct tms_gbuffer*
 tms_gbuffer_alloc(size_t size)

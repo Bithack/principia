@@ -26,7 +26,7 @@
 #include <Box2D/Collision/Shapes/b2Shape.h>
 #include <algorithm>
 
-#include <tms/backend/print.h>
+#include <tms/core/print.h>
 #include "creature.hh"
 
 static const uint32 xTruncBits = 12;
@@ -165,7 +165,7 @@ int32 b2ParticleSystem::CreateParticle(const b2ParticleDef& def)
         tms_debugf("reached maximum particles");
         return b2_invalidParticleIndex;
     }
-        
+
 	if (m_count >= m_internalAllocatedCapacity)
 	{
 		int32 capacity = m_count ? 2 * m_count : b2_minParticleBufferCapacity;

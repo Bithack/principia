@@ -66,6 +66,10 @@ struct tms_mesh;
 #define opengl_height window_height
 #endif
 
+#if !defined TMS_BACKEND_PC && !defined TMS_BACKEND_MOBILE
+	#error Either TMS_BACKEND_PC or TMS_BACKEND_MOBILE need to be defined for your platform.
+#endif
+
 /**
  * Global singleton object that the project work against.
  * tms is a global singleton that can be accessed from anywhere,

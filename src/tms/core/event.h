@@ -1,6 +1,5 @@
 #pragma once
 
-#include <tms/core/err.h>
 #include <stdint.h>
 
 #ifdef __cplusplus

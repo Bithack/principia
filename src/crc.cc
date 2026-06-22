@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 #ifndef _NO_TMS
-#include <tms/backend/print.h>
+#include <tms/cpp.hh>
 #endif
 
 uint32_t

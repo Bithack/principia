@@ -1,5 +1,4 @@
 #include "atlas.h"
-#include "backend.h"
 #include "camera.h"
 #include "ddraw.h"
 #include "entity.h"

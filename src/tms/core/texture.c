@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "backend.h"
 #include "texture.h"
 #include "framebuffer.h"
 #include "tms.h"
