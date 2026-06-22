@@ -142,9 +142,6 @@ class gui_spritesheet
         return &gui_spritesheet::sprites[sprite_id].sprite;
     }
 
-    static bool use_cache;
-    static void load_cache(void);
-
     static tms_atlas *tmp_atlas;
     static bool tmp_atlas_modified;
     static bool text_atlas_modified;

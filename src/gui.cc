@@ -194,9 +194,6 @@ static struct atlas_layout cache_atlases[NUM_ATLASES] = {
     },
 };
 
-static char cache_path[512];
-bool gui_spritesheet::use_cache = false;
-
 static bool
 open_cache(lvlbuf *lb, const char *path)
 {
@@ -444,26 +441,6 @@ read_cache(lvlbuf *lb)
     return true;
 }
 
-void
-gui_spritesheet::load_cache()
-{
-    lvlbuf lb;
-
-    if (!open_cache(&lb, cache_path)) {
-        tms_errorf("Error openin cache, reverting to non-cached sprite loading.");
-        gui_spritesheet::use_cache = false;
-    } else {
-        if (!read_cache(&lb)) {
-            tms_errorf("Error reading cache, reverting to non-cached sprite loading.");
-            gui_spritesheet::use_cache = false;
-        }
-    }
-
-    if (lb.buf) {
-        free(lb.buf);
-    }
-}
-
 static void
 write_sprite(lvlbuf *lb, struct tms_sprite *s)
 {
@@ -676,34 +653,6 @@ gui_spritesheet::init_atlas()
 
     text_factor = (float)_tms.xppcm / (float)text_xppcm;
 
-    snprintf(cache_path, 511, "%s/textures.cache", tms_storage_cache_path());
-    gui_spritesheet::use_cache = false;
-
-    tms_infof("Textures cache path: %s", cache_path);
-
-    if (!settings["always_reload_data"]->v.b && file_exists(cache_path)) {
-        tms_infof("Checking if we want to use cache...");
-        /* The cache file exists, make sure we want to use it. */
-        gui_spritesheet::use_cache = true;
-#ifndef TMS_BACKEND_ANDROID
-        time_t cache_mtime = get_mtime(cache_path);
-        time_t sprite_mtime;
-
-        for (int x=0; x<NUM_SPRITES; ++x) {
-            if (!gui_spritesheet::sprites[x].path) continue;
-
-            const char *path = gui_spritesheet::sprites[x].path;
-
-            sprite_mtime = get_mtime(path);
-            if (sprite_mtime >= cache_mtime) {
-                tms_infof("Not using cache, %s has been modified", path);
-                gui_spritesheet::use_cache = false;
-                break;
-            }
-        }
-#endif
-    }
-
     tms_infof("Initialzing freetype...");
     if (FT_Init_FreeType(&gui_spritesheet::ft)) {
         tms_fatalf("Unable to init freetype library");
@@ -714,7 +663,6 @@ static bool use_font_cache = true;
 static char font_cache_path[512];
 
 static const bool disable_font_cache = false;
-static const bool disable_gui_cache = true;
 
 void
 gui_spritesheet::init_loading_font()
@@ -948,24 +896,6 @@ gui_spritesheet::init()
     tmp_atlas = tms_atlas_alloc(1024, 128, 4);
     tmp_atlas->padding_x = 1;
     tmp_atlas->padding_y = 1;
-
-    if (!gui_spritesheet::use_cache && !disable_gui_cache) {
-        /* write cache file! */
-        lvlbuf lb;
-
-        /* dump models to cache file */
-        tms_debugf("DUMP SPRITE DATA");
-
-        if (!write_cache(&lb)) {
-            tms_errorf("An error occurred while trying write sprite cache.");
-        } else {
-            if (!save_cache(&lb, cache_path)) {
-                tms_errorf("An error occurred while trying to save sprite cache to a file. (not enough permission/disk space?)");
-            } else {
-                tms_infof("successfully saved cache");
-            }
-        }
-    }
 }
 
 void
