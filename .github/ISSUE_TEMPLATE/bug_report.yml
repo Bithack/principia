@@ -4,8 +4,8 @@ labels: ["Bug"]
 body:
   - type: markdown
     attributes:
-      value: Thank you for helping to make the game better by reporting issues that you discover. Please make sure to describe the necessary details about the bug such that it can be reproduced by others and hopefully be fixed.
-  - type: textarea
+      value: Thank you for helping to make the game better by reporting issues that you discover. Make sure to describe the necessary details about the bug such that it can be reproduced by others. Additionally please refrain from using LLMs ("AI") to write or "improve" your report, as they typically just make it more verbose without adding any useful information.
+  - type: input
     attributes:
       label: Principia version
       description: Describe the version you are running here. Are you on a stable release or on a nightly build, or have you built from source? To determine where a non-release build was built off of you can press the version number in the bottom right corner of the main menu.
