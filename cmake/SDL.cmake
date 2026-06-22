@@ -25,6 +25,7 @@ endif()
 
 if(EMSCRIPTEN)
 	set(SDL_PTHREADS ON CACHE BOOL "" FORCE)
+	set(SDL_EMSCRIPTEN_PERSISTENT_PATH "/storage" CACHE STRING "" FORCE)
 endif()
 
 add_definitions(-DSDL_LEAN_AND_MEAN=1)
