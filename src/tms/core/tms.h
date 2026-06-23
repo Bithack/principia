@@ -91,6 +91,11 @@ extern struct tms_singleton {
     int emulating_portrait;
     int in_frame;
 
+    /// Whether to use OpenGL ES 2.0 or not. (False uses desktop OpenGL 2.1+ codepaths)
+    /// This variable is set from the "use_gles" setting during preinit and is the same as
+    /// `settings["use_gles"]->v.b`, but is also available in TMS code.
+    bool use_gles;
+
     float window_projection[16];
     struct tms_screen      *screen; /**< current screen */
     struct tms_screen      *active_screen;

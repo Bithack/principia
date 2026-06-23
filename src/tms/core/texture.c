@@ -379,22 +379,18 @@ tms_texture_upload(struct tms_texture *tex)
             colors = GL_RGB;
             format = GL_RGB;
 
-#ifndef TMS_USE_GLES
-            if (tex->gamma_correction) {
+            if (!tms.use_gles && tex->gamma_correction) {
                 format = GL_SRGB;
             }
-#endif
             break;
 
         case 4:
             colors = GL_RGBA;
             format = GL_RGBA;
 
-#ifndef TMS_USE_GLES
-            if (tex->gamma_correction) {
+            if (!tms.use_gles && tex->gamma_correction) {
                 format = GL_SRGB8_ALPHA8;
             }
-#endif
             break;
 
         default:
@@ -408,12 +404,12 @@ tms_texture_upload(struct tms_texture *tex)
 
     glBindTexture(GL_TEXTURE_2D, tex->gl_texture);
 
-#ifndef TMS_USE_GLES
-    glEnable(GL_TEXTURE_2D);
-    if (tex->filter == TMS_MIPMAP) {
-        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+    if (!tms.use_gles) {
+        glEnable(GL_TEXTURE_2D);
+        if (tex->filter == TMS_MIPMAP) {
+            glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+        }
     }
-#endif
 
     glTexImage2D(GL_TEXTURE_2D, 0, format,
             tex->width, tex->height,
@@ -426,15 +422,16 @@ tms_texture_upload(struct tms_texture *tex)
     if (tex->filter == TMS_MIPMAP) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-#ifdef TMS_USE_GLES
-        glGenerateMipmap(GL_TEXTURE_2D);
 
-        int err = glGetError();
-        if (err != 0) {
-            tms_infof("error: could not create mipmaps (%d)", err);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        if (tms.use_gles) {
+            glGenerateMipmap(GL_TEXTURE_2D);
+
+            int err = glGetError();
+            if (err != 0) {
+                tms_infof("error: could not create mipmaps (%d)", err);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            }
         }
-#endif
     } else {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, tex->filter);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, tex->filter);

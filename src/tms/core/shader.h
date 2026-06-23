@@ -6,15 +6,14 @@
 #include <tms/math/vector.h>
 #include <tms/core/tms.h>
 
-#ifdef TMS_USE_GLES
-#define TMS_GLSL_HEADER\
+#define TMS_GLSL_HEADER_GLES\
     "#version 100\n"\
     "precision mediump float;"\
     "precision mediump int;"\
 "\n"
-#else
-#define TMS_GLSL_HEADER "#version 110\n"
-#endif
+
+#define TMS_GLSL_HEADER_GL "#version 110\n"
+
 
 struct tms_mesh_attribute;
 

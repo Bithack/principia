@@ -138,7 +138,10 @@ static GLint compile(struct tms_shader *sh, GLenum st, const char *src)
         num_src += sh->num_fs_defines + _tms_global_shader.num_fs_defines;
 
     char *sources[num_src+1];
-    sources[0] = TMS_GLSL_HEADER;
+    if (tms.use_gles)
+        sources[0] = TMS_GLSL_HEADER_GLES;
+    else
+        sources[0] = TMS_GLSL_HEADER_GL;
 
     for (int x=0; x<sh->num_defines; x++)
         sources[1+x] = sh->defines[x];

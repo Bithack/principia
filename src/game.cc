@@ -1202,20 +1202,20 @@ game::init_framebuffers()
         this->bloom_fb = 0;
     }
 
-#ifndef TMS_USE_GLES
-    if (settings["postprocess"]->v.b) {
-        tms_infof("Postprocess time");
-        this->main_fb = tms_fb_alloc(_tms.window_width, _tms.window_height, 0);
-        tms_fb_add_texture(this->main_fb, GL_RGBA, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
-        tms_fb_enable_depth(this->main_fb, GL_DEPTH_COMPONENT16);
+    if (!_tms.use_gles) {
+        if (settings["postprocess"]->v.b) {
+            tms_infof("Postprocess time");
+            this->main_fb = tms_fb_alloc(_tms.window_width, _tms.window_height, 0);
+            tms_fb_add_texture(this->main_fb, GL_RGBA, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
+            tms_fb_enable_depth(this->main_fb, GL_DEPTH_COMPONENT16);
 
-        this->bloom_fb = tms_fb_alloc(_tms.window_width, _tms.window_height, 1);
-        tms_fb_add_texture(this->bloom_fb, GL_RGBA, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
-    } else {
-        this->main_fb = 0;
-        this->bloom_fb = 0;
+            this->bloom_fb = tms_fb_alloc(_tms.window_width, _tms.window_height, 1);
+            tms_fb_add_texture(this->bloom_fb, GL_RGBA, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
+        } else {
+            this->main_fb = 0;
+            this->bloom_fb = 0;
+        }
     }
-#endif
 }
 
 void
@@ -2859,10 +2859,8 @@ game::render()
             tms_fb_swap_blur3x3(tms_pipeline_get_framebuffer(3));
     }
 
-#ifndef TMS_USE_GLES
-    if (settings["postprocess"]->v.b)
+    if (!_tms.use_gles && settings["postprocess"]->v.b)
         tms_fb_bind(this->main_fb);
-#endif
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render after shadow/ao", ierr);
     glDisable(GL_BLEND);
@@ -2871,10 +2869,8 @@ game::render()
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render before bg", ierr);
 
-#ifndef TMS_USE_GLES
-    if (settings["gamma_correct"]->v.b && !settings["postprocess"]->v.b)
+    if (!_tms.use_gles && settings["gamma_correct"]->v.b && !settings["postprocess"]->v.b)
         glEnable(GL_FRAMEBUFFER_SRGB);
-#endif
 
     if (this->state.abo_architect_mode) {
         glClearColor(.25f, .25f, .25f, 1.f);
@@ -2994,11 +2990,9 @@ game::render()
         tms_assertf((ierr = glGetError()) == 0, "gl error %d after render foreground", ierr);
     }
 
-#ifndef TMS_USE_GLES
-    if (settings["gamma_correct"]->v.b && !settings["postprocess"]->v.b) {
+    if (!_tms.use_gles && settings["gamma_correct"]->v.b && !settings["postprocess"]->v.b) {
         glDisable(GL_FRAMEBUFFER_SRGB);
     }
-#endif
 
     glDepthMask(true);
     glDisable(GL_BLEND);
@@ -3007,8 +3001,7 @@ game::render()
     tms_ddraw_set_matrices(this->dd, this->cam->view, this->cam->projection);
     //tms_ddraw_line3d(this->dd, 0, 0, 0, this->light.x*2.f, this->light.y*2.f, this->light.z*2.f);
 
-#ifndef TMS_USE_GLES
-    if (settings["postprocess"]->v.b) {
+    if (!_tms.use_gles && settings["postprocess"]->v.b) {
         tms_fb_unbind(this->main_fb);
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
@@ -3064,7 +3057,6 @@ game::render()
         glEnable(GL_DEPTH_TEST);
         tms_assertf((ierr = glGetError()) == 0, "gl error %d after postprocess", ierr);
     }
-#endif
 
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);

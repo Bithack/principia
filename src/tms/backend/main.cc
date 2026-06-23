@@ -233,27 +233,27 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
     tms_infof("Device PPCM: %f %f", _tms.xppcm, _tms.yppcm);
 #endif
 
-#ifdef TMS_USE_GLES
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    if (_tms.use_gles) {
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-#else
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-#endif
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+    } else {
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    }
 
     SDL_GLContext gl_context = SDL_GL_CreateContext(_window);
 
     if (gl_context == NULL)
         tms_fatalf("Error creating GL Context: %s", SDL_GetError());
 
-#ifdef TMS_USE_GLES
-    int version = gladLoadGLES2((GLADloadfunc)SDL_GL_GetProcAddress);
-#else
-    int version = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
-#endif
+    int version;
+    if (_tms.use_gles)
+        version = gladLoadGLES2((GLADloadfunc)SDL_GL_GetProcAddress);
+    else
+        version = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
     tms_infof("Loaded GL version %d.%d", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
 
     tms_infof("GL Info: %s/%s/%s", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));

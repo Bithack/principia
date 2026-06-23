@@ -50,8 +50,10 @@ static void apply_very_bad_settings()
 
 #ifdef TMS_USE_GLES
     #define GAMMA_CORRECT_DEFAULT false
+    #define USE_GLES true
 #else
     #define GAMMA_CORRECT_DEFAULT -1
+    #define USE_GLES false
 #endif
 
 void
@@ -61,6 +63,8 @@ _settings::init()
 
     /** -Graphics **/
     this->add("debug",              S_BOOL,  false);
+
+    this->add("use_gles",            S_BOOL,  USE_GLES);
 
     // Shadows
     this->add("enable_shadows",           S_BOOL,  ENABLE_SHADOWS_DEFAULT);

@@ -1,5 +1,6 @@
 #include "varray.h"
 #include "gbuffer.h"
+#include "tms.h"
 #include <string.h>
 #include <tms/core/err.h>
 
@@ -117,12 +118,10 @@ tms_varray_bind_attributes(struct tms_varray *va,
                 ;
             }
 
-#ifndef TMS_USE_GLES
-            if (m->component_type == GL_UNSIGNED_INT || m->component_type == GL_INT)
+            if (!tms.use_gles && (m->component_type == GL_UNSIGNED_INT || m->component_type == GL_INT))
                 glVertexAttribIPointer(locations[x], m->num_components, m->component_type,
                                       bufdata->vsize, (void*)(uintptr_t)m->offset);
             else
-#endif
                 glVertexAttribPointer(locations[x], m->num_components, m->component_type,
                                       0, bufdata->vsize, (void*)(uintptr_t)m->offset);
 

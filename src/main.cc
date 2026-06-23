@@ -260,19 +260,17 @@ void init_framebuffers() {
             if (settings["shadow_map_precision"]->v.i == 0) {
                 shadow_map_precision = GL_RGB;
             } else if (settings["shadow_map_precision"]->v.i == 1) {
-#ifdef TMS_USE_GLES
-                /* Android does not seem to have either GL_RGB16F or GL_RGBA16F defined */
-                shadow_map_precision = GL_RGB;
-#else
-                shadow_map_precision = GL_RGB16F;
-#endif
+                if (!_tms.use_gles)
+                    /* Android does not seem to have either GL_RGB16F or GL_RGBA16F defined */
+                    shadow_map_precision = GL_RGB;
+                else
+                    shadow_map_precision = GL_RGB16F;
             } else if (settings["shadow_map_precision"]->v.i == 2) {
-#ifdef TMS_USE_GLES
-                /* Android does not seem to have either GL_RGB32F or GL_RGBA32F defined */
-                shadow_map_precision = GL_RGB;
-#else
-                shadow_map_precision = GL_RGB32F;
-#endif
+                if (_tms.use_gles)
+                    /* Android does not seem to have either GL_RGB32F or GL_RGBA32F defined */
+                    shadow_map_precision = GL_RGB;
+                else
+                    shadow_map_precision = GL_RGB32F;
             }
 
             tms_fb_add_texture(gi_fb, shadow_map_precision, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
@@ -1128,46 +1126,49 @@ void tproject_quit() {
 }
 
 void setup_opengl_settings() {
-#ifdef TMS_USE_GLES
-    if (settings["shadow_map_precision"]->is_uninitialized()) {
-        settings["shadow_map_precision"]->v.i = 0;
-    }
-
-    if (settings["shadow_map_depth_texture"]->is_uninitialized()) {
-        if (strstr(_tms.gl_extensions, "GL_OES_depth_texture") != 0) {
-            tms_infof("GL_OES_depth_texture: YES");
-            settings["shadow_map_depth_texture"]->v.b = 1;
-        } else {
-            tms_infof("GL_OES_depth_texture: NO");
-            settings["shadow_map_depth_texture"]->v.b = 0;
-        }
-    }
-#else
-    if (settings["shadow_map_precision"]->is_uninitialized()) {
-        if (strstr(_tms.gl_extensions, "GL_ARB_texture_float") != 0
-            || strstr(_tms.gl_extensions, "GL_ATI_texture_float") != 0) {
-            tms_infof("GL_ARB_texture_float: YES");
-            settings["shadow_map_precision"]->v.i = 1;
-        } else {
-            tms_infof("GL_ARB_texture_float: NO");
+    if (_tms.use_gles) {
+        if (settings["shadow_map_precision"]->is_uninitialized()) {
             settings["shadow_map_precision"]->v.i = 0;
         }
-    }
 
-    if (settings["gamma_correct"]->is_uninitialized()) {
-        if (strstr(_tms.gl_extensions, "GL_EXT_texture_sRGB") != 0
-            && strstr(_tms.gl_extensions, "GL_EXT_framebuffer_sRGB") != 0) {
-            tms_infof("GL_EXT_texture_sRGB+GL_EXT_framebuffer_sRGB: YES");
-            settings["gamma_correct"]->v.b = 1;
-        } else {
-            tms_infof("GL_EXT_texture_sRGB+GL_EXT_framebuffer_sRGB: NO");
-            settings["gamma_correct"]->v.b = 0;
+        if (settings["shadow_map_depth_texture"]->is_uninitialized()) {
+            if (strstr(_tms.gl_extensions, "GL_OES_depth_texture") != 0) {
+                tms_infof("GL_OES_depth_texture: YES");
+                settings["shadow_map_depth_texture"]->v.b = 1;
+            } else {
+                tms_infof("GL_OES_depth_texture: NO");
+                settings["shadow_map_depth_texture"]->v.b = 0;
+            }
         }
-    }
 
-    // GL_ARB_depth_texture is OpenGL 1.5+, so we can always assume it to exist on desktop
-    settings["shadow_map_depth_texture"]->v.b = 1;
-#endif
+        // XXX: We need to really fix gamma correction on GLES...
+        settings["gamma_correct"]->v.b = 0;
+    } else {
+        if (settings["shadow_map_precision"]->is_uninitialized()) {
+            if (strstr(_tms.gl_extensions, "GL_ARB_texture_float") != 0
+                || strstr(_tms.gl_extensions, "GL_ATI_texture_float") != 0) {
+                tms_infof("GL_ARB_texture_float: YES");
+                settings["shadow_map_precision"]->v.i = 1;
+            } else {
+                tms_infof("GL_ARB_texture_float: NO");
+                settings["shadow_map_precision"]->v.i = 0;
+            }
+        }
+
+        if (settings["gamma_correct"]->is_uninitialized()) {
+            if (strstr(_tms.gl_extensions, "GL_EXT_texture_sRGB") != 0
+                && strstr(_tms.gl_extensions, "GL_EXT_framebuffer_sRGB") != 0) {
+                tms_infof("GL_EXT_texture_sRGB+GL_EXT_framebuffer_sRGB: YES");
+                settings["gamma_correct"]->v.b = 1;
+            } else {
+                tms_infof("GL_EXT_texture_sRGB+GL_EXT_framebuffer_sRGB: NO");
+                settings["gamma_correct"]->v.b = 0;
+            }
+        }
+
+        // GL_ARB_depth_texture is OpenGL 1.5+, so we can always assume it to exist on desktop
+        settings["shadow_map_depth_texture"]->v.b = 1;
+    }
 }
 
 void tproject_preinit() {
@@ -1175,6 +1176,10 @@ void tproject_preinit() {
     tms_infof("Loading settings...");
     if (!settings.load())
         tms_infof("ERROR!");
+
+
+    if (settings["use_gles"]->v.b)
+        _tms.use_gles = true;
 
     settings.save();
 

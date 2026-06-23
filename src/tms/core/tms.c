@@ -19,6 +19,7 @@ struct tms_singleton _tms = {
     .gl_extensions = "",
     .delta_cap = 0,
     .emulating_portrait = 0,
+    .use_gles = false
 };
 
 int tms_preinit(void) {
@@ -38,14 +39,15 @@ tms_init(void)
 
     tmat4_set_ortho(tms.window_projection, 0, tms.window_width, 0, tms.window_height, 1, -1);
 
-#ifndef TMS_USE_GLES
-    tms_shader_global_define_vs("lowp", "");
-    tms_shader_global_define_fs("lowp", "");
-    tms_shader_global_define_vs("mediump", "");
-    tms_shader_global_define_fs("mediump", "");
-    tms_shader_global_define_vs("highp", "");
-    tms_shader_global_define_fs("highp", "");
-#endif
+
+    if (!tms.use_gles) {
+        tms_shader_global_define_vs("lowp", "");
+        tms_shader_global_define_fs("lowp", "");
+        tms_shader_global_define_vs("mediump", "");
+        tms_shader_global_define_fs("mediump", "");
+        tms_shader_global_define_vs("highp", "");
+        tms_shader_global_define_fs("highp", "");
+    }
 
     tproject_init();
     tproject_init_pipelines();

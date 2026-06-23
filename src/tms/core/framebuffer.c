@@ -700,10 +700,10 @@ tms_fb_add_texture(struct tms_fb *fb, int format,
 			bufs[y] = GL_COLOR_ATTACHMENT0 + y;
 		}
 
-#ifndef TMS_USE_GLES
-        glDrawBuffers(fb->num_textures+1, bufs);
-        tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 15", ierr, x);
-#endif
+        if (!tms.use_gles) {
+            glDrawBuffers(fb->num_textures+1, bufs);
+            tms_assertf((ierr = glGetError()) == 0, "gl error %d in tms_fb_add_texture %d 15", ierr, x);
+        }
     }
 
     fb->num_textures ++;

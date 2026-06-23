@@ -1055,14 +1055,14 @@ material_factory::init_shaders()
 
     tms_shader_global_clear_defines();
 
-#ifndef TMS_USE_GLES
-    tms_shader_global_define_vs("lowp", "");
-    tms_shader_global_define_fs("lowp", "");
-    tms_shader_global_define_vs("mediump", "");
-    tms_shader_global_define_fs("mediump", "");
-    tms_shader_global_define_vs("highp", "");
-    tms_shader_global_define_fs("highp", "");
-#endif
+    if (!_tms.use_gles) {
+        tms_shader_global_define_vs("lowp", "");
+        tms_shader_global_define_fs("lowp", "");
+        tms_shader_global_define_vs("mediump", "");
+        tms_shader_global_define_fs("mediump", "");
+        tms_shader_global_define_vs("highp", "");
+        tms_shader_global_define_fs("highp", "");
+    }
 
     if (settings["shadow_map_precision"]->v.i == 0 && !settings["shadow_map_depth_texture"]->is_true())
         tms_shader_global_define("SHADOW_BIAS", ".15");
