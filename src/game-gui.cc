@@ -1498,10 +1498,8 @@ game::init_gui(void)
     this->wm = new widget_manager(this, false, true);
     this->info_label = new p_text(font::medium, ALIGN_CENTER, ALIGN_CENTER);
 
-#ifdef TMS_BACKEND_PC
     this->hov_text = new p_text(font::medium, ALIGN_CENTER, ALIGN_BOTTOM);
     this->hov_text->active = false;
-#endif
 
     this->wdg_submit_score = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,

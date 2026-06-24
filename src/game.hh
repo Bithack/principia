@@ -605,11 +605,9 @@ class game : public pscreen
 
     tms::graph *outline_graph;
 
-#ifdef TMS_BACKEND_PC
     /* entity fetched by hover query */
     entity *hov_ent;
     p_text *hov_text;
-#endif
 
     /* pending for selection*/
   public:
@@ -883,6 +881,7 @@ class game : public pscreen
 
     int render();
     int post_render();
+    void step_tooltip();
     int step(double dt);
     void refresh_last_cursor_pos();
     b2Vec2 get_last_cursor_pos(int layer);

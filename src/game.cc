@@ -113,15 +113,13 @@ static uint64_t touch_time[MAX_P];
 tvec2 move_pos;
 static uint64_t move_time = 0;
 static bool move_queried = false;
-#ifdef TMS_BACKEND_PC
+
 static uint64_t hov_time = 0;
 static bool hov_fadeout = false;
 static uint64_t hov_fadeout_time = 0;
 
 #define HOVER_TIME 45000
 #define HOVER_TIME_ACTIVE 5000
-
-#endif
 
 static float cam_move_x[2];
 static float cam_move_y[2];
@@ -330,15 +328,20 @@ const char *tutorial_texts[NUM_TUTORIAL_TEXTS] =
     "charge the Compressor until it releases an item.",
 
     /* TUTORIAL_TEXT_BUILD_LADDERS */
+    "BLA"
+};
+
+const char *tutorial_text_4th_pc =
     "Ladder steps can help you get out of deep caves,\n"
     "Create one by equipping the Builder tool, then \n"
-#ifdef TMS_BACKEND_PC
     "click and drag from your character to where you\n"
-#else
+    "want to create the ladder step.";
+
+const char *tutorial_text_4th_mobile =
+    "Ladder steps can help you get out of deep caves,\n"
+    "Create one by equipping the Builder tool, then \n"
     "touch and swipe from your character to where you\n"
-#endif
-    "want to create the ladder step."
-};
+    "want to create the ladder step.";
 
 bool
 game_sorter::distance_to_creature::operator()(activator *a, activator *b)
@@ -1017,9 +1020,7 @@ game::game()
     this->follow_options.offset.x = 0.f;
     this->follow_options.offset.y = 0.f;
 
-#ifdef TMS_BACKEND_PC
     this->hov_ent = 0;
-#endif
 
     this->caveview_size = 0.f;
     this->caveview_zoom = 0.f;
@@ -1365,9 +1366,8 @@ game::reset_touch(bool hard/*=true*/)
         this->drop_interacting();
     }
 
-#ifdef TMS_BACKEND_PC
-    move_time = _tms.last_time;
-#endif
+    if (!settings["touch_controls"]->v.b)
+        move_time = _tms.last_time;
 
     cam_move_x[0] = 0.f;
     cam_move_x[1] = 0.f;
@@ -1529,43 +1529,7 @@ game::unset_caveview_zoom_limits()
     this->cam->_position.z = saved_z;
 }
 
-int
-game::step(double dt)
-{
-#ifndef SCREENSHOT_BUILD
-    if (!P.focused) {
-        _tms.time_accum = 0;
-        return T_OK;
-    }
-#endif
-
-    ++ this->state.step_num;
-
-    if (this->state.waiting) {
-        _tms.time_accum = 0;
-    }
-
-    if (!settings["touch_controls"]->v.b && settings["rc_lock_cursor"]->v.b) {
-        if ((this->active_hori_wdg && !this->active_hori_wdg->is_radial())
-                || (this->active_vert_wdg && !this->active_vert_wdg->is_radial())) {
-            SDL_ShowCursor();
-        } else {
-            SDL_HideCursor();
-        }
-    }
-
-    this->wm->step();
-
-    /*
-    if (this->state.time_mul > 0.f) {
-        dt *= 1.f-this->state.time_mul;
-        _tms.dt *= 1.f -this->state.time_mul;
-        tms_infof("time mulling");
-        tms_infof("dt == %f", _tms.dt);
-    }
-    */
-
-#ifdef TMS_BACKEND_PC
+void game::step_tooltip() {
     uint64_t diff = _tms.last_time - move_time;
     if (((this->hov_text->active && diff > HOVER_TIME_ACTIVE) || (this->hov_text->active == false && diff > HOVER_TIME)) && !move_queried) {
         move_queried = true;
@@ -1636,7 +1600,46 @@ game::step(double dt)
                 tvec4f(.2f, .2f, .2f, alpha*0.65f),
                 2.f);
     }
+}
+
+int
+game::step(double dt)
+{
+#ifndef SCREENSHOT_BUILD
+    if (!P.focused) {
+        _tms.time_accum = 0;
+        return T_OK;
+    }
 #endif
+
+    ++ this->state.step_num;
+
+    if (this->state.waiting) {
+        _tms.time_accum = 0;
+    }
+
+    if (!settings["touch_controls"]->v.b && settings["rc_lock_cursor"]->v.b) {
+        if ((this->active_hori_wdg && !this->active_hori_wdg->is_radial())
+                || (this->active_vert_wdg && !this->active_vert_wdg->is_radial())) {
+            SDL_ShowCursor();
+        } else {
+            SDL_HideCursor();
+        }
+    }
+
+    this->wm->step();
+
+    /*
+    if (this->state.time_mul > 0.f) {
+        dt *= 1.f-this->state.time_mul;
+        _tms.dt *= 1.f -this->state.time_mul;
+        tms_infof("time mulling");
+        tms_infof("dt == %f", _tms.dt);
+    }
+    */
+
+    if (!settings["touch_controls"]->v.b)
+        step_tooltip();
 
     if (this->state.sandbox && W->is_paused() && !this->state.test_playing) {
         /* do autosave */
@@ -3671,24 +3674,35 @@ void
 game::render_tt()
 {
     for (int x=0; x<MAX_TUTORIAL_TEXTS; x++) {
-        if (this->tt[x].life > 0.f) {
-            b2Vec2 p;
-            if (this->tt[x].e) {
-                p = this->tt[x].e->get_position() + this->tt[x].pos;
-            } else {
-                p = b2Vec2(this->cam->_position.x, this->cam->_position.y) + this->tt[x].pos;
-            }
-            textbuffer::add_text(tutorial_texts[this->tt[x].what], font::medium,
-                    p.x,p.y,
-                    2.9f,
-                    1.f, 1.f, 1.f, this->tt[x].life < .25f ? (this->tt[x].life/.25f) : 1.f,
-                    .015,
-                    ALIGN_CENTER,
-                    ALIGN_CENTER,
-                    true
-                    );
-            this->tt[x].life -= _tms.dt;
+        if (this->tt[x].life <= 0.f)
+            return;
+
+        b2Vec2 p;
+        if (this->tt[x].e)
+            p = this->tt[x].e->get_position() + this->tt[x].pos;
+        else
+            p = b2Vec2(this->cam->_position.x, this->cam->_position.y) + this->tt[x].pos;
+
+
+        const char *tutorial_text = tutorial_texts[this->tt[x].what];
+        if (this->tt[x].what == 4) {
+            // Special case for this tutorial text, different phrasing depending on control scheme
+            if (settings["touch_controls"]->v.b)
+                tutorial_text = tutorial_text_4th_mobile;
+            else
+                tutorial_text = tutorial_text_4th_pc;
         }
+
+        textbuffer::add_text(tutorial_text, font::medium,
+                p.x,p.y,
+                2.9f,
+                1.f, 1.f, 1.f, this->tt[x].life < .25f ? (this->tt[x].life/.25f) : 1.f,
+                .015,
+                ALIGN_CENTER,
+                ALIGN_CENTER,
+                true
+                );
+        this->tt[x].life -= _tms.dt;
     }
 }
 
@@ -3789,7 +3803,9 @@ game::render_starred(void)
 void
 game::render_controls_help()
 {
-#ifdef TMS_BACKEND_PC
+    if (settings["touch_controls"]->v.b)
+        return;
+
     if (!this->render_controls) {
         if (this->tex_controls) {
             delete this->tex_controls;
@@ -3834,7 +3850,6 @@ game::render_controls_help()
             TV_WHITE,
             true,
             ALIGN_CENTER, ALIGN_BOTTOM);
-#endif
 }
 
 void
@@ -5089,9 +5104,7 @@ game::reset()
     this->debug_lines.clear();
 #endif
 
-#ifdef TMS_BACKEND_PC
     this->hov_text->active = false;
-#endif
 
     _tms.emulating_portrait = false;
     this->cam->up = (tvec3){0.f, 1.f, 0.f};
@@ -5560,12 +5573,10 @@ game::destroy_mover(uint8_t x, bool do_not_deselect)
 void
 game::remove_entity(entity *e)
 {
-#ifdef TMS_BACKEND_PC
     if (this->hov_ent == e) {
         this->hov_ent = 0;
         this->hov_text->active = false;
     }
-#endif
 
     if (W->is_paused()) {
         for (int x=0; x<MAX_COPY_ENTITIES; ++x) {
@@ -9824,17 +9835,16 @@ game::handle_input(tms::event *ev, int action)
 
     switch (ev->type) {
         case TMS_EV_POINTER_DOWN:
-#ifdef TMS_BACKEND_PC
-# ifdef DEBUG
+#ifdef DEBUG
             this->print_screen_point_info((int)ev->data.motion.x, (int)ev->data.motion.y);
-# endif
-# ifndef NO_UI
+#endif
+
+#if defined(TMS_BACKEND_PC) && !defined(NO_UI)
             if (prompt_is_open) return T_OK;
-# endif
+#endif
 
             this->hov_ent = 0;
             this->hov_text->active = false;
-#endif
 
             P.focused = true;
             break;
@@ -9853,10 +9863,8 @@ game::handle_input(tms::event *ev, int action)
             break;
 
         case TMS_EV_POINTER_DRAG:
-#ifdef TMS_BACKEND_PC
             this->hov_ent = 0;
             this->hov_text->active = false;
-#endif
             break;
     }
 
@@ -11417,11 +11425,9 @@ game::post_render()
 
     pscreen::post_render();
 
-#ifdef TMS_BACKEND_PC
-    if (this->hov_text->active) {
+    if (!settings["touch_controls"]->v.b && this->hov_text->active) {
         this->hov_text->render(this->get_surface()->ddraw, true);
     }
-#endif
 
     return T_OK;
 }

@@ -1059,11 +1059,8 @@ robot_parts::faction_wand::stop()
 int
 robot_parts::faction_wand::action(uint32_t type, uint64_t pointer_id, tvec2 pos)
 {
-#ifdef TMS_BACKEND_PC
-    if (pointer_id != 0) {
+    if (!settings["touch_controls"]->v.b && pointer_id != 0)
         return EVENT_CONT;
-    }
-#endif
 
     switch (type) {
         case TMS_EV_POINTER_DOWN:
@@ -1165,11 +1162,8 @@ robot_parts::compressor::compressor(creature *c)
 int
 robot_parts::compressor::action(uint32_t type, uint64_t pointer_id, tvec2 pos)
 {
-#ifdef TMS_BACKEND_PC
-    if (pointer_id != 0) {
+    if (!settings["touch_controls"]->v.b && pointer_id != 0)
         return EVENT_CONT;
-    }
-#endif
 
     switch (type) {
         case TMS_EV_POINTER_DOWN:

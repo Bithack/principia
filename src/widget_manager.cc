@@ -50,9 +50,8 @@ base_touch_up(struct tms_wdg *w, int pid, int bid, int ox, int oy, float rx, flo
     }
 
     if (hovered) {
-#ifndef TMS_BACKEND_PC
-        pid = 0;
-#endif
+        if (settings["touch_controls"]->v.b)
+            pid = 0;
 
         uint8_t button_id = VOID_TO_UINT8(w->data);
 
@@ -306,27 +305,27 @@ principia_wdg::~principia_wdg()
 void
 principia_wdg::step()
 {
-#ifdef TMS_BACKEND_PC
-    if (this->hovered) {
-        this->tooltip_time += _tms.dt;
+    if (!settings["touch_controls"]->v.b) {
+        if (this->hovered) {
+            this->tooltip_time += _tms.dt;
+        }
+
+        if (this->value[0] > 0.5f && this->type == TMS_WDG_BUTTON) {
+            this->tooltip_time = -0.5;
+        }
+
+        bool prev_tooltip_active = this->tooltip_active;
+        this->tooltip_active = this->tooltip_time >= TOOLTIP_ACTIVATION_TIME;
+
+        if (this->tooltip && this->tooltip_active && !prev_tooltip_active) {
+            float x_offset = (this->size.x) * this->area->tmodx;
+            float y_offset = (this->size.y + this->tooltip->get_height()) * this->area->tmody;
+
+            x_offset -= (this->tooltip->get_width() * this->area->tsmodx);
+
+            this->tooltip->set_position(this->pos.x + x_offset, this->pos.y + y_offset);
+        }
     }
-
-    if (this->value[0] > 0.5f && this->type == TMS_WDG_BUTTON) {
-        this->tooltip_time = -0.5;
-    }
-
-    bool prev_tooltip_active = this->tooltip_active;
-    this->tooltip_active = this->tooltip_time >= TOOLTIP_ACTIVATION_TIME;
-
-    if (this->tooltip && this->tooltip_active && !prev_tooltip_active) {
-        float x_offset = (this->size.x) * this->area->tmodx;
-        float y_offset = (this->size.y + this->tooltip->get_height()) * this->area->tmody;
-
-        x_offset -= (this->tooltip->get_width() * this->area->tsmodx);
-
-        this->tooltip->set_position(this->pos.x + x_offset, this->pos.y + y_offset);
-    }
-#endif
 
     if (this->area->do_set_alpha) {
         this->alpha = this->area->alpha;
@@ -842,13 +841,8 @@ widget_manager::refresh_areas()
             - menu_shared::bar_height;
 
         this->areas[AREA_MENU_LEVELS].base_y = this->areas[AREA_MENU_TOP_CENTER].base_y - this->areas[AREA_MENU_TOP_CENTER].last_height;
-#ifdef TMS_BACKEND_PC
-        this->areas[AREA_MENU_LEVELS].base_y -= font::medium->get_height()*1.3f;
-#else
-        if (_tms.window_height > 500) {
+        if (_tms.window_height > 500)
             this->areas[AREA_MENU_LEVELS].base_y -= font::medium->get_height()*1.3f;
-        }
-#endif
 
         this->areas[AREA_MENU_SUB_LEVELS].base_y =
             this->areas[AREA_MENU_LEVELS].bot.y;
