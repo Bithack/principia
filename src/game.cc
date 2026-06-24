@@ -1385,9 +1385,8 @@ game::pause()
     sm::stop_all();
     ui::open_dialog(CLOSE_ABSOLUTELY_ALL_DIALOGS);
 
-#ifdef TMS_BACKEND_PC
-    SDL_SetWindowMouseGrab(_tms._window, false);
-#endif
+    if (!settings["touch_controls"]->v.b)
+        SDL_SetWindowMouseGrab(_tms._window, false);
 
     return T_OK;
 }
@@ -1546,8 +1545,7 @@ game::step(double dt)
         _tms.time_accum = 0;
     }
 
-#ifdef TMS_BACKEND_PC
-    if (settings["rc_lock_cursor"]->v.b) {
+    if (!settings["touch_controls"]->v.b && settings["rc_lock_cursor"]->v.b) {
         if ((this->active_hori_wdg && !this->active_hori_wdg->is_radial())
                 || (this->active_vert_wdg && !this->active_vert_wdg->is_radial())) {
             SDL_ShowCursor();
@@ -1555,7 +1553,6 @@ game::step(double dt)
             SDL_HideCursor();
         }
     }
-#endif
 
     this->wm->step();
 
@@ -3738,15 +3735,15 @@ game::render_activators(void)
                     activator_pos.x, activator_pos.y,
                     radius * 0.15f, radius * 0.15f);
 
-#ifdef TMS_BACKEND_PC
-            if (x < NUM_ACTIVATOR_BINDINGS && !adventure::player->cur_activator) {
-                tvec3 proj;
-                proj = tms_camera_project(this->cam, activator_pos.x, activator_pos.y, layer*LAYER_DEPTH+LAYER_DEPTH/2.f);
-                this->add_text(activator_texts[x], proj.x, proj.y);
-            }
+            if (!settings["touch_controls"]->v.b) {
+                if (x < NUM_ACTIVATOR_BINDINGS && !adventure::player->cur_activator) {
+                    tvec3 proj;
+                    proj = tms_camera_project(this->cam, activator_pos.x, activator_pos.y, layer*LAYER_DEPTH+LAYER_DEPTH/2.f);
+                    this->add_text(activator_texts[x], proj.x, proj.y);
+                }
 
-            x++;
-#endif
+                x++;
+            }
         }
     }
 }
@@ -3895,13 +3892,11 @@ game::render_connections(void)
         //tms_ddraw_circle(this->dd, c->p.x, c->p.y, .25f, .25f);
         tms_ddraw_sprite_r(this->dd, gui_spritesheet::get_sprite(S_ATTACH), c->p.x, c->p.y, w, w, cos((double)_tms.last_time/100000.) * 16.f);
 
-#ifdef TMS_BACKEND_PC
-        if (n < 6) {
+        if (!settings["touch_controls"]->v.b && n < 6) {
             tvec3 proj;
             proj = tms_camera_project(this->cam, c->p.x, c->p.y, c->layer*LAYER_DEPTH+((LAYER_DEPTH/2.f)*c->multilayer));
             this->add_glyph(font::medium->get_glyph('F'+n), proj.x, proj.y);
         }
-#endif
     }
 }
 
@@ -5383,9 +5378,9 @@ game::do_pause()
 {
     W->save_cache(W->level_id_type, W->level.local_id);
 
-#ifdef TMS_BACKEND_PC
-    SDL_SetWindowMouseGrab((SDL_Window*)_tms._window, false);
-#endif
+    if (!settings["touch_controls"]->v.b)
+        SDL_SetWindowMouseGrab((SDL_Window*)_tms._window, false);
+
     if (this->state.test_playing && !W->is_puzzle()) {
         tms_infof("returning to sandbox");
         /* When returning from the sandbox, i.e. when we've finished testing our level,
@@ -5893,13 +5888,12 @@ game::handle_input_playing(tms::event *ev, int action)
                 }
 
                 this->state.waiting = false;
-#ifdef TMS_BACKEND_PC
-                if (settings["jail_cursor"]->v.b == true) {
-                    SDL_SetWindowMouseGrab(_tms._window, true);
-                } else {
-                    SDL_SetWindowMouseGrab(_tms._window, false);
+                if (!settings["touch_controls"]->v.b) {
+                    if (settings["jail_cursor"]->v.b)
+                        SDL_SetWindowMouseGrab(_tms._window, true);
+                    else
+                        SDL_SetWindowMouseGrab(_tms._window, false);
                 }
-#endif
 
                 if (ev->type == TMS_EV_KEY_PRESS && ev->data.key.keycode == TMS_KEY_SPACE) {
                     return T_OK;
@@ -6164,17 +6158,17 @@ game::handle_input_playing(tms::event *ev, int action)
         if (e && e->handle_event(ev->type, pid, tvec2f(ev->data.motion.x, ev->data.motion.y)) == EVENT_DONE)
             return EVENT_DONE;
 
-#ifdef TMS_BACKEND_PC
-        if (pid == 0) {
-            this->update_last_cursor_pos(ev->data.motion.x, ev->data.motion.y);
+        if (!settings["touch_controls"]->v.b) {
+            if (pid == 0) {
+                this->update_last_cursor_pos(ev->data.motion.x, ev->data.motion.y);
+                W->events[WORLD_EVENT_CLICK_DOWN] ++;
+            }
+        } else {
+            if (pid == 0) {
+                this->update_last_cursor_pos(ev->data.motion.x, ev->data.motion.y);
+            }
             W->events[WORLD_EVENT_CLICK_DOWN] ++;
         }
-#else
-        if (pid == 0) {
-            this->update_last_cursor_pos(ev->data.motion.x, ev->data.motion.y);
-        }
-        W->events[WORLD_EVENT_CLICK_DOWN] ++;
-#endif
 
         if (pid == 0 || pid == 1) {
             if (down[0] && down[1] && !W->level.flag_active(LVL_DISABLE_ZOOM)) {
@@ -6197,11 +6191,7 @@ game::handle_input_playing(tms::event *ev, int action)
         }
         if (W->level.type == LCAT_ADVENTURE && adventure::player && adventure::is_player_alive()) {
             robot_parts::tool *t = adventure::player->get_tool();
-            if (t
-#ifdef TMS_BACKEND_PC
-                    && pid == 0
-#endif
-               ) {
+            if (t && (settings["touch_controls"]->v.b || pid == 0)) {
                 if (t->action(ev->type, pid, tvec2f(ev->data.motion.x, ev->data.motion.y)) == EVENT_DONE)
                     return EVENT_DONE;
             }
@@ -6256,11 +6246,7 @@ game::handle_input_playing(tms::event *ev, int action)
 
         if (W->level.type == LCAT_ADVENTURE && adventure::player && adventure::is_player_alive()) {
             robot_parts::tool *t = adventure::player->get_tool();
-            if (t
-#ifdef TMS_BACKEND_PC
-                    && pid == 0
-#endif
-               ) {
+            if (t && (settings["touch_controls"]->v.b || pid == 0)) {
                 if (t->action(ev->type, pid, tvec2f(ev->data.motion.x, ev->data.motion.y)) == EVENT_DONE)
                     return EVENT_DONE;
             }
@@ -6323,16 +6309,12 @@ game::handle_input_playing(tms::event *ev, int action)
             }
 
             if (!dragging[pid]
-#ifdef TMS_BACKEND_MOBILE
-                    && td_mag > DRAG_DIST_MIN_EPS
-#endif
+                    && (!settings["touch_controls"]->v.b || td_mag > DRAG_DIST_MIN_EPS)
                     && (_tms.last_time - touch_time[pid] > DRAG_TIME_EPS
                         || td_mag > DRAG_DIST_EPS)) {
 
                 if (!rotating[pid]
-#ifdef TMS_BACKEND_PC
-                        && pid == 0
-#endif
+                        && (settings["touch_controls"]->v.b || pid == 0)
                         && this->sel_p_ent && (this->sel_p_ent->flag_active(ENTITY_IS_INTERACTIVE) || (W->level.type == LCAT_ADVENTURE && !this->sel_p_ent->flag_active(ENTITY_IS_STATIC)))) {
                     if (this->player_can_build() || (W->level.type != LCAT_ADVENTURE && (this->sel_p_ent->in_dragfield || W->level.flag_active(LVL_DO_NOT_REQUIRE_DRAGFIELD)))) {
                         tms_infof("SELECTED interactive object[%d] with pid %d", this->sel_p_ent->in_dragfield, pid);
@@ -6517,17 +6499,17 @@ game::handle_input_playing(tms::event *ev, int action)
                 return EVENT_DONE;
         }
 
-#ifdef TMS_BACKEND_PC
-        if (pid == 0) {
-            this->update_last_cursor_pos(ev->data.motion.x, ev->data.motion.y);
+        if (!settings["touch_controls"]->v.b) {
+            if (pid == 0) {
+                this->update_last_cursor_pos(ev->data.motion.x, ev->data.motion.y);
+                W->events[WORLD_EVENT_CLICK_UP] ++;
+            }
+        } else {
+            if (pid == 0) {
+                this->update_last_cursor_pos(ev->data.motion.x, ev->data.motion.y);
+            }
             W->events[WORLD_EVENT_CLICK_UP] ++;
         }
-#else
-        if (pid == 0) {
-            this->update_last_cursor_pos(ev->data.motion.x, ev->data.motion.y);
-        }
-        W->events[WORLD_EVENT_CLICK_UP] ++;
-#endif
 
         if (!down[pid]) return T_OK;
 
@@ -6537,11 +6519,7 @@ game::handle_input_playing(tms::event *ev, int action)
 
         if (W->level.type == LCAT_ADVENTURE && adventure::player && adventure::is_player_alive()) {
             robot_parts::tool *t = adventure::player->get_tool();
-            if (t
-#ifdef TMS_BACKEND_PC
-                    && pid == 0
-#endif
-               ) {
+            if (t && (settings["touch_controls"]->v.b || pid == 0)) {
                 if (t->action(ev->type, pid, tvec2f(ev->data.motion.x, ev->data.motion.y)) == EVENT_DONE)
                     return EVENT_DONE;
             }
@@ -7642,20 +7620,20 @@ game::handle_input_paused(tms::event *ev, int action)
                 break;
 
             case TMS_KEY_R:
-#ifdef TMS_BACKEND_PC
-                if (this->get_mode() == GAME_MODE_ROTATE)
-                    this->set_mode(GAME_MODE_DEFAULT);
-                else if (this->get_mode() == GAME_MODE_DEFAULT) {
-                    if (this->selection.e != 0) {
-                        this->set_mode(GAME_MODE_ROTATE);
+                if (!settings["touch_controls"]->v.b) {
+                    if (this->get_mode() == GAME_MODE_ROTATE)
+                        this->set_mode(GAME_MODE_DEFAULT);
+                    else if (this->get_mode() == GAME_MODE_DEFAULT) {
+                        if (this->selection.e != 0) {
+                            this->set_mode(GAME_MODE_ROTATE);
 
-                        float mx, my;
-                        SDL_GetMouseState(&mx, &my);
-                        this->rot_mouse_pos = tvec2f(mx, my);
-                        this->rot_mouse_base = this->selection.e->gr ? this->selection.e->gr->get_angle() : this->selection.e->get_angle();
+                            float mx, my;
+                            SDL_GetMouseState(&mx, &my);
+                            this->rot_mouse_pos = tvec2f(mx, my);
+                            this->rot_mouse_base = this->selection.e->gr ? this->selection.e->gr->get_angle() : this->selection.e->get_angle();
+                        }
                     }
                 }
-#endif
                 break;
 
 #define SMALL_STEP  0.01f
@@ -8068,47 +8046,47 @@ game::handle_input_paused(tms::event *ev, int action)
             return EVENT_DONE;
         }
 
-#ifdef TMS_BACKEND_PC
-        if (this->get_mode() == GAME_MODE_ROTATE) {
-            if (!this->selection.e) {
-                this->set_mode(GAME_MODE_DEFAULT);
-            } else {
-                float mx, my;
-                SDL_GetMouseState(&mx, &my);
-                float dist = my - this->rot_mouse_pos.y;
-                dist *= 1.f/100.f;
-
-                /* TODO: add snap */
-                if (this->selection.e->gr) {
-                    entity *re = this->selection.e->gr;
-                    b2Vec2 p = this->selection.e->get_position(this->selection.frame);
-                    b2Vec2 lock = p;
-
-                    re->set_angle(rot_mouse_base-dist);
-                    lock -= this->selection.e->get_position(this->selection.frame);
-                    re->set_position(re->get_position()+lock);
+        if (!settings["touch_controls"]->v.b) {
+            if (this->get_mode() == GAME_MODE_ROTATE) {
+                if (!this->selection.e) {
+                    this->set_mode(GAME_MODE_DEFAULT);
                 } else {
-                    entity *re = this->selection.e->gr ? this->selection.e->gr : this->selection.e;
+                    float mx, my;
+                    SDL_GetMouseState(&mx, &my);
+                    float dist = my - this->rot_mouse_pos.y;
+                    dist *= 1.f/100.f;
 
-                    re->set_angle(rot_mouse_base-dist);
+                    /* TODO: add snap */
+                    if (this->selection.e->gr) {
+                        entity *re = this->selection.e->gr;
+                        b2Vec2 p = this->selection.e->get_position(this->selection.frame);
+                        b2Vec2 lock = p;
+
+                        re->set_angle(rot_mouse_base-dist);
+                        lock -= this->selection.e->get_position(this->selection.frame);
+                        re->set_position(re->get_position()+lock);
+                    } else {
+                        entity *re = this->selection.e->gr ? this->selection.e->gr : this->selection.e;
+
+                        re->set_angle(rot_mouse_base-dist);
+                    }
+                }
+            } else if (this->get_mode() == GAME_MODE_GRAB) {
+                if (!this->selection.e) {
+                    this->set_mode(GAME_MODE_DEFAULT);
+                } else {
+                    float mx, my;
+                    SDL_GetMouseState(&mx, &my);
+                    float dist_x = mx - this->rot_mouse_pos.x;
+                    float dist_y = my - this->rot_mouse_pos.y;
+                    dist_x *= 1.f/100.f;
+                    dist_y *= -1.f/100.f;
+
+                    b2Vec2 npos = b2Vec2(grab_mouse_pos.x + dist_x, grab_mouse_pos.y + dist_y);
+                    this->selection.e->set_position(npos.x, npos.y, this->selection.frame);
                 }
             }
-        } else if (this->get_mode() == GAME_MODE_GRAB) {
-            if (!this->selection.e) {
-                this->set_mode(GAME_MODE_DEFAULT);
-            } else {
-                float mx, my;
-                SDL_GetMouseState(&mx, &my);
-                float dist_x = mx - this->rot_mouse_pos.x;
-                float dist_y = my - this->rot_mouse_pos.y;
-                dist_x *= 1.f/100.f;
-                dist_y *= -1.f/100.f;
-
-                b2Vec2 npos = b2Vec2(grab_mouse_pos.x + dist_x, grab_mouse_pos.y + dist_y);
-                this->selection.e->set_position(npos.x, npos.y, this->selection.frame);
-            }
         }
-#endif
     } else if (ev->type == TMS_EV_POINTER_DOWN) {
         if (this->get_mode() == GAME_MODE_ROTATE || this->get_mode() == GAME_MODE_GRAB) {
             this->set_mode(GAME_MODE_DEFAULT);
@@ -8204,10 +8182,7 @@ game::handle_input_paused(tms::event *ev, int action)
                 }
             }
         } else if (this->get_mode() == GAME_MODE_MULTISEL
-#ifdef TMS_BACKEND_PC
-                && pid == 0
-#endif
-                ) {
+                && (settings["touch_controls"]->v.b || pid == 0)) {
             if (this->multi.box_select == 1) {
                 W->get_layer_point(this->cam, (int)ev->data.motion.x, (int)ev->data.motion.y, 0, &begin_box_select);
                 box_select_pid = pid;
@@ -8234,10 +8209,7 @@ game::handle_input_paused(tms::event *ev, int action)
 
         if (this->get_mode() == GAME_MODE_MULTISEL) {
             if (this->multi.import && diff < 300000 && dist < 50.f
-#ifdef TMS_BACKEND_PC
-                && pid == 0
-#endif
-                    ) {
+                    && (settings["touch_controls"]->v.b || pid == 0)) {
                 tms_debugf("IMPORT (%.2f)", dist);
                 this->import_object(this->multi.import->lvl_id);
             }
@@ -8319,14 +8291,10 @@ game::handle_input_paused(tms::event *ev, int action)
             */
 
             if (!dragging[pid]
-#ifdef TMS_BACKEND_MOBILE
-                    && td_mag > DRAG_DIST_MIN_EPS
-#endif
+                    && (!settings["touch_controls"]->v.b || td_mag > DRAG_DIST_MIN_EPS)
                     && (_tms.last_time - touch_time[pid] > DRAG_TIME_EPS
                         || td_mag > DRAG_DIST_EPS)
-#ifdef TMS_BACKEND_PC
-                    && pid == 0
-#endif
+                    && (settings["touch_controls"]->v.b || pid == 0)
                     ) {
 
                 if (rotating[pid] || resizing[pid]) {
@@ -8366,11 +8334,8 @@ game::handle_input_paused(tms::event *ev, int action)
                 //tms_infof("touch_time updated");
             }
 
-            if (dragging[pid]
-#ifdef TMS_BACKEND_PC
-                    || pid == 2 /* middle mouse button */
-#endif
-                    ) {
+            /* pid 2 = middle mouse button */
+            if (dragging[pid] || (!settings["touch_controls"]->v.b && pid == 2)) {
                 if (moving[pid]) {
                     this->state.modified = true;
 
@@ -9048,13 +9013,8 @@ game::interact_select(entity *e)
     return found;
 }
 
-#ifdef TMS_BACKEND_PC
-#define BOLD_BEGIN "<b>"
-#define BOLD_END "</b>"
-#else
 #define BOLD_BEGIN
 #define BOLD_END
-#endif
 
 // used with ENTITY_HAS_TRACKER
 void
@@ -10314,17 +10274,16 @@ game::editor_construct_entity(uint32_t g_id, int pid/*=0*/, bool force_on_pid/*=
     }
 
     tvec3 pos;
-#ifdef TMS_BACKEND_PC
-    float mx, my;
-    SDL_GetMouseState(&mx, &my);
-    W->get_layer_point(this->cam, (int)mx, _tms.window_height-(int)my, 0.f, &pos);
-#else
-    if (force_on_pid) {
-        W->get_layer_point(this->cam, touch_proj[pid].x, touch_proj[pid].y, 0.f, &pos);
+    if (!settings["touch_controls"]->v.b) {
+        float mx, my;
+        SDL_GetMouseState(&mx, &my);
+        W->get_layer_point(this->cam, (int)mx, _tms.window_height-(int)my, 0.f, &pos);
     } else {
-        pos = this->cam->_position;
+        if (force_on_pid)
+            W->get_layer_point(this->cam, touch_proj[pid].x, touch_proj[pid].y, 0.f, &pos);
+        else
+            pos = this->cam->_position;
     }
-#endif
 
     pos.x += offs.x;
     pos.y += offs.y;
@@ -10444,13 +10403,13 @@ game::editor_construct_item(uint32_t item_id)
     }
 
     tvec3 pos;
-#ifdef TMS_BACKEND_PC
-    float mx, my;
-    SDL_GetMouseState(&mx, &my);
-    W->get_layer_point(this->cam, (int)mx, _tms.window_height-(int)my, 0.f, &pos);
-#else
-    pos = this->cam->_position;
-#endif
+    if (!settings["touch_controls"]->v.b) {
+        float mx, my;
+        SDL_GetMouseState(&mx, &my);
+        W->get_layer_point(this->cam, (int)mx, _tms.window_height-(int)my, 0.f, &pos);
+    } else {
+        pos = this->cam->_position;
+    }
 
     entity *e = of::create(g_id);
 
@@ -10498,13 +10457,13 @@ game::editor_construct_decoration(uint32_t decoration_id)
     }
 
     tvec3 pos;
-#ifdef TMS_BACKEND_PC
-    float mx, my;
-    SDL_GetMouseState(&mx, &my);
-    W->get_layer_point(this->cam, (int)mx, _tms.window_height-(int)my, 0.f, &pos);
-#else
-    pos = this->cam->_position;
-#endif
+    if (!settings["touch_controls"]->v.b) {
+        float mx, my;
+        SDL_GetMouseState(&mx, &my);
+        W->get_layer_point(this->cam, (int)mx, _tms.window_height-(int)my, 0.f, &pos);
+    } else {
+        pos = this->cam->_position;
+    }
 
     entity *e = of::create(g_id);
 
@@ -10551,12 +10510,12 @@ game::update_last_cursor_pos(int x, int y)
 void
 game::refresh_last_cursor_pos()
 {
-#ifdef TMS_BACKEND_PC
-    float mx, my;
-    SDL_GetMouseState(&mx, &my);
-    this->last_cursor_pos_x = (int)mx;
-    this->last_cursor_pos_y = _tms.window_height - (int)my;
-#endif
+    if (!settings["touch_controls"]->v.b) {
+        float mx, my;
+        SDL_GetMouseState(&mx, &my);
+        this->last_cursor_pos_x = (int)mx;
+        this->last_cursor_pos_y = _tms.window_height - (int)my;
+    }
 }
 
 b2Vec2

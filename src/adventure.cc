@@ -690,8 +690,7 @@ adventure::step()
             }
         }
 
-#ifdef TMS_BACKEND_PC
-        if (settings["control_type"]->v.u8 == 1) {
+        if (!settings["touch_controls"]->v.b && settings["control_type"]->v.u8 == 1) {
             tvec3 o;
             W->get_layer_point(G->cam, adventure::last_mouse_x, adventure::last_mouse_y, 0, &o);
 
@@ -720,8 +719,6 @@ adventure::step()
                 }
             }
         }
-#endif
-
 
 #ifdef DEBUG
         int mining_interval = (int)((float)MINING_INTERVAL * (G->ctrl_down() ? .075f : 1.f));
@@ -1150,11 +1147,9 @@ adventure::handle_input_playing(tms::event *ev, int action)
 #endif
                 }
             } else if (ev->type == TMS_EV_POINTER_DOWN || ev->type == TMS_EV_POINTER_UP) {
-#ifdef TMS_BACKEND_PC
-                if (ev->data.motion.pointer_id == 1) {
+                if (!settings["touch_controls"]->v.b && ev->data.motion.pointer_id == 1) {
                     ret = handle_input_action(ev, IA_ATTACK);
                 }
-#endif
             }
             break;
     }
@@ -1581,17 +1576,17 @@ adventure::render()
 
         glBindTexture(GL_TEXTURE_2D, gui_spritesheet::atlas->texture.gl_texture);
 
-#ifdef TMS_BACKEND_PC
-        for (int x=0; x<adventure::num_weapons; x++) {
-            G->render_num(adventure::weapon_icon_pos[x].x, adventure::weapon_icon_pos[x].y-_tms.yppcm*.075f,
-                    0,
-                    0,
-                    x+1,
-                    0,
-                    -.1f, false
-                    );
+        if (!settings["touch_controls"]->v.b) {
+            for (int x=0; x<adventure::num_weapons; x++) {
+                G->render_num(adventure::weapon_icon_pos[x].x, adventure::weapon_icon_pos[x].y-_tms.yppcm*.075f,
+                        0,
+                        0,
+                        x+1,
+                        0,
+                        -.1f, false
+                        );
+            }
         }
-#endif
 
         float x = base_x;
         float y = base_y - (row * icon_height) - (row * margin_y);

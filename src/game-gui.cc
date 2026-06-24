@@ -1594,11 +1594,10 @@ game::init_gui(void)
             GW_REMOVE, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_CLOSE), 0);
     this->wdg_remove->priority = 900;
-#ifdef TMS_BACKEND_PC
-    this->wdg_remove->set_tooltip("Remove object (key binding: Delete)");
-#else
-    this->wdg_remove->set_tooltip("Remove object");
-#endif
+    if (!settings["touch_controls"]->v.b)
+        this->wdg_remove->set_tooltip("Remove object (key binding: Delete)");
+    else
+        this->wdg_remove->set_tooltip("Remove object");
     this->wdg_remove->marker = true;
     this->wdg_remove->marker_color.r = 1.5f;
 
@@ -1693,55 +1692,51 @@ game::init_gui(void)
             GW_LAYER_DOWN_CYCLE, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_LAYER0), 0);
     this->wdg_layer->priority = 1800;
-#ifdef TMS_BACKEND_PC
-    this->wdg_layer->set_tooltip("Change object layer (key binding: Z/X)");
-#else
-    this->wdg_layer->set_tooltip("Change object layer");
-#endif
+    if (!settings["touch_controls"]->v.b)
+        this->wdg_layer->set_tooltip("Change object layer (key binding: Z/X)");
+    else
+        this->wdg_layer->set_tooltip("Change object layer");
 
     this->wdg_layer_down = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             GW_LAYER_DOWN, AREA_TOP_CENTER,
             gui_spritesheet::get_sprite(S_MINUS), 0);
     this->wdg_layer_down->priority = 1800;
-#ifdef TMS_BACKEND_PC
-    this->wdg_layer_down->set_tooltip("Layer down (key binding: Z)");
-#else
-    this->wdg_layer_down->set_tooltip("Layer down");
-#endif
+    if (!settings["touch_controls"]->v.b)
+        this->wdg_layer_down->set_tooltip("Layer down (key binding: Z)");
+    else
+        this->wdg_layer_down->set_tooltip("Layer down");
 
     this->wdg_layer_up = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             GW_LAYER_UP, AREA_TOP_CENTER,
             gui_spritesheet::get_sprite(S_PLUS), 0);
     this->wdg_layer_up->priority = 1700;
-#ifdef TMS_BACKEND_PC
-    this->wdg_layer_up->set_tooltip("Layer up (key binding: X)");
-#else
-    this->wdg_layer_up->set_tooltip("Layer up");
-#endif
+    if (!settings["touch_controls"]->v.b)
+        this->wdg_layer_up->set_tooltip("Layer up (key binding: X)");
+    else
+        this->wdg_layer_up->set_tooltip("Layer up");
 
     this->wdg_lock = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             GW_TOGGLE_LOCK, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_BTN_LOCK), 0);
     this->wdg_lock->priority = 1700;
-#ifdef TMS_BACKEND_PC
-    this->wdg_lock->set_tooltip("Toggle lock (key binding: N)");
-#else
-    this->wdg_lock->set_tooltip("Toggle lock");
-#endif
+    if (!settings["touch_controls"]->v.b)
+        this->wdg_lock->set_tooltip("Toggle lock (key binding: N)");
+    else
+        this->wdg_lock->set_tooltip("Toggle lock");
 
     this->wdg_detach = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             GW_DETACH, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_DC), 0);
     this->wdg_detach->priority = 1600;
-#ifdef TMS_BACKEND_PC
-    this->wdg_detach->set_tooltip("Disconnect from other objects (key binding: T)");
-#else
-    this->wdg_detach->set_tooltip("Disconnect from other objects");
-#endif
+    if (!settings["touch_controls"]->v.b)
+        this->wdg_detach->set_tooltip("Disconnect from other objects (key binding: T)");
+    else
+        this->wdg_detach->set_tooltip("Disconnect from other objects");
+
     this->wdg_detach->marker = true;
     this->wdg_detach->marker_color.b = 1.5f;
 
@@ -1771,11 +1766,10 @@ game::init_gui(void)
             GW_CONFIG, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_CONFIG), 0);
     this->wdg_config->priority = 1200;
-#ifdef TMS_BACKEND_PC
-    this->wdg_config->set_tooltip("Configure object (key binding: Y)");
-#else
-    this->wdg_config->set_tooltip("Configure object");
-#endif
+    if (!settings["touch_controls"]->v.b)
+        this->wdg_config->set_tooltip("Configure object (key binding: Y)");
+    else
+        this->wdg_config->set_tooltip("Configure object");
 
     this->wdg_tracker = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
@@ -1796,22 +1790,20 @@ game::init_gui(void)
             GW_FREQ_UP, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_PLUS), 0);
     this->wdg_freq_up->priority = 1080;
-#ifdef TMS_BACKEND_PC
-    this->wdg_freq_up->set_tooltip("Increase wireless frequency by 1 (5 for rightclick).");
-#else
-    this->wdg_freq_up->set_tooltip("Increase wireless frequency by 1.");
-#endif
+    if (!settings["touch_controls"]->v.b)
+        this->wdg_freq_up->set_tooltip("Increase wireless frequency by 1 (5 for rightclick).");
+    else
+        this->wdg_freq_up->set_tooltip("Increase wireless frequency by 1.");
 
     this->wdg_freq_down = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             GW_FREQ_DOWN, AREA_BOTTOM_LEFT,
             gui_spritesheet::get_sprite(S_MINUS), 0);
     this->wdg_freq_down->priority = 1070;
-#ifdef TMS_BACKEND_PC
-    this->wdg_freq_down->set_tooltip("Decrease wireless frequency by 1 (5 for rightclick).");
-#else
-    this->wdg_freq_down->set_tooltip("Decrease wireless frequency by 1.");
-#endif
+    if (!settings["touch_controls"]->v.b)
+        this->wdg_freq_down->set_tooltip("Decrease wireless frequency by 1 (5 for rightclick).");
+    else
+        this->wdg_freq_down->set_tooltip("Decrease wireless frequency by 1.");
 
     for (uint8_t x=0; x<ENTITY_MAX_SLIDERS; ++x) {
         this->wdg_selection_slider[x] = this->wm->create_widget(
