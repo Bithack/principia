@@ -37,8 +37,12 @@ panel_post_render(struct tms_wdg *w, struct tms_surface *s)
     update_widget_pos(wdg);
 
     if (wdg->glyph) {
-        /* push glyph for rendering */
-        G->add_glyph(wdg->glyph, w->pos.x, w->pos.y/*+(w->size.y/3.f)*/);
+        int xx = (int)wdg->pos.x, yy = (int)wdg->pos.y;
+        if (_tms.emulating_portrait) {
+            tms_convert_to_portrait(&xx, &yy);
+        }
+        // TODO: Rotate the glyphs too
+        G->add_glyph(wdg->glyph, xx, yy);
     }
 }
 
