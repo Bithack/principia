@@ -183,6 +183,9 @@ extern class principia {
     void add_action(int id, int data=0) {
         this->add_action(id, INT_TO_VOID(data));
     }
+    void add_action(int id, uint64_t data) {
+        this->add_action(id, UINT_TO_VOID(data));
+    }
     void add_action(int id, const char *data) {
         this->add_action(id, (void*)data);
     }
