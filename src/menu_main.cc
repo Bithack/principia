@@ -129,14 +129,12 @@ menu_main::render(void)
 int
 menu_main::handle_input(tms::event *ev, int action)
 {
-#if defined(TMS_BACKEND_PC) && !defined(NO_UI)
     if (ev->type == TMS_EV_POINTER_DOWN) {
         if (!P.focused) {
             if (prompt_is_open) return T_OK;
             else P.focused = true;
         }
     }
-#endif
 
     if (pscreen::handle_input(ev, action) == EVENT_DONE) {
         return EVENT_DONE;

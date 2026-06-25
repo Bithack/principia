@@ -1177,9 +1177,11 @@ void tproject_preinit() {
     if (!settings.load())
         tms_infof("ERROR!");
 
-
     if (settings["use_gles"]->v.b)
         _tms.use_gles = true;
+
+    if (settings["touch_controls"]->v.b)
+        _tms.touch_controls = true;
 
     settings.save();
 

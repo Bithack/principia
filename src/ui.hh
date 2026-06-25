@@ -138,6 +138,8 @@ class ui
 
 extern bool prompt_is_open;
 
-extern const char* tips[];
-extern const int num_tips;
+extern const char* tips_pc[];
+extern const char* tips_mobile[];
+extern const int num_tips_pc;
+extern const int num_tips_mobile;
 extern int ctip;

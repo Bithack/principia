@@ -487,11 +487,11 @@ Java_com_bithack_principia_PrincipiaBackend_getSandboxTip(JNIEnv *env, jclass _j
     jstring str;
     char *nm = 0;
 
-    if (ctip == -1) ctip = rand()%num_tips;
+    if (ctip == -1) ctip = rand()%num_tips_mobile;
 
-    str = env->NewStringUTF(tips[ctip]);
+    str = env->NewStringUTF(tips_mobile[ctip]);
 
-    ctip = (ctip+1)%num_tips;
+    ctip = (ctip+1)%num_tips_mobile;
 
     return str;
 }

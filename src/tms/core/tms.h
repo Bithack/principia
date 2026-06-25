@@ -92,6 +92,11 @@ extern struct tms_singleton {
     /// `settings["use_gles"]->v.b`, but is also available in TMS code.
     bool use_gles;
 
+    /// Whether we should be expecting touch input or not.
+    /// This variable is set from the "touch_controls" setting during preinit and is the same as
+    /// `settings["touch_controls"]->v.b`, but is also available in TMS code.
+    bool touch_controls;
+
     float window_projection[16];
     struct tms_screen      *screen; /**< current screen */
     struct tms_screen      *active_screen;

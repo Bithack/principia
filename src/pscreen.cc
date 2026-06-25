@@ -263,11 +263,7 @@ pscreen::handle_input(tms::event *ev, int action)
         }
     } else if (ev->type == TMS_EV_POINTER_UP) {
 #ifndef NO_UI
-        if (P.focused
-# ifdef TMS_BACKEND_PC
-                && !prompt_is_open
-#endif
-           ) {
+        if (P.focused && !prompt_is_open) {
             if (ping_cooldown == 25) {
                 P.add_action(ACTION_VERSION_CHECK, 0);
                 ping_cooldown = 0;

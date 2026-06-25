@@ -69,11 +69,6 @@ else()
 	option(BACKEND_IMGUI "Enable incomplete Dear Imgui dialog backend (Experimental)" FALSE)
 endif()
 
-set(TMS_FORMFACTOR "PC")
-if(ANDROID)
-	set(TMS_FORMFACTOR "MOBILE")
-endif()
-
 if(LINUX)
 	option(USE_GLES "Use OpenGL ES on Linux (Experimental)" FALSE)
 endif()
@@ -254,8 +249,6 @@ if(BACKEND_IMGUI)
 		add_definitions(-DIMGUI_IMPL_OPENGL_ES2)
 	endif()
 endif()
-
-add_definitions(-DTMS_BACKEND_${TMS_FORMFACTOR})
 
 # Use a safe subset of fast math flags
 set(COMMON_FLAGS "-fno-math-errno -fno-trapping-math -fno-signed-zeros")

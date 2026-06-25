@@ -16,15 +16,15 @@
 
 //#define DRAW_WIDGET_OUTLINES
 
-#ifdef TMS_BACKEND_PC
-#define TOLERANCE_X (tms.xppcm*.125f)
-#define TOLERANCE_Y (tms.yppcm*.125f)
-#else
-#define TOLERANCE_X (tms.xppcm*.25f)
-#define TOLERANCE_Y (tms.yppcm*.25f)
-#endif
 #define HOVER_TOLERANCE_X (tms.xppcm*.035f)
 #define HOVER_TOLERANCE_Y (tms.yppcm*.035f)
+
+static tvec2 tms_get_tolerance(void) {
+    if (tms.touch_controls)
+        return (tvec2){tms.xppcm*.25f, tms.yppcm*.25f};
+    else
+        return (tvec2){tms.xppcm*.125f, tms.yppcm*.125f};
+}
 
 /**
  * Allocate a surface.
@@ -90,9 +90,10 @@ tms_surface_draw_widget_outlines(struct tms_surface *s, struct tms_wdg *w, int s
 
     tms_ddraw_set_color(s->ddraw, 1.0, 0.3, 1.0, 1.0);
 
+    tvec2 tolerance = tms_get_tolerance();
     tms_ddraw_lsquare(s->ddraw,
             w->pos.x, w->pos.y,
-            w->size.x+TOLERANCE_X*2, w->size.y+TOLERANCE_Y*2);
+            w->size.x+tolerance.x*2, w->size.y+tolerance.y*2);
 }
 #endif
 
@@ -218,8 +219,9 @@ get_nearest_widget(struct tms_surface *s, int mx, int my, int *nearest_id, int *
         int oy = my - s->widgets[i]->pos.y;
         float dist = sqrtf((float)(ox*ox + oy*oy));
 
+        tvec2 tolerance = tms_get_tolerance();
         if (s->widgets[i]->type == TMS_WDG_RADIAL) {
-            if (dist < (s->widgets[i]->size.x/2.f + TOLERANCE_X*3.f)) {
+            if (dist < (s->widgets[i]->size.x/2.f + tolerance.x*3.f)) {
                 if (dist < nearest && s->widgets[i]->clickthrough == 0) {
                     *nearest_id = i;
                     *nearest_ox = ox;
@@ -227,11 +229,11 @@ get_nearest_widget(struct tms_surface *s, int mx, int my, int *nearest_id, int *
                     nearest = dist;
                 }
             }
-        } else if (ox < s->widgets[i]->size.x/2.f + TOLERANCE_X + s->widgets[i]->extra_right
-                && ox > -s->widgets[i]->size.x/2.f - TOLERANCE_X - s->widgets[i]->extra_left
-                && oy < s->widgets[i]->size.y/2.f + TOLERANCE_Y + s->widgets[i]->extra_up
-                && oy > -s->widgets[i]->size.y/2.f - TOLERANCE_Y - s->widgets[i]->extra_down
-                && abs(oy) < s->widgets[i]->size.y/2.f + TOLERANCE_Y) {
+        } else if (ox < s->widgets[i]->size.x/2.f + tolerance.x + s->widgets[i]->extra_right
+                && ox > -s->widgets[i]->size.x/2.f - tolerance.x - s->widgets[i]->extra_left
+                && oy < s->widgets[i]->size.y/2.f + tolerance.y + s->widgets[i]->extra_up
+                && oy > -s->widgets[i]->size.y/2.f - tolerance.y - s->widgets[i]->extra_down
+                && abs(oy) < s->widgets[i]->size.y/2.f + tolerance.y) {
             if (dist < nearest && s->widgets[i]->clickthrough == 0) {
                 *nearest_id = i;
                 *nearest_ox = ox;

@@ -9834,9 +9834,7 @@ game::handle_input(tms::event *ev, int action)
             this->print_screen_point_info((int)ev->data.motion.x, (int)ev->data.motion.y);
 #endif
 
-#if defined(TMS_BACKEND_PC) && !defined(NO_UI)
             if (prompt_is_open) return T_OK;
-#endif
 
             this->hov_ent = 0;
             this->hov_text->active = false;

@@ -45,7 +45,7 @@
 #include <valgrind/valgrind.h>
 #endif
 
-#if defined(TMS_BACKEND_PC) && !defined(PRINCIPIA_BACKEND_IMGUI) && !defined(NO_UI)
+#if !defined(SDL_PLATFORM_ANDROID) && !defined(PRINCIPIA_BACKEND_IMGUI) && !defined(NO_UI)
 
 #define SAVE_REGULAR 0
 #define SAVE_COPY 1
@@ -3755,9 +3755,13 @@ on_pkg_name_show(GtkWidget *wdg, void *unused)
 void
 on_tips_show(GtkWidget *wdg, void *unused)
 {
-    if (ctip == -1) ctip = rand()%num_tips;
+    bool touch = settings["touch_controls"]->v.b;
+    int num_tips = touch ? num_tips_mobile : num_tips_pc;
 
-    gtk_label_set_markup(tips_text, tips[ctip]);
+    if (ctip == -1)
+        ctip = rand()%num_tips;
+
+    gtk_label_set_markup(tips_text, touch ? tips_mobile[ctip] : tips_pc[ctip]);
 
     ctip = (ctip+1)%num_tips;
 }
