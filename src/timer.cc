@@ -67,13 +67,9 @@ timer::refresh_time()
 {
     uint64_t curr_time, delta;
 
-#ifdef TMS_BACKEND_IOS
-    curr_time = tms_IOS_get_time();
-#else
     struct timeval t;
     gettimeofday(&t, 0);
     curr_time = t.tv_usec + t.tv_sec * 1000000ull;
-#endif
 
     delta = curr_time - this->last_tick;
     this->last_tick = curr_time;

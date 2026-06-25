@@ -83,24 +83,14 @@ tms_set_screen(struct tms_screen *screen)
     return T_OK;
 }
 
-#ifdef TMS_BACKEND_IOS
-uint64_t tms_IOS_get_time();
-#endif
-
 static inline void
 init_frame_time(void)
 {
-#ifndef TMS_BACKEND_IOS
     struct timeval t;
-#endif
     uint64_t curr_time, delta;
 
-#ifdef TMS_BACKEND_IOS
-    curr_time = tms_IOS_get_time();
-#else
     gettimeofday(&t, 0);
     curr_time = t.tv_usec + t.tv_sec * 1000000ull;
-#endif
 
     if (tms.last_time == 0)
         tms.last_time = curr_time;
@@ -112,12 +102,8 @@ init_frame_time(void)
         SDL_Delay((tms.delta_cap - delta)/1000);
         delta = tms.delta_cap;
 
-#ifdef TMS_BACKEND_IOS
-        curr_time = tms_IOS_get_time();
-#else
         gettimeofday(&t, 0);
         curr_time = t.tv_usec + t.tv_sec * 1000000ull;
-#endif
     }
     tms.last_time = curr_time;
 
