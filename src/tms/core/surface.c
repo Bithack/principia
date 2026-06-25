@@ -129,12 +129,11 @@ tms_surface_render(struct tms_surface *s)
     for (int x=0; x<s->widget_count; x++) {
         if (s->widgets[x]->render) {
             float alpha = fmin(s->alpha, s->widgets[x]->alpha);
+            int state = 0;
             if (s->widgets[x]->color) {
                 tms_ddraw_set_color(s->ddraw, s->widgets[x]->color->r, s->widgets[x]->color->g, s->widgets[x]->color->b, alpha);
                 last_state = -100;
             } else {
-                int state = 0;
-
                 if (s->widgets[x]->faded) {
                     state = 100;
                 }
