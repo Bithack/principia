@@ -3,10 +3,10 @@
 #include "edevice.hh"
 #include <stdint.h>
 
-#ifdef TMS_BACKEND_PC
-#define DISPLAY_MAX_TOTAL_SQUARES 16384
-#else
+#ifdef SDL_PLATFORM_ANDROID
 #define DISPLAY_MAX_TOTAL_SQUARES 4096
+#else
+#define DISPLAY_MAX_TOTAL_SQUARES 16384
 #endif
 
 #define DISPLAY_MAX_SYMBOLS 40

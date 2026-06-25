@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef SDL_PLATFORM_WINDOWS
     #include <direct.h>
     #include <windows.h>
     #define mkdir(dirname, ...) _mkdir(dirname)
@@ -77,7 +77,7 @@ const char *tms_storage_path(void)
         strcpy(path, exedir);
         strcat(path, "userdata");
     } else { // System
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef SDL_PLATFORM_WINDOWS
         snprintf(path, 1024, "%s\\Principia", getenv("APPDATA"));
 #else
         const char *xdg = getenv("XDG_DATA_HOME");
@@ -114,7 +114,7 @@ const char *tms_storage_cache_path(void)
     if (_storage_portable) { // Portable
         snprintf(path, 1024, "%s/cache", SDL_GetBasePath());
     } else { // System
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef SDL_PLATFORM_WINDOWS
         const char *localappdata = getenv("LOCALAPPDATA");
         if (localappdata)
             snprintf(path, 1024, "%s\\Principia", localappdata);
@@ -177,7 +177,7 @@ static int dir_exists(const char *path) {
 }
 
 static void move_matching_files(const char *srcdir, const char *dstdir, const char *ext) {
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef SDL_PLATFORM_WINDOWS
     // As Windows is UTF-16 and we have UNICODE defined, we need to convert everything to UTF-16...
     wchar_t pattern[MAX_PATH];
     swprintf(pattern, MAX_PATH, L"%hs\\*.%hs", srcdir, ext);
@@ -227,13 +227,13 @@ static void migrate_principia_data() {
         snprintf(oldpath, sizeof(oldpath), "userdata");
         snprintf(newpath, sizeof(newpath), "userdata");
     } else {
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef SDL_PLATFORM_WINDOWS
         // Old: %USERPROFILE%/Principia
         snprintf(oldpath, sizeof(oldpath), "%s\\Principia", getenv("USERPROFILE"));
         // New: %APPDATA%/Principia
         snprintf(newpath, sizeof(newpath), "%s\\Principia", getenv("APPDATA"));
 
-#elif defined(TMS_BACKEND_LINUX) && !defined(SCREENSHOT_BUILD)
+#elif defined(SDL_PLATFORM_LINUX) && !defined(SCREENSHOT_BUILD)
         // Old: ~/.principia
         snprintf(oldpath, sizeof(oldpath), "%s/.principia", getenv("HOME"));
         // New: $XDG_DATA_HOME/principia or ~/.local/share/principia
@@ -243,7 +243,7 @@ static void migrate_principia_data() {
         else
             snprintf(newpath, sizeof(newpath), "%s/principia", xdg);
 
-#elif defined(TMS_BACKEND_ANDROID)
+#elif defined(SDL_PLATFORM_ANDROID)
         snprintf(oldpath, sizeof(oldpath), "%s",
                  SDL_GetAndroidExternalStoragePath());
         snprintf(newpath, sizeof(newpath), "%s",

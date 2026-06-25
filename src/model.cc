@@ -516,7 +516,7 @@ void mesh_factory::init_models() {
         tms_infof("Checking if we want to use cache...");
         /* The cache file exists, make sure we want to use it. */
         use_cache = true;
-#ifndef TMS_BACKEND_ANDROID
+#ifndef SDL_PLATFORM_ANDROID
         time_t cache_mtime = get_mtime(cache_path);
         time_t model_mtime;
 

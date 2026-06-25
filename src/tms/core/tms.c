@@ -136,7 +136,7 @@ tms_begin_frame(void)
     tms.active_screen = tms.screen;
     tms.in_frame = 1;
 
-#ifdef TMS_BACKEND_IOS
+#ifdef SDL_PLATFORM_IOS
     glBindFramebuffer(GL_FRAMEBUFFER, viewFramebuffer);
 #endif
 

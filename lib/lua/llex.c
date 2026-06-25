@@ -205,7 +205,7 @@ static void buffreplace (LexState *ls, char from, char to) {
 
 
 #if !defined(getlocaledecpoint)
-#if defined TMS_BACKEND_ANDROID || TMS_BACKEND_IOS
+#ifdef __ANDROID__
 #define getlocaledecpoint() ('.')
 #else
 #define getlocaledecpoint()	(localeconv()->decimal_point[0])

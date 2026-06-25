@@ -2,12 +2,18 @@
 
 /** @relates tms_camera @{ */
 
+#include <SDL3/SDL.h>
 #include <stdint.h>
 #include <tms/math/vector.h>
 
 #define TMS_CAMERA_VELOCITY    1 /**< Set to enable camera velocity. lol jk this isnt even implemented yet */
 #define TMS_CAMERA_PERSPECTIVE 2 /**< Enable perspective camera. If unset, the camera is orthographic. */
 #define TMS_CAMERA_LOOKAT      4 /**< If set, the camera's direction is calculated from a point given to tms_camera_lookat, otherwise the camera's direction is set using tms_camera_set_direction */
+
+#ifdef SDL_PLATFORM_WINDOWS
+#undef near
+#undef far
+#endif
 
 /**
  * Perspective/ortho2d camera convenience stuff.
@@ -29,10 +35,6 @@ struct tms_camera {
     uint32_t          _flags;
     float             fov;
     float             aspect;
-#ifdef TMS_BACKEND_WINDOWS
-#undef near
-#undef far
-#endif
     float             near;
     float             far;
     float             velocity_damping;

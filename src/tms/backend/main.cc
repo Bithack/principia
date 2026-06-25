@@ -47,7 +47,7 @@ to reproduce it, if possible.
 }
 
 void redirect_log_output() {
-#if !defined(DEBUG) && !defined(TMS_BACKEND_EMSCRIPTEN)
+#if !defined(DEBUG) && !defined(SDL_PLATFORM_EMSCRIPTEN)
     char logfile[1024];
     snprintf(logfile, 1023, "%s/run.log", tms_storage_path());
 
@@ -73,7 +73,7 @@ void print_log_header() {
 }
 
 static void find_data_dir() {
-#ifndef TMS_BACKEND_ANDROID
+#ifndef SDL_PLATFORM_ANDROID
     // Check if we're in the right place
     struct stat st{};
     if (stat("data", &st) != 0) {
@@ -98,13 +98,12 @@ static void find_data_dir() {
 
 static int do_step = 1;
 
-SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
-{
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
 
-#ifndef TMS_BACKEND_ANDROID
+#ifndef SDL_PLATFORM_ANDROID
     signal(SIGSEGV, _catch_signal);
 
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef SDL_PLATFORM_WINDOWS
     setlocale(LC_ALL, "C");
 #endif
 
@@ -127,7 +126,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
     // Linux we want to use se.principia_web.principia as it's a domain we have better access to for
     // e.g. Flatpak domain verification and such. SDL does not actually use the app ID currently, but
     // if they do we want to report something that's consistent with the APK itself.
-#if TMS_BACKEND_ANDROID
+#if SDL_PLATFORM_ANDROID
     #define PRINCIPIA_ID "com.bithack.principia"
 #else
     #define PRINCIPIA_ID "se.principia_web.principia"
@@ -156,11 +155,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
     tms_infof("Initializing SDL...");
     SDL_Init(SDL_INIT_VIDEO);
 
-#ifdef TMS_BACKEND_EMSCRIPTEN
+#ifdef SDL_PLATFORM_EMSCRIPTEN
     _tms.window_width = 1280;
     _tms.window_height = 720;
 
-#elif !defined(TMS_BACKEND_ANDROID)
+#elif !defined(SDL_PLATFORM_ANDROID)
     const SDL_DisplayMode *mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
     SDL_Point screen;
     if (mode) {
@@ -190,7 +189,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 
     uint32_t flags = SDL_WINDOW_OPENGL | 0;
 
-#ifdef TMS_BACKEND_ANDROID
+#ifdef SDL_PLATFORM_ANDROID
     flags |= SDL_WINDOW_FULLSCREEN;
 #else
     _tms.window_width = settings["window_width"]->v.i;
@@ -222,7 +221,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 
     _tms._window = _window;
 
-#ifdef TMS_BACKEND_ANDROID
+#ifdef SDL_PLATFORM_ANDROID
     SDL_GetWindowSizeInPixels(_window, &_tms.window_width, &_tms.window_height);
 
     float content_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
@@ -259,7 +258,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
     tms_infof("GL Info: %s/%s/%s", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
     tms_infof("GLSL Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef SDL_PLATFORM_WINDOWS
 
     if (!GLAD_GL_VERSION_1_2) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Principia",

@@ -22,7 +22,7 @@
 #include "font.hh"
 #include "text.hh"
 #include "gui.hh"
-#if defined(TMS_BACKEND_LINUX) && defined(DEBUG)
+#if defined(SDL_PLATFORM_LINUX) && defined(DEBUG)
 #define CREATE_SANDBOX_TEXTURES
 #include "SDL_image.h"
 #endif

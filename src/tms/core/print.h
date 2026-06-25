@@ -2,13 +2,14 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <SDL3/SDL.h>
 
 static inline int _fatal_exit(void) {
     exit(1);
     return 0;
 }
 
-#if defined(TMS_BACKEND_ANDROID)
+#if defined(SDL_PLATFORM_ANDROID)
 
 	#include <android/log.h>
 
@@ -22,7 +23,7 @@ static inline int _fatal_exit(void) {
 		#define tms_debugf(...) (__android_log_print(ANDROID_LOG_DEBUG, "tms", __VA_ARGS__));
 	#endif
 
-#elif defined(TMS_BACKEND_IOS)
+#elif defined(SDL_PLATFORM_IOS)
 
 	// todo
 	#error "NYI"

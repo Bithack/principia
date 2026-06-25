@@ -104,7 +104,7 @@ class p_font
     static FT_UInt *glyph_indices;
 };
 
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef SDL_PLATFORM_WINDOWS
 #undef small
 #endif
 

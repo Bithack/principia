@@ -242,7 +242,7 @@ pscreen::handle_input(tms::event *ev, int action)
                 }
                 break;
 
-#ifndef TMS_BACKEND_ANDROID
+#ifndef SDL_PLATFORM_ANDROID
             case TMS_KEY_F11:
                 uint32_t flags = SDL_GetWindowFlags(_tms._window);
 

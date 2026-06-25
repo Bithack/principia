@@ -42,7 +42,7 @@ loading_screen::resume(void)
 int
 loading_screen::render()
 {
-#ifdef TMS_BACKEND_IOS
+#ifdef SDL_PLATFORM_IOS
     glBindFramebuffer(GL_FRAMEBUFFER, viewFramebuffer);
 #endif
     glClearColor(0.f, 0.f, 0.f, 1.f);

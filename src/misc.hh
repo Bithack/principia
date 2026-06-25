@@ -9,7 +9,7 @@
 #include <tms/cpp.hh>
 #endif
 
-#if defined(TMS_BACKEND_ANDROID)
+#ifdef SDL_PLATFORM_ANDROID
 #include <SDL3/SDL.h>
 
 #define _FILE void

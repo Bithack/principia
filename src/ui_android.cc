@@ -45,7 +45,7 @@
 #include <sstream>
 #include <tms/cpp.hh>
 
-#if defined(TMS_BACKEND_ANDROID)
+#if defined(SDL_PLATFORM_ANDROID)
 
 #include <SDL3/SDL.h>
 #include "network.hh"

@@ -258,7 +258,7 @@ init_curl_defaults(void *curl)
 {
     curl_easy_reset(P.curl);
 
-#ifdef TMS_BACKEND_ANDROID
+#ifdef SDL_PLATFORM_ANDROID
     // XXX: Fix cert verification on Android
     curl_easy_setopt(P.curl, CURLOPT_SSL_VERIFYPEER, 0);
 #endif

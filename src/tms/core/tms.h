@@ -61,13 +61,9 @@ struct tms_mesh;
 #define tms _tms
 #endif
 
-#ifndef TMS_BACKEND_IOS
+#ifndef SDL_PLATFORM_IOS
 #define opengl_width window_width
 #define opengl_height window_height
-#endif
-
-#if !defined TMS_BACKEND_PC && !defined TMS_BACKEND_MOBILE
-	#error Either TMS_BACKEND_PC or TMS_BACKEND_MOBILE need to be defined for your platform.
 #endif
 
 /**
@@ -79,7 +75,7 @@ struct tms_mesh;
 extern struct tms_singleton {
     int window_width;
     int window_height;
-#ifdef TMS_BACKEND_IOS
+#ifdef SDL_PLATFORM_IOS
     int opengl_width;
     int opengl_height;
 #endif

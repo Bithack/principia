@@ -29,7 +29,7 @@ static void apply_very_bad_settings()
     settings["hide_tips"]->v.b = true;
 }
 
-#ifdef TMS_BACKEND_EMSCRIPTEN
+#ifdef SDL_PLATFORM_EMSCRIPTEN
     #define ENABLE_SHADOWS_DEFAULT false
     #define ENABLE_AO_DEFAULT false
     #define WINDOW_RESIZABLE_DEFAULT true
@@ -42,7 +42,7 @@ static void apply_very_bad_settings()
     #define NUM_WORKERS_DEFAULT SDL_GetNumLogicalCPUCores()
 #endif
 
-#ifdef TMS_BACKEND_MOBILE
+#ifdef SDL_PLATFORM_ANDROID
     #define AO_MAP_RES_DEFAULT 256
 #else
     #define AO_MAP_RES_DEFAULT 512
@@ -130,7 +130,7 @@ _settings::init()
     this->add("display_grapher_value",      S_BOOL, false);
     this->add("display_wireless_frequency", S_BOOL, true);
 
-#ifdef TMS_BACKEND_MOBILE
+#ifdef SDL_PLATFORM_ANDROID
     this->add("touch_controls",     S_BOOL, true);
 #else
     this->add("touch_controls",     S_BOOL, false);

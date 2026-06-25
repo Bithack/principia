@@ -15,7 +15,7 @@
 
 #include <glad/gl.h>
 
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef SDL_PLATFORM_WINDOWS
     #include <windows.h>
 
     static HANDLE pipe_h;
@@ -28,7 +28,7 @@ static char buf[1024];
 
 int _pipe_listener(void *p)
 {
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef SDL_PLATFORM_WINDOWS
     DWORD num_read;
 
     while (ConnectNamedPipe(pipe_h, 0) || GetLastError() == ERROR_PIPE_CONNECTED) {
@@ -55,7 +55,7 @@ int _pipe_listener(void *p)
 
     return T_OK;
 
-#elif defined(TMS_BACKEND_HAIKU) || defined(TMS_BACKEND_EMSCRIPTEN)
+#elif defined(SDL_PLATFORM_HAIKU) || defined(SDL_PLATFORM_EMSCRIPTEN)
 
     // Unimplemented
     return 0;
@@ -90,7 +90,7 @@ int _pipe_listener(void *p)
 
 void setup_pipe(int argc, char **argv)
 {
-#ifdef TMS_BACKEND_WINDOWS
+#ifdef SDL_PLATFORM_WINDOWS
 
     pipe_h = CreateNamedPipeW(
             L"\\\\.\\pipe\\principia-process",
@@ -158,7 +158,7 @@ void setup_pipe(int argc, char **argv)
         SDL_CreateThread(_pipe_listener, "_pipe_listener", 0);
     }
 
-#elif defined(TMS_BACKEND_HAIKU) || defined(TMS_BACKEND_EMSCRIPTEN)
+#elif defined(SDL_PLATFORM_HAIKU) || defined(SDL_PLATFORM_EMSCRIPTEN)
 
     // Unimplemented
 

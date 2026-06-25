@@ -2501,8 +2501,8 @@ _box_select_handler::ReportFixture(b2Fixture *f)
 int
 game::render()
 {
-    /* only delay on android */
-#ifdef TMS_BACKEND_ANDROID
+    // only delay on android (XXX: why?)
+#ifdef SDL_PLATFORM_ANDROID
     if (!P.focused)
         SDL_Delay(500);
 #endif

@@ -59,10 +59,11 @@ ui::messagef(const char *format, ...)
     }
 }
 
-#ifndef TMS_BACKEND_ANDROID
-void ui::open_url(const char *url)
-{
+#ifndef SDL_PLATFORM_ANDROID
+
+void ui::open_url(const char *url) {
     ui::messagef("Opening the page in your web browser...", url);
     SDL_OpenURL(url);
 }
+
 #endif
