@@ -3,8 +3,12 @@
 
 namespace UiTips {
     static bool do_open = false;
+    static bool touch = false;
+    static int num_tips = 0;
 
     void open() {
+        touch = settings["touch_controls"]->v.b;
+        num_tips = touch ? num_tips_mobile : num_tips_pc;
         ctip = rand() % num_tips;
         do_open = true;
     }
@@ -22,7 +26,7 @@ namespace UiTips {
 
             //TODO remove hardcoded size
             if (ImGui::BeginChild("###tips-content-ctx", ImVec2(0, 115), false, FRAME_FLAGS)) {
-                ImGui::TextWrapped("%s", tips[ctip]);
+                ImGui::TextWrapped("%s", touch ? tips_mobile[ctip] : tips_pc[ctip]);
             }
             ImGui::EndChild();
 
