@@ -382,9 +382,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     return SDL_APP_CONTINUE;
 }
 
-int
-mouse_button_to_pointer_id(int button)
-{
+int mouse_button_to_pointer_id(int button) {
     switch (button) {
         case SDL_BUTTON_LEFT: return 0;
         case SDL_BUTTON_RIGHT: return 1;
@@ -393,9 +391,37 @@ mouse_button_to_pointer_id(int button)
     }
 }
 
-int
-T_intercept_input(SDL_Event ev)
-{
+#define MAX_P 10
+
+static uint64_t finger_ids[MAX_P];
+
+static int finger_to_pointer(uint64_t finger, bool create) {
+#ifdef SDL_PLATFORM_WINDOWS
+    // Windows gives each finger tap session an unique incrementing ID that starts on each boot, so
+    // we need to keep track of them and allocate in slots that fit TMS' pointer ID system.
+
+    for (int x = 0; x < MAX_P; x++) {
+        // If create=true, find first empty slot
+        // else, find the slot that matches the finger ID returned from Windows
+        if ((finger_ids[x] == 0 && create) || finger_ids[x] == finger) {
+            tms_infof("found %" PRIu64 " at %d", finger, x);
+            finger_ids[x] = finger;
+            return x;
+        }
+    }
+
+    // No slot found... Who has more than ten fingers?
+
+    // Just replace the last one with this new finger ID.
+    finger_ids[MAX_P-1] = finger;
+    return MAX_P-1;
+#else
+    // Linux, Android - Easy, they handle finger IDs basically the way we want them to.
+    return finger - 1;
+#endif
+}
+
+int T_intercept_input(SDL_Event ev) {
     struct tms_event spec;
     spec.type = -1;
 
@@ -431,21 +457,25 @@ T_intercept_input(SDL_Event ev)
 
         case SDL_EVENT_FINGER_DOWN:
             spec.type = TMS_EV_POINTER_DOWN;
-            spec.data.button.pointer_id = ev.tfinger.fingerID - 1;
+            spec.data.button.pointer_id = finger_to_pointer(ev.tfinger.fingerID, true);
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
             break;
 
         case SDL_EVENT_FINGER_UP:
             spec.type = TMS_EV_POINTER_UP;
-            spec.data.button.pointer_id = ev.tfinger.fingerID - 1;
+            f = finger_to_pointer(ev.tfinger.fingerID, false);
+            spec.data.button.pointer_id = f;
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
+
+            // Free up the slot for this finger ID
+            finger_ids[SDL_min(f, MAX_P - 1)] = 0;
             break;
 
         case SDL_EVENT_FINGER_MOTION:
             spec.type = TMS_EV_POINTER_DRAG;
-            spec.data.button.pointer_id = ev.tfinger.fingerID - 1;
+            spec.data.button.pointer_id = finger_to_pointer(ev.tfinger.fingerID, false);
             spec.data.button.x = (int)(ev.tfinger.x*(float)_tms.window_width);
             spec.data.button.y = _tms.window_height-(int)(ev.tfinger.y*(float)_tms.window_height);
             break;
