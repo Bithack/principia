@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game.hh"
 #include "menu-base.hh"
 #include "pkgman.hh"
 #include <tms/cpp.hh>
@@ -19,6 +20,11 @@ class menu_pkg : public menu_base {
     float block_spacing;
 
     bool active;
+
+    bool down[MAX_P];
+    tvec2 touch_pos[MAX_P];
+    uint64_t touch_time[MAX_P];
+    bool dragging[MAX_P];
 
   public:
     menu_pkg();

@@ -107,9 +107,7 @@ if(UNITY_BUILD)
 		src/game-gearbox-edit.cc
 		src/game-gui.cc
 		src/game-panel-edit.cc
-		src/menu_pkg.cc
 		src/repair_station.cc
-		src/solver_ingame.cc
 
 		lib/Box2D/_unity_chunk.cc)
 else()
@@ -133,11 +131,15 @@ else()
 endif()
 
 if(BACKEND_IMGUI)
-	file(GLOB IMGUI_SRCS CONFIGURE_DEPENDS
-		lib/imgui/*.cpp
-		lib/imgui/misc/freetype/*.cpp
-		src/ui/*.cc)
-	list(APPEND SRCS ${IMGUI_SRCS})
+	if(UNITY_BUILD)
+		list(APPEND SRCS lib/imgui/_unity_chunk.cc)
+	else()
+		file(GLOB IMGUI_SRCS CONFIGURE_DEPENDS
+			lib/imgui/*.cpp
+			lib/imgui/misc/freetype/*.cpp
+			src/ui/*.cc)
+		list(APPEND SRCS ${IMGUI_SRCS})
+	endif()
 endif()
 
 # Optional dependencies not found on Android or in the screenshot build

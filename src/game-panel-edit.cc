@@ -5,8 +5,6 @@
 #include "widget_manager.hh"
 #include "text.hh"
 
-#define MAX_P 24
-
 struct edit_widget_decl : public widget_decl {
     int ex; int ey;
     int rx; int ry;

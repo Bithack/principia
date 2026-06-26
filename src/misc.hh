@@ -30,6 +30,8 @@
 #define _ftell ftell
 #endif
 
+#define MAX_P 24
+
 #define DOUBLETIME_TO_INT64(x) (int64_t)(x * 1000000.0)
 #define VOID_TO_UINT64(x) (uint64_t)(uintptr_t)(x)
 #define VOID_TO_UINT32(x) (uint32_t)(uintptr_t)(x)

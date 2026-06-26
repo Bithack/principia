@@ -37,17 +37,17 @@ static void presolve_plant(b2Contact *contact, entity *a, entity *b, int rev, co
 static void postsolve_creature(b2Contact *contact, entity *a, entity *b, int rev, const b2ContactImpulse *impulse);
 static void postsolve_ragdoll(b2Contact *contact, entity *a, entity *b, int rev, const b2ContactImpulse *impulse);
 static void presolve_conveyor(b2Contact *contact, entity *a, entity *b, int rev, const b2Manifold *man);
-static void presolve_cog_cog(b2Contact *contact, entity *a, entity *b, int rev, const b2Manifold *man);
+static void ingame_presolve_cog_cog(b2Contact *contact, entity *a, entity *b, int rev, const b2Manifold *man);
 static void presolve_pipeline_ball(b2Contact *contact, entity *a, entity *b, int rev, const b2Manifold *man);
 
-static void (*presolve_handler[13][13])(b2Contact *contact, entity *a, entity *b, int rev, const b2Manifold *man) =
+static void (*ingame_presolve_handler[13][13])(b2Contact *contact, entity *a, entity *b, int rev, const b2Manifold *man) =
 {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, presolve_cog_cog, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, ingame_presolve_cog_cog, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -641,8 +641,8 @@ void solver_ingame::PreSolve(b2Contact *contact, const b2Manifold *manifold)
         }
 
         if (ea->type < 13 && eb->type < 13) {
-            if (presolve_handler[ea->type][eb->type]) {
-                presolve_handler[ea->type][eb->type](contact, ea, eb, rev, manifold);
+            if (ingame_presolve_handler[ea->type][eb->type]) {
+                ingame_presolve_handler[ea->type][eb->type](contact, ea, eb, rev, manifold);
             }
         }
     } else {
@@ -771,7 +771,7 @@ void solver_ingame::PostSolve(b2Contact *contact, const b2ContactImpulse *impuls
 }
 
 static void
-presolve_cog_cog(b2Contact *contact, entity *a, entity *b, int rev, const b2Manifold *man)
+ingame_presolve_cog_cog(b2Contact *contact, entity *a, entity *b, int rev, const b2Manifold *man)
 {
     gear *ga = (gear*)a;
     gear *gb = (gear*)b;
@@ -821,8 +821,6 @@ presolve_cog_cog(b2Contact *contact, entity *a, entity *b, int rev, const b2Mani
 
         double diff = a2-a1;
 
-#define EPS .1f
-
         //if ()
         //
         //if (fabsf(a1) < .2f) tms_infof("A1 ALLOWED");
@@ -839,8 +837,8 @@ presolve_cog_cog(b2Contact *contact, entity *a, entity *b, int rev, const b2Mani
         }
         */
 
-        //if (fabsf(diff) > EPS && fabsf(diff) < (1.f-EPS)) {
-        if (std::abs(diff) < EPS) {
+        //if (fabsf(diff) > .1f && fabsf(diff) < (1.f-EPS)) {
+        if (std::abs(diff) < .1f) {
             contact->SetEnabled(false);
 
             /* attach the gears to each other */

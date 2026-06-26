@@ -117,7 +117,6 @@ struct distance_to_creature {
 // 0.032 ~= game running at 30 fps
 // 0.064 ~= game running at 15 fps
 #define CAMERA_NORMALIZE_THRESHOLD 0.064
-#define MAX_P 24
 
 #define CLICK_MAX_STEPS            25
 

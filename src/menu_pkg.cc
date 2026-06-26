@@ -12,9 +12,6 @@
 // Disables level completion check in packages
 #define UNLOCK_ALL_LVLS false
 
-//#define MAX_P 20
-// defined in game.hh
-
 #define _BASE_X (_tms.xppcm*1.f)
 #define _ICON_WIDTH  (_tms.window_height/5.f)
 #define _BASE_Y (-(_ICON_WIDTH / 2.f))
@@ -41,10 +38,6 @@ static void menu_pkg_render(struct tms_wdg *w, struct tms_surface *s) {
         tms_ddraw_sprite_r(s->ddraw, w->s[1], px, py, w->size.x/2.f, w->size.y/2.f, 0.f);
 }
 
-static bool                down[MAX_P];
-static tvec2               touch_pos[MAX_P];
-static uint64_t            touch_time[MAX_P];
-static bool                dragging[MAX_P];
 static struct tms_texture *tex_overlay = 0;
 static struct tms_atlas   *tex_icons = 0;
 

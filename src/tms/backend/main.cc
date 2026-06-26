@@ -391,6 +391,10 @@ int mouse_button_to_pointer_id(int button) {
     }
 }
 
+#ifdef MAX_P
+#undef MAX_P
+#endif
+
 #define MAX_P 10
 
 static uint64_t finger_ids[MAX_P];

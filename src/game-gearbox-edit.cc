@@ -2,8 +2,6 @@
 #include "gui.hh"
 #include "gearbox.hh"
 
-#define MAX_P 24
-
 //static widget_decl btns[6];
 static int num_buttons = 6;
 static float base_x = 0;
@@ -302,7 +300,7 @@ game::gearbox_edit_handle_event(tms::event *ev)
 
                 if (sx >= 0 && sy >= 0) {
                     if (sx + btns[id].sx < 4 && sy + btns[id].sy < 4) {
-                        panel *p = this->selection.e; 
+                        panel *p = this->selection.e;
 
                         bool used = false;
                         int num_skipped = 0;
@@ -405,7 +403,7 @@ game::render_gearbox_edit(void)
             _tms.window_height / 2.f - 3.0f*menu_ydim,
             4.2f * menu_xdim,
             2.8f * menu_ydim);
-    
+
     tms_ddraw_set_color(this->get_surface()->ddraw, .0f, 0.f, .0f, .75f);
 
     /*

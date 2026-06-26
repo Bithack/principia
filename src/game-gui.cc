@@ -31,7 +31,6 @@
 #define UINT32_MAX  (4294967295U)
 #endif
 
-#define MAX_P 24
 #define CAM_Z 20
 #define SPACING 2.f
 #define CAM_DAMPING .02f
