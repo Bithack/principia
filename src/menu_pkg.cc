@@ -86,6 +86,7 @@ void menu_pkg::recalculate_layout() {
 
 menu_pkg::menu_pkg() : menu_base(false) {
     this->scale = 1.f;
+    this->active = false;
 
     this->dd = this->get_surface()->ddraw;
     tex_icons = tms_atlas_alloc(1024,1024,3);
