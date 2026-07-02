@@ -480,10 +480,10 @@ static int btn_outer_y;
 static int btn_inner_y;
 static int menu_top[NUM_FACTORIES];
 
-static bool down[MAX_P];
-static bool inside[MAX_P];
-static bool dragging[MAX_P];
-static tvec2 start[MAX_P];
+static bool factory_down[MAX_P];
+static bool factory_inside[MAX_P];
+static bool factory_dragging[MAX_P];
+static tvec2 factory_start[MAX_P];
 static tvec2 pos[MAX_P];
 
 static int top_height;
@@ -910,16 +910,16 @@ game::factory_handle_event(tms::event *ev)
                 if (fabsf(sp.x - _tms.window_width/2.f) < fwidth/2.f &&
                     fabsf(sp.y - _tms.window_height/2.f) < fheight/2.f) {
 
-                    down[pid] = true;
+                    factory_down[pid] = true;
                     pos[pid] = sp;
-                    start[pid] = sp;
-                    dragging[pid] = false;
+                    factory_start[pid] = sp;
+                    factory_dragging[pid] = false;
                     tms_infof("clicked inside factory");
 
                     if (sp.y < _tms.window_height/2.f + fheight/2.f - top_height) {
-                        inside[pid] = true;
+                        factory_inside[pid] = true;
                     } else {
-                        inside[pid] = false;
+                        factory_inside[pid] = false;
                         tms_infof("clicked top part");
 
                         struct tms_sprite *label = 0;
@@ -970,10 +970,10 @@ game::factory_handle_event(tms::event *ev)
                 int pid = ev->data.motion.pointer_id;
                 tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
 
-                if (down[pid]) {
-                    float ydiff = sp.y - start[pid].y;
+                if (factory_down[pid]) {
+                    float ydiff = sp.y - factory_start[pid].y;
                     if (fabsf(ydiff) > 15.f) {
-                        dragging[pid] = true;
+                        factory_dragging[pid] = true;
 
                         menu_top[fa->factory_type] += sp.y - pos[pid].y;
                     }
@@ -988,8 +988,8 @@ game::factory_handle_event(tms::event *ev)
                 int pid = ev->data.motion.pointer_id;
                 tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
 
-                if (down[pid]) {
-                    if (!dragging[pid]) {
+                if (factory_down[pid]) {
+                    if (!factory_dragging[pid]) {
                         if (sp.y < _tms.window_height/2.f + fheight/2.f - top_height) {
                             int selection = floorf(((_tms.window_height/2.f + fheight/2.f - top_height + menu_top[fa->factory_type])-sp.y)/btn_outer_y);
 
@@ -1013,7 +1013,7 @@ game::factory_handle_event(tms::event *ev)
                     }
                 }
 
-                down[pid] = false;
+                factory_down[pid] = false;
             }
             break;
     }

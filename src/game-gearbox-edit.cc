@@ -6,8 +6,8 @@
 static int num_buttons = 6;
 static float base_x = 0;
 
-static int dragging[MAX_P];
-static tvec2 tdown[MAX_P];
+static int gb_dragging[MAX_P];
+static tvec2 gb_tdown[MAX_P];
 
 #define PADDING (.1f*menu_xdim)
 
@@ -15,7 +15,7 @@ void
 game::init_gearbox_edit()
 {
     for (int x=0; x<MAX_P; x++) {
-        dragging[x] = -1;
+        gb_dragging[x] = -1;
     }
 #if 0
     btns[0].s = gui_spritesheet::s_slider_bg;
@@ -44,7 +44,7 @@ game::init_gearbox_edit()
     base_x = _tms.window_width/2.f - width/2.f;
 
     for (int x=0; x<MAX_P; x++) {
-        dragging[x] = -1;
+        gb_dragging[x] = -1;
     }
 #endif
 }
@@ -54,13 +54,13 @@ game::gearbox_edit_handle_event(tms::event *ev)
 {
     int pid = ev->data.motion.pointer_id;
     tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
-    tdown[pid] = sp;
+    gb_tdown[pid] = sp;
     gearbox *gb = (gearbox*)this->selection.e;
 
     switch (ev->type) {
         case TMS_EV_POINTER_DOWN:
             //gb->properties[48].v.i8 ++;
-            dragging[pid] = -1;
+            gb_dragging[pid] = -1;
             if (sp.x > _tms.window_width - menu_xdim && sp.y > _tms.window_height - menu_ydim) {
                 this->set_mode(GAME_MODE_DEFAULT);
                 gb->active_conf = gb->properties[48].v.i8;
@@ -84,7 +84,7 @@ game::gearbox_edit_handle_event(tms::event *ev)
                         if (found_n < 0) found_n = 0;
                         tms_infof("found n %d", found_n);
 
-                        dragging[pid] = found_n;
+                        gb_dragging[pid] = found_n;
                     }
                 }
             } else {
@@ -128,7 +128,7 @@ game::gearbox_edit_handle_event(tms::event *ev)
                         int sl = slot+tr[t];
                         if (sl >= 0 && sl < 16) {
                             if (gb->properties[sl].v.i8 != 0) {
-                                dragging[pid] = gb->properties[sl].v.i8-1;
+                                gb_dragging[pid] = gb->properties[sl].v.i8-1;
                                 gb->properties[sl] .v.i8= 0;
                                 gb->update_configurations();
                                 break;
@@ -146,7 +146,7 @@ game::gearbox_edit_handle_event(tms::event *ev)
                         int sl = slot+tr[t];
                         if (sl >= 0 && sl < 16) {
                             if (gb->properties[16+sl] .v.i8!= 0) {
-                                dragging[pid] = gb->properties[16+sl].v.i8-1;
+                                gb_dragging[pid] = gb->properties[16+sl].v.i8-1;
                                 gb->properties[16+sl].v.i8 = 0;
                                 gb->update_configurations();
                                 break;
@@ -164,7 +164,7 @@ game::gearbox_edit_handle_event(tms::event *ev)
                         int sl = slot+tr[t];
                         if (sl >= 0 && sl < 16) {
                             if (gb->properties[32+sl].v.i8 != 0) {
-                                dragging[pid] = gb->properties[32+sl].v.i8-1;
+                                gb_dragging[pid] = gb->properties[32+sl].v.i8-1;
                                 gb->properties[32+sl].v.i8 = 0;
                                 gb->update_configurations();
                                 break;
@@ -184,7 +184,7 @@ game::gearbox_edit_handle_event(tms::event *ev)
                             int found_n = w->type;
                             if (!btns[w->type].dragging) {
                                 p->remove_widget(x);
-                                dragging[pid] = found_n;
+                                gb_dragging[pid] = found_n;
                                 btns[found_n].dragging = true;
                                 btns[found_n].dx = sp.x;
                                 btns[found_n].dy = sp.y;
@@ -198,14 +198,14 @@ game::gearbox_edit_handle_event(tms::event *ev)
             break;
 
         case TMS_EV_POINTER_DRAG:
-            if (dragging[pid] != -1) {
-                //btns[dragging[pid]].dx = sp.x;
-                //btns[dragging[pid]].dy = sp.y;
+            if (gb_dragging[pid] != -1) {
+                //btns[gb_dragging[pid]].dx = sp.x;
+                //btns[gb_dragging[pid]].dy = sp.y;
             }
             break;
 
         case TMS_EV_POINTER_UP:
-            if (dragging[pid] != -1) {
+            if (gb_dragging[pid] != -1) {
 
                 float a0_y = _tms.window_height / 2.f - 3.0f*menu_ydim;
                 float a1_y = _tms.window_height / 2.f - 3.0f*menu_ydim + 3*.3f*menu_ydim;
@@ -242,7 +242,7 @@ game::gearbox_edit_handle_event(tms::event *ev)
                     slot += 16;
 
                     if (slot >= 0 && slot < 16) {
-                        gb->properties[slot].v.i8 = dragging[pid]+1;
+                        gb->properties[slot].v.i8 = gb_dragging[pid]+1;
                         gb->update_configurations();
                     }
                 } else if (axle == 1) {
@@ -250,7 +250,7 @@ game::gearbox_edit_handle_event(tms::event *ev)
                     slot += 7;
 
                     if (slot >= 0 && slot < 16) {
-                        gb->properties[16+slot].v.i8 = dragging[pid]+1;
+                        gb->properties[16+slot].v.i8 = gb_dragging[pid]+1;
                         gb->update_configurations();
                     }
                 } else if (axle == 2) {
@@ -258,22 +258,22 @@ game::gearbox_edit_handle_event(tms::event *ev)
                     slot += 7;
 
                     if (slot >= 0 && slot < 16) {
-                        gb->properties[32+slot].v.i8 = dragging[pid]+1;
+                        gb->properties[32+slot].v.i8 = gb_dragging[pid]+1;
                         gb->update_configurations();
                     }
                 }
 
             }
-            dragging[pid] = -1;
+            gb_dragging[pid] = -1;
             break;
 #if 0
 
         case TMS_EV_POINTER_UP:
-            if (dragging[pid] != -1) {
+            if (gb_dragging[pid] != -1) {
 
                 /* see if we placed the button over available slots */
 
-                int id = dragging[pid];
+                int id = gb_dragging[pid];
                 int z = 0;
                 if (sp.x > _tms.window_width/2.f) {
                     z = 1;
@@ -331,8 +331,8 @@ game::gearbox_edit_handle_event(tms::event *ev)
                     }
                 }
 
-                btns[dragging[pid]].dragging = false;
-                dragging[pid] = -1;
+                btns[gb_dragging[pid]].dragging = false;
+                gb_dragging[pid] = -1;
             }
             break;
 #endif
@@ -385,12 +385,12 @@ game::render_gearbox_edit(void)
 
     /* render shit being dragged */
     for (int x=0; x<MAX_P; x++) {
-        if (dragging[x] != -1) {
+        if (gb_dragging[x] != -1) {
             tms_ddraw_square(this->get_surface()->ddraw,
-                    tdown[x].x,
-                    tdown[x].y,
+                    gb_tdown[x].x,
+                    gb_tdown[x].y,
                     .10f*menu_xdim,
-                    (dragging[x]+1) * .3f*menu_ydim - .05f*menu_ydim
+                    (gb_dragging[x]+1) * .3f*menu_ydim - .05f*menu_ydim
                     );
 
         }

@@ -38,9 +38,9 @@ static struct eq_slot eq_slots[] = {
 static int inventory_top = 0;
 static int inventory_width = 0;
 static int screen_padding = 0;
-static bool down[MAX_P];
-static bool dragging[MAX_P];
-static bool sliding[MAX_P];
+static bool rs_down[MAX_P];
+static bool rs_dragging[MAX_P];
+static bool rs_sliding[MAX_P];
 static tvec2 start[MAX_P];
 static int begin_offset = 0;
 static int dragging_id = -1;
@@ -50,8 +50,8 @@ static int hover_y = -1;
 static int inventory_row_h;
 static int inventory_item_w;
 static int inventory_item_h;
-static int padding_x;
-static int padding_y;
+static int rs_padding_x;
+static int rs_padding_y;
 static int inner_padding_x;
 static int inner_padding_y;
 
@@ -70,7 +70,7 @@ static void
 refresh_highlight(tvec2 sp)
 {
     if (sp.x < inventory_width) {
-        highlight_id = floorf((_tms.window_height + inventory_top - padding_y - sp.y) / (inventory_row_h+padding_y));
+        highlight_id = floorf((_tms.window_height + inventory_top - rs_padding_y - sp.y) / (inventory_row_h+rs_padding_y));
     } else {
         highlight_id = -1;
     }
@@ -667,11 +667,11 @@ game::render_repair_station(void)
     inner_padding_y  = _tms.yppcm * .1f;
     inventory_item_w = _tms.xppcm * .65f - inner_padding_x;
     inventory_item_h = _tms.yppcm * .65f - inner_padding_y;
-    padding_x = _tms.xppcm * 0.15f;
-    padding_y = _tms.yppcm * 0.15f;
+    rs_padding_x = _tms.xppcm * 0.15f;
+    rs_padding_y = _tms.yppcm * 0.15f;
 
     int num_items = rs->inventory.size();
-    int max_y = ((inventory_row_h+padding_y) * (num_items)) - _tms.window_height + padding_y;
+    int max_y = ((inventory_row_h+rs_padding_y) * (num_items)) - _tms.window_height + rs_padding_y;
     if (max_y < 0) max_y = 0;
 
     if (inventory_top < 0) inventory_top = 0;
@@ -703,7 +703,7 @@ game::render_repair_station(void)
     /* draw eq slot flat stuff */
     for (int i=0; i<NUM_EQ_SLOTS; ++i) {
         float base_x = inventory_width + screen_padding*2.f;
-        float base_y = _tms.window_height - (inventory_row_h/2.f) - padding_y;
+        float base_y = _tms.window_height - (inventory_row_h/2.f) - rs_padding_y;
 
         struct rs_item *rsi = 0;
         if (!eq_slots[i].compat) {
@@ -721,13 +721,13 @@ game::render_repair_station(void)
         }
 
         tms_ddraw_square(this->get_surface()->ddraw,
-                base_x + ((inventory_item_w + padding_x) * eq_slots[i].x),
-                base_y - ((inventory_item_h + padding_y) * eq_slots[i].y),
+                base_x + ((inventory_item_w + rs_padding_x) * eq_slots[i].x),
+                base_y - ((inventory_item_h + rs_padding_y) * eq_slots[i].y),
                 inventory_item_w,
                 inventory_item_h);
     }
 
-    float y = _tms.window_height - (inventory_row_h/2.f) - padding_y + inventory_top;
+    float y = _tms.window_height - (inventory_row_h/2.f) - rs_padding_y + inventory_top;
     /* draw flat shit */
     int n = 0;
     for (std::vector<struct rs_item*>::iterator i = rs->inventory.begin();
@@ -737,11 +737,11 @@ game::render_repair_station(void)
             tms_ddraw_square(this->get_surface()->ddraw,
                     inventory_width/2.f,
                     y,
-                    (inventory_width) - padding_x,
+                    (inventory_width) - rs_padding_x,
                     inventory_row_h);
         } else {
             if (highlight_id == n) {
-                if (down[0] || down[1]) {
+                if (rs_down[0] || rs_down[1]) {
                     tms_ddraw_set_color(this->get_surface()->ddraw, .65f, .65f, .65f, .85f);
                 } else {
                     tms_ddraw_set_color(this->get_surface()->ddraw, .6f, .6f, .6f, .80f);
@@ -749,32 +749,32 @@ game::render_repair_station(void)
                 tms_ddraw_square(this->get_surface()->ddraw,
                         inventory_width/2.f,
                         y,
-                        (inventory_width) - padding_x,
+                        (inventory_width) - rs_padding_x,
                         inventory_row_h);
             }
 
             // item box
             tms_ddraw_set_color(this->get_surface()->ddraw, 1.f, 1.f, 1.f, .5f);
             tms_ddraw_square(this->get_surface()->ddraw,
-                    (inventory_item_w/2.f) + (padding_x/2.f) + inner_padding_x,
+                    (inventory_item_w/2.f) + (rs_padding_x/2.f) + inner_padding_x,
                     y,
                     inventory_item_w,
                     inventory_item_h);
         }
 
-        y -= inventory_row_h + padding_y;
+        y -= inventory_row_h + rs_padding_y;
     }
 
     tms_ddraw_set_color(this->get_surface()->ddraw, 1.f, 1.f, 1.f, 1.f);
 
-    y = _tms.window_height - (inventory_row_h/2.f) - padding_y + inventory_top;
+    y = _tms.window_height - (inventory_row_h/2.f) - rs_padding_y + inventory_top;
     int last_bind = -1;
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     /* draw eq sprites */
     for (int i=0; i<NUM_EQ_SLOTS; ++i) {
         if (!eq_slots[i].item) continue;
         float base_x = inventory_width + screen_padding*2.f;
-        float base_y = _tms.window_height - (inventory_row_h/2.f) - padding_y;
+        float base_y = _tms.window_height - (inventory_row_h/2.f) - rs_padding_y;
 
         struct rs_item *rsi = eq_slots[i].item;
         struct tms_sprite *img = 0;
@@ -792,8 +792,8 @@ game::render_repair_station(void)
             }
 
             tms_ddraw_sprite(this->get_surface()->ddraw, img,
-                    base_x + ((inventory_item_w + padding_x) * eq_slots[i].x),
-                    base_y - ((inventory_item_h + padding_y) * eq_slots[i].y),
+                    base_x + ((inventory_item_w + rs_padding_x) * eq_slots[i].x),
+                    base_y - ((inventory_item_h + rs_padding_y) * eq_slots[i].y),
                     inventory_item_w,
                     inventory_item_h);
         }
@@ -825,7 +825,7 @@ game::render_repair_station(void)
                         inventory_item_h);
             } else {
                 tms_ddraw_sprite(this->get_surface()->ddraw, img,
-                        (inventory_item_w/2.f) + padding_x,
+                        (inventory_item_w/2.f) + rs_padding_x,
                         y,
                         inventory_item_w,
                         inventory_item_h);
@@ -833,10 +833,10 @@ game::render_repair_station(void)
 
         }
 
-        y -= inventory_row_h + padding_y;
+        y -= inventory_row_h + rs_padding_y;
     }
 
-    y = _tms.window_height - (inventory_row_h/2.f) - padding_y + inventory_top;
+    y = _tms.window_height - (inventory_row_h/2.f) - rs_padding_y + inventory_top;
     glBindTexture(GL_TEXTURE_2D, this->texts->texture.gl_texture);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     /* draw item name sprite */
@@ -851,13 +851,13 @@ game::render_repair_station(void)
 
         if (img) {
             tms_ddraw_sprite(this->get_surface()->ddraw, img,
-                    inventory_item_w + padding_x + (img->width / 2.f) + inner_padding_x,
+                    inventory_item_w + rs_padding_x + (img->width / 2.f) + inner_padding_x,
                     y,
                     img->width,
                     img->height);
         }
 
-        y -= inventory_row_h + padding_y;
+        y -= inventory_row_h + rs_padding_y;
     }
 
     glDisable(GL_BLEND);
@@ -1080,7 +1080,7 @@ game::repair_station_handle_event(tms::event *ev)
                 tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
                 rs->down_step = W->step_count;
 
-                down[pid] = true;
+                rs_down[pid] = true;
                 start[pid] = sp;
             }
             break;
@@ -1090,33 +1090,33 @@ game::repair_station_handle_event(tms::event *ev)
                 int pid = ev->data.motion.pointer_id;
                 tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
 
-                if (down[pid]) {
+                if (rs_down[pid]) {
                     if (start[pid].x < inventory_width) {
-                        if (!dragging[pid] && !sliding[pid]) {
+                        if (!rs_dragging[pid] && !rs_sliding[pid]) {
                             float xdiff = sp.x - start[pid].x;
                             float ydiff = std::abs(sp.y - start[pid].y);
                             if (xdiff > _tms.xppcm) {
-                                dragging_id = floorf((_tms.window_height + inventory_top - start[pid].y) / (inventory_row_h+padding_y));
-                                dragging[pid] = true;
+                                dragging_id = floorf((_tms.window_height + inventory_top - start[pid].y) / (inventory_row_h+rs_padding_y));
+                                rs_dragging[pid] = true;
                                 highlight_id = -1;
                                 if (dragging_id >= 0 && dragging_id < rs->inventory.size()) {
                                     struct rs_item *rsi = rs->inventory.at(dragging_id);
                                     rsi->dragging = true;
                                 }
                             } else if (ydiff > _tms.yppcm) {
-                                sliding[pid] = true;
+                                rs_sliding[pid] = true;
                                 begin_offset = inventory_top;
                             }
-                        } else if (dragging[pid]) {
+                        } else if (rs_dragging[pid]) {
                             if (dragging_id >= 0 && dragging_id < rs->inventory.size()) {
                                 struct rs_item *rsi = rs->inventory.at(dragging_id);
                                 rsi->pos = sp;
 
                                 /* check if we're hovering over an item slot */
-                                hover_x = floorf((sp.x - (inventory_width + (screen_padding*1.f))) / (inventory_item_w + padding_x));
-                                hover_y = floorf((_tms.window_height - padding_y - sp.y) / (inventory_item_h+padding_y));
+                                hover_x = floorf((sp.x - (inventory_width + (screen_padding*1.f))) / (inventory_item_w + rs_padding_x));
+                                hover_y = floorf((_tms.window_height - rs_padding_y - sp.y) / (inventory_item_h+rs_padding_y));
                             }
-                        } else if (sliding[pid]) {
+                        } else if (rs_sliding[pid]) {
                             inventory_top = begin_offset+sp.y-start[pid].y;
                         }
                     }
@@ -1137,16 +1137,16 @@ game::repair_station_handle_event(tms::event *ev)
                 int pid = ev->data.motion.pointer_id;
                 tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
 
-                if (down[pid]) {
-                    down[pid] = false;
+                if (rs_down[pid]) {
+                    rs_down[pid] = false;
 
-                    if (dragging[pid]) {
+                    if (rs_dragging[pid]) {
                         struct rs_item *rsi = 0;
                         if (dragging_id >= 0 && dragging_id < rs->inventory.size()) {
                             rsi = rs->inventory[dragging_id];
                             rsi->dragging = false;
-                            int release_x = floorf((sp.x - (inventory_width + (screen_padding*1.f))) / (inventory_item_w + padding_x));
-                            int release_y = floorf((_tms.window_height - padding_y - sp.y) / (inventory_item_h+padding_y));
+                            int release_x = floorf((sp.x - (inventory_width + (screen_padding*1.f))) / (inventory_item_w + rs_padding_x));
+                            int release_y = floorf((_tms.window_height - rs_padding_y - sp.y) / (inventory_item_h+rs_padding_y));
                             for (int i=0; i<NUM_EQ_SLOTS; ++i) {
                                 if (eq_slots[i].x != release_x) continue;
                                 if (eq_slots[i].y != release_y) continue;
@@ -1159,13 +1159,13 @@ game::repair_station_handle_event(tms::event *ev)
                                 break;
                             }
                         }
-                        dragging[pid] = false;
+                        rs_dragging[pid] = false;
                         dragging_id = -1;
                         hover_x = -1;
                         hover_y = -1;
 
-                    } else if (sliding[pid]) {
-                        sliding[pid] = false;
+                    } else if (rs_sliding[pid]) {
+                        rs_sliding[pid] = false;
                     } else if (pid == 0) {
                         uint32_t step_diff = W->step_count - rs->down_step;
                         if (step_diff < CLICK_MAX_STEPS) {
@@ -1193,8 +1193,8 @@ game::repair_station_handle_event(tms::event *ev)
                                 }
                             } else {
                                 /* unequipping? */
-                                int release_x = floorf((sp.x - (inventory_width + (screen_padding*1.f))) / (inventory_item_w + padding_x));
-                                int release_y = floorf((_tms.window_height - padding_y - sp.y) / (inventory_item_h+padding_y));
+                                int release_x = floorf((sp.x - (inventory_width + (screen_padding*1.f))) / (inventory_item_w + rs_padding_x));
+                                int release_y = floorf((_tms.window_height - rs_padding_y - sp.y) / (inventory_item_h+rs_padding_y));
                                 for (int i=0; i<NUM_EQ_SLOTS; ++i) {
                                     if (eq_slots[i].x != release_x) continue;
                                     if (eq_slots[i].y != release_y) continue;

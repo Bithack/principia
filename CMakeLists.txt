@@ -104,10 +104,6 @@ if(UNITY_BUILD)
 		src/tms/_unity_chunk.c
 		src/_unity_chunk.cc
 		src/game.cc
-		src/game-gearbox-edit.cc
-		src/game-gui.cc
-		src/game-panel-edit.cc
-		src/repair_station.cc
 
 		lib/Box2D/_unity_chunk.cc)
 else()

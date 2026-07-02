@@ -15,7 +15,7 @@ static float base_y = 0;
 static float scroll_x = 0.f;
 static float max_x = 0.f;
 
-static int dragging[MAX_P];
+static int panel_dragging[MAX_P];
 static int modifying[MAX_P];
 
 #define PADDING (.1f*menu_xdim)
@@ -39,7 +39,7 @@ game::panel_refresh_widgets()
     base_y = _tms.window_height - (MAX_Y * b_h * (1.f - WIDGET_SCALE))/2.f;
 
     for (int x=0; x<MAX_P; x++) {
-        dragging[x] = -1;
+        panel_dragging[x] = -1;
         modifying[x] = -1;
     }
 
@@ -225,7 +225,7 @@ game::panel_edit_handle_event(tms::event *ev)
                         if (sx >= btns[x].ex && sx <= btns[x].ex+btns[x].rx-1 &&
                                 sy >= btns[x].ey && sy <= btns[x].ey+btns[x].ry-1) {
                             tms_debugf("Clicked btn %d", btns[x].type);
-                            dragging[pid] = x;
+                            panel_dragging[pid] = x;
                             btns[x].dragging = true;
                             btns[x].dx = sp.x;
                             btns[x].dy = sp.y;
@@ -259,7 +259,7 @@ game::panel_edit_handle_event(tms::event *ev)
                         ||fabsf(sp.y - w->pos.y) > PANEL_WDG_OUTER_Y*1.5f) {
                     if (!btns[w->wtype].dragging) {
                         p->remove_widget(modifying[pid]);
-                        dragging[pid] = w->wtype;
+                        panel_dragging[pid] = w->wtype;
                         btns[w->wtype].dragging = true;
                         btns[w->wtype].dx = sp.x;
                         btns[w->wtype].dy = sp.y;
@@ -329,9 +329,9 @@ game::panel_edit_handle_event(tms::event *ev)
                     w->default_value[1] = value2;
                 }
             }
-            if (dragging[pid] != -1) {
-                btns[dragging[pid]].dx = sp.x;
-                btns[dragging[pid]].dy = sp.y;
+            if (panel_dragging[pid] != -1) {
+                btns[panel_dragging[pid]].dx = sp.x;
+                btns[panel_dragging[pid]].dy = sp.y;
             }
 
             break;
@@ -340,11 +340,11 @@ game::panel_edit_handle_event(tms::event *ev)
             if (modifying[pid] != -1) {
                 modifying[pid] = -1;
             }
-            if (dragging[pid] != -1) {
+            if (panel_dragging[pid] != -1) {
 
                 /* see if we placed the button over available slots */
 
-                int id = dragging[pid];
+                int id = panel_dragging[pid];
                 int z = 0;
                 if (sp.x > _tms.window_width/2.f) {
                     z = 1;
@@ -421,8 +421,8 @@ game::panel_edit_handle_event(tms::event *ev)
                     }
                 }
 
-                btns[dragging[pid]].dragging = false;
-                dragging[pid] = -1;
+                btns[panel_dragging[pid]].dragging = false;
+                panel_dragging[pid] = -1;
             }
             break;
     }
