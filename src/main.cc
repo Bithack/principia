@@ -1126,6 +1126,7 @@ void tproject_quit() {
 }
 
 void setup_opengl_settings() {
+#ifndef SDL_PLATFORM_EMSCRIPTEN
     if (_tms.use_gles) {
         if (settings["shadow_map_precision"]->is_uninitialized()) {
             settings["shadow_map_precision"]->v.i = 0;
@@ -1143,7 +1144,9 @@ void setup_opengl_settings() {
 
         // XXX: We need to really fix gamma correction on GLES...
         settings["gamma_correct"]->v.b = 0;
-    } else {
+    } else
+#endif
+    {
         if (settings["shadow_map_precision"]->is_uninitialized()) {
             if (strstr(_tms.gl_extensions, "GL_ARB_texture_float") != 0
                 || strstr(_tms.gl_extensions, "GL_ATI_texture_float") != 0) {
