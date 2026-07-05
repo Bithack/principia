@@ -1,5 +1,9 @@
+#include "main.hh"
 #include "simplebg.hh"
-#include "ui_imgui.hh"
+#include "imgui.hh"
+#include "world.hh"
+
+#include "imgui_internal.h" // ImGuiSliderFlagsPrivate_
 
 namespace UiLevelProperties {
     static bool do_open = false;

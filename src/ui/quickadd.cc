@@ -1,4 +1,7 @@
-#include "ui_imgui.hh"
+#include "game.hh"
+#include "imgui.hh"
+#include "main.hh"
+#include "types.hh"
 
 namespace UiQuickadd {
     static bool do_open = false;

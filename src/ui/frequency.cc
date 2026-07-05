@@ -1,4 +1,8 @@
-#include "ui_imgui.hh"
+#include "entity.hh"
+#include "imgui.hh"
+#include "object_factory.hh"
+#include "world.hh"
+#include <map>
 
 namespace UiFrequency {
     static uint32_t __always_zero = 0;

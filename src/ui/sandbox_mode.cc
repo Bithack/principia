@@ -1,4 +1,5 @@
-#include "ui_imgui.hh"
+#include "game.hh"
+#include "imgui.hh"
 
 namespace UiSandboxMode {
     static bool do_open = false;

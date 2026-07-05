@@ -1,5 +1,6 @@
+#include "imgui.hh"
+#include "main.hh"
 #include "ui.hh"
-#include "ui_imgui.hh"
 
 namespace UiConfirm {
 	static bool do_open = false;

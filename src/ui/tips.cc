@@ -1,5 +1,6 @@
+#include "imgui.hh"
 #include "settings.hh"
-#include "ui_imgui.hh"
+#include "ui.hh"
 
 namespace UiTips {
     static bool do_open = false;

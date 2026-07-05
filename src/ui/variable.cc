@@ -1,4 +1,7 @@
-#include "ui_imgui.hh"
+#include "game.hh"
+#include "imgui.hh"
+#include "object_factory.hh"
+#include "ui.hh"
 
 namespace UiVariable {
 static bool do_open = false;

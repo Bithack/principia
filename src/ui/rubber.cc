@@ -1,4 +1,7 @@
-#include "ui_imgui.hh"
+#include "entity.hh"
+#include "game.hh"
+#include "imgui.hh"
+#include "main.hh"
 
 namespace UiRubber {
 static bool do_open = false;

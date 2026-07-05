@@ -1,177 +1,19 @@
+#include "imgui.hh"
+#include "ui_imgui.hh"
+#include "ui.hh"
+
 #ifdef PRINCIPIA_BACKEND_IMGUI
 
-#include "ui_imgui.hh"
-#include "game.hh"
-#include "main.hh"
-#include "misc.hh"
-#include "settings.hh"
-#include "ui.hh"
-#include "ui_imgui_impl_tms.hh"
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_opengl.h>
-#include <cmath>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <stdexcept>
-#include <string>
-#include <tms/cpp.hh>
-#include <vector>
+static ImguiDriver imgui_driver;
 
-// Misc helper functions
-
-ImVec4 rgba(uint32_t color) {
-    float components[4]; //ABGR
-    for (int i = 0; i < 4; i++) {
-        components[i] = (float)(color & 0xFF) / 255.;
-        color >>= 8;
-    }
-    return ImVec4(components[3], components[2], components[1], components[0]);
+void ui::init() {
+    imgui_driver = ImguiDriver();
+    imgui_driver.init();
 }
 
-bool lax_search(const std::string& where, const std::string& what) {
-    return std::search(
-        where.begin(), where.end(),
-        what.begin(), what.end(),
-        [](char lhs, char rhs) { return std::tolower(lhs) == std::tolower(rhs); }
-    ) != where.end();
-}
+void ui::render() {
+    imgui_driver.pre_render();
 
-void ImGui_CenterNextWindow() {
-    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-}
-
-void ImGui_BeginScaleFont(float scale) {
-    ImGui::GetFont()->Scale = scale;
-    ImGui::PushFont(ImGui::GetFont());
-}
-
-void ImGui_EndScaleFont() {
-    ImGui::GetFont()->Scale = 1.;
-    ImGui::PopFont();
-    ImGui::GetFont()->Scale = 1.;
-}
-
-void handle_do_open(bool *do_open, const char* name) {
-    if (*do_open) {
-        *do_open = false;
-        ImGui::OpenPopup(name);
-    }
-}
-
-
-
-// FILE LOADING //
-std::vector<uint8_t> *load_ass(const char *path) {
-    tms_infof("(imgui-backend) loading asset from %s...", path);
-
-    FILE_IN_ASSET(true);
-    FILE *file = (FILE*) _fopen(path, "rb");
-    tms_assertf(file, "file not found");
-
-    _fseek(file, 0, SDL_IO_SEEK_END);
-    size_t size = _ftell(file);
-    tms_debugf("buf size %d", (int) size);
-    void *buffer = malloc(size + 1);
-
-    _fseek(file, 0, SDL_IO_SEEK_SET);
-    _fread(buffer, 1, size, file);
-    _fclose(file);
-
-    uint8_t *typed_buffer = (uint8_t*) buffer;
-    std::vector<uint8_t> *vec = new std::vector<uint8_t>(typed_buffer, typed_buffer + size);
-    free(buffer);
-
-    return vec;
-}
-
-/// PFONT ///
-
-static struct PFont im_load_ttf(const char *path, float size_pixels) {
-    std::vector<uint8_t>* buf = load_ass(path);
-
-    ImFontConfig font_cfg;
-    font_cfg.FontDataOwnedByAtlas = false;
-    if (size_pixels <= 16.) {
-        font_cfg.OversampleH = 3;
-    }
-
-    ImFont *font = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(buf->data(), buf->size(), size_pixels, &font_cfg);
-
-    struct PFont pfont;
-    pfont.fontbuffer = buf;
-    pfont.font = font;
-
-    return pfont;
-}
-
-struct PFont ui_font;
-struct PFont ui_font_mono;
-
-static void load_fonts() {
-    //TODO free existing fonts
-
-    float size_pixels = 12.f;
-    size_pixels *= settings["uiscale"]->v.f;
-    size_pixels = roundf(size_pixels);
-
-    tms_infof("font size %fpx", size_pixels);
-
-    ui_font = im_load_ttf("data/fonts/Roboto-Bold.ttf", size_pixels);
-    ui_font_mono = im_load_ttf("data/fonts/SourceCodePro-Medium.ttf", size_pixels + 2);
-
-}
-
-static void update_imgui_ui_scale() {
-    float scale_factor = settings["uiscale"]->v.f;
-    ImGui::GetStyle().ScaleAllSizes(scale_factor);
-
-    //ImGui::GetIO().FontGlobalScale = roundf(9. * scale_factor) / 9.;
-}
-
-static void principia_style() {
-    ImGui::StyleColorsDark();
-    ImGuiStyle *style = &ImGui::GetStyle();
-    ImVec4* colors = style->Colors;
-
-    //Rounding
-    style->FramePadding = ImVec2(10, 5);
-    style->ItemSpacing  = ImVec2(8, 6);
-    style->FrameRounding  = style->GrabRounding  = 2.3f;
-    style->WindowRounding = style->PopupRounding = style->ChildRounding = 3.0f;
-
-    //style->FrameBorderSize = .5;
-
-    colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.05f, 0.05f, 0.05f, 0.35f);
-}
-
-static bool init_ready = false;
-
-// UI helpers implemented here to avoid multiple definitions when header is included
-void ui_init() {
-    UiLevelManager::init();
-    UiLuaEditor::init();
-    //UiQuickadd::init();
-    UiSynthesizer::init();
-}
-
-//On debug builds, open imgui demo window by pressing Shift+F9
-#ifdef DEBUG
-static bool show_demo = false;
-static void ui_demo_layout() {
-    if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_F9) && ImGui::GetIO().KeyShift) {
-        show_demo ^= 1;
-    }
-    if (show_demo) {
-        ImGui::ShowDemoWindow(&show_demo);
-    }
-}
-#endif
-
-static void ui_layout() {
-#ifdef DEBUG
-    ui_demo_layout();
-#endif
     UiSandboxMenu::layout();
     UiPlayMenu::layout();
     UiLevelManager::layout();
@@ -197,83 +39,11 @@ static void ui_layout() {
     UiPolygon::layout();
     UiRubber::layout();
     UiDecoration::layout();
-}
 
-// Non-header ui::* definitions
-void ui::init() {
-    tms_assertf(!init_ready, "ui::init called twice");
-
-    //create context
-#ifdef DEBUG
-    IMGUI_CHECKVERSION();
-#endif
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-
-    //set flags
-    io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange | ImGuiConfigFlags_NavEnableKeyboard;
-    //io.ConfigInputTrickleEventQueue = false;
-    io.ConfigWindowsResizeFromEdges = true; //XXX: not active until custom cursors are implemented...
-    io.ConfigDragClickToInputText = true;
-    //Disable saving state/logging
-    io.IniFilename = NULL;
-    io.LogFilename = NULL;
-
-    //style
-    principia_style();
-
-    //update scale
-    update_imgui_ui_scale();
-
-    //load fonts
-    load_fonts();
-
-    //ensure gl ctx exists
-    tms_assertf(_tms._window != NULL, "window does not exist yet");
-    tms_assertf(SDL_GL_GetCurrentContext() != NULL, "no gl ctx");
-
-    //init
-    if (!ImGui_ImplOpenGL3_Init()) {
-        tms_fatalf("(imgui-backend) gl impl init failed");
-    }
-
-    if (ImGui_ImplTMS_Init() != T_OK) {
-        tms_fatalf("(imgui-backend) tms impl init failed");
-    }
-
-    //call ui_init
-    ui_init();
-
-    init_ready = true;
-}
-
-void ui::render() {
-    if (settings["render_gui"]->is_false()) return;
-
-    tms_assertf(init_ready, "ui::render called before ui::init");
-    tms_assertf(GImGui != NULL, "gimgui is null. is imgui ready?");
-
-    ImGuiIO& io = ImGui::GetIO();
-
-    //start frame
-    if (ImGui_ImplTms_NewFrame() <= 0) return;
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui::NewFrame();
-
-    ImGui::PushFont(ui_font.font);
-
-    //layout
-    ui_layout();
-
-    ImGui::PopFont();
-
-    //render
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    imgui_driver.post_render();
 }
 
 void ui::open_dialog(int num, void *data) {
-    tms_assertf(init_ready, "ui::open_dialog called before ui::init");
     switch (num) {
         //XXX: this gets called after opening the sandbox menu, closing it immediately
         case CLOSE_ABSOLUTELY_ALL_DIALOGS:
@@ -381,9 +151,7 @@ void ui::emit_signal(int num, void *data){
 }
 
 void ui::quit() {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplTMS_Shutdown();
-    ImGui::DestroyContext();
+    imgui_driver.quit();
 }
 
 void ui::set_next_action(int action_id) {

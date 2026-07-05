@@ -1,4 +1,6 @@
-#include "ui_imgui.hh"
+#include "imgui.hh"
+#include "main.hh"
+#include "world.hh"
 
 namespace UiSave {
 static bool do_open = false;

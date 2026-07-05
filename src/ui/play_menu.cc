@@ -1,4 +1,6 @@
-#include "ui_imgui.hh"
+#include "game.hh"
+#include "imgui.hh"
+#include "main.hh"
 
 namespace UiPlayMenu {
     static bool do_open = false;

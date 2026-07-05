@@ -1,5 +1,7 @@
 #include "decorations.hh"
-#include "ui_imgui.hh"
+#include "game.hh"
+#include "imgui.hh"
+#include "main.hh"
 
 namespace UiDecoration {
 	static bool do_open = false;

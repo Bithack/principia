@@ -1,9 +1,10 @@
 #include "treasure_chest.hh"
+#include "game.hh"
+#include "imgui.hh"
 #include "item.hh"
-#include "ui_imgui.hh"
-
-#include <string>
+#include "main.hh"
 #include <sstream>
+#include <string>
 
 namespace UiTreasureChest {
 	static bool do_open = false;

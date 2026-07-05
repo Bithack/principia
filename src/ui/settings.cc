@@ -1,6 +1,8 @@
 #include "settings.hh"
+#include "main.hh"
 #include "soundmanager.hh"
-#include "ui_imgui.hh"
+#include "imgui.hh"
+#include <string>
 #include <thread>
 #include <unordered_map>
 

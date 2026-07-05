@@ -1,4 +1,5 @@
-#include "ui_imgui.hh"
+#include "entity.hh"
+#include "imgui.hh"
 
 namespace UiObjColorPicker {
     static bool do_open = false;

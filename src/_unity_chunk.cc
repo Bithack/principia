@@ -94,6 +94,7 @@
 #include "i1o1gate.cc"
 #include "i2o0gate.cc"
 #include "i2o1gate.cc"
+#include "imgui.cc"
 #include "impact_sensor.cc"
 #include "invertergate.cc"
 #include "iomiscgate.cc"

@@ -1,4 +1,6 @@
-#include "ui_imgui.hh"
+#include "game.hh"
+#include "imgui.hh"
+#include "main.hh"
 
 namespace UiSticky {
 	static bool do_open = false;
@@ -17,9 +19,8 @@ namespace UiSticky {
     }
 
     void layout() {
-
-
         handle_do_open(&do_open, "Sticky Note");
+
         if (ImGui::BeginPopupModal("Sticky Note", nullptr, MODAL_FLAGS)) {
             ImGui::Checkbox("Center X", &center_x);
             ImGui::SameLine();

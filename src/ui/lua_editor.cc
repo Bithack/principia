@@ -1,4 +1,5 @@
-#include "ui_imgui.hh"
+#include "entity.hh"
+#include "imgui.hh"
 
 namespace UiLuaEditor {
     static bool do_open = false;
@@ -6,8 +7,6 @@ namespace UiLuaEditor {
     static bool has_unsaved_changes = false;
 
     static std::string codeText;
-
-    void init() {}
 
     static void flash_controller() {
         tms_infof("Flashing controller");

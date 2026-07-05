@@ -1,4 +1,6 @@
-#include "ui_imgui.hh"
+#include "imgui.hh"
+#include "main.hh"
+#include "pkgman.hh"
 
 namespace UiNewLevel {
 static bool do_open = false;

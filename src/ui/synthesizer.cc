@@ -1,5 +1,5 @@
+#include "imgui.hh"
 #include "speaker.hh"
-#include "ui_imgui.hh"
 #include <chrono>
 
 namespace UiSynthesizer {
@@ -27,13 +27,10 @@ namespace UiSynthesizer {
         WAVEFORM_ETC
     };
 
-    void init() {
-        init_time = std::chrono::steady_clock::now();
-    }
-
     void open(entity *entity /*= G->selection.e*/) {
         do_open = true;
         entity_ptr = entity;
+        init_time = std::chrono::steady_clock::now();
     }
 
     void layout() {
@@ -209,7 +206,7 @@ namespace UiSynthesizer {
 
             //Base freq
             int hz_int = (int) roundf(*low_hz);
-            if (ImGui::SliderInt("Base requency", &hz_int, 100, 3520)) {
+            if (ImGui::SliderInt("Base frequency", &hz_int, 100, 3520)) {
                 *low_hz = (float) hz_int;
                 *high_hz = (std::max)(*high_hz, *low_hz);
             }

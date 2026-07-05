@@ -1,5 +1,8 @@
 #include "animal.hh"
-#include "ui_imgui.hh"
+#include "game.hh"
+#include "imgui.hh"
+#include "main.hh"
+#include "world.hh"
 
 namespace UiAnimal {
 	static bool do_open = false;

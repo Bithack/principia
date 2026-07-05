@@ -1,4 +1,7 @@
-#include "ui_imgui.hh"
+#include "game.hh"
+#include "imgui.hh"
+#include "main.hh"
+#include "pkgman.hh"
 
 namespace UiLevelManager {
     struct lvlinfo_ext {
@@ -14,12 +17,6 @@ namespace UiLevelManager {
     static int level_list_type = LEVEL_LOCAL;
 
     static lvlinfo_ext *level_metadata = nullptr;
-    static tms_texture *level_icon;
-
-    static void upload_level_icon() {
-        tms_texture_load_mem(level_icon, (const char*) &level_metadata->info.icon, 128, 128, 1);
-        tms_texture_upload(level_icon);
-    }
 
     static int update_level_info(int id_type, uint32_t id) {
         if (level_metadata) {
@@ -61,10 +58,6 @@ namespace UiLevelManager {
         }
         //Get a new list of levels
         level_list = pkgman::get_levels(level_list_type);
-    }
-
-    void init() {
-        level_icon = tms_texture_alloc();
     }
 
     void open() {
