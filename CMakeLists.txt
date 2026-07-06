@@ -67,6 +67,7 @@ if(EMSCRIPTEN)
 	set(BACKEND_IMGUI TRUE)
 else()
 	option(BACKEND_IMGUI "Enable incomplete Dear Imgui dialog backend (Experimental)" FALSE)
+	option(IMGUI_IN_GTK "Enable using Imgui in the GTK dialog backend (Experimental)" FALSE)
 endif()
 
 if(LINUX)
@@ -126,7 +127,7 @@ else()
 	list(APPEND SRCS ${MAIN_SRCS})
 endif()
 
-if(BACKEND_IMGUI)
+if(BACKEND_IMGUI OR IMGUI_IN_GTK)
 	if(UNITY_BUILD)
 		list(APPEND SRCS lib/imgui/_unity_chunk.cc)
 	else()
@@ -240,12 +241,20 @@ elseif(SCREENSHOT_BUILD)
 	add_definitions(-DNO_UI -DSCREENSHOT_BUILD)
 endif()
 
-if(BACKEND_IMGUI)
-	add_definitions(-DPRINCIPIA_BACKEND_IMGUI -DIMGUI_DEFINE_MATH_OPERATORS)
+if(BACKEND_IMGUI OR IMGUI_IN_GTK)
+	add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
 
 	if(SHOULD_USE_GLES)
 		add_definitions(-DIMGUI_IMPL_OPENGL_ES2)
 	endif()
+endif()
+
+if(BACKEND_IMGUI)
+	add_definitions(-DPRINCIPIA_BACKEND_IMGUI)
+endif()
+
+if(IMGUI_IN_GTK)
+	add_definitions(-DUI_IMGUI_IN_GTK)
 endif()
 
 # Use a safe subset of fast math flags

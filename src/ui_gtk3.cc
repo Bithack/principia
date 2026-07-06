@@ -9924,21 +9924,6 @@ _sig_ui_ready(gpointer unused)
     return false;
 }
 
-void ui::init()
-{
-    ui_lock = SDL_CreateMutex();
-    ui_cond = SDL_CreateCondition();
-    ui_ready = false;
-
-    SDL_Thread *gtk_thread;
-
-    gtk_thread = SDL_CreateThread(_gtk_loop, "_gtk_loop", 0);
-
-    if (gtk_thread == NULL) {
-        tms_errorf("SDL_CreateThread failed: %s", SDL_GetError());
-    }
-}
-
 static gboolean
 _open_play_menu(gpointer unused)
 {
@@ -11432,6 +11417,33 @@ static void wait_ui_ready()
     SDL_UnlockMutex(ui_lock);
 }
 
+#ifdef UI_IMGUI_IN_GTK
+#include "imgui.hh"
+#include "ui_imgui.hh"
+
+static ImguiDriver imgui_driver;
+#endif
+
+void ui::init()
+{
+    ui_lock = SDL_CreateMutex();
+    ui_cond = SDL_CreateCondition();
+    ui_ready = false;
+
+    SDL_Thread *gtk_thread;
+
+    gtk_thread = SDL_CreateThread(_gtk_loop, "_gtk_loop", 0);
+
+    if (gtk_thread == NULL) {
+        tms_errorf("SDL_CreateThread failed: %s", SDL_GetError());
+    }
+
+#ifdef UI_IMGUI_IN_GTK
+    imgui_driver = ImguiDriver();
+    imgui_driver.init();
+#endif
+}
+
 void
 ui::open_dialog(int num, void *data/*=0*/)
 {
@@ -11456,18 +11468,28 @@ ui::open_dialog(int num, void *data/*=0*/)
 
     switch (num) {
         case DIALOG_SANDBOX_MENU:
+#ifdef UI_IMGUI_IN_GTK
+            UiSandboxMenu::open();
+#else
 			editor_menu_on_entity = 0;
 			if (data) {
 				editor_menu_on_entity = VOID_TO_UINT8(data);
 			}
 
 			gdk_threads_add_idle(_open_sandbox_menu, 0);
+#endif
             break;
 
         case DIALOG_OPEN_AUTOSAVE:  gdk_threads_add_idle(_open_autosave, 0); break;
         case DIALOG_EXPORT:         gdk_threads_add_idle(_open_export, 0); break;
         case DIALOG_PLAY_MENU:      gdk_threads_add_idle(_open_play_menu, 0); break;
-        case DIALOG_QUICKADD:       gdk_threads_add_idle(_open_quickadd, 0); break;
+        case DIALOG_QUICKADD:
+#ifdef UI_IMGUI_IN_GTK
+            UiQuickadd::open();
+#else
+            gdk_threads_add_idle(_open_quickadd, 0);
+#endif
+            break;
         case DIALOG_BEAM_COLOR:     gdk_threads_add_idle(_open_beam_color, 0); break;
         case DIALOG_SHAPEEXTRUDER:  gdk_threads_add_idle(_open_shapeextruder, 0); break;
         case DIALOG_CURSORFIELD:    gdk_threads_add_idle(_open_cursorfield, 0); break;
@@ -11492,7 +11514,13 @@ ui::open_dialog(int num, void *data/*=0*/)
         case DIALOG_MULTIEMITTER:   gdk_threads_add_idle(_open_multiemitter_dialog, 0); break;
         case DIALOG_EMITTER:        gdk_threads_add_idle(_open_emitter_dialog, 0); break;
         case DIALOG_NEW_LEVEL:      gdk_threads_add_idle(_open_new_level_dialog, 0); break; /* XXX: */
-        case DIALOG_SANDBOX_MODE:   gdk_threads_add_idle(_open_mode_dialog, 0); break; /* XXX: */
+        case DIALOG_SANDBOX_MODE:
+#ifdef UI_IMGUI_IN_GTK
+            UiSandboxMode::open();
+#else
+            gdk_threads_add_idle(_open_mode_dialog, 0);
+#endif
+            break;
         case DIALOG_SET_FREQUENCY:  gdk_threads_add_idle(_open_frequency_window, 0); break;
         case DIALOG_CONFIRM_QUIT:   gdk_threads_add_idle(_open_confirm_quit, 0); break;
         case DIALOG_SET_COMMAND:    gdk_threads_add_idle(_open_command_pad_window, 0); break;
@@ -11620,6 +11648,10 @@ ui::quit()
 {
     /* TODO: add proper quit stuff here */
     _tms.state = TMS_STATE_QUITTING;
+
+#ifdef UI_IMGUI_IN_GTK
+    imgui_driver.quit();
+#endif
 }
 
 void
@@ -11691,7 +11723,17 @@ ui::alert(const char *text, uint8_t alert_type/*=ALERT_INFORMATION*/)
     gdk_display_flush(gdk_display_get_default());
 }
 
-void ui::render() {}
+void ui::render() {
+#ifdef UI_IMGUI_IN_GTK
+    imgui_driver.pre_render();
+
+    UiSandboxMenu::layout();
+    UiSandboxMode::layout();
+    UiQuickadd::layout();
+
+    imgui_driver.post_render();
+#endif
+}
 
 #pragma GCC diagnostic pop
 

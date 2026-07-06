@@ -3,7 +3,7 @@
 #include "settings.hh"
 #include <vector>
 
-#ifdef PRINCIPIA_BACKEND_IMGUI
+#if defined(PRINCIPIA_BACKEND_IMGUI) || defined(UI_IMGUI_IN_GTK)
 
 // imgui_impl_tms.cc
 IMGUI_IMPL_API bool ImGui_ImplSDL3_Init();

@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef PRINCIPIA_BACKEND_IMGUI
+#if defined(PRINCIPIA_BACKEND_IMGUI) || defined(UI_IMGUI_IN_GTK)
 
 #include "imgui.h"
 #include "imgui_stdlib.h"
