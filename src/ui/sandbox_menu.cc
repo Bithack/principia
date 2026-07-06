@@ -4,6 +4,7 @@
 #include "imgui.hh"
 #include "main.hh"
 #include "robot_base.hh"
+#include "ui.hh"
 #include "ui_imgui.hh"
 
 namespace UiSandboxMenu {
@@ -174,10 +175,10 @@ namespace UiSandboxMenu {
             }
 
             if (ImGui::MenuItem("Level properties"))
-                UiLevelProperties::open();
+                ui::open_dialog(DIALOG_LEVEL_PROPERTIES);
 
             if (ImGui::MenuItem("New level"))
-                UiNewLevel::open();
+                ui::open_dialog(DIALOG_NEW_LEVEL);
 
             //"Save": update current save
             // TODO: Fix this to work just like in the GTK backend
@@ -186,21 +187,20 @@ namespace UiSandboxMenu {
 
             //"Save as...": create a new save
             if (is_sandbox && ImGui::MenuItem("Save copy"))
-                UiSave::open();
+                ui::open_dialog(DIALOG_SAVE);
 
             // Open the Level Manager
             if (ImGui::MenuItem("Open"))
-                UiLevelManager::open();
+                ui::open_dialog(DIALOG_OPEN);
 
-            if (is_sandbox && P.user_id && ImGui::MenuItem("Publish online")) {
-                // TODO: Open publish dialog
-            }
+            if (is_sandbox && P.user_id && ImGui::MenuItem("Publish online"))
+                ui::open_dialog(DIALOG_PUBLISH);
 
             if ((!P.user_id && !P.username) && ImGui::MenuItem("Log in"))
-                UiLogin::open();
+                ui::open_dialog(DIALOG_LOGIN);
 
             if (ImGui::MenuItem("Settings"))
-                UiSettings::open();
+                ui::open_dialog(DIALOG_SETTINGS);
 
             if (ImGui::MenuItem("Back to menu"))
                 P.add_action(ACTION_GOTO_MAINMENU, 0);
