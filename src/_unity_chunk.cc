@@ -95,6 +95,7 @@
 #include "i2o0gate.cc"
 #include "i2o1gate.cc"
 #include "imgui.cc"
+#include "imgui_impl_tms.cc"
 #include "impact_sensor.cc"
 #include "invertergate.cc"
 #include "iomiscgate.cc"
@@ -242,7 +243,7 @@
 	#include "tms/backend/pipe.cc"
 #endif
 
-#ifdef PRINCIPIA_BACKEND_IMGUI
+#if defined(PRINCIPIA_BACKEND_IMGUI) || defined(UI_IMGUI_IN_GTK)
 	#include "ui/animal.cc"
 	#include "ui/confirm.cc"
 	#include "ui/decoration.cc"
