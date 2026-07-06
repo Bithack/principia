@@ -153,7 +153,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
             SDL_VERSIONNUM_MICRO(linked));
 
     tms_infof("Initializing SDL...");
-    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD);
 
 #ifdef SDL_PLATFORM_EMSCRIPTEN
     _tms.window_width = 1280;

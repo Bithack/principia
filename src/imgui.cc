@@ -5,7 +5,11 @@
 
 #ifdef PRINCIPIA_BACKEND_IMGUI
 
-#include "ui_imgui_impl_tms.hh"
+// imgui_impl_tms.cc
+IMGUI_IMPL_API bool ImGui_ImplSDL3_Init();
+IMGUI_IMPL_API void ImGui_ImplSDL3_Shutdown();
+IMGUI_IMPL_API void ImGui_ImplSDL3_NewFrame();
+
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
 
@@ -147,35 +151,25 @@ void ImguiDriver::init() {
     ImGuiIO& io = ImGui::GetIO();
 
     //set flags
-    io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange | ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     //io.ConfigInputTrickleEventQueue = false;
     io.ConfigWindowsResizeFromEdges = true; //XXX: not active until custom cursors are implemented...
     io.ConfigDragClickToInputText = true;
+
     //Disable saving state/logging
     io.IniFilename = NULL;
     io.LogFilename = NULL;
 
-    //style
     principia_style();
-
-    //update scale
     update_imgui_ui_scale();
-
-    //load fonts
     load_fonts();
 
-    //ensure gl ctx exists
-    tms_assertf(_tms._window != NULL, "window does not exist yet");
-    tms_assertf(SDL_GL_GetCurrentContext() != NULL, "no gl ctx");
-
-    //init
     if (!ImGui_ImplOpenGL3_Init()) {
         tms_fatalf("(imgui-backend) gl impl init failed");
     }
 
-    if (ImGui_ImplTMS_Init() != T_OK) {
-        tms_fatalf("(imgui-backend) tms impl init failed");
-    }
+    ImGui_ImplSDL3_Init();
 }
 
 void ImguiDriver::pre_render() {
@@ -186,7 +180,7 @@ void ImguiDriver::pre_render() {
     ImGuiIO& io = ImGui::GetIO();
 
     //start frame
-    if (ImGui_ImplTms_NewFrame() <= 0) return;
+    ImGui_ImplSDL3_NewFrame();
     ImGui_ImplOpenGL3_NewFrame();
     ImGui::NewFrame();
 
@@ -198,17 +192,15 @@ void ImguiDriver::pre_render() {
 }
 
 void ImguiDriver::post_render() {
-
     ImGui::PopFont();
 
-    //render
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void ImguiDriver::quit() {
     ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplTMS_Shutdown();
+    ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
 }
 
