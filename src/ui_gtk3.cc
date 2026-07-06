@@ -4208,6 +4208,8 @@ void save_settings() {
     P.update_uiscale(settings["uiscale"]->v.f);
 #endif
 
+    _tms.touch_controls = settings["touch_controls"]->v.b;
+
     sm::load_settings();
 
     strcpy(tmp, get_cb_val(settings_shadow_res));

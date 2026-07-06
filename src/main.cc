@@ -260,7 +260,7 @@ void init_framebuffers() {
             if (settings["shadow_map_precision"]->v.i == 0) {
                 shadow_map_precision = GL_RGB;
             } else if (settings["shadow_map_precision"]->v.i == 1) {
-                if (!_tms.use_gles)
+                if (_tms.use_gles)
                     /* Android does not seem to have either GL_RGB16F or GL_RGBA16F defined */
                     shadow_map_precision = GL_RGB;
                 else
@@ -1180,11 +1180,8 @@ void tproject_preinit() {
     if (!settings.load())
         tms_infof("ERROR!");
 
-    if (settings["use_gles"]->v.b)
-        _tms.use_gles = true;
-
-    if (settings["touch_controls"]->v.b)
-        _tms.touch_controls = true;
+    _tms.use_gles = settings["use_gles"]->v.b;
+    _tms.touch_controls = settings["touch_controls"]->v.b;
 
     settings.save();
 

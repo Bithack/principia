@@ -904,13 +904,7 @@ adventure::handle_input_playing(tms::event *ev, int action)
 
         /* minimum death time before we can respawn */
         if (adventure::death_wait <= 0) {
-            bool wants_to_respawn = false;
-            if (settings["touch_controls"]->v.u8 == 0)
-                wants_to_respawn = ev->type == TMS_EV_KEY_PRESS;
-            else
-                wants_to_respawn = ev->type == TMS_EV_POINTER_DOWN;
-
-            if (wants_to_respawn) {
+            if (ev->type == TMS_EV_KEY_PRESS || ev->type == TMS_EV_POINTER_DOWN) {
                 adventure::respawn();
                 adventure::player->respawn();
                 return EVENT_DONE;
