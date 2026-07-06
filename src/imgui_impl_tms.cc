@@ -1,4 +1,5 @@
 #include "imgui.h"
+#include "settings.hh"
 #include <tms/cpp.hh>
 #include <SDL3/SDL.h>
 
@@ -230,9 +231,9 @@ static ImGuiKey tms_key_to_imgui(int keycode) {
     }
 }
 
-
 static int event_handler(tms_event *event) {
     ImGuiIO& io = ImGui::GetIO();
+    bool touch_controls = settings["touch_controls"]->v.b;
     switch (event->type) {
         //TODO handle touch events
         case TMS_EV_KEY_DOWN:
@@ -252,9 +253,10 @@ static int event_handler(tms_event *event) {
         }
         case TMS_EV_POINTER_DOWN:
         case TMS_EV_POINTER_UP: {
-            int mouse_button = tms_mouse_button_to_imgui(event->data.button.button);
-            if (mouse_button >= 0) {
-                // io.AddMouseSourceEvent(event->button.which == SDL_TOUCH_MOUSEID ? ImGuiMouseSource_TouchScreen : ImGuiMouseSource_Mouse);
+            int mouse_button = event->data.button.pointer_id;
+            if (mouse_button >= 0 && mouse_button < 5) {
+                io.AddMouseSourceEvent(touch_controls ? ImGuiMouseSource_TouchScreen : ImGuiMouseSource_Mouse);
+                io.AddMousePosEvent(event->data.button.x, io.DisplaySize.y - event->data.button.y);
                 io.AddMouseButtonEvent(mouse_button, event->type == TMS_EV_POINTER_DOWN);
             }
             // bd->MouseButtonsDown = (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) ? (bd->MouseButtonsDown | (1 << mouse_button)) : (bd->MouseButtonsDown & ~(1 << mouse_button));
@@ -262,13 +264,13 @@ static int event_handler(tms_event *event) {
         }
         case TMS_EV_POINTER_DRAG:
         case TMS_EV_POINTER_MOVE: {
-            // io.AddMouseSourceEvent(event->motion.which == SDL_TOUCH_MOUSEID ? ImGuiMouseSource_TouchScreen : ImGuiMouseSource_Mouse)
+            io.AddMouseSourceEvent(touch_controls ? ImGuiMouseSource_TouchScreen : ImGuiMouseSource_Mouse);
             // why the fuck is the tms y axis upside-down
             io.AddMousePosEvent(event->data.motion.x, io.DisplaySize.y - event->data.motion.y);
             return io.WantCaptureMouse ? T_OK : T_CONT;
         }
         case TMS_EV_POINTER_SCROLL: {
-            // io.AddMouseSourceEvent(event->wheel.which == SDL_TOUCH_MOUSEID ? ImGuiMouseSource_TouchScreen : ImGuiMouseSource_Mouse);
+            io.AddMouseSourceEvent(touch_controls ? ImGuiMouseSource_TouchScreen : ImGuiMouseSource_Mouse);
             io.AddMouseWheelEvent(event->data.scroll.x, event->data.scroll.y);
             return io.WantCaptureMouse ? T_OK : T_CONT;
         }
