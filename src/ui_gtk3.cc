@@ -1323,113 +1323,11 @@ void editor_mark_activate(GtkMenuItem *i, gpointer mark_pointer) {
     editor_menu_last_cam_pos->pos = prev_pos;
 }
 
+static gboolean _open_level_properties(gpointer unused);
+
 void editor_menu_activate(GtkMenuItem *i, gpointer unused) {
     if (i == editor_menu_lvl_prop) {
-        if (gtk_dialog_run(properties_dialog) == GTK_RESPONSE_ACCEPT) {
-            const char *name = gtk_entry_get_text(lvl_title);
-            int name_len = strlen(name);
-            W->level.name_len = name_len;
-            memcpy(W->level.name, name, name_len);
-
-            GtkTextIter start, end;
-            GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(lvl_descr);
-
-            gtk_text_buffer_get_bounds(text_buffer, &start, &end);
-
-            const char *descr = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
-            int descr_len = strlen(descr);
-
-            if (descr_len > 0) {
-                W->level.descr_len = descr_len;
-                W->level.descr = (char*)realloc(W->level.descr, descr_len);
-
-                memcpy(W->level.descr, descr, descr_len);
-            } else
-                W->level.descr_len = 0;
-
-            uint16_t left  = (uint16_t)atoi(gtk_entry_get_text(lvl_width_left));
-            uint16_t right = (uint16_t)atoi(gtk_entry_get_text(lvl_width_right));
-            uint16_t down  = (uint16_t)atoi(gtk_entry_get_text(lvl_height_down));
-            uint16_t up    = (uint16_t)atoi(gtk_entry_get_text(lvl_height_up));
-
-            float w = (float)left + (float)right;
-            float h = (float)down + (float)up;
-
-            bool resized = false;
-
-            if (w < 5.f) {
-                resized = true;
-                left += 6-(uint16_t)w;
-            }
-            if (h < 5.f) {
-                resized = true;
-                down += 6-(uint16_t)w;
-            }
-
-            if (resized)
-                ui::message("Your level size was increased to the minimum allowed.");
-
-            W->level.size_x[0] = left;
-            W->level.size_x[1] = right;
-            W->level.size_y[0] = down;
-            W->level.size_y[1] = up;
-            W->level.gravity_x = (float)gtk_spin_button_get_value(lvl_gx);
-            W->level.gravity_y = (float)gtk_spin_button_get_value(lvl_gy);
-
-            W->level.dead_enemy_absorb_time = gtk_range_get_value(GTK_RANGE(lvl_enemy_absorb_time));
-            W->level.time_before_player_can_respawn = gtk_range_get_value(GTK_RANGE(lvl_player_respawn_time));
-
-            uint8_t vel_iter = (uint8_t)gtk_range_get_value(GTK_RANGE(lvl_vel_iter));
-            uint8_t pos_iter = (uint8_t)gtk_range_get_value(GTK_RANGE(lvl_pos_iter));
-
-            float prismatic_tolerance = gtk_range_get_value(GTK_RANGE(lvl_prismatic_tol));
-            float pivot_tolerance = gtk_range_get_value(GTK_RANGE(lvl_pivot_tol));
-
-            float angular_damping = gtk_range_get_value(GTK_RANGE(lvl_angular_damping));
-            float joint_friction = gtk_range_get_value(GTK_RANGE(lvl_joint_friction));
-            float linear_damping = gtk_range_get_value(GTK_RANGE(lvl_linear_damping));
-
-            W->level.angular_damping = angular_damping;
-            W->level.joint_friction = joint_friction;
-            W->level.linear_damping = linear_damping;
-
-            W->level.prismatic_tolerance = prismatic_tolerance;
-            W->level.pivot_tolerance = pivot_tolerance;
-
-            tms_infof("vel_iter: %d,  pos_iter: %d", vel_iter, pos_iter);
-            W->level.velocity_iterations = vel_iter;
-            W->level.position_iterations = pos_iter;
-            W->level.final_score = (uint32_t)atoi(gtk_entry_get_text(lvl_score));
-
-            if (W->level.version >= 7) {
-                W->level.show_score = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_show_score));
-                W->level.pause_on_finish = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_pause_on_win));
-            }
-
-            if (W->level.version >= 9) {
-                W->level.show_score = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_show_score));
-                W->level.flags = 0;
-                for (int x=0; x<num_gtk_level_properties; ++x) {
-                    W->level.flags |= ((int)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtk_level_properties[x].checkbutton)) * gtk_level_properties[x].flag);
-                }
-            }
-
-            W->level.bg = gtk_combo_box_get_active(GTK_COMBO_BOX(lvl_bg));
-            W->level.bg_color = new_bg_color;
-
-            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_radio_adventure))) {
-                P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_ADVENTURE);
-            } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_radio_puzzle))) {
-                P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_PUZZLE);
-            } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_radio_custom))) {
-                P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_CUSTOM);
-            }
-
-            P.add_action(ACTION_RELOAD_LEVEL, 0);
-        }
-
-        gtk_widget_hide(GTK_WIDGET(properties_dialog));
-
+        _open_level_properties(NULL);
     } else if (i == editor_menu_move_here_player) {
 
         if (adventure::player) {
@@ -8891,6 +8789,117 @@ static gboolean _open_sandbox_menu(gpointer unused) {
     return false;
 }
 
+static gboolean _open_level_properties(gpointer unused) {
+    gint result = gtk_dialog_run(properties_dialog);
+
+    if (result == GTK_RESPONSE_ACCEPT) {
+        const char *name = gtk_entry_get_text(lvl_title);
+        int name_len = strlen(name);
+        W->level.name_len = name_len;
+        memcpy(W->level.name, name, name_len);
+
+        GtkTextIter start, end;
+        GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(lvl_descr);
+
+        gtk_text_buffer_get_bounds(text_buffer, &start, &end);
+
+        const char *descr = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
+        int descr_len = strlen(descr);
+
+        if (descr_len > 0) {
+            W->level.descr_len = descr_len;
+            W->level.descr = (char*)realloc(W->level.descr, descr_len);
+
+            memcpy(W->level.descr, descr, descr_len);
+        } else
+            W->level.descr_len = 0;
+
+        uint16_t left  = (uint16_t)atoi(gtk_entry_get_text(lvl_width_left));
+        uint16_t right = (uint16_t)atoi(gtk_entry_get_text(lvl_width_right));
+        uint16_t down  = (uint16_t)atoi(gtk_entry_get_text(lvl_height_down));
+        uint16_t up    = (uint16_t)atoi(gtk_entry_get_text(lvl_height_up));
+
+        float w = (float)left + (float)right;
+        float h = (float)down + (float)up;
+
+        bool resized = false;
+
+        if (w < 5.f) {
+            resized = true;
+            left += 6-(uint16_t)w;
+        }
+        if (h < 5.f) {
+            resized = true;
+            down += 6-(uint16_t)w;
+        }
+
+        if (resized)
+            ui::message("Your level size was increased to the minimum allowed.");
+
+        W->level.size_x[0] = left;
+        W->level.size_x[1] = right;
+        W->level.size_y[0] = down;
+        W->level.size_y[1] = up;
+        W->level.gravity_x = (float)gtk_spin_button_get_value(lvl_gx);
+        W->level.gravity_y = (float)gtk_spin_button_get_value(lvl_gy);
+
+        W->level.dead_enemy_absorb_time = gtk_range_get_value(GTK_RANGE(lvl_enemy_absorb_time));
+        W->level.time_before_player_can_respawn = gtk_range_get_value(GTK_RANGE(lvl_player_respawn_time));
+
+        uint8_t vel_iter = (uint8_t)gtk_range_get_value(GTK_RANGE(lvl_vel_iter));
+        uint8_t pos_iter = (uint8_t)gtk_range_get_value(GTK_RANGE(lvl_pos_iter));
+
+        float prismatic_tolerance = gtk_range_get_value(GTK_RANGE(lvl_prismatic_tol));
+        float pivot_tolerance = gtk_range_get_value(GTK_RANGE(lvl_pivot_tol));
+
+        float angular_damping = gtk_range_get_value(GTK_RANGE(lvl_angular_damping));
+        float joint_friction = gtk_range_get_value(GTK_RANGE(lvl_joint_friction));
+        float linear_damping = gtk_range_get_value(GTK_RANGE(lvl_linear_damping));
+
+        W->level.angular_damping = angular_damping;
+        W->level.joint_friction = joint_friction;
+        W->level.linear_damping = linear_damping;
+
+        W->level.prismatic_tolerance = prismatic_tolerance;
+        W->level.pivot_tolerance = pivot_tolerance;
+
+        tms_infof("vel_iter: %d,  pos_iter: %d", vel_iter, pos_iter);
+        W->level.velocity_iterations = vel_iter;
+        W->level.position_iterations = pos_iter;
+        W->level.final_score = (uint32_t)atoi(gtk_entry_get_text(lvl_score));
+
+        if (W->level.version >= 7) {
+            W->level.show_score = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_show_score));
+            W->level.pause_on_finish = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_pause_on_win));
+        }
+
+        if (W->level.version >= 9) {
+            W->level.show_score = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_show_score));
+            W->level.flags = 0;
+            for (int x=0; x<num_gtk_level_properties; ++x) {
+                W->level.flags |= ((int)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtk_level_properties[x].checkbutton)) * gtk_level_properties[x].flag);
+            }
+        }
+
+        W->level.bg = gtk_combo_box_get_active(GTK_COMBO_BOX(lvl_bg));
+        W->level.bg_color = new_bg_color;
+
+        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_radio_adventure))) {
+            P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_ADVENTURE);
+        } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_radio_puzzle))) {
+            P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_PUZZLE);
+        } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_radio_custom))) {
+            P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_CUSTOM);
+        }
+
+        P.add_action(ACTION_RELOAD_LEVEL, 0);
+    }
+
+    gtk_widget_hide(GTK_WIDGET(properties_dialog));
+
+    return false;
+}
+
 static gboolean _open_quickadd(gpointer unused) {
     gtk_window_set_position(quickadd_window, GTK_WIN_POS_MOUSE);
     gtk_widget_show_all(GTK_WIDGET(quickadd_window));
@@ -10179,6 +10188,7 @@ void ui::open_dialog(int num, void *data/*=0*/) {
 #endif
             break;
 
+        case DIALOG_LEVEL_PROPERTIES:   gdk_threads_add_idle(_open_level_properties, 0); break;
         case DIALOG_OPEN_AUTOSAVE:  gdk_threads_add_idle(_open_autosave, 0); break;
         case DIALOG_EXPORT:         gdk_threads_add_idle(_open_export, 0); break;
         case DIALOG_PLAY_MENU:      gdk_threads_add_idle(_open_play_menu, 0); break;
