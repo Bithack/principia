@@ -174,29 +174,38 @@ namespace UiSandboxMenu {
                 ImGui::Separator();
             }
 
-            if (ImGui::MenuItem("Level properties"))
+            if (is_sandbox && ImGui::MenuItem("Level properties"))
                 ui::open_dialog(DIALOG_LEVEL_PROPERTIES);
 
-            if (ImGui::MenuItem("New level"))
+            if (is_sandbox && ImGui::MenuItem("New level"))
                 ui::open_dialog(DIALOG_NEW_LEVEL);
 
             //"Save": update current save
             // TODO: Fix this to work just like in the GTK backend
-            if (can_update_save && ImGui::MenuItem("Save"))
-                P.add_action(ACTION_SAVE, 0);
+            if (is_sandbox && ImGui::MenuItem("Save")) {
+                bool ask_for_new_name = (W->level.name_len == 0 || strcmp(W->level.name, "<no name>") == 0);
+
+                if (ask_for_new_name) {
+                    save_type = SAVE_REGULAR;
+                    ui::open_dialog(DIALOG_SAVE);
+                } else
+                    P.add_action(ACTION_SAVE, 0);
+            }
 
             //"Save as...": create a new save
-            if (is_sandbox && ImGui::MenuItem("Save copy"))
-                ui::open_dialog(DIALOG_SAVE);
+            if (is_sandbox && ImGui::MenuItem("Save as...")) {
+                save_type = SAVE_COPY;
+                ui::open_dialog(DIALOG_SAVE_COPY);
+            }
 
             // Open the Level Manager
-            if (ImGui::MenuItem("Open"))
+            if (is_sandbox && ImGui::MenuItem("Open"))
                 ui::open_dialog(DIALOG_OPEN);
 
             if (is_sandbox && P.user_id && ImGui::MenuItem("Publish online"))
                 ui::open_dialog(DIALOG_PUBLISH);
 
-            if ((!P.user_id && !P.username) && ImGui::MenuItem("Log in"))
+            if (is_sandbox && (!P.user_id && !P.username) && ImGui::MenuItem("Log in"))
                 ui::open_dialog(DIALOG_LOGIN);
 
             if (ImGui::MenuItem("Settings"))

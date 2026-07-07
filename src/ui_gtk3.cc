@@ -43,11 +43,6 @@
 
 #if !defined(SDL_PLATFORM_ANDROID) && !defined(PRINCIPIA_BACKEND_IMGUI) && !defined(NO_UI)
 
-#define SAVE_REGULAR 0
-#define SAVE_COPY 1
-
-#define MAX_GRAVITY 75.f
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
@@ -263,7 +258,6 @@ GtkEntry  *save_entry;
 GtkLabel  *save_status;
 GtkButton *save_ok;
 GtkButton *save_cancel;
-uint8_t    save_type = SAVE_REGULAR;
 
 /* --Export */
 GtkWindow *export_window;
@@ -8990,6 +8984,11 @@ static gboolean _open_save_window(gpointer unused) {
     return false;
 }
 
+static gboolean _open_save_copy_window(gpointer unused) {
+    activate_save_copy(NULL, 0);
+    return false;
+}
+
 static gboolean _open_publish_dialog(gpointer unused) {
     activate_publish(NULL, 0);
     return false;
@@ -10207,6 +10206,7 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_PIXEL_COLOR:    gdk_threads_add_idle(_open_pixel_color, 0); break;
         case DIALOG_POLYGON_COLOR:  gdk_threads_add_idle(_open_polygon_color, 0); break;
         case DIALOG_SAVE:           gdk_threads_add_idle(_open_save_window, 0); break;
+        case DIALOG_SAVE_COPY:      gdk_threads_add_idle(_open_save_copy_window, 0); break;
         case DIALOG_OPEN:           gdk_threads_add_idle(_open_open_dialog, 0); break;
 
         case DIALOG_OPEN_STATE:
