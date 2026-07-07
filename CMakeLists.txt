@@ -67,7 +67,11 @@ if(EMSCRIPTEN)
 	set(BACKEND_IMGUI TRUE)
 else()
 	option(BACKEND_IMGUI "Enable incomplete Dear Imgui dialog backend (Experimental)" FALSE)
-	option(IMGUI_IN_GTK "Enable using Imgui in the GTK dialog backend (Experimental)" FALSE)
+endif()
+
+option(GTK_LEGACY_DIALOGS "Use old GTK implementations for dialogs that are provided by Dear Imgui" TRUE)
+if(NOT GTK_LEGACY_DIALOGS)
+	set(IMGUI_IN_GTK TRUE)
 endif()
 
 if(LINUX)
