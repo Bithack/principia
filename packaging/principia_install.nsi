@@ -44,6 +44,10 @@ Function .onInit
     File "/oname=$PLUGINSDIR\${LOGO_FILE}" "${LOGO_PATH}"
 FunctionEnd
 
+Function un.onInit
+    SetShellVarContext All
+FunctionEnd
+
 Function DrawLogo
     ; Windows 10, version 1607+
     System::Call 'user32::GetDpiForWindow(p $HWNDPARENT)i .r0'
