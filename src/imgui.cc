@@ -1,6 +1,7 @@
 #include "imgui.hh"
 #include "misc.hh"
 #include "settings.hh"
+#include <algorithm>
 #include <vector>
 
 #if defined(PRINCIPIA_BACKEND_IMGUI) || defined(UI_IMGUI_IN_GTK)
