@@ -10190,7 +10190,13 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_LEVEL_PROPERTIES:   gdk_threads_add_idle(_open_level_properties, 0); break;
         case DIALOG_OPEN_AUTOSAVE:  gdk_threads_add_idle(_open_autosave, 0); break;
         case DIALOG_EXPORT:         gdk_threads_add_idle(_open_export, 0); break;
-        case DIALOG_PLAY_MENU:      gdk_threads_add_idle(_open_play_menu, 0); break;
+        case DIALOG_PLAY_MENU:
+#ifdef UI_IMGUI_IN_GTK
+            UiPlayMenu::open();
+#else
+            gdk_threads_add_idle(_open_play_menu, 0);
+#endif
+            break;
         case DIALOG_QUICKADD:
 #ifdef UI_IMGUI_IN_GTK
             UiQuickadd::open();
