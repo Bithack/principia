@@ -432,7 +432,7 @@ struct table_setting_row settings_interface_rows[] = {
         "UI scale",
         "A restart is required for this change to take effect",
         "uiscale",
-        setting_row_type::create_hscale(0.25, 2.0, 0.05),
+        setting_row_type::create_hscale(0.5, 2.0, 0.10),
     },{
         "Fullscreen mode",
         "Toggle fullscreen mode",

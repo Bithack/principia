@@ -96,9 +96,8 @@ struct PFont ui_font_mono;
 static void load_fonts() {
     //TODO free existing fonts
 
-    float size_pixels = 12.f;
-    size_pixels *= settings["uiscale"]->v.f;
-    size_pixels = roundf(size_pixels);
+    float content_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+    float size_pixels = roundf(12.f * settings["uiscale"]->v.f * content_scale);
 
     tms_infof("font size %fpx", size_pixels);
 
@@ -108,7 +107,8 @@ static void load_fonts() {
 
 static void update_imgui_ui_scale() {
     float scale_factor = settings["uiscale"]->v.f;
-    ImGui::GetStyle().ScaleAllSizes(scale_factor);
+    float content_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+    ImGui::GetStyle().ScaleAllSizes(scale_factor * content_scale);
 
     //ImGui::GetIO().FontGlobalScale = roundf(9. * scale_factor) / 9.;
 }

@@ -21,8 +21,6 @@
 
 FILE *_f_out = stdout;
 
-SDL_Window *_window;
-
 int keys[235];
 int mouse_down;
 
@@ -36,7 +34,7 @@ static void _catch_signal(int signal) {
         fclose(_f_out);
     }
 
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Principia",
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Principia",
 R"(An unrecoverable error has occurred and Principia will now close.
 
 Please report this crash to the issue tracker with the relevant steps
@@ -133,6 +131,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
 #endif
     SDL_SetAppMetadata("Principia", principia_version_string(), PRINCIPIA_ID);
 
+    SDL_SetHint(SDL_HINT_VIDEO_WAYLAND_SCALE_TO_DISPLAY, "1");
+
     redirect_log_output();
 
     print_log_header();
@@ -195,9 +195,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     _tms.window_width = settings["window_width"]->v.i;
     _tms.window_height = settings["window_height"]->v.i;
 
-    _tms.xppcm = 108.f/2.54f * 1.5f;
-    _tms.yppcm = 107.f/2.54f * 1.5f;
-
     if (settings["window_maximized"]->v.b)
         flags |= SDL_WINDOW_MAXIMIZED;
 
@@ -209,20 +206,19 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
 #endif
 
     tms_infof("Creating window...");
-    _window = SDL_CreateWindow("Principia",
-		_tms.window_width, _tms.window_height, flags);
+    _tms._window = SDL_CreateWindow("Principia",
+        _tms.window_width, _tms.window_height, flags);
 
-    if (_window == NULL) {
+    if (_tms._window == NULL) {
         tms_infof("ERROR: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
 
-    SDL_SetWindowFillDocument(_window, true);
-
-    _tms._window = _window;
+    SDL_SetWindowFillDocument(_tms._window, true);
 
 #ifdef SDL_PLATFORM_ANDROID
-    SDL_GetWindowSizeInPixels(_window, &_tms.window_width, &_tms.window_height);
+    SDL_GetWindowSizeInPixels(_tms._window, &_tms.window_width, &_tms.window_height);
+#endif
 
     float content_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     _tms.xppcm = 108.f / 2.54f * 1.5f * content_scale;
@@ -230,7 +226,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
 
     tms_infof("Device dimensions: %d %d", _tms.window_width, _tms.window_height);
     tms_infof("Device PPCM: %f %f", _tms.xppcm, _tms.yppcm);
-#endif
+    tms_infof("Device content scale: %f", content_scale);
 
     if (_tms.use_gles) {
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -243,7 +239,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     }
 
-    SDL_GLContext gl_context = SDL_GL_CreateContext(_window);
+    SDL_GLContext gl_context = SDL_GL_CreateContext(_tms._window);
 
     if (gl_context == NULL)
         tms_fatalf("Error creating GL Context: %s", SDL_GetError());
@@ -376,7 +372,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     tms_step();
     tms_begin_frame();
     tms_render();
-    SDL_GL_SwapWindow(_window);
+    SDL_GL_SwapWindow(_tms._window);
     tms_end_frame();
 
     return SDL_APP_CONTINUE;
