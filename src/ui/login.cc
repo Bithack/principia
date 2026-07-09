@@ -1,3 +1,4 @@
+#include "imgui.h"
 #include "imgui.hh"
 #include "ui.hh"
 
@@ -15,14 +16,18 @@ namespace UiLogin {
     static LoginStatus login_status = LoginStatus::No;
 
     void complete_login(int signal) {
-        switch (signal) {
-            case SIGNAL_LOGIN_SUCCESS:
-                login_status = LoginStatus::ResultSuccess;
-                break;
-            case SIGNAL_LOGIN_FAILED:
-                login_status = LoginStatus::ResultFailure;
-                break;
-        }
+        if (signal == SIGNAL_LOGIN_SUCCESS)
+            login_status = LoginStatus::ResultSuccess;
+        else if (signal == SIGNAL_LOGIN_FAILED)
+            login_status = LoginStatus::ResultFailure;
+    }
+
+    void do_login() {
+        login_status = LoginStatus::LoggingIn;
+        login_data *data = new login_data;
+        strncpy(data->username, username.c_str(), 256);
+        strncpy(data->password, password.c_str(), 256);
+        P.add_action(ACTION_LOGIN, data);
     }
 
     void open() {
@@ -34,10 +39,9 @@ namespace UiLogin {
 
     void layout() {
         handle_do_open(&do_open, "Log in");
+
         ImGui_CenterNextWindow();
-        //Only allow closing the window if a login attempt is not in progress
-        bool *allow_closing = (login_status != LoginStatus::LoggingIn) ? REF_TRUE : NULL;
-        if (ImGui::BeginPopupModal("Log in", allow_closing, MODAL_FLAGS)) {
+        if (ImGui::BeginPopupModal("Log in", REF_TRUE, MODAL_FLAGS)) {
             if (login_status == LoginStatus::ResultSuccess) {
                 ImGui::CloseCurrentPopup();
                 ImGui::EndPopup();
@@ -47,54 +51,67 @@ namespace UiLogin {
             bool req_username_len = username.length() > 0;
             bool req_pass_len = password.length() > 0;
 
-            ImGui::BeginDisabled(
-                (login_status == LoginStatus::LoggingIn) ||
-                (login_status == LoginStatus::ResultSuccess)
-            );
+            if (ImGui::BeginTable("layout", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_BordersInnerV)) {
+                ImGui::TableSetupColumn("Left", ImGuiTableColumnFlags_WidthFixed, 250.0f);
+                ImGui::TableSetupColumn("Right", ImGuiTableColumnFlags_WidthStretch);
 
-            if (ImGui::IsWindowAppearing()) {
-                ImGui::SetKeyboardFocusHere();
-            }
-            bool activate = false;
-            activate |= ImGui::InputTextWithHint("###username", "Username", &username, ImGuiInputTextFlags_EnterReturnsTrue);
-            activate |= ImGui::InputTextWithHint("###password", "Password", &password, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_Password);
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
 
-            ImGui::EndDisabled();
+                ImGui::BeginChild("left_panel", ImVec2(250, 125), false);
 
-            ImGui::Dummy(ImVec2(0.0f, 10.0f));
-            ImGui::Separator();
-            ImGui::Dummy(ImVec2(0.0f, 3.0f));
+                if (ImGui::IsWindowAppearing()) {
+                    ImGui::SetKeyboardFocusHere();
+                }
+                bool activate = false;
 
-            bool can_submit =
-                (login_status != LoginStatus::LoggingIn) &&
-                (login_status != LoginStatus::ResultSuccess) &&
-                (req_pass_len && req_username_len);
-            ImGui::BeginDisabled(!can_submit);
-            if (ImGui::Button("  Log in  ") || (can_submit && activate)) {
-                login_status = LoginStatus::LoggingIn;
-                login_data *data = new login_data;
-                strncpy(data->username, username.c_str(), 256);
-                strncpy(data->password, password.c_str(), 256);
-                P.add_action(ACTION_LOGIN, data);
-            }
-            ImGui::EndDisabled();
-            ImGui::SameLine();
-            if (ImGui::Button("  Register  ") || (can_submit && activate)) {
-                COMMUNITY_URL("register");
-                ui::open_url(url);
-            }
+                ImGui::SetNextItemWidth(-FLT_MIN);
+                activate |= ImGui::InputTextWithHint("###username", "Username", &username,
+                    ImGuiInputTextFlags_EnterReturnsTrue);
 
-            ImGui::SameLine();
+                ImGui::SetNextItemWidth(-FLT_MIN);
+                activate |= ImGui::InputTextWithHint("###password", "Password", &password,
+                    ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_Password);
 
-            switch (login_status) {
-                case LoginStatus::LoggingIn:
+                ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+                bool can_submit =
+                    (login_status != LoginStatus::LoggingIn) &&
+                    (login_status != LoginStatus::ResultSuccess) &&
+                    (req_pass_len && req_username_len);
+
+                ImGui::BeginDisabled(!can_submit);
+                if (ImGui::Button("Log in", ImVec2(120, 0)) || (can_submit && activate))
+                    do_login();
+
+                ImGui::EndDisabled();
+
+                ImGui::SameLine();
+                if (login_status == LoginStatus::LoggingIn)
                     ImGui::TextUnformatted("Logging in...");
-                    break;
-                case LoginStatus::ResultFailure:
-                    ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Login failed"); // Login attempt failed
-                    break;
-                default:
-                    break;
+                else if (login_status == LoginStatus::ResultFailure)
+                    ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Login failed");
+
+                ImGui::EndChild();
+                ImGui::TableSetColumnIndex(1);
+                ImGui::BeginChild("right_panel", ImVec2(200, 135), false);
+
+                ImGui::BeginChild("register_text", ImVec2(200, 70), false);
+                ImGui::TextWrapped("Don't have an account?\n\nRegister one and join the Principia community!");
+                ImGui::EndChild();
+
+                ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+                float button_width = 120.0f;
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - button_width) * 0.5f);
+                if (ImGui::Button("Register", ImVec2(button_width, 0))) {
+                    COMMUNITY_URL("register");
+                    ui::open_url(url);
+                }
+
+                ImGui::EndChild();
+                ImGui::EndTable();
+
             }
 
             ImGui::EndPopup();

@@ -119,8 +119,9 @@ static void principia_style() {
     ImVec4* colors = style->Colors;
 
     //Rounding
-    style->FramePadding = ImVec2(10, 5);
-    style->ItemSpacing  = ImVec2(8, 6);
+    style->FramePadding = ImVec2(10, 6);
+    style->ItemSpacing  = ImVec2(10, 8);
+    style->CellPadding  = ImVec2(10, 4);
     style->FrameRounding  = style->GrabRounding  = 2.3f;
     style->WindowRounding = style->PopupRounding = style->ChildRounding = 3.0f;
 

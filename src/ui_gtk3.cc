@@ -768,15 +768,6 @@ GtkButton       *freq_range_ok;
 GtkButton       *freq_range_cancel;
 GtkLabel        *freq_range_info;
 
-/** --Login **/
-GtkWindow       *login_window;
-GtkEntry        *login_username;
-GtkEntry        *login_password;
-GtkLabel        *login_status;
-GtkButton       *login_btn_log_in;
-GtkButton       *login_btn_cancel;
-GtkButton       *login_btn_register;
-
 /** --Settings **/
 GtkDialog       *settings_dialog;
 
@@ -4689,70 +4680,6 @@ static void on_multi_config_tab_changed(GtkNotebook *nb, GtkWidget *page, gint t
     gtk_widget_set_sensitive(GTK_WIDGET(multi_config_apply), (tab_num != TAB_MISCELLANEOUS));
 }
 
-/** --Login **/
-static void on_login_show(GtkWidget *wdg, void *unused) {
-    gtk_widget_set_sensitive(GTK_WIDGET(login_btn_log_in), true);
-
-    gtk_entry_set_text(login_username, "");
-    gtk_entry_set_text(login_password, "");
-
-    gtk_label_set_text(login_status, "");
-
-    gtk_widget_grab_focus(GTK_WIDGET(login_username));
-}
-
-void on_login_hide(GtkWidget *wdg, void *unused) {
-    tms_infof("login hiding");
-    P.focused = true;
-    prompt_is_open = false;
-}
-
-gboolean on_login_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, login_btn_cancel, user_data)) {
-        gtk_widget_hide(GTK_WIDGET(login_window));
-    } else if (btn_pressed(w, login_btn_log_in, user_data)) {
-        if (gtk_entry_get_text_length(login_username) > 0 &&
-            gtk_entry_get_text_length(login_password) > 0) {
-            struct login_data *data = (struct login_data*)malloc(sizeof(struct login_data));
-            strcpy(data->username, gtk_entry_get_text(login_username));
-            strcpy(data->password, gtk_entry_get_text(login_password));
-
-            gtk_widget_set_sensitive(GTK_WIDGET(login_btn_log_in), false);
-            gtk_label_set_text(login_status, "Logging in...");
-
-            P.add_action(ACTION_LOGIN, (void*)data);
-        } else {
-            gtk_label_set_text(login_status, "Enter data into both fields.");
-        }
-    } else if (btn_pressed(w, login_btn_register, user_data)) {
-        COMMUNITY_URL("register");
-        ui::open_url(url);
-    }
-
-    return false;
-}
-
-gboolean on_login_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape)
-        gtk_widget_hide(w);
-    else if (key->keyval == GDK_KEY_Return) {
-        if (gtk_widget_has_focus(GTK_WIDGET(login_btn_cancel))) {
-            on_login_btn_click(GTK_WIDGET(login_btn_cancel), NULL, GINT_TO_POINTER(1));
-        } else {
-            on_login_btn_click(GTK_WIDGET(login_btn_log_in), NULL, GINT_TO_POINTER(1));
-        }
-    }
-
-    return false;
-}
-
-
-void activate_login(GtkMenuItem *i, gpointer unused) {
-    prompt_is_open = true;
-    P.focused = false;
-    gtk_widget_show_all(GTK_WIDGET(login_window));
-}
-
 gboolean on_frequency_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
     if (btn_pressed(w, frequency_cancel, user_data)) {
         gtk_widget_hide(GTK_WIDGET(frequency_window));
@@ -6942,74 +6869,6 @@ int _gtk_loop(void *p) {
         gtk_container_add(GTK_CONTAINER(multi_config_window), GTK_WIDGET(content));
     }
 
-    /** --Login **/
-    {
-        login_window = new_window_defaults("Log in", &on_login_show, &on_login_keypress);
-        gtk_window_set_default_size(GTK_WINDOW(login_window), 400, 150);
-        gtk_widget_set_size_request(GTK_WIDGET(login_window), 400, 150);
-
-        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-        GtkBox *entries = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-        GtkBox *bottom_content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-
-        /* Username entry */
-        login_username = GTK_ENTRY(gtk_entry_new());
-        gtk_entry_set_max_length(login_username, 255);
-        gtk_entry_set_activates_default(login_username, true);
-
-        /* Password entry */
-        login_password = GTK_ENTRY(gtk_entry_new());
-        gtk_entry_set_max_length(login_password, 255);
-        gtk_entry_set_visibility(login_password, false);
-
-        /* Username label */
-        gtk_box_pack_start(entries, new_lbl("<b>Username:</b>"), false, false, 0);
-        gtk_box_pack_start(entries, GTK_WIDGET(login_username), false, false, 0);
-
-        /* Password label */
-        gtk_box_pack_start(entries, new_lbl("<b>Password:</b>"), false, false, 0);
-        gtk_box_pack_start(entries, GTK_WIDGET(login_password), false, false, 0);
-
-        /* Buttons and button box */
-        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
-        gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
-        gtk_box_set_spacing(GTK_BOX(button_box), 5);
-
-        /* Log in button */
-        login_btn_log_in = GTK_BUTTON(gtk_button_new_with_mnemonic("_Login"));
-        g_signal_connect(login_btn_log_in, "clicked",
-                G_CALLBACK(on_login_btn_click), 0);
-
-        /* Cancel button */
-        login_btn_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(login_btn_cancel, "clicked",
-                G_CALLBACK(on_login_btn_click), 0);
-
-        /* Register button */
-        login_btn_register = GTK_BUTTON(gtk_button_new_with_label("Register"));
-        g_signal_connect(login_btn_register, "clicked",
-                G_CALLBACK(on_login_btn_click), 0);
-
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(login_btn_log_in));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(login_btn_cancel));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(login_btn_register));
-
-        /* Status label */
-        login_status = GTK_LABEL(gtk_label_new(0));
-        gtk_label_set_xalign(GTK_LABEL(login_status), 0.0f);
-        gtk_label_set_yalign(GTK_LABEL(login_status), 0.5f);
-
-        gtk_box_pack_start(bottom_content, GTK_WIDGET(login_status), 1, 1, 0);
-        gtk_box_pack_start(bottom_content, GTK_WIDGET(button_box), 0, 0, 0);
-
-        gtk_box_pack_start(content, GTK_WIDGET(entries), 1, 1, 0);
-        gtk_box_pack_start(content, GTK_WIDGET(bottom_content), 0, 0, 0);
-
-        gtk_container_add(GTK_CONTAINER(login_window), GTK_WIDGET(content));
-
-        g_signal_connect(login_window, "hide", G_CALLBACK(on_login_hide), 0);
-    }
-
     /** --Settings **/
     {
         settings_dialog = new_dialog_defaults("Settings", &on_settings_show);
@@ -8231,11 +8090,6 @@ static gboolean _open_publish_dialog(gpointer unused) {
     return false;
 }
 
-static gboolean _open_login_dialog(gpointer unused) {
-    activate_login(NULL, 0);
-    return false;
-}
-
 static gboolean _open_prompt_dialog(gpointer unused) {
     if (W->is_adventure() && adventure::player) {
         adventure::player->stop_moving(DIR_LEFT);
@@ -9343,7 +9197,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(cursorfield_dialog));
     gtk_widget_hide(GTK_WIDGET(jumper_dialog));
     gtk_widget_hide(GTK_WIDGET(rubber_dialog));
-    gtk_widget_hide(GTK_WIDGET(login_window));
     gtk_widget_hide(GTK_WIDGET(autosave_dialog));
     gtk_widget_hide(GTK_WIDGET(community_dialog));
     gtk_widget_hide(GTK_WIDGET(published_dialog));
@@ -9477,7 +9330,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case CLOSE_ABSOLUTELY_ALL_DIALOGS: gdk_threads_add_idle(_close_absolutely_all_dialogs, 0); break;
 
         case DIALOG_PUBLISH:        gdk_threads_add_idle(_open_publish_dialog, 0); break;
-        case DIALOG_LOGIN:          gdk_threads_add_idle(_open_login_dialog, 0); break;
+        case DIALOG_LOGIN:
+            UiLogin::open();
+            break;
 
         case DIALOG_LEVEL_INFO: {
             _pass_info_descr = (char *)data;
@@ -9521,15 +9376,17 @@ void ui::emit_signal(int num, void *data/*=0*/) {
 
     switch (num) {
         case SIGNAL_LOGIN_SUCCESS:
-            P.add_action(ui::next_action, 0);
-            ui::next_action = 0;
-            gtk_widget_hide(GTK_WIDGET(login_window));
+            UiLogin::complete_login(num);
+            if (ui::next_action != ACTION_IGNORE) {
+                P.add_action(ui::next_action, 0);
+                ui::next_action = ACTION_IGNORE;
+            }
             break;
 
         case SIGNAL_LOGIN_FAILED:
-            gtk_label_set_text(login_status, "An error occurred.");
-            gtk_widget_set_sensitive(GTK_WIDGET(login_btn_log_in), true);
-            return;
+            ui::next_action = ACTION_IGNORE;
+            UiLogin::complete_login(num);
+            break;
 
         case SIGNAL_REFRESH_BORDERS:
             refresh_borders();
@@ -9612,6 +9469,7 @@ void ui::render() {
     UiQuickadd::layout();
     UiPlayMenu::layout();
     UiNewLevel::layout();
+    UiLogin::layout();
 
     imgui_driver.post_render();
 #endif

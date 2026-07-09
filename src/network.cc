@@ -975,6 +975,7 @@ _login(void *p)
     struct login_data *data = static_cast<struct login_data*>(p);
 
     int res = T_OK;
+    long http_code = 0;
 
     CURLcode r;
 
@@ -1019,6 +1020,14 @@ _login(void *p)
                 ui::emit_signal(SIGNAL_LOGIN_SUCCESS);
 
                 free(hd.notify_message);
+            }
+
+            curl_easy_getinfo(P.curl, CURLINFO_RESPONSE_CODE, &http_code);
+            if (http_code != 200) {
+                tms_errorf("login failed with http code %ld", http_code);
+                ui::message("An error occurred while logging in. Please check your internet connection and try again.", true);
+                ui::emit_signal(SIGNAL_LOGIN_FAILED);
+                res = T_ERR;
             }
         } else {
             tms_errorf("curl_easy_perform failed: %s\n", curl_easy_strerror(r));
