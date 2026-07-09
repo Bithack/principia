@@ -10415,6 +10415,7 @@ void ui::render() {
     UiSandboxMenu::layout();
     UiSandboxMode::layout();
     UiQuickadd::layout();
+    UiPlayMenu::layout();
 
     imgui_driver.post_render();
 #endif
