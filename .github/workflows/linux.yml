@@ -38,6 +38,7 @@ jobs:
       - name: Build
         run: |
           mkdir build; cd build
+          ../packaging/libdecor/install.sh
           ../packaging/build-appimage.sh
         env:
           CC: clang-16
