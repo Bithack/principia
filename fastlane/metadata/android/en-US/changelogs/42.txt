@@ -1,0 +1,1 @@
+Updates the game to use SDL3, mostly a technical change but some things may work better than they did before. Also improvements to the puzzle package menu and fix loading puzzle level solutions.
