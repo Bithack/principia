@@ -1,8 +1,8 @@
 #include <windows.h>
 
 #define VER_MAJOR 2026
-#define VER_MINOR 07
-#define VER_PATCH 09
+#define VER_MINOR 7
+#define VER_PATCH 9
 
 #define VER_STRING "2026.07.09"
 #define PRODUCT_VER_STRING "2026.07.09"
