@@ -139,29 +139,6 @@ struct goto_mark {
     { }
 };
 
-/** --Menu **/
-GtkMenu         *editor_menu;
-static uint8_t   editor_menu_on_entity = 0;
-GtkMenuItem     *editor_menu_header;
-/* ---------------------- */
-GtkMenuItem     *editor_menu_move_here_player;
-GtkMenuItem     *editor_menu_move_here_object;
-GtkMenuItem     *editor_menu_go_to; /* submenu */
-GtkMenu         *editor_menu_go_to_menu;
-/* -------------------------- */
-GtkMenuItem     *editor_menu_set_as_player;
-GtkMenuItem     *editor_menu_toggle_mark_entity;
-/* -------------------------- */
-GtkMenuItem     *editor_menu_lvl_prop;
-GtkMenuItem     *editor_menu_save;
-GtkMenuItem     *editor_menu_save_copy;
-GtkMenuItem     *editor_menu_publish;
-GtkMenuItem     *editor_menu_settings;
-GtkMenuItem     *editor_menu_login;
-struct goto_mark *editor_menu_last_created = new goto_mark(MARK_ENTITY, "Last created entity", 0, tvec2f(0.f, 0.f));
-struct goto_mark *editor_menu_last_cam_pos = new goto_mark(MARK_POSITION, "Last camera position", 0, tvec2f(0.f, 0.f));
-static std::deque<struct goto_mark*> editor_menu_marks;
-
 static guint valid_keys[9] = {
     GDK_KEY_1,
     GDK_KEY_2,
@@ -173,29 +150,6 @@ static guint valid_keys[9] = {
     GDK_KEY_8,
     GDK_KEY_9
 };
-
-static void refresh_mark_menuitems() {
-    GtkAccelGroup *accel_group = gtk_menu_get_accel_group(editor_menu);
-    int x=0;
-
-    for (std::deque<struct goto_mark*>::iterator it = editor_menu_marks.begin();
-            it != editor_menu_marks.end(); ++it) {
-        struct goto_mark* mark = *it;
-        GtkMenuItem *item = mark->menuitem;
-        if (x < 9) {
-            mark->key = valid_keys[x];
-            gtk_widget_add_accelerator (GTK_WIDGET(item), "activate", accel_group,
-                    valid_keys[x], (GdkModifierType)0, GTK_ACCEL_VISIBLE);
-
-            ++ x;
-        } else {
-            mark->key = 0;
-        }
-    }
-}
-
-/** --Play menu **/
-GtkMenu         *play_menu;
 
 /** --Open state **/
 GtkWindow    *open_state_window;
@@ -623,9 +577,6 @@ GtkCheckButton *publish_locked;
 /** --New level **/
 GtkDialog      *new_level_dialog;
 
-/** --Mode **/
-GtkDialog      *mode_dialog;
-
 /** --Command pad **/
 GtkDialog       *command_pad_dialog;
 GtkComboBoxText *command_pad_cb;
@@ -754,10 +705,6 @@ GtkRange        *camtargeter_y_offset;
 GtkEntry        *camtargeter_y_offset_entry;
 GtkButton       *camtargeter_save;
 GtkButton       *camtargeter_cancel;
-
-/** --Quickadd **/
-GtkWindow *quickadd_window;
-GtkEntry  *quickadd_entry;
 
 /** --Color Chooser (for Plastic beam & Pixel) **/
 GtkColorSelectionDialog *beam_color_dialog;
@@ -1285,130 +1232,6 @@ bool btn_pressed(GtkWidget *ref, GtkButton *btn, gpointer user_data) {
     );
 }
 
-void editor_mark_activate(GtkMenuItem *i, gpointer mark_pointer) {
-    struct goto_mark *mark = static_cast<struct goto_mark*>(mark_pointer);
-    tvec2 prev_pos = tvec2f(G->cam->_position.x, G->cam->_position.y);
-
-    switch (mark->type) {
-        case MARK_ENTITY: {
-                entity *e = W->get_entity_by_id(mark->id);
-
-                if (!e)
-                    return;
-
-                G->cam->_position.x = e->get_position().x;
-                G->cam->_position.y = e->get_position().y;
-            }
-            break;
-
-        case MARK_POSITION:
-            G->cam->_position.x = mark->pos.x;
-            G->cam->_position.y = mark->pos.y;
-            break;
-
-        case MARK_PLAYER:
-            if (W->is_adventure() && adventure::player) {
-                G->cam->_position.x = adventure::player->get_position().x;
-                G->cam->_position.y = adventure::player->get_position().y;
-            }
-            break;
-    }
-
-    editor_menu_last_cam_pos->pos = prev_pos;
-}
-
-static gboolean _open_level_properties(gpointer unused);
-
-void editor_menu_activate(GtkMenuItem *i, gpointer unused) {
-    if (i == editor_menu_lvl_prop) {
-        _open_level_properties(NULL);
-    } else if (i == editor_menu_move_here_player) {
-
-        if (adventure::player) {
-            const b2Vec2 _pos = G->get_last_cursor_pos(adventure::player->get_layer());
-
-            b2Vec2 *pos = new b2Vec2();
-            pos->Set(_pos.x, _pos.y);
-
-            W->add_action(adventure::player->id, ACTION_MOVE_ENTITY, (void*)pos);
-        } else {
-            const b2Vec2 _pos = G->get_last_cursor_pos(G->state.edit_layer);
-
-            b2Vec2 *pos = new b2Vec2();
-            pos->Set(_pos.x, _pos.y);
-
-            P.add_action(ACTION_CREATE_ADVENTURE_ROBOT, (void*)pos);
-        }
-    } else if (i == editor_menu_move_here_object) {
-        if (G->selection.e) {
-            const b2Vec2 _pos = G->get_last_cursor_pos(G->selection.e->get_layer());
-
-            b2Vec2 *pos = new b2Vec2();
-            pos->Set(_pos.x, _pos.y);
-
-            W->add_action(G->selection.e->id, ACTION_MOVE_ENTITY, (void*)pos);
-        }
-    } else if (i == editor_menu_set_as_player) {
-        if (W->is_adventure() && G->selection.e && G->selection.e->is_creature()) {
-            creature *c = static_cast<creature*>(G->selection.e);
-
-            if (c->is_robot()) {
-                robot_base *r = static_cast<robot_base*>(c);
-                r->set_faction(FACTION_FRIENDLY);
-            }
-
-            W->level.set_adventure_id(c->id);
-            G->state.adventure_id = c->id;
-            adventure::player = c;
-        }
-    } else if (i == editor_menu_toggle_mark_entity) {
-        if (G->selection.e) {
-            for (std::deque<struct goto_mark*>::iterator it = editor_menu_marks.begin();
-                    it != editor_menu_marks.end(); ++it) {
-                struct goto_mark *mark = *it;
-
-                if (mark != editor_menu_last_created && mark->type == MARK_ENTITY && mark->id == G->selection.e->id) {
-                    gtk_container_remove(GTK_CONTAINER(editor_menu_go_to_menu), GTK_WIDGET(mark->menuitem));
-
-                    editor_menu_marks.erase(it);
-
-                    delete mark;
-
-                    return;
-                }
-            }
-
-            char tmp[128];
-            snprintf(tmp, 127, "%s - %d", G->selection.e->get_name(), G->selection.e->id);
-            struct goto_mark *mark = new goto_mark(MARK_ENTITY, tmp, G->selection.e->id, tvec2f(0.f, 0.f));
-            mark->menuitem = add_menuitem(editor_menu_go_to_menu, mark->label, editor_mark_activate, (gpointer)mark);
-
-            editor_menu_marks.push_back(mark);
-
-            refresh_mark_menuitems();
-        }
-    }
-}
-
-void activate_mode_dialog(GtkMenuItem *i, gpointer unused) {
-    gint result = gtk_dialog_run(mode_dialog);
-
-    switch (result) {
-        case RESPONSE_DRAW:
-            G->set_mode(GAME_MODE_DRAW);
-            break;
-        case RESPONSE_MULTISEL:
-            G->set_mode(GAME_MODE_MULTISEL);
-            break;
-        case RESPONSE_CONN_EDIT:
-            G->set_mode(GAME_MODE_CONN_EDIT);
-            break;
-
-        default: break;
-    }
-
-    gtk_widget_hide(GTK_WIDGET(mode_dialog));
-}
 
 void activate_new_level(GtkMenuItem *i, gpointer unused) {
     gint result = gtk_dialog_run(new_level_dialog);
@@ -4950,307 +4773,11 @@ gboolean on_login_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
     return false;
 }
 
-void activate_principiawiki(GtkMenuItem *i, gpointer unused) {
-    ui::open_url("https://principia-web.se/wiki/");
-}
-
-void activate_gettingstarted(GtkMenuItem *i, gpointer unused) {
-    ui::open_url("https://principia-web.se/wiki/Getting_Started");
-}
 
 void activate_login(GtkMenuItem *i, gpointer unused) {
     prompt_is_open = true;
     P.focused = false;
     gtk_widget_show_all(GTK_WIDGET(login_window));
-}
-
-void editor_menu_back_to_menu(GtkMenuItem *i, gpointer unused) {
-    P.add_action(ACTION_GOTO_MAINMENU, 0);
-}
-
-static void show_grab_focus(GtkWidget *w, gpointer user_data) {
-    GdkWindow *w_window = gtk_widget_get_window(w);
-    GdkDisplay* display = gdk_display_get_default();
-    GdkSeat* seat = gdk_display_get_default_seat(display);
-    if ((gdk_seat_get_capabilities(seat) & GDK_SEAT_CAPABILITY_KEYBOARD) == 0) {
-        tms_warnf("seat has no keyboard capability");
-        return;
-    }
-    while (gdk_seat_grab(
-        seat, w_window,
-        GDK_SEAT_CAPABILITY_KEYBOARD,
-        FALSE,
-        NULL, NULL, NULL, NULL
-    ) != GDK_GRAB_SUCCESS) {
-        SDL_Delay(10);
-    }
-}
-
-void activate_quickadd(GtkWidget *i, gpointer unused);
-
-gboolean keypress_quickadd(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    GValue s = {0};
-    GValue e = {0};
-
-    g_value_init(&s, G_TYPE_UINT);
-    g_value_init(&e, G_TYPE_UINT);
-
-    g_object_get_property(G_OBJECT(w), "cursor-position", &s);
-    g_object_get_property(G_OBJECT(w), "selection-bound", &e);
-
-    guint sel = g_value_get_uint(&s)+g_value_get_uint(&e);
-
-    if (key->keyval == GDK_KEY_Escape) {
-        gtk_widget_hide(GTK_WIDGET(quickadd_window));
-    } else if (key->keyval == GDK_KEY_space
-            && sel == strlen(gtk_entry_get_text(GTK_ENTRY(w)))) {
-        /* if space is pressed and the whole string is selected,
-         * activate it */
-        activate_quickadd(w, 0);
-        return true;
-    }
-
-    gtk_entry_completion_complete(gtk_entry_get_completion(GTK_ENTRY(w)));
-
-    return false;
-}
-
-/** --Quickadd **/
-static gboolean match_selected_quickadd(GtkEntryCompletion *widget,
-  GtkTreeModel       *model,
-  GtkTreeIter        *iter,
-  gpointer            user_data) {
-    gtk_widget_hide(GTK_WIDGET(quickadd_window));
-
-    guint _gid;
-    guint _type;
-    gtk_tree_model_get(model, iter,
-                       0, &_gid,
-                       2, &_type,
-                       -1);
-
-    uint32_t gid = (uint32_t)_gid;
-    tms_infof("selected gid %d", gid);
-
-    switch (_type) {
-        case LF_MENU:
-            P.add_action(ACTION_CONSTRUCT_ENTITY, gid);
-            break;
-
-        case LF_ITEM:
-            P.add_action(ACTION_CONSTRUCT_ITEM, gid);
-            break;
-
-        case LF_DECORATION:
-            P.add_action(ACTION_CONSTRUCT_DECORATION, gid);
-            break;
-    }
-
-    return false;
-}
-
-void refresh_quickadd() {
-    GtkListStore *list = GTK_LIST_STORE(gtk_entry_completion_get_model(gtk_entry_get_completion(quickadd_entry)));
-    GtkTreeIter iter;
-    int n = 0;
-    for (int x=0; x<menu_objects.size(); x++) {
-        const struct menu_obj &mo = menu_objects[x];
-
-        gtk_list_store_append(list, &iter);
-        gtk_list_store_set(list, &iter,
-                0, mo.e->g_id,
-                1, mo.e->get_name(),
-                2, LF_MENU,
-                -1
-                );
-
-        if (!mo.e->is_static()) {
-            tchest_translations[mo.e->g_id] = n++;
-            gtk_combo_box_text_append_text(tchest_entity, mo.e->get_name());
-        }
-    }
-    for (int x=0; x<NUM_ITEMS; ++x) {
-        const struct item_option &io = item_options[x];
-
-        char tmp[512];
-        snprintf(tmp, 511, "%s (Item)", io.name);
-
-        gtk_list_store_append(list, &iter);
-        gtk_list_store_set(list, &iter,
-                0, x,
-                1, tmp,
-                2, LF_ITEM,
-                -1
-                );
-    }
-    for (int x=0; x<NUM_DECORATIONS; ++x) {
-        const struct decoration_info &di = decorations[x];
-
-        char tmp[512];
-        snprintf(tmp, 511, "%s (Decoration)", di.name);
-
-        gtk_list_store_append(list, &iter);
-        gtk_list_store_set(list, &iter,
-                0, x,
-                1, tmp,
-                2, LF_DECORATION,
-                -1
-                );
-    }
-}
-
-void activate_quickadd(GtkWidget *i, gpointer unused) {
-    /* there seems to be absolutely no way of retrieving the top completion entry...
-     * we have to find it manually */
-
-    const char *search = gtk_entry_get_text(quickadd_entry);
-    int len = strlen(search);
-    int found_arg = -1;
-    int found_score = -10000000;
-    int found_lf = -1;
-
-    tms_debugf("Looking for %s", search);
-
-    for (int i=0; i<NUM_LF; ++i) {
-        switch (i) {
-            case LF_MENU:
-                {
-                    for (int x=0; x<menu_objects.size(); ++x) {
-                        int diff = strncasecmp(search, menu_objects[x].e->get_name(), len);
-                        /* Only look for 'exact' matches, meaning they must contain that exact string in the beginning
-                         * i.e. 'sub' fits 'sub' and 'sublayer plank' */
-
-                        if (diff == 0) {
-                            /* Now we find out what the real difference between the match is */
-                            int score = strcasecmp(search, menu_objects[x].e->get_name());
-
-                            if (score == 0) {
-                                /* A return value of 0 means it's an exacth match, i.e. 'sub' == 'sub' */
-                                found_arg = menu_objects[x].e->g_id;
-                                found_score = 0;
-                                found_lf = i;
-                                break;
-                            } else if (score < 0 && score > found_score) {
-                                /* Otherwise, we could settle for this half-match, i.e. 'sub' == 'sublayer plank' */
-                                found_arg = menu_objects[x].e->g_id;
-                                found_score = score;
-                                found_lf = i;
-                            }
-                        }
-                    }
-                }
-                break;
-
-            case LF_ITEM:
-                {
-                    for (int x=0; x<NUM_ITEMS; ++x) {
-                        const struct item_option &io = item_options[x];
-
-                        int diff = strncasecmp(search, io.name, len);
-                        /* Only look for 'exact' matches, meaning they must contain that exact string in the beginning
-                         * i.e. 'sub' fits 'sub' and 'sublayer plank' */
-
-                        if (diff == 0) {
-                            /* Now we find out what the real difference between the match is */
-                            int score = strcasecmp(search, io.name);
-
-                            if (score == 0) {
-                                /* A return value of 0 means it's an exacth match, i.e. 'sub' == 'sub' */
-                                found_arg = x;
-                                found_score = 0;
-                                found_lf = i;
-                                break;
-                            } else if (score < 0 && score > found_score) {
-                                /* Otherwise, we could settle for this half-match, i.e. 'sub' == 'sublayer plank' */
-                                found_arg = x;
-                                found_score = score;
-                                found_lf = i;
-                            }
-                        }
-                    }
-
-                }
-                break;
-            case LF_DECORATION:
-                {
-                    for (int x=0; x<NUM_DECORATIONS; ++x) {
-                        int diff = strncasecmp(search, decorations[x].name, len);
-                        /* Only look for 'exact' matches, meaning they must contain that exact string in the beginning
-                         * i.e. 'sub' fits 'sub' and 'sublayer plank' */
-
-                        if (diff == 0) {
-                            /* Now we find out what the real difference between the match is */
-                            int score = strcasecmp(search, decorations[x].name);
-
-                            if (score == 0) {
-                                /* A return value of 0 means it's an exacth match, i.e. 'sub' == 'sub' */
-                                found_arg = x;
-                                found_score = 0;
-                                found_lf = i;
-                                break;
-                            } else if (score < 0 && score > found_score) {
-                                /* Otherwise, we could settle for this half-match, i.e. 'sub' == 'sublayer plank' */
-                                found_arg = x;
-                                found_score = score;
-                                found_lf = i;
-                            }
-                        }
-                    }
-
-                }
-                break;
-        }
-
-        if (found_score == 0) break;
-    }
-
-    if (found_arg >= 0) {
-        switch (found_lf) {
-            case LF_MENU:
-                P.add_action(ACTION_CONSTRUCT_ENTITY, found_arg);
-                break;
-
-            case LF_ITEM:
-                P.add_action(ACTION_CONSTRUCT_ITEM, found_arg);
-                break;
-
-            case LF_DECORATION:
-                P.add_action(ACTION_CONSTRUCT_DECORATION, found_arg);
-                break;
-        }
-    } else {
-        tms_infof("'%s' matched no entity name", search);
-    }
-
-    gtk_widget_hide(GTK_WIDGET(quickadd_window));
-}
-
-gboolean on_goto_menu_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    GtkAccelGroup *accel_group = gtk_menu_get_accel_group(editor_menu);
-
-    if (key->keyval >= GDK_KEY_1 && key->keyval <= GDK_KEY_9) {
-        for (std::deque<struct goto_mark*>::iterator it = editor_menu_marks.begin();
-                it != editor_menu_marks.end(); ++it) {
-            const struct goto_mark *mark = *it;
-            GtkMenuItem *item = mark->menuitem;
-
-            if (mark->key == key->keyval) {
-                gtk_menu_item_activate(item);
-                gtk_widget_hide(GTK_WIDGET(editor_menu));
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-gboolean on_menu_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape) {
-        gtk_widget_hide(w);
-    }
-
-    return false;
 }
 
 gboolean on_frequency_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
@@ -5361,109 +4888,7 @@ int _gtk_loop(void *p) {
 
     GtkDialog *dialog;
 
-    /** --Play menu **/
-    {
-        play_menu = GTK_MENU(gtk_menu_new());
-
-        add_menuitem(play_menu, "Controls", activate_controls);
-        add_menuitem(play_menu, "Restart level", activate_restart_level);
-        add_menuitem(play_menu, "Back", activate_back);
-    }
-
     /** --Menu **/
-
-    /**
-     * menu header: -x, y-
-     * Move player here (if adventure, creates a default robot if no player exists)
-     * Move selected object here
-     * -separator-
-     * Go to: 0, 0
-     * Go to: Player
-     * Go to: Last created entity
-     * Go to: Last camera position (before previous go to)
-     * Go to: Plank 1543 (see marked entity note below)
-     * Go to: Robot 1337
-     * -separator-
-     * -default menu items, open save, etc-
-     *
-     *  If on an entity:
-     * menu header: -entity id, gid, position, angle-
-     * Set as player (if adventure and clicked a creature)
-     * Mark entity (marks the entity with a flag and adds it to the Go to list)
-     * Unmark entity
-     **/
-    {
-        editor_menu = GTK_MENU(gtk_menu_new());
-        editor_menu_go_to_menu = GTK_MENU(gtk_menu_new());
-
-        editor_menu_header = add_menuitem(editor_menu, "HEADER");
-
-        /* --------------------------- */
-
-        editor_menu_move_here_player = add_menuitem(editor_menu, "Move player here", editor_menu_activate);
-
-        editor_menu_move_here_object = add_menuitem(editor_menu, "Move selected object here", editor_menu_activate);
-
-        editor_menu_go_to = add_menuitem_m(editor_menu, "_Go to:");
-
-        GtkAccelGroup *accel_group = gtk_accel_group_new();
-        gtk_menu_set_accel_group(editor_menu, accel_group);
-
-        gtk_menu_item_set_submenu(editor_menu_go_to, GTK_WIDGET(editor_menu_go_to_menu));
-        {
-            editor_menu_marks.push_back(new goto_mark(
-                MARK_POSITION,
-                "0, 0",
-                0,
-                tvec2f(0.f, 0.f)
-            ));
-            editor_menu_marks.push_back(new goto_mark(
-                MARK_PLAYER,
-                "Player",
-                0,
-                tvec2f(0.f, 0.f)
-            ));
-            editor_menu_marks.push_back(editor_menu_last_created);
-            editor_menu_marks.push_back(editor_menu_last_cam_pos);
-
-            for (std::deque<struct goto_mark*>::iterator it = editor_menu_marks.begin();
-                    it != editor_menu_marks.end(); ++it) {
-                struct goto_mark *mark = *it;
-                mark->menuitem = add_menuitem(editor_menu_go_to_menu, mark->label, editor_mark_activate, (gpointer)mark);
-            }
-
-            refresh_mark_menuitems();
-        }
-
-        /* --------------------------- */
-
-        editor_menu_set_as_player = add_menuitem(editor_menu, "Set as player", editor_menu_activate);
-        editor_menu_toggle_mark_entity = add_menuitem(editor_menu, "Mark entity", editor_menu_activate);
-
-        /* --------------------------- */
-
-        add_separator(editor_menu);
-
-        editor_menu_lvl_prop = add_menuitem_m(editor_menu, "Level _properties", editor_menu_activate);
-
-        add_menuitem_m(editor_menu, "_New level", activate_new_level);
-        editor_menu_save = add_menuitem_m(editor_menu, "_Save", activate_save);
-        editor_menu_save_copy = add_menuitem_m(editor_menu, "Save _copy", activate_save_copy);
-        add_menuitem_m(editor_menu, "_Open", activate_open);
-
-        editor_menu_publish = add_menuitem_m(editor_menu, "P_ublish online", activate_publish);
-
-        editor_menu_settings = add_menuitem_m(editor_menu, "S_ettings", activate_settings);
-
-        editor_menu_login = add_menuitem_m(editor_menu, "_Login", activate_login);
-
-        add_menuitem_m(editor_menu, "_Back to menu", editor_menu_back_to_menu);
-        add_menuitem(editor_menu, "Help: Principia Wiki", activate_principiawiki);
-        add_menuitem(editor_menu, "Help: Getting Started", activate_gettingstarted);
-
-        g_signal_connect(editor_menu, "key-press-event", G_CALLBACK(on_menu_keypress), 0);
-        g_signal_connect(editor_menu_go_to_menu, "key-press-event", G_CALLBACK(on_goto_menu_keypress), 0);
-    }
 
     /** --Open object **/
     {
@@ -6207,19 +5632,6 @@ int _gtk_loop(void *p) {
                 NULL));
 
         apply_dialog_defaults(new_level_dialog);
-    }
-
-    /** --Sandbox mode**/
-    {
-        mode_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Sandbox mode",
-                0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                "Connection Edit", RESPONSE_CONN_EDIT,
-                "Multi-Select", RESPONSE_MULTISEL,
-                "Terrain Paint", RESPONSE_DRAW,
-                NULL));
-
-        apply_dialog_defaults(mode_dialog);
     }
 
     /** --Command pad **/
@@ -7073,37 +6485,6 @@ int _gtk_loop(void *p) {
         camtargeter_dialog = dialog;
     }
 
-    /** --Quickadd **/
-    {
-        quickadd_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-        gtk_window_set_decorated(GTK_WINDOW(quickadd_window), TRUE);
-        gtk_window_set_keep_above(GTK_WINDOW(quickadd_window), TRUE);
-        gtk_window_set_type_hint(GTK_WINDOW(quickadd_window), GDK_WINDOW_TYPE_HINT_POPUP_MENU);
-
-        gtk_container_set_border_width(GTK_CONTAINER(quickadd_window), 4);
-        gtk_window_set_default_size(GTK_WINDOW(quickadd_window), 200, 20);
-        gtk_widget_set_size_request(GTK_WIDGET(quickadd_window), 200, 20);
-        gtk_window_set_resizable(GTK_WINDOW(quickadd_window), false);
-
-        quickadd_entry = GTK_ENTRY(gtk_entry_new());
-
-        GtkEntryCompletion *comp = gtk_entry_completion_new();
-        GtkListStore *list = gtk_list_store_new(3, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_UINT);
-
-        gtk_entry_completion_set_model(comp, GTK_TREE_MODEL(list));
-        gtk_entry_completion_set_text_column(comp, 1);
-        gtk_entry_completion_set_inline_completion(comp, false);
-        gtk_entry_completion_set_inline_selection(comp, true);
-
-        gtk_entry_set_completion(quickadd_entry, comp);
-        gtk_container_add(GTK_CONTAINER(quickadd_window), GTK_WIDGET(quickadd_entry));
-
-        g_signal_connect(comp, "match-selected", G_CALLBACK(match_selected_quickadd), 0);
-        g_signal_connect(quickadd_window, "show", G_CALLBACK(show_grab_focus), 0);
-        g_signal_connect(quickadd_window, "delete-event", G_CALLBACK(on_window_close), 0);
-        g_signal_connect(quickadd_entry, "activate", G_CALLBACK(activate_quickadd), 0);
-        g_signal_connect(quickadd_entry, "key-press-event", G_CALLBACK(keypress_quickadd), 0);
-    }
 
     /** --Color Chooser (for Plastic beam & Pixel) **/
     {
@@ -8689,100 +8070,6 @@ static gboolean _sig_ui_ready(gpointer unused) {
     return false;
 }
 
-static gboolean _open_play_menu(gpointer unused) {
-    gtk_widget_show_all(GTK_WIDGET(play_menu));
-    gtk_menu_popup(play_menu, 0, 0, 0, 0, 0, gtk_get_current_event_time());
-
-    return false;
-}
-
-static gboolean _open_sandbox_menu(gpointer unused) {
-    gtk_widget_show_all(GTK_WIDGET(editor_menu));
-    gtk_menu_popup(editor_menu, 0, 0, 0, 0, 0, gtk_get_current_event_time());
-
-    if (G->state.sandbox) {
-        gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_save),      true);
-        gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_save_copy), true);
-        gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_publish),   true);
-        gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_lvl_prop),  true);
-    } else {
-        gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_save),      false);
-        gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_save_copy), false);
-        gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_publish),   false);
-        gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_lvl_prop),  false);
-    }
-
-    if (W->is_paused()) {
-        gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_move_here_object), G->selection.e != 0);
-
-        char tmp[256];
-
-        if (G->selection.e) {
-            snprintf(tmp, 255, "- id:%u, g_id:%u, pos:%.2f/%.2f, angle:%.2f -",
-                    G->selection.e->id, G->selection.e->g_id,
-                    G->selection.e->get_position().x,
-                    G->selection.e->get_position().y,
-                    G->selection.e->get_angle()
-                    );
-            gtk_widget_hide(GTK_WIDGET(editor_menu_move_here_player));
-            gtk_widget_hide(GTK_WIDGET(editor_menu_go_to));
-            if (!G->selection.e->is_creature()) {
-                gtk_widget_hide(GTK_WIDGET(editor_menu_set_as_player));
-            }
-
-            bool is_marked = false;
-
-            for (std::deque<struct goto_mark*>::iterator it = editor_menu_marks.begin();
-                    it != editor_menu_marks.end(); ++it) {
-                struct goto_mark *mark = *it;
-
-                if (mark != editor_menu_last_created && mark->type == MARK_ENTITY && mark->id == G->selection.e->id) {
-                    is_marked = true;
-                    break;
-                }
-            }
-
-            char mark_entity[256];
-
-            if (is_marked) {
-                snprintf(mark_entity, 255, "Un_mark entity");
-            } else {
-                snprintf(mark_entity, 255, "_Mark entity");
-            }
-            gtk_menu_item_set_label(editor_menu_toggle_mark_entity, mark_entity);
-            gtk_menu_item_set_use_underline(editor_menu_toggle_mark_entity, true);
-        } else {
-            b2Vec2 pos = G->get_last_cursor_pos(0);
-            snprintf(tmp, 255, "- %.2f/%.2f -", pos.x, pos.y);
-
-            gtk_widget_hide(GTK_WIDGET(editor_menu_set_as_player));
-            gtk_widget_hide(GTK_WIDGET(editor_menu_toggle_mark_entity));
-
-            if (!W->is_adventure()) {
-                gtk_widget_hide(GTK_WIDGET(editor_menu_move_here_player));
-            }
-        }
-
-        gtk_menu_item_set_label(editor_menu_header, tmp);
-
-    } else {
-        gtk_widget_hide(GTK_WIDGET(editor_menu_header));
-        gtk_widget_hide(GTK_WIDGET(editor_menu_move_here_player));
-        gtk_widget_hide(GTK_WIDGET(editor_menu_move_here_object));
-        gtk_widget_hide(GTK_WIDGET(editor_menu_go_to));
-        gtk_widget_hide(GTK_WIDGET(editor_menu_set_as_player));
-        gtk_widget_hide(GTK_WIDGET(editor_menu_toggle_mark_entity));
-    }
-
-    // Disable the Login button if the user is already logged in.
-    gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_login), (P.user_id == 0));
-
-    // Disable the Publish button if the user is not logged in.
-    gtk_widget_set_sensitive(GTK_WIDGET(editor_menu_publish), (P.user_id != 0));
-
-    return false;
-}
-
 static gboolean _open_level_properties(gpointer unused) {
     gint result = gtk_dialog_run(properties_dialog);
 
@@ -8890,15 +8177,6 @@ static gboolean _open_level_properties(gpointer unused) {
     }
 
     gtk_widget_hide(GTK_WIDGET(properties_dialog));
-
-    return false;
-}
-
-static gboolean _open_quickadd(gpointer unused) {
-    gtk_window_set_position(quickadd_window, GTK_WIN_POS_MOUSE);
-    gtk_widget_show_all(GTK_WIDGET(quickadd_window));
-    gtk_widget_grab_focus(GTK_WIDGET(quickadd_entry));
-    tms_infof("open quickadd");
 
     return false;
 }
@@ -9114,11 +8392,6 @@ static gboolean _open_object_dialog(gpointer unused) {
 
 static gboolean _open_new_level_dialog(gpointer unused) {
     activate_new_level(NULL, 0);
-    return false;
-}
-
-static gboolean _open_mode_dialog(gpointer unused) {
-    activate_mode_dialog(NULL, 0);
     return false;
 }
 
@@ -10094,8 +9367,6 @@ static gboolean _open_confirm_quit(gpointer unused) {
 }
 
 static gboolean _close_all_dialogs(gpointer unused) {
-    gtk_widget_hide(GTK_WIDGET(play_menu));
-    gtk_widget_hide(GTK_WIDGET(editor_menu));
     gtk_widget_hide(GTK_WIDGET(open_window));
     gtk_widget_hide(GTK_WIDGET(open_state_window));
     gtk_widget_hide(GTK_WIDGET(object_window));
@@ -10104,8 +9375,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(beam_color_dialog));
     gtk_widget_hide(GTK_WIDGET(publish_dialog));
     gtk_widget_hide(GTK_WIDGET(new_level_dialog));
-    gtk_widget_hide(GTK_WIDGET(mode_dialog));
-    gtk_widget_hide(GTK_WIDGET(quickadd_window));
     gtk_widget_hide(GTK_WIDGET(frequency_window));
     gtk_widget_hide(GTK_WIDGET(settings_dialog));
     gtk_widget_hide(GTK_WIDGET(confirm_quit_dialog));
@@ -10175,34 +9444,17 @@ void ui::open_dialog(int num, void *data/*=0*/) {
 
     switch (num) {
         case DIALOG_SANDBOX_MENU:
-#ifdef UI_IMGUI_IN_GTK
             UiSandboxMenu::open();
-#else
-			editor_menu_on_entity = 0;
-			if (data) {
-				editor_menu_on_entity = VOID_TO_UINT8(data);
-			}
-
-			gdk_threads_add_idle(_open_sandbox_menu, 0);
-#endif
             break;
 
         case DIALOG_LEVEL_PROPERTIES:   gdk_threads_add_idle(_open_level_properties, 0); break;
         case DIALOG_OPEN_AUTOSAVE:  gdk_threads_add_idle(_open_autosave, 0); break;
         case DIALOG_EXPORT:         gdk_threads_add_idle(_open_export, 0); break;
         case DIALOG_PLAY_MENU:
-#ifdef UI_IMGUI_IN_GTK
             UiPlayMenu::open();
-#else
-            gdk_threads_add_idle(_open_play_menu, 0);
-#endif
             break;
         case DIALOG_QUICKADD:
-#ifdef UI_IMGUI_IN_GTK
             UiQuickadd::open();
-#else
-            gdk_threads_add_idle(_open_quickadd, 0);
-#endif
             break;
         case DIALOG_BEAM_COLOR:     gdk_threads_add_idle(_open_beam_color, 0); break;
         case DIALOG_SHAPEEXTRUDER:  gdk_threads_add_idle(_open_shapeextruder, 0); break;
@@ -10230,11 +9482,7 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_EMITTER:        gdk_threads_add_idle(_open_emitter_dialog, 0); break;
         case DIALOG_NEW_LEVEL:      gdk_threads_add_idle(_open_new_level_dialog, 0); break; /* XXX: */
         case DIALOG_SANDBOX_MODE:
-#ifdef UI_IMGUI_IN_GTK
             UiSandboxMode::open();
-#else
-            gdk_threads_add_idle(_open_mode_dialog, 0);
-#endif
             break;
         case DIALOG_SET_FREQUENCY:  gdk_threads_add_idle(_open_frequency_window, 0); break;
         case DIALOG_CONFIRM_QUIT:   gdk_threads_add_idle(_open_confirm_quit, 0); break;
@@ -10328,16 +9576,8 @@ void ui::emit_signal(int num, void *data/*=0*/) {
             gtk_widget_set_sensitive(GTK_WIDGET(login_btn_log_in), true);
             return;
 
-        case SIGNAL_QUICKADD_REFRESH:
-            refresh_quickadd();
-            break;
-
         case SIGNAL_REFRESH_BORDERS:
             refresh_borders();
-            break;
-
-        case SIGNAL_ENTITY_CONSTRUCTED:
-            editor_menu_last_created->id = VOID_TO_UINT32(data);
             break;
     }
 
