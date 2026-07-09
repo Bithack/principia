@@ -1,10 +1,10 @@
 
-set(DEP_SDL_VER "3.4.10")
+set(DEP_SDL_VER "3.4.12")
 download_dep_tarball(
 	"SDL"
 	"${DEP_SDL_VER}"
 	"https://github.com/libsdl-org/SDL/releases/download/release-${DEP_SDL_VER}/SDL3-${DEP_SDL_VER}.tar.gz"
-	"12b34280415ec8418c864408b93d008a20a6530687ee613d60bfbd20411f2785"
+	"f07b958a9ac5020fb7a44cadb957f658b2149c3c8abb4f63145fac9303249db7"
 )
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
