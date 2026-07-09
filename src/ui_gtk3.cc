@@ -831,11 +831,6 @@ GtkSpinButton   *timer_milliseconds;
 GtkSpinButton   *timer_num_ticks;
 GtkCheckButton  *timer_use_system_time;
 
-/** --Rubber **/
-GtkDialog       *rubber_dialog;
-GtkScale       *rubber_restitution;
-GtkScale       *rubber_friction;
-
 /** --Published **/
 GtkDialog       *published_dialog;
 
@@ -1847,47 +1842,6 @@ void on_synth_show(GtkWidget *wdg, void *unused) {
 
         gtk_widget_grab_focus(GTK_WIDGET(synth_hz_low));
     }
-}
-
-/** --Rubber **/
-void on_rubber_show(GtkWidget *wdg, void *unused) {
-    entity *e = G->selection.e;
-
-    if (e && (e->g_id == O_WHEEL || e->g_id == O_RUBBER_BEAM)) {
-        gtk_range_set_value(GTK_RANGE(rubber_restitution), e->properties[1].v.f);
-        gtk_range_set_value(GTK_RANGE(rubber_friction), e->properties[2].v.f);
-    }
-}
-
-gboolean on_rubber_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    switch (key->keyval) {
-        case GDK_KEY_Escape:
-            gtk_widget_hide(w);
-            return false;
-
-        case GDK_KEY_Return: {
-            entity *e = G->selection.e;
-
-            if (e && (e->g_id == O_WHEEL || e->g_id == O_RUBBER_BEAM)) {
-                float restitution = gtk_range_get_value(GTK_RANGE(rubber_restitution));
-                float friction = gtk_range_get_value(GTK_RANGE(rubber_friction));
-
-                e->properties[1].v.f = restitution;
-                e->properties[2].v.f = friction;
-
-                if (e->g_id == O_RUBBER_BEAM) {
-                    ((beam*)e)->do_update_fixture = true;
-                } else {
-                    ((wheel*)e)->do_update_fixture = true;
-                }
-
-                P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-                P.add_action(ACTION_RESELECT, 0);
-            }
-        } break;
-    }
-
-    return false;
 }
 
 /** --Timer **/
@@ -7587,31 +7541,6 @@ int _gtk_loop(void *p) {
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
-    /** --Rubber **/
-    {
-        dialog = new_dialog_defaults("Rubber properties", &on_rubber_show, &on_rubber_keypress);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-        GtkWidget *l;
-        GtkBox *vb;
-
-        l = gtk_label_new("Restitution"); vb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-        rubber_restitution = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.0, 1.0, 0.1));
-        gtk_box_pack_start(vb, l, false, false, 0);
-        gtk_box_pack_start(vb, GTK_WIDGET(rubber_restitution), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(vb), false, false, 0);
-
-        l = gtk_label_new("Friction"); vb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-        rubber_friction = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 1.0, 10.0, 0.1));
-        gtk_box_pack_start(vb, l, false, false, 0);
-        gtk_box_pack_start(vb, GTK_WIDGET(rubber_friction), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(vb), false, false, 0);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        rubber_dialog = dialog;
-    }
-
     /** --Timer **/
     {
         dialog = new_dialog_defaults("Timer", &on_timer_show, &on_timer_keypress);
@@ -8484,36 +8413,6 @@ static gboolean _open_synth(gpointer unused) {
     return false;
 }
 
-/** --Rubber **/
-static gboolean _open_rubber(gpointer unused) {
-    gint result = gtk_dialog_run(rubber_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && (e->g_id == O_WHEEL || e->g_id == O_RUBBER_BEAM)) {
-            float restitution = gtk_range_get_value(GTK_RANGE(rubber_restitution));
-            float friction = gtk_range_get_value(GTK_RANGE(rubber_friction));
-
-            e->properties[1].v.f = restitution;
-            e->properties[2].v.f = friction;
-
-            if (e->g_id == O_RUBBER_BEAM) {
-                ((beam*)e)->do_update_fixture = true;
-            } else {
-                ((wheel*)e)->do_update_fixture = true;
-            }
-
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(rubber_dialog));
-
-    return false;
-}
-
 /** --Timer **/
 static gboolean _open_timer(gpointer unused) {
     gint result = gtk_dialog_run(timer_dialog);
@@ -9139,7 +9038,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(shapeextruder_dialog));
     gtk_widget_hide(GTK_WIDGET(cursorfield_dialog));
     gtk_widget_hide(GTK_WIDGET(jumper_dialog));
-    gtk_widget_hide(GTK_WIDGET(rubber_dialog));
     gtk_widget_hide(GTK_WIDGET(autosave_dialog));
     gtk_widget_hide(GTK_WIDGET(community_dialog));
     gtk_widget_hide(GTK_WIDGET(published_dialog));
@@ -9260,7 +9158,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_VENDOR:         gdk_threads_add_idle(_open_vendor, 0); break;
         case DIALOG_FACTORY:        gdk_threads_add_idle(_open_factory, 0); break;
         case DIALOG_TREASURE_CHEST: gdk_threads_add_idle(_open_treasure_chest, 0); break;
-        case DIALOG_RUBBER:         gdk_threads_add_idle(_open_rubber, 0); break;
+        case DIALOG_RUBBER:
+            UiRubber::open();
+            break;
         case DIALOG_PUBLISHED:      gdk_threads_add_idle(_open_published, 0); break;
         case DIALOG_COMMUNITY:      gdk_threads_add_idle(_open_community, 0); break;
         case DIALOG_ANIMAL:
@@ -9416,6 +9316,7 @@ void ui::render() {
     UiNewLevel::layout();
     UiLogin::layout();
     UiAnimal::layout();
+    UiRubber::layout();
 
     imgui_driver.post_render();
 #endif
