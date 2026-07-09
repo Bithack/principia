@@ -21,7 +21,6 @@
 #include "menu-play.hh"
 #include "object_factory.hh"
 #include "pkgman.hh"
-#include "polygon.hh"
 #include "prompt.hh"
 #include "resource.hh"
 #include "robot_base.hh"
@@ -854,11 +853,6 @@ GtkRange        *shapeextruder_up;
 GtkRange        *shapeextruder_left;
 GtkRange        *shapeextruder_down;
 
-/** --Polygon **/
-GtkDialog       *polygon_dialog;
-GtkRange        *polygon_sublayer_depth;
-GtkCheckButton  *polygon_front_align;
-
 /** --cursorfield **/
 GtkDialog       *cursorfield_dialog;
 GtkRange        *cursorfield_right;
@@ -1548,16 +1542,6 @@ void on_shapeextruder_show(GtkWidget *wdg, void *unused) {
         gtk_range_set_value(shapeextruder_up, e->properties[1].v.f);
         gtk_range_set_value(shapeextruder_left, e->properties[2].v.f);
         gtk_range_set_value(shapeextruder_down, e->properties[3].v.f);
-    }
-}
-
-/** --Polygon **/
-static void on_polygon_show(GtkWidget *wdg, void *unused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_PLASTIC_POLYGON) {
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(polygon_front_align), e->properties[1].v.i8);
-        gtk_range_set_value(GTK_RANGE(polygon_sublayer_depth), e->properties[0].v.i8+1);
     }
 }
 
@@ -7370,41 +7354,6 @@ int _gtk_loop(void *p) {
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
-    /** --Polygon **/
-    {
-        dialog = new_dialog_defaults("Polygon", &on_polygon_show);
-
-        gtk_widget_set_size_request(GTK_WIDGET(dialog), 350, -1);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-
-        GtkGrid *tbl_settings = create_settings_table();
-        {
-            int y = -1;
-
-            polygon_sublayer_depth = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 1, 4, 1));
-            polygon_front_align = GTK_CHECK_BUTTON(gtk_check_button_new());
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Sublayer depth",
-                GTK_WIDGET(polygon_sublayer_depth)
-            );
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Front align",
-                GTK_WIDGET(polygon_front_align),
-                "Sublayer depth from front instead of back"
-            );
-        }
-
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(tbl_settings), false, false, 0);
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        polygon_dialog = dialog;
-    }
-
     /** --Synth **/
     {
         synth_dialog = new_dialog_defaults("Synthesizer", &on_synth_show, &on_synth_keypress);
@@ -8699,31 +8648,6 @@ static gboolean _open_soundman(gpointer unused) {
     return false;
 }
 
-/** --Polygon **/
-static gboolean _open_polygon(gpointer unused) {
-    GtkDialog *d = polygon_dialog;
-
-    gint result = gtk_dialog_run(d);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_PLASTIC_POLYGON) {
-            ((polygon*)e)->do_recreate_shape = true;
-
-            e->properties[1].v.i8 = (uint8_t)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(polygon_front_align));
-            e->properties[0].v.i8 = (uint8_t)gtk_range_get_value(GTK_RANGE(polygon_sublayer_depth))-1;
-
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(d));
-
-    return false;
-}
-
 /** --Factory **/
 static gboolean _open_factory(gpointer unused) {
     GtkDialog *d = factory_dialog;
@@ -9052,7 +8976,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiAnimal::open();
             break;
         case DIALOG_SOUNDMAN:       gdk_threads_add_idle(_open_soundman, 0); break;
-        case DIALOG_POLYGON:        gdk_threads_add_idle(_open_polygon, 0); break;
+        case DIALOG_POLYGON:
+            UiPolygon::open();
+            break;
         case DIALOG_KEY_LISTENER:   gdk_threads_add_idle(_open_key_listener, 0); break;
         case DIALOG_MULTI_CONFIG:   gdk_threads_add_idle(_open_multi_config, 0); break;
 
@@ -9203,6 +9129,7 @@ void ui::render() {
     UiAnimal::layout();
     UiRubber::layout();
     UiObjColorPicker::layout();
+    UiPolygon::layout();
 
     imgui_driver.post_render();
 #endif
