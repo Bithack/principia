@@ -6,7 +6,6 @@
 
 #include "adventure.hh"
 #include "anchor.hh"
-#include "beam.hh"
 #include "command.hh"
 #include "decorations.hh"
 #include "display.hh"
@@ -35,15 +34,11 @@
 #include "timer.hh"
 #include "treasure_chest.hh"
 #include "ui.hh"
-#include "wheel.hh"
 #include <SDL3/SDL.h>
 #include <sstream>
 #include <tms/cpp.hh>
 
 #if !defined(SDL_PLATFORM_ANDROID) && !defined(PRINCIPIA_BACKEND_IMGUI) && !defined(NO_UI)
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -697,9 +692,6 @@ GtkRange        *camtargeter_y_offset;
 GtkEntry        *camtargeter_y_offset_entry;
 GtkButton       *camtargeter_save;
 GtkButton       *camtargeter_cancel;
-
-/** --Color Chooser (for Plastic beam & Pixel) **/
-GtkColorSelectionDialog *beam_color_dialog;
 
 /** --Info Dialog **/
 GtkWindow       *info_dialog;
@@ -3692,21 +3684,6 @@ gboolean on_open_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
     return false;
 }
 
-gboolean on_color_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    GtkWidget *ok_button = gtk_dialog_get_widget_for_response(GTK_DIALOG(beam_color_dialog), GTK_RESPONSE_OK);
-
-    if (key->keyval == GDK_KEY_Escape) {
-        gtk_widget_hide(w);
-    } else if (key->keyval == GDK_KEY_Return
-            && (w == gtk_dialog_get_content_area(GTK_DIALOG(beam_color_dialog)) ||
-                w == ok_button)) {
-        gtk_button_clicked(GTK_BUTTON(ok_button));
-        return true;
-    }
-
-    return false;
-}
-
 gboolean on_lvl_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
     if (key->keyval == GDK_KEY_Escape) {
         gtk_widget_hide(GTK_WIDGET(save_window));
@@ -6290,25 +6267,6 @@ int _gtk_loop(void *p) {
         camtargeter_dialog = dialog;
     }
 
-
-    /** --Color Chooser (for Plastic beam & Pixel) **/
-    {
-        beam_color_dialog = GTK_COLOR_SELECTION_DIALOG(gtk_color_selection_dialog_new("Color"));
-        GtkColorSelectionDialog *sel = GTK_COLOR_SELECTION_DIALOG(beam_color_dialog);
-
-        apply_dialog_defaults(beam_color_dialog);
-
-        gtk_color_selection_set_has_opacity_control(
-            GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(
-                GTK_COLOR_SELECTION_DIALOG(sel))), false);
-
-        GtkWidget *beam_color_dialog_ok_button = gtk_dialog_get_widget_for_response(GTK_DIALOG(beam_color_dialog), GTK_RESPONSE_OK);
-
-        g_signal_connect(gtk_dialog_get_content_area(GTK_DIALOG(beam_color_dialog)),  "key-press-event", G_CALLBACK(on_color_keypress), 0);
-        g_signal_connect(beam_color_dialog_ok_button, "key-press-event", G_CALLBACK(on_color_keypress), 0);
-        g_signal_connect(beam_color_dialog,           "key-press-event", G_CALLBACK(on_color_keypress), 0);
-    }
-
     /** --Autosave Dialog **/
     {
         dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
@@ -7893,82 +7851,6 @@ static gboolean _open_level_properties(gpointer unused) {
     return false;
 }
 
-/** --Color Chooser (for Plastic beam & Pixel) **/
-static gboolean _open_beam_color(gpointer unused) {
-    /* set current chooser to beam/pixel current color */
-    GtkColorSelection *sel = GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(beam_color_dialog));
-
-    entity *e = G->selection.e;
-    if (e) {
-        GdkRGBA color;
-        tvec4 c = e->get_color();
-        color.red   = c.r;
-        color.green = c.g;
-        color.blue  = c.b;
-        if (e->g_id == O_PIXEL) {
-            color.alpha = (double)(e->properties[4].v.i8) / 255.0;
-            gtk_color_selection_set_has_opacity_control(sel, true);
-        } else {
-            color.alpha = 1.;
-            gtk_color_selection_set_has_opacity_control(sel, false);
-        }
-        gtk_color_selection_set_current_rgba(sel, &color);
-#if 0 // XXX: Unused painter tool
-    } else if (W->is_adventure() && adventure::player && adventure::is_player_alive()) {
-        robot_parts::tool *t = adventure::player->get_tool();
-        if (t && t->get_arm_type() == TOOL_PAINTER) {
-            GdkRGBA color;
-            color.red   = t->properties[0].v.f;
-            color.green = t->properties[1].v.f;
-            color.blue  = t->properties[2].v.f;
-            color.alpha = 1.0;
-
-            gtk_color_chooser_set_use_alpha(sel, false);
-            gtk_color_chooser_set_rgba(sel, &color);
-        }
-#endif
-    }
-
-    if (gtk_dialog_run(GTK_DIALOG(beam_color_dialog)) == GTK_RESPONSE_OK) {
-        //GtkColorSelection *sel = GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(beam_color_dialog)));
-
-        GdkRGBA color;
-        gtk_color_selection_get_current_rgba(sel, &color);
-
-        entity *e = G->selection.e;
-
-        if (e) {
-            e->set_color4(color.red, color.green, color.blue);
-
-            if (e->g_id == O_PIXEL) {
-                e->set_property(4, (uint8_t)(color.alpha * 255.));
-            }
-#if 0 // XXX: Unused painter tool
-        } else if (W->is_adventure() && adventure::player && adventure::is_player_alive()) {
-            robot_parts::tool *t = adventure::player->get_tool();
-            if (t && t->tool_id == TOOL_PAINTER) {
-                t->set_property(0, (float)color.red / (float)0xffff);
-                t->set_property(1, (float)color.green / (float)0xffff);
-                t->set_property(2, (float)color.blue / (float)0xffff);
-                ((robot_parts::painter*)t)->update_appearance();
-            }
-#endif
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(beam_color_dialog));
-
-    return false;
-}
-
-static gboolean _open_polygon_color(gpointer unused) {
-    return _open_beam_color(unused);
-}
-
-static gboolean _open_pixel_color(gpointer unused) {
-    return _open_beam_color(unused);
-}
-
 static gboolean _open_save_window(gpointer unused) {
     activate_save(NULL, 0);
     return false;
@@ -9022,7 +8904,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(object_window));
     gtk_widget_hide(GTK_WIDGET(save_window));
     gtk_widget_hide(GTK_WIDGET(properties_dialog));
-    gtk_widget_hide(GTK_WIDGET(beam_color_dialog));
     gtk_widget_hide(GTK_WIDGET(publish_dialog));
     gtk_widget_hide(GTK_WIDGET(frequency_window));
     gtk_widget_hide(GTK_WIDGET(settings_dialog));
@@ -9103,13 +8984,17 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_QUICKADD:
             UiQuickadd::open();
             break;
-        case DIALOG_BEAM_COLOR:     gdk_threads_add_idle(_open_beam_color, 0); break;
+
         case DIALOG_SHAPEEXTRUDER:  gdk_threads_add_idle(_open_shapeextruder, 0); break;
         case DIALOG_CURSORFIELD:    gdk_threads_add_idle(_open_cursorfield, 0); break;
         case DIALOG_ESCRIPT:        gdk_threads_add_idle(_open_escript, 0); break;
         case DIALOG_JUMPER:         gdk_threads_add_idle(_open_jumper, 0); break;
-        case DIALOG_PIXEL_COLOR:    gdk_threads_add_idle(_open_pixel_color, 0); break;
-        case DIALOG_POLYGON_COLOR:  gdk_threads_add_idle(_open_polygon_color, 0); break;
+        case DIALOG_BEAM_COLOR:
+        case DIALOG_PIXEL_COLOR:
+        case DIALOG_POLYGON_COLOR:
+            UiObjColorPicker::open();
+            break;
+
         case DIALOG_SAVE:           gdk_threads_add_idle(_open_save_window, 0); break;
         case DIALOG_SAVE_COPY:      gdk_threads_add_idle(_open_save_copy_window, 0); break;
         case DIALOG_OPEN:           gdk_threads_add_idle(_open_open_dialog, 0); break;
@@ -9317,11 +9202,10 @@ void ui::render() {
     UiLogin::layout();
     UiAnimal::layout();
     UiRubber::layout();
+    UiObjColorPicker::layout();
 
     imgui_driver.post_render();
 #endif
 }
-
-#pragma GCC diagnostic pop
 
 #endif

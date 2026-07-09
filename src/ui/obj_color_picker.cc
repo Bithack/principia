@@ -27,6 +27,10 @@ namespace UiObjColorPicker {
         ImGui_CenterNextWindow();
 
         if (ImGui::BeginPopupModal(wintitle.c_str(), REF_TRUE, MODAL_FLAGS)) {
+            if (ImGui::IsKeyReleased(ImGuiKey_Escape) || ImGui::IsKeyReleased(ImGuiKey_Enter)) {
+                ImGui::CloseCurrentPopup();
+            }
+
             tvec4 color = entity_ptr->get_color();
             float color_arr[4] = {
                 color.r,
@@ -40,7 +44,7 @@ namespace UiObjColorPicker {
                     ImGuiColorEditFlags_AlphaBar
                 ) : ImGuiColorEditFlags_NoAlpha)
                 | ImGuiColorEditFlags_NoDragDrop
-                | ImGuiColorEditFlags_PickerHueWheel; //TODO: decide! (color wheel/square)
+                | ImGuiColorEditFlags_PickerHueWheel;
             if (ImGui::ColorPicker4("Color", (float*) &color_arr, flags, (const float*) &ref_color)) {
                 entity_ptr->set_color4(color_arr[0], color_arr[1], color_arr[2], color_arr[3]);
             }
