@@ -6,7 +6,6 @@
 
 #include "adventure.hh"
 #include "anchor.hh"
-#include "animal.hh"
 #include "beam.hh"
 #include "command.hh"
 #include "decorations.hh"
@@ -598,10 +597,6 @@ GtkComboBoxText *resource_cb;
 /** --Vendor **/
 GtkDialog       *vendor_dialog;
 GtkSpinButton   *vendor_amount;
-
-/** --Animal **/
-GtkDialog       *animal_dialog;
-GtkComboBoxText *animal_cb;
 
 /** --Soundman **/
 GtkDialog       *soundman_dialog;
@@ -2290,17 +2285,6 @@ void on_vendor_show(GtkWidget *wdg, void *ununused) {
 
     if (e && e->g_id == O_VENDOR) {
         gtk_spin_button_set_value(vendor_amount, e->properties[2].v.i);
-    }
-}
-
-/** --Animal **/
-void on_animal_show(GtkWidget *wdg, void *ununused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_ANIMAL) {
-        if (e->properties[0].v.i >= NUM_ANIMAL_TYPES) e->properties[0].v.i = NUM_ANIMAL_TYPES-1;
-
-        gtk_combo_box_set_active(GTK_COMBO_BOX(animal_cb), e->properties[0].v.i);
     }
 }
 
@@ -5816,25 +5800,6 @@ int _gtk_loop(void *p) {
         vendor_dialog = dialog;
     }
 
-    /** --Animal **/
-    {
-        dialog = new_dialog_defaults("Animal", &on_animal_show);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-
-        animal_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-        for (int x=0; x<NUM_ANIMAL_TYPES; ++x) {
-            gtk_combo_box_text_append_text(animal_cb, animal_data[x].name);
-        }
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Animal type</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(animal_cb), false, false, 10);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        animal_dialog = dialog;
-    }
-
     /** --Soundman **/
     {
         dialog = new_dialog_defaults("Sound Manager", &on_soundman_show);
@@ -8927,28 +8892,6 @@ static gboolean _open_vendor(gpointer unused) {
     return false;
 }
 
-/** --Animal **/
-static gboolean _open_animal(gpointer unused) {
-    GtkDialog *d = animal_dialog;
-
-    gint result = gtk_dialog_run(d);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_ANIMAL) {
-            W->add_action(e->id, ACTION_SET_ANIMAL_TYPE, UINT_TO_VOID((uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(animal_cb))));
-
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(d));
-
-    return false;
-}
-
 /** --Soundman **/
 static gboolean _open_soundman(gpointer unused) {
     GtkDialog *d = soundman_dialog;
@@ -9320,7 +9263,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_RUBBER:         gdk_threads_add_idle(_open_rubber, 0); break;
         case DIALOG_PUBLISHED:      gdk_threads_add_idle(_open_published, 0); break;
         case DIALOG_COMMUNITY:      gdk_threads_add_idle(_open_community, 0); break;
-        case DIALOG_ANIMAL:         gdk_threads_add_idle(_open_animal, 0); break;
+        case DIALOG_ANIMAL:
+            UiAnimal::open();
+            break;
         case DIALOG_SOUNDMAN:       gdk_threads_add_idle(_open_soundman, 0); break;
         case DIALOG_POLYGON:        gdk_threads_add_idle(_open_polygon, 0); break;
         case DIALOG_KEY_LISTENER:   gdk_threads_add_idle(_open_key_listener, 0); break;
@@ -9470,6 +9415,7 @@ void ui::render() {
     UiPlayMenu::layout();
     UiNewLevel::layout();
     UiLogin::layout();
+    UiAnimal::layout();
 
     imgui_driver.post_render();
 #endif
