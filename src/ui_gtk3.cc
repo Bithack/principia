@@ -10228,7 +10228,13 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_OPEN_OBJECT:    gdk_threads_add_idle(_open_object_dialog, 0); break;
         case DIALOG_MULTIEMITTER:   gdk_threads_add_idle(_open_multiemitter_dialog, 0); break;
         case DIALOG_EMITTER:        gdk_threads_add_idle(_open_emitter_dialog, 0); break;
-        case DIALOG_NEW_LEVEL:      gdk_threads_add_idle(_open_new_level_dialog, 0); break; /* XXX: */
+        case DIALOG_NEW_LEVEL:
+#ifdef UI_IMGUI_IN_GTK
+            UiNewLevel::open();
+#else
+            gdk_threads_add_idle(_open_new_level_dialog, 0);
+#endif
+            break;
         case DIALOG_SANDBOX_MODE:
 #ifdef UI_IMGUI_IN_GTK
             UiSandboxMode::open();
@@ -10416,6 +10422,7 @@ void ui::render() {
     UiSandboxMode::layout();
     UiQuickadd::layout();
     UiPlayMenu::layout();
+    UiNewLevel::layout();
 
     imgui_driver.post_render();
 #endif
