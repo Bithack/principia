@@ -19,15 +19,21 @@ static bool do_open = false;
                 ImGui::CloseCurrentPopup();
             }
 
+            ImGui::SameLine();
+
             if (ImGui::Button("Adventure")) {
                 P.add_action(ACTION_NEW_LEVEL, LCAT_ADVENTURE);
                 ImGui::CloseCurrentPopup();
             }
 
+            ImGui::SameLine();
+
             if (ImGui::Button("Procedural Adventure")) {
                 P.add_action(ACTION_NEW_GENERATED_LEVEL, LCAT_ADVENTURE);
                 ImGui::CloseCurrentPopup();
             }
+
+            ImGui::SameLine();
 
             if (ImGui::Button("Puzzle")) {
                 P.add_action(ACTION_NEW_LEVEL, LCAT_PUZZLE);

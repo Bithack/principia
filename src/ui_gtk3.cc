@@ -574,9 +574,6 @@ GtkEntry       *publish_name;
 GtkTextView    *publish_descr;
 GtkCheckButton *publish_locked;
 
-/** --New level **/
-GtkDialog      *new_level_dialog;
-
 /** --Command pad **/
 GtkDialog       *command_pad_dialog;
 GtkComboBoxText *command_pad_cb;
@@ -1230,30 +1227,6 @@ bool btn_pressed(GtkWidget *ref, GtkButton *btn, gpointer user_data) {
             GPOINTER_TO_INT(user_data) == 1
         )
     );
-}
-
-
-void activate_new_level(GtkMenuItem *i, gpointer unused) {
-    gint result = gtk_dialog_run(new_level_dialog);
-
-    switch (result) {
-        case RESPONSE_PUZZLE:
-            P.add_action(ACTION_NEW_LEVEL, LCAT_PUZZLE);
-            break;
-        case RESPONSE_ADVENTURE:
-            P.add_action(ACTION_NEW_LEVEL, LCAT_ADVENTURE);
-            break;
-        case RESPONSE_PROCEDURAL_ADVENTURE:
-            P.add_action(ACTION_NEW_GENERATED_LEVEL, LCAT_ADVENTURE);
-            break;
-        case RESPONSE_CUSTOM:
-            P.add_action(ACTION_NEW_LEVEL, LCAT_CUSTOM);
-            break;
-
-        default: break;
-    }
-
-    gtk_widget_hide(GTK_WIDGET(new_level_dialog));
 }
 
 void activate_frequency(GtkMenuItem *i, gpointer unused) {
@@ -5620,20 +5593,6 @@ int _gtk_loop(void *p) {
         /* TODO: add key-press-events to everything but the cancel-button */
     }
 
-    /** --New level **/
-    {
-        new_level_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "New level",
-                0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                "Custom", RESPONSE_CUSTOM,
-                "Adventure", RESPONSE_ADVENTURE,
-                "Proc. Adventure", RESPONSE_PROCEDURAL_ADVENTURE,
-                "Puzzle", RESPONSE_PUZZLE,
-                NULL));
-
-        apply_dialog_defaults(new_level_dialog);
-    }
-
     /** --Command pad **/
     {
         command_pad_dialog = new_dialog_defaults("Set command", &on_command_pad_show);
@@ -8390,11 +8349,6 @@ static gboolean _open_object_dialog(gpointer unused) {
     return false;
 }
 
-static gboolean _open_new_level_dialog(gpointer unused) {
-    activate_new_level(NULL, 0);
-    return false;
-}
-
 static gboolean _open_autosave(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(autosave_dialog));
     gint result = gtk_dialog_run(autosave_dialog);
@@ -9374,7 +9328,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(properties_dialog));
     gtk_widget_hide(GTK_WIDGET(beam_color_dialog));
     gtk_widget_hide(GTK_WIDGET(publish_dialog));
-    gtk_widget_hide(GTK_WIDGET(new_level_dialog));
     gtk_widget_hide(GTK_WIDGET(frequency_window));
     gtk_widget_hide(GTK_WIDGET(settings_dialog));
     gtk_widget_hide(GTK_WIDGET(confirm_quit_dialog));
@@ -9480,7 +9433,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_OPEN_OBJECT:    gdk_threads_add_idle(_open_object_dialog, 0); break;
         case DIALOG_MULTIEMITTER:   gdk_threads_add_idle(_open_multiemitter_dialog, 0); break;
         case DIALOG_EMITTER:        gdk_threads_add_idle(_open_emitter_dialog, 0); break;
-        case DIALOG_NEW_LEVEL:      gdk_threads_add_idle(_open_new_level_dialog, 0); break; /* XXX: */
+        case DIALOG_NEW_LEVEL:
+            UiNewLevel::open();
+            break;
         case DIALOG_SANDBOX_MODE:
             UiSandboxMode::open();
             break;
@@ -9656,6 +9611,7 @@ void ui::render() {
     UiSandboxMode::layout();
     UiQuickadd::layout();
     UiPlayMenu::layout();
+    UiNewLevel::layout();
 
     imgui_driver.post_render();
 #endif
