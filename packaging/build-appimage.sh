@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eu
 
 # Builds an AppImage using appimagetool.
 # You need to run this inside of a build directory in the source tree,
