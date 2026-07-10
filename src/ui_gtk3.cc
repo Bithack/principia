@@ -47,8 +47,6 @@ SDL_Condition  *ui_cond;
 SDL_Mutex *ui_lock;
 static gboolean _sig_ui_ready(gpointer unused);
 
-typedef std::map<int, std::pair<int, int> > freq_container;
-
 /* open window columns */
 enum {
     OC_ID,
@@ -68,20 +66,6 @@ enum {
 
     OSC_NUM_COLUMNS
 };
-
-enum {
-    FC_FREQUENCY,
-    FC_RECEIVERS,
-    FC_TRANSMITTERS,
-
-    FC_NUM_COLUMNS
-};
-
-typedef struct {
-    uint32_t id;
-    gchar   *name;
-    long   time;
-} oc_column;
 
 GtkDialog *cur_prompt = 0;
 
@@ -672,22 +656,6 @@ GtkCheckButton  *tips_hide;
 /** --Autosave Dialog **/
 GtkDialog       *autosave_dialog;
 
-/** --Frequency Dialog **/
-GtkWindow       *frequency_window;
-GtkSpinButton   *frequency_value;
-GtkTreeModel    *frequency_treemodel;
-GtkButton       *frequency_ok;
-GtkButton       *frequency_cancel;
-
-/** --Frequency range dialog **/
-GtkWindow       *freq_range_window;
-GtkSpinButton   *freq_range_value;
-GtkSpinButton   *freq_range_offset;
-GtkTreeModel    *freq_range_treemodel;
-GtkButton       *freq_range_ok;
-GtkButton       *freq_range_cancel;
-GtkLabel        *freq_range_info;
-
 /** --Settings **/
 GtkDialog       *settings_dialog;
 
@@ -1115,161 +1083,9 @@ bool btn_pressed(GtkWidget *ref, GtkButton *btn, gpointer user_data) {
     );
 }
 
-void activate_frequency(GtkMenuItem *i, gpointer unused) {
-    gtk_widget_show_all(GTK_WIDGET(frequency_window));
-}
-
 /** --Confirm Quit Dialog **/
 void on_confirm_quit_show(GtkWidget *wdg, gpointer unused) {
     gtk_widget_grab_focus(GTK_WIDGET(confirm_btn_quit));
-}
-
-/** --Frequency range Dialog **/
-void on_freq_range_show(GtkWidget *wdg, void *unused) {
-    GtkTreeIter iter;
-    std::map<uint32_t, entity*> all_entities;
-    // <Frequency, <Num Receivers, Num Transmitters> >
-    std::map<int, std::pair<int, int> > frequencies;
-
-    /* Reset widgets */
-    gtk_spin_button_set_value(freq_range_value, 1);
-    gtk_spin_button_set_value(freq_range_offset, 10);
-    gtk_list_store_clear(GTK_LIST_STORE(freq_range_treemodel));
-
-    /* Fetch current freq_range from selection */
-    if (G->selection.e && G->selection.e->g_id == O_BROADCASTER) {
-        gtk_spin_button_set_value(freq_range_value, (gdouble)G->selection.e->properties[0].v.i);
-        gtk_spin_button_set_value(freq_range_offset, (gdouble)G->selection.e->properties[1].v.i);
-    }
-
-    all_entities = W->get_all_entities();
-    for (std::map<uint32_t, entity*>::iterator i = all_entities.begin();
-            i != all_entities.end(); i++) {
-        entity *e = i->second;
-
-        if (e->g_id == O_RECEIVER) {
-            std::pair<freq_container::iterator, bool> ret;
-            std::pair<int, int> data = std::make_pair(1, 0);
-            ret = frequencies.insert(std::pair<int, std::pair<int, int> >((int)e->properties[0].v.i, data));
-
-            if (!ret.second) {
-                ((ret.first)->second).first += 1;
-            }
-        } else if (e->g_id == O_TRANSMITTER || e->g_id == O_MINI_TRANSMITTER) {
-            std::pair<freq_container::iterator, bool> ret;
-            std::pair<int, int> data = std::make_pair(0, 1);
-            ret = frequencies.insert(std::pair<int, std::pair<int, int> >((int)e->properties[0].v.i, data));
-
-            if (!ret.second) {
-                ((ret.first)->second).second += 1;
-            }
-        } else if (e->g_id == O_PIXEL && e->properties[4].v.i != 0) {
-            /* Pixel */
-            std::pair<freq_container::iterator, bool> ret;
-            std::pair<int, int> data = std::make_pair(1, 0);
-            ret = frequencies.insert(std::pair<int, std::pair<int, int> >((int)e->properties[4].v.i, data));
-
-            if (!ret.second) {
-                ((ret.first)->second).first += 1;
-            }
-        }
-    }
-
-    for (freq_container::iterator i = frequencies.begin();
-            i != frequencies.end(); ++i) {
-        gtk_list_store_append(GTK_LIST_STORE(freq_range_treemodel), &iter);
-        gtk_list_store_set(GTK_LIST_STORE(freq_range_treemodel), &iter,
-                FC_FREQUENCY,       i->first,
-                FC_RECEIVERS,       (i->second).first,
-                FC_TRANSMITTERS,    (i->second).second,
-                -1
-                );
-    }
-
-}
-
-gboolean on_freq_range_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, freq_range_cancel, user_data)) {
-        gtk_widget_hide(GTK_WIDGET(freq_range_window));
-    } else if (btn_pressed(w, freq_range_ok, user_data)) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_BROADCASTER) {
-            e->set_property(0, (uint32_t)gtk_spin_button_get_value(freq_range_value));
-            e->set_property(1, (uint32_t)gtk_spin_button_get_value(freq_range_offset));
-
-            ui::messagef("Frequency set to %u (+%u)", e->properties[0].v.i, e->properties[1].v.i);
-
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-
-            gtk_widget_hide(GTK_WIDGET(freq_range_window));
-        }
-    }
-
-    return false;
-}
-
-gboolean on_freq_range_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    switch (key->keyval) {
-        case GDK_KEY_Escape:
-            gtk_widget_hide(w);
-            return false;
-
-        case GDK_KEY_Return:
-            if (gtk_widget_has_focus(GTK_WIDGET(freq_range_cancel)))
-                on_freq_range_click(GTK_WIDGET(freq_range_cancel), NULL, GINT_TO_POINTER(1));
-            else
-                on_freq_range_click(GTK_WIDGET(freq_range_ok), NULL, GINT_TO_POINTER(1));
-
-            return true;
-            break;
-    }
-
-    return false;
-}
-
-void activate_freq_range_row(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *col, gpointer user_data) {
-    GtkTreeIter iter;
-    GtkTreeModel *model = gtk_tree_view_get_model(view);
-    gtk_tree_model_get_iter_from_string(model, &iter, gtk_tree_path_to_string(path));
-
-    guint _freq_range;
-    gtk_tree_model_get(model, &iter,
-                       FC_FREQUENCY, &_freq_range,
-                       -1);
-
-    gtk_spin_button_set_value(freq_range_value, _freq_range);
-}
-
-void activate_freq_range(GtkMenuItem *i, gpointer unused) {
-    gtk_widget_show_all(GTK_WIDGET(freq_range_window));
-}
-
-static void freq_range_value_changed(GtkSpinButton *btn, gpointer unused) {
-    gtk_spin_button_update(freq_range_value);
-    gtk_spin_button_update(freq_range_offset);
-
-    uint32_t begin = gtk_spin_button_get_value(freq_range_value);
-    uint32_t end = begin + gtk_spin_button_get_value(freq_range_offset);
-
-    char tmp[256];
-
-    snprintf(tmp, 255, "Frequencies: %u - %u", begin, end);
-    gtk_label_set_text(freq_range_info, tmp);
-}
-
-static void freq_range_value_text_changed(GtkEditable *editable, gpointer unused) {
-    gtk_spin_button_update(freq_range_value);
-    gtk_spin_button_update(freq_range_offset);
-
-    uint32_t begin = gtk_spin_button_get_value(freq_range_value);
-    uint32_t end = begin + gtk_spin_button_get_value(freq_range_offset);
-
-    char tmp[256];
-
-    snprintf(tmp, 255, "Frequencies: %u - %u", begin, end);
-    gtk_label_set_text(freq_range_info, tmp);
 }
 
 /** --digital display **/
@@ -2356,19 +2172,6 @@ void on_camtargeter_show(GtkWidget *wdg, void *ununused) {
         snprintf(tmp, 7, "%.2f", e->properties[4].v.f);
         gtk_entry_set_text(camtargeter_y_offset_entry, tmp);
     }
-}
-
-void activate_frequency_row(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *col, gpointer user_data) {
-    GtkTreeIter iter;
-    GtkTreeModel *model = gtk_tree_view_get_model(view);
-    gtk_tree_model_get_iter_from_string(model, &iter, gtk_tree_path_to_string(path));
-
-    guint _frequency;
-    gtk_tree_model_get(model, &iter,
-                       FC_FREQUENCY, &_frequency,
-                       -1);
-
-    gtk_spin_button_set_value(frequency_value, _frequency);
 }
 
 void on_tips_show(GtkWidget *wdg, void *unused) {
@@ -3971,69 +3774,6 @@ void on_properties_show(GtkWidget *wdg, void *unused) {
     free(current_descr);
 }
 
-void on_frequency_show(GtkWidget *wdg, void *unused) {
-    GtkTreeIter iter;
-    std::map<uint32_t, entity*> all_entities;
-    // <Frequency, <Num Receivers, Num Transmitters> >
-    std::map<int, std::pair<int, int> > frequencies;
-
-    /* Reset widgets */
-    gtk_spin_button_set_value(frequency_value, 0);
-    gtk_list_store_clear(GTK_LIST_STORE(frequency_treemodel));
-
-    /* Fetch current frequency from selection */
-    if (G->selection.e && G->selection.e->is_wireless()) {
-
-        gtk_spin_button_set_value(frequency_value, (gdouble)G->selection.e->properties[0].v.i);
-    }
-
-    all_entities = W->get_all_entities();
-    for (std::map<uint32_t, entity*>::iterator i = all_entities.begin();
-            i != all_entities.end(); i++) {
-        entity *e = i->second;
-
-        if (e->g_id == O_RECEIVER) { /* Receiver */
-            std::pair<std::map<int, std::pair<int, int> >::iterator, bool> ret;
-            std::pair<int, int> data = std::make_pair(1, 0);
-            ret = frequencies.insert(std::pair<int, std::pair<int, int> >((int)e->properties[0].v.i, data));
-
-            if (!ret.second) {
-                ((ret.first)->second).first += 1;
-            }
-        } else if (e->g_id == O_TRANSMITTER || e->g_id == O_MINI_TRANSMITTER) { /* (Mini) Transmitter */
-            std::pair<std::map<int, std::pair<int, int> >::iterator, bool> ret;
-            std::pair<int, int> data = std::make_pair(0, 1);
-            ret = frequencies.insert(std::pair<int, std::pair<int, int> >((int)e->properties[0].v.i, data));
-
-            if (!ret.second) {
-                ((ret.first)->second).second += 1;
-            }
-        } else if (e->g_id == O_PIXEL && e->properties[4].v.i != 0) {
-            /* Pixel */
-            std::pair<std::map<int, std::pair<int, int> >::iterator, bool> ret;
-            std::pair<int, int> data = std::make_pair(1, 0);
-            ret = frequencies.insert(std::pair<int, std::pair<int, int> >((int)e->properties[4].v.i, data));
-
-            if (!ret.second) {
-                ((ret.first)->second).first += 1;
-            }
-        }
-    }
-
-    for (std::map<int, std::pair<int, int> >::iterator i = frequencies.begin();
-            i != frequencies.end(); ++i) {
-        gtk_list_store_append(GTK_LIST_STORE(frequency_treemodel), &iter);
-        gtk_list_store_set(GTK_LIST_STORE(frequency_treemodel), &iter,
-                FC_FREQUENCY,       i->first,
-                FC_RECEIVERS,       (i->second).first,
-                FC_TRANSMITTERS,    (i->second).second,
-                -1
-                );
-    }
-
-    gtk_widget_grab_focus(GTK_WIDGET(frequency_value));
-}
-
 void activate_open_state(GtkMenuItem *i, gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(open_state_window));
 }
@@ -4264,47 +4004,6 @@ static void on_multi_config_tab_changed(GtkNotebook *nb, GtkWidget *page, gint t
     multi_config_cur_tab = tab_num;
 
     gtk_widget_set_sensitive(GTK_WIDGET(multi_config_apply), (tab_num != TAB_MISCELLANEOUS));
-}
-
-gboolean on_frequency_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, frequency_cancel, user_data)) {
-        gtk_widget_hide(GTK_WIDGET(frequency_window));
-    } else if (btn_pressed(w, frequency_ok, user_data)) {
-        entity *e = G->selection.e;
-
-        if (e && e->is_wireless()) {
-            gtk_spin_button_update(frequency_value);
-
-            e->set_property(0, (uint32_t)gtk_spin_button_get_value(frequency_value));
-            ui::messagef("Frequency set to %u", e->properties[0].v.i);
-
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-
-            gtk_widget_hide(GTK_WIDGET(frequency_window));
-        }
-    }
-
-    return false;
-}
-
-gboolean on_frequency_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    switch (key->keyval) {
-        case GDK_KEY_Escape:
-            gtk_widget_hide(w);
-            return false;
-
-        case GDK_KEY_Return:
-            if (gtk_widget_has_focus(GTK_WIDGET(frequency_cancel)))
-                on_frequency_click(GTK_WIDGET(frequency_cancel), NULL, GINT_TO_POINTER(1));
-            else
-                on_frequency_click(GTK_WIDGET(frequency_ok), NULL, GINT_TO_POINTER(1));
-
-            return true;
-            break;
-    }
-
-    return false;
 }
 
 const gchar* css_global = R"(
@@ -5934,201 +5633,6 @@ int _gtk_loop(void *p) {
         alert_dialog = GTK_MESSAGE_DIALOG(dialog);
     }
 
-    /** --Frequency Dialog **/
-    {
-        frequency_window = new_window_defaults("Set Frequency", &on_frequency_show, &on_frequency_keypress);
-        gtk_window_set_default_size(GTK_WINDOW(frequency_window), 325, 300);
-        gtk_widget_set_size_request(GTK_WIDGET(frequency_window), 325, 300);
-
-        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-
-        frequency_value = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                    GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 0xFFFFFFFF, 1, 1, 0)),
-                    1, 0));
-
-        gtk_box_pack_start(content, new_lbl("<b>Current Frequency:</b>"), false, false, 0);
-        gtk_box_pack_start(content, GTK_WIDGET(frequency_value), false, false, 0);
-
-        gtk_box_pack_start(content, new_lbl("<b>Used Frequencies:</b>"), false, false, 0);
-
-        GtkListStore *store;
-
-        store = gtk_list_store_new(FC_NUM_COLUMNS, G_TYPE_UINT, G_TYPE_UINT, G_TYPE_UINT);
-
-        frequency_treemodel = GTK_TREE_MODEL(store);
-
-        gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), FC_FREQUENCY, GTK_SORT_ASCENDING);
-
-        GtkWidget *view = gtk_tree_view_new_with_model(frequency_treemodel);
-        gtk_tree_view_set_search_column(GTK_TREE_VIEW(view), FC_FREQUENCY);
-        g_signal_connect(view, "row-activated", G_CALLBACK(activate_frequency_row), 0);
-
-        GtkWidget *ew = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
-                      GTK_POLICY_AUTOMATIC,
-                      GTK_POLICY_AUTOMATIC);
-
-        /* Initialize Frequency buttons & button box */
-        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
-        gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
-        gtk_box_set_spacing(GTK_BOX(button_box), 5);
-        frequency_ok = GTK_BUTTON(gtk_button_new_with_label("OK"));
-        frequency_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(frequency_ok, "clicked",
-                G_CALLBACK(on_frequency_click), 0);
-        g_signal_connect(frequency_cancel, "clicked",
-                G_CALLBACK(on_frequency_click), 0);
-
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(frequency_ok));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(frequency_cancel));
-
-        /* Add everything together ????? */
-        gtk_container_add(GTK_CONTAINER(ew), view);
-        gtk_box_pack_start(content, GTK_WIDGET(ew), 1, 1, 0);
-        gtk_box_pack_start(content, GTK_WIDGET(button_box), 0, 0, 0);
-        //gtk_container_add(GTK_CONTAINER(content), GTK_WIDGET(button_box));
-        gtk_container_add(GTK_CONTAINER(frequency_window), GTK_WIDGET(content));
-
-        GtkCellRenderer *renderer;
-        GtkTreeViewColumn *column;
-
-        renderer = GTK_CELL_RENDERER(gtk_cell_renderer_text_new());
-        column = GTK_TREE_VIEW_COLUMN(gtk_tree_view_column_new_with_attributes("Frequency", renderer, "text", FC_FREQUENCY, NULL));
-        gtk_tree_view_column_set_sort_column_id(column, FC_FREQUENCY);
-        gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
-
-        renderer = GTK_CELL_RENDERER(gtk_cell_renderer_text_new());
-        column = GTK_TREE_VIEW_COLUMN(gtk_tree_view_column_new_with_attributes("Receivers", renderer, "text", FC_RECEIVERS, NULL));
-        gtk_tree_view_column_set_sort_column_id(column, FC_RECEIVERS);
-        gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
-
-        renderer = GTK_CELL_RENDERER(gtk_cell_renderer_text_new());
-        column = GTK_TREE_VIEW_COLUMN(gtk_tree_view_column_new_with_attributes("Transmitters", renderer, "text", FC_TRANSMITTERS, NULL));
-        gtk_tree_view_column_set_sort_column_id(column, FC_TRANSMITTERS);
-        gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
-    }
-
-    /** --Frequency range Dialog **/
-    {
-        freq_range_window = new_window_defaults("Set Frequency Range", &on_freq_range_show, &on_freq_range_keypress);
-        gtk_window_set_default_size(GTK_WINDOW(freq_range_window), 325, 300);
-        gtk_widget_set_size_request(GTK_WIDGET(freq_range_window), 325, 300);
-
-        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-
-        GtkBox *tbl_freq_range = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-        gtk_widget_set_halign(GTK_WIDGET(tbl_freq_range), GTK_ALIGN_CENTER);
-        {
-            freq_range_value = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                        GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 0xFFFFFFFF-255, 1, 1, 0)),
-                        1, 0));
-
-            freq_range_offset = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                        GTK_ADJUSTMENT(gtk_adjustment_new(1, 1, 255, 1, 1, 0)),
-                        1, 0));
-
-            gtk_box_pack_start(
-                tbl_freq_range,
-                gtk_label_new("Begin:"),
-                false, false, 0
-            );
-            gtk_box_pack_start(
-                tbl_freq_range,
-                GTK_WIDGET(freq_range_value),
-                false, false, 0
-            );
-
-            gtk_box_pack_start(
-                tbl_freq_range,
-                gtk_label_new("Range:"),
-                false, false, 0
-            );
-            gtk_box_pack_start(
-                tbl_freq_range,
-                GTK_WIDGET(freq_range_offset),
-                false, false, 0
-            );
-        }
-
-        GValue val = {0};
-
-        g_value_init(&val, G_TYPE_BOOLEAN);
-        g_value_set_boolean(&val, TRUE);
-
-        g_object_set_property(G_OBJECT(freq_range_value), "numeric", &val);
-        g_object_set_property(G_OBJECT(freq_range_offset), "numeric", &val);
-
-        g_value_unset(&val);
-
-        g_signal_connect(freq_range_value, "value-changed", G_CALLBACK(freq_range_value_changed), 0);
-        g_signal_connect(freq_range_value, "changed", G_CALLBACK(freq_range_value_text_changed), 0);
-        g_signal_connect(freq_range_offset, "value-changed", G_CALLBACK(freq_range_value_changed), 0);
-        g_signal_connect(freq_range_offset, "changed", G_CALLBACK(freq_range_value_text_changed), 0);
-
-        gtk_box_pack_start(content, GTK_WIDGET(tbl_freq_range), false, false, 0);
-
-        freq_range_info = GTK_LABEL(gtk_label_new("Frequencies: 1-100"));
-        gtk_box_pack_start(content, GTK_WIDGET(freq_range_info), false, false, 0);
-
-        gtk_box_pack_start(content, new_lbl("<b>Used Frequencies:</b>"), false, false, 0);
-
-        GtkListStore *store;
-
-        store = gtk_list_store_new(FC_NUM_COLUMNS, G_TYPE_UINT, G_TYPE_UINT, G_TYPE_UINT);
-
-        freq_range_treemodel = GTK_TREE_MODEL(store);
-
-        gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), FC_FREQUENCY, GTK_SORT_ASCENDING);
-
-        GtkWidget *view = gtk_tree_view_new_with_model(freq_range_treemodel);
-        gtk_tree_view_set_search_column(GTK_TREE_VIEW(view), FC_FREQUENCY);
-        g_signal_connect(view, "row-activated", G_CALLBACK(activate_freq_range_row), 0);
-
-        GtkWidget *ew = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
-                      GTK_POLICY_AUTOMATIC,
-                      GTK_POLICY_AUTOMATIC);
-
-        /* Initialize Frequency buttons & button box */
-        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
-        gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
-        gtk_box_set_spacing(GTK_BOX(button_box), 5);
-        freq_range_ok = GTK_BUTTON(gtk_button_new_with_label("OK"));
-        freq_range_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(freq_range_ok, "clicked",
-                G_CALLBACK(on_freq_range_click), 0);
-        g_signal_connect(freq_range_cancel, "clicked",
-                G_CALLBACK(on_freq_range_click), 0);
-
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(freq_range_ok));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(freq_range_cancel));
-
-        /* Add everything together ????? */
-        gtk_container_add(GTK_CONTAINER(ew), view);
-        gtk_box_pack_start(content, GTK_WIDGET(ew), 1, 1, 0);
-        gtk_box_pack_start(content, GTK_WIDGET(button_box), 0, 0, 0);
-        //gtk_container_add(GTK_CONTAINER(content), GTK_WIDGET(button_box));
-        gtk_container_add(GTK_CONTAINER(freq_range_window), GTK_WIDGET(content));
-
-        GtkCellRenderer *renderer;
-        GtkTreeViewColumn *column;
-
-        renderer = GTK_CELL_RENDERER(gtk_cell_renderer_text_new());
-        column = GTK_TREE_VIEW_COLUMN(gtk_tree_view_column_new_with_attributes("Frequency", renderer, "text", FC_FREQUENCY, NULL));
-        gtk_tree_view_column_set_sort_column_id(column, FC_FREQUENCY);
-        gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
-
-        renderer = GTK_CELL_RENDERER(gtk_cell_renderer_text_new());
-        column = GTK_TREE_VIEW_COLUMN(gtk_tree_view_column_new_with_attributes("Receivers", renderer, "text", FC_RECEIVERS, NULL));
-        gtk_tree_view_column_set_sort_column_id(column, FC_RECEIVERS);
-        gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
-
-        renderer = GTK_CELL_RENDERER(gtk_cell_renderer_text_new());
-        column = GTK_TREE_VIEW_COLUMN(gtk_tree_view_column_new_with_attributes("Transmitters", renderer, "text", FC_TRANSMITTERS, NULL));
-        gtk_tree_view_column_set_sort_column_id(column, FC_TRANSMITTERS);
-        gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
-    }
-
     /** --Multi config **/
     {
         multi_config_window = new_window_defaults("Multi config", &on_multi_config_show);
@@ -7502,17 +7006,6 @@ static gboolean _open_alert_dialog(gpointer unused) {
     return false;
 }
 
-static gboolean _open_frequency_window(gpointer unused) {
-    activate_frequency(NULL, 0);
-    return false;
-}
-
-static gboolean _open_freq_range_window(gpointer unused) {
-    activate_freq_range(NULL, 0);
-
-    return false;
-}
-
 static gboolean _open_pkg_lvl_chooser_window(gpointer unused) {
     gint result = gtk_dialog_run(pkg_lvl_chooser);
 
@@ -8145,11 +7638,9 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(save_window));
     gtk_widget_hide(GTK_WIDGET(properties_dialog));
     gtk_widget_hide(GTK_WIDGET(publish_dialog));
-    gtk_widget_hide(GTK_WIDGET(frequency_window));
     gtk_widget_hide(GTK_WIDGET(settings_dialog));
     gtk_widget_hide(GTK_WIDGET(confirm_quit_dialog));
     gtk_widget_hide(GTK_WIDGET(fxemitter_dialog));
-    gtk_widget_hide(GTK_WIDGET(freq_range_window));
     gtk_widget_hide(GTK_WIDGET(timer_dialog));
     gtk_widget_hide(GTK_WIDGET(escript_window));
     gtk_widget_hide(GTK_WIDGET(synth_dialog));
@@ -8259,7 +7750,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_SANDBOX_MODE:
             UiSandboxMode::open();
             break;
-        case DIALOG_SET_FREQUENCY:  gdk_threads_add_idle(_open_frequency_window, 0); break;
+        case DIALOG_SET_FREQUENCY:
+            UiFrequency::open(false);
+            break;
         case DIALOG_CONFIRM_QUIT:   gdk_threads_add_idle(_open_confirm_quit, 0); break;
         case DIALOG_SET_COMMAND:
             UiCommandPad::open();
@@ -8273,7 +7766,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_SFXEMITTER:     gdk_threads_add_idle(_open_sfx_window, 0); break;
         case DIALOG_SFXEMITTER_2:   gdk_threads_add_idle(_open_sfx2_window, 0); break;
         case DIALOG_CAMTARGETER:    gdk_threads_add_idle(_open_camtargeter_window, 0); break;
-        case DIALOG_SET_FREQ_RANGE: gdk_threads_add_idle(_open_freq_range_window, 0); break;
+        case DIALOG_SET_FREQ_RANGE:
+            UiFrequency::open(true);
+            break;
         case DIALOG_SET_PKG_LEVEL:  gdk_threads_add_idle(_open_pkg_lvl_chooser_window, 0); break;
         case DIALOG_ROBOT:          gdk_threads_add_idle(_open_robot_window, 0); break;
         case DIALOG_TIMER:          gdk_threads_add_idle(_open_timer, 0); break;
@@ -8461,6 +7956,7 @@ void ui::render() {
     UiDecoration::layout();
     UiEmitter::layout();
     UiCommandPad::layout();
+    UiFrequency::layout();
 
     imgui_driver.post_render();
 #endif

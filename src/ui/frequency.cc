@@ -1,18 +1,19 @@
 #include "entity.hh"
+#include "game.hh"
 #include "imgui.hh"
+#include "main.hh"
 #include "object_factory.hh"
+#include "ui.hh"
 #include "world.hh"
 #include <map>
 
 namespace UiFrequency {
-    static uint32_t __always_zero = 0;
-
     static bool do_open = false;
     static bool range = false;
 
     static bool this_is_tx = false;
-    static uint32_t* this_freq_range_start;
-    static uint32_t* this_freq_range_size;
+    static uint32_t freq_range_start;
+    static int freq_range_size;
 
     typedef struct {
         bool is_tx;
@@ -42,6 +43,7 @@ namespace UiFrequency {
             //usr is not fully inited~
             return std::pair<FreqUsr, bool>(usr, false);
         }
+
         return std::pair<FreqUsr, bool>(usr, true);
     }
 
@@ -54,17 +56,38 @@ namespace UiFrequency {
             entity *e = i->second;
 
             auto x = freq_user(e);
-            if (!x.second) continue;
+            if (!x.second)
+                continue;
 
             const FreqUsr &usr = x.first;
             for (uint32_t f = usr.range_start; f <= usr.range_end; ++f) {
-                if (usr.is_tx) freq_counts[f].first++;
-                else freq_counts[f].second++;
+                if (usr.is_tx)
+                    freq_counts[f].first++;
+                else
+                    freq_counts[f].second++;
             }
         }
     }
 
-    void open(bool is_range, entity *e) {
+    void apply_properties() {
+        entity *e = G->selection.e;
+
+        if (e) {
+            e->properties[0].v.i = freq_range_start;
+            if (e->g_id == O_BROADCASTER) {
+                e->properties[1].v.i = freq_range_size;
+                ui::messagef("Frequency set to %u (+%u)", freq_range_start, freq_range_size);
+            } else
+                ui::messagef("Frequency set to %u", freq_range_start);
+
+            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
+            P.add_action(ACTION_RESELECT, 0);
+        }
+        ImGui::CloseCurrentPopup();
+    }
+
+    void open(bool is_range) {
+        entity *e = G->selection.e;
         do_open = true;
 
         range = is_range;
@@ -74,29 +97,32 @@ namespace UiFrequency {
             (e->g_id == O_MINI_TRANSMITTER) ||
             (e->g_id == O_BROADCASTER);
 
-        this_freq_range_start = (e->g_id == O_PIXEL) ? &e->properties[4].v.i : &e->properties[0].v.i;
-        this_freq_range_size = range ? &e->properties[1].v.i : &__always_zero;
+        freq_range_start = e->properties[0].v.i;
+        freq_range_size = e->properties[1].v.i;
 
         update_freq_space();
     }
 
     void layout() {
         handle_do_open(&do_open, "Frequency");
+
         ImGui_CenterNextWindow();
         if (ImGui::BeginPopupModal("Frequency", REF_TRUE, MODAL_FLAGS)) {
-            ImGui::DragInt("Frequency", (int*) this_freq_range_start, .1, 0, 10000);
-            (*this_freq_range_size)++;
-            if (range) ImGui::SliderInt("Range", (int*) this_freq_range_size, 1, 30);
-            (*this_freq_range_size)--;
+            unsigned int max_freq = 4294967040; // 2^32 - 256
+            ImGui::DragScalar("Frequency", ImGuiDataType_U32, &freq_range_start, .1, 0, &max_freq);
+            freq_range_size++;
+            if (range)
+                ImGui::SliderInt("Range", &freq_range_size, 1, 255, "%d", ImGuiSliderFlags_AlwaysClamp);
+            freq_range_size--;
 
             ImGui::Text(
                 range ? "%s on frequencies: %d-%d" : "%s on frequency: %d",
                 this_is_tx ? "Transmitting" : "Listening",
-                *this_freq_range_start,
-                *this_freq_range_start + *this_freq_range_size
+                freq_range_start,
+                freq_range_start + freq_range_size
             );
 
-            ImVec2 size = ImVec2(0., 200.);
+            ImVec2 size = ImVec2(0., 250.);
             if (ImGui::BeginChild(ImGui::GetID("###x-table-frame"), size, ImGuiChildFlags_NavFlattened, FRAME_FLAGS)) {
                 const auto &counts = freq_counts;
 
@@ -120,6 +146,17 @@ namespace UiFrequency {
                 }
             }
             ImGui::EndChild();
+
+            ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+            if (ImGui::Button("Save"))
+                apply_properties();
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel"))
+                ImGui::CloseCurrentPopup();
+
             ImGui::EndPopup();
         }
     }
