@@ -513,10 +513,6 @@ GtkComboBox     *key_listener_cb;
 GtkDialog       *item_dialog;
 GtkComboBoxText *item_cb;
 
-/** --Resource **/
-GtkDialog       *resource_dialog;
-GtkComboBoxText *resource_cb;
-
 /** --Vendor **/
 GtkDialog       *vendor_dialog;
 GtkSpinButton   *vendor_amount;
@@ -1708,17 +1704,6 @@ void on_item_show(GtkWidget *wdg, void *ununused) {
         }
 
         gtk_combo_box_set_active(GTK_COMBO_BOX(item_cb), e->properties[0].v.i);
-    }
-}
-
-/** --Resource **/
-void on_resource_show(GtkWidget *wdg, void *ununused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_RESOURCE) {
-        if (e->properties[0].v.i8 >= NUM_RESOURCES) e->properties[0].v.i8 = NUM_RESOURCES-1;
-
-        gtk_combo_box_set_active(GTK_COMBO_BOX(resource_cb), e->properties[0].v.i8);
     }
 }
 
@@ -4864,25 +4849,6 @@ int _gtk_loop(void *p) {
         item_dialog = dialog;
     }
 
-    /** --Resource **/
-    {
-        dialog = new_dialog_defaults("Resource", &on_resource_show);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-
-        resource_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-        for (int x=0; x<NUM_RESOURCES; x++) {
-            gtk_combo_box_text_append_text(resource_cb, resource_data[x].name);
-        }
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Resource type</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(resource_cb), false, false, 10);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        resource_dialog = dialog;
-    }
-
     /** --Vendor **/
     {
         dialog = new_dialog_defaults("Vendor", &on_vendor_show);
@@ -7305,27 +7271,6 @@ static gboolean _open_faction(gpointer unused) {
     return false;
 }
 
-/** --Resource **/
-static gboolean _open_resource(gpointer unused) {
-    GtkDialog *d = resource_dialog;
-
-    gint result = gtk_dialog_run(d);
-
-	if (result == GTK_RESPONSE_ACCEPT) {
-		entity *e = G->selection.e;
-
-		if (e && e->g_id == O_RESOURCE) {
-			((resource*)e)->set_resource_type((uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(resource_cb)));
-			P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-			P.add_action(ACTION_RESELECT, 0);
-		}
-	}
-
-    gtk_widget_hide(GTK_WIDGET(d));
-
-    return false;
-}
-
 /** --Vendor **/
 static gboolean _open_vendor(gpointer unused) {
     GtkDialog *d = vendor_dialog;
@@ -7688,7 +7633,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiDecoration::open();
             break;
         case DIALOG_SET_FACTION:    gdk_threads_add_idle(_open_faction, 0); break;
-        case DIALOG_RESOURCE:       gdk_threads_add_idle(_open_resource, 0); break;
+        case DIALOG_RESOURCE:
+            UiResource::open();
+            break;
         case DIALOG_VENDOR:         gdk_threads_add_idle(_open_vendor, 0); break;
         case DIALOG_FACTORY:        gdk_threads_add_idle(_open_factory, 0); break;
         case DIALOG_TREASURE_CHEST: gdk_threads_add_idle(_open_treasure_chest, 0); break;
@@ -7864,6 +7811,7 @@ void ui::render() {
     UiFrequency::layout();
     UiPkgLvlSelector::layout();
     UiEventListener::layout();
+    UiResource::layout();
 
     imgui_driver.post_render();
 #endif
