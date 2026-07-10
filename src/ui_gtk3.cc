@@ -520,10 +520,6 @@ GtkEntry       *publish_name;
 GtkTextView    *publish_descr;
 GtkCheckButton *publish_locked;
 
-/** --Command pad **/
-GtkDialog       *command_pad_dialog;
-GtkComboBoxText *command_pad_cb;
-
 /** --Key Listener **/
 GtkDialog       *key_listener_dialog;
 GtkListStore    *key_listener_ls;
@@ -1126,41 +1122,6 @@ void activate_frequency(GtkMenuItem *i, gpointer unused) {
 /** --Confirm Quit Dialog **/
 void on_confirm_quit_show(GtkWidget *wdg, gpointer unused) {
     gtk_widget_grab_focus(GTK_WIDGET(confirm_btn_quit));
-}
-
-/** --Command pad **/
-void on_command_pad_show(GtkWidget *wdg, void *ununused) {
-    char tmp[64];
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_COMMAND_PAD) {
-        command *pad = static_cast<command*>(e);
-        int cmd = pad->get_command();
-        switch (cmd) {
-            case COMMAND_STOP:      strcpy(tmp, "Stop"); break;
-            case COMMAND_STARTSTOP: strcpy(tmp, "Start/Stop toggle"); break;
-            case COMMAND_LEFT:      strcpy(tmp, "Left"); break;
-            case COMMAND_RIGHT:     strcpy(tmp, "Right"); break;
-            case COMMAND_LEFTRIGHT: strcpy(tmp, "Left/Right toggle"); break;
-            case COMMAND_JUMP:      strcpy(tmp, "Jump"); break;
-            case COMMAND_AIM:       strcpy(tmp, "Aim"); break;
-            case COMMAND_ATTACK:    strcpy(tmp, "Attack"); break;
-            case COMMAND_LAYERUP:   strcpy(tmp, "Layer up"); break;
-            case COMMAND_LAYERDOWN: strcpy(tmp, "Layer down"); break;
-            case COMMAND_INCRSPEED: strcpy(tmp, "Increase speed"); break;
-            case COMMAND_DECRSPEED: strcpy(tmp, "Decrease speed"); break;
-            case COMMAND_SETSPEED:  strcpy(tmp, "Set speed"); break;
-            case COMMAND_HEALTH:    strcpy(tmp, "Full health"); break;
-            default:                strcpy(tmp, "Stop"); break;
-        }
-
-        gint index = find_cb_val(command_pad_cb, tmp);
-        if (index != -1) {
-            gtk_combo_box_set_active(GTK_COMBO_BOX(command_pad_cb), index);
-        } else {
-            tms_infof("unknown index");
-        }
-    }
 }
 
 /** --Frequency range Dialog **/
@@ -5088,34 +5049,6 @@ int _gtk_loop(void *p) {
         /* TODO: add key-press-events to everything but the cancel-button */
     }
 
-    /** --Command pad **/
-    {
-        command_pad_dialog = new_dialog_defaults("Set command", &on_command_pad_show);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(command_pad_dialog));
-
-        command_pad_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-        gtk_combo_box_text_append_text(command_pad_cb, "Stop");
-        gtk_combo_box_text_append_text(command_pad_cb, "Start/Stop toggle");
-        gtk_combo_box_text_append_text(command_pad_cb, "Left");
-        gtk_combo_box_text_append_text(command_pad_cb, "Right");
-        gtk_combo_box_text_append_text(command_pad_cb, "Left/Right toggle");
-        gtk_combo_box_text_append_text(command_pad_cb, "Jump");
-        gtk_combo_box_text_append_text(command_pad_cb, "Aim");
-        gtk_combo_box_text_append_text(command_pad_cb, "Attack");
-        gtk_combo_box_text_append_text(command_pad_cb, "Layer up");
-        gtk_combo_box_text_append_text(command_pad_cb, "Layer down");
-        gtk_combo_box_text_append_text(command_pad_cb, "Increase speed");
-        gtk_combo_box_text_append_text(command_pad_cb, "Decrease speed");
-        gtk_combo_box_text_append_text(command_pad_cb, "Set speed");
-        gtk_combo_box_text_append_text(command_pad_cb, "Full health");
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Command</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(command_pad_cb), false, false, 10);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
     /** --Key Listener **/
     {
         dialog = new_dialog_defaults("Key Listener", &on_key_listener_show);
@@ -7782,59 +7715,6 @@ static gboolean _open_multi_config(gpointer unused) {
     return false;
 }
 
-static gboolean _open_command_pad_window(gpointer unused) {
-    gint result = gtk_dialog_run(command_pad_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_COMMAND_PAD) {
-            command *pad = static_cast<command*>(e);
-            char tmp[64];
-
-            strcpy(tmp, get_cb_val(command_pad_cb));
-            if (strcmp(tmp, "Stop") == 0)
-                pad->set_command(COMMAND_STOP);
-            else if (strcmp(tmp, "Start/Stop toggle") == 0)
-                pad->set_command(COMMAND_STARTSTOP);
-            else if (strcmp(tmp, "Left") == 0)
-                pad->set_command(COMMAND_LEFT);
-            else if (strcmp(tmp, "Right") == 0)
-                pad->set_command(COMMAND_RIGHT);
-            else if (strcmp(tmp, "Left/Right toggle") == 0)
-                pad->set_command(COMMAND_LEFTRIGHT);
-            else if (strcmp(tmp, "Jump") == 0)
-                pad->set_command(COMMAND_JUMP);
-            else if (strcmp(tmp, "Aim") == 0)
-                pad->set_command(COMMAND_AIM);
-            else if (strcmp(tmp, "Attack") == 0)
-                pad->set_command(COMMAND_ATTACK);
-            else if (strcmp(tmp, "Layer up") == 0)
-                pad->set_command(COMMAND_LAYERUP);
-            else if (strcmp(tmp, "Layer down") == 0)
-                pad->set_command(COMMAND_LAYERDOWN);
-            else if (strcmp(tmp, "Increase speed") == 0)
-                pad->set_command(COMMAND_INCRSPEED);
-            else if (strcmp(tmp, "Decrease speed") == 0)
-                pad->set_command(COMMAND_DECRSPEED);
-            else if (strcmp(tmp, "Set speed") == 0)
-                pad->set_command(COMMAND_SETSPEED);
-            else if (strcmp(tmp, "Full health") == 0)
-                pad->set_command(COMMAND_HEALTH);
-            else
-                tms_infof("unknown command: %s", tmp);
-
-            ui::message("Command pad properties saved!");
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(command_pad_dialog));
-
-    return false;
-}
-
 static gboolean _open_digi_window(gpointer unused) {
     gint result = gtk_dialog_run(digi_dialog);
 
@@ -8268,7 +8148,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(frequency_window));
     gtk_widget_hide(GTK_WIDGET(settings_dialog));
     gtk_widget_hide(GTK_WIDGET(confirm_quit_dialog));
-    gtk_widget_hide(GTK_WIDGET(command_pad_dialog));
     gtk_widget_hide(GTK_WIDGET(fxemitter_dialog));
     gtk_widget_hide(GTK_WIDGET(freq_range_window));
     gtk_widget_hide(GTK_WIDGET(timer_dialog));
@@ -8382,7 +8261,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             break;
         case DIALOG_SET_FREQUENCY:  gdk_threads_add_idle(_open_frequency_window, 0); break;
         case DIALOG_CONFIRM_QUIT:   gdk_threads_add_idle(_open_confirm_quit, 0); break;
-        case DIALOG_SET_COMMAND:    gdk_threads_add_idle(_open_command_pad_window, 0); break;
+        case DIALOG_SET_COMMAND:
+            UiCommandPad::open();
+            break;
         case DIALOG_STICKY:
             UiSticky::open();
             break;
@@ -8579,6 +8460,7 @@ void ui::render() {
     UiJumper::layout();
     UiDecoration::layout();
     UiEmitter::layout();
+    UiCommandPad::layout();
 
     imgui_driver.post_render();
 #endif
