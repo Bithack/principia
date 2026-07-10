@@ -637,13 +637,6 @@ enum {
 GtkDialog       *faction_dialog;
 GtkComboBoxText *faction_cb;
 
-/** --Sticky **/
-GtkDialog       *sticky_dialog;
-GtkTextView     *sticky_text;
-GtkSpinButton   *sticky_font_size;
-GtkCheckButton  *sticky_center_x;
-GtkCheckButton  *sticky_center_y;
-
 /** --Digital Display **/
 GtkDialog       *digi_dialog;
 GtkCheckButton  *digi_wrap;
@@ -1487,41 +1480,6 @@ void on_digi_show(GtkWidget *wdg, void *unused) {
             gtk_widget_set_sensitive(GTK_WIDGET(digi_wrap), false);
         else
             gtk_widget_set_sensitive(GTK_WIDGET(digi_wrap), true);
-    }
-}
-
-/** --Sticky **/
-void on_sticky_show(GtkWidget *wdg, void *ununused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_STICKY_NOTE) {
-        GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(sticky_text);
-        gtk_text_buffer_set_text(text_buffer, e->properties[0].v.s.buf, -1);
-        gtk_spin_button_set_value(sticky_font_size, e->properties[3].v.i8);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sticky_center_x), (bool) e->properties[1].v.i8);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sticky_center_y), (bool) e->properties[2].v.i8);
-    }
-}
-
-#define MAX_BUFFER_LENGTH 255
-
-void sticky_text_changed(GtkTextBuffer *buffer, void *unused) {
-    GtkTextIter start, end;
-    char *text;
-
-    gtk_text_buffer_get_bounds(buffer, &start, &end);
-    text = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
-    int len = strlen(text);
-
-    if (len > MAX_BUFFER_LENGTH-1) {
-        gtk_text_buffer_get_iter_at_offset(buffer,
-                &start,
-                MAX_BUFFER_LENGTH-1);
-        gtk_text_buffer_get_iter_at_offset(buffer,
-                &end,
-                MAX_BUFFER_LENGTH);
-
-        gtk_text_buffer_delete(buffer, &start, &end);
     }
 }
 
@@ -5450,47 +5408,6 @@ int _gtk_loop(void *p) {
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
-    /** --Sticky **/
-    {
-        sticky_dialog = new_dialog_defaults("Sticky note", &on_sticky_show);
-
-        gtk_widget_set_size_request(GTK_WIDGET(sticky_dialog), 450, 250);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(sticky_dialog));
-        gtk_box_set_spacing(GTK_BOX(content), 7);
-
-        sticky_text = GTK_TEXT_VIEW(gtk_text_view_new());
-        GtkTextBuffer *tbuf = gtk_text_view_get_buffer(sticky_text);
-        g_signal_connect(G_OBJECT(tbuf), "changed", G_CALLBACK(sticky_text_changed), 0);
-
-        GtkBox *spin = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
-        sticky_font_size = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                    GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 3, 1, 1, 0)),
-                    1, 0));
-
-        GtkBox *align = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-
-        GtkBox *params = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-
-        sticky_center_x = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Center horizontally"));
-        sticky_center_y = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Center vertically"));
-
-        gtk_box_pack_start(GTK_BOX(spin), new_lbl("Font size"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(spin), GTK_WIDGET(sticky_font_size), false, false, 0);
-
-        gtk_box_pack_start(GTK_BOX(align), GTK_WIDGET(sticky_center_x), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(align), GTK_WIDGET(sticky_center_y), false, false, 0);
-
-        gtk_box_pack_start(GTK_BOX(params), GTK_WIDGET(spin), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(params), GTK_WIDGET(align), false, false, 0);
-
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(params), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), new_clbl("<b>Sticky text:</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(sticky_text), true, true, 0);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
     /** --Item **/
     {
         dialog = new_dialog_defaults("Item", &on_item_show);
@@ -8241,32 +8158,6 @@ static gboolean _open_digi_window(gpointer unused) {
     return false;
 }
 
-static gboolean _open_sticky_window(gpointer unused) {
-    gint result = gtk_dialog_run(sticky_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-        if (e && e->g_id == O_STICKY_NOTE) {
-            e->properties[1].v.i8 = (uint8_t) gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sticky_center_x));
-            e->properties[2].v.i8 = (uint8_t) gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sticky_center_y));
-            e->properties[3].v.i8 = gtk_spin_button_get_value(sticky_font_size);
-        }
-        GtkTextIter start, end;
-        GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(sticky_text);
-        char *text;
-
-        gtk_text_buffer_get_bounds(text_buffer, &start, &end);
-
-        text = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
-
-        P.add_action(ACTION_SET_STICKY_TEXT, text);
-    }
-
-    gtk_widget_hide(GTK_WIDGET(sticky_dialog));
-
-    return false;
-}
-
 static gboolean _open_fxemitter_window(gpointer unused) {
     gint result = gtk_dialog_run(fxemitter_dialog);
 
@@ -8688,7 +8579,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(settings_dialog));
     gtk_widget_hide(GTK_WIDGET(confirm_quit_dialog));
     gtk_widget_hide(GTK_WIDGET(command_pad_dialog));
-    gtk_widget_hide(GTK_WIDGET(sticky_dialog));
     gtk_widget_hide(GTK_WIDGET(fxemitter_dialog));
     gtk_widget_hide(GTK_WIDGET(freq_range_window));
     gtk_widget_hide(GTK_WIDGET(timer_dialog));
@@ -8800,7 +8690,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_SET_FREQUENCY:  gdk_threads_add_idle(_open_frequency_window, 0); break;
         case DIALOG_CONFIRM_QUIT:   gdk_threads_add_idle(_open_confirm_quit, 0); break;
         case DIALOG_SET_COMMAND:    gdk_threads_add_idle(_open_command_pad_window, 0); break;
-        case DIALOG_STICKY:         gdk_threads_add_idle(_open_sticky_window, 0); break;
+        case DIALOG_STICKY:
+            UiSticky::open();
+            break;
         case DIALOG_DIGITALDISPLAY: gdk_threads_add_idle(_open_digi_window, 0); break;
         case DIALOG_FXEMITTER:      gdk_threads_add_idle(_open_fxemitter_window, 0); break;
         case DIALOG_EVENTLISTENER:  gdk_threads_add_idle(_open_elistener_window, 0); break;
@@ -8988,6 +8880,7 @@ void ui::render() {
     UiObjColorPicker::layout();
     UiPolygon::layout();
     UiVariable::layout();
+    UiSticky::layout();
 
     imgui_driver.post_render();
 #endif
