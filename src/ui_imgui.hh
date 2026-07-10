@@ -40,3 +40,4 @@ namespace UiJumper          { void open(); void layout(); }
 namespace UiEmitter         { void open(); void layout(); }
 namespace UiCommandPad      { void open(); void layout(); }
 namespace UiPkgLvlSelector  { void open(); void layout(); }
+namespace UiEventListener   { void open(); void layout(); }

@@ -599,10 +599,6 @@ GtkComboBoxText *sfx2_sub_cb;
 GtkCheckButton  *sfx2_global;
 GtkCheckButton  *sfx2_loop;
 
-/** --Event listener  **/
-GtkDialog       *elistener_dialog;
-GtkComboBoxText *elistener_cb;
-
 /** --Cam targeter **/
 GtkDialog       *camtargeter_dialog;
 GtkComboBoxText *camtargeter_mode;
@@ -2039,17 +2035,6 @@ void on_tchest_show(GtkWidget *wdg, void *ununused) {
                 TCHEST_COLUMN_COUNT, tci.count,
                 -1
                 );
-    }
-}
-
-/** --Event listener **/
-void on_elistener_show(GtkWidget *wdg, void *ununused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_EVENT_LISTENER) {
-        if (e->properties[0].v.i >= WORLD_EVENT__NUM) e->properties[0].v.i = WORLD_EVENT__NUM-1;
-
-        gtk_combo_box_set_active(GTK_COMBO_BOX(elistener_cb), e->properties[0].v.i);
     }
 }
 
@@ -5257,29 +5242,6 @@ int _gtk_loop(void *p) {
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
-    /** --Event listener dialog **/
-    {
-        elistener_dialog = new_dialog_defaults("Event listener", &on_elistener_show);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(elistener_dialog));
-
-        elistener_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-        gtk_combo_box_text_append_text(elistener_cb, "Player die");
-        gtk_combo_box_text_append_text(elistener_cb, "Enemy die");
-        gtk_combo_box_text_append_text(elistener_cb, "Interactive object destroyed");
-        gtk_combo_box_text_append_text(elistener_cb, "Player respawn");
-        gtk_combo_box_text_append_text(elistener_cb, "Touch/Mouse Click");
-        gtk_combo_box_text_append_text(elistener_cb, "Touch/Mouse Release");
-        gtk_combo_box_text_append_text(elistener_cb, "Any absorber activated");
-        gtk_combo_box_text_append_text(elistener_cb, "Level completed");
-        gtk_combo_box_text_append_text(elistener_cb, "Game over");
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Event</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(elistener_cb), false, false, 10);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
     /** --FX Emitter **/
     {
         fxemitter_dialog = new_dialog_defaults("FX Emitter", &on_fxemitter_show);
@@ -7525,22 +7487,6 @@ static gboolean _open_treasure_chest(gpointer unused) {
     return false;
 }
 
-static gboolean _open_elistener_window(gpointer unused) {
-    gint result = gtk_dialog_run(elistener_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_EVENT_LISTENER) {
-            e->set_property(0, (uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(elistener_cb)));
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(elistener_dialog));
-
-    return false;
-}
-
 /** --Cam targeter **/
 static gboolean _open_camtargeter_window(gpointer unused) {
     gint result = gtk_dialog_run(camtargeter_dialog);
@@ -7717,7 +7663,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             break;
         case DIALOG_DIGITALDISPLAY: gdk_threads_add_idle(_open_digi_window, 0); break;
         case DIALOG_FXEMITTER:      gdk_threads_add_idle(_open_fxemitter_window, 0); break;
-        case DIALOG_EVENTLISTENER:  gdk_threads_add_idle(_open_elistener_window, 0); break;
+        case DIALOG_EVENTLISTENER:
+            UiEventListener::open();
+            break;
         case DIALOG_SFXEMITTER:     gdk_threads_add_idle(_open_sfx_window, 0); break;
         case DIALOG_SFXEMITTER_2:   gdk_threads_add_idle(_open_sfx2_window, 0); break;
         case DIALOG_CAMTARGETER:    gdk_threads_add_idle(_open_camtargeter_window, 0); break;
@@ -7915,6 +7863,7 @@ void ui::render() {
     UiCommandPad::layout();
     UiFrequency::layout();
     UiPkgLvlSelector::layout();
+    UiEventListener::layout();
 
     imgui_driver.post_render();
 #endif
