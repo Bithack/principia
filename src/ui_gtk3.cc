@@ -824,13 +824,6 @@ GtkButton       *sequencer_save;
 GtkButton       *sequencer_cancel;
 int              sequencer_num_steps;
 
-/** --Jumper **/
-GtkDialog       *jumper_dialog;
-GtkRange        *jumper_value;
-GtkEntry        *jumper_value_entry;
-GtkButton       *jumper_save;
-GtkButton       *jumper_cancel;
-
 /** --Shape extruder **/
 GtkDialog       *shapeextruder_dialog;
 GtkRange        *shapeextruder_right;
@@ -1646,74 +1639,6 @@ static void on_escript_mark_set(GtkTextBuffer *buffer, const GtkTextIter *new_lo
     gtk_statusbar_push(escript_statusbar, 0, msg);
 
     g_free(msg);
-}
-
-/** --Jumper **/
-gboolean on_jumper_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    switch (key->keyval) {
-        case GDK_KEY_Escape:
-            gtk_dialog_response(jumper_dialog, GTK_RESPONSE_CANCEL);
-            break;
-
-        case GDK_KEY_Return:
-            if (!gtk_widget_has_focus(GTK_WIDGET(jumper_cancel))) {
-                gtk_dialog_response(jumper_dialog, GTK_RESPONSE_ACCEPT);
-            }
-            break;
-    }
-
-    return false;
-}
-
-void on_jumper_show(GtkWidget *wdg, void *unused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_JUMPER) {
-        gtk_range_set_value(jumper_value, e->properties[0].v.f);
-        char tmp[8];
-        sprintf(tmp, "%.5f", e->properties[0].v.f);
-        gtk_entry_set_text(jumper_value_entry, tmp);
-
-        gtk_widget_grab_focus(GTK_WIDGET(jumper_value_entry));
-    }
-}
-
-void jumper_value_changed(GtkRange *range, void *unused) {
-    if (gtk_widget_has_focus(GTK_WIDGET(range))) {
-        char tmp[8];
-        sprintf(tmp, "%.5f", gtk_range_get_value(range));
-        gtk_entry_set_text(jumper_value_entry, tmp);
-    }
-}
-
-void jumper_value_entry_changed(GtkEditable *editable, void *unused) {
-    if (gtk_widget_has_focus(GTK_WIDGET(editable))) {
-        float v = atof(gtk_editable_get_chars(editable, 0, -1));
-        if (v < 0.f) {
-            v = 0.f;
-            char tmp[8];
-            sprintf(tmp, "%.5f", v);
-            gtk_entry_set_text(jumper_value_entry, tmp);
-            gtk_editable_set_position(editable, 0);
-        } else if (v > 1.f) {
-            v = 1.f;
-            char tmp[8];
-            sprintf(tmp, "%.5f", v);
-            gtk_entry_set_text(jumper_value_entry, tmp);
-            gtk_editable_set_position(editable, 0);
-        }
-        gtk_range_set_value(GTK_RANGE(jumper_value), v);
-    }
-}
-
-void jumper_value_entry_insert_text(GtkEditable *editable, gchar *new_text,
-        gint new_text_length, gpointer position, gpointer *user_data) {
-    for (int n=0; n<new_text_length; ++n) {
-        if (!isdigit(new_text[n]) && new_text[n] != '.' && new_text[n] != ',') {
-            g_signal_stop_emission_by_name(editable, "insert-text");
-            break;
-        }
-    }
 }
 
 /** --Key Listener **/
@@ -6919,53 +6844,6 @@ int _gtk_loop(void *p) {
         community_dialog = dialog;
     }
 
-    /** --Jumper **/
-    {
-        jumper_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-            "Jumper",
-            0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-            NULL, NULL
-        ));
-
-        apply_dialog_defaults(jumper_dialog, on_jumper_show, on_jumper_keypress);
-
-        jumper_save = GTK_BUTTON(gtk_dialog_add_button(
-            jumper_dialog,
-            "_Save", GTK_RESPONSE_ACCEPT
-        ));
-        jumper_cancel = GTK_BUTTON(gtk_dialog_add_button(
-            jumper_dialog,
-            "_Cancel", GTK_RESPONSE_CANCEL
-        ));
-
-        gtk_widget_set_size_request(GTK_WIDGET(jumper_dialog), 350, -1);
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(jumper_dialog));
-
-        GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-
-        jumper_value = GTK_RANGE(gtk_scale_new(
-            GTK_ORIENTATION_HORIZONTAL,
-            GTK_ADJUSTMENT(gtk_adjustment_new(0.0, 0.0, 1.0, 0.001, 0.1, 0.0))
-        ));
-        gtk_scale_set_digits(GTK_SCALE(jumper_value), 4);
-
-        g_signal_connect(jumper_value, "value-changed", G_CALLBACK(jumper_value_changed), 0);
-
-        jumper_value_entry = GTK_ENTRY(gtk_entry_new());
-        gtk_entry_set_width_chars(jumper_value_entry, 7);
-
-        g_signal_connect(jumper_value_entry, "changed", G_CALLBACK(jumper_value_entry_changed), 0);
-        g_signal_connect(jumper_value_entry, "insert-text", G_CALLBACK(jumper_value_entry_insert_text), 0);
-
-        gtk_scale_set_draw_value(GTK_SCALE(jumper_value), false);
-
-        gtk_box_pack_start(GTK_BOX(hbox), new_clbl("Value"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(jumper_value), true, true, 0);
-        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(jumper_value_entry), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(hbox), false, false, 0);
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
     /** --cursorfield **/
     {
         cursorfield_dialog = new_dialog_defaults("Cursor field", &on_cursorfield_show);
@@ -7900,30 +7778,6 @@ static gboolean _open_sequencer(gpointer unused) {
     return false;
 }
 
-/** --Jumper **/
-static gboolean _open_jumper(gpointer unused) {
-    gint result = gtk_dialog_run(jumper_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_JUMPER) {
-            float v = gtk_range_get_value(jumper_value);
-            if (v < 0.f) v = 0.f;
-            else if (v > 1.f) v = 1.f;
-            e->properties[0].v.f = v;
-
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-            ((jumper*)e)->update_color();
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(jumper_dialog));
-
-    return false;
-}
-
 /** --cursorfield **/
 static gboolean _open_cursorfield(gpointer unused) {
     gint result = gtk_dialog_run(cursorfield_dialog);
@@ -8587,7 +8441,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(prompt_settings_dialog));
     gtk_widget_hide(GTK_WIDGET(shapeextruder_dialog));
     gtk_widget_hide(GTK_WIDGET(cursorfield_dialog));
-    gtk_widget_hide(GTK_WIDGET(jumper_dialog));
     gtk_widget_hide(GTK_WIDGET(autosave_dialog));
     gtk_widget_hide(GTK_WIDGET(community_dialog));
     gtk_widget_hide(GTK_WIDGET(published_dialog));
@@ -8657,7 +8510,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_SHAPEEXTRUDER:  gdk_threads_add_idle(_open_shapeextruder, 0); break;
         case DIALOG_CURSORFIELD:    gdk_threads_add_idle(_open_cursorfield, 0); break;
         case DIALOG_ESCRIPT:        gdk_threads_add_idle(_open_escript, 0); break;
-        case DIALOG_JUMPER:         gdk_threads_add_idle(_open_jumper, 0); break;
+        case DIALOG_JUMPER:
+            UiJumper::open();
+            break;
         case DIALOG_BEAM_COLOR:
         case DIALOG_PIXEL_COLOR:
         case DIALOG_POLYGON_COLOR:
@@ -8881,6 +8736,7 @@ void ui::render() {
     UiPolygon::layout();
     UiVariable::layout();
     UiSticky::layout();
+    UiJumper::layout();
 
     imgui_driver.post_render();
 #endif

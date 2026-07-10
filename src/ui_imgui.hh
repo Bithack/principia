@@ -36,3 +36,4 @@ namespace UiPolygon         { void open(); void layout(); }
 namespace UiRubber          { void open(); void layout(); }
 namespace UiDecoration      { void open(); void layout(); }
 namespace UiVariable        { void open(); void layout(); }
+namespace UiJumper          { void open(); void layout(); }
