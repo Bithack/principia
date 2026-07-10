@@ -7,7 +7,6 @@
 #include "adventure.hh"
 #include "anchor.hh"
 #include "command.hh"
-#include "decorations.hh"
 #include "display.hh"
 #include "escript.hh"
 #include "faction.hh"
@@ -15,7 +14,6 @@
 #include "fxemitter.hh"
 #include "game.hh"
 #include "item.hh"
-#include "jumper.hh"
 #include "key_listener.hh"
 #include "main.hh"
 #include "menu-play.hh"
@@ -51,14 +49,6 @@ static gboolean _sig_ui_ready(gpointer unused);
 
 typedef std::map<int, std::pair<int, int> > freq_container;
 
-enum {
-    LF_MENU,
-    LF_ITEM,
-    LF_DECORATION,
-
-    NUM_LF
-};
-
 /* open window columns */
 enum {
     OC_ID,
@@ -87,19 +77,6 @@ enum {
     FC_NUM_COLUMNS
 };
 
-enum {
-    RESPONSE_PUZZLE,
-    RESPONSE_ADVENTURE,
-    RESPONSE_PROCEDURAL_ADVENTURE,
-    RESPONSE_CUSTOM,
-};
-
-enum {
-    RESPONSE_CONN_EDIT,
-    RESPONSE_MULTISEL,
-    RESPONSE_DRAW,
-};
-
 typedef struct {
     uint32_t id;
     gchar   *name;
@@ -107,30 +84,6 @@ typedef struct {
 } oc_column;
 
 GtkDialog *cur_prompt = 0;
-
-enum mark_type {
-    MARK_ENTITY,
-    MARK_POSITION,
-    MARK_PLAYER,
-};
-
-struct goto_mark {
-    mark_type type;
-    const char *label;
-    uint32_t id;
-    tvec2 pos;
-    GtkMenuItem *menuitem;
-    guint key;
-
-    goto_mark(mark_type _type, const char *_label, uint32_t _id, tvec2 _pos)
-        : type(_type)
-        , label(_label)
-        , id(_id)
-        , pos(_pos)
-        , menuitem(0)
-        , key(0)
-    { }
-};
 
 static guint valid_keys[9] = {
     GDK_KEY_1,
@@ -579,10 +532,6 @@ GtkComboBox     *key_listener_cb;
 /** --Item **/
 GtkDialog       *item_dialog;
 GtkComboBoxText *item_cb;
-
-/** --Decoration **/
-GtkDialog       *decoration_dialog;
-GtkComboBoxText *decoration_cb;
 
 /** --Resource **/
 GtkDialog       *resource_dialog;
@@ -1994,17 +1943,6 @@ void on_item_show(GtkWidget *wdg, void *ununused) {
         }
 
         gtk_combo_box_set_active(GTK_COMBO_BOX(item_cb), e->properties[0].v.i);
-    }
-}
-
-/** --Decoration **/
-void on_decoration_show(GtkWidget *wdg, void *ununused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_DECORATION) {
-        if (e->properties[0].v.i >= NUM_DECORATIONS) e->properties[0].v.i = NUM_DECORATIONS-1;
-
-        gtk_combo_box_set_active(GTK_COMBO_BOX(decoration_cb), e->properties[0].v.i);
     }
 }
 
@@ -5350,37 +5288,6 @@ int _gtk_loop(void *p) {
         item_dialog = dialog;
     }
 
-    /** --Decoration **/
-    {
-        dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Decoration",
-                0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                "_OK", GTK_RESPONSE_ACCEPT,
-                "_Cancel", GTK_RESPONSE_REJECT,
-                NULL));
-
-        apply_dialog_defaults(dialog);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-
-        decoration_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-        for (int x=0; x<NUM_DECORATIONS; x++) {
-            gtk_combo_box_text_append_text(decoration_cb, decorations[x].name);
-        }
-
-        GtkWidget *t = gtk_label_new(0);
-        gtk_label_set_markup(GTK_LABEL(t), "<b>Decoration type</b>");
-        gtk_box_pack_start(GTK_BOX(content), t, false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(decoration_cb), false, false, 10);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        g_signal_connect(dialog, "show", G_CALLBACK(on_decoration_show), 0);
-        g_signal_connect(dialog, "delete-event", G_CALLBACK(on_window_close), 0);
-
-        decoration_dialog = dialog;
-    }
-
     /** --Resource **/
     {
         dialog = new_dialog_defaults("Resource", &on_resource_show);
@@ -8103,28 +8010,6 @@ static gboolean _open_item(gpointer unused) {
     return false;
 }
 
-/** --Decoration **/
-static gboolean _open_decoration(gpointer unused) {
-    GtkDialog *d = decoration_dialog;
-
-    gint result = gtk_dialog_run(d);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_DECORATION) {
-            ((decoration*)e)->set_decoration_type((uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(decoration_cb)));
-            ((decoration*)e)->do_recreate_shape = true;
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(d));
-
-    return false;
-}
-
 /** --Key Listener **/
 static gboolean _open_key_listener(gpointer unused) {
     gint result = gtk_dialog_run(key_listener_dialog);
@@ -8565,7 +8450,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiVariable::open();
             break;
         case DIALOG_ITEM:           gdk_threads_add_idle(_open_item, 0); break;
-        case DIALOG_DECORATION:     gdk_threads_add_idle(_open_decoration, 0); break;
+        case DIALOG_DECORATION:
+            UiDecoration::open();
+            break;
         case DIALOG_SET_FACTION:    gdk_threads_add_idle(_open_faction, 0); break;
         case DIALOG_RESOURCE:       gdk_threads_add_idle(_open_resource, 0); break;
         case DIALOG_VENDOR:         gdk_threads_add_idle(_open_vendor, 0); break;
@@ -8737,6 +8624,7 @@ void ui::render() {
     UiVariable::layout();
     UiSticky::layout();
     UiJumper::layout();
+    UiDecoration::layout();
 
     imgui_driver.post_render();
 #endif
