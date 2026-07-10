@@ -247,6 +247,7 @@
 	#include "ui/animal.cc"
 	#include "ui/confirm.cc"
 	#include "ui/decoration.cc"
+	#include "ui/emitter.cc"
 	#include "ui/frequency.cc"
 	#include "ui/jumper.cc"
 	#include "ui/level_manager.cc"

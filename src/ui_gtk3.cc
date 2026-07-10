@@ -644,10 +644,6 @@ GtkDialog       *error_dialog;
 GtkLabel        *error_text;
 char            *_pass_error_text;
 
-/** --Emitter **/
-GtkDialog       *emitter_dialog;
-GtkScale       *emitter_auto_absorb;
-
 /** --Confirm Dialog **/
 GtkDialog       *confirm_dialog;
 GtkLabel        *confirm_text;
@@ -2281,15 +2277,6 @@ void on_elistener_show(GtkWidget *wdg, void *ununused) {
         if (e->properties[0].v.i >= WORLD_EVENT__NUM) e->properties[0].v.i = WORLD_EVENT__NUM-1;
 
         gtk_combo_box_set_active(GTK_COMBO_BOX(elistener_cb), e->properties[0].v.i);
-    }
-}
-
-/** --Emitter **/
-void on_emitter_show(GtkWidget *wdg, void *ununused) {
-    entity *e = G->selection.e;
-
-    if (e && (e->g_id == O_EMITTER || e->g_id == O_MINI_EMITTER)) {
-        gtk_range_set_value(GTK_RANGE(emitter_auto_absorb), (double)e->properties[6].v.f);
     }
 }
 
@@ -5646,20 +5633,6 @@ int _gtk_loop(void *p) {
         tchest_dialog = dialog;
     }
 
-    /** --Emitter **/
-    {
-        emitter_dialog = new_dialog_defaults("Emitter options", &on_emitter_show);
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(emitter_dialog));
-
-        emitter_auto_absorb = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.0f, 60.f, 0.5f));
-        g_signal_connect(emitter_auto_absorb, "format-value", G_CALLBACK(format_auto_absorb), 0);
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Absorb entity after emitting</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(emitter_auto_absorb), false, false, 10);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
     /** --SFX Emitter dialog **/
     {
         sfx_dialog = new_dialog_defaults("SFX Emitter", &on_sfx_show);
@@ -7584,28 +7557,6 @@ static gboolean _open_confirm_dialog(gpointer unused) {
     return false;
 }
 
-/** --Emitter **/
-static gboolean _open_emitter_dialog(gpointer unused) {
-    int result = gtk_dialog_run(emitter_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && (e->g_id == O_EMITTER || e->g_id == O_MINI_EMITTER)) {
-            e->properties[6].v.f = gtk_range_get_value(GTK_RANGE(emitter_auto_absorb));
-
-            ui::message("Emitter properties saved!");
-
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(emitter_dialog));
-
-    return false;
-}
-
 /** --Alert Dialog **/
 static gboolean _open_alert_dialog(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(alert_dialog));
@@ -8420,7 +8371,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
 
         case DIALOG_OPEN_OBJECT:    gdk_threads_add_idle(_open_object_dialog, 0); break;
         case DIALOG_MULTIEMITTER:   gdk_threads_add_idle(_open_multiemitter_dialog, 0); break;
-        case DIALOG_EMITTER:        gdk_threads_add_idle(_open_emitter_dialog, 0); break;
+        case DIALOG_EMITTER:
+            UiEmitter::open();
+            break;
         case DIALOG_NEW_LEVEL:
             UiNewLevel::open();
             break;
@@ -8625,6 +8578,7 @@ void ui::render() {
     UiSticky::layout();
     UiJumper::layout();
     UiDecoration::layout();
+    UiEmitter::layout();
 
     imgui_driver.post_render();
 #endif
