@@ -3438,7 +3438,7 @@ game::render()
 
     if (this->selection.e != 0) {
         entity *e = this->selection.e;
-        if (e->flag_active(ENTITY_IS_RESIZABLE)) {
+        if (W->is_paused() && e->flag_active(ENTITY_IS_RESIZABLE)) {
             this->render_shape_resize();
         }
     }
@@ -9516,7 +9516,7 @@ game::check_click_shape_resize(int x, int y)
 {
     tms_debugf("check click shape resize");
 
-    if (this->selection.e && this->selection.e->flag_active(ENTITY_IS_RESIZABLE)) {
+    if (W->is_paused() && this->selection.e && this->selection.e->flag_active(ENTITY_IS_RESIZABLE)) {
         tms_debugf("checking");
         entity *e = this->selection.e;
         b2PolygonShape *sh = e->get_resizable_shape();
