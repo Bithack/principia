@@ -780,14 +780,6 @@ GtkDialog       *confirm_upgrade_dialog;
 GtkDialog       *pkg_lvl_chooser;
 GtkSpinButton   *pkg_lvl_chooser_lvl_id;
 
-/** --Variable chooser **/
-GtkWindow       *variable_dialog;
-GtkEntry        *variable_name;
-GtkButton       *variable_reset_this;
-GtkButton       *variable_reset_all;
-GtkButton       *variable_ok;
-GtkButton       *variable_cancel;
-
 /** --Robot **/
 GtkWindow       *robot_window;
 GtkButton       *robot_btn_ok;
@@ -2049,71 +2041,6 @@ gboolean on_prompt_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_dat
     return false;
 }
 
-/** --Variable Chooser **/
-gboolean on_variable_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, variable_cancel, user_data)) {
-        gtk_widget_hide(GTK_WIDGET(variable_dialog));
-    } else if (btn_pressed(w, variable_ok, user_data)) {
-        entity *e = G->selection.e;
-
-        if (e && (e->g_id == O_VAR_SETTER || e->g_id == O_VAR_GETTER)) {
-            const char *vn = gtk_entry_get_text(variable_name);
-
-            if (strlen(vn) && strlen(vn) <= 50) {
-                char var_name[51];
-
-                int i = 0;
-                for (int x=0; x<strlen(vn); ++x) {
-                    if (isalnum(vn[x]) || vn[x] == '_' || vn[x] == '-') {
-                        var_name[i++] = vn[x];
-                    }
-                }
-                var_name[i] = '\0';
-
-                if (strlen(var_name)) {
-                    e->set_property(0, var_name);
-                    ui::messagef("Variable name '%s' saved.", var_name);
-                    P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-                    P.add_action(ACTION_RESELECT, 0);
-                    gtk_widget_hide(GTK_WIDGET(variable_dialog));
-                } else
-                    ui::message("The variable name must contain at least one 'a-z0-9-_'-character.");
-            } else
-                ui::message("The variable name must contain at least one 'a-z0-9-_'-character.");
-        }
-    } else if (btn_pressed(w, variable_reset_this, user_data)) {
-        const char *vn = gtk_entry_get_text(variable_name);
-        std::map<std::string, float>::size_type num_deleted = W->level_variables.erase(vn);
-        if (num_deleted != 0) {
-            W->save_cache(W->level_id_type, W->level.local_id);
-            ui::messagef("Successfully deleted data for variable '%s'", vn);
-        } else
-            ui::messagef("No data found for variable '%s'", vn);
-
-    } else if (btn_pressed(w, variable_reset_all, user_data)) {
-        W->level_variables.clear();
-        if (W->save_cache(W->level_id_type, W->level.local_id))
-            ui::message("All level-specific variables cleared.");
-        else
-            ui::message("Unable to delete level-specific variables.");
-    }
-
-    return false;
-}
-
-gboolean on_variable_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape)
-        gtk_widget_hide(w);
-    else if (key->keyval == GDK_KEY_Return) {
-        if (gtk_widget_has_focus(GTK_WIDGET(variable_cancel)))
-            on_variable_btn_click(GTK_WIDGET(variable_cancel), NULL, GINT_TO_POINTER(1));
-        else
-            on_variable_btn_click(GTK_WIDGET(variable_ok), NULL, GINT_TO_POINTER(1));
-    }
-
-    return false;
-}
-
 /** --SFX Emitter **/
 void on_sfx_show(GtkWidget *wdg, void *ununused) {
     entity *e = G->selection.e;
@@ -2709,15 +2636,6 @@ void on_pkg_lvl_chooser_show(GtkWidget *wdg, void *unused) {
     entity *e = G->selection.e;
     if (e && (e->g_id == O_PKG_WARP || e->g_id == O_PKG_STATUS))
         gtk_spin_button_set_value(pkg_lvl_chooser_lvl_id, e->properties[0].v.i8);
-}
-
-void on_variable_show(GtkWidget *wdg, void *unused) {
-    entity *e = G->selection.e;
-
-    if (e && (e->g_id == O_VAR_GETTER || e->g_id == O_VAR_SETTER)) {
-        gtk_entry_set_text(variable_name, e->properties[0].v.s.buf);
-        gtk_widget_grab_focus(GTK_WIDGET(variable_name));
-    }
 }
 
 void on_object_show(GtkWidget *wdg, void *unused) {
@@ -4870,63 +4788,6 @@ int _gtk_loop(void *p) {
         gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(spin), 0, 0, 0);
 
         gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
-    /** --Variable chooser **/
-    {
-        variable_dialog = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-        gtk_container_set_border_width(GTK_CONTAINER(variable_dialog), 10);
-        gtk_window_set_default_size(GTK_WINDOW(variable_dialog), 400, 400);
-        gtk_widget_set_size_request(GTK_WIDGET(variable_dialog), 400, 400);
-        gtk_window_set_title(GTK_WINDOW(variable_dialog), "Variable chooser");
-        apply_dialog_defaults(variable_dialog, on_variable_show, on_variable_keypress);
-        gtk_window_set_resizable(GTK_WINDOW(variable_dialog), false);
-
-        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-        GtkBox *inner_content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-
-        GtkWidget *l;
-        GtkBox *hb;
-
-        hb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-        l = gtk_label_new("Variable:");
-        variable_name = GTK_ENTRY(gtk_entry_new());
-        gtk_entry_set_max_length(variable_name, 255);
-        gtk_entry_set_activates_default(variable_name, true);
-        gtk_box_pack_start(hb, l, false, false, 0);
-        gtk_box_pack_start(hb, GTK_WIDGET(variable_name), false, false, 0);
-        gtk_box_pack_start(inner_content, GTK_WIDGET(hb), false, false, 0);
-
-        hb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-
-        /* Reset this */
-        variable_reset_this = GTK_BUTTON(gtk_button_new_with_label("Reset this variable"));
-        g_signal_connect(variable_reset_this, "clicked", G_CALLBACK(on_variable_btn_click), 0);
-        /* Reset all */
-        variable_reset_all = GTK_BUTTON(gtk_button_new_with_label("Reset all"));
-        g_signal_connect(variable_reset_all, "clicked", G_CALLBACK(on_variable_btn_click), 0);
-        /* Ok */
-        variable_ok = GTK_BUTTON(gtk_button_new_with_label("Save"));
-        g_signal_connect(variable_ok, "clicked", G_CALLBACK(on_variable_btn_click), 0);
-        /* Cancel */
-        variable_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(variable_cancel, "clicked", G_CALLBACK(on_variable_btn_click), 0);
-
-        gtk_box_pack_start(hb, GTK_WIDGET(variable_reset_this), false, false, 0);
-        gtk_box_pack_start(hb, GTK_WIDGET(variable_reset_all), false, false, 0);
-        gtk_box_pack_start(inner_content, GTK_WIDGET(hb), false, false, 0);
-
-        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
-        gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
-        gtk_box_set_spacing(GTK_BOX(button_box), 5);
-
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(variable_ok));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(variable_cancel));
-
-        gtk_box_pack_start(content, GTK_WIDGET(inner_content), 1, 1, 0);
-        gtk_box_pack_start(content, GTK_WIDGET(button_box), 0, 0, 0);
-
-        gtk_container_add(GTK_CONTAINER(variable_dialog), GTK_WIDGET(content));
     }
 
     /** --Save and Save as copy **/
@@ -8292,12 +8153,6 @@ static gboolean _open_multi_config(gpointer unused) {
     return false;
 }
 
-static gboolean _open_variable_window(gpointer unused) {
-    gtk_widget_show_all(GTK_WIDGET(variable_dialog));
-
-    return false;
-}
-
 static gboolean _open_command_pad_window(gpointer unused) {
     gint result = gtk_dialog_run(command_pad_dialog);
 
@@ -8959,7 +8814,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_SYNTHESIZER:    gdk_threads_add_idle(_open_synth, 0); break;
         case DIALOG_SEQUENCER:      gdk_threads_add_idle(_open_sequencer, 0); break;
         case DIALOG_SETTINGS:       gdk_threads_add_idle(_open_settings, 0); break;
-        case DIALOG_VARIABLE:       gdk_threads_add_idle(_open_variable_window, 0); break;
+        case DIALOG_VARIABLE:
+            UiVariable::open();
+            break;
         case DIALOG_ITEM:           gdk_threads_add_idle(_open_item, 0); break;
         case DIALOG_DECORATION:     gdk_threads_add_idle(_open_decoration, 0); break;
         case DIALOG_SET_FACTION:    gdk_threads_add_idle(_open_faction, 0); break;
@@ -9130,6 +8987,7 @@ void ui::render() {
     UiRubber::layout();
     UiObjColorPicker::layout();
     UiPolygon::layout();
+    UiVariable::layout();
 
     imgui_driver.post_render();
 #endif
