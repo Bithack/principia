@@ -678,10 +678,6 @@ GtkButton       *confirm_btn_quit;
 /** --Level upgrade Dialog **/
 GtkDialog       *confirm_upgrade_dialog;
 
-/** --Package level chooser **/
-GtkDialog       *pkg_lvl_chooser;
-GtkSpinButton   *pkg_lvl_chooser_lvl_id;
-
 /** --Robot **/
 GtkWindow       *robot_window;
 GtkButton       *robot_btn_ok;
@@ -2201,13 +2197,6 @@ void on_publish_show(GtkWidget *wdg, void *unused) {
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(publish_locked), W->level.visibility == LEVEL_LOCKED);
 
     free(current_descr);
-}
-
-
-void on_pkg_lvl_chooser_show(GtkWidget *wdg, void *unused) {
-    entity *e = G->selection.e;
-    if (e && (e->g_id == O_PKG_WARP || e->g_id == O_PKG_STATUS))
-        gtk_spin_button_set_value(pkg_lvl_chooser_lvl_id, e->properties[0].v.i8);
 }
 
 void on_object_show(GtkWidget *wdg, void *unused) {
@@ -4239,23 +4228,6 @@ int _gtk_loop(void *p) {
         add_text_column(open_treeview, "Name", OC_NAME);
         add_text_column(open_treeview, "Version", OC_VERSION);
         add_text_column(open_treeview, "Modified", OC_DATE);
-    }
-
-    /** --Package level chooser **/
-    {
-        pkg_lvl_chooser = new_dialog_defaults("Set level ID", &on_pkg_lvl_chooser_show);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(pkg_lvl_chooser));
-
-        GtkBox *spin = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
-        pkg_lvl_chooser_lvl_id = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                    GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 255, 1, 1, 0)),
-                    1, 0));
-        gtk_box_pack_start(GTK_BOX(spin), GTK_WIDGET(gtk_label_new("Level ID:")), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(spin), GTK_WIDGET(pkg_lvl_chooser_lvl_id), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(spin), 0, 0, 0);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
     }
 
     /** --Save and Save as copy **/
@@ -7006,23 +6978,6 @@ static gboolean _open_alert_dialog(gpointer unused) {
     return false;
 }
 
-static gboolean _open_pkg_lvl_chooser_window(gpointer unused) {
-    gint result = gtk_dialog_run(pkg_lvl_chooser);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && (e->g_id == O_PKG_WARP || e->g_id == O_PKG_STATUS)) {
-            e->properties[0].v.i8 = gtk_spin_button_get_value(pkg_lvl_chooser_lvl_id);
-            tms_infof("New lvl id: %d", e->properties[0].v.i8);
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(pkg_lvl_chooser));
-
-    return false;
-}
-
 static gboolean _open_robot_window(gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(robot_window));
     return false;
@@ -7769,7 +7724,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_SET_FREQ_RANGE:
             UiFrequency::open(true);
             break;
-        case DIALOG_SET_PKG_LEVEL:  gdk_threads_add_idle(_open_pkg_lvl_chooser_window, 0); break;
+        case DIALOG_SET_PKG_LEVEL:
+            UiPkgLvlSelector::open();
+            break;
         case DIALOG_ROBOT:          gdk_threads_add_idle(_open_robot_window, 0); break;
         case DIALOG_TIMER:          gdk_threads_add_idle(_open_timer, 0); break;
         case DIALOG_SYNTHESIZER:    gdk_threads_add_idle(_open_synth, 0); break;
@@ -7957,6 +7914,7 @@ void ui::render() {
     UiEmitter::layout();
     UiCommandPad::layout();
     UiFrequency::layout();
+    UiPkgLvlSelector::layout();
 
     imgui_driver.post_render();
 #endif
