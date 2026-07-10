@@ -7628,7 +7628,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_VARIABLE:
             UiVariable::open();
             break;
-        case DIALOG_ITEM:           gdk_threads_add_idle(_open_item, 0); break;
+        case DIALOG_ITEM:
+            UiItem::open();
+            break;
         case DIALOG_DECORATION:
             UiDecoration::open();
             break;
@@ -7812,6 +7814,7 @@ void ui::render() {
     UiPkgLvlSelector::layout();
     UiEventListener::layout();
     UiResource::layout();
+    UiItem::layout();
 
     imgui_driver.post_render();
 #endif
