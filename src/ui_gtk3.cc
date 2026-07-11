@@ -638,9 +638,6 @@ GtkDialog       *tips_dialog;
 GtkLabel        *tips_text;
 GtkCheckButton  *tips_hide;
 
-/** --Autosave Dialog **/
-GtkDialog       *autosave_dialog;
-
 /** --Settings **/
 GtkDialog       *settings_dialog;
 
@@ -5221,27 +5218,6 @@ int _gtk_loop(void *p) {
         camtargeter_dialog = dialog;
     }
 
-    /** --Autosave Dialog **/
-    {
-        dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Autosave prompt",
-                0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-                "Open", GTK_RESPONSE_YES,
-                "Remove", GTK_RESPONSE_NO,
-                NULL));
-
-        apply_dialog_defaults(dialog);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-
-        GtkWidget *l = gtk_label_new("Autosave file detected. Open or remove?");
-        gtk_box_pack_start(GTK_BOX(content), l, false, false, 0);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        autosave_dialog = dialog;
-    }
-
     /** --Tips Dialog **/
     {
         tips_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
@@ -6646,19 +6622,6 @@ static gboolean _open_object_dialog(gpointer unused) {
     return false;
 }
 
-static gboolean _open_autosave(gpointer unused) {
-    gtk_widget_hide(GTK_WIDGET(autosave_dialog));
-    gint result = gtk_dialog_run(autosave_dialog);
-    gtk_widget_hide(GTK_WIDGET(autosave_dialog));
-
-    if (result == GTK_RESPONSE_YES)
-        P.add_action(ACTION_OPEN_AUTOSAVE, 0);
-    else if (result == GTK_RESPONSE_NO)
-        P.add_action(ACTION_REMOVE_AUTOSAVE, 0);
-
-    return false;
-}
-
 static gboolean _open_tips_dialog(gpointer unused) {
     do {
          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tips_hide), settings["hide_tips"]->v.b);
@@ -7337,7 +7300,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(prompt_settings_dialog));
     gtk_widget_hide(GTK_WIDGET(shapeextruder_dialog));
     gtk_widget_hide(GTK_WIDGET(cursorfield_dialog));
-    gtk_widget_hide(GTK_WIDGET(autosave_dialog));
     gtk_widget_hide(GTK_WIDGET(community_dialog));
     gtk_widget_hide(GTK_WIDGET(published_dialog));
     //if (cur_prompt) gtk_widget_hide(GTK_WIDGET(cur_prompt));
@@ -7394,7 +7356,6 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             break;
 
         case DIALOG_LEVEL_PROPERTIES:   gdk_threads_add_idle(_open_level_properties, 0); break;
-        case DIALOG_OPEN_AUTOSAVE:  gdk_threads_add_idle(_open_autosave, 0); break;
         case DIALOG_EXPORT:         gdk_threads_add_idle(_open_export, 0); break;
         case DIALOG_PLAY_MENU:
             UiPlayMenu::open();

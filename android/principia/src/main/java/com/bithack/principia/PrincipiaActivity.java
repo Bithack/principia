@@ -1,6 +1,5 @@
 package com.bithack.principia;
 
-import com.bithack.principia.shared.AutosaveDialog;
 import com.bithack.principia.shared.CamTargeterDialog;
 import com.bithack.principia.shared.ColorChooserDialog;
 import com.bithack.principia.shared.CommandPadDialog;
@@ -622,7 +621,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_OPEN_OBJECT:        d = (new ImportDialog(false)).get_dialog(); break;
         case DIALOG_TIMER:              d = TimerDialog.get_dialog(); break;
         case DIALOG_PLAY_MENU:          d = (PlayDialog.create_dialog()); break;
-        case DIALOG_OPEN_AUTOSAVE:      d = (new AutosaveDialog()).get_dialog(); break;
         case DIALOG_COMMUNITY:          d = (new CommunityDialog()).get_dialog(); break;
         case DIALOG_PROMPT_SETTINGS:    d = PromptSettingsDialog.get_dialog(); break;
         case DIALOG_PROMPT:             d = (new PromptDialog()).get_dialog(); break;
