@@ -93,6 +93,8 @@ static struct PFont im_load_ttf(const char *path, float size_pixels) {
 struct PFont ui_font;
 struct PFont ui_font_mono;
 
+float imgui_ui_scale = 1.f;
+
 static void load_fonts() {
     //TODO free existing fonts
 
@@ -109,8 +111,7 @@ static void update_imgui_ui_scale() {
     float scale_factor = settings["uiscale"]->v.f;
     float content_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     ImGui::GetStyle().ScaleAllSizes(scale_factor * content_scale);
-
-    //ImGui::GetIO().FontGlobalScale = roundf(9. * scale_factor) / 9.;
+    imgui_ui_scale = scale_factor * content_scale;
 }
 
 static void principia_style() {

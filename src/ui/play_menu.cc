@@ -12,15 +12,15 @@ namespace UiPlayMenu {
     void layout() {
         handle_do_open(&do_open, "play_menu");
         if (ImGui::BeginPopup("play_menu", POPUP_FLAGS)) {
-            if (ImGui::MenuItem("Controls")) {
+            if (ImGui::MenuItem("Controls"))
                 G->render_controls = true;
-            }
-            if (ImGui::MenuItem("Restart")) {
+
+            if (ImGui::MenuItem("Restart"))
                 P.add_action(ACTION_RESTART_LEVEL, 0);
-            }
-            if (ImGui::MenuItem("Back")) {
+
+            if (ImGui::MenuItem("Back"))
                 P.add_action(ACTION_BACK, 0);
-            }
+
             ImGui::EndMenu();
         }
     }

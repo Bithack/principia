@@ -45,15 +45,7 @@ namespace UiResource {
                 ImGui::EndCombo();
             }
 
-            ImGui::Dummy(ImVec2(0.0f, 5.0f));
-
-            if (ImGui::Button("Save", ImVec2(80, 0)))
-                apply_properties();
-
-            ImGui::SameLine();
-
-            if (ImGui::Button("Cancel", ImVec2(80, 0)))
-                ImGui::CloseCurrentPopup();
+            ImGui_ButtonBar(apply_properties);
 
             ImGui::EndPopup();
         }

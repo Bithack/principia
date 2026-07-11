@@ -55,14 +55,10 @@ namespace UiSave {
                 ImGuiInputTextFlags_EnterReturnsTrue
             );
 
-            ImGui::Dummy(ImVec2(0.0f, 5.0f));
+            ImGui_ButtonBar(apply_properties);
 
-            if (ImGui::Button("Save", ImVec2(80, 0)) || activate)
+            if (activate)
                 apply_properties();
-
-            ImGui::SameLine();
-            if (ImGui::Button("Cancel", ImVec2(80, 0)))
-                ImGui::CloseCurrentPopup();
 
             ImGui::EndPopup();
         }

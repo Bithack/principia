@@ -51,13 +51,13 @@ namespace UiLogin {
             bool req_pass_len = password.length() > 0;
 
             if (ImGui::BeginTable("layout", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_BordersInnerV)) {
-                ImGui::TableSetupColumn("Left", ImGuiTableColumnFlags_WidthFixed, 250.0f);
+                ImGui::TableSetupColumn("Left", ImGuiTableColumnFlags_WidthFixed, UI(175.0f));
                 ImGui::TableSetupColumn("Right", ImGuiTableColumnFlags_WidthStretch);
 
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
 
-                ImGui::BeginChild("left_panel", ImVec2(250, 125), false);
+                ImGui::BeginChild("left_panel", UI(175, 110), false);
 
                 if (ImGui::IsWindowAppearing()) {
                     ImGui::SetKeyboardFocusHere();
@@ -72,7 +72,7 @@ namespace UiLogin {
                 activate |= ImGui::InputTextWithHint("###password", "Password", &password,
                     ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_Password);
 
-                ImGui::Dummy(ImVec2(0.0f, 5.0f));
+                ImGui::Dummy(UI(0.0f, 5.0f));
 
                 bool can_submit =
                     (login_status != LoginStatus::LoggingIn) &&
@@ -80,7 +80,7 @@ namespace UiLogin {
                     (req_pass_len && req_username_len);
 
                 ImGui::BeginDisabled(!can_submit);
-                if (ImGui::Button("Log in", ImVec2(120, 0)) || (can_submit && activate))
+                if (ImGui::Button("Log in", UI(100, 0)) || (can_submit && activate))
                     do_login();
 
                 ImGui::EndDisabled();
@@ -93,16 +93,17 @@ namespace UiLogin {
 
                 ImGui::EndChild();
                 ImGui::TableSetColumnIndex(1);
-                ImGui::BeginChild("right_panel", ImVec2(200, 135), false);
+                ImGui::BeginChild("right_panel", UI(140, 110), false);
 
-                ImGui::BeginChild("register_text", ImVec2(200, 70), false);
+                ImGui::BeginChild("register_text", UI(140, 55), false);
                 ImGui::TextWrapped("Don't have an account?\n\nRegister one and join the Principia community!");
                 ImGui::EndChild();
 
-                ImGui::Dummy(ImVec2(0.0f, 5.0f));
+                ImGui::Dummy(UI(0.0f, 5.0f));
 
-                float button_width = 120.0f;
+                float button_width = UI(100.0f);
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - button_width) * 0.5f);
+                // already scaled
                 if (ImGui::Button("Register", ImVec2(button_width, 0))) {
                     COMMUNITY_URL("register");
                     ui::open_url(url);

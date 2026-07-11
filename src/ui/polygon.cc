@@ -32,7 +32,7 @@ namespace UiPolygon {
 
     void layout() {
         handle_do_open(&do_open, "Polygon");
-        ImGui::SetNextWindowSize(ImVec2(350, 0));
+        ImGui::SetNextWindowSize(UI(300, 0));
 
         ImGui_CenterNextWindow();
         if (ImGui::BeginPopupModal("Polygon", REF_TRUE, MODAL_FLAGS)) {
@@ -44,15 +44,7 @@ namespace UiPolygon {
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip("Sublayer depth from front instead of back");
 
-            ImGui::Dummy(ImVec2(0.0f, 5.0f));
-
-            if (ImGui::Button("Save", ImVec2(80, 0)))
-                apply_properties();
-
-            ImGui::SameLine();
-
-            if (ImGui::Button("Cancel", ImVec2(80, 0)))
-                ImGui::CloseCurrentPopup();
+            ImGui_ButtonBar(apply_properties);
 
             ImGui::EndPopup();
         }

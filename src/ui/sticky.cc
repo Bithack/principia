@@ -44,16 +44,9 @@ namespace UiSticky {
 
             ImGui::SliderInt("Font Size", &font_size, 0, 3, "%d", ImGuiSliderFlags_AlwaysClamp);
             ImGui::SeparatorText("Text");
-            ImGui::InputTextMultiline("##text", &text, ImVec2(300, ImGui::GetTextLineHeight() * 8));
+            ImGui::InputTextMultiline("##text", &text, ImVec2(UI(210), ImGui::GetTextLineHeight() * 8));
 
-            ImGui::Dummy(ImVec2(0.0f, 5.0f));
-
-            if (ImGui::Button("Save", ImVec2(80, 0)))
-                apply_properties();
-
-            ImGui::SameLine();
-            if (ImGui::Button("Cancel", ImVec2(80, 0)))
-                ImGui::CloseCurrentPopup();
+            ImGui_ButtonBar(apply_properties);
 
             ImGui::EndPopup();
         }

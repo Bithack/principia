@@ -40,7 +40,40 @@ struct PFont {
 extern struct PFont ui_font;
 extern struct PFont ui_font_mono;
 
+extern float imgui_ui_scale;
+
 // HELPER FUNCTIONS
+
+inline float UI(float v) {
+    return v * imgui_ui_scale;
+}
+
+inline ImVec2 UI(float x, float y) {
+    return ImVec2(x * imgui_ui_scale, y * imgui_ui_scale);
+}
+
+#define ImGui_ButtonBar(func) \
+	ImGui_ButtonBarPadding(); \
+\
+	if (ImGui_SaveButton()) \
+		func(); \
+\
+	ImGui::SameLine(); \
+\
+	if (ImGui_CancelButton()) \
+		ImGui::CloseCurrentPopup()
+
+inline void ImGui_ButtonBarPadding() {
+	ImGui::Dummy(UI(0.0f, 5.0f));
+}
+
+inline bool ImGui_SaveButton() {
+	return ImGui::Button("Save", UI(70., 0.));
+}
+
+inline bool ImGui_CancelButton() {
+	return ImGui::Button("Cancel", UI(70., 0.));
+}
 
 template<typename ... Args>
 inline std::string string_format(const std::string& format, Args ... args) {
