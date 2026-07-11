@@ -247,6 +247,7 @@
 	#include "ui/animal.cc"
 	#include "ui/command_pad.cc"
 	#include "ui/confirm.cc"
+	#include "ui/cursor_field.cc"
 	#include "ui/decoration.cc"
 	#include "ui/emitter.cc"
 	#include "ui/event_listener.cc"

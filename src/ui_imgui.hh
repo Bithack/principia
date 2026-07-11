@@ -44,3 +44,4 @@ namespace UiEventListener   { void open(); void layout(); }
 namespace UiResource        { void open(); void layout(); }
 namespace UiItem            { void open(); void layout(); }
 namespace UiShapeExtruder   { void open(); void layout(); }
+namespace UiCursorField     { void open(); void layout(); }

@@ -701,13 +701,6 @@ GtkButton       *sequencer_save;
 GtkButton       *sequencer_cancel;
 int              sequencer_num_steps;
 
-/** --cursorfield **/
-GtkDialog       *cursorfield_dialog;
-GtkRange        *cursorfield_right;
-GtkRange        *cursorfield_up;
-GtkRange        *cursorfield_left;
-GtkRange        *cursorfield_down;
-
 /** --escript **/
 GtkWindow       *escript_window;
 GtkWidget       *escript_code;
@@ -1126,18 +1119,6 @@ void on_digi_show(GtkWidget *wdg, void *unused) {
             gtk_widget_set_sensitive(GTK_WIDGET(digi_wrap), false);
         else
             gtk_widget_set_sensitive(GTK_WIDGET(digi_wrap), true);
-    }
-}
-
-/** --cursorfield **/
-void on_cursorfield_show(GtkWidget *wdg, void *unused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_CURSOR_FIELD) {
-        gtk_range_set_value(cursorfield_right, e->properties[0].v.f);
-        gtk_range_set_value(cursorfield_up, e->properties[1].v.f);
-        gtk_range_set_value(cursorfield_left, e->properties[2].v.f);
-        gtk_range_set_value(cursorfield_down, e->properties[3].v.f);
     }
 }
 
@@ -5498,46 +5479,6 @@ int _gtk_loop(void *p) {
         community_dialog = dialog;
     }
 
-    /** --cursorfield **/
-    {
-        cursorfield_dialog = new_dialog_defaults("Cursor field", &on_cursorfield_show);
-
-        gtk_widget_set_size_request(GTK_WIDGET(cursorfield_dialog), 350, -1);
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(cursorfield_dialog));
-
-        GtkGrid *tbl_settings = GTK_GRID(gtk_grid_new());
-        {
-            int y = 0;
-
-            cursorfield_right = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, -3, 3, .1));
-            cursorfield_up = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, -3, 3, .1));
-            cursorfield_left = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, -3, 3, .1));
-            cursorfield_down = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, -3, 3, .1));
-
-            gtk_widget_set_hexpand(GTK_WIDGET(cursorfield_right), true);
-            gtk_widget_set_hexpand(GTK_WIDGET(cursorfield_up), true);
-            gtk_widget_set_hexpand(GTK_WIDGET(cursorfield_left), true);
-            gtk_widget_set_hexpand(GTK_WIDGET(cursorfield_down), true);
-
-            gtk_grid_attach(tbl_settings, new_rlbl("Lower X"), 0, y, 1, 1);
-            gtk_grid_attach(tbl_settings, GTK_WIDGET(cursorfield_left), 1, y, 1, 1);
-            y++;
-
-            gtk_grid_attach(tbl_settings, new_rlbl("Upper X"), 0, y, 1, 1);
-            gtk_grid_attach(tbl_settings, GTK_WIDGET(cursorfield_right), 1, y, 1, 1);
-            y++;
-
-            gtk_grid_attach(tbl_settings, new_rlbl("Lower Y"), 0, y, 1, 1);
-            gtk_grid_attach(tbl_settings, GTK_WIDGET(cursorfield_down), 1, y, 1, 1);
-            y++;
-
-            gtk_grid_attach(tbl_settings, new_rlbl("Upper Y"), 0, y, 1, 1);
-            gtk_grid_attach(tbl_settings, GTK_WIDGET(cursorfield_up), 1, y, 1, 1);
-        }
-
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(tbl_settings), false, false, 0);
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
 
     /** --escript **/
     {
@@ -6313,36 +6254,6 @@ static gboolean _open_sequencer(gpointer unused) {
     return false;
 }
 
-/** --cursorfield **/
-static gboolean _open_cursorfield(gpointer unused) {
-    gint result = gtk_dialog_run(cursorfield_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_CURSOR_FIELD) {
-            e->properties[0].v.f = gtk_range_get_value(cursorfield_right);
-            e->properties[1].v.f = gtk_range_get_value(cursorfield_up);
-            e->properties[2].v.f = gtk_range_get_value(cursorfield_left);
-            e->properties[3].v.f = gtk_range_get_value(cursorfield_down);
-
-            if (e->properties[0].v.f < e->properties[2].v.f) e->properties[0].v.f = e->properties[2].v.f+.5f;
-            if (e->properties[0].v.f > 3.f) {
-                e->properties[0].v.f = 3.f;
-                e->properties[2].v.f = e->properties[0].v.f - .5f;
-            }
-            if (e->properties[1].v.f < e->properties[3].v.f) e->properties[1].v.f = e->properties[1].v.f+.5f;
-            if (e->properties[1].v.f > 3.f) {
-                e->properties[1].v.f = 3.f;
-                e->properties[3].v.f = e->properties[1].v.f - .5f;
-            }
-        }
-    }
-    gtk_widget_hide(GTK_WIDGET(cursorfield_dialog));
-
-    return false;
-}
-
 /** --escript **/
 static gboolean _open_escript(gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(escript_window));
@@ -6838,7 +6749,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(escript_window));
     gtk_widget_hide(GTK_WIDGET(synth_dialog));
     gtk_widget_hide(GTK_WIDGET(prompt_settings_dialog));
-    gtk_widget_hide(GTK_WIDGET(cursorfield_dialog));
     gtk_widget_hide(GTK_WIDGET(community_dialog));
     gtk_widget_hide(GTK_WIDGET(published_dialog));
     //if (cur_prompt) gtk_widget_hide(GTK_WIDGET(cur_prompt));
@@ -6906,7 +6816,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_SHAPEEXTRUDER:
             UiShapeExtruder::open();
             break;
-        case DIALOG_CURSORFIELD:    gdk_threads_add_idle(_open_cursorfield, 0); break;
+        case DIALOG_CURSORFIELD:
+            UiCursorField::open();
+            break;
         case DIALOG_ESCRIPT:        gdk_threads_add_idle(_open_escript, 0); break;
         case DIALOG_JUMPER:
             UiJumper::open();
@@ -7170,6 +7082,7 @@ void ui::render() {
     UiSave::layout();
     UiLevelManager::layout();
     UiShapeExtruder::layout();
+    UiCursorField::layout();
 
     imgui_driver.post_render();
 #endif
