@@ -245,10 +245,13 @@
 
 #if defined(PRINCIPIA_BACKEND_IMGUI) || defined(UI_IMGUI_IN_GTK)
 	#include "ui/animal.cc"
+	#include "ui/command_pad.cc"
 	#include "ui/confirm.cc"
 	#include "ui/decoration.cc"
 	#include "ui/emitter.cc"
+	#include "ui/event_listener.cc"
 	#include "ui/frequency.cc"
+	#include "ui/item.cc"
 	#include "ui/jumper.cc"
 	#include "ui/level_manager.cc"
 	#include "ui/level_properties.cc"
@@ -257,6 +260,7 @@
 	#include "ui/message.cc"
 	#include "ui/new_level.cc"
 	#include "ui/obj_color_picker.cc"
+	#include "ui/pkg_lvl_selector.cc"
 	#include "ui/play_menu.cc"
 	#include "ui/polygon.cc"
 	#include "ui/quickadd.cc"

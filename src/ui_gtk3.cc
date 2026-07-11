@@ -136,13 +136,6 @@ GtkTreeView  *object_treeview;
 GtkButton    *object_btn_open;
 GtkButton    *object_btn_cancel;
 
-/* --Save and Save as copy */
-GtkWindow *save_window;
-GtkEntry  *save_entry;
-GtkLabel  *save_status;
-GtkButton *save_ok;
-GtkButton *save_cancel;
-
 /* --Export */
 GtkWindow *export_window;
 GtkEntry  *export_entry;
@@ -3117,20 +3110,6 @@ gboolean on_open_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
     return false;
 }
 
-gboolean on_lvl_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape) {
-        gtk_widget_hide(GTK_WIDGET(save_window));
-        return true;
-    }
-
-    if (key->keyval == GDK_KEY_Return) {
-        gtk_button_clicked(save_ok);
-        return true;
-    }
-
-    return false;
-}
-
 static void save_setting_row(struct table_setting_row *r) {
     const struct setting_row_type &row = r->row;
 
@@ -3380,59 +3359,6 @@ void on_settings_show(GtkWidget *wdg, void *unused) {
             tms_errorf("Unable to get index for a value we just appended");
         }
     }
-}
-
-/** --Save and Save as copy **/
-void on_save_show(GtkWidget *wdg, void *unused) {
-    char tmp[257];
-    memcpy(tmp, W->level.name, W->level.name_len);
-    tmp[W->level.name_len] = '\0';
-    gtk_entry_set_text(save_entry, tmp);
-
-    gtk_widget_grab_focus(GTK_WIDGET(save_entry));
-}
-
-gboolean on_save_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, save_cancel, user_data)) {
-        gtk_widget_hide(GTK_WIDGET(save_window));
-    } else if (btn_pressed(w, save_ok, user_data)) {
-        if (gtk_entry_get_text_length(save_entry) > 0) {
-            const char *name = gtk_entry_get_text(save_entry);
-            int name_len = strlen(name);
-            if (name_len == 0) {
-                ui::message("Your level must have a name.");
-                return false;
-            }
-            W->level.name_len = name_len;
-            memcpy(W->level.name, name, name_len);
-
-            tms_infof("set level name to %s", name);
-
-            if (save_type == SAVE_COPY)
-                P.add_action(ACTION_SAVE_COPY, 0);
-            else
-                P.add_action(ACTION_SAVE, 0);
-            gtk_widget_hide(GTK_WIDGET(save_window));
-        } else {
-            gtk_label_set_text(save_status, "You must enter a name!");
-        }
-    }
-
-    return false;
-}
-
-gboolean on_save_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape)
-        gtk_widget_hide(GTK_WIDGET(save_window));
-    else if (key->keyval == GDK_KEY_Return) {
-        if (gtk_widget_has_focus(GTK_WIDGET(save_cancel))) {
-            on_save_btn_click(GTK_WIDGET(save_cancel), NULL, GINT_TO_POINTER(1));
-        } else {
-            on_save_btn_click(GTK_WIDGET(save_ok), NULL, GINT_TO_POINTER(1));
-        }
-    }
-
-    return false;
 }
 
 /** --Export **/
@@ -3763,26 +3689,6 @@ void activate_restart_level(GtkMenuItem *i, gpointer unused) {
 
 void activate_back(GtkMenuItem *i, gpointer unused) {
     P.add_action(ACTION_BACK, 0);
-}
-
-void activate_save(GtkMenuItem *i, gpointer unused) {
-    bool ask_for_new_name = false;
-
-    if (W->level.name_len == 0 || strcmp(W->level.name, "<no name>") == 0) {
-        ask_for_new_name = true;
-    }
-
-    if (ask_for_new_name) {
-        save_type = SAVE_REGULAR;
-        gtk_widget_show_all(GTK_WIDGET(save_window));
-    } else {
-        P.add_action(ACTION_SAVE, 0);
-    }
-}
-
-void activate_save_copy(GtkMenuItem *i, gpointer unused) {
-    save_type = SAVE_COPY;
-    gtk_widget_show_all(GTK_WIDGET(save_window));
 }
 
 /* When activate_settings is called normally, userdata is an uint8_t with the value 0.
@@ -4198,57 +4104,6 @@ int _gtk_loop(void *p) {
         add_text_column(open_treeview, "Name", OC_NAME);
         add_text_column(open_treeview, "Version", OC_VERSION);
         add_text_column(open_treeview, "Modified", OC_DATE);
-    }
-
-    /** --Save and Save as copy **/
-    {
-        save_window = new_window_defaults("Save level", &on_save_show, &on_save_keypress);
-        gtk_window_set_default_size(GTK_WINDOW(save_window), 400, 100);
-        gtk_widget_set_size_request(GTK_WIDGET(save_window), 400, 100);
-
-        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-        GtkBox *entries = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-        GtkBox *bottom_content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-
-        /* Name entry */
-        save_entry = GTK_ENTRY(gtk_entry_new());
-        gtk_entry_set_max_length(save_entry, 255);
-        gtk_entry_set_activates_default(save_entry, true);
-
-        /* Name label */
-        gtk_box_pack_start(GTK_BOX(entries), new_lbl("<b>Enter a name for this level</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(entries), GTK_WIDGET(save_entry), false, false, 0);
-
-        /* Buttons and button box */
-        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
-        gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
-        gtk_box_set_spacing(GTK_BOX(button_box), 5);
-
-        /* OK button */
-        save_ok = GTK_BUTTON(gtk_button_new_with_label("Save"));
-        g_signal_connect(save_ok, "clicked",
-                G_CALLBACK(on_save_btn_click), 0);
-
-        /* Cancel button */
-        save_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(save_cancel, "clicked",
-                G_CALLBACK(on_save_btn_click), 0);
-
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(save_ok));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(save_cancel));
-
-        /* Status label */
-        save_status = GTK_LABEL(gtk_label_new(0));
-        gtk_label_set_xalign(GTK_LABEL(save_status), 0.0f);
-        gtk_label_set_yalign(GTK_LABEL(save_status), 0.5f);
-
-        gtk_box_pack_start(bottom_content, GTK_WIDGET(save_status), 1, 1, 0);
-        gtk_box_pack_start(bottom_content, GTK_WIDGET(button_box), 0, 0, 0);
-
-        gtk_box_pack_start(content, GTK_WIDGET(entries), 1, 1, 0);
-        gtk_box_pack_start(content, GTK_WIDGET(bottom_content), 0, 0, 0);
-
-        gtk_container_add(GTK_CONTAINER(save_window), GTK_WIDGET(content));
     }
 
     /** --Export **/
@@ -6673,16 +6528,6 @@ static gboolean _open_level_properties(gpointer unused) {
     return false;
 }
 
-static gboolean _open_save_window(gpointer unused) {
-    activate_save(NULL, 0);
-    return false;
-}
-
-static gboolean _open_save_copy_window(gpointer unused) {
-    activate_save_copy(NULL, 0);
-    return false;
-}
-
 static gboolean _open_publish_dialog(gpointer unused) {
     activate_publish(NULL, 0);
     return false;
@@ -7481,7 +7326,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(open_window));
     gtk_widget_hide(GTK_WIDGET(open_state_window));
     gtk_widget_hide(GTK_WIDGET(object_window));
-    gtk_widget_hide(GTK_WIDGET(save_window));
     gtk_widget_hide(GTK_WIDGET(properties_dialog));
     gtk_widget_hide(GTK_WIDGET(publish_dialog));
     gtk_widget_hide(GTK_WIDGET(settings_dialog));
@@ -7571,8 +7415,12 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiObjColorPicker::open();
             break;
 
-        case DIALOG_SAVE:           gdk_threads_add_idle(_open_save_window, 0); break;
-        case DIALOG_SAVE_COPY:      gdk_threads_add_idle(_open_save_copy_window, 0); break;
+        case DIALOG_SAVE:
+            UiSave::open(false);
+            break;
+        case DIALOG_SAVE_COPY:
+            UiSave::open(true);
+            break;
         case DIALOG_OPEN:           gdk_threads_add_idle(_open_open_dialog, 0); break;
 
         case DIALOG_OPEN_STATE:
@@ -7815,6 +7663,7 @@ void ui::render() {
     UiEventListener::layout();
     UiResource::layout();
     UiItem::layout();
+    UiSave::layout();
 
     imgui_driver.post_render();
 #endif

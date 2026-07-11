@@ -89,8 +89,10 @@ void ui::open_dialog(int num, void *data) {
             UiLevelProperties::open();
             break;
         case DIALOG_SAVE:
+            UiSave::open(false);
+            break;
         case DIALOG_SAVE_COPY:
-            UiSave::open();
+            UiSave::open(true);
             break;
         case DIALOG_NEW_LEVEL:
             UiNewLevel::open();

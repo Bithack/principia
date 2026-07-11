@@ -24,7 +24,7 @@ namespace UiQuickadd        { void open(); void layout(); }
 namespace UiSynthesizer     { void open(entity *e = G->selection.e); void layout(); }
 namespace UiObjColorPicker  { void open(bool alpha = false, entity *e = G->selection.e); void layout(); }
 namespace UiLevelProperties { void open(); void layout(); }
-namespace UiSave            { void open(); void layout(); }
+namespace UiSave            { void open(bool copy_flag); void layout(); }
 namespace UiNewLevel        { void open(); void layout(); }
 namespace UiFrequency       { void open(bool is_range); void layout(); }
 namespace UiConfirm         { void open(const char* text, const char* button1, principia_action action1, const char* button2, principia_action action2, const char* button3, principia_action action3, struct confirm_data  _confirm_data); void layout(); }
