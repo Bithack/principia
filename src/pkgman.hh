@@ -58,11 +58,7 @@ static const char *level_version_strings[] = {
     "1.5",
     "1.5.1",
     "2023-06-05",
-    "31 (Pending)",
-    0,
-    0,
-    0,
-    0,
+    "31 (Pending)"
 };
 
 #define LCAT_PUZZLE      0
@@ -97,12 +93,10 @@ class pkginfo;
 #endif
 
 inline const char *level_version_string(int level_version) {
-    const char *ret = level_version_strings[level_version];
-
-    if (ret)
-        return ret;
-    else
+    if (level_version < 0 || level_version >= sizeof(level_version_strings) / sizeof(level_version_strings[0]))
         return "N/A";
+
+    return level_version_strings[level_version];
 }
 
 static const char *level_type_string(uint8_t level_type) {
