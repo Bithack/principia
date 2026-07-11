@@ -118,16 +118,6 @@ GtkRadioButton  *multi_config_render_type_hide;
 GtkButton       *multi_config_unlock_all;
 GtkButton       *multi_config_disconnect_all;
 
-/** --Open level **/
-GtkWindow    *open_window;
-GtkTreeModel *open_treemodel;
-GtkTreeView  *open_treeview;
-GtkButton    *open_btn_open;
-GtkButton    *open_btn_cancel;
-GtkMenu      *open_menu;
-GtkMenuItem  *open_menu_information;
-GtkMenuItem  *open_menu_delete;
-
 /** --Open object **/
 bool         object_window_multiemitter;
 GtkWindow    *object_window;
@@ -919,36 +909,6 @@ static void add_setting_row(GtkGrid *tbl, int y, const char *label, GtkWidget *w
             1, 1
         );
     }
-}
-
-static GtkMenuItem *add_menuitem_m(GtkMenu *menu, const char *label, void (*on_activate)(GtkMenuItem*, gpointer userdata)=0, gpointer userdata=0) {
-    GtkMenuItem *i = GTK_MENU_ITEM(gtk_menu_item_new_with_mnemonic(label));
-
-    if (on_activate)
-        g_signal_connect(i, "activate", G_CALLBACK(on_activate), userdata);
-
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), GTK_WIDGET(i));
-
-    return i;
-}
-
-static GtkMenuItem *add_menuitem(GtkMenu *menu, const char *label, void (*on_activate)(GtkMenuItem*, gpointer userdata)=0, gpointer userdata=0) {
-    GtkMenuItem *i = GTK_MENU_ITEM(gtk_menu_item_new_with_label(label));
-
-    if (on_activate)
-        g_signal_connect(i, "activate", G_CALLBACK(on_activate), userdata);
-
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), GTK_WIDGET(i));
-
-    return i;
-}
-
-static GtkMenuItem *add_separator(GtkMenu *menu) {
-    GtkMenuItem *i = GTK_MENU_ITEM(gtk_separator_menu_item_new());
-
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), GTK_WIDGET(i));
-
-    return i;
 }
 
 static GtkDialog *new_dialog_defaults(const char *title, GtkCallback on_show=0, gboolean (*on_keypress)(GtkWidget*, GdkEventKey*, gpointer)=0) {
@@ -2294,209 +2254,6 @@ static void activate_open_state_row(GtkTreeView *view, GtkTreePath *path, GtkTre
     open_state_row(&iter);
 }
 
-/** --Open level **/
-void on_open_show(GtkWidget *wdg, void *unused) {
-    GtkTreeIter iter;
-
-    gtk_list_store_clear(GTK_LIST_STORE(open_treemodel));
-
-    lvlfile *level = pkgman::get_levels(LEVEL_LOCAL);
-
-    while (level) {
-        gtk_list_store_append(GTK_LIST_STORE(open_treemodel), &iter);
-        const char *version_string = level_version_string(level->version);
-        gtk_list_store_set(GTK_LIST_STORE(open_treemodel), &iter,
-                OC_ID, level->id,
-                OC_NAME, level->name,
-                OC_VERSION, version_string,
-                OC_DATE, level->modified_date,
-                -1
-                );
-        lvlfile *next = level->next;
-        delete level;
-        level = next;
-    }
-
-    GtkTreePath      *path;
-    GtkTreeSelection *sel;
-
-    path = gtk_tree_path_new_from_indices(0, -1);
-    sel  = gtk_tree_view_get_selection(open_treeview);
-
-    gtk_tree_model_get_iter(open_treemodel,
-                            &iter,
-                            path);
-
-    GValue val = {0, };
-
-    gtk_tree_model_get_value(open_treemodel,
-                             &iter,
-                             0,
-                             &val);
-
-    gtk_tree_selection_select_path(sel, path);
-
-    tms_infof("got id: %d", g_value_get_uint(&val));
-    gtk_tree_path_free(path);
-}
-
-static void activate_open_row(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *col, gpointer user_data) {
-    GtkTreeIter iter;
-    GtkTreeModel *model = gtk_tree_view_get_model(view);
-    gtk_tree_model_get_iter_from_string(model, &iter, gtk_tree_path_to_string(path));
-
-    guint _level_id;
-    gtk_tree_model_get(model, &iter,
-                       OC_ID, &_level_id,
-                       -1);
-
-    uint32_t level_id = (uint32_t)_level_id;
-
-    tms_infof("clicked level id %u", level_id);
-
-    P.add_action(ACTION_OPEN, level_id);
-
-    gtk_widget_hide(GTK_WIDGET(open_window));
-}
-
-static void open_menu_item_activated(GtkMenuItem *i, gpointer userdata) {
-    if (i == open_menu_information) {
-        static GtkMessageDialog *msg_dialog = 0;
-
-        if (msg_dialog == 0) {
-            msg_dialog = GTK_MESSAGE_DIALOG(gtk_message_dialog_new(
-                    0, (GtkDialogFlags)(0),
-                    GTK_MESSAGE_INFO,
-                    GTK_BUTTONS_CLOSE,
-                    "Level information"));
-        }
-
-        GtkTreeSelection *sel;
-        GtkTreeIter       iter;
-
-        sel = gtk_tree_view_get_selection(open_treeview);
-
-        if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
-            GValue val_name = {0, };
-            GValue val_date = {0, };
-            GValue val_version = {0, };
-            char msg[2048];
-            gtk_tree_model_get_value(open_treemodel,
-                    &iter,
-                    OC_NAME,
-                    &val_name);
-            const char *name = g_value_get_string(&val_name);
-
-            gtk_tree_model_get_value(open_treemodel,
-                    &iter,
-                    OC_DATE,
-                    &val_date);
-            const char *lastmodified = g_value_get_string(&val_date);
-
-            gtk_tree_model_get_value(open_treemodel,
-                    &iter,
-                    OC_VERSION,
-                    &val_version);
-            const char *version = g_value_get_string(&val_version);
-
-            snprintf(
-                msg, 2048,
-                "Name: %s\nVersion: %s\nLast modified: %s",
-                name, version, lastmodified
-            );
-
-            g_object_set(msg_dialog, "text", msg, NULL);
-
-            int r = gtk_dialog_run(GTK_DIALOG(msg_dialog));
-            switch (r) {
-                default:
-                    gtk_widget_hide(GTK_WIDGET(msg_dialog));
-                    break;
-            }
-        }
-    } else if (i == open_menu_delete) {
-        GtkDialog* confirm = GTK_DIALOG(gtk_dialog_new_with_buttons(
-            "Delete level",
-            GTK_WINDOW(open_window),
-            (GtkDialogFlags)(0),
-            "_Confirm",
-            GTK_RESPONSE_ACCEPT,
-            "_Cancel",
-            GTK_RESPONSE_REJECT,
-            NULL
-        ));
-        gtk_container_add(
-            GTK_CONTAINER(gtk_dialog_get_content_area(confirm)),
-            gtk_label_new("Are you sure you want to delete this level")
-        );
-        int r = gtk_dialog_run(confirm);
-        switch (r) {
-            case GTK_RESPONSE_ACCEPT: {
-                tms_infof("deleting uwu");
-
-                //get level id
-                GtkTreeIter iter;
-                GtkTreeSelection *sel = gtk_tree_view_get_selection(open_treeview);
-                if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
-                    GValue val_id = {0, };
-                    gtk_tree_model_get_value(
-                        open_treemodel,
-                        &iter,
-                        OC_ID,
-                        &val_id
-                    );
-                    uint32_t level_id = g_value_get_uint(&val_id);
-                    tms_infof("will DELETE local level with id of %d RIGHT NOW!", level_id);
-
-                    //XXX: Levels in the "open" should always be local
-                    //XXX: Save id is only used for state saves (LEVEL_*_STATE), not levels
-                    if (G->delete_level(LEVEL_LOCAL, level_id, -1)) {
-                        //success
-                        tms_infof("deleted successfully :3");
-
-                        //remove from the list
-                        gtk_list_store_remove(GTK_LIST_STORE(open_treemodel), &iter);
-                    } else {
-                        //error
-                        tms_errorf("unlink failed");
-
-                        //show error dialog
-                        GtkDialog* error = GTK_DIALOG(gtk_message_dialog_new(
-                            GTK_WINDOW(open_window),
-                            GTK_DIALOG_DESTROY_WITH_PARENT,
-                            GTK_MESSAGE_ERROR,
-                            GTK_BUTTONS_CLOSE,
-                            "Failed to delete the level"
-                        ));
-                        g_signal_connect_swapped(
-                            G_OBJECT(error), "response",
-                            G_CALLBACK(gtk_widget_destroy),
-                            error
-                        );
-                        gtk_dialog_run(error);
-                    }
-                }
-                break;
-            }
-            default: {
-                gtk_widget_hide(GTK_WIDGET(confirm));
-            }
-        }
-        gtk_widget_destroy(GTK_WIDGET(confirm));
-    }
-}
-
-static gboolean open_row_button_press(GtkWidget *wdg, GdkEvent *event, gpointer userdata) {
-    if (event->type == GDK_BUTTON_PRESS) {
-        GdkEventButton *bevent = (GdkEventButton*)event;
-        if (bevent->button == 3) {
-            gtk_widget_show_all(GTK_WIDGET(open_menu));
-            gtk_menu_popup_at_pointer(open_menu, event);
-        }
-    }
-    return FALSE;
-}
-
 static void confirm_import(uint32_t level_id) {
     if (object_window_multiemitter)
         P.add_action(ACTION_MULTIEMITTER_SET, level_id);
@@ -2580,40 +2337,6 @@ gboolean on_open_state_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user
             /* A row is selected */
             open_state_row(&iter);
 
-        } else {
-            tms_infof("No row selected.");
-        }
-    }
-
-    return false;
-}
-
-gboolean on_open_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, open_btn_cancel, user_data)) {
-        gtk_widget_hide(GTK_WIDGET(open_window));
-    } else if (btn_pressed(w, open_btn_open, user_data)) {
-        /* open ! */
-        GtkTreeSelection *sel;
-        GtkTreeIter       iter;
-        GValue            val = {0, };
-
-        sel = gtk_tree_view_get_selection(open_treeview);
-        if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
-            /* A row is selected */
-
-            /* Fetch the value of the first column into `val' */
-            gtk_tree_model_get_value(open_treemodel,
-                                     &iter,
-                                     0,
-                                     &val);
-
-            uint32_t level_id = g_value_get_uint(&val);
-
-            tms_infof("Opening level %d from Open window", level_id);
-
-            P.add_action(ACTION_OPEN, level_id);
-
-            gtk_widget_hide(GTK_WIDGET(open_window));
         } else {
             tms_infof("No row selected.");
         }
@@ -3062,40 +2785,6 @@ gboolean on_open_state_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
             info[2] = save_id;
 
             P.add_action(ACTION_OPEN_STATE, info);
-
-            gtk_widget_hide(w);
-            return true;
-        } else {
-            tms_infof("No row selected.");
-        }
-    }
-
-    return false;
-}
-
-gboolean on_open_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape)
-        gtk_widget_hide(w);
-    else if (key->keyval == GDK_KEY_Return) {
-        GtkTreeSelection *sel;
-        GtkTreeIter       iter;
-        GValue            val = {0, };
-
-        sel = gtk_tree_view_get_selection(open_treeview);
-        if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
-            /* A row is selected */
-
-            /* Fetch the value of the first column into `val' */
-            gtk_tree_model_get_value(open_treemodel,
-                                     &iter,
-                                     0,
-                                     &val);
-
-            uint32_t level_id = g_value_get_uint(&val);
-
-            tms_infof("Opening level %d from Open window", level_id);
-
-            P.add_action(ACTION_OPEN, level_id);
 
             gtk_widget_hide(w);
             return true;
@@ -3660,10 +3349,6 @@ void activate_open_state(GtkMenuItem *i, gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(open_state_window));
 }
 
-void activate_open(GtkMenuItem *i, gpointer unused) {
-    gtk_widget_show_all(GTK_WIDGET(open_window));
-}
-
 void activate_prompt_settings(GtkMenuItem *i, gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(prompt_settings_dialog));
 }
@@ -4041,66 +3726,6 @@ int _gtk_loop(void *p) {
 
         add_text_column(open_state_treeview, "Name", OSC_ID);
         add_text_column(open_state_treeview, "Modified", OSC_NAME);
-    }
-
-    /** --Open level **/
-    {
-        open_window = new_window_defaults("Open level", &on_open_show, &on_open_keypress);
-        gtk_window_set_default_size(GTK_WINDOW(open_window), 600, 600);
-        gtk_widget_set_size_request(GTK_WIDGET(open_window), 600, 600);
-        gtk_window_set_resizable(GTK_WINDOW(open_window), true);
-
-        open_menu = GTK_MENU(gtk_menu_new());
-
-        open_menu_information = add_menuitem_m(open_menu, "_Information", open_menu_item_activated);
-        open_menu_delete = add_menuitem_m(open_menu, "_Delete", open_menu_item_activated);
-
-        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-
-        GtkListStore *store;
-
-        store = gtk_list_store_new(OC_NUM_COLUMNS, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
-
-        open_treemodel = GTK_TREE_MODEL(store);
-
-        gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), OC_DATE, GTK_SORT_DESCENDING);
-
-        open_treeview = GTK_TREE_VIEW(gtk_tree_view_new_with_model(open_treemodel));
-        gtk_tree_view_set_search_column(open_treeview, OC_NAME);
-        g_signal_connect(GTK_WIDGET(open_treeview), "row-activated", G_CALLBACK(activate_open_row), 0);
-        g_signal_connect(GTK_WIDGET(open_treeview), "button-press-event", G_CALLBACK(open_row_button_press), 0);
-
-        GtkWidget *ew = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
-                      GTK_POLICY_AUTOMATIC,
-                      GTK_POLICY_AUTOMATIC);
-
-        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
-        gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
-        gtk_box_set_spacing(GTK_BOX(button_box), 5);
-
-        /* Open button */
-        open_btn_open   = GTK_BUTTON(gtk_button_new_with_label("Open"));
-        g_signal_connect(open_btn_open, "clicked",
-                G_CALLBACK(on_open_btn_click), 0);
-
-        open_btn_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(open_btn_cancel, "clicked",
-                G_CALLBACK(on_open_btn_click), 0);
-
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(open_btn_open));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(open_btn_cancel));
-
-        gtk_box_pack_start(content, GTK_WIDGET(ew), 1, 1, 0);
-        gtk_box_pack_start(content, GTK_WIDGET(button_box), 0, 0, 0);
-
-        gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(open_treeview));
-        gtk_container_add(GTK_CONTAINER(open_window), GTK_WIDGET(content));
-
-        add_text_column(open_treeview, "ID", OC_ID);
-        add_text_column(open_treeview, "Name", OC_NAME);
-        add_text_column(open_treeview, "Version", OC_VERSION);
-        add_text_column(open_treeview, "Modified", OC_DATE);
     }
 
     /** --Export **/
@@ -6605,11 +6230,6 @@ static gboolean _open_open_state_dialog(gpointer unused) {
     return false;
 }
 
-static gboolean _open_open_dialog(gpointer unused) {
-    activate_open(NULL, 0);
-    return false;
-}
-
 static gboolean _open_multiemitter_dialog(gpointer unused) {
     object_window_multiemitter = true;
     activate_object(NULL, 0);
@@ -7286,7 +6906,6 @@ static gboolean _open_confirm_quit(gpointer unused) {
 }
 
 static gboolean _close_all_dialogs(gpointer unused) {
-    gtk_widget_hide(GTK_WIDGET(open_window));
     gtk_widget_hide(GTK_WIDGET(open_state_window));
     gtk_widget_hide(GTK_WIDGET(object_window));
     gtk_widget_hide(GTK_WIDGET(properties_dialog));
@@ -7382,7 +7001,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_SAVE_COPY:
             UiSave::open(true);
             break;
-        case DIALOG_OPEN:           gdk_threads_add_idle(_open_open_dialog, 0); break;
+        case DIALOG_OPEN:
+            UiLevelManager::open();
+            break;
 
         case DIALOG_OPEN_STATE:
             if (data && VOID_TO_UINT8(data) == 1) {
@@ -7625,6 +7246,7 @@ void ui::render() {
     UiResource::layout();
     UiItem::layout();
     UiSave::layout();
+    UiLevelManager::layout();
 
     imgui_driver.post_render();
 #endif
