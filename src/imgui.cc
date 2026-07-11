@@ -176,8 +176,6 @@ void ImguiDriver::init() {
 }
 
 void ImguiDriver::pre_render() {
-    if (settings["render_gui"]->is_false()) return;
-
     tms_assertf(GImGui != NULL, "gimgui is null. is imgui ready?");
 
     ImGuiIO& io = ImGui::GetIO();
