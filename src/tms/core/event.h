@@ -170,7 +170,7 @@ struct tms_key {
 };
 
 struct tms_text_input {
-    char text[32];
+    const char *text;
 };
 
 struct tms_event {
