@@ -270,6 +270,7 @@
 	#include "ui/sandbox_mode.cc"
 	#include "ui/save.cc"
 	#include "ui/settings.cc"
+	#include "ui/shape_extruder.cc"
 	#include "ui/sticky.cc"
 	#include "ui/synthesizer.cc"
 	#include "ui/tips.cc"

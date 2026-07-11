@@ -701,13 +701,6 @@ GtkButton       *sequencer_save;
 GtkButton       *sequencer_cancel;
 int              sequencer_num_steps;
 
-/** --Shape extruder **/
-GtkDialog       *shapeextruder_dialog;
-GtkRange        *shapeextruder_right;
-GtkRange        *shapeextruder_up;
-GtkRange        *shapeextruder_left;
-GtkRange        *shapeextruder_down;
-
 /** --cursorfield **/
 GtkDialog       *cursorfield_dialog;
 GtkRange        *cursorfield_right;
@@ -1133,18 +1126,6 @@ void on_digi_show(GtkWidget *wdg, void *unused) {
             gtk_widget_set_sensitive(GTK_WIDGET(digi_wrap), false);
         else
             gtk_widget_set_sensitive(GTK_WIDGET(digi_wrap), true);
-    }
-}
-
-/** --Shape extruder **/
-void on_shapeextruder_show(GtkWidget *wdg, void *unused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_SHAPE_EXTRUDER) {
-        gtk_range_set_value(shapeextruder_right, e->properties[0].v.f);
-        gtk_range_set_value(shapeextruder_up, e->properties[1].v.f);
-        gtk_range_set_value(shapeextruder_left, e->properties[2].v.f);
-        gtk_range_set_value(shapeextruder_down, e->properties[3].v.f);
     }
 }
 
@@ -5642,47 +5623,6 @@ int _gtk_loop(void *p) {
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
-    /** --Shape Extruder **/
-    {
-        shapeextruder_dialog = new_dialog_defaults("Shape Extruder", &on_shapeextruder_show);
-
-        gtk_widget_set_size_request(GTK_WIDGET(shapeextruder_dialog), 350, -1);
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(shapeextruder_dialog));
-
-        GtkGrid *tbl_settings = GTK_GRID(gtk_grid_new());
-        {
-            int y = 0;
-
-            shapeextruder_right = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 2, .01));
-            shapeextruder_up = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 2, .01));
-            shapeextruder_left = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 2, .01));
-            shapeextruder_down = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 2, .01));
-
-            gtk_widget_set_hexpand(GTK_WIDGET(shapeextruder_right), true);
-            gtk_widget_set_hexpand(GTK_WIDGET(shapeextruder_up), true);
-            gtk_widget_set_hexpand(GTK_WIDGET(shapeextruder_left), true);
-            gtk_widget_set_hexpand(GTK_WIDGET(shapeextruder_down), true);
-
-            gtk_grid_attach(tbl_settings, new_rlbl("Right"), 0, y, 1, 1);
-            gtk_grid_attach(tbl_settings, GTK_WIDGET(shapeextruder_right), 1, y, 1, 1);
-            y++;
-
-            gtk_grid_attach(tbl_settings, new_rlbl("Up"), 0, y, 1, 1);
-            gtk_grid_attach(tbl_settings, GTK_WIDGET(shapeextruder_up), 1, y, 1, 1);
-            y++;
-
-            gtk_grid_attach(tbl_settings, new_rlbl("Left"), 0, y, 1, 1);
-            gtk_grid_attach(tbl_settings, GTK_WIDGET(shapeextruder_left), 1, y, 1, 1);
-            y++;
-
-            gtk_grid_attach(tbl_settings, new_rlbl("Down"), 0, y, 1, 1);
-            gtk_grid_attach(tbl_settings, GTK_WIDGET(shapeextruder_down), 1, y, 1, 1);
-        }
-
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(tbl_settings), false, false, 0);
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
     /** --Synth **/
     {
         synth_dialog = new_dialog_defaults("Synthesizer", &on_synth_show, &on_synth_keypress);
@@ -6410,25 +6350,6 @@ static gboolean _open_escript(gpointer unused) {
     return false;
 }
 
-/** --Shape extruder **/
-static gboolean _open_shapeextruder(gpointer unused) {
-    gint result = gtk_dialog_run(shapeextruder_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_SHAPE_EXTRUDER) {
-            e->properties[0].v.f = gtk_range_get_value(shapeextruder_right);
-            e->properties[1].v.f = gtk_range_get_value(shapeextruder_up);
-            e->properties[2].v.f = gtk_range_get_value(shapeextruder_left);
-            e->properties[3].v.f = gtk_range_get_value(shapeextruder_down);
-        }
-    }
-    gtk_widget_hide(GTK_WIDGET(shapeextruder_dialog));
-
-    return false;
-}
-
 /** --Synthesizer **/
 static gboolean _open_synth(gpointer unused) {
     gint result = gtk_dialog_run(synth_dialog);
@@ -6917,7 +6838,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(escript_window));
     gtk_widget_hide(GTK_WIDGET(synth_dialog));
     gtk_widget_hide(GTK_WIDGET(prompt_settings_dialog));
-    gtk_widget_hide(GTK_WIDGET(shapeextruder_dialog));
     gtk_widget_hide(GTK_WIDGET(cursorfield_dialog));
     gtk_widget_hide(GTK_WIDGET(community_dialog));
     gtk_widget_hide(GTK_WIDGET(published_dialog));
@@ -6983,7 +6903,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiQuickadd::open();
             break;
 
-        case DIALOG_SHAPEEXTRUDER:  gdk_threads_add_idle(_open_shapeextruder, 0); break;
+        case DIALOG_SHAPEEXTRUDER:
+            UiShapeExtruder::open();
+            break;
         case DIALOG_CURSORFIELD:    gdk_threads_add_idle(_open_cursorfield, 0); break;
         case DIALOG_ESCRIPT:        gdk_threads_add_idle(_open_escript, 0); break;
         case DIALOG_JUMPER:
@@ -7247,6 +7169,7 @@ void ui::render() {
     UiItem::layout();
     UiSave::layout();
     UiLevelManager::layout();
+    UiShapeExtruder::layout();
 
     imgui_driver.post_render();
 #endif
