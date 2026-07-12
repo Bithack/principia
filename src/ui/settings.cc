@@ -36,60 +36,60 @@ namespace UiSettings {
         "volume",
         "muted",
         //CONTROLS
+        "control_type",
         "touch_controls",
-        "jail_cursor",
         "cam_speed_modifier",
         "smooth_cam",
         "zoom_speed",
         "smooth_zoom",
-        //"smooth_menu",
+        "jail_cursor",
+        "rc_lock_cursor",
+        "widget_control_sensitivity",
         //INTERFACE
-        "hide_tips",
-        "display_grapher_value",
-        "display_object_id",
-        "display_fps",
         "uiscale",
-        "first_adventure", "tutorial",
+        "window_fullscreen",
+        "window_resizable",
+        "autosave_screensize",
+        "score_automatically_submit",
+        "score_ask_before_submitting",
+        "display_fps",
+        //SANDBOX
+        "hide_tips",
+        "display_object_id",
+        "display_grapher_value",
+        "display_wireless_frequency",
+        "dna_sandbox_back",
         "menu_speed",
         "smooth_menu",
-        "rc_lock_cursor",
-#ifdef DEBUG
-        "debug",
-#endif
         NULL
     };
 
-    static void on_before_apply() {
-        tms_infof("Preparing to reload stuff later...");
-    }
-
-    static void on_after_apply() {
-        tms_infof("Now, reloading some stuff (as promised!)...");
-
-        //Reload sound manager settings to apply new volume
-        sm::load_settings();
-    }
-
     static void save_thread() {
-        tms_debugf("inside save_thread()");
-        tms_infof("Waiting for can_set_settings...");
+
         while (!P.can_set_settings) {
             tms_debugf("Waiting for can_set_settings...");
             SDL_Delay(1);
         }
+
         tms_debugf("Ok, ready, saving...");
-        on_before_apply();
+
         for (size_t i = 0; copy_settings[i] != NULL; i++) {
             tms_infof("writing setting %s", copy_settings[i]);
             memcpy(settings[copy_settings[i]], local_settings[copy_settings[i]], sizeof(setting));
         }
-        tms_assertf(settings.save(), "Unable to save settings.");
-        on_after_apply();
+
+        if (!settings.save()) {
+            tms_errorf("Unable to save settings.");
+        } else {
+            tms_infof("Successfully saved settings to file.");
+        }
+
         tms_infof("Successfully saved settings, returning...");
+
+        sm::load_settings();
         _tms.touch_controls = settings["touch_controls"]->v.b;
         P.can_reload_graphics = true;
         is_saving = false;
-        tms_debugf("save_thread() completed");
     }
 
     static void save_settings() {
@@ -106,8 +106,9 @@ namespace UiSettings {
         tms_infof("Reading settings...");
         for (auto& it: local_settings) {
             tms_debugf("free %s", it.first);
-            free((void*) local_settings[it.first]);
+            delete local_settings[it.first];
         }
+
         local_settings.clear();
         for (size_t i = 0; copy_settings[i] != NULL; i++) {
             tms_debugf("reading setting %s", copy_settings[i]);
@@ -164,7 +165,8 @@ namespace UiSettings {
     void layout() {
         handle_do_open(&do_open, "Settings");
         ImGui_CenterNextWindow();
-        //TODO unsaved changes indicator
+
+        ImGui::SetNextWindowSize(UI(0, 500), ImGuiCond_Appearing);
         if (ImGui::BeginPopupModal("Settings", is_saving ? NULL : REF_TRUE, MODAL_FLAGS)) {
             if ((if_done == IfDone::Exit) && !is_saving) {
                 ImGui::CloseCurrentPopup();
@@ -179,14 +181,12 @@ namespace UiSettings {
                 bool graphics_tab = ImGui::BeginTabItem("Graphics");
                 ImGui::SetItemTooltip("Configure graphics and display settings");
                 if (graphics_tab) {
-                    // ImGui::BeginTable("###graphics-settings", 2);
-                    // ImGui::TableNextColumn();
-
                     ImGui::SeparatorText("Shadows");
                     ImGui::Checkbox("Enable shadows", (bool*) &local_settings["enable_shadows"]->v.b);
                     ImGui::BeginDisabled(!local_settings["enable_shadows"]->v.b);
                     ImGui::Checkbox("Smooth shadows", (bool*) &local_settings["shadow_quality"]->v.u8);
                     {
+                        // XXX: add back "(native)"?
                         const char* resolutions[] = { "4096x4096", "4096x2048", "2048x2048", "2048x1024", "1024x1024", "1024x512", "512x512", "512x256", NULL };
                         int32_t values_x[] = { 4096, 4096, 2048, 2048, 1024, 1024, 512, 512, -1 };
                         int32_t values_y[] = { 4096, 2048, 2048, 1024, 1024, 512,  512, 256, -1 };
@@ -204,6 +204,7 @@ namespace UiSettings {
                     ImGui::SeparatorText("Ambient Occlusion");
                     ImGui::Checkbox("Enable AO", (bool*) &local_settings["enable_ao"]->v.b);
                     ImGui::SetItemTooltip("Adds subtle shading behind objects");
+
                     ImGui::BeginDisabled(!local_settings["enable_ao"]->v.b);
                     {
                         const char* resolutions[] = { "512x512", "256x256", "128x128", NULL };
@@ -219,13 +220,7 @@ namespace UiSettings {
                     }
                     ImGui::EndDisabled();
 
-                    ImGui::SeparatorText("Post-processing");
-
-                    // ImGui::Checkbox("Enable post-processing", (bool*) &local_settings["postprocess"]->v.b);
-                    // ImGui::BeginDisabled(!local_settings["postprocess"]->v.b);
-                    // ImGui::Checkbox("Enable bloom", local_settings["postprocess"]->v.b ? ((bool*) &local_settings["enable_bloom"]->v.b) : REF_FALSE);
-                    // ImGui::SetItemTooltip("Adds a subtle glow effect to bright objects");
-                    // ImGui::EndDisabled();ImGui::Checkbox("Enable post-processing", (bool*) &local_settings["postprocess"]->v.b);
+                    ImGui::SeparatorText("Miscellaneous");
 
                     //XXX: Post-processing always enables bloom, so these two settings basically do the same thing
                     bool is_bloom_enabled = local_settings["enable_bloom"]->v.b && local_settings["postprocess"]->v.b;
@@ -237,8 +232,6 @@ namespace UiSettings {
 
                     ImGui::Checkbox("Gamma correction", (bool*) &local_settings["gamma_correct"]->v.b);
                     ImGui::SetItemTooltip("Adjusts the brightness and contrast to ensure accurate color representation");
-
-                    ImGui::SeparatorText("Display");
 
                     ImGui::Checkbox("Enable V-Sync", (bool*) &local_settings["vsync"]->v.b);
                     ImGui::SetItemTooltip("Helps eliminate screen tearing by limiting the refresh rate.\nMay introduce a slight input delay.");
@@ -275,24 +268,25 @@ namespace UiSettings {
                 if (controls_tab) {
                     ImGui::EndTabItem();
 
+                    ImGui::Checkbox("Enable touch controls", (bool*) &local_settings["touch_controls"]->v.b);
+                    ImGui::SetItemTooltip("Enable touchscreen controls and other touch-related behaviour.");
+
+                    bool alternate_controls = local_settings["control_type"]->v.i == 0;
+                    ImGui::Checkbox("Alternate keyboard-only adventure controls", &alternate_controls);
+                    local_settings["control_type"]->v.i = alternate_controls ? 0 : 1;
+                    ImGui::SetItemTooltip("Alternate keyboard-only adventure controls. Arrow keys to move and aim, Ctrl to attack, PgUp/PgDown to change layers.");
+
                     ImGui::SeparatorText("Camera");
 
                     ImGui::TextUnformatted("Camera speed");
-                    ImGui::SliderFloat("###Camera-speed", (float*) &local_settings["cam_speed_modifier"]->v.f, 0.1, 15.);
+                    ImGui::SliderFloat("###Camera-speed", (float*) &local_settings["cam_speed_modifier"]->v.f, 0.1, 15., "%.1f", ImGuiSliderFlags_AlwaysClamp);
 
                     ImGui::Checkbox("Smooth camera", (bool*) &local_settings["smooth_cam"]->v.b);
 
                     ImGui::TextUnformatted("Zoom speed");
-                    ImGui::SliderFloat("###Camera-zoom-speed", (float*) &local_settings["zoom_speed"]->v.f, 0.1, 3.);
+                    ImGui::SliderFloat("###Camera-zoom-speed", (float*) &local_settings["zoom_speed"]->v.f, 0.1, 3., "%.1f", ImGuiSliderFlags_AlwaysClamp);
 
                     ImGui::Checkbox("Smooth zoom", (bool*) &local_settings["smooth_zoom"]->v.b);
-
-                    ImGui::SeparatorText("Menu");
-
-                    ImGui::TextUnformatted("Menu scroll speed");
-                    ImGui::SliderFloat("###Menu-speed", (float*) &local_settings["menu_speed"]->v.f, 1., 15.);
-
-                    ImGui::Checkbox("Smooth menu scrolling", (bool*) &local_settings["smooth_menu"]->v.b);
 
                     ImGui::SeparatorText("Mouse");
 
@@ -302,34 +296,66 @@ namespace UiSettings {
                     ImGui::Checkbox("Enable RC cursor lock", (bool*) &local_settings["rc_lock_cursor"]->v.b);
                     ImGui::SetItemTooltip("Lock the cursor while controlling RC widgets");
 
-                    ImGui::SeparatorText("Touchscreen");
+                    ImGui::TextUnformatted("Widget sensitivity");
+                    ImGui::SliderFloat("###Widget-sensitivity", (float*) &local_settings["widget_control_sensitivity"]->v.f, 0.1, 8., "%.1f");
+                    ImGui::SetItemTooltip("Controls the mouse-movement-sensitivity used to control sliders, radials and fields using the hotkey mode.");
 
-                    ImGui::Checkbox("Enable on-screen controls", (bool*) &local_settings["touch_controls"]->v.b);
-                    ImGui::SetItemTooltip("Enable touch-friendly on-screen controls");
                 }
 
                 bool interface_tab = ImGui::BeginTabItem("Interface");
                 ImGui::SetItemTooltip("Change UI scaling, visibility options and other interface settings");
                 if (interface_tab) {
-                    ImGui::SeparatorText("Interface");
-
                     ImGui::TextUnformatted("UI Scale (requires restart)");
-                    std::string display_value = string_format("%.01f", local_settings["uiscale"]->v.f);
-                    ImGui::SliderFloat("###uiScale", &local_settings["uiscale"]->v.f, 0.2, 2., display_value.c_str());
-                    local_settings["uiscale"]->v.f = (int)(local_settings["uiscale"]->v.f * 10) * 0.1f;
+                    ImGui::SliderFloat("###uiScale", &local_settings["uiscale"]->v.f, 0.5, 2., "%.1f", ImGuiSliderFlags_AlwaysClamp);
 
-                    ImGui::SeparatorText("Help & Tips");
+                    ImGui::SeparatorText("Windowing");
 
-                    ImGui::Checkbox("Do not show tips", (bool*) &local_settings["hide_tips"]->v.b);
+                    ImGui::Checkbox("Fullscreen mode", (bool*) &local_settings["window_fullscreen"]->v.b);
+
+                    ImGui::Checkbox("Resizable window (BETA)", (bool*) &local_settings["window_resizable"]->v.b);
+                    ImGui::SetItemTooltip("Allow the window to be resized. NOTE: Principia does not support resizing while in-game. Things will break.");
+
+                    ImGui::Checkbox("Autosave screen size", (bool*) &local_settings["autosave_screensize"]->v.b);
+                    ImGui::SetItemTooltip("Automatically save the current screen size when the window is resized, for next time the game is launched.");
+
+                    ImGui::SeparatorText("Highscores");
+
+                    ImGui::Checkbox("Automatically submit highscores", (bool*) &local_settings["score_automatically_submit"]->v.b);
+
+                    ImGui::Checkbox("Ask before submitting highscores", (bool*) &local_settings["score_ask_before_submitting"]->v.b);
 
                     ImGui::SeparatorText("Advanced");
 
-                    ImGui::Checkbox("Display grapher values", (bool*) &local_settings["display_grapher_value"]->v.b);
+                    ImGui::TextUnformatted("Display FPS");
+                    ImGui::Combo("###displayFPS", (int*) &local_settings["display_fps"]->v.u8, "Off\0On\0Graph\0Graph (Raw)\0", 4);
+
+                    ImGui::EndTabItem();
+                }
+
+                bool sandbox_tab = ImGui::BeginTabItem("Sandbox");
+                ImGui::SetItemTooltip("Change sandbox settings");
+                if (sandbox_tab) {
+                    ImGui::Checkbox("Hide tips & tricks", (bool*) &local_settings["hide_tips"]->v.b);
+                    ImGui::SetItemTooltip("Hide the tips & tricks dialog that appears when opening the sandbox.");
 
                     ImGui::Checkbox("Display object IDs", (bool*) &local_settings["display_object_id"]->v.b);
 
-                    ImGui::TextUnformatted("Display FPS");
-                    ImGui::Combo("###displayFPS", (int*) &local_settings["display_fps"]->v.u8, "Off\0On\0Graph\0Graph (Raw)\0", 4);
+                    ImGui::Checkbox("Display grapher values", (bool*) &local_settings["display_grapher_value"]->v.b);
+                    ImGui::SetItemTooltip("Display the current value that passes through a grapher when simulating a level.");
+
+                    ImGui::Checkbox("Display wireless frequencies", (bool*) &local_settings["display_wireless_frequency"]->v.b);
+                    ImGui::SetItemTooltip("Display the frequency of the Receiver or the Mini transmitter when paused and zoomed in (sandbox only).");
+
+                    ImGui::Checkbox("Do not confirm quitting sandbox adventure", (bool*) &local_settings["dna_sandbox_back"]->v.b);
+                    ImGui::SetItemTooltip("Do not show the \"Are you sure you want to quit?\" dialog when exiting a sandbox adventure level.");
+
+                    ImGui::SeparatorText("Menu");
+
+                    ImGui::TextUnformatted("Menu scroll speed");
+                    ImGui::SliderFloat("###Menu-speed", (float*)&local_settings["menu_speed"]->v.f, 1., 15., "%.1f",
+                        ImGuiSliderFlags_AlwaysClamp);
+
+                    ImGui::Checkbox("Smooth menu scrolling", (bool*) &local_settings["smooth_menu"]->v.b);
 
                     ImGui::EndTabItem();
                 }
@@ -347,12 +373,12 @@ namespace UiSettings {
                 ImGui::Separator();
                 ImGui::BeginDisabled(is_saving);
                 bool do_save = false;
-                if (ImGui::Button("Apply")) {
+                if (ImGui::Button("Apply", UI(70., 0.))) {
                     if_done = IfDone::Reload;
                     save_settings();
                 }
                 ImGui::SameLine();
-                if (ImGui::Button("Save")) {
+                if (ImGui::Button("Save", UI(70., 0.))) {
                     if_done = IfDone::Exit;
                     save_settings();
                 }

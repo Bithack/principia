@@ -172,192 +172,6 @@ enum ROW_TYPES {
     ROW_HSCALE,
 };
 
-struct setting_row_type {
-    int type;
-
-    /* hscale */
-    double min;
-    double max;
-    double step;
-
-    static const struct setting_row_type create_checkbox() {
-        struct setting_row_type srt;
-        srt.type = ROW_CHECKBOX;
-
-        return srt;
-    }
-
-    static const struct setting_row_type create_hscale(double min, double max, double step) {
-        struct setting_row_type srt;
-        srt.type = ROW_HSCALE;
-
-        srt.min = min;
-        srt.max = max;
-        srt.step = step;
-
-        return srt;
-    }
-};
-
-struct table_setting_row {
-    const char *label;
-    const char *help;
-    const char *setting_name;
-    const struct setting_row_type row;
-    GtkWidget *wdg;
-};
-
-struct table_setting_row settings_graphic_rows[] = {
-    {
-        "Enable bloom",
-        0,
-        "enable_bloom",
-        setting_row_type::create_checkbox()
-    }, {
-        "Vertical sync",
-        0,
-        "vsync",
-        setting_row_type::create_checkbox()
-    }, {
-        "Gamma correction",
-        0,
-        "gamma_correct",
-        setting_row_type::create_checkbox()
-    },
-};
-
-struct table_setting_row settings_audio_rows[] = {
-    {
-        "Volume",
-        "Master volume",
-        "volume",
-        setting_row_type::create_hscale(0.0, 1.0, 0.05),
-    }, {
-        "Mute all sounds",
-        0,
-        "muted",
-        setting_row_type::create_checkbox()
-    },
-};
-
-struct table_setting_row settings_control_rows[] = {
-    {
-        "Enable touch controls",
-        "Enable this if you want widgets on the screen that you can control the adventure robot with.",
-        "touch_controls",
-        setting_row_type::create_checkbox()
-    }, {
-        "Enable cursor jail",
-        "Enable this if you want the cursor to be locked to the game while playing a level.",
-        "jail_cursor",
-        setting_row_type::create_checkbox()
-    }, {
-        "Smooth camera",
-        "Whether the camera movement should be smooth or direct.",
-        "smooth_cam",
-        setting_row_type::create_checkbox()
-    }, {
-        "Camera speed",
-        "How fast you can move the camera.",
-        "cam_speed_modifier",
-        setting_row_type::create_hscale(0.1, 15.0, 0.5),
-    }, {
-        "Smooth zoom",
-        "Whether the zooming should be smooth or direct.",
-        "smooth_zoom",
-        setting_row_type::create_checkbox()
-    }, {
-        "Zoom speed",
-        "How fast you can zoom in your level.",
-        "zoom_speed",
-        setting_row_type::create_hscale(0.1, 3.0, 0.5),
-    }, {
-        "Smooth menu",
-        "Whether the menu scrolling should be smooth or direct.",
-        "smooth_menu",
-        setting_row_type::create_checkbox()
-    }, {
-        "Menu scroll speed",
-        "How fast you can scroll through the menu.",
-        "menu_speed",
-        setting_row_type::create_hscale(1.0, 15.0, 0.5),
-    }, {
-        "Widget sensitivity",
-        "Controls the mouse-movement-sensitivity used to control sliders, radials and fields using the hotkey mode.",
-        "widget_control_sensitivity",
-        setting_row_type::create_hscale(0.1, 8.0, 0.25),
-    }, {
-        "Enable RC cursor lock",
-        "Lock the cursor if you active an RC widgets mouse control.",
-        "rc_lock_cursor",
-        setting_row_type::create_checkbox()
-    },
-};
-
-struct table_setting_row settings_interface_rows[] = {
-    {
-        "UI scale",
-        "A restart is required for this change to take effect",
-        "uiscale",
-        setting_row_type::create_hscale(0.5, 2.0, 0.10),
-    },{
-        "Fullscreen mode",
-        "Toggle fullscreen mode",
-        "window_fullscreen",
-        setting_row_type::create_checkbox()
-    }, {
-        "Display object ID",
-        "Display ID of object on selection (bottom-left corner).",
-        "display_object_id",
-        setting_row_type::create_checkbox()
-    }, {
-        "Display grapher value",
-        "Display the value that passes through the grapher in play-mode (sandbox only).",
-        "display_grapher_value",
-        setting_row_type::create_checkbox()
-    }, {
-        "Display wireless frequency",
-        "Display the frequency of the Receiver or the Mini transmitter when paused and zoomed in (sandbox only).",
-        "display_wireless_frequency",
-        setting_row_type::create_checkbox()
-    }, {
-        "Hide tips",
-        "Do not show when I create a new level.",
-        "hide_tips",
-        setting_row_type::create_checkbox()
-    }, {
-        "Do not confirm quitting sandbox adventure",
-        "Do not show the \"Are you sure you want to quit?\" dialog when exiting a sandbox adventure level.",
-        "dna_sandbox_back",
-        setting_row_type::create_checkbox()
-    }, {
-        "Automatically submit highscores",
-        0,
-        "score_automatically_submit",
-        setting_row_type::create_checkbox()
-    }, {
-        "Ask before submitting highscore",
-        "Always ask before submitting highscore.",
-        "score_ask_before_submitting",
-        setting_row_type::create_checkbox()
-    }, {
-        "Resizable window",
-        "Allow the window to be resized. NOTE: Principia does not support resizing while in-game. Things will break.",
-        "window_resizable",
-        setting_row_type::create_checkbox()
-    }, {
-        "Autosave screen size",
-        "Save the screen size when resizing the window.",
-        "autosave_screensize",
-        setting_row_type::create_checkbox()
-    },
-};
-
-static const int settings_num_graphic_rows = sizeof(settings_graphic_rows) / sizeof(settings_graphic_rows[0]);
-static const int settings_num_audio_rows = sizeof(settings_audio_rows) / sizeof(settings_audio_rows[0]);
-static const int settings_num_control_rows = sizeof(settings_control_rows) / sizeof(settings_control_rows[0]);
-static const int settings_num_interface_rows = sizeof(settings_interface_rows) / sizeof(settings_interface_rows[0]);
-
 struct gtk_level_property {
     uint64_t flag;
     const char *label;
@@ -627,21 +441,6 @@ uint8_t              _alert_type;
 GtkDialog       *tips_dialog;
 GtkLabel        *tips_text;
 GtkCheckButton  *tips_hide;
-
-/** --Settings **/
-GtkDialog       *settings_dialog;
-
-/* Graphics */
-GtkCheckButton  *settings_enable_shadows;
-GtkSpinButton   *settings_shadow_quality;
-GtkComboBoxText *settings_shadow_res;
-//GtkSpinButton   *settings_ao_quality;
-GtkCheckButton  *settings_enable_ao;
-GtkComboBoxText *settings_ao_res;
-GtkCheckButton  *settings_enable_bloom;
-
-/* Controls */
-GtkComboBoxText *settings_control_type;
 
 /** --Confirm Quit Dialog **/
 GtkDialog       *confirm_quit_dialog;
@@ -938,13 +737,6 @@ static gchar *format_joint_strength(GtkScale *scale, gdouble value) {
         return g_strdup("Indestructible");
     else
         return g_strdup_printf("%0.*f", gtk_scale_get_digits(scale), value);
-}
-
-static gchar *format_auto_absorb(GtkScale *scale, gdouble value) {
-    if (value <= 1.0)
-        return g_strdup("Don't absorb");
-    else
-        return g_strdup_printf("%0.*f seconds", gtk_scale_get_digits(scale), value);
 }
 
 gboolean foreach_model_find_str(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct cb_find_data** user_data) {
@@ -2758,257 +2550,6 @@ gboolean on_open_state_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     return false;
 }
 
-static void save_setting_row(struct table_setting_row *r) {
-    const struct setting_row_type &row = r->row;
-
-    switch (row.type) {
-        case ROW_CHECKBOX:
-            settings[r->setting_name]->v.b = (bool)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(r->wdg));
-            break;
-
-        case ROW_HSCALE:
-            settings[r->setting_name]->v.f = (float)gtk_range_get_value(GTK_RANGE(r->wdg));
-            break;
-
-        default:
-            tms_errorf("Unknown row type: %d", row.type);
-            break;
-    }
-}
-
-static void load_setting_row(struct table_setting_row *r) {
-    const struct setting_row_type &row = r->row;
-
-    switch (row.type) {
-        case ROW_CHECKBOX:
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(r->wdg), settings[r->setting_name]->v.b);
-            break;
-
-        case ROW_HSCALE:
-            gtk_range_set_value(GTK_RANGE(r->wdg), (double)settings[r->setting_name]->v.f);
-            break;
-
-        default:
-            tms_errorf("Unknown row type: %d", row.type);
-            break;
-    }
-}
-
-static void create_setting_row_widget(struct table_setting_row *r) {
-    const struct setting_row_type &row = r->row;
-
-    switch (row.type) {
-        case ROW_CHECKBOX:
-            r->wdg = gtk_check_button_new();
-            break;
-
-        case ROW_HSCALE:
-            r->wdg = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, row.min, row.max, row.step);
-            break;
-
-        default:
-            tms_errorf("Unknown row type: %d", row.type);
-            break;
-    }
-}
-
-/** --Settings **/
-void save_settings() {
-    P.can_reload_graphics = false;
-    P.can_set_settings = false;
-    P.add_action(ACTION_RELOAD_GRAPHICS, 0);
-    tms_infof("Saving...");
-
-    while (!P.can_set_settings) {
-        tms_debugf("Waiting for can_set_settings...");
-        SDL_Delay(1);
-    }
-
-    char tmp[64];
-    settings["enable_shadows"]->v.b = (bool)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(settings_enable_shadows));
-    settings["enable_ao"]->v.b = (bool)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(settings_enable_ao));
-    settings["enable_bloom"]->v.b = (bool)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(settings_enable_bloom));
-    settings["postprocess"]->v.b = (bool)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(settings_enable_bloom));
-    settings["shadow_quality"]->v.u8 = (uint8_t)gtk_spin_button_get_value(settings_shadow_quality);
-
-    /* Graphics */
-    for (int x=0; x<settings_num_graphic_rows; ++x) {
-        struct table_setting_row *r = &settings_graphic_rows[x];
-        save_setting_row(r);
-    }
-
-    settings["postprocess"]->v.b = settings["enable_bloom"]->v.b;
-
-    /* Audio */
-    for (int x=0; x<settings_num_audio_rows; ++x) {
-        struct table_setting_row *r = &settings_audio_rows[x];
-        save_setting_row(r);
-    }
-
-    /* Controls */
-    for (int x=0; x<settings_num_control_rows; ++x) {
-        struct table_setting_row *r = &settings_control_rows[x];
-        save_setting_row(r);
-    }
-
-    /* Interface */
-    for (int x=0; x<settings_num_interface_rows; ++x) {
-        struct table_setting_row *r = &settings_interface_rows[x];
-        save_setting_row(r);
-    }
-
-#if 0
-    // TODO: Dynamic update of UI scale without restart
-    P.update_uiscale(settings["uiscale"]->v.f);
-#endif
-
-    _tms.touch_controls = settings["touch_controls"]->v.b;
-
-    sm::load_settings();
-
-    strcpy(tmp, get_cb_val(settings_shadow_res));
-    char *x = strchr(tmp, 'x');
-    if (x == NULL) {
-        settings["shadow_map_resx"]->v.i = _tms.window_width;
-        settings["shadow_map_resy"]->v.i = _tms.window_height;
-    } else {
-        char *res_x = (char*)malloc(64);
-        char *res_y = (char*)malloc(64);
-        int pos = x-tmp;
-
-        strncpy(res_x, tmp, pos);
-        strcpy(res_y, tmp+pos+1);
-        res_x[pos] = '\0';
-
-        //tms_infof("Setting shadow map to '%s'x'%s'", res_x, res_y);
-        settings["shadow_map_resx"]->v.i = atoi(res_x);
-        settings["shadow_map_resy"]->v.i = atoi(res_y);
-
-        free(res_x);
-        free(res_y);
-    }
-
-    strcpy(tmp, get_cb_val(settings_ao_res));
-    x = strchr(tmp, 'x');
-    if (x != NULL) {
-        char *res = (char*)malloc(64);
-        int pos = x-tmp;
-
-        strncpy(res, tmp, pos);
-        res[pos] = '\0';
-
-        //tms_infof("Setting ao map to '%s'x'%s'", res, res);
-        settings["ao_map_res"]->v.i = atoi(res);
-
-        free(res);
-    }
-
-    settings["control_type"]->v.u8 = gtk_combo_box_get_active(GTK_COMBO_BOX(settings_control_type));
-
-    if (!settings.save()) {
-        tms_errorf("Unable to save settings.");
-    } else {
-        tms_infof("Successfully saved settings to file.");
-    }
-
-    tms_infof("done!");
-
-    P.can_reload_graphics = true;
-}
-
-/* SETTINGS LOAD */
-void on_settings_show(GtkWidget *wdg, void *unused) {
-    char tmp[64];
-
-    gtk_spin_button_set_value(settings_shadow_quality, settings["shadow_quality"]->v.u8);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(settings_enable_shadows), settings["enable_shadows"]->v.b);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(settings_enable_ao), settings["enable_ao"]->v.b);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(settings_enable_bloom), settings["enable_bloom"]->v.b);
-
-    /* Graphics */
-    for (int x=0; x<settings_num_graphic_rows; ++x) {
-        struct table_setting_row *r = &settings_graphic_rows[x];
-        load_setting_row(r);
-    }
-
-    /* Audio */
-    for (int x=0; x<settings_num_audio_rows; ++x) {
-        struct table_setting_row *r = &settings_audio_rows[x];
-        load_setting_row(r);
-    }
-
-    /* Controls */
-    for (int x=0; x<settings_num_control_rows; ++x) {
-        struct table_setting_row *r = &settings_control_rows[x];
-        load_setting_row(r);
-    }
-
-    /* Interface */
-    for (int x=0; x<settings_num_interface_rows; ++x) {
-        struct table_setting_row *r = &settings_interface_rows[x];
-        load_setting_row(r);
-    }
-
-    snprintf(tmp, 64, "%dx%d", settings["shadow_map_resx"]->v.i, settings["shadow_map_resy"]->v.i);
-    if (settings["shadow_map_resx"]->v.i == _tms.window_width && settings["shadow_map_resy"]->v.i == _tms.window_height) {
-        gtk_combo_box_set_active(GTK_COMBO_BOX(settings_shadow_res), 0);
-    } else {
-        gint index = find_cb_val(settings_shadow_res, tmp);
-        if (index != -1) {
-            gtk_combo_box_set_active(GTK_COMBO_BOX(settings_shadow_res), index);
-        } else {
-            gtk_combo_box_text_append_text(settings_shadow_res, tmp);
-
-            index = find_cb_val(settings_shadow_res, tmp);
-            if (index != -1) {
-                gtk_combo_box_set_active(GTK_COMBO_BOX(settings_shadow_res), index);
-            } else {
-                tms_errorf("Unable to get index for a value we just appended");
-            }
-        }
-    }
-
-    snprintf(tmp, 64, "%dx%d", settings["ao_map_res"]->v.i, settings["ao_map_res"]->v.i);
-    if (settings["ao_map_res"]->v.i == _tms.window_width && settings["ao_map_res"]->v.i == _tms.window_height) {
-        gtk_combo_box_set_active(GTK_COMBO_BOX(settings_ao_res), 0);
-    } else {
-        gint index = find_cb_val(settings_ao_res, tmp);
-        if (index != -1) {
-            gtk_combo_box_set_active(GTK_COMBO_BOX(settings_ao_res), index);
-        } else {
-            gtk_combo_box_text_append_text(settings_ao_res, tmp);
-
-            index = find_cb_val(settings_ao_res, tmp);
-            if (index != -1) {
-                gtk_combo_box_set_active(GTK_COMBO_BOX(settings_ao_res), index);
-            } else {
-                tms_errorf("Unable to get index for a value we just appended");
-            }
-        }
-    }
-
-    if (settings["control_type"]->v.u8 == 0)
-        strcpy(tmp, "Keyboard");
-    else if (settings["control_type"]->v.u8 == 1)
-        strcpy(tmp, "Keyboard+Mouse");
-    else // default to keyboard-only controls
-        strcpy(tmp, "Keyboard");
-
-    gint index = find_cb_val(settings_control_type, tmp);
-    if (index != -1) {
-        gtk_combo_box_set_active(GTK_COMBO_BOX(settings_control_type), index);
-    } else {
-        gtk_combo_box_text_append_text(settings_control_type, tmp);
-
-        index = find_cb_val(settings_control_type, tmp);
-        if (index != -1) {
-            gtk_combo_box_set_active(GTK_COMBO_BOX(settings_control_type), index);
-        } else {
-            tms_errorf("Unable to get index for a value we just appended");
-        }
-    }
-}
-
 /** --Export **/
 void on_export_show(GtkWidget *wdg, void *unused) {
     gtk_entry_set_text(export_entry, "");
@@ -3333,20 +2874,6 @@ void activate_restart_level(GtkMenuItem *i, gpointer unused) {
 
 void activate_back(GtkMenuItem *i, gpointer unused) {
     P.add_action(ACTION_BACK, 0);
-}
-
-/* When activate_settings is called normally, userdata is an uint8_t with the value 0.
- * That means the graphics should reload and return to the G screen
- * When activate_settings is called via open_dialog(DIALOG_SETTINGS), userdata is 1.
- * That means RELOAD_GRAPHICS should return to the main menu instead. */
-void activate_settings(GtkMenuItem *i, gpointer userdata) {
-    gint result = gtk_dialog_run(settings_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        save_settings();
-    }
-
-    gtk_widget_hide(GTK_WIDGET(settings_dialog));
 }
 
 void activate_publish(GtkMenuItem *i, gpointer unused) {
@@ -5068,174 +4595,6 @@ int _gtk_loop(void *p) {
         gtk_container_add(GTK_CONTAINER(multi_config_window), GTK_WIDGET(content));
     }
 
-    /** --Settings **/
-    {
-        settings_dialog = new_dialog_defaults("Settings", &on_settings_show);
-        gtk_widget_set_size_request(GTK_WIDGET(settings_dialog), 550, -1);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(settings_dialog));
-
-        GtkNotebook *nb = GTK_NOTEBOOK(gtk_notebook_new());
-        gtk_notebook_set_tab_pos(nb, GTK_POS_TOP);
-
-        GtkGrid *tbl_graphics;
-        {
-            GtkGrid *tbl = create_settings_table();
-
-            int y = -1;
-
-            settings_enable_shadows = GTK_CHECK_BUTTON(gtk_check_button_new());
-            settings_shadow_quality = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                    GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 1, 1, 1, 0)),
-                    1,0));
-            settings_shadow_res = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-            gtk_combo_box_text_append_text(settings_shadow_res, "(native)");
-            gtk_combo_box_text_append_text(settings_shadow_res, "2048x2048");
-            gtk_combo_box_text_append_text(settings_shadow_res, "2048x1024");
-            gtk_combo_box_text_append_text(settings_shadow_res, "1024x1024");
-            gtk_combo_box_text_append_text(settings_shadow_res, "1024x512");
-            gtk_combo_box_text_append_text(settings_shadow_res, "512x512");
-            gtk_combo_box_text_append_text(settings_shadow_res, "512x256");
-
-            settings_enable_ao = GTK_CHECK_BUTTON(gtk_check_button_new());
-            settings_ao_res = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-            gtk_combo_box_text_append_text(settings_ao_res, "512x512");
-            gtk_combo_box_text_append_text(settings_ao_res, "256x256");
-            gtk_combo_box_text_append_text(settings_ao_res, "128x128");
-
-            settings_enable_bloom = GTK_CHECK_BUTTON(gtk_check_button_new());
-
-            add_setting_row(
-                tbl, ++y,
-                "Enable shadows",
-                GTK_WIDGET(settings_enable_shadows)
-            );
-
-            add_setting_row(
-                tbl, ++y,
-                "Shadow quality",
-                GTK_WIDGET(settings_shadow_quality),
-                "Shadow quality 0: Sharp\nShadow quality 1: Smooth"
-            );
-
-            add_setting_row(
-                tbl, ++y,
-                "Shadow resolution",
-                GTK_WIDGET(settings_shadow_res)
-            );
-
-            add_setting_row(
-                tbl, ++y,
-                "Enable AO",
-                GTK_WIDGET(settings_enable_ao)
-            );
-
-            add_setting_row(
-                tbl, ++y,
-                "AO map resolution",
-                GTK_WIDGET(settings_ao_res)
-            );
-
-            for (int x=0; x<settings_num_graphic_rows; ++x) {
-                struct table_setting_row *r = &settings_graphic_rows[x];
-                create_setting_row_widget(r);
-                add_setting_row(
-                    tbl, ++y,
-                    r->label,
-                    r->wdg,
-                    r->help
-                );
-            }
-
-            tbl_graphics = tbl;
-        }
-
-        GtkGrid *tbl_audio;
-        {
-            GtkGrid *tbl = create_settings_table();
-            int y = -1;
-
-            for (int x=0; x<settings_num_audio_rows; ++x) {
-                struct table_setting_row *r = &settings_audio_rows[x];
-
-                create_setting_row_widget(r);
-
-                add_setting_row(
-                    tbl, ++y,
-                    r->label,
-                    r->wdg,
-                    r->help
-                );
-            }
-
-            tbl_audio = tbl;
-        }
-
-        GtkGrid *tbl_controls;
-        {
-            GtkGrid *tbl = create_settings_table();
-
-            int y = -1;
-
-            settings_control_type = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-            gtk_combo_box_text_append_text(settings_control_type, "Keyboard");
-            gtk_combo_box_text_append_text(settings_control_type, "Keyboard+Mouse");
-
-            add_setting_row(
-                tbl, y,
-                "Control type",
-                GTK_WIDGET(settings_control_type)
-            );
-
-            for (int x=0; x<settings_num_control_rows; ++x) {
-                struct table_setting_row *r = &settings_control_rows[x];
-                create_setting_row_widget(r);
-                add_setting_row(
-                    tbl, ++y,
-                    r->label,
-                    r->wdg,
-                    r->help
-                );
-            }
-
-            tbl_controls = tbl;
-        }
-
-        GtkGrid *tbl_interface;
-        {
-            GtkGrid *tbl = create_settings_table();
-
-            int y = -1;
-
-            for (int x=0; x<settings_num_interface_rows; ++x) {
-                struct table_setting_row *r = &settings_interface_rows[x];
-
-                create_setting_row_widget(r);
-
-                add_setting_row(
-                    tbl, ++y,
-                    r->label,
-                    r->wdg,
-                    r->help
-                );
-            }
-
-            tbl_interface = tbl;
-        }
-
-        gtk_notebook_append_page(nb, GTK_WIDGET(tbl_graphics),  new_lbl("<b>Graphics</b>"));
-        gtk_notebook_append_page(nb, GTK_WIDGET(tbl_audio),     new_lbl("<b>Audio</b>"));
-        gtk_notebook_append_page(nb, GTK_WIDGET(tbl_controls),  new_lbl("<b>Controls</b>"));
-        gtk_notebook_append_page(nb, GTK_WIDGET(tbl_interface), new_lbl("<b>Interface</b>"));
-
-        gtk_widget_show_all(GTK_WIDGET(nb));
-
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(nb), true, true, 0);
-
-        gtk_notebook_set_current_page(nb,0);
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
     /** --Confirm Quit Dialog **/
     {
         confirm_quit_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
@@ -6333,12 +5692,6 @@ static gboolean _open_timer(gpointer unused) {
     return false;
 }
 
-static gboolean _open_settings(gpointer unused) {
-    activate_settings(0, 0);
-
-    return false;
-}
-
 static gboolean _open_multi_config(gpointer unused) {
     g_object_set(
         G_OBJECT(multi_config_plastic_color),
@@ -6742,7 +6095,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(object_window));
     gtk_widget_hide(GTK_WIDGET(properties_dialog));
     gtk_widget_hide(GTK_WIDGET(publish_dialog));
-    gtk_widget_hide(GTK_WIDGET(settings_dialog));
     gtk_widget_hide(GTK_WIDGET(confirm_quit_dialog));
     gtk_widget_hide(GTK_WIDGET(fxemitter_dialog));
     gtk_widget_hide(GTK_WIDGET(timer_dialog));
@@ -6888,7 +6240,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_TIMER:          gdk_threads_add_idle(_open_timer, 0); break;
         case DIALOG_SYNTHESIZER:    gdk_threads_add_idle(_open_synth, 0); break;
         case DIALOG_SEQUENCER:      gdk_threads_add_idle(_open_sequencer, 0); break;
-        case DIALOG_SETTINGS:       gdk_threads_add_idle(_open_settings, 0); break;
+        case DIALOG_SETTINGS:
+            UiSettings::open();
+            break;
         case DIALOG_VARIABLE:
             UiVariable::open();
             break;
@@ -7083,6 +6437,7 @@ void ui::render() {
     UiLevelManager::layout();
     UiShapeExtruder::layout();
     UiCursorField::layout();
+    UiSettings::layout();
 
     imgui_driver.post_render();
 #endif
