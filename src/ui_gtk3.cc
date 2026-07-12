@@ -404,35 +404,6 @@ GtkWindow       *info_dialog;
 GtkLabel        *info_text;
 char            *_pass_info_descr;
 
-/** --Error Dialog **/
-GtkDialog       *error_dialog;
-GtkLabel        *error_text;
-char            *_pass_error_text;
-
-/** --Confirm Dialog **/
-GtkDialog       *confirm_dialog;
-GtkLabel        *confirm_text;
-GtkButton       *confirm_button1;
-GtkButton       *confirm_button2;
-GtkButton       *confirm_button3;
-GtkCheckButton  *confirm_dna_sandbox_back;
-struct confirm_data confirm_data(CONFIRM_TYPE_DEFAULT);
-char            *_pass_confirm_text;
-char            *_pass_confirm_button1;
-char            *_pass_confirm_button2;
-char            *_pass_confirm_button3;
-int              confirm_action1;
-int              confirm_action2;
-int              confirm_action3;
-void            *confirm_action1_data = 0;
-void            *confirm_action2_data = 0;
-void            *confirm_action3_data = 0;
-
-/** --Alert Dialog **/
-GtkMessageDialog    *alert_dialog;
-char                *_alert_text = 0;
-uint8_t              _alert_type;
-
 /** --Tips Dialog **/
 GtkDialog       *tips_dialog;
 GtkLabel        *tips_text;
@@ -2597,80 +2568,6 @@ gboolean on_info_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
     return false;
 }
 
-/** --Confirm Dialog **/
-void on_confirm_show(GtkWidget *wdg, void *unused) {
-    gtk_label_set_markup(confirm_text, _pass_confirm_text);
-    gtk_button_set_label(confirm_button1, _pass_confirm_button1);
-    gtk_button_set_label(confirm_button2, _pass_confirm_button2);
-    if (_pass_confirm_button3)
-        gtk_button_set_label(confirm_button3, _pass_confirm_button3);
-    else
-        gtk_widget_hide(GTK_WIDGET(confirm_button3));
-
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(confirm_dna_sandbox_back), settings["dna_sandbox_back"]->v.b);
-
-    switch (confirm_data.confirm_type) {
-        case CONFIRM_TYPE_DEFAULT:
-            gtk_widget_hide(GTK_WIDGET(confirm_dna_sandbox_back));
-            break;
-
-        case CONFIRM_TYPE_BACK_SANDBOX:
-            gtk_widget_show(GTK_WIDGET(confirm_dna_sandbox_back));
-            break;
-    }
-
-    gtk_widget_set_size_request(GTK_WIDGET(confirm_dialog), -1, -1);
-}
-
-gboolean on_confirm_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    switch (key->keyval) {
-        case GDK_KEY_Escape:
-            gtk_dialog_response(confirm_dialog, GTK_RESPONSE_CANCEL);
-            break;
-
-        case GDK_KEY_Return:
-            if (!gtk_widget_has_focus(GTK_WIDGET(confirm_button2))) {
-                gtk_dialog_response(confirm_dialog, 1);
-            }
-            break;
-    }
-
-    return false;
-}
-
-/** --Alert Dialog **/
-void on_alert_show(GtkWidget *wdg, void *unused) {
-    gtk_message_dialog_set_markup(alert_dialog, _alert_text);
-}
-
-gboolean on_alert_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    switch (key->keyval) {
-        case GDK_KEY_Escape:
-            gtk_dialog_response(confirm_dialog, GTK_RESPONSE_CANCEL);
-            break;
-
-        case GDK_KEY_Return:
-            gtk_dialog_response(confirm_dialog, GTK_RESPONSE_ACCEPT);
-            break;
-    }
-
-    return false;
-}
-
-/** --Error Dialog **/
-void on_error_show(GtkWidget *wdg, void *unused) {
-    gtk_label_set_text(error_text, _pass_error_text);
-}
-
-gboolean on_error_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape || key->keyval == GDK_KEY_Return) {
-        gtk_widget_hide(w);
-        return true;
-    }
-
-    return false;
-}
-
 /** --Level properties **/
 static void on_level_flag_toggled(GtkToggleButton *btn, gpointer _flag) {
     bool toggled = gtk_toggle_button_get_active(btn);
@@ -4354,95 +4251,6 @@ int _gtk_loop(void *p) {
         gtk_label_set_line_wrap(GTK_LABEL(info_text), true);
     }
 
-    /** --Error Dialog **/
-    {
-        error_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Errors",
-                0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-                "OK", GTK_RESPONSE_ACCEPT,
-                NULL));
-
-        apply_dialog_defaults(error_dialog, on_error_show, on_error_keypress);
-
-        gtk_window_set_default_size(GTK_WINDOW(error_dialog), 425, 400);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(error_dialog));
-
-        error_text = GTK_LABEL(gtk_label_new(0));
-        gtk_label_set_selectable(error_text, 1);
-        GtkWidget *ew = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
-                      GTK_POLICY_AUTOMATIC,
-                      GTK_POLICY_AUTOMATIC);
-        gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(error_text));
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(ew), 1, 1, 3);
-
-        gtk_label_set_line_wrap(GTK_LABEL(error_text), true);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
-    /** --Confirm Dialog **/
-    {
-        dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Confirm",
-                0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-                NULL, NULL));
-
-        apply_dialog_defaults(dialog, on_confirm_show, on_confirm_keypress);
-
-        confirm_button1 = GTK_BUTTON(
-                gtk_dialog_add_button(
-                    dialog,
-                    "Button1", 1)
-                );
-        confirm_button2 = GTK_BUTTON(
-                gtk_dialog_add_button(
-                    dialog,
-                    "Button2", 2)
-                );
-
-        confirm_button3 = GTK_BUTTON(
-                gtk_dialog_add_button(
-                    dialog,
-                    "Button3", 3)
-                );
-
-        confirm_dna_sandbox_back = new_check_button("Do not show again");
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-
-        confirm_text = GTK_LABEL(gtk_label_new(0));
-        gtk_label_set_selectable(confirm_text, 1);
-        GtkWidget *ew = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
-                      GTK_POLICY_AUTOMATIC,
-                      GTK_POLICY_AUTOMATIC);
-        gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(confirm_text));
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(ew), 1, 1, 3);
-
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(confirm_dna_sandbox_back), 0, 0, 3);
-
-        gtk_label_set_line_wrap(GTK_LABEL(confirm_text), true);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        confirm_dialog = dialog;
-    }
-
-    /** --Alert Dialog **/
-    {
-        dialog = GTK_DIALOG(gtk_message_dialog_new(
-                0, (GtkDialogFlags)(0),
-                GTK_MESSAGE_INFO,
-                GTK_BUTTONS_CLOSE,
-                "Alert"));
-
-        apply_dialog_defaults(dialog, on_alert_show, on_alert_keypress);
-
-        alert_dialog = GTK_MESSAGE_DIALOG(dialog);
-    }
-
     /** --Multi config **/
     {
         multi_config_window = new_window_defaults("Multi config", &on_multi_config_show);
@@ -5477,68 +5285,6 @@ static gboolean _open_info_dialog(gpointer unused) {
     return false;
 }
 
-static gboolean _open_error_dialog(gpointer unused) {
-    gtk_widget_hide(GTK_WIDGET(error_dialog));
-    gtk_dialog_run(error_dialog);
-    gtk_widget_hide(GTK_WIDGET(error_dialog));
-
-    return false;
-}
-
-/** --Confirm Dialog **/
-static gboolean _open_confirm_dialog(gpointer unused) {
-    gtk_widget_hide(GTK_WIDGET(confirm_dialog));
-    P.focused = false;
-    int r = gtk_dialog_run(confirm_dialog);
-    P.focused = true;
-
-    switch (r) {
-        case 1:
-            // button 1 pressed
-            if (confirm_action1 != ACTION_IGNORE) {
-                P.add_action(confirm_action1, confirm_action1_data);
-            }
-            break;
-
-        case 2:
-            // button 2 pressed
-            if (confirm_action2 != ACTION_IGNORE) {
-                P.add_action(confirm_action2, confirm_action2_data);
-            }
-            break;
-
-        case 3:
-            // button 2 pressed
-            if (confirm_action3 != ACTION_IGNORE) {
-                P.add_action(confirm_action3, confirm_action3_data);
-            }
-            break;
-    }
-
-    switch (confirm_data.confirm_type) {
-        case CONFIRM_TYPE_BACK_SANDBOX:
-            settings["dna_sandbox_back"]->v.b = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(confirm_dna_sandbox_back));
-            settings.save();
-            break;
-    }
-
-    gtk_widget_hide(GTK_WIDGET(confirm_dialog));
-
-    return false;
-}
-
-/** --Alert Dialog **/
-static gboolean _open_alert_dialog(gpointer unused) {
-    gtk_widget_hide(GTK_WIDGET(alert_dialog));
-    P.focused = false;
-    gtk_dialog_run(GTK_DIALOG(alert_dialog));
-    P.focused = true;
-
-    gtk_widget_hide(GTK_WIDGET(alert_dialog));
-
-    return false;
-}
-
 static gboolean _open_robot_window(gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(robot_window));
     return false;
@@ -6300,12 +6046,7 @@ void ui::quit() {
 }
 
 void ui::open_error_dialog(const char *error_msg) {
-    wait_ui_ready();
-
-    _pass_error_text = strdup(error_msg);
-    gdk_threads_add_idle(_open_error_dialog, 0);
-
-    gdk_display_flush(gdk_display_get_default());
+    UiMessage::open(error_msg, MessageType::Error);
 }
 
 void ui::confirm(const char *text,
@@ -6315,43 +6056,11 @@ void ui::confirm(const char *text,
         struct confirm_data _confirm_data/*=none*/
         ) {
 
-    wait_ui_ready();
-
-    _pass_confirm_text    = strdup(text);
-    _pass_confirm_button1 = strdup(button1);
-    _pass_confirm_button2 = strdup(button2);
-    if (button3)
-        _pass_confirm_button3 = strdup(button3);
-    else
-        _pass_confirm_button3 = 0;
-
-    confirm_action1 = action1.action_id;
-    confirm_action2 = action2.action_id;
-    confirm_action3 = action3.action_id;
-
-    confirm_action1_data = action1.action_data;
-    confirm_action2_data = action2.action_data;
-    confirm_action3_data = action3.action_data;
-
-    confirm_data = _confirm_data;
-
-    gdk_threads_add_idle(_open_confirm_dialog, 0);
-
-    gdk_display_flush(gdk_display_get_default());
+    UiConfirm::open(text, button1, action1, button2, action2, button3, action3, _confirm_data);
 }
 
 void ui::alert(const char *text, uint8_t alert_type/*=ALERT_INFORMATION*/) {
-    wait_ui_ready();
-
-    if (_alert_text)
-        free(_alert_text);
-
-    _alert_type = alert_type;
-    _alert_text = strdup(text);
-
-    gdk_threads_add_idle(_open_alert_dialog, 0);
-
-    gdk_display_flush(gdk_display_get_default());
+    UiMessage::open(text, MessageType::Message);
 }
 
 void ui::render() {
@@ -6385,6 +6094,8 @@ void ui::render() {
     UiCursorField::layout();
     UiSettings::layout();
     UiSetFaction::layout();
+    UiConfirm::layout();
+    UiMessage::layout();
 
     imgui_driver.post_render();
 #endif

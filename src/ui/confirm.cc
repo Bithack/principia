@@ -30,11 +30,10 @@ namespace UiConfirm {
 
         confirm_button1 = strdup(button1);
         confirm_button2 = strdup(button2);
-        if (button3) {
+        if (button3)
             confirm_button3 = strdup(button3);
-        } else {
+        else
             confirm_button3 = 0;
-        }
 
         confirm_action1 = action1.action_id;
         confirm_action2 = action2.action_id;
@@ -52,25 +51,25 @@ namespace UiConfirm {
     void layout() {
         handle_do_open(&do_open, "Confirm");
         ImGui_CenterNextWindow();
-        ImGui::SetNextWindowSize(ImVec2(400, .0));
+        ImGui::SetNextWindowSize(UI(280, .0));
 
         if (ImGui::BeginPopupModal("Confirm", NULL, MODAL_FLAGS)) {
             ImGui::TextWrapped("%s", confirm_text);
 
-            ImGui::Dummy(ImVec2(0.0f, 40.0f));
+            ImGui::Dummy(UI(0.0f, 25.0f));
 
-            if (ImGui::Button(confirm_button1)) {
+            if (ImGui::Button(confirm_button1, UI(70., 0.))) {
                 P.add_action(confirm_action1, confirm_action1_data);
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();
-            if (ImGui::Button(confirm_button2)) {
+            if (ImGui::Button(confirm_button2, UI(70., 0.))) {
                 P.add_action(confirm_action2, confirm_action2_data);
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();
             if (confirm_button3 != 0) {
-                if (ImGui::Button(confirm_button3)) {
+                if (ImGui::Button(confirm_button3, UI(70., 0.))) {
                     P.add_action(confirm_action3, confirm_action3_data);
                     ImGui::CloseCurrentPopup();
                 }

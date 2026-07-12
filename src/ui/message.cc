@@ -29,13 +29,13 @@ namespace UiMessage {
                 typ = "Level description###info-popup";
                 break;
         }
-        ImGui::SetNextWindowSize(ImVec2(400., 0.));
+        ImGui::SetNextWindowSize(UI(280., 0.));
         if (ImGui::BeginPopupModal(typ, NULL, MODAL_FLAGS)) {
             ImGui::TextWrapped("%s", message.c_str());
 
-            ImGui::Dummy(ImVec2(0.0f, 40.0f));
+            ImGui::Dummy(UI(0.0f, 25.0f));
 
-            if (ImGui::Button("Close")) {
+            if (ImGui::Button("Close", UI(70., 0.))) {
                 ImGui::CloseCurrentPopup();
             }
             ImGui::EndPopup();
