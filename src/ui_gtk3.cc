@@ -417,9 +417,6 @@ GtkComboBoxText *robot_back_equipment;
 GtkComboBoxText *robot_front_equipment;
 GtkComboBoxText *robot_head_equipment;
 
-/** --Community **/
-GtkDialog       *community_dialog;
-
 /** --Sequencer **/
 GtkWindow       *sequencer_window;
 GtkLabel        *sequencer_state;
@@ -4236,28 +4233,6 @@ int _gtk_loop(void *p) {
         gtk_container_add(GTK_CONTAINER(robot_window), GTK_WIDGET(content));
     }
 
-    /** --Community **/
-    {
-        dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-            "Back to main menu?",
-            0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-            "Yes", GTK_RESPONSE_ACCEPT,
-            "No", GTK_RESPONSE_REJECT,
-            NULL
-        ));
-
-        apply_dialog_defaults(dialog);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("Do you want to return to the main menu?"), false, false, 0);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        community_dialog = dialog;
-    }
-
-
     /** --escript **/
     {
         escript_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
@@ -4855,19 +4830,6 @@ static gboolean _open_robot_window(gpointer unused) {
     return false;
 }
 
-/** --Community **/
-static gboolean _open_community(gpointer unused) {
-    gint result = gtk_dialog_run(community_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        P.add_action(ACTION_GOTO_MAINMENU, 0);
-    }
-
-    gtk_widget_hide(GTK_WIDGET(community_dialog));
-
-    return false;
-}
-
 /** --Sequencer **/
 static gboolean _open_sequencer(gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(sequencer_window));
@@ -5258,7 +5220,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(escript_window));
     gtk_widget_hide(GTK_WIDGET(synth_dialog));
     gtk_widget_hide(GTK_WIDGET(prompt_settings_dialog));
-    gtk_widget_hide(GTK_WIDGET(community_dialog));
     //if (cur_prompt) gtk_widget_hide(GTK_WIDGET(cur_prompt));
     return false;
 }
@@ -5422,7 +5383,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_PUBLISHED:
             UiPublished::open();
             break;
-        case DIALOG_COMMUNITY:      gdk_threads_add_idle(_open_community, 0); break;
+        case DIALOG_COMMUNITY:
+            UiCommunity::open();
+            break;
         case DIALOG_ANIMAL:
             UiAnimal::open();
             break;
@@ -5563,6 +5526,7 @@ void ui::render() {
     UiPublish::layout();
     UiPublished::layout();
     UiTimer::layout();
+    UiCommunity::layout();
 
     imgui_driver.post_render();
 }
