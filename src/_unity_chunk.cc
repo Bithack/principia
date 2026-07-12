@@ -279,6 +279,7 @@
 	#include "ui/shape_extruder.cc"
 	#include "ui/sticky.cc"
 	#include "ui/synthesizer.cc"
+	#include "ui/timer.cc"
 	#include "ui/tips.cc"
 	#include "ui/treasure_chest.cc"
 	#include "ui/variable.cc"

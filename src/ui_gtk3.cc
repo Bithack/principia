@@ -5,8 +5,6 @@
  */
 
 #include "adventure.hh"
-#include "anchor.hh"
-#include "command.hh"
 #include "display.hh"
 #include "escript.hh"
 #include "faction.hh"
@@ -14,13 +12,11 @@
 #include "fxemitter.hh"
 #include "game.hh"
 #include "item.hh"
-#include "key_listener.hh"
 #include "main.hh"
 #include "menu-play.hh"
 #include "object_factory.hh"
 #include "pkgman.hh"
 #include "prompt.hh"
-#include "resource.hh"
 #include "robot_base.hh"
 #include "sequencer.hh"
 #include "settings.hh"
@@ -28,7 +24,6 @@
 #include "simplebg.hh"
 #include "soundmanager.hh"
 #include "speaker.hh"
-#include "timer.hh"
 #include "treasure_chest.hh"
 #include "ui.hh"
 #include <SDL3/SDL.h>
@@ -421,14 +416,6 @@ GtkComboBoxText *robot_bolts;
 GtkComboBoxText *robot_back_equipment;
 GtkComboBoxText *robot_front_equipment;
 GtkComboBoxText *robot_head_equipment;
-
-/** --Timer **/
-GtkDialog       *timer_dialog;
-GtkLabel        *timer_time;
-GtkSpinButton   *timer_seconds;
-GtkSpinButton   *timer_milliseconds;
-GtkSpinButton   *timer_num_ticks;
-GtkCheckButton  *timer_use_system_time;
 
 /** --Community **/
 GtkDialog       *community_dialog;
@@ -1020,52 +1007,6 @@ void on_synth_show(GtkWidget *wdg, void *unused) {
 
         gtk_widget_grab_focus(GTK_WIDGET(synth_hz_low));
     }
-}
-
-/** --Timer **/
-void on_timer_show(GtkWidget *wdg, void *unused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_TIMER) {
-        float s = floor((float)(e->properties[0].v.i) / 1000.f);
-        float ms = (float)(e->properties[0].v.i % 1000);
-        gtk_spin_button_set_value(timer_seconds, s);
-        gtk_spin_button_set_value(timer_milliseconds, ms);
-
-        gtk_spin_button_set_value(timer_num_ticks, (gdouble)e->properties[1].v.i8);
-
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(timer_use_system_time), e->properties[2].v.i);
-    }
-}
-
-void timer_time_changed(GtkSpinButton *btn, gpointer unused) {
-    char tmp[64];
-    int seconds = gtk_spin_button_get_value(timer_seconds);
-    int milliseconds = gtk_spin_button_get_value(timer_milliseconds);
-    uint32_t full_time = (seconds*1000) + milliseconds;
-
-    if (full_time < TIMER_MIN_TIME) {
-        milliseconds = TIMER_MIN_TIME;
-        gtk_spin_button_set_value(timer_milliseconds, TIMER_MIN_TIME);
-        full_time = TIMER_MIN_TIME;
-    }
-
-    snprintf(tmp, 63, "%d.%ds", seconds, milliseconds);
-    gtk_label_set_text(timer_time, tmp);
-}
-
-gboolean on_timer_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    switch (key->keyval) {
-        case GDK_KEY_Escape:
-            gtk_dialog_response(timer_dialog, GTK_RESPONSE_CANCEL);
-            break;
-
-        case GDK_KEY_Return:
-            gtk_dialog_response(timer_dialog, GTK_RESPONSE_ACCEPT);
-            break;
-    }
-
-    return false;
 }
 
 /** --Sequencer **/
@@ -4495,76 +4436,6 @@ int _gtk_loop(void *p) {
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
-    /** --Timer **/
-    {
-        dialog = new_dialog_defaults("Timer", &on_timer_show, &on_timer_keypress);
-
-        gtk_widget_set_size_request(GTK_WIDGET(dialog), 250, -1);
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-
-        GtkGrid *tbl_settings = create_settings_table();
-        {
-            int y = -1;
-
-            timer_seconds = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                        GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 360, 1, 1, 0)),
-                        50, 0));
-            g_signal_connect(timer_seconds, "value-changed", G_CALLBACK(timer_time_changed), 0);
-
-            timer_milliseconds = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                        GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 999, 16, 16, 0)),
-                        50, 0));
-            g_signal_connect(timer_milliseconds, "value-changed", G_CALLBACK(timer_time_changed), 0);
-
-            timer_num_ticks = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                        GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 255, 1, 1, 0)),
-                        1, 0));
-
-            timer_time = GTK_LABEL(gtk_label_new("0.0s"));
-            gtk_label_set_xalign(GTK_LABEL(timer_time), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(timer_time), 0.5f);
-
-            timer_use_system_time = GTK_CHECK_BUTTON(gtk_check_button_new());
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Time between ticks",
-                GTK_WIDGET(timer_time)
-            );
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Seconds",
-                GTK_WIDGET(timer_seconds)
-            );
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Milliseconds",
-                GTK_WIDGET(timer_milliseconds)
-            );
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Number of ticks",
-                GTK_WIDGET(timer_num_ticks),
-                "0 = Infinite ticks"
-            );
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Use system time",
-                GTK_WIDGET(timer_use_system_time),
-                "Use system time for ticks, instead of in-game time."
-            );
-        }
-
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(tbl_settings), false, false, 0);
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        timer_dialog = dialog;
-    }
-
     /** --Sequencer **/
     {
         sequencer_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
@@ -5053,36 +4924,6 @@ static gboolean _open_synth(gpointer unused) {
     return false;
 }
 
-/** --Timer **/
-static gboolean _open_timer(gpointer unused) {
-    gint result = gtk_dialog_run(timer_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_TIMER) {
-            uint8_t num_ticks = gtk_spin_button_get_value(timer_num_ticks);
-            int seconds = gtk_spin_button_get_value(timer_seconds);
-            int milliseconds = gtk_spin_button_get_value(timer_milliseconds);
-            uint32_t full_time = (seconds*1000) + milliseconds;
-            if (full_time < TIMER_MIN_TIME)
-                full_time = TIMER_MIN_TIME;
-
-            e->properties[0].v.i = full_time;
-            e->properties[1].v.i8 = num_ticks;
-            e->properties[2].v.i = (uint32_t)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(timer_use_system_time));
-
-            ui::message("Timer properties saved!");
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(timer_dialog));
-
-    return false;
-}
-
 static gboolean _open_multi_config(gpointer unused) {
     g_object_set(
         G_OBJECT(multi_config_plastic_color),
@@ -5414,7 +5255,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(properties_dialog));
     gtk_widget_hide(GTK_WIDGET(confirm_quit_dialog));
     gtk_widget_hide(GTK_WIDGET(fxemitter_dialog));
-    gtk_widget_hide(GTK_WIDGET(timer_dialog));
     gtk_widget_hide(GTK_WIDGET(escript_window));
     gtk_widget_hide(GTK_WIDGET(synth_dialog));
     gtk_widget_hide(GTK_WIDGET(prompt_settings_dialog));
@@ -5550,7 +5390,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiPkgLvlSelector::open();
             break;
         case DIALOG_ROBOT:          gdk_threads_add_idle(_open_robot_window, 0); break;
-        case DIALOG_TIMER:          gdk_threads_add_idle(_open_timer, 0); break;
+        case DIALOG_TIMER:
+            UiTimer::open();
+            break;
         case DIALOG_SYNTHESIZER:    gdk_threads_add_idle(_open_synth, 0); break;
         case DIALOG_SEQUENCER:      gdk_threads_add_idle(_open_sequencer, 0); break;
         case DIALOG_SETTINGS:
@@ -5720,6 +5562,7 @@ void ui::render() {
     UiTips::layout();
     UiPublish::layout();
     UiPublished::layout();
+    UiTimer::layout();
 
     imgui_driver.post_render();
 }
