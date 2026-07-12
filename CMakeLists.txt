@@ -69,10 +69,9 @@ else()
 	option(BACKEND_IMGUI "Enable incomplete Dear Imgui dialog backend (Experimental)" FALSE)
 endif()
 
-option(GTK_LEGACY_DIALOGS "Use old GTK implementations for dialogs that are provided by Dear Imgui" FALSE)
 if(ANDROID OR SCREENSHOT_BUILD)
 	set(IMGUI_IN_GTK FALSE)
-elseif(NOT GTK_LEGACY_DIALOGS)
+else()
 	set(IMGUI_IN_GTK TRUE)
 endif()
 

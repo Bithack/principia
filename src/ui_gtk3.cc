@@ -5621,10 +5621,8 @@ void ui::init() {
     if (gtk_thread == NULL)
         tms_errorf("SDL_CreateThread failed: %s", SDL_GetError());
 
-#ifdef UI_IMGUI_IN_GTK
     imgui_driver = ImguiDriver();
     imgui_driver.init();
-#endif
 }
 
 void ui::open_dialog(int num, void *data/*=0*/) {
@@ -5829,9 +5827,7 @@ void ui::quit() {
     /* TODO: add proper quit stuff here */
     _tms.state = TMS_STATE_QUITTING;
 
-#ifdef UI_IMGUI_IN_GTK
     imgui_driver.quit();
-#endif
 }
 
 void ui::open_error_dialog(const char *error_msg) {
@@ -5853,7 +5849,6 @@ void ui::alert(const char *text, uint8_t alert_type/*=ALERT_INFORMATION*/) {
 }
 
 void ui::render() {
-#ifdef UI_IMGUI_IN_GTK
     imgui_driver.pre_render();
 
     UiSandboxMenu::layout();
@@ -5888,7 +5883,6 @@ void ui::render() {
     UiKeyListener::layout();
 
     imgui_driver.post_render();
-#endif
 }
 
 #endif
