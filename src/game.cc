@@ -7990,32 +7990,6 @@ game::handle_input_paused(tms::event *ev, int action)
                     ui::open_dialog(DIALOG_SANDBOX_MENU);
                 }
                 break;
-        }
-    } else if (ev->type == TMS_EV_KEY_UP) {
-        switch (ev->data.key.keycode) {
-            case TMS_KEY_SPACE:
-                if (!disable_menu) {
-                    ui::open_dialog(DIALOG_QUICKADD);
-                }
-
-                disable_menu = false;
-                break;
-
-            case TMS_KEY_LEFT_SHIFT:
-            case TMS_KEY_RIGHT_SHIFT:
-                if (this->get_mode() == GAME_MODE_MULTISEL) {
-                    this->multi.additive_selection = !this->multi.additive_selection;
-                    this->wdg_additive->faded = !this->multi.additive_selection;
-                }
-                break;
-
-            case TMS_KEY_LEFT_CTRL:
-            case TMS_KEY_RIGHT_CTRL:
-                if (!disable_menu)
-                    ui::open_dialog(DIALOG_SANDBOX_MENU);
-
-                disable_menu = false;
-                break;
 
             case TMS_KEY_ESC:
                 if (this->get_mode() != GAME_MODE_DEFAULT) {
@@ -8046,6 +8020,33 @@ game::handle_input_paused(tms::event *ev, int action)
 
                 disable_menu = false;
                 break;
+        }
+    } else if (ev->type == TMS_EV_KEY_UP) {
+        switch (ev->data.key.keycode) {
+            case TMS_KEY_SPACE:
+                if (!disable_menu) {
+                    ui::open_dialog(DIALOG_QUICKADD);
+                }
+
+                disable_menu = false;
+                break;
+
+            case TMS_KEY_LEFT_SHIFT:
+            case TMS_KEY_RIGHT_SHIFT:
+                if (this->get_mode() == GAME_MODE_MULTISEL) {
+                    this->multi.additive_selection = !this->multi.additive_selection;
+                    this->wdg_additive->faded = !this->multi.additive_selection;
+                }
+                break;
+
+            case TMS_KEY_LEFT_CTRL:
+            case TMS_KEY_RIGHT_CTRL:
+                if (!disable_menu)
+                    ui::open_dialog(DIALOG_SANDBOX_MENU);
+
+                disable_menu = false;
+                break;
+
         }
     } else if (ev->type == TMS_EV_POINTER_MOVE) {
         if (this->menu_handle_event(ev) == EVENT_DONE) {
