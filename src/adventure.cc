@@ -969,183 +969,148 @@ adventure::handle_input_playing(tms::event *ev, int action)
         }
     }
 
-    switch (settings["control_type"]->v.u8) {
-        case 0: /* Keyboard only */
-            if (ev->type & TMS_EV_MASK_KEY) {
-                switch (ev->data.key.keycode) {
-                    case TMS_KEY_ESC:
-                        ret = handle_input_action(ev, IA_DETACH);
-                        break;
+    int control_type = settings["control_type"]->v.u8;
+    if (ev->type & TMS_EV_MASK_KEY) {
+        switch (ev->data.key.keycode) {
+            case TMS_KEY_ESC:
+                ret = handle_input_action(ev, IA_DETACH);
+                break;
 
-                    case TMS_KEY_R:
-                        ret = handle_input_action(ev, IA_DROP_INTERACTING);
-                        break;
+            case TMS_KEY_R:
+                ret = handle_input_action(ev, IA_DROP_INTERACTING);
+                break;
 
-                    case TMS_KEY_1:
-                    case TMS_KEY_2:
-                    case TMS_KEY_3:
-                    case TMS_KEY_4:
-                    case TMS_KEY_5:
-                    case TMS_KEY_6:
-                    case TMS_KEY_7:
-                    case TMS_KEY_8:
-                    case TMS_KEY_9:
-                        {
-                            int index = ev->data.key.keycode - TMS_KEY_1;
+            case TMS_KEY_1:
+            case TMS_KEY_2:
+            case TMS_KEY_3:
+            case TMS_KEY_4:
+            case TMS_KEY_5:
+            case TMS_KEY_6:
+            case TMS_KEY_7:
+            case TMS_KEY_8:
+            case TMS_KEY_9:
+                {
+                    int index = ev->data.key.keycode - TMS_KEY_1;
 
-                            if (adventure::player->g_id == O_ROBOT) {
-                                robot* r = static_cast<robot*>(adventure::player);
+                    if (adventure::player->g_id == O_ROBOT) {
+                        robot* r = static_cast<robot*>(adventure::player);
 
-                                if (G->shift_down()) {
-                                    if (index < r->num_tools) {
-                                        r->equip_tool(r->tools[index]->get_arm_type());
+                        if (G->shift_down()) {
+                            if (index < r->num_tools) {
+                                r->equip_tool(r->tools[index]->get_arm_type());
 
-                                        ret = handle_input_action(ev, IA_DROP_INTERACTING);
-                                    }
-                                } else {
-                                    if (index < r->num_weapons) {
-                                        r->equip_weapon(r->weapons[index]->get_weapon_type());
-                                    }
-                                }
+                                ret = handle_input_action(ev, IA_DROP_INTERACTING);
+                            }
+                        } else {
+                            if (index < r->num_weapons) {
+                                r->equip_weapon(r->weapons[index]->get_weapon_type());
                             }
                         }
-                        break;
-
-                    case TMS_KEY_E:
-                        ret = handle_input_action(ev, IA_ACTION);
-                        break;
-
-                    case TMS_KEY_LEFT:
-                        ret = handle_input_action(ev, IA_MOVE_LEFT);
-                        adventure::player->look(DIR_LEFT);
-                        break;
-
-                    case TMS_KEY_RIGHT:
-                        ret = handle_input_action(ev, IA_MOVE_RIGHT);
-                        adventure::player->look(DIR_RIGHT);
-                        break;
-
-                    case TMS_KEY_SPACE:
-                        ret = handle_input_action(ev, IA_JUMP);
-                        break;
-
-                    case TMS_KEY_LEFT_CTRL:
-                    case TMS_KEY_RIGHT_CTRL:
-                        ret = handle_input_action(ev, IA_ATTACK);
-                        break;
-
-                    case TMS_KEY_PAGEUP:
-                        ret = handle_input_action(ev, IA_LAYER_UP);
-                        break;
-
-                    case TMS_KEY_PAGEDOWN:
-                        ret = handle_input_action(ev, IA_LAYER_DOWN);
-                        break;
-
-                    case TMS_KEY_DOWN:
-                        ret = handle_input_action(ev, IA_AIM_DOWN);
-                        break;
-
-                    case TMS_KEY_UP:
-                        ret = handle_input_action(ev, IA_AIM_UP);
-                        break;
+                    }
                 }
-            }
-            break;
+                break;
 
-        case 1: /* Keyboard and mouse */
-            if (ev->type & TMS_EV_MASK_KEY) {
-                switch (ev->data.key.keycode) {
-                    case TMS_KEY_ESC:
-                        ret = handle_input_action(ev, IA_DETACH);
-                        break;
+            case TMS_KEY_E:
+                ret = handle_input_action(ev, IA_ACTION);
+                break;
 
-                    case TMS_KEY_R:
-                        ret = handle_input_action(ev, IA_DROP_INTERACTING);
-                        break;
-
-                    case TMS_KEY_1:
-                    case TMS_KEY_2:
-                    case TMS_KEY_3:
-                    case TMS_KEY_4:
-                    case TMS_KEY_5:
-                    case TMS_KEY_6:
-                    case TMS_KEY_7:
-                    case TMS_KEY_8:
-                    case TMS_KEY_9:
-                        {
-                            int index = ev->data.key.keycode - TMS_KEY_1;
-
-                            if (adventure::player->g_id == O_ROBOT) {
-                                robot* r = static_cast<robot*>(adventure::player);
-
-                                if (G->shift_down()) {
-                                    if (index < r->num_tools) {
-                                        r->equip_tool(r->tools[index]->get_arm_type());
-
-                                        ret = handle_input_action(ev, IA_DROP_INTERACTING);
-                                    }
-                                } else {
-                                    if (index < r->num_weapons) {
-                                        r->equip_weapon(r->weapons[index]->get_weapon_type());
-                                    }
-                                }
-                            }
-                        }
-                        break;
-
-                    case TMS_KEY_E:
-                        ret = handle_input_action(ev, IA_ACTION);
-                        break;
-
-                    case TMS_KEY_A:
-                        ret = handle_input_action(ev, IA_MOVE_LEFT);
-                        break;
-
-                    case TMS_KEY_D:
-                        ret = handle_input_action(ev, IA_MOVE_RIGHT);
-                        break;
-
-                    case TMS_KEY_SPACE:
-                        ret = handle_input_action(ev, IA_JUMP);
-                        break;
-
-                    case TMS_KEY_W:
-                        ret = handle_input_action(ev, IA_LAYER_UP);
-                        break;
-
-                    case TMS_KEY_S:
-                        ret = handle_input_action(ev, IA_LAYER_DOWN);
-                        break;
-
-                    case TMS_KEY_I:
-                        ret = handle_input_action(ev, IA_BTN_INFO);
-                        break;
-
-                    case TMS_KEY_X:
-                        ret = handle_input_action(ev, IA_BTN_LAYER_UP);
-                        break;
-
-                    case TMS_KEY_Z:
-                        ret = handle_input_action(ev, IA_BTN_LAYER_DOWN);
-                        break;
-
-                    case TMS_KEY_K:
-                        ret = handle_input_action(ev, IA_SELF_DESTRUCT);
-                        break;
-
-#ifdef DEBUG
-                    case TMS_KEY_U:
-                        ret = handle_input_action(ev, IA_HEAL_FULL);
-                        break;
-#endif
+            case TMS_KEY_LEFT:
+                if (control_type == 0) {
+                    ret = handle_input_action(ev, IA_MOVE_LEFT);
+                    adventure::player->look(DIR_LEFT);
                 }
-            } else if (ev->type == TMS_EV_POINTER_DOWN || ev->type == TMS_EV_POINTER_UP) {
-                if (!settings["touch_controls"]->v.b && ev->data.motion.pointer_id == 1) {
+                break;
+
+            case TMS_KEY_RIGHT:
+                if (control_type == 0) {
+                    ret = handle_input_action(ev, IA_MOVE_RIGHT);
+                    adventure::player->look(DIR_RIGHT);
+                }
+                break;
+
+            case TMS_KEY_A:
+                ret = handle_input_action(ev, IA_MOVE_LEFT);
+                if (control_type == 0) {
+                    adventure::player->look(DIR_LEFT);
+                }
+                break;
+
+            case TMS_KEY_D:
+                ret = handle_input_action(ev, IA_MOVE_RIGHT);
+                if (control_type == 0) {
+                    adventure::player->look(DIR_RIGHT);
+                }
+                break;
+
+            case TMS_KEY_SPACE:
+                ret = handle_input_action(ev, IA_JUMP);
+                break;
+
+            case TMS_KEY_LEFT_CTRL:
+            case TMS_KEY_RIGHT_CTRL:
+                if (control_type == 0) {
                     ret = handle_input_action(ev, IA_ATTACK);
                 }
-            }
-            break;
+                break;
+
+            case TMS_KEY_PAGEUP:
+                if (control_type == 0) {
+                    ret = handle_input_action(ev, IA_LAYER_UP);
+                }
+                break;
+
+            case TMS_KEY_PAGEDOWN:
+                if (control_type == 0) {
+                    ret = handle_input_action(ev, IA_LAYER_DOWN);
+                }
+                break;
+
+            case TMS_KEY_DOWN:
+                if (control_type == 0) {
+                    ret = handle_input_action(ev, IA_AIM_DOWN);
+                }
+                break;
+
+            case TMS_KEY_UP:
+                if (control_type == 0) {
+                    ret = handle_input_action(ev, IA_AIM_UP);
+                }
+                break;
+
+            case TMS_KEY_W:
+                ret = handle_input_action(ev, IA_LAYER_UP);
+                break;
+
+            case TMS_KEY_S:
+                ret = handle_input_action(ev, IA_LAYER_DOWN);
+                break;
+
+            case TMS_KEY_I:
+                ret = handle_input_action(ev, IA_BTN_INFO);
+                break;
+
+            case TMS_KEY_X:
+                ret = handle_input_action(ev, IA_BTN_LAYER_UP);
+                break;
+
+            case TMS_KEY_Z:
+                ret = handle_input_action(ev, IA_BTN_LAYER_DOWN);
+                break;
+
+            case TMS_KEY_K:
+                ret = handle_input_action(ev, IA_SELF_DESTRUCT);
+                break;
+
+#ifdef DEBUG
+            case TMS_KEY_U:
+                ret = handle_input_action(ev, IA_HEAL_FULL);
+                break;
+#endif
+        }
+    } else if (ev->type == TMS_EV_POINTER_DOWN || ev->type == TMS_EV_POINTER_UP) {
+        if (control_type == 1 && !settings["touch_controls"]->v.b && ev->data.motion.pointer_id == 1) {
+            ret = handle_input_action(ev, IA_ATTACK);
+        }
     }
 
     return ret;
