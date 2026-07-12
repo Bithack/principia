@@ -265,6 +265,8 @@
 	#include "ui/pkg_lvl_selector.cc"
 	#include "ui/play_menu.cc"
 	#include "ui/polygon.cc"
+	#include "ui/publish.cc"
+	#include "ui/published.cc"
 	#include "ui/quickadd.cc"
 	#include "ui/resource.cc"
 	#include "ui/robot.cc"

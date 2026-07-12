@@ -47,3 +47,5 @@ namespace UiShapeExtruder   { void open(); void layout(); }
 namespace UiCursorField     { void open(); void layout(); }
 namespace UiSetFaction      { void open(); void layout(); }
 namespace UiKeyListener     { void open(); void layout(); }
+namespace UiPublish         { void open(); void layout(); }
+namespace UiPublished       { void open(); void layout(); }

@@ -295,12 +295,6 @@ struct gtk_level_property gtk_level_properties[] = {
 
 static int num_gtk_level_properties = sizeof(gtk_level_properties) / sizeof(gtk_level_properties[0]);
 
-/** --Publish **/
-GtkDialog      *publish_dialog;
-GtkEntry       *publish_name;
-GtkTextView    *publish_descr;
-GtkCheckButton *publish_locked;
-
 /** --Vendor **/
 GtkDialog       *vendor_dialog;
 GtkSpinButton   *vendor_amount;
@@ -435,9 +429,6 @@ GtkSpinButton   *timer_seconds;
 GtkSpinButton   *timer_milliseconds;
 GtkSpinButton   *timer_num_ticks;
 GtkCheckButton  *timer_use_system_time;
-
-/** --Published **/
-GtkDialog       *published_dialog;
 
 /** --Community **/
 GtkDialog       *community_dialog;
@@ -1749,23 +1740,6 @@ void on_tips_show(GtkWidget *wdg, void *unused) {
     ctip = (ctip+1)%num_tips;
 }
 
-void on_publish_show(GtkWidget *wdg, void *unused) {
-    char *current_descr = (char*)malloc(W->level.descr_len+1);
-    memcpy(current_descr, W->level.descr, W->level.descr_len);
-    current_descr[W->level.descr_len] = '\0';
-    GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(publish_descr);
-    gtk_text_buffer_set_text(text_buffer, current_descr, -1);
-
-    char current_name[257];
-    memcpy(current_name, W->level.name, W->level.name_len);
-    current_name[W->level.name_len] = '\0';
-    gtk_entry_set_text(publish_name, current_name);
-
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(publish_locked), W->level.visibility == LEVEL_LOCKED);
-
-    free(current_descr);
-}
-
 void on_object_show(GtkWidget *wdg, void *unused) {
     GtkTreeIter iter;
 
@@ -2560,8 +2534,6 @@ void on_properties_show(GtkWidget *wdg, void *unused) {
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lvl_radio_puzzle), (W->level.type == LCAT_PUZZLE));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lvl_radio_custom), (W->level.type == LCAT_CUSTOM));
 
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(publish_locked), W->level.visibility == LEVEL_LOCKED);
-
     refresh_borders();
 
     gtk_spin_button_set_value(lvl_gx, W->level.gravity_x);
@@ -2679,49 +2651,6 @@ void activate_restart_level(GtkMenuItem *i, gpointer unused) {
 
 void activate_back(GtkMenuItem *i, gpointer unused) {
     P.add_action(ACTION_BACK, 0);
-}
-
-void activate_publish(GtkMenuItem *i, gpointer unused) {
-    gint result = gtk_dialog_run(publish_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        const char *name = gtk_entry_get_text(publish_name);
-        int name_len = strlen(name);
-        if (name_len == 0) {
-            ui::message("You cannot publish a level without a name.");
-            activate_publish(0,0);
-            return;
-        }
-        W->level.name_len = name_len;
-        memcpy(W->level.name, name, name_len);
-
-        GtkTextIter start, end;
-        GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(publish_descr);
-        char *descr;
-
-        gtk_text_buffer_get_bounds(text_buffer, &start, &end);
-
-        descr = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
-        int descr_len = strlen(descr);
-
-        if (descr_len > 0) {
-            W->level.descr_len = descr_len;
-            W->level.descr = (char*)realloc(W->level.descr, descr_len+1);
-
-            memcpy(W->level.descr, descr, descr_len);
-            descr[descr_len] = '\0';
-        } else
-            W->level.descr_len = 0;
-
-        W->level.visibility = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(publish_locked)) ? LEVEL_LOCKED : LEVEL_VISIBLE;
-
-        tms_infof("Setting level name to:  %s", name);
-        tms_infof("Setting level descr to: %s", descr);
-
-        P.add_action(ACTION_PUBLISH, 0);
-    }
-
-    gtk_widget_hide(GTK_WIDGET(publish_dialog));
 }
 
 /** --Multi config **/
@@ -3407,58 +3336,6 @@ int _gtk_loop(void *p) {
         gtk_label_set_line_wrap(GTK_LABEL(t), true);
         gtk_box_pack_start(GTK_BOX(content), t, false, false, 0);
         gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
-    /** --Publish **/
-    {
-        publish_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Publish",
-                0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                "Publish", GTK_RESPONSE_ACCEPT,
-                "_Cancel", GTK_RESPONSE_REJECT,
-                NULL));
-
-        apply_dialog_defaults(publish_dialog);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(publish_dialog));
-
-        publish_name = GTK_ENTRY(gtk_entry_new());
-        publish_descr = GTK_TEXT_VIEW(gtk_text_view_new());
-        gtk_text_view_set_wrap_mode(publish_descr, GTK_WRAP_WORD);
-
-        GtkBox *box_locked = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-        publish_locked = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Locked"));
-
-        gtk_box_pack_start(box_locked, GTK_WIDGET(publish_locked), 1, 1, 0);
-        gtk_box_pack_start(box_locked, help_widget("Disallow other players from seeing this level outside of packages."), 0, 0, 0);
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Level name:</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(publish_name), false, false, 0);
-
-        GtkWidget *ew = gtk_scrolled_window_new(NULL, NULL);
-        gtk_scrolled_window_set_policy(
-            GTK_SCROLLED_WINDOW(ew),
-            GTK_POLICY_AUTOMATIC,
-            GTK_POLICY_AUTOMATIC
-        );
-        gtk_widget_set_size_request(GTK_WIDGET(ew), 500, 200);
-        gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(publish_descr));
-
-        GtkWidget *fr = gtk_frame_new(NULL);
-        gtk_container_add(GTK_CONTAINER(fr), GTK_WIDGET(ew));
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Level description:</b>"), false, false, 0);
-
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(fr), false, false, 0);
-
-        /* Locked box */
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(box_locked), false, false, 0);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        g_signal_connect(publish_dialog, "show", G_CALLBACK(on_publish_show), 0);
-
-        /* TODO: add key-press-events to everything but the cancel-button */
     }
 
     /** --Digital display **/
@@ -4418,26 +4295,6 @@ int _gtk_loop(void *p) {
         gtk_container_add(GTK_CONTAINER(robot_window), GTK_WIDGET(content));
     }
 
-    /** --Published **/
-    {
-        published_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-            "Level published!",
-            0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-            "Go to level page", GTK_RESPONSE_ACCEPT,
-            "_Cancel", GTK_RESPONSE_REJECT,
-            NULL
-        ));
-
-        apply_dialog_defaults(published_dialog);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(published_dialog));
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("Your level has been successfully published on the community website."), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("To view your level, or submit it to a running contest, please click the button below."), false, false, 0);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
     /** --Community **/
     {
         dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
@@ -4990,11 +4847,6 @@ static gboolean _open_level_properties(gpointer unused) {
     return false;
 }
 
-static gboolean _open_publish_dialog(gpointer unused) {
-    activate_publish(NULL, 0);
-    return false;
-}
-
 static gboolean _open_prompt_dialog(gpointer unused) {
     if (W->is_adventure() && adventure::player) {
         adventure::player->stop_moving(DIR_LEFT);
@@ -5129,20 +4981,6 @@ static gboolean _open_tips_dialog(gpointer unused) {
 
 static gboolean _open_robot_window(gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(robot_window));
-    return false;
-}
-
-/** --Published **/
-static gboolean _open_published(gpointer unused) {
-    gint result = gtk_dialog_run(published_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        COMMUNITY_URL("level/%d", W->level.community_id);
-        ui::open_url(url);
-    }
-
-    gtk_widget_hide(GTK_WIDGET(published_dialog));
-
     return false;
 }
 
@@ -5574,7 +5412,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(open_state_window));
     gtk_widget_hide(GTK_WIDGET(object_window));
     gtk_widget_hide(GTK_WIDGET(properties_dialog));
-    gtk_widget_hide(GTK_WIDGET(publish_dialog));
     gtk_widget_hide(GTK_WIDGET(confirm_quit_dialog));
     gtk_widget_hide(GTK_WIDGET(fxemitter_dialog));
     gtk_widget_hide(GTK_WIDGET(timer_dialog));
@@ -5582,7 +5419,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(synth_dialog));
     gtk_widget_hide(GTK_WIDGET(prompt_settings_dialog));
     gtk_widget_hide(GTK_WIDGET(community_dialog));
-    gtk_widget_hide(GTK_WIDGET(published_dialog));
     //if (cur_prompt) gtk_widget_hide(GTK_WIDGET(cur_prompt));
     return false;
 }
@@ -5741,7 +5577,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_RUBBER:
             UiRubber::open();
             break;
-        case DIALOG_PUBLISHED:      gdk_threads_add_idle(_open_published, 0); break;
+        case DIALOG_PUBLISHED:
+            UiPublished::open();
+            break;
         case DIALOG_COMMUNITY:      gdk_threads_add_idle(_open_community, 0); break;
         case DIALOG_ANIMAL:
             UiAnimal::open();
@@ -5758,7 +5596,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case CLOSE_ALL_DIALOGS:     gdk_threads_add_idle(_close_all_dialogs, 0); break;
         case CLOSE_ABSOLUTELY_ALL_DIALOGS: gdk_threads_add_idle(_close_absolutely_all_dialogs, 0); break;
 
-        case DIALOG_PUBLISH:        gdk_threads_add_idle(_open_publish_dialog, 0); break;
+        case DIALOG_PUBLISH:
+            UiPublish::open();
+            break;
         case DIALOG_LOGIN:
             UiLogin::open();
             break;
@@ -5878,6 +5718,8 @@ void ui::render() {
     UiMessage::layout();
     UiKeyListener::layout();
     UiTips::layout();
+    UiPublish::layout();
+    UiPublished::layout();
 
     imgui_driver.post_render();
 }
