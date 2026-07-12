@@ -93,9 +93,9 @@ namespace UiLogin {
 
                 ImGui::EndChild();
                 ImGui::TableSetColumnIndex(1);
-                ImGui::BeginChild("right_panel", UI(140, 110), false);
+                ImGui::BeginChild("right_panel", UI(150, 110), false);
 
-                ImGui::BeginChild("register_text", UI(140, 55), false);
+                ImGui::BeginChild("register_text", UI(150, 60), false);
                 ImGui::TextWrapped("Don't have an account?\n\nRegister one and join the Principia community!");
                 ImGui::EndChild();
 
