@@ -97,7 +97,7 @@ static void load_fonts() {
     //TODO free existing fonts
 
     float content_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
-    float size_pixels = roundf(12.f * settings["uiscale"]->v.f * content_scale);
+    float size_pixels = roundf(14.f * settings["uiscale"]->v.f * content_scale);
 
     tms_infof("font size %fpx", size_pixels);
 
