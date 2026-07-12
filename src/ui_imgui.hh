@@ -51,3 +51,4 @@ namespace UiPublish         { void open(); void layout(); }
 namespace UiPublished       { void open(); void layout(); }
 namespace UiTimer           { void open(); void layout(); }
 namespace UiCommunity       { void open(); void layout(); }
+namespace UiConfirmQuit     { void open(); void layout(); }

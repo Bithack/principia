@@ -247,6 +247,7 @@
 	#include "ui/animal.cc"
 	#include "ui/command_pad.cc"
 	#include "ui/community.cc"
+	#include "ui/confirm_quit.cc"
 	#include "ui/confirm.cc"
 	#include "ui/cursor_field.cc"
 	#include "ui/decoration.cc"

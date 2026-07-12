@@ -384,10 +384,6 @@ GtkDialog       *tips_dialog;
 GtkLabel        *tips_text;
 GtkCheckButton  *tips_hide;
 
-/** --Confirm Quit Dialog **/
-GtkDialog       *confirm_quit_dialog;
-GtkButton       *confirm_btn_quit;
-
 /** --Level upgrade Dialog **/
 GtkDialog       *confirm_upgrade_dialog;
 
@@ -725,11 +721,6 @@ bool btn_pressed(GtkWidget *ref, GtkButton *btn, gpointer user_data) {
             GPOINTER_TO_INT(user_data) == 1
         )
     );
-}
-
-/** --Confirm Quit Dialog **/
-void on_confirm_quit_show(GtkWidget *wdg, gpointer unused) {
-    gtk_widget_grab_focus(GTK_WIDGET(confirm_btn_quit));
 }
 
 /** --digital display **/
@@ -4031,27 +4022,6 @@ int _gtk_loop(void *p) {
         gtk_container_add(GTK_CONTAINER(multi_config_window), GTK_WIDGET(content));
     }
 
-    /** --Confirm Quit Dialog **/
-    {
-        confirm_quit_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-            "Confirm Quit",
-            0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-            NULL, NULL
-        ));
-
-        apply_dialog_defaults(confirm_quit_dialog);
-
-        confirm_btn_quit = GTK_BUTTON(gtk_dialog_add_button(confirm_quit_dialog, "_Quit", GTK_RESPONSE_ACCEPT));
-        gtk_dialog_add_button(confirm_quit_dialog, "_Cancel", GTK_RESPONSE_REJECT);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(confirm_quit_dialog));
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Are you sure you want to quit?\nAny unsaved changes will be lost!</b>"), false, false, 0);
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        g_signal_connect(confirm_quit_dialog, "show", G_CALLBACK(on_confirm_quit_show), 0);
-    }
-
     /** --Robot **/
     {
         robot_window = new_window_defaults("Robot settings", &on_robot_show, &on_robot_keypress);
@@ -5197,25 +5167,10 @@ static gboolean _open_camtargeter_window(gpointer unused) {
     return false;
 }
 
-/** --Confirm Quit Dialog **/
-static gboolean _open_confirm_quit(gpointer unused) {
-    if (gtk_dialog_run(confirm_quit_dialog) == GTK_RESPONSE_ACCEPT) {
-        tms_infof("Quitting!");
-        _tms.state = TMS_STATE_QUITTING;
-    } else {
-        tms_infof("not quitting.");
-    }
-
-    gtk_widget_hide(GTK_WIDGET(confirm_quit_dialog));
-
-    return false;
-}
-
 static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(open_state_window));
     gtk_widget_hide(GTK_WIDGET(object_window));
     gtk_widget_hide(GTK_WIDGET(properties_dialog));
-    gtk_widget_hide(GTK_WIDGET(confirm_quit_dialog));
     gtk_widget_hide(GTK_WIDGET(fxemitter_dialog));
     gtk_widget_hide(GTK_WIDGET(escript_window));
     gtk_widget_hide(GTK_WIDGET(synth_dialog));
@@ -5329,7 +5284,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_SET_FREQUENCY:
             UiFrequency::open(false);
             break;
-        case DIALOG_CONFIRM_QUIT:   gdk_threads_add_idle(_open_confirm_quit, 0); break;
+        case DIALOG_CONFIRM_QUIT:
+            UiConfirmQuit::open();
+            break;
         case DIALOG_SET_COMMAND:
             UiCommandPad::open();
             break;
@@ -5527,6 +5484,7 @@ void ui::render() {
     UiPublished::layout();
     UiTimer::layout();
     UiCommunity::layout();
+    UiConfirmQuit::layout();
 
     imgui_driver.post_render();
 }
