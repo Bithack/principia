@@ -399,11 +399,6 @@ GtkEntry        *camtargeter_y_offset_entry;
 GtkButton       *camtargeter_save;
 GtkButton       *camtargeter_cancel;
 
-/** --Info Dialog **/
-GtkWindow       *info_dialog;
-GtkLabel        *info_text;
-char            *_pass_info_descr;
-
 /** --Tips Dialog **/
 GtkDialog       *tips_dialog;
 GtkLabel        *tips_text;
@@ -2554,20 +2549,6 @@ gboolean on_tips_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
     return false;
 }
 
-/** --Info Dialog **/
-void on_info_show(GtkWidget *wdg, void *unused) {
-    gtk_label_set_text(info_text, _pass_info_descr);
-}
-
-gboolean on_info_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape || key->keyval == GDK_KEY_Return) {
-        gtk_widget_hide(w);
-        return true;
-    }
-
-    return false;
-}
-
 /** --Level properties **/
 static void on_level_flag_toggled(GtkToggleButton *btn, gpointer _flag) {
     bool toggled = gtk_toggle_button_get_active(btn);
@@ -4228,29 +4209,6 @@ int _gtk_loop(void *p) {
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
-    /** --Info Dialog **/
-    {
-        info_dialog = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-        gtk_container_set_border_width(GTK_CONTAINER(info_dialog), 10);
-        gtk_window_set_title(GTK_WINDOW(info_dialog), "Info");
-        gtk_window_set_resizable(GTK_WINDOW(info_dialog), true);
-        gtk_window_set_default_size(GTK_WINDOW(info_dialog), 425, 400);
-
-        apply_dialog_defaults(info_dialog, on_info_show, on_info_keypress);
-
-        info_text = GTK_LABEL(gtk_label_new(0));
-        gtk_label_set_selectable(info_text, 1);
-        GtkWidget *ew = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
-                      GTK_POLICY_AUTOMATIC,
-                      GTK_POLICY_AUTOMATIC);
-        gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(info_text));
-
-        gtk_container_add(GTK_CONTAINER(info_dialog), GTK_WIDGET(ew));
-
-        gtk_label_set_line_wrap(GTK_LABEL(info_text), true);
-    }
-
     /** --Multi config **/
     {
         multi_config_window = new_window_defaults("Multi config", &on_multi_config_show);
@@ -5279,12 +5237,6 @@ static gboolean _open_tips_dialog(gpointer unused) {
     return false;
 }
 
-static gboolean _open_info_dialog(gpointer unused) {
-    gtk_widget_show_all(GTK_WIDGET(info_dialog));
-
-    return false;
-}
-
 static gboolean _open_robot_window(gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(robot_window));
     return false;
@@ -5799,7 +5751,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
 
 static gboolean _close_absolutely_all_dialogs(gpointer unused) {
     _close_all_dialogs(0);
-    gtk_widget_hide(GTK_WIDGET(info_dialog));
 
     return false;
 }
@@ -5974,11 +5925,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiLogin::open();
             break;
 
-        case DIALOG_LEVEL_INFO: {
-            _pass_info_descr = (char *)data;
-            gdk_threads_add_idle(_open_info_dialog, 0);
+        case DIALOG_LEVEL_INFO:
+            UiMessage::open((char *)data, MessageType::LevelInfo);
             break;
-        }
 
         case DIALOG_PROMPT:
             if (G) {
