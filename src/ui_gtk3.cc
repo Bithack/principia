@@ -301,15 +301,6 @@ GtkEntry       *publish_name;
 GtkTextView    *publish_descr;
 GtkCheckButton *publish_locked;
 
-/** --Key Listener **/
-GtkDialog       *key_listener_dialog;
-GtkListStore    *key_listener_ls;
-GtkComboBox     *key_listener_cb;
-
-/** --Item **/
-GtkDialog       *item_dialog;
-GtkComboBoxText *item_cb;
-
 /** --Vendor **/
 GtkDialog       *vendor_dialog;
 GtkSpinButton   *vendor_amount;
@@ -1017,37 +1008,6 @@ static void on_escript_mark_set(GtkTextBuffer *buffer, const GtkTextIter *new_lo
     g_free(msg);
 }
 
-/** --Key Listener **/
-void on_key_listener_show(GtkWidget *wdg, void *unused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_KEY_LISTENER) {
-        GtkTreeIter iter;
-        if (gtk_tree_model_get_iter_first(
-                    GTK_TREE_MODEL(key_listener_ls),
-                    &iter)) {
-            int x = 0;
-
-            do {
-                GValue val = {0, };
-                gtk_tree_model_get_value(GTK_TREE_MODEL(key_listener_ls),
-                                         &iter,
-                                         1,
-                                         &val);
-
-                uint32_t key = g_value_get_uint(&val);
-
-                if (key == e->properties[0].v.i) {
-                    gtk_combo_box_set_active(GTK_COMBO_BOX(key_listener_cb), x);
-                    break;
-                }
-
-                ++x;
-            } while (gtk_tree_model_iter_next(GTK_TREE_MODEL(key_listener_ls), &iter));
-        }
-    }
-}
-
 /** --Synthesizer **/
 void on_synth_show(GtkWidget *wdg, void *unused) {
     entity *e = G->selection.e;
@@ -1353,23 +1313,6 @@ void on_sfx2_show(GtkWidget *wdg, void *ununused) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sfx2_loop), (e->properties[3].v.i8 == 1));
 
         gtk_combo_box_set_active(GTK_COMBO_BOX(sfx2_sub_cb), e->properties[2].v.i == SFX_CHUNK_RANDOM ? 0 : e->properties[2].v.i+1);
-    }
-}
-
-/** --Item **/
-void on_item_show(GtkWidget *wdg, void *ununused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_ITEM) {
-        if (e->properties[0].v.i >= NUM_ITEMS) e->properties[0].v.i = NUM_ITEMS-1;
-
-        clear_cb(item_cb);
-
-        for (int x=0; x<NUM_ITEMS; x++) {
-            item_cb_append(item_cb, x, false);
-        }
-
-        gtk_combo_box_set_active(GTK_COMBO_BOX(item_cb), e->properties[0].v.i);
     }
 }
 
@@ -3518,42 +3461,6 @@ int _gtk_loop(void *p) {
         /* TODO: add key-press-events to everything but the cancel-button */
     }
 
-    /** --Key Listener **/
-    {
-        dialog = new_dialog_defaults("Key Listener", &on_key_listener_show);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-
-        key_listener_ls = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_UINT);
-
-        GtkTreeIter iter;
-        for (int x=0; x<TMS_KEY__NUM; ++x) {
-            const char *s = key_names[x];
-
-            if (s) {
-                gtk_list_store_append(key_listener_ls, &iter);
-                gtk_list_store_set(key_listener_ls, &iter,
-                        0, s,
-                        1, x,
-                        -1
-                        );
-            }
-        }
-
-        key_listener_cb = GTK_COMBO_BOX(gtk_combo_box_new_with_model(GTK_TREE_MODEL(key_listener_ls)));
-
-        GtkCellRenderer *cell = gtk_cell_renderer_text_new();
-        gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(key_listener_cb), cell, TRUE);
-        gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(key_listener_cb), cell, "text", 0, NULL);
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Key</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(key_listener_cb), false, false, 10);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        key_listener_dialog = dialog;
-    }
-
     /** --Digital display **/
     {
         digi_dialog = new_dialog_defaults("Display settings", &on_digi_show);
@@ -3658,23 +3565,6 @@ int _gtk_loop(void *p) {
         }
 
         gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
-    /** --Item **/
-    {
-        dialog = new_dialog_defaults("Item", &on_item_show);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-
-        item_cb = new_item_cb();
-        /* Items will be filled on show, to keep a refreshed list of unlocked items. */
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Item type</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(item_cb), false, false, 10);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        item_dialog = dialog;
     }
 
     /** --Vendor **/
@@ -5473,58 +5363,6 @@ static gboolean _open_sfx2_window(gpointer unused) {
     return false;
 }
 
-/** --Item **/
-static gboolean _open_item(gpointer unused) {
-    gint result = gtk_dialog_run(item_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_ITEM) {
-            ((item*)e)->set_item_type((uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(item_cb)));
-            ((item*)e)->do_recreate_shape = true;
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(item_dialog));
-
-    return false;
-}
-
-/** --Key Listener **/
-static gboolean _open_key_listener(gpointer unused) {
-    gint result = gtk_dialog_run(key_listener_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_KEY_LISTENER) {
-            GtkTreeIter iter;
-
-            if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(key_listener_cb), &iter)) {
-                GValue val = {0, };
-                gtk_tree_model_get_value(GTK_TREE_MODEL(key_listener_ls),
-                                            &iter,
-                                            1, &val
-                                            );
-
-                uint32_t key = g_value_get_uint(&val);
-
-                tms_debugf("Key: %u: %s", key, key_names[key]);
-
-                e->properties[0].v.i = key;
-                P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-                P.add_action(ACTION_RESELECT, 0);
-            }
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(key_listener_dialog));
-
-    return false;
-}
 
 /** --Vendor **/
 static gboolean _open_vendor(gpointer unused) {
@@ -5914,7 +5752,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_POLYGON:
             UiPolygon::open();
             break;
-        case DIALOG_KEY_LISTENER:   gdk_threads_add_idle(_open_key_listener, 0); break;
+        case DIALOG_KEY_LISTENER:
+            UiKeyListener::open();
+            break;
         case DIALOG_MULTI_CONFIG:   gdk_threads_add_idle(_open_multi_config, 0); break;
 
         case CLOSE_ALL_DIALOGS:     gdk_threads_add_idle(_close_all_dialogs, 0); break;
@@ -6045,6 +5885,7 @@ void ui::render() {
     UiSetFaction::layout();
     UiConfirm::layout();
     UiMessage::layout();
+    UiKeyListener::layout();
 
     imgui_driver.post_render();
 #endif
