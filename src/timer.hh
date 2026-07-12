@@ -28,15 +28,6 @@ class timer : public i2o2gate
         }
     }
 
-    void write_tooltip(char *out)
-    {
-        float s = floor((float)(this->properties[0].v.i) / 1000.f);
-        float ms = (float)(this->properties[0].v.i % 1000);
-        float cool_time = s + (ms / 1000.f);
-
-        snprintf(out, 511, "%s\n%gs", this->get_name(), cool_time);
-    }
-
     uint64_t refresh_time();
 
     void on_pause();
