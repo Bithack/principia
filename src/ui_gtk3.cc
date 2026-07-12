@@ -355,10 +355,6 @@ enum {
   TCHEST_COLUMN_COUNT,
 };
 
-/** --Faction **/
-GtkDialog       *faction_dialog;
-GtkComboBoxText *faction_cb;
-
 /** --Digital Display **/
 GtkDialog       *digi_dialog;
 GtkCheckButton  *digi_wrap;
@@ -1429,18 +1425,6 @@ void on_soundman_show(GtkWidget *wdg, void *ununused) {
 
         gtk_combo_box_set_active(GTK_COMBO_BOX(soundman_cb), e->properties[0].v.i);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(soundman_catch_all), e->properties[1].v.i8 != 0);
-    }
-}
-
-/** --Faction **/
-void on_faction_show(GtkWidget *wdg, void *ununused) {
-    entity *e = G->selection.e;
-
-    if (e && (e->g_id == O_GUARDPOINT)) {
-        if (e->properties[0].v.i8 < 0) e->properties[0].v.i8 = 0;
-        if (e->properties[0].v.i8 >= NUM_FACTIONS) e->properties[0].v.i8 = NUM_FACTIONS-1;
-
-        gtk_combo_box_set_active(GTK_COMBO_BOX(faction_cb), e->properties[0].v.i8);
     }
 }
 
@@ -3885,25 +3869,6 @@ int _gtk_loop(void *p) {
         sfx2_dialog = dialog;
     }
 
-    /** --Faction **/
-    {
-        dialog = new_dialog_defaults("Set Faction", &on_faction_show);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-
-        faction_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-        for (int x=0; x<NUM_FACTIONS; x++) {
-            gtk_combo_box_text_append_text(faction_cb, factions[x].name);
-        }
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Faction</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(faction_cb), false, false, 10);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        faction_dialog = dialog;
-    }
-
     /** --Factory **/
     {
         dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
@@ -5863,27 +5828,6 @@ static gboolean _open_key_listener(gpointer unused) {
     return false;
 }
 
-/** --Faction **/
-static gboolean _open_faction(gpointer unused) {
-    GtkDialog *d = faction_dialog;
-
-    gint result = gtk_dialog_run(d);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && (e->g_id == O_GUARDPOINT)) {
-            ((anchor*)e)->set_faction((uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(faction_cb)));
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(d));
-
-    return false;
-}
-
 /** --Vendor **/
 static gboolean _open_vendor(gpointer unused) {
     GtkDialog *d = vendor_dialog;
@@ -6252,7 +6196,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_DECORATION:
             UiDecoration::open();
             break;
-        case DIALOG_SET_FACTION:    gdk_threads_add_idle(_open_faction, 0); break;
+        case DIALOG_SET_FACTION:
+            UiSetFaction::open();
+            break;
         case DIALOG_RESOURCE:
             UiResource::open();
             break;
@@ -6438,6 +6384,7 @@ void ui::render() {
     UiShapeExtruder::layout();
     UiCursorField::layout();
     UiSettings::layout();
+    UiSetFaction::layout();
 
     imgui_driver.post_render();
 #endif
