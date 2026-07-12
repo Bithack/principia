@@ -254,6 +254,7 @@
 	#include "ui/frequency.cc"
 	#include "ui/item.cc"
 	#include "ui/jumper.cc"
+	#include "ui/key_listener.cc"
 	#include "ui/level_manager.cc"
 	#include "ui/level_properties.cc"
 	#include "ui/login.cc"

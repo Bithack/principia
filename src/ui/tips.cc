@@ -15,18 +15,17 @@ namespace UiTips {
     }
 
     void layout() {
-        //TODO: optimize for uiscale!
         handle_do_open(&do_open, "Tips and tricks");
         ImGui_CenterNextWindow();
-        ImGui::SetNextWindowSize(ImVec2(400, 200));
+
+        ImGui::SetNextWindowSize(UI(320, 200));
         if (ImGui::BeginPopupModal("Tips and tricks", REF_TRUE, MODAL_FLAGS)) {
             ImGuiStyle &style = ImGui::GetStyle();
             float font_size = ImGui::GetFontSize();
             ImVec2 frame_padding = style.FramePadding;
             ImVec2 content_region = ImGui::GetContentRegionMax();
 
-            //TODO remove hardcoded size
-            if (ImGui::BeginChild("###tips-content-ctx", ImVec2(0, 115), false, FRAME_FLAGS)) {
+            if (ImGui::BeginChild("###tips-content-ctx", UI(0, 130), false, FRAME_FLAGS)) {
                 ImGui::TextWrapped("%s", touch ? tips_mobile[ctip] : tips_pc[ctip]);
             }
             ImGui::EndChild();
@@ -50,7 +49,7 @@ namespace UiTips {
             const char* close_text = "Close";
             const ImVec2 close_text_size = ImGui::CalcTextSize(close_text);
             ImGui::SetCursorPosX(content_region.x - (close_text_size.x + frame_padding.x * 2.));
-            if (ImGui::Button(close_text)) {
+            if (ImGui::Button(close_text) || ImGui::IsKeyPressed(ImGuiKey_Escape)) {
                 ImGui::CloseCurrentPopup();
             }
             ImGui::EndPopup();

@@ -5784,11 +5784,7 @@ void ui::open_dialog(int num, void *data/*=0*/) {
 }
 
 void ui::open_sandbox_tips() {
-    wait_ui_ready();
-
-    gdk_threads_add_idle(_open_tips_dialog, 0);
-
-    gdk_display_flush(gdk_display_get_default());
+    UiTips::open();
 }
 
 void ui::set_next_action(int action_id) {
@@ -5881,6 +5877,7 @@ void ui::render() {
     UiConfirm::layout();
     UiMessage::layout();
     UiKeyListener::layout();
+    UiTips::layout();
 
     imgui_driver.post_render();
 }
