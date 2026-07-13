@@ -291,10 +291,6 @@ struct gtk_level_property gtk_level_properties[] = {
 
 static int num_gtk_level_properties = sizeof(gtk_level_properties) / sizeof(gtk_level_properties[0]);
 
-/** --Vendor **/
-GtkDialog       *vendor_dialog;
-GtkSpinButton   *vendor_amount;
-
 /** --Soundman **/
 GtkDialog       *soundman_dialog;
 GtkComboBoxText *soundman_cb;
@@ -1065,15 +1061,6 @@ void on_sfx2_show(GtkWidget *wdg, void *ununused) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sfx2_loop), (e->properties[3].v.i8 == 1));
 
         gtk_combo_box_set_active(GTK_COMBO_BOX(sfx2_sub_cb), e->properties[2].v.i == SFX_CHUNK_RANDOM ? 0 : e->properties[2].v.i+1);
-    }
-}
-
-/** --Vendor **/
-void on_vendor_show(GtkWidget *wdg, void *ununused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_VENDOR) {
-        gtk_spin_button_set_value(vendor_amount, e->properties[2].v.i);
     }
 }
 
@@ -3086,24 +3073,6 @@ int _gtk_loop(void *p) {
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
-    /** --Vendor **/
-    {
-        dialog = new_dialog_defaults("Vendor", &on_vendor_show);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-
-        vendor_amount = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                    GTK_ADJUSTMENT(gtk_adjustment_new(1, 1, 65535u, 1, 1, 0)),
-                    1, 0));
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Num. items required</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(vendor_amount), false, false, 10);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        vendor_dialog = dialog;
-    }
-
     /** --Soundman **/
     {
         dialog = new_dialog_defaults("Sound Manager", &on_soundman_show);
@@ -4424,29 +4393,6 @@ static gboolean _open_sfx2_window(gpointer unused) {
     return false;
 }
 
-
-/** --Vendor **/
-static gboolean _open_vendor(gpointer unused) {
-    GtkDialog *d = vendor_dialog;
-
-    gint result = gtk_dialog_run(d);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_VENDOR) {
-            gtk_spin_button_update(vendor_amount);
-            e->properties[2].v.i = gtk_spin_button_get_value(vendor_amount);
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(d));
-
-    return false;
-}
-
 /** --Soundman **/
 static gboolean _open_soundman(gpointer unused) {
     GtkDialog *d = soundman_dialog;
@@ -4787,8 +4733,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_RESOURCE:
             UiResource::open();
             break;
+        case DIALOG_VENDOR:
+            UiVendor::open();
+            break;
 #ifndef PRINCIPIA_BACKEND_IMGUI
-        case DIALOG_VENDOR:         gdk_threads_add_idle(_open_vendor, 0); break;
         case DIALOG_FACTORY:        gdk_threads_add_idle(_open_factory, 0); break;
 #endif
         case DIALOG_TREASURE_CHEST:
@@ -4969,6 +4917,7 @@ void ui::render() {
     UiConfirmQuit::layout();
     UiLuaEditor::layout();
     UiCamTargeter::layout();
+    UiVendor::layout();
 
 #ifdef PRINCIPIA_BACKEND_IMGUI
     UiLevelProperties::layout();

@@ -53,3 +53,4 @@ namespace UiTimer           { void open(); void layout(); }
 namespace UiCommunity       { void open(); void layout(); }
 namespace UiConfirmQuit     { void open(); void layout(); }
 namespace UiCamTargeter     { void open(); void layout(); }
+namespace UiVendor          { void open(); void layout(); }

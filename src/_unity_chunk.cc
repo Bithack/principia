@@ -285,6 +285,7 @@
 	#include "ui/tips.cc"
 	#include "ui/treasure_chest.cc"
 	#include "ui/variable.cc"
+	#include "ui/vendor.cc"
 #endif
 
 #include "tms/cpp.cc"
