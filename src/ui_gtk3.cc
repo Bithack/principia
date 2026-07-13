@@ -368,17 +368,6 @@ GtkComboBoxText *sfx2_sub_cb;
 GtkCheckButton  *sfx2_global;
 GtkCheckButton  *sfx2_loop;
 
-/** --Cam targeter **/
-GtkDialog       *camtargeter_dialog;
-GtkComboBoxText *camtargeter_mode;
-GtkComboBoxText *camtargeter_offset_mode;
-GtkRange        *camtargeter_x_offset;
-GtkEntry        *camtargeter_x_offset_entry;
-GtkRange        *camtargeter_y_offset;
-GtkEntry        *camtargeter_y_offset_entry;
-GtkButton       *camtargeter_save;
-GtkButton       *camtargeter_cancel;
-
 /** --Tips Dialog **/
 GtkDialog       *tips_dialog;
 GtkLabel        *tips_text;
@@ -1405,103 +1394,6 @@ void on_fxemitter_show(GtkWidget *wdg, void *ununused) {
     gtk_range_set_value(GTK_RANGE(fxemitter_radius), (double)e->properties[0].v.f);
     gtk_range_set_value(GTK_RANGE(fxemitter_count), (double)e->properties[1].v.i);
     gtk_range_set_value(GTK_RANGE(fxemitter_interval), (double)e->properties[2].v.f);
-}
-
-/** --Cam targeter **/
-void camtargeter_insert_text(GtkEditable *editable, gchar *new_text, gint new_text_length, gpointer position, gpointer *user_data) {
-    for (int n=0; n<new_text_length; ++n) {
-        if (!isdigit(new_text[n]) && new_text[n] != '.' && new_text[n] != ',' && new_text[n] != '-') {
-            g_signal_stop_emission_by_name(editable, "insert-text");
-            break;
-        }
-    }
-}
-void camtargeter_entry_changed(GtkEditable *unused_editable, void *unused) {
-    GtkEntry *entry = 0;
-    GtkRange *range = 0;
-    GtkEditable *editable = 0;
-    if (gtk_widget_has_focus(GTK_WIDGET(camtargeter_y_offset_entry))) {
-        range = camtargeter_y_offset;
-        entry = camtargeter_y_offset_entry;
-        editable = GTK_EDITABLE(entry);
-    } else if (gtk_widget_has_focus(GTK_WIDGET(camtargeter_x_offset_entry))) {
-        range = camtargeter_x_offset;
-        entry = camtargeter_x_offset_entry;
-        editable = GTK_EDITABLE(entry);
-    }
-
-    if (entry) {
-        float v = atof(gtk_editable_get_chars(editable, 0, -1));
-        /* clamp! */
-        if (v < -150.f) {
-            v = -150.f;
-            char tmp[8];
-            snprintf(tmp, 7, "%.2f", v);
-            gtk_entry_set_text(entry, tmp);
-            gtk_editable_set_position(editable, 0);
-        } else if (v > 150.f) {
-            v = 150.f;
-            char tmp[8];
-            snprintf(tmp, 7, "%.2f", v);
-            gtk_entry_set_text(entry, tmp);
-            gtk_editable_set_position(editable, 0);
-        }
-        gtk_range_set_value(range, v);
-    }
-}
-
-void camtargeter_value_changed(GtkRange *unused_range, void *unused) {
-    GtkRange *range = 0;
-    GtkEntry *entry = 0;
-    if (gtk_widget_has_focus(GTK_WIDGET(camtargeter_x_offset))) {
-        range = camtargeter_x_offset;
-        entry = camtargeter_x_offset_entry;
-    } else if (gtk_widget_has_focus(GTK_WIDGET(camtargeter_y_offset))) {
-        range = camtargeter_y_offset;
-        entry = camtargeter_y_offset_entry;
-    }
-
-    if (range) {
-        char tmp[8];
-        snprintf(tmp, 7, "%.2f", gtk_range_get_value(range));
-        gtk_entry_set_text(entry, tmp);
-    }
-}
-
-gboolean on_camtargeter_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    switch (key->keyval) {
-        case GDK_KEY_Escape:
-            gtk_dialog_response(camtargeter_dialog, GTK_RESPONSE_CANCEL);
-            break;
-
-        case GDK_KEY_Return:
-            if (gtk_widget_has_focus(GTK_WIDGET(camtargeter_cancel))) {
-                gtk_dialog_response(camtargeter_dialog, GTK_RESPONSE_CANCEL);
-            } else {
-                gtk_dialog_response(camtargeter_dialog, GTK_RESPONSE_ACCEPT);
-            }
-            break;
-    }
-
-    return false;
-}
-
-void on_camtargeter_show(GtkWidget *wdg, void *ununused) {
-    char tmp[8];
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_CAM_TARGETER) {
-        gtk_combo_box_set_active(GTK_COMBO_BOX(camtargeter_mode), e->properties[1].v.i8);
-        gtk_combo_box_set_active(GTK_COMBO_BOX(camtargeter_offset_mode), e->properties[2].v.i8);
-
-        gtk_range_set_value(camtargeter_x_offset, e->properties[3].v.f);
-        snprintf(tmp, 7, "%.2f", e->properties[3].v.f);
-        gtk_entry_set_text(camtargeter_x_offset_entry, tmp);
-
-        gtk_range_set_value(camtargeter_y_offset, e->properties[4].v.f);
-        snprintf(tmp, 7, "%.2f", e->properties[4].v.f);
-        gtk_entry_set_text(camtargeter_y_offset_entry, tmp);
-    }
 }
 
 void on_tips_show(GtkWidget *wdg, void *unused) {
@@ -3604,120 +3496,6 @@ int _gtk_loop(void *p) {
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
-    /** --Cam targeter **/
-    {
-        dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Cam targeter properties",
-                0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                NULL, NULL));
-
-        apply_dialog_defaults(dialog);
-
-        camtargeter_save = GTK_BUTTON(
-                gtk_dialog_add_button(
-                    dialog,
-                    "_Save", GTK_RESPONSE_ACCEPT)
-                );
-        camtargeter_cancel = GTK_BUTTON(
-                gtk_dialog_add_button(
-                    dialog,
-                    "_Cancel", GTK_RESPONSE_CANCEL)
-                );
-
-        g_signal_connect(dialog, "show", G_CALLBACK(on_camtargeter_show), 0);
-        g_signal_connect(dialog, "key-press-event", G_CALLBACK(on_camtargeter_keypress), 0);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-
-        camtargeter_mode = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-        gtk_combo_box_text_append_text(camtargeter_mode, "Smooth follow");
-        gtk_combo_box_text_append_text(camtargeter_mode, "Snap to object");
-        gtk_combo_box_text_append_text(camtargeter_mode, "Relative follow");
-        gtk_combo_box_text_append_text(camtargeter_mode, "Linear follow");
-
-        camtargeter_offset_mode = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-        gtk_combo_box_text_append_text(camtargeter_offset_mode, "Global");
-        gtk_combo_box_text_append_text(camtargeter_offset_mode, "Relative");
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Follow mode</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(camtargeter_mode), false, false, 10);
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Offset mode</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(camtargeter_offset_mode), false, false, 10);
-
-        float min = -150.f;
-        float max =  150.f;
-
-        {
-            GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-            GtkRange *range = 0;
-            GtkEntry *entry = 0;
-            GtkWidget *l = 0;
-
-            range = GTK_RANGE(gtk_scale_new(
-                GTK_ORIENTATION_HORIZONTAL,
-                GTK_ADJUSTMENT(gtk_adjustment_new(0.0, min, max, 0.001, 1.0, 0.0))
-            ));
-
-            g_signal_connect(range, "value-changed", G_CALLBACK(camtargeter_value_changed), 0);
-
-            entry = GTK_ENTRY(gtk_entry_new());
-            gtk_entry_set_width_chars(entry, 7);
-
-            g_signal_connect(entry, "changed", G_CALLBACK(camtargeter_entry_changed), 0);
-            g_signal_connect(entry, "insert-text", G_CALLBACK(camtargeter_insert_text), 0);
-
-            gtk_scale_set_draw_value(GTK_SCALE(range), false);
-
-            camtargeter_x_offset = range;
-            camtargeter_x_offset_entry = entry;
-            l = gtk_label_new("X offset");
-
-            gtk_box_pack_start(GTK_BOX(hbox), l, false, false, 0);
-            gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(range), true, true, 0);
-            gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(entry), false, false, 0);
-
-            gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(hbox), false, false, 0);
-        }
-
-        {
-            GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-            GtkRange *range = 0;
-            GtkEntry *entry = 0;
-            GtkWidget *l = 0;
-
-            range = GTK_RANGE(gtk_scale_new(
-                GTK_ORIENTATION_HORIZONTAL,
-                GTK_ADJUSTMENT(gtk_adjustment_new(0.0, min, max, 0.001, 1.0, 0.0))
-            ));
-
-            g_signal_connect(range, "value-changed", G_CALLBACK(camtargeter_value_changed), 0);
-
-            entry = GTK_ENTRY(gtk_entry_new());
-            gtk_entry_set_width_chars(entry, 7);
-
-            g_signal_connect(entry, "changed", G_CALLBACK(camtargeter_entry_changed), 0);
-            g_signal_connect(entry, "insert-text", G_CALLBACK(camtargeter_insert_text), 0);
-
-            gtk_scale_set_draw_value(GTK_SCALE(range), false);
-
-            camtargeter_y_offset = range;
-            camtargeter_y_offset_entry = entry;
-            l = gtk_label_new("Y offset");
-
-            gtk_box_pack_start(GTK_BOX(hbox), l, false, false, 0);
-            gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(range), true, true, 0);
-            gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(entry), false, false, 0);
-
-            gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(hbox), false, false, 0);
-        }
-
-        gtk_widget_set_size_request(GTK_WIDGET(dialog), 350, -1);
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        camtargeter_dialog = dialog;
-    }
-
     /** --Tips Dialog **/
     {
         tips_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
@@ -4892,37 +4670,6 @@ static gboolean _open_treasure_chest(gpointer unused) {
     return false;
 }
 
-/** --Cam targeter **/
-static gboolean _open_camtargeter_window(gpointer unused) {
-    gint result = gtk_dialog_run(camtargeter_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_CAM_TARGETER) {
-            e->properties[1].v.i8 = gtk_combo_box_get_active(GTK_COMBO_BOX(camtargeter_mode));
-            e->properties[2].v.i8 = gtk_combo_box_get_active(GTK_COMBO_BOX(camtargeter_offset_mode));
-
-            float v = gtk_range_get_value(camtargeter_x_offset);
-            if (v < -150.f) v = -150.f;
-            else if (v > 150.f) v = 150.f;
-            e->properties[3].v.f = v;
-
-            v = gtk_range_get_value(camtargeter_y_offset);
-            if (v < -150.f) v = -150.f;
-            else if (v > 150.f) v = 150.f;
-            e->properties[4].v.f = v;
-
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(camtargeter_dialog));
-
-    return false;
-}
-
 static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(open_state_window));
     gtk_widget_hide(GTK_WIDGET(object_window));
@@ -5057,7 +4804,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             break;
         case DIALOG_SFXEMITTER:     gdk_threads_add_idle(_open_sfx_window, 0); break;
         case DIALOG_SFXEMITTER_2:   gdk_threads_add_idle(_open_sfx2_window, 0); break;
-        case DIALOG_CAMTARGETER:    gdk_threads_add_idle(_open_camtargeter_window, 0); break;
+        case DIALOG_CAMTARGETER:
+            UiCamTargeter::open();
+            break;
         case DIALOG_SET_FREQ_RANGE:
             UiFrequency::open(true);
             break;
@@ -5243,6 +4992,7 @@ void ui::render() {
     UiCommunity::layout();
     UiConfirmQuit::layout();
     UiLuaEditor::layout();
+    UiCamTargeter::layout();
 
     imgui_driver.post_render();
 }

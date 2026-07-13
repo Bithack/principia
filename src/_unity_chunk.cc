@@ -245,6 +245,7 @@
 
 #if defined(PRINCIPIA_BACKEND_IMGUI) || defined(UI_IMGUI_IN_GTK)
 	#include "ui/animal.cc"
+	#include "ui/camtargeter.cc"
 	#include "ui/command_pad.cc"
 	#include "ui/community.cc"
 	#include "ui/confirm_quit.cc"
