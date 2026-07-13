@@ -48,10 +48,6 @@
 
 #include "network.hh"
 
-#ifdef __EMSCRIPTEN__
-#include "emscripten_interop.hh"
-#endif
-
 principia P={0};
 static struct tms_fb *gi_fb;
 static struct tms_fb *ao_fb;
@@ -148,9 +144,6 @@ static int edit_loader(int step);
 static int pkg_loader(int step);
 static int publish_loader(int step);
 static int submit_score_loader(int step);
-#ifdef BUILD_PKGMGR
-static int publish_pkg_loader(int step);
-#endif
 
 static void gi_end() {
     glColorMask(1,1,1,1);
@@ -494,7 +487,6 @@ static void perform_action(int x, void *data) {
         case ACTION_IGNORE:
             break;
 
-#ifdef BUILD_CURL
         case ACTION_GET_FEATURED_LEVELS: {
             uint32_t num_featured_levels = VOID_TO_UINT32(data);
 
@@ -505,32 +497,24 @@ static void perform_action(int x, void *data) {
 
             /* This thread will fetch the data */
             create_thread(
-                    _get_featured_levels,
+                    network::get_featured_levels,
                     "_get_featured_levels",
                     UINT_TO_VOID(num_featured_levels));
         } break;
 
         case ACTION_VERSION_CHECK:
-            create_thread(_check_version_code,"_version_check",  (void*)0);
+            create_thread(network::check_version_code,"_version_check",  (void*)0);
             break;
 
         case ACTION_LOGIN:
-            create_thread(_login, "_login", data);
+            create_thread(network::login, "_login", data);
             break;
 
         case ACTION_REGISTER:
-            create_thread(_register, "_register", data);
+            create_thread(network::register_user, "_register", data);
             break;
 
         case ACTION_PUBLISH_PKG:
-#ifdef BUILD_PKGMGR
-            _publish_pkg_id = VOID_TO_UINT32(data);
-            G->resume_action = GAME_RESUME_OPEN;
-            if (_tms.screen == &P.s_loading_screen->super)
-                P.s_intermediary->prepare(publish_pkg_loader, G);
-            else
-                P.s_loading_screen->load(publish_pkg_loader, G);
-#endif
             break;
 
         case ACTION_PUBLISH:
@@ -543,8 +527,6 @@ static void perform_action(int x, void *data) {
             P.s_loading_screen->load(submit_score_loader, G);
             G->resume_action = GAME_RESUME_CONTINUE;
             break;
-
-#endif
 
         case ACTION_RELOAD_DISPLAY:
             ((display*)G->selection.e)->load_symbols();
@@ -1073,7 +1055,7 @@ void tproject_soft_resume() {
 
     init_framebuffers();
 
-    soft_resume_curl();
+    network::soft_resume();
 
     sm::resume_all();
 }
@@ -1093,7 +1075,7 @@ void tproject_soft_pause() {
     tms_infof("Saving progress...");
     progress::commit();
 
-    soft_pause_curl();
+    network::soft_pause();
 
     /* TODO: Save current level as a backup */
 }
@@ -1111,7 +1093,7 @@ void tproject_quit() {
     tms_infof("Saving progress...");
     progress::commit();
 
-    quit_curl();
+    network::quit();
 
     tms_infof("Cleaning settings...");
     settings.clean();
@@ -1217,7 +1199,7 @@ void tproject_init() {
         tms_fatalf("Unable to create action mutex.");
     }
 
-    init_curl();
+    network::init();
 }
 
 static int shader_loader(int step) {
@@ -1258,8 +1240,6 @@ static int shader_loader(int step) {
     return LOAD_CONT;
 }
 
-#ifdef BUILD_CURL
-
 static void handle_downloading_error(int error) {
     tms_debugf("Handling download error...");
     if (error) {
@@ -1286,8 +1266,6 @@ static void handle_downloading_error(int error) {
     }
 }
 
-#endif
-
 static int level_loader(int step) {
     int num = __sync_fetch_and_add(&loading_counter, 1) % 30;
 
@@ -1297,22 +1275,15 @@ static int level_loader(int step) {
             _play_downloading = false;
             _play_download_for_pkg = false;
             // For Linux SS manager we will always assume it has DB levels downloaded :)
-#ifdef BUILD_CURL
+#ifndef SCREENSHOT_BUILD
             if (_play_type == LEVEL_DB) {
                 _play_downloading = true;
-                create_thread(_download_level, "_download_level", 0);
-            }
-#endif
-            // Special handling for Emscripten...
-#ifdef __EMSCRIPTEN__
-            if (_play_type == LEVEL_DB) {
-                _play_downloading = true;
-                create_thread(_download_level_emscripten, "_download_level_emscripten", 0);
+                create_thread(network::download_level, "_download_level", 0);
             }
 #endif
             break;
         case 1:
-#if defined(BUILD_CURL) || defined(__EMSCRIPTEN__)
+#ifndef SCREENSHOT_BUILD
             if (num < 10)
                 P.s_loading_screen->set_text("Downloading level.");
             else if (num < 20)
@@ -1322,7 +1293,6 @@ static int level_loader(int step) {
 
             if (_play_downloading) return LOAD_RETRY;
 
-#ifdef BUILD_CURL
             if (_play_downloading_error) {
                 handle_downloading_error(_play_downloading_error);
 
@@ -1331,7 +1301,6 @@ static int level_loader(int step) {
                 if (_play_header_data.notify_message)
                     ui::message(_play_header_data.notify_message, 1);
             }
-#endif
 #endif
 
             G->screen_back = 0;
@@ -1355,7 +1324,6 @@ static int level_loader(int step) {
  * Function used for deriving levels.
  */
 static int open_loader(int step) {
-#ifdef BUILD_CURL
     switch (step) {
         case 0:
             _play_lock = true;
@@ -1363,7 +1331,7 @@ static int open_loader(int step) {
             _play_download_for_pkg = false;
             if (_play_type == LEVEL_DB) {
                 _play_downloading = true;
-                create_thread(_download_level, "_download_level", (void*)1); /* send 1 to derive */
+                create_thread(network::download_level, "_download_level", (void*)1); /* send 1 to derive */
             }
             break;
         case 1:
@@ -1383,13 +1351,11 @@ static int open_loader(int step) {
         case 2: default: _play_lock = false; _play_downloading = false; _play_downloading_error = 0; return LOAD_DONE;
         case LOAD_RETURN_NUM_STEPS: return 2;
     }
-#endif
 
     return LOAD_CONT;
 }
 
 static int edit_loader(int step) {
-#ifdef BUILD_CURL
     switch (step) {
         case 0:
             _play_lock = true;
@@ -1397,7 +1363,7 @@ static int edit_loader(int step) {
             _play_download_for_pkg = false;
             if (_play_type == LEVEL_DB) {
                 _play_downloading = true;
-                create_thread(_download_level, "_download_level", (void*)2); /* send 2 to edit */
+                create_thread(network::download_level, "_download_level", (void*)2); /* send 2 to edit */
             }
             break;
         case 1:
@@ -1417,13 +1383,11 @@ static int edit_loader(int step) {
         case 2: default: _play_lock = false; _play_downloading = false; _play_downloading_error = 0; return LOAD_DONE;
         case LOAD_RETURN_NUM_STEPS: return 2;
     }
-#endif
 
     return LOAD_CONT;
 }
 
 static int pkg_loader(int step) {
-#ifdef BUILD_CURL
     switch (step) {
         case 0:
             _play_lock = true;
@@ -1433,7 +1397,7 @@ static int pkg_loader(int step) {
 
             if (_play_pkg_type == LEVEL_DB) {
                 _play_pkg_downloading = true;
-                create_thread(_download_pkg, "_download_pkg", 0);
+                create_thread(network::download_pkg, "_download_pkg", 0);
             }
             break;
         case 1:
@@ -1453,48 +1417,9 @@ static int pkg_loader(int step) {
         case 2: default: _play_lock = false; _play_pkg_downloading = false; _play_pkg_downloading_error = false; return LOAD_DONE;
         case LOAD_RETURN_NUM_STEPS: return 2;
     }
-#endif
 
     return LOAD_CONT;
 }
-
-#ifdef BUILD_CURL
-
-#ifdef BUILD_PKGMGR
-static int publish_pkg_loader(int step) {
-    switch (step) {
-        case 0:
-            break;
-
-        case 1:
-            _publish_pkg_error = false;
-            _publish_pkg_done = false;
-            create_thread(_publish_pkg, "_publish_pkg", 0);
-            break;
-
-        case 2:
-            if (!_publish_pkg_done)
-                return LOAD_RETRY;
-
-            if (_publish_pkg_error) {
-                tms_debugf("publish pkg error");
-                return LOAD_DONE;
-            }
-            break;
-
-        case 3:
-            break;
-
-        case 4: default:
-            ui::message("Package published successfully!");
-            return LOAD_DONE;
-
-        case LOAD_RETURN_NUM_STEPS: return 4;
-    }
-
-    return LOAD_CONT;
-}
-#endif
 
 static int publish_loader(int step) {
     switch (step) {
@@ -1502,15 +1427,13 @@ static int publish_loader(int step) {
             G->save();
             _publish_lvl_id = W->level.local_id;
             _publish_lvl_community_id = 0;
-            _publish_lvl_with_pkg = false;
-            _publish_lvl_lock = true;
             _publish_lvl_uploading = false;
             _publish_lvl_uploading_error = false;
             break;
 
         case 1:
             _publish_lvl_uploading = true;
-            create_thread(_publish_level, "_publish_level", 0);
+            create_thread(network::publish_level, "_publish_level", 0);
             break;
 
         case 2:
@@ -1533,7 +1456,6 @@ static int publish_loader(int step) {
             // TODO: display another message if the community level was updated instead of published (already had a community id)
             ui::open_dialog(DIALOG_PUBLISHED);
             _publish_lvl_community_id = 0;
-            _publish_lvl_lock = false;
             _publish_lvl_uploading = false;
             _publish_lvl_uploading_error = false;
             return LOAD_DONE;
@@ -1550,7 +1472,7 @@ static int submit_score_loader(int step) {
     switch (step) {
         case 0:
             _submit_score_done = false;
-            create_thread(_submit_score, "_submit_score", 0);
+            create_thread(network::submit_score, "_submit_score", 0);
             break;
 
         case 1:
@@ -1586,8 +1508,6 @@ static int submit_score_loader(int step) {
 
     return LOAD_CONT;
 }
-
-#endif
 
 static Uint32 loader_times[32] = {0,};
 
@@ -1800,27 +1720,15 @@ static int initial_loader(int step) {
             P.loaded = true;
             settings.save();
 
-#ifdef BUILD_CURL
             // do not start version check if we have an initial action like ACTION_OPEN_PLAY
             if (P.num_actions == 0)
-                create_thread(_check_version_code,"_version_check",  (void*)0);
+                create_thread(network::check_version_code,"_version_check",  (void*)0);
             else
                 tms_infof("skipping version check");
 
-            uint32_t num_levels = 0;
-            int res = _tms.opengl_width;
-
-            do {
-                ++ num_levels;
-                res -= 380;
-            } while (res > 0);
-
-            num_levels = std::max(num_levels, 1U);
-
-            num_levels = 4;
+            uint32_t num_levels = 4;
 
             P.add_action(ACTION_GET_FEATURED_LEVELS, VOID_TO_UINT32(num_levels));
-#endif
             break;
         }
 

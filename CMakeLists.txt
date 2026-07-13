@@ -160,7 +160,6 @@ if(NOT SCREENSHOT_BUILD)
 	if(NOT EMSCRIPTEN)
 		find_package(CURL REQUIRED)
 		include_directories(${CURL_INCLUDE_DIR})
-		add_definitions(-DBUILD_CURL)
 	endif()
 
 	file(GLOB SDL_mixer_SRCS CONFIGURE_DEPENDS lib/SDL_mixer/*.c)

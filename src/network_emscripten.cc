@@ -1,19 +1,33 @@
-#ifdef __EMSCRIPTEN__
-#include "emscripten_interop.hh"
 #include "const.hh"
 #include "main.hh"
 #include "network.hh"
 #include "pkgman.hh"
 #include <cstdlib>
-#include <emscripten/fetch.h>
+
 #include <tms/cpp.hh>
+
+#ifdef SDL_PLATFORM_EMSCRIPTEN
+
+#include <emscripten/fetch.h>
+
+void network::init() {}
+void network::soft_resume() {}
+void network::soft_pause() {}
+void network::quit() {}
+
+int network::check_version_code(void *p) { return 0; }
+int network::get_featured_levels(void *p) { return 0; }
+int network::publish_level(void *p) { return 0; }
+int network::submit_score(void *p) { return 0; }
+int network::login(void *p) { return 0; }
+int network::register_user(void *p) { return 0; }
+int network::download_pkg(void *p) { return 0; }
 
 /**
  * Emscripten-based level downloader using emscripten_fetch (async callbacks).
  * Slightly sloppy and copied from _download_level() in network.cc
  */
-int _download_level_emscripten(void *p)
-{
+int network::download_level(void *p) {
     _play_downloading_error = 0;
     if (_play_header_data.error_message) {
         free(_play_header_data.error_message);
