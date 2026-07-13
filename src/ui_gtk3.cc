@@ -346,13 +346,6 @@ GtkButton   *digi_insert;
 GtkButton   *digi_append;
 GtkButton   *digi_delete;
 
-/** --FX Emitter **/
-GtkDialog       *fxemitter_dialog;
-GtkComboBoxText *fxemitter_cb[4];
-GtkScale       *fxemitter_radius;
-GtkScale       *fxemitter_count;
-GtkScale       *fxemitter_interval;
-
 /** --SFX Emitter **/
 GtkDialog       *sfx_dialog;
 GtkComboBoxText *sfx_cb;
@@ -1357,26 +1350,6 @@ void on_tchest_show(GtkWidget *wdg, void *ununused) {
                 -1
                 );
     }
-}
-
-/** --FX Emitter **/
-void on_fxemitter_show(GtkWidget *wdg, void *ununused) {
-    entity *e = G->selection.e;
-
-    if (!e || e->g_id != O_FX_EMITTER)
-        return;
-
-    for (int x=0; x<4; x++) {
-        gint index = 0;
-        if (e->properties[3+x].v.i != FX_INVALID)
-            index = e->properties[3+x].v.i+1;
-
-        gtk_combo_box_set_active(GTK_COMBO_BOX(fxemitter_cb[x]), index);
-    }
-
-    gtk_range_set_value(GTK_RANGE(fxemitter_radius), (double)e->properties[0].v.f);
-    gtk_range_set_value(GTK_RANGE(fxemitter_count), (double)e->properties[1].v.i);
-    gtk_range_set_value(GTK_RANGE(fxemitter_interval), (double)e->properties[2].v.f);
 }
 
 void on_object_show(GtkWidget *wdg, void *unused) {
@@ -3395,50 +3368,6 @@ int _gtk_loop(void *p) {
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
-    /** --FX Emitter **/
-    {
-        fxemitter_dialog = new_dialog_defaults("FX Emitter", &on_fxemitter_show);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(fxemitter_dialog));
-
-        for (int x=0; x<4; x++) {
-            fxemitter_cb[x] = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-            gtk_combo_box_text_append_text(fxemitter_cb[x], "");
-            gtk_combo_box_text_append_text(fxemitter_cb[x], "Explosion");
-            gtk_combo_box_text_append_text(fxemitter_cb[x], "Highlight");
-            gtk_combo_box_text_append_text(fxemitter_cb[x], "Destroy connections");
-            gtk_combo_box_text_append_text(fxemitter_cb[x], "Smoke");
-            gtk_combo_box_text_append_text(fxemitter_cb[x], "Magic");
-            gtk_combo_box_text_append_text(fxemitter_cb[x], "Break");
-
-            gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Effect</b>"), false, false, 0);
-            gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(fxemitter_cb[x]), false, false, 10);
-        }
-
-        GtkBox *slider_container = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0));
-        gtk_box_set_homogeneous(slider_container, true);
-        fxemitter_radius = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.125, 5, 0.125));
-        gtk_box_pack_start(GTK_BOX(slider_container), new_lbl("<b>Radius</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(slider_container), GTK_WIDGET(fxemitter_radius), true, true, 10);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(slider_container), false, false, 10);
-
-        slider_container = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0));
-        gtk_box_set_homogeneous(slider_container, true);
-        fxemitter_count = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 1, 20, 1));
-        gtk_box_pack_start(GTK_BOX(slider_container), new_lbl("<b>Count</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(slider_container), GTK_WIDGET(fxemitter_count), true, true, 10);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(slider_container), false, false, 10);
-
-        slider_container = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0));
-        gtk_box_set_homogeneous(slider_container, true);
-        fxemitter_interval = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.05, 1, 0.05));
-        gtk_box_pack_start(GTK_BOX(slider_container), new_lbl("<b>Interval</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(slider_container), GTK_WIDGET(fxemitter_interval), true, true, 10);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(slider_container), false, false, 10);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
     /** --Multi config **/
     {
         multi_config_window = new_window_defaults("Multi config", &on_multi_config_show);
@@ -4322,34 +4251,6 @@ static gboolean _open_digi_window(gpointer unused) {
     return false;
 }
 
-static gboolean _open_fxemitter_window(gpointer unused) {
-    gint result = gtk_dialog_run(fxemitter_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_FX_EMITTER) {
-            for (int x=0; x<4; x++) {
-                int index = gtk_combo_box_get_active(GTK_COMBO_BOX(fxemitter_cb[x]));
-
-                if (index == 0) {
-                    e->properties[3+x].v.i = FX_INVALID;
-                } else {
-                    e->properties[3+x].v.i = index - 1;
-                }
-            }
-
-            e->properties[0].v.f = (float)gtk_range_get_value(GTK_RANGE(fxemitter_radius));
-            e->properties[1].v.i = (uint32_t)gtk_range_get_value(GTK_RANGE(fxemitter_count));
-            e->properties[2].v.f = (float)gtk_range_get_value(GTK_RANGE(fxemitter_interval));
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(fxemitter_dialog));
-
-    return false;
-}
-
 static gboolean _open_sfx_window(gpointer unused) {
     gint result = gtk_dialog_run(sfx_dialog);
 
@@ -4536,7 +4437,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(open_state_window));
     gtk_widget_hide(GTK_WIDGET(object_window));
     gtk_widget_hide(GTK_WIDGET(properties_dialog));
-    gtk_widget_hide(GTK_WIDGET(fxemitter_dialog));
     gtk_widget_hide(GTK_WIDGET(synth_dialog));
     gtk_widget_hide(GTK_WIDGET(prompt_settings_dialog));
     //if (cur_prompt) gtk_widget_hide(GTK_WIDGET(cur_prompt));
@@ -4676,8 +4576,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             break;
 #ifndef PRINCIPIA_BACKEND_IMGUI
         case DIALOG_DIGITALDISPLAY: gdk_threads_add_idle(_open_digi_window, 0); break;
-        case DIALOG_FXEMITTER:      gdk_threads_add_idle(_open_fxemitter_window, 0); break;
 #endif
+        case DIALOG_FXEMITTER:
+            UiFXEmitter::open();
+            break;
         case DIALOG_EVENTLISTENER:
             UiEventListener::open();
             break;
@@ -4918,6 +4820,7 @@ void ui::render() {
     UiLuaEditor::layout();
     UiCamTargeter::layout();
     UiVendor::layout();
+    UiFXEmitter::layout();
 
 #ifdef PRINCIPIA_BACKEND_IMGUI
     UiLevelProperties::layout();

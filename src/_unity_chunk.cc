@@ -254,6 +254,7 @@
 	#include "ui/emitter.cc"
 	#include "ui/event_listener.cc"
 	#include "ui/frequency.cc"
+	#include "ui/fxemitter.cc"
 	#include "ui/item.cc"
 	#include "ui/jumper.cc"
 	#include "ui/key_listener.cc"
