@@ -424,18 +424,6 @@ GtkButton       *sequencer_save;
 GtkButton       *sequencer_cancel;
 int              sequencer_num_steps;
 
-/** --escript **/
-GtkWindow       *escript_window;
-GtkWidget       *escript_code;
-GtkTextBuffer   *escript_buffer;
-GtkCheckButton  *escript_use_external_editor;
-GtkBox          *escript_external_box;
-GtkLabel        *escript_external_file_path;
-GtkStatusbar    *escript_statusbar;
-GtkButton       *escript_save;
-GtkButton       *escript_cancel;
-GtkTextTag      *escript_tt_function;
-
 /** --Synthesizer **/
 GtkDialog       *synth_dialog;
 GtkSpinButton   *synth_hz_low;
@@ -831,147 +819,6 @@ void on_digi_show(GtkWidget *wdg, void *unused) {
         else
             gtk_widget_set_sensitive(GTK_WIDGET(digi_wrap), true);
     }
-}
-
-/** --escript **/
-static void on_escript_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, escript_cancel, user_data)) {
-        gtk_widget_hide(GTK_WIDGET(escript_window));
-    } else if (btn_pressed(w, escript_save, user_data)) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_ESCRIPT) {
-            bool use_external_editor = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(escript_use_external_editor));
-
-            e->properties[1].v.i = 0;
-            // Always enable string, table and on_input (backwards compat)
-            e->properties[1].v.i |= ESCRIPT_INCLUDE_STRING;
-            e->properties[1].v.i |= ESCRIPT_INCLUDE_TABLE;
-            e->properties[1].v.i |= ESCRIPT_LISTEN_ON_INPUT;
-            e->properties[1].v.i |= ((int)use_external_editor * ESCRIPT_USE_EXTERNAL_EDITOR);
-
-            GtkTextIter start, end;
-            GtkTextBuffer *text_buffer = GTK_TEXT_BUFFER(escript_buffer);
-            char *text;
-            gtk_text_buffer_get_bounds(text_buffer, &start, &end);
-            text = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
-
-            if (use_external_editor) {
-                char file_path[1024];
-                snprintf(file_path, 1023, "%s/%d-%d.lua",
-                        pkgman::get_cache_path(W->level_id_type),
-                        W->level.local_id, e->id);
-
-                FILE *fh = fopen(file_path, "w");
-
-                if (fh) {
-                    fwrite(text, sizeof(char), strlen(text), fh);
-                    tms_infof("Write to %s", file_path);
-                    fclose(fh);
-                }
-            }
-
-            e->set_property(0, text);
-
-            free(text);
-
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_ENTITY_MODIFIED, 0);
-            P.add_action(ACTION_AUTOSAVE, 0);
-        }
-
-        gtk_widget_hide(GTK_WIDGET(escript_window));
-    }
-}
-
-static void on_escript_external_editor_toggled(GtkToggleButton *tb, gpointer userdata) {
-    bool external_editor_active = gtk_toggle_button_get_active(tb);
-
-    gtk_widget_set_sensitive(GTK_WIDGET(escript_code), !external_editor_active);
-
-    if (!external_editor_active) {
-        gtk_widget_hide(GTK_WIDGET(escript_external_box));
-    } else {
-        gtk_widget_show(GTK_WIDGET(escript_external_box));
-    }
-}
-
-static void on_escript_open_external_cache_clicked(GtkWidget *w, gpointer user_data) {
-    char url[2048];
-    snprintf(url, 2047, "file://%s", pkgman::get_cache_path(W->level_id_type));
-    ui::open_url(url);
-}
-
-void on_escript_show(GtkWidget *wdg, void *unused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_ESCRIPT) {
-        GtkTextBuffer *text_buffer = GTK_TEXT_BUFFER(escript_buffer);
-        GtkTextIter start, end;
-
-        char *code = (char*)malloc(e->properties[0].v.s.len+1);
-        memcpy(code, e->properties[0].v.s.buf, e->properties[0].v.s.len);
-        code[e->properties[0].v.s.len] = '\0';
-
-        gtk_text_buffer_get_bounds(text_buffer, &start, &end);
-        char *old_code = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
-
-        /* Only replace text buffer if it differs from the previous text */
-        if (strcmp(old_code, code) != 0) {
-            gtk_text_buffer_set_text(text_buffer, code, -1);
-        }
-
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(escript_use_external_editor), e->properties[1].v.i & ESCRIPT_USE_EXTERNAL_EDITOR);
-
-        bool external_editor_active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(escript_use_external_editor));
-
-        gtk_widget_set_sensitive(GTK_WIDGET(escript_code), !external_editor_active);
-
-        char file_path[ESCRIPT_EXTERNAL_PATH_LEN];
-        ((escript*)e)->generate_external_path(file_path);
-
-        char external_path[2048];
-        snprintf(external_path, 2047, "External path: <b>%s</b>",
-                file_path);
-
-        gtk_label_set_markup(escript_external_file_path, external_path);
-
-        if (!external_editor_active) {
-            gtk_widget_hide(GTK_WIDGET(escript_external_box));
-        } else {
-            gtk_widget_show(GTK_WIDGET(escript_external_box));
-
-        }
-
-        free(old_code);
-    }
-}
-
-gboolean on_escript_keypress(GtkWidget *w, GdkEventKey *event, gpointer unused) {
-    if (GDK_KEY_s && event->state & GDK_CONTROL_MASK) {
-        on_escript_btn_click(GTK_WIDGET(escript_save), NULL, GINT_TO_POINTER(1));
-        return true;
-    }
-
-    return false;
-}
-
-static void on_escript_mark_set(GtkTextBuffer *buffer, const GtkTextIter *new_location, GtkTextMark *mark, gpointer data) {
-    gchar *msg;
-    gint row, col;
-    GtkTextIter iter;
-
-    gtk_text_buffer_get_iter_at_mark(buffer,
-            &iter, gtk_text_buffer_get_insert(buffer));
-
-    row = gtk_text_iter_get_line(&iter);
-    col = gtk_text_iter_get_line_offset(&iter);
-
-    msg = g_strdup_printf("Col %d Ln %d", col+1, row+1);
-
-    gtk_statusbar_push(escript_statusbar, 0, msg);
-
-    g_free(msg);
 }
 
 /** --Synthesizer **/
@@ -4203,90 +4050,6 @@ int _gtk_loop(void *p) {
         gtk_container_add(GTK_CONTAINER(robot_window), GTK_WIDGET(content));
     }
 
-    /** --escript **/
-    {
-        escript_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-        gtk_window_set_title(escript_window, "Lua Script");
-        gtk_widget_set_size_request(GTK_WIDGET(escript_window), 800, 560);
-        gtk_window_set_resizable(escript_window, true);
-
-        apply_dialog_defaults(escript_window, on_escript_show, on_escript_keypress);
-
-        escript_statusbar = GTK_STATUSBAR(gtk_statusbar_new());
-
-        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-
-        GtkWidget *cb;
-
-        {
-            cb = gtk_check_button_new_with_label("Use external editor");
-            g_signal_connect(cb, "toggled", G_CALLBACK(on_escript_external_editor_toggled), 0);
-            gtk_widget_set_tooltip_text(cb, "Check this file if you want to edit the Lua from an external editor");
-            escript_use_external_editor = GTK_CHECK_BUTTON(cb);
-        }
-
-        escript_buffer = GTK_TEXT_BUFFER(gtk_text_buffer_new(NULL));
-        escript_code = gtk_text_view_new_with_buffer(GTK_TEXT_BUFFER(escript_buffer));
-
-        //Connect mark-set
-        g_signal_connect(GTK_TEXT_BUFFER(escript_buffer), "mark-set", G_CALLBACK(on_escript_mark_set), 0);
-
-        //Add .code-editor class
-        GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(escript_code));
-        gtk_style_context_add_class(context, "code-editor");
-
-        escript_external_box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL,0));
-        escript_external_file_path = GTK_LABEL(new_clbl("Placeholder"));
-
-        gtk_box_pack_start(escript_external_box, GTK_WIDGET(escript_external_file_path), false, false, 5);
-        gtk_box_pack_start(escript_external_box, new_clbl("Open the file path above with your favourite code editor and edit the code there.\nBefore you press play in Principia, remember to save the external file!\nThe file will be created when you press the Save-button."), false, false, 5);
-
-        /* Button to open the local cache directory in the system file browser */
-        GtkWidget *escript_open_cache_btn = gtk_button_new_with_label("Open script folder");
-        g_signal_connect(escript_open_cache_btn, "clicked", G_CALLBACK(on_escript_open_external_cache_clicked), NULL);
-        gtk_box_pack_start(escript_external_box, escript_open_cache_btn, false, false, 5);
-
-        GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0));
-        gtk_box_pack_start(GTK_BOX(hbox), new_lbl("  "), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(escript_use_external_editor), false, false, 0);
-
-        GtkWidget *ew = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
-                      GTK_POLICY_AUTOMATIC,
-                      GTK_POLICY_AUTOMATIC);
-        gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(escript_code));
-
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(ew), true, true, 5);
-
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(escript_external_box), false, false, 0);
-
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(hbox), false, false, 5);
-
-        GtkButtonBox *buttonbox = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
-        gtk_button_box_set_layout(GTK_BUTTON_BOX(buttonbox), GTK_BUTTONBOX_END);
-        gtk_box_set_spacing(GTK_BOX(buttonbox), 5);
-
-        /* Save */
-        escript_save = GTK_BUTTON(gtk_button_new_with_label("Save"));
-        g_signal_connect(escript_save, "clicked",
-                G_CALLBACK(on_escript_btn_click), 0);
-
-        /* Cancel */
-        escript_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(escript_cancel, "clicked",
-                G_CALLBACK(on_escript_btn_click), 0);
-
-        gtk_container_add(GTK_CONTAINER(buttonbox), GTK_WIDGET(escript_save));
-        gtk_container_add(GTK_CONTAINER(buttonbox), GTK_WIDGET(escript_cancel));
-
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(buttonbox), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(escript_statusbar), false, false, 0);
-
-        gtk_container_add(GTK_CONTAINER(escript_window), GTK_WIDGET(content));
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
     /** --Synth **/
     {
         synth_dialog = new_dialog_defaults("Synthesizer", &on_synth_show, &on_synth_keypress);
@@ -4807,13 +4570,6 @@ static gboolean _open_sequencer(gpointer unused) {
     return false;
 }
 
-/** --escript **/
-static gboolean _open_escript(gpointer unused) {
-    gtk_widget_show_all(GTK_WIDGET(escript_window));
-
-    return false;
-}
-
 /** --Synthesizer **/
 static gboolean _open_synth(gpointer unused) {
     gint result = gtk_dialog_run(synth_dialog);
@@ -5172,7 +4928,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(object_window));
     gtk_widget_hide(GTK_WIDGET(properties_dialog));
     gtk_widget_hide(GTK_WIDGET(fxemitter_dialog));
-    gtk_widget_hide(GTK_WIDGET(escript_window));
     gtk_widget_hide(GTK_WIDGET(synth_dialog));
     gtk_widget_hide(GTK_WIDGET(prompt_settings_dialog));
     //if (cur_prompt) gtk_widget_hide(GTK_WIDGET(cur_prompt));
@@ -5240,7 +4995,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_CURSORFIELD:
             UiCursorField::open();
             break;
-        case DIALOG_ESCRIPT:        gdk_threads_add_idle(_open_escript, 0); break;
+        case DIALOG_ESCRIPT:
+            UiLuaEditor::open();
+            break;
         case DIALOG_JUMPER:
             UiJumper::open();
             break;
@@ -5485,6 +5242,7 @@ void ui::render() {
     UiTimer::layout();
     UiCommunity::layout();
     UiConfirmQuit::layout();
+    UiLuaEditor::layout();
 
     imgui_driver.post_render();
 }
