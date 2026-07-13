@@ -95,8 +95,6 @@
 #define SAVE_REGULAR 0
 #define SAVE_COPY 1
 
-extern uint8_t save_type;
-
 #define MAX_GRAVITY 75.f
 
 enum {

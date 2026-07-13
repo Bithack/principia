@@ -213,7 +213,6 @@
 #include "ui.cc"
 #include "ui_dummy.cc"
 #include "ui_gtk3.cc"
-#include "ui_imgui.cc"
 #include "valueshift.cc"
 #include "var_getter.cc"
 #include "var_setter.cc"

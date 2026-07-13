@@ -186,7 +186,6 @@ namespace UiSandboxMenu {
                 bool ask_for_new_name = (W->level.name_len == 0 || strcmp(W->level.name, "<no name>") == 0);
 
                 if (ask_for_new_name) {
-                    save_type = SAVE_REGULAR;
                     ui::open_dialog(DIALOG_SAVE);
                 } else
                     P.add_action(ACTION_SAVE, 0);
@@ -194,7 +193,6 @@ namespace UiSandboxMenu {
 
             //"Save as...": create a new save
             if (is_sandbox && ImGui::MenuItem("Save as...")) {
-                save_type = SAVE_COPY;
                 ui::open_dialog(DIALOG_SAVE_COPY);
             }
 

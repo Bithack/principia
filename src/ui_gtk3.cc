@@ -6,7 +6,6 @@
 
 #include "adventure.hh"
 #include "display.hh"
-#include "escript.hh"
 #include "faction.hh"
 #include "factory.hh"
 #include "fxemitter.hh"
@@ -30,7 +29,9 @@
 #include <sstream>
 #include <tms/cpp.hh>
 
-#if !defined(SDL_PLATFORM_ANDROID) && !defined(PRINCIPIA_BACKEND_IMGUI) && !defined(NO_UI)
+#if !defined(SDL_PLATFORM_ANDROID) && !defined(NO_UI)
+
+#ifndef PRINCIPIA_BACKEND_IMGUI
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -367,11 +368,6 @@ GtkComboBoxText *sfx2_cb;
 GtkComboBoxText *sfx2_sub_cb;
 GtkCheckButton  *sfx2_global;
 GtkCheckButton  *sfx2_loop;
-
-/** --Tips Dialog **/
-GtkDialog       *tips_dialog;
-GtkLabel        *tips_text;
-GtkCheckButton  *tips_hide;
 
 /** --Level upgrade Dialog **/
 GtkDialog       *confirm_upgrade_dialog;
@@ -1396,18 +1392,6 @@ void on_fxemitter_show(GtkWidget *wdg, void *ununused) {
     gtk_range_set_value(GTK_RANGE(fxemitter_interval), (double)e->properties[2].v.f);
 }
 
-void on_tips_show(GtkWidget *wdg, void *unused) {
-    bool touch = settings["touch_controls"]->v.b;
-    int num_tips = touch ? num_tips_mobile : num_tips_pc;
-
-    if (ctip == -1)
-        ctip = rand()%num_tips;
-
-    gtk_label_set_markup(tips_text, touch ? tips_mobile[ctip] : tips_pc[ctip]);
-
-    ctip = (ctip+1)%num_tips;
-}
-
 void on_object_show(GtkWidget *wdg, void *unused) {
     GtkTreeIter iter;
 
@@ -2119,16 +2103,6 @@ gboolean on_export_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
         } else {
             on_export_btn_click(GTK_WIDGET(export_ok), NULL, GINT_TO_POINTER(1));
         }
-    }
-
-    return false;
-}
-
-/** --Tips Dialog **/
-gboolean on_tips_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape || key->keyval == GDK_KEY_Return) {
-        gtk_widget_hide(w);
-        return true;
     }
 
     return false;
@@ -3496,40 +3470,6 @@ int _gtk_loop(void *p) {
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
-    /** --Tips Dialog **/
-    {
-        tips_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Tips & Tricks",
-                0, (GtkDialogFlags)(0),/*GTK_MODAL*/
-                "OK", GTK_RESPONSE_CLOSE,
-                "Next", GTK_RESPONSE_APPLY,
-                "More tips & tricks", GTK_RESPONSE_YES,
-                NULL));
-
-        apply_dialog_defaults(tips_dialog, on_tips_show, on_tips_keypress);
-
-        gtk_window_set_default_size(GTK_WINDOW(tips_dialog), 425, 400);
-
-        tips_hide = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Don't show this dialog again"));
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(tips_dialog));
-
-        tips_text = GTK_LABEL(gtk_label_new(0));
-        gtk_label_set_selectable(tips_text, 1);
-        GtkWidget *ew = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
-                      GTK_POLICY_AUTOMATIC,
-                      GTK_POLICY_AUTOMATIC);
-        gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(tips_text));
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(ew), 1, 1, 3);
-
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(tips_hide), 0, 0, 3);
-
-        gtk_label_set_line_wrap(GTK_LABEL(tips_text), true);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
     /** --Multi config **/
     {
         multi_config_window = new_window_defaults("Multi config", &on_multi_config_show);
@@ -4312,30 +4252,6 @@ static gboolean _open_object_dialog(gpointer unused) {
     return false;
 }
 
-static gboolean _open_tips_dialog(gpointer unused) {
-    do {
-         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tips_hide), settings["hide_tips"]->v.b);
-
-        gtk_widget_hide(GTK_WIDGET(tips_dialog));
-        gint result = gtk_dialog_run(tips_dialog);
-        gtk_widget_hide(GTK_WIDGET(tips_dialog));
-
-        settings["hide_tips"]->v.b = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(tips_hide));
-
-        if (result == GTK_RESPONSE_APPLY) {
-            tms_infof("reshowing tips");
-            continue;
-        }
-
-        if (result == GTK_RESPONSE_YES)
-            ui::open_url("https://principia-web.se/wiki/");
-
-        break;
-    } while (true);
-
-    return false;
-}
-
 static gboolean _open_robot_window(gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(robot_window));
     return false;
@@ -4696,14 +4612,15 @@ static void wait_ui_ready() {
     SDL_UnlockMutex(ui_lock);
 }
 
-#ifdef UI_IMGUI_IN_GTK
+#endif
+
 #include "imgui.hh"
 #include "ui_imgui.hh"
 
 static ImguiDriver imgui_driver;
-#endif
 
 void ui::init() {
+#ifndef PRINCIPIA_BACKEND_IMGUI
     ui_lock = SDL_CreateMutex();
     ui_cond = SDL_CreateCondition();
     ui_ready = false;
@@ -4714,21 +4631,32 @@ void ui::init() {
 
     if (gtk_thread == NULL)
         tms_errorf("SDL_CreateThread failed: %s", SDL_GetError());
+#endif
 
     imgui_driver = ImguiDriver();
     imgui_driver.init();
 }
 
 void ui::open_dialog(int num, void *data/*=0*/) {
+#ifndef PRINCIPIA_BACKEND_IMGUI
     wait_ui_ready();
+#endif
 
     switch (num) {
         case DIALOG_SANDBOX_MENU:
             UiSandboxMenu::open();
             break;
 
-        case DIALOG_LEVEL_PROPERTIES:   gdk_threads_add_idle(_open_level_properties, 0); break;
+        case DIALOG_LEVEL_PROPERTIES:
+#ifdef PRINCIPIA_BACKEND_IMGUI
+            UiLevelProperties::open();
+#else
+            gdk_threads_add_idle(_open_level_properties, 0);
+#endif
+            break;
+#ifndef PRINCIPIA_BACKEND_IMGUI
         case DIALOG_EXPORT:         gdk_threads_add_idle(_open_export, 0); break;
+#endif
         case DIALOG_PLAY_MENU:
             UiPlayMenu::open();
             break;
@@ -4764,6 +4692,7 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiLevelManager::open();
             break;
 
+#ifndef PRINCIPIA_BACKEND_IMGUI
         case DIALOG_OPEN_STATE:
             if (data && VOID_TO_UINT8(data) == 1) {
                 open_state_no_testplaying = true;
@@ -4776,6 +4705,8 @@ void ui::open_dialog(int num, void *data/*=0*/) {
 
         case DIALOG_OPEN_OBJECT:    gdk_threads_add_idle(_open_object_dialog, 0); break;
         case DIALOG_MULTIEMITTER:   gdk_threads_add_idle(_open_multiemitter_dialog, 0); break;
+#endif
+
         case DIALOG_EMITTER:
             UiEmitter::open();
             break;
@@ -4797,13 +4728,17 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_STICKY:
             UiSticky::open();
             break;
+#ifndef PRINCIPIA_BACKEND_IMGUI
         case DIALOG_DIGITALDISPLAY: gdk_threads_add_idle(_open_digi_window, 0); break;
         case DIALOG_FXEMITTER:      gdk_threads_add_idle(_open_fxemitter_window, 0); break;
+#endif
         case DIALOG_EVENTLISTENER:
             UiEventListener::open();
             break;
+#ifndef PRINCIPIA_BACKEND_IMGUI
         case DIALOG_SFXEMITTER:     gdk_threads_add_idle(_open_sfx_window, 0); break;
         case DIALOG_SFXEMITTER_2:   gdk_threads_add_idle(_open_sfx2_window, 0); break;
+#endif
         case DIALOG_CAMTARGETER:
             UiCamTargeter::open();
             break;
@@ -4813,12 +4748,27 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_SET_PKG_LEVEL:
             UiPkgLvlSelector::open();
             break;
-        case DIALOG_ROBOT:          gdk_threads_add_idle(_open_robot_window, 0); break;
+        case DIALOG_ROBOT:
+#ifdef PRINCIPIA_BACKEND_IMGUI
+            UiRobot::open();
+#else
+            gdk_threads_add_idle(_open_robot_window, 0);
+#endif
+            break;
         case DIALOG_TIMER:
             UiTimer::open();
             break;
-        case DIALOG_SYNTHESIZER:    gdk_threads_add_idle(_open_synth, 0); break;
+
+        case DIALOG_SYNTHESIZER:
+#ifdef PRINCIPIA_BACKEND_IMGUI
+            UiSynthesizer::open();
+#else
+            gdk_threads_add_idle(_open_synth, 0);
+#endif
+            break;
+#ifndef PRINCIPIA_BACKEND_IMGUI
         case DIALOG_SEQUENCER:      gdk_threads_add_idle(_open_sequencer, 0); break;
+#endif
         case DIALOG_SETTINGS:
             UiSettings::open();
             break;
@@ -4837,9 +4787,18 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_RESOURCE:
             UiResource::open();
             break;
+#ifndef PRINCIPIA_BACKEND_IMGUI
         case DIALOG_VENDOR:         gdk_threads_add_idle(_open_vendor, 0); break;
         case DIALOG_FACTORY:        gdk_threads_add_idle(_open_factory, 0); break;
-        case DIALOG_TREASURE_CHEST: gdk_threads_add_idle(_open_treasure_chest, 0); break;
+#endif
+        case DIALOG_TREASURE_CHEST:
+#ifndef PRINCIPIA_BACKEND_IMGUI
+            gdk_threads_add_idle(_open_treasure_chest, 0);
+#else
+            UiTreasureChest::open();
+#endif
+            break;
+
         case DIALOG_RUBBER:
             UiRubber::open();
             break;
@@ -4852,17 +4811,26 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_ANIMAL:
             UiAnimal::open();
             break;
+#ifndef PRINCIPIA_BACKEND_IMGUI
         case DIALOG_SOUNDMAN:       gdk_threads_add_idle(_open_soundman, 0); break;
+#endif
         case DIALOG_POLYGON:
             UiPolygon::open();
             break;
         case DIALOG_KEY_LISTENER:
             UiKeyListener::open();
             break;
+#ifndef PRINCIPIA_BACKEND_IMGUI
         case DIALOG_MULTI_CONFIG:   gdk_threads_add_idle(_open_multi_config, 0); break;
 
         case CLOSE_ALL_DIALOGS:     gdk_threads_add_idle(_close_all_dialogs, 0); break;
         case CLOSE_ABSOLUTELY_ALL_DIALOGS: gdk_threads_add_idle(_close_absolutely_all_dialogs, 0); break;
+#else
+        case CLOSE_ABSOLUTELY_ALL_DIALOGS:
+        case CLOSE_ALL_DIALOGS:
+            tms_infof("XXX: CLOSE_ALL_DIALOGS/CLOSE_ABSOLUTELY_ALL_DIALOGS (200/201) are intentionally ignored");
+            break;
+#endif
 
         case DIALOG_PUBLISH:
             UiPublish::open();
@@ -4875,6 +4843,7 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiMessage::open((char *)data, MessageType::LevelInfo);
             break;
 
+#ifndef PRINCIPIA_BACKEND_IMGUI
         case DIALOG_PROMPT:
             if (G) {
                 G->reset_touch(false);
@@ -4882,13 +4851,16 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             gdk_threads_add_timeout(40, _open_prompt_dialog, 0);
             break;
         case DIALOG_PROMPT_SETTINGS: gdk_threads_add_idle(_open_prompt_settings_dialog, 0); break;
+#endif
 
         default:
             tms_warnf("Unhandled dialog ID: %d", num);
             break;
     }
 
+#ifndef PRINCIPIA_BACKEND_IMGUI
     gdk_display_flush(gdk_display_get_default());
+#endif
 }
 
 void ui::open_sandbox_tips() {
@@ -4901,7 +4873,9 @@ void ui::set_next_action(int action_id) {
 }
 
 void ui::emit_signal(int num, void *data/*=0*/) {
+#ifndef PRINCIPIA_BACKEND_IMGUI
     wait_ui_ready();
+#endif
 
     /* XXX this stuff probably needs to be added to gdk_threads_idle_add()! */
 
@@ -4920,7 +4894,9 @@ void ui::emit_signal(int num, void *data/*=0*/) {
             break;
 
         case SIGNAL_REFRESH_BORDERS:
+#ifndef PRINCIPIA_BACKEND_IMGUI
             refresh_borders();
+#endif
             break;
     }
 
@@ -4993,6 +4969,13 @@ void ui::render() {
     UiConfirmQuit::layout();
     UiLuaEditor::layout();
     UiCamTargeter::layout();
+
+#ifdef PRINCIPIA_BACKEND_IMGUI
+    UiLevelProperties::layout();
+    UiRobot::layout();
+    UiSynthesizer::layout();
+    UiTreasureChest::layout();
+#endif
 
     imgui_driver.post_render();
 }
