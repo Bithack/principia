@@ -112,7 +112,7 @@ const char *tms_storage_cache_path(void)
     char *path = (char *)malloc(1024);
 
     if (_storage_portable) { // Portable
-        snprintf(path, 1024, "%s/cache", SDL_GetBasePath());
+        snprintf(path, 1024, "%scache", SDL_GetBasePath());
     } else { // System
 #ifdef SDL_PLATFORM_WINDOWS
         const char *localappdata = getenv("LOCALAPPDATA");
