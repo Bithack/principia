@@ -480,26 +480,18 @@ void intermediary::window_size_changed() {
     }
 }
 
-static int featured_levels_left = 0;
-
 static void perform_action(int x, void *data) {
     switch (P.actions[x].id) {
         case ACTION_IGNORE:
             break;
 
         case ACTION_GET_FEATURED_LEVELS: {
-            uint32_t num_featured_levels = VOID_TO_UINT32(data);
-
-            if (num_featured_levels > MAX_FEATURED_LEVELS_FETCHED)
-                num_featured_levels = MAX_FEATURED_LEVELS_FETCHED;
-
-            featured_levels_left = num_featured_levels;
 
             /* This thread will fetch the data */
             create_thread(
                     network::get_featured_levels,
                     "_get_featured_levels",
-                    UINT_TO_VOID(num_featured_levels));
+                    (void*)0);
         } break;
 
         case ACTION_VERSION_CHECK:
@@ -1726,9 +1718,7 @@ static int initial_loader(int step) {
             else
                 tms_infof("skipping version check");
 
-            uint32_t num_levels = 4;
-
-            P.add_action(ACTION_GET_FEATURED_LEVELS, VOID_TO_UINT32(num_levels));
+            P.add_action(ACTION_GET_FEATURED_LEVELS, 0);
             break;
         }
 

@@ -306,9 +306,8 @@ int network::check_version_code(void *_unused) {
     }
     unlock_curl("check_version_code");
 
-    if (_tms.state == TMS_STATE_QUITTING) {
+    if (_tms.state == TMS_STATE_QUITTING)
         return 0;
-    }
 
     P.add_action(ACTION_REFRESH_HEADER_DATA, 0);
 
@@ -316,180 +315,66 @@ int network::check_version_code(void *_unused) {
     return 0;
 }
 
-char *featured_levels_buf = 0;
-size_t featured_levels_buf_size = 0;
-
 int network::get_featured_levels(void *_num) {
-    uint32_t num_featured_levels = VOID_TO_UINT32(_num);
     CURLcode r;
 
     char featured_data_path[1024];
     snprintf(featured_data_path, 1023, "%s/fl.cache", tms_storage_cache_path());
 
-    struct MemoryStruct chunk;
-    chunk.memory = (char*)malloc(1);
-    chunk.size = 0;
+    struct MemoryStruct chunk = {(char *)malloc(1), 0};
 
-    featured_levels_buf = 0;
-    featured_levels_buf_size = 0;
+    char *fl_buf = 0;
+    size_t fl_buf_size = 0;
 
     lock_curl("get_featured_levels");
-    if (P.curl) {
-        init_curl_defaults(P.curl);
+    if (!P.curl) {
+        tms_errorf("unable to initialize curl handle!");
+        unlock_curl("get_featured_levels");
+        return 0;
+    }
 
-        char url[256];
-        snprintf(url, 255, "https://%s/internal/get_featured?num=%u", P.community_host, num_featured_levels);
+    init_curl_defaults(P.curl);
 
-        curl_easy_setopt(P.curl, CURLOPT_URL, url);
+    char url[256];
+    snprintf(url, 255, "https://%s/internal/get_featured", P.community_host);
 
-        curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
-        curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
+    curl_easy_setopt(P.curl, CURLOPT_URL, url);
 
-        curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, 0);
+    curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
+    curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
 
-        curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 35L);
-        curl_easy_setopt(P.curl, CURLOPT_FOLLOWLOCATION, 1);
+    curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, 0);
 
-        if ((r = curl_easy_perform(P.curl)) == CURLE_OK) {
-            long http_code = 0;
-            curl_easy_getinfo(P.curl, CURLINFO_RESPONSE_CODE, &http_code);
-            /* Anything other than 200 will make us attempt to read from our cache */
+    curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 35L);
+    curl_easy_setopt(P.curl, CURLOPT_FOLLOWLOCATION, 1);
 
-            if (http_code == 200) {
-                featured_levels_buf = chunk.memory;
-                featured_levels_buf_size = chunk.size;
-            }
-        } else {
-            tms_errorf("curl error: %s", curl_easy_strerror(r));
+    if ((r = curl_easy_perform(P.curl)) == CURLE_OK) {
+        long http_code = 0;
+        curl_easy_getinfo(P.curl, CURLINFO_RESPONSE_CODE, &http_code);
+        /* Anything other than 200 will make us attempt to read from our cache */
+
+        if (http_code == 200) {
+            fl_buf = chunk.memory;
+            fl_buf_size = chunk.size;
         }
     } else {
-        tms_errorf("unable to initialize curl handle!");
+        tms_errorf("curl error: %s", curl_easy_strerror(r));
     }
 
     unlock_curl("get_featured_levels");
 
-    if (_tms.state == TMS_STATE_QUITTING) {
+    if (_tms.state == TMS_STATE_QUITTING)
         return 0;
-    }
 
-    if (!featured_levels_buf) {
-        FILE *fh = fopen(featured_data_path, "rb");
-        if (fh) {
-            fseek(fh, 0, SEEK_END);
-            featured_levels_buf_size = ftell(fh);
-            fseek(fh, 0, SEEK_SET);
-
-            featured_levels_buf = (char*)malloc(featured_levels_buf_size);
-            fread(featured_levels_buf, 1, featured_levels_buf_size, fh);
-
-            fclose(fh);
-        } else {
-            tms_infof("Error opening cache file!");
+    if (!fl_buf) {
+        if (!load_featured_cache(featured_data_path, fl_buf, &fl_buf_size))
             return 0;
-        }
     }
 
-    /* Second pass! */
-    if (!featured_levels_buf) {
+    if (!parse_featured_levels(fl_buf, fl_buf_size))
         return 0;
-    }
 
-    lvlbuf lb;
-
-    lb.reset();
-    lb.size = 0;
-    lb.ensure(featured_levels_buf_size);
-
-    lb.buf = (uint8_t*)featured_levels_buf;
-    lb.size = featured_levels_buf_size;
-
-    tms_debugf("featured data size: %d", (int)featured_levels_buf_size);
-
-    uint32_t count = lb.r_uint32();
-
-    uint32_t n = std::min(count, num_featured_levels);
-    for (uint32_t i=0; i<n; ++i) {
-        menu_shared::fl[i].id = lb.r_uint32();
-
-        uint32_t name_len = lb.r_uint32();
-        char *name = (char*)calloc(name_len+1, 1);
-        lb.r_buf(name, name_len);
-        strcpy(menu_shared::fl[i].name, name);
-        free(name);
-
-        uint32_t creator_len = lb.r_uint32();
-        char *creator = (char*)calloc(creator_len+1, 1);
-        lb.r_buf(creator, creator_len);
-        strcpy(menu_shared::fl[i].creator, creator);
-        free(creator);
-
-        uint32_t thumb_len = lb.r_uint32();
-
-        if (thumb_len == 0) {
-            tms_errorf("Featured level received with no thumbnail!");
-            continue;
-        }
-        char *thumb = (char*)malloc(thumb_len);
-        lb.r_buf(thumb, thumb_len);
-
-        tms::texture *tex = new tms::texture();
-        tex->load_mem2(thumb, thumb_len, 0, "jpg");
-        tex->flip_y();
-        tex->add_alpha(1.f);
-
-        menu_shared::fl[i].sprite = tms_atlas_add_bitmap(
-                gui_spritesheet::atlas,
-                tex->width,
-                tex->height,
-                tex->num_channels,
-                tex->data
-                );
-
-        free(thumb);
-        tex->free_buffer();
-
-        delete tex;
-    }
-
-    uint32_t contest_active = lb.r_uint32(); // unused 32-bit int
-
-    uint32_t num_getting_started_links = lb.r_uint32();
-
-    tms_infof("Num getting started links: %u", num_getting_started_links);
-
-    menu_shared::gs_entries.clear();
-
-    for (uint32_t x=0; x<num_getting_started_links; ++x) {
-        uint32_t title_len, link_len;
-        char    *title,    *link;
-
-        title_len = lb.r_uint32();
-        title = (char*)calloc(title_len+1, 1);
-        lb.r_buf(title, title_len);
-
-        link_len = lb.r_uint32();
-        link = (char*)calloc(link_len+1, 1);
-        lb.r_buf(link, link_len);
-
-        menu_shared::gs_entries.push_back(gs_entry(strdup(title), strdup(link)));
-
-        free(title);
-        free(link);
-    }
-
-    if (num_getting_started_links) {
-        menu_shared::gs_state = FL_WAITING;
-    }
-
-    {
-        FILE *fh = fopen(featured_data_path, "wb");
-
-        if (fh) {
-            fwrite(featured_levels_buf, 1, featured_levels_buf_size, fh);
-
-            fclose(fh);
-        }
-    }
+    save_featured_cache(featured_data_path, fl_buf, fl_buf_size);
 
     menu_shared::fl_state = FL_UPLOAD;
 

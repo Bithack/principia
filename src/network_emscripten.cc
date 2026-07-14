@@ -1,5 +1,7 @@
 #include "const.hh"
 #include "main.hh"
+#include "menu_shared.hh"
+#include "misc.hh"
 #include "network.hh"
 #include "pkgman.hh"
 #include <cstdlib>
@@ -8,6 +10,7 @@
 
 #ifdef SDL_PLATFORM_EMSCRIPTEN
 
+#include <emscripten.h>
 #include <emscripten/fetch.h>
 
 void network::init() {}
@@ -16,7 +19,60 @@ void network::soft_pause() {}
 void network::quit() {}
 
 int network::check_version_code(void *p) { return 0; }
-int network::get_featured_levels(void *p) { return 0; }
+
+static char *fl_buf = 0;
+static size_t fl_buf_size = 0;
+
+int network::get_featured_levels(void *_num) {
+    char url[256];
+    snprintf(url, sizeof(url), "https://%s/internal/get_featured", P.community_host);
+
+    static auto success_cb = [](emscripten_fetch_t *fetch) {
+        fl_buf = (char*)malloc(fetch->numBytes);
+        memcpy(fl_buf, fetch->data, fetch->numBytes);
+        fl_buf_size = fetch->numBytes;
+
+        char featured_data_path[1024];
+        snprintf(featured_data_path, 1023, "%s/fl.cache", tms_storage_cache_path());
+
+        tms_infof("(Emscripten) Finished downloading featured levels");
+
+        emscripten_fetch_close(fetch);
+
+        if (_tms.state == TMS_STATE_QUITTING)
+            return;
+
+        if (!fl_buf) {
+            if (!load_featured_cache(featured_data_path, fl_buf, &fl_buf_size))
+                return;
+        }
+
+        if (!parse_featured_levels(fl_buf, fl_buf_size))
+            return;
+
+        save_featured_cache(featured_data_path, fl_buf, fl_buf_size);
+
+        menu_shared::fl_state = FL_UPLOAD;
+    };
+
+    static auto error_cb = [](emscripten_fetch_t *fetch) {
+        tms_infof("(Emscripten) Failed to download featured levels");
+        emscripten_fetch_close(fetch);
+    };
+
+    emscripten_fetch_attr_t attr;
+    emscripten_fetch_attr_init(&attr);
+
+    strcpy(attr.requestMethod, "GET");
+    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
+    attr.onsuccess = +[](emscripten_fetch_t *fetch){ success_cb(fetch); };
+    attr.onerror = +[](emscripten_fetch_t *fetch){ error_cb(fetch); };
+
+    emscripten_fetch(&attr, url);
+
+    return 0;
+}
+
 int network::publish_level(void *p) { return 0; }
 int network::submit_score(void *p) { return 0; }
 int network::login(void *p) { return 0; }
