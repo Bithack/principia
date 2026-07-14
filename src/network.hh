@@ -1,5 +1,6 @@
 #pragma once
 
+#include "pkgman.hh"
 #include <cstdint>
 #include <SDL3/SDL.h>
 
@@ -66,6 +67,8 @@ bool parse_featured_levels(char *buf, size_t buf_size);
 void handle_login(header_data &hd, int http_code);
 
 void handle_version_check(char *body);
+
+void handle_successful_publish(lvledit lvl, header_data &hd, int *community_id);
 
 #ifdef SDL_PLATFORM_ANDROID
 extern "C" {

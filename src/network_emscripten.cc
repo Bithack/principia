@@ -3,7 +3,9 @@
 #include "menu_shared.hh"
 #include "network.hh"
 #include "pkgman.hh"
+#include "ui.hh"
 #include <cstdlib>
+#include <string>
 
 #include <tms/cpp.hh>
 
@@ -78,7 +80,7 @@ EM_JS(void, emscripten_fetch_request,
     fetch(urlStr, {
         method: methodStr,
         headers: requestHeaders,
-        //credentials: "include",
+        credentials: "include",
         body: requestBody
     }).then(response => {
         let headersOut = "";
@@ -124,6 +126,9 @@ int network::check_version_code(void *p) {
             tms_errorf("could not check for latest version: invalid data");
             return;
         }
+
+        header_data hd = {};
+        parse_js_headers(status, headers, &hd);
 
         handle_version_check((char *)body);
 
@@ -195,7 +200,121 @@ int network::get_featured_levels(void *_num) {
     return 0;
 }
 
-int network::publish_level(void *p) { return 0; }
+int network::publish_level(void *p) {
+    uint32_t level_id = _publish_lvl_id;
+
+    auto *lvl = new lvledit;
+
+    _publish_lvl_community_id = 0;
+    _publish_lvl_uploading_error = false;
+
+    if (!lvl->open(LEVEL_LOCAL, level_id)) {
+        tms_errorf("could not open level");
+        return false;
+    }
+
+    lvl->lvl.revision++;
+    lvl->save();
+
+    char level_path[1024];
+    pkgman::get_level_full_path(
+        LEVEL_LOCAL,
+        level_id,
+        0,
+        level_path);
+
+    FILE *f = fopen(level_path, "rb");
+    if (!f) {
+        tms_errorf("could not open level file");
+        return false;
+    }
+
+    fseek(f, 0, SEEK_END);
+    size_t size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    void *data = malloc(size);
+
+    if (fread(data, 1, size, f) != size) {
+        fclose(f);
+        free(data);
+        tms_errorf("could not read level file");
+        return false;
+    }
+    fclose(f);
+
+    tms_infof("Publishing level %d...", level_id);
+
+    std::string boundary = "PrincipiaBoundary" + std::to_string(rand());
+    std::string payload =
+        "--" + boundary + "\r\n"
+        "Content-Disposition: form-data; name=\"key\"\r\n"
+        "\r\n"
+        "cuddles\r\n"
+        "--" + boundary + "\r\n"
+        "Content-Disposition: form-data; name=\"level\"; filename=\"level\"\r\n"
+        "Content-Type: application/octet-stream\r\n"
+        "\r\n" +
+        std::string((char*)data, size) +
+        "\r\n--" + boundary + "--\r\n";
+
+    static auto publish_level_fetch_callback = [](int status, const char *headers, const void *body, size_t body_size, void *userdata) {
+        tms_infof("(Emscripten) Publish level callback with status %d", status);
+
+        if (status == 0) {
+            tms_errorf("(Emscripten) Publish level failed");
+
+            ui::message("An unknown error occurred when publishing your level. Check your internet connection.", true);
+
+            _publish_lvl_uploading = false;
+            _publish_lvl_uploading_error = true;
+            return;
+        }
+
+        auto *lvl = static_cast<lvledit *>(userdata);
+
+        header_data hd = {};
+        parse_js_headers(status, headers, &hd);
+
+        int community_id = 0;
+        if (status == 200) {
+            handle_successful_publish(*lvl, hd, &community_id);
+        } else {
+            tms_errorf("level publish failed with HTTP status %d", status);
+
+            ui::message("An unknown error occurred when publishing your level. Check your internet connection.", true);
+
+            _publish_lvl_uploading = false;
+            _publish_lvl_uploading_error = true;
+        }
+
+        if (!lvl->save()) {
+            tms_errorf("Unable to save the level after publish!");
+        }
+
+        _publish_lvl_community_id = community_id;
+        _publish_lvl_uploading = false;
+
+        P.add_action(ACTION_AUTOSAVE, 0);
+
+        free(lvl);
+    };
+
+    COMMUNITY_URL("internal/upload");
+
+    emscripten_fetch_request(
+        "POST",
+        url,
+        std::string("Content-Type: multipart/form-data; boundary=" + boundary).c_str(),
+        payload.c_str(),
+        payload.size(),
+        publish_level_fetch_callback,
+        lvl);
+
+    free(data);
+
+    return T_OK;
+}
 int network::submit_score(void *p) { return 0; }
 
 int network::login(void *p) {

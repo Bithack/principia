@@ -4,6 +4,7 @@
 #include "pkgman.hh"
 #include "ui.hh"
 #include "version.hh"
+#include "world.hh"
 #include <algorithm>
 #include <tms/cpp.hh>
 
@@ -205,4 +206,30 @@ void handle_version_check(char *body) {
         free(P.message);
 
     P.message = strdup(body);
+}
+
+void handle_successful_publish(lvledit lvl, header_data &hd, int *community_id) {
+    // Check for messages
+    if (hd.error_message) {
+        ui::message(hd.error_message);
+
+        _publish_lvl_uploading_error = true;
+
+        free(hd.error_message);
+    } else if (hd.notify_message) {
+        tms_infof("got data: %s", hd.notify_message);
+        *community_id = atoi(hd.notify_message);
+
+        W->level.revision = lvl.lvl.revision;
+        lvl.lvl.community_id = *community_id;
+        tms_infof("community id: %d", *community_id);
+        tms_infof("parent id:    %u", lvl.lvl.parent_id);
+        tms_infof("revision:     %u", lvl.lvl.revision);
+
+        free(hd.notify_message);
+    } else {
+        /* we did not receive any data back, an unknown error occurred */
+        tms_errorf("no data received");
+        _publish_lvl_uploading_error = true;
+    }
 }

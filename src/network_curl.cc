@@ -372,97 +372,65 @@ int network::publish_level(void *p) {
     _publish_lvl_community_id = 0;
     _publish_lvl_uploading_error = false;
 
-    CURLcode r;
-
-    struct MemoryStruct chunk;
-    chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */
-    chunk.size = 0;    /* no data at this point */
+    struct MemoryStruct chunk = {(char *)malloc(1), 0};
 
     lvledit lvl;
-
     if (!lvl.open(LEVEL_LOCAL, level_id)) {
         tms_errorf("could not open level");
         return false;
     }
 
-    tms_debugf("old revision: %d", lvl.lvl.revision);
     lvl.lvl.revision++;
-    tms_debugf("new revision: %d", lvl.lvl.revision);
     lvl.save();
 
     char level_path[1024];
     pkgman::get_level_full_path(LEVEL_LOCAL, level_id, 0, level_path);
 
     lock_curl("publish_level");
-    if (P.curl) {
-        struct header_data hd = {0};
-        init_curl_defaults(P.curl);
-
-        curl_mime *mime = curl_mime_init(P.curl);
-        curl_mimepart *part;
-
-        part = curl_mime_addpart(mime);
-        curl_mime_name(part, "level");
-        curl_mime_filedata(part, level_path);
-
-        CURL_CUDDLES;
-
-        COMMUNITY_URL("internal/upload");
-        curl_easy_setopt(P.curl, CURLOPT_URL, url);
-
-        curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
-        curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
-        curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
-
-        tms_infof("Publishing level %d...", level_id);
-        r = curl_easy_perform(P.curl);
-        if (r == CURLE_OK) {
-            // Check for messages
-            if (hd.error_message) {
-                ui::message(hd.error_message);
-
-                _publish_lvl_uploading_error = true;
-
-                free(hd.error_message);
-            } else if (hd.notify_message) {
-                tms_infof("got data: %s", hd.notify_message);
-                community_id = atoi(hd.notify_message);
-
-                W->level.revision = lvl.lvl.revision;
-                lvl.lvl.community_id = community_id;
-                tms_infof("community id: %d", community_id);
-                tms_infof("parent id:    %u", lvl.lvl.parent_id);
-                tms_infof("revision:     %u", lvl.lvl.revision);
-
-                free(hd.notify_message);
-
-            } else {
-                /* we did not receive any data back, an unknown error occurred */
-                tms_errorf("no data received");
-                _publish_lvl_uploading_error = true;
-            }
-        } else {
-            tms_errorf("lvl publish curl_easy_perform failed: %s\n", curl_easy_strerror(r));
-
-            switch (r) {
-                case CURLE_OPERATION_TIMEDOUT:
-                    ui::message("Operation timed out. Your internet connection seems to be unstable! Please try again.", true);
-                    break;
-
-                case CURLE_COULDNT_RESOLVE_HOST:
-                    ui::message("Error: Unable to resolve hostname. Please check your internet connection.", true);
-                    break;
-
-                default:
-                    ui::message("An unknown error occurred when publishing your level. Check your internet connection.", true);
-                    break;
-            }
-            _publish_lvl_uploading = false;
-            _publish_lvl_uploading_error = true;
-        }
-
-        curl_mime_free(mime);
+    if (!P.curl) {
+        unlock_curl("publish_level");
+        tms_errorf("unable to initialize curl handle!");
+        return 0;
     }
+
+    struct header_data hd = {0};
+    init_curl_defaults(P.curl);
+
+    curl_mime *mime = curl_mime_init(P.curl);
+    curl_mimepart *part;
+
+    part = curl_mime_addpart(mime);
+    curl_mime_name(part, "level");
+    curl_mime_filedata(part, level_path);
+
+    CURL_CUDDLES;
+
+    COMMUNITY_URL("internal/upload");
+    curl_easy_setopt(P.curl, CURLOPT_URL, url);
+
+    curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
+    curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
+    curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
+
+    tms_infof("Publishing level %d...", level_id);
+    CURLcode r = curl_easy_perform(P.curl);
+    if (r == CURLE_OK) {
+        handle_successful_publish(lvl, hd, &community_id);
+    } else {
+        tms_errorf("lvl publish curl_easy_perform failed: %s\n", curl_easy_strerror(r));
+
+        if (r == CURLE_OPERATION_TIMEDOUT)
+            ui::message("Operation timed out. Your internet connection seems to be unstable! Please try again.", true);
+        else if (r == CURLE_COULDNT_RESOLVE_HOST)
+            ui::message("Error: Unable to resolve hostname. Please check your internet connection.", true);
+        else
+            ui::message("An unknown error occurred when publishing your level. Check your internet connection.", true);
+
+        _publish_lvl_uploading = false;
+        _publish_lvl_uploading_error = true;
+    }
+
+    curl_mime_free(mime);
     unlock_curl("publish_level");
 
     P.add_action(ACTION_AUTOSAVE, 0);
