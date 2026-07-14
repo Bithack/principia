@@ -2,6 +2,8 @@
 #include "menu_shared.hh"
 #include "gui.hh"
 #include "pkgman.hh"
+#include "ui.hh"
+#include "version.hh"
 #include <algorithm>
 #include <tms/cpp.hh>
 
@@ -29,6 +31,25 @@ struct header_data _play_header_data = {0};
 
 /* Submit score variables */
 bool _submit_score_done = false;
+
+void process_response_headers(const char *name, const char *value, header_data *hd) {
+    if (strcasecmp(name, "x-error-message") == 0) {
+        free(hd->error_message);
+        hd->error_message = strdup(value);
+    } else if (strcasecmp(name, "x-notify-message") == 0) {
+        free(hd->notify_message);
+        hd->notify_message = strdup(value);
+    } else if (strcasecmp(name, "x-error-action") == 0) {
+        hd->error_action = atoi(value);
+    } else if (strcasecmp(name, "x-principia-user-id") == 0) {
+        P.user_id = atoi(value);
+    } else if (strcasecmp(name, "x-principia-user-name") == 0) {
+        free(P.username);
+        P.username = strdup(value);
+    } else if (strcasecmp(name, "x-principia-unread") == 0) {
+        P.num_unread_messages = atoi(value);
+    }
+}
 
 bool load_featured_cache(const char *path, char *buf, size_t *buf_size) {
 	FILE *fh = fopen(path, "rb");
@@ -146,4 +167,42 @@ bool parse_featured_levels(char *buf, size_t buf_size) {
     }
 
 	return true;
+}
+
+void handle_login(header_data &hd, int http_code) {
+    if (hd.error_message) {
+        ui::message(hd.error_message);
+        ui::emit_signal(SIGNAL_LOGIN_FAILED);
+
+        free(hd.error_message);
+    }
+
+    if (hd.notify_message) {
+        ui::message(hd.notify_message);
+        P.add_action(ACTION_REFRESH_HEADER_DATA, 0);
+        ui::emit_signal(SIGNAL_LOGIN_SUCCESS);
+
+        free(hd.notify_message);
+    }
+
+    if (http_code != 200) {
+        tms_errorf("login failed with http code %d", http_code);
+        ui::message("An error occurred while logging in. Please check your internet connection and try again.", true);
+        ui::emit_signal(SIGNAL_LOGIN_FAILED);
+    }
+}
+
+void handle_version_check(char *body) {
+    int server_version_code = atoi(body);
+
+    if (server_version_code > principia_version_code()) {
+        P.new_version_available = true;
+        ui::message("A new version of Principia is available!", true);
+    }
+
+    tms_debugf("Client: %d. Server: %d", principia_version_code(), server_version_code);
+    if (P.message)
+        free(P.message);
+
+    P.message = strdup(body);
 }

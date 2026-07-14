@@ -26,6 +26,8 @@ public:
     static int download_level(void *p);
 };
 
+void process_response_headers(const char *name, const char *value, header_data *hd);
+
 /* Publish level variables */
 extern uint32_t      _publish_lvl_community_id;
 extern uint32_t      _publish_lvl_id;
@@ -60,6 +62,10 @@ extern struct header_data _play_header_data;
 bool load_featured_cache(const char *path, char *buf, size_t *buf_size);
 void save_featured_cache(const char *path, char *buf, size_t buf_size);
 bool parse_featured_levels(char *buf, size_t buf_size);
+
+void handle_login(header_data &hd, int http_code);
+
+void handle_version_check(char *body);
 
 #ifdef SDL_PLATFORM_ANDROID
 extern "C" {

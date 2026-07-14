@@ -1,7 +1,6 @@
 #include "const.hh"
 #include "main.hh"
 #include "menu_shared.hh"
-#include "misc.hh"
 #include "network.hh"
 #include "pkgman.hh"
 #include <cstdlib>
@@ -18,7 +17,130 @@ void network::soft_resume() {}
 void network::soft_pause() {}
 void network::quit() {}
 
-int network::check_version_code(void *p) { return 0; }
+typedef void (*fetch_callback_t)(int status, const char *headers, const void *body, size_t body_size, void *userdata);
+
+static void parse_js_headers(int status, const char *headers, void *userdata) {
+    header_data *hd = static_cast<header_data*>(userdata);
+
+    char *copy = strdup(headers);
+
+    char *saveptr;
+    for (char *line = strtok_r(copy, "\n", &saveptr); line; line = strtok_r(nullptr, "\n", &saveptr)) {
+        char *colon = strchr(line, ':');
+        if (!colon)
+            continue;
+
+        *colon = 0;
+
+        char *value = colon + 1;
+        while (*value == ' ')
+            value++;
+
+        process_response_headers(line, value, hd);
+    }
+
+    free(copy);
+}
+
+extern "C" {
+
+EMSCRIPTEN_KEEPALIVE void fetch_finished(int status, const char *headers,  const void *body, size_t body_size, fetch_callback_t callback, void *userdata) {
+    callback(status, headers, body, body_size, userdata);
+}
+
+}
+
+EM_JS(void, emscripten_fetch_request,
+        (const char *method, const char *url, const char *headers, const void *body, size_t body_size, fetch_callback_t callback, void *userdata), {
+    const methodStr = UTF8ToString(method);
+    const urlStr = UTF8ToString(url);
+
+    let requestBody = null;
+    if (body && body_size > 0) {
+        requestBody = HEAPU8.slice(body, body + body_size);
+    }
+
+    const headerString = headers ? UTF8ToString(headers) : "";
+
+    const requestHeaders = {};
+
+    if (headerString.length > 0) {
+        headerString.split("\n").forEach(line => {
+            const split = line.indexOf(":");
+            if (split >= 0) {
+                const key = line.substring(0, split);
+                const value = line.substring(split + 1).trim();
+                requestHeaders[key] = value;
+            }
+        });
+    }
+
+    fetch(urlStr, {
+        method: methodStr,
+        headers: requestHeaders,
+        //credentials: "include",
+        body: requestBody
+    }).then(response => {
+        let headersOut = "";
+
+        response.headers.forEach((value, key) => {
+            headersOut += key + ":" + value + "\n";
+        });
+
+        return response.arrayBuffer().then(buffer => {
+            const data = new Uint8Array(buffer);
+
+            const headersPtr = stringToNewUTF8(headersOut);
+
+            const bodyPtr = _malloc(data.length);
+            HEAPU8.set(data, bodyPtr);
+
+            Module.ccall(
+                "fetch_finished",
+                null,
+                ["number", "number", "number", "number", "number", "number"],
+                [response.status, headersPtr, bodyPtr, data.length, callback, userdata]
+            );
+
+            _free(headersPtr);
+            _free(bodyPtr);
+        });
+    }).catch(() => {
+        Module.ccall(
+            "fetch_finished",
+            null,
+            ["number", "number", "number", "number", "number", "number"],
+            [0, 0, 0, 0, callback, userdata]
+        );
+    });
+});
+
+
+int network::check_version_code(void *p) {
+    COMMUNITY_URL("internal/version_code");
+
+    static auto version_fetch_callback = [](int status, const char *headers, const void *body, size_t body_size, void *userdata) {
+        if (status != 200 || !body) {
+            tms_errorf("could not check for latest version: invalid data");
+            return;
+        }
+
+        handle_version_check((char *)body);
+
+        P.add_action(ACTION_REFRESH_HEADER_DATA, 0);
+    };
+
+    emscripten_fetch_request(
+        "GET",
+        url,
+        nullptr,
+        nullptr,
+        0,
+        version_fetch_callback,
+        nullptr);
+
+    return 0;
+}
 
 static char *fl_buf = 0;
 static size_t fl_buf_size = 0;
@@ -75,7 +197,40 @@ int network::get_featured_levels(void *_num) {
 
 int network::publish_level(void *p) { return 0; }
 int network::submit_score(void *p) { return 0; }
-int network::login(void *p) { return 0; }
+
+int network::login(void *p) {
+    login_data *data = static_cast<login_data*>(p);
+
+    char *post_data = nullptr;
+    SDL_asprintf(
+        &post_data,
+        "username=%s&password=%s&key=cuddles",
+        data->username,
+        data->password);
+
+    COMMUNITY_URL("internal/login");
+
+    static auto login_fetch_callback = [](int status, const char *headers, const void *body, size_t body_size, void *userdata) {
+        header_data hd = {};
+        parse_js_headers(status, headers, &hd);
+
+        handle_login(hd, status);
+    };
+
+    emscripten_fetch_request(
+        "POST",
+        url,
+        "Content-Type: application/x-www-form-urlencoded",
+        post_data,
+        SDL_strlen(post_data),
+        login_fetch_callback,
+        data);
+
+    SDL_free(post_data);
+
+    return T_OK;
+}
+
 int network::register_user(void *p) { return 0; }
 int network::download_pkg(void *p) { return 0; }
 

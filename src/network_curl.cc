@@ -1,12 +1,10 @@
 #include "network.hh"
 #include "crc.hh"
 #include "game.hh"
-#include "gui.hh"
 #include "main.hh"
 #include "menu_shared.hh"
 #include "object_factory.hh"
 #include "progress.hh"
-#include "text.hh"
 #include "ui.hh"
 #include "version.hh"
 #include <tms/cpp.hh>
@@ -139,33 +137,29 @@ static size_t _save_level(void *buffer, size_t size, size_t nmemb, void *stream)
     return 0;
 }
 
-static size_t _parse_headers(void *buffer, size_t size, size_t nmemb, void *data) {
-    char *buf = (char*)buffer;
-    char *pch = strchr(buf, ':');
+static size_t _parse_headers(char *buffer, size_t size, size_t nitems, void *userdata) {
+    header_data *hd = static_cast<header_data*>(userdata);
 
-    if (pch && strlen(buf) > pch-buf+1) {
-        buf[pch-buf] = '\0';
-        buf[nmemb-2] = '\0';
-        char *v = pch+2;
+    size_t len = size * nitems;
 
-        if (data) {
-            if (strcasecmp(buf, "x-error-message") == 0)
-                ((struct header_data*)data)->error_message = strdup(v);
-            else if (strcasecmp(buf, "x-error-action") == 0)
-                ((struct header_data*)data)->error_action = atoi(v);
-            else if (strcasecmp(buf, "x-notify-message") == 0)
-                ((struct header_data*)data)->notify_message = strdup(v);
-        }
+    char *colon = static_cast<char*>(memchr(buffer, ':', len));
+    if (!colon)
+        return len;
 
-        if (strcasecmp(buf, "x-principia-user-id") == 0)
-            P.user_id = atoi(v);
-        else if (strcasecmp(buf, "x-principia-user-name") == 0)
-            P.username = strdup(v);
-        else if (strcasecmp(buf, "x-principia-unread") == 0)
-            P.num_unread_messages = atoi(v);
-    }
+    std::string name(buffer, colon - buffer);
 
-    return nmemb;
+    const char *value = colon + 1;
+    while (*value == ' ')
+        value++;
+
+    std::string val(value, buffer + len - value);
+
+    while (!val.empty() && (val.back() == '\r' || val.back() == '\n'))
+        val.pop_back();
+
+    process_response_headers(name.c_str(), val.c_str(), hd);
+
+    return nitems;
 }
 
 static void print_cookies(CURL *curl) {
@@ -271,47 +265,37 @@ int network::check_version_code(void *_unused) {
     chunk.size = 0;
 
     lock_curl("check_version_code");
-    if (P.curl) {
-        init_curl_defaults(P.curl);
-
-        COMMUNITY_URL("internal/version_code");
-        curl_easy_setopt(P.curl, CURLOPT_URL, url);
-
-        curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
-        curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
-        curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 35L);
-
-        if ((r = curl_easy_perform(P.curl)) == CURLE_OK) {
-            if (chunk.size > 0) {
-                int server_version_code = atoi(chunk.memory);
-
-                if (server_version_code > principia_version_code()) {
-                    P.new_version_available = true;
-                    ui::message("A new version of Principia is available!", true);
-                }
-
-                tms_debugf("Client: %d. Server: %d", principia_version_code(), server_version_code);
-                if (P.message) {
-                    free(P.message);
-                }
-                P.message = strdup(chunk.memory);
-            } else {
-                tms_errorf("could not check for lateset version: invalid data");
-            }
-        } else {
-            tms_errorf("could not check for latest version: %s", curl_easy_strerror(r));
-         }
-    } else {
+    if (!P.curl) {
+        unlock_curl("check_version_code");
         tms_errorf("unable to initialize curl handle!");
+        return 0;
     }
+
+    init_curl_defaults(P.curl);
+
+    COMMUNITY_URL("internal/version_code");
+    curl_easy_setopt(P.curl, CURLOPT_URL, url);
+
+    curl_easy_setopt(P.curl, CURLOPT_WRITEFUNCTION, write_memory_cb);
+    curl_easy_setopt(P.curl, CURLOPT_WRITEDATA, (void*)&chunk);
+    curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 35L);
+
+    if ((r = curl_easy_perform(P.curl)) == CURLE_OK) {
+        if (chunk.size > 0) {
+            handle_version_check(chunk.memory);
+        } else {
+            tms_errorf("could not check for latest version: invalid data");
+        }
+    } else {
+        tms_errorf("could not check for latest version: %s", curl_easy_strerror(r));
+    }
+
     unlock_curl("check_version_code");
 
     if (_tms.state == TMS_STATE_QUITTING)
         return 0;
 
     P.add_action(ACTION_REFRESH_HEADER_DATA, 0);
-
-    tms_debugf("exiting version check thread");
     return 0;
 }
 
@@ -631,75 +615,52 @@ int network::submit_score(void *p) {
 int network::login(void *p) {
     struct login_data *data = static_cast<struct login_data*>(p);
 
-    int res = T_OK;
     long http_code = 0;
 
-    CURLcode r;
-
     lock_curl("login");
-    if (P.curl) {
-        struct header_data hd = {0};
-        init_curl_defaults(P.curl);
-
-        curl_mime *mime = curl_mime_init(P.curl);
-        curl_mimepart* part;
-
-        part = curl_mime_addpart(mime);
-        curl_mime_name(part, "username");
-        curl_mime_data(part, data->username, CURL_ZERO_TERMINATED);
-
-        part = curl_mime_addpart(mime);
-        curl_mime_name(part, "password");
-        curl_mime_data(part, data->password, CURL_ZERO_TERMINATED);
-
-        CURL_CUDDLES;
-
-        COMMUNITY_URL("internal/login");
-        curl_easy_setopt(P.curl, CURLOPT_URL, url);
-
-        curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
-        curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
-        curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
-
-        r = curl_easy_perform(P.curl);
-        if (r == CURLE_OK) {
-            // Check for messages
-            if (hd.error_message) {
-                ui::message(hd.error_message);
-                ui::emit_signal(SIGNAL_LOGIN_FAILED);
-
-                free(hd.error_message);
-            }
-
-            if (hd.notify_message) {
-                ui::message(hd.notify_message);
-                P.add_action(ACTION_REFRESH_HEADER_DATA, 0);
-                ui::emit_signal(SIGNAL_LOGIN_SUCCESS);
-
-                free(hd.notify_message);
-            }
-
-            curl_easy_getinfo(P.curl, CURLINFO_RESPONSE_CODE, &http_code);
-            if (http_code != 200) {
-                tms_errorf("login failed with http code %ld", http_code);
-                ui::message("An error occurred while logging in. Please check your internet connection and try again.", true);
-                ui::emit_signal(SIGNAL_LOGIN_FAILED);
-                res = T_ERR;
-            }
-        } else {
-            tms_errorf("curl_easy_perform failed: %s\n", curl_easy_strerror(r));
-            res = 1;
-        }
-        curl_mime_free(mime);
-    } else {
-        tms_errorf("Unable to initialize curl handle.");
-        res = 1;
+    if (!P.curl) {
+        tms_errorf("unable to initialize curl handle!");
+        unlock_curl("login");
+        return 0;
     }
+
+    struct header_data hd = {0};
+    init_curl_defaults(P.curl);
+
+    curl_mime *mime = curl_mime_init(P.curl);
+    curl_mimepart* part;
+
+    part = curl_mime_addpart(mime);
+    curl_mime_name(part, "username");
+    curl_mime_data(part, data->username, CURL_ZERO_TERMINATED);
+
+    part = curl_mime_addpart(mime);
+    curl_mime_name(part, "password");
+    curl_mime_data(part, data->password, CURL_ZERO_TERMINATED);
+
+    CURL_CUDDLES;
+
+    COMMUNITY_URL("internal/login");
+    curl_easy_setopt(P.curl, CURLOPT_URL, url);
+
+    curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
+    curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
+    curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
+
+    CURLcode r;
+    if ((r = curl_easy_perform(P.curl)) == CURLE_OK) {
+        curl_easy_getinfo(P.curl, CURLINFO_RESPONSE_CODE, &http_code);
+        handle_login(hd, http_code);
+    } else
+        tms_errorf("curl_easy_perform failed: %s\n", curl_easy_strerror(r));
+
+    curl_mime_free(mime);
+
     unlock_curl("login");
 
     free(data);
 
-    return res;
+    return 0;
 }
 
 /** --Register **/
