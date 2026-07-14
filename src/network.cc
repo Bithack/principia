@@ -52,32 +52,32 @@ void process_response_headers(const char *name, const char *value, header_data *
     }
 }
 
-bool load_featured_cache(const char *path, char *buf, size_t *buf_size) {
-	FILE *fh = fopen(path, "rb");
-	if (fh) {
-		fseek(fh, 0, SEEK_END);
-		*buf_size = ftell(fh);
-		fseek(fh, 0, SEEK_SET);
+bool load_featured_cache(const char *path, char **buf, size_t *buf_size) {
+    FILE *fh = fopen(path, "rb");
+    if (fh) {
+        fseek(fh, 0, SEEK_END);
+        *buf_size = ftell(fh);
+        fseek(fh, 0, SEEK_SET);
 
-		fread(buf, 1, *buf_size, fh);
+        *buf = (char*)malloc(*buf_size);
+        fread(*buf, 1, *buf_size, fh);
 
-		fclose(fh);
-	} else {
-		tms_infof("Error opening cache file!");
-		return false;
-	}
+        fclose(fh);
+    } else {
+        tms_infof("Error opening cache file!");
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 void save_featured_cache(const char *path, char *buf, size_t buf_size) {
-	FILE *fh = fopen(path, "wb");
+    FILE *fh = fopen(path, "wb");
 
-	if (fh) {
-		fwrite(buf, 1, buf_size, fh);
-
-		fclose(fh);
-	}
+    if (fh) {
+        fwrite(buf, 1, buf_size, fh);
+        fclose(fh);
+    }
 }
 
 bool parse_featured_levels(char *buf, size_t buf_size) {
@@ -167,7 +167,7 @@ bool parse_featured_levels(char *buf, size_t buf_size) {
         menu_shared::gs_state = FL_WAITING;
     }
 
-	return true;
+    return true;
 }
 
 void handle_login(header_data &hd, int http_code) {

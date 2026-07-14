@@ -170,11 +170,11 @@ int network::get_featured_levels(void *_num) {
             return;
 
         if (!fl_buf) {
-            if (!load_featured_cache(featured_data_path, fl_buf, &fl_buf_size))
+            if (!load_featured_cache(featured_data_path, &fl_buf, &fl_buf_size))
                 return;
         }
 
-        if (!parse_featured_levels(fl_buf, fl_buf_size))
+        if (!fl_buf || !parse_featured_levels(fl_buf, fl_buf_size))
             return;
 
         save_featured_cache(featured_data_path, fl_buf, fl_buf_size);

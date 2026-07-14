@@ -60,7 +60,7 @@ extern volatile bool _play_download_for_pkg;
 extern volatile int  _play_downloading_error;
 extern struct header_data _play_header_data;
 
-bool load_featured_cache(const char *path, char *buf, size_t *buf_size);
+bool load_featured_cache(const char *path, char **buf, size_t *buf_size);
 void save_featured_cache(const char *path, char *buf, size_t buf_size);
 bool parse_featured_levels(char *buf, size_t buf_size);
 

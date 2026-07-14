@@ -351,11 +351,11 @@ int network::get_featured_levels(void *_num) {
         return 0;
 
     if (!fl_buf) {
-        if (!load_featured_cache(featured_data_path, fl_buf, &fl_buf_size))
+        if (!load_featured_cache(featured_data_path, &fl_buf, &fl_buf_size))
             return 0;
     }
 
-    if (!parse_featured_levels(fl_buf, fl_buf_size))
+    if (!fl_buf || !parse_featured_levels(fl_buf, fl_buf_size))
         return 0;
 
     save_featured_cache(featured_data_path, fl_buf, fl_buf_size);
