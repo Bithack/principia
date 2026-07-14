@@ -1356,6 +1356,31 @@ game::reset_touch(bool hard/*=true*/)
         layer[x] = -1;
     }
 
+    // reset all RC widgets
+    static panel::widget **widgets[] = {
+        wdg_up, wdg_down, wdg_left, wdg_right, wdg_btn
+    };
+    for (int i = 0; i < sizeof(widgets)/sizeof(widgets[0]); i++) {
+        panel::widget **wdg_array = widgets[i];
+
+        int wdg_count = 0;
+        switch (i) {
+            case 0: wdg_count = wdg_up_i; break;
+            case 1: wdg_count = wdg_down_i; break;
+            case 2: wdg_count = wdg_left_i; break;
+            case 3: wdg_count = wdg_right_i; break;
+            case 4: wdg_count = wdg_btn_i; break;
+        }
+
+        for (int x = 0; x < wdg_count; x++) {
+            if (wdg_array[x]) {
+                wdg_array[x]->value[0] = 0.f;
+                wdg_array[x]->value[1] = 0.f;
+                wdg_array[x]->focused = 0;
+            }
+        }
+    }
+
     if (hard) {
         for (int x=0; x<MAX_INTERACTING; x++) {
             /* XXX: release objects properly? */
