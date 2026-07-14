@@ -55,3 +55,4 @@ namespace UiConfirmQuit     { void open(); void layout(); }
 namespace UiCamTargeter     { void open(); void layout(); }
 namespace UiVendor          { void open(); void layout(); }
 namespace UiFXEmitter       { void open(); void layout(); }
+namespace UiPrompt          { void open(); void layout(); }

@@ -8,14 +8,12 @@
 #include "display.hh"
 #include "faction.hh"
 #include "factory.hh"
-#include "fxemitter.hh"
 #include "game.hh"
 #include "item.hh"
 #include "main.hh"
 #include "menu-play.hh"
 #include "object_factory.hh"
 #include "pkgman.hh"
-#include "prompt.hh"
 #include "robot_base.hh"
 #include "sequencer.hh"
 #include "settings.hh"
@@ -62,8 +60,6 @@ enum {
 
     OSC_NUM_COLUMNS
 };
-
-GtkDialog *cur_prompt = 0;
 
 static guint valid_keys[9] = {
     GDK_KEY_1,
@@ -4042,87 +4038,6 @@ static gboolean _open_level_properties(gpointer unused) {
     return false;
 }
 
-static gboolean _open_prompt_dialog(gpointer unused) {
-    if (W->is_adventure() && adventure::player) {
-        adventure::player->stop_moving(DIR_LEFT);
-        adventure::player->stop_moving(DIR_RIGHT);
-    }
-
-    base_prompt *bp = G->current_prompt->get_base_prompt();
-    if (G->current_prompt && G->current_prompt->is_prompt_compatible() && bp) {
-
-        GtkDialog *d = GTK_DIALOG(gtk_message_dialog_new(
-                    0, (GtkDialogFlags)(0),
-                    GTK_MESSAGE_OTHER,
-                    GTK_BUTTONS_NONE,
-                    0));
-        //gtk_window_set_decorated(GTK_WINDOW(d), FALSE);
-        //gtk_window_set_has_frame(GTK_WINDOW(d), FALSE);
-
-        g_object_set(d, "text", *bp->message, NULL);
-
-        gtk_window_set_deletable(GTK_WINDOW(d), FALSE);
-        gtk_window_set_position(GTK_WINDOW(d), GTK_WIN_POS_CENTER);
-
-        if (W && W->level.version >= LEVEL_VERSION_1_2_3) {
-            for (int x=0; x<3; ++x) {
-                const struct base_prompt::prompt_button &btn = bp->buttons[x];
-                if (*btn.len && *btn.buf) {
-                    gtk_dialog_add_button(d, *btn.buf, x+1);
-                }
-            }
-        } else {
-            int n=0;
-            for (int x=0; x<3; ++x) {
-                const struct base_prompt::prompt_button &btn = bp->buttons[x];
-                if (*btn.len && *btn.buf) {
-                    gtk_dialog_add_button(d, *btn.buf, ++n);
-                }
-            }
-        }
-
-        cur_prompt = d;
-        prompt_is_open = true;
-
-        P.focused = false;
-
-        int response = PROMPT_RESPONSE_NONE;
-
-        do {
-            response = (int)gtk_dialog_run(d);
-
-            switch (response) {
-                case PROMPT_RESPONSE_A:
-                case PROMPT_RESPONSE_B:
-                case PROMPT_RESPONSE_C:
-                    if (G->current_prompt) {
-                        bp = G->current_prompt->get_base_prompt();
-
-                        if (bp) {
-                            tms_debugf("setting prompt response from here");
-                            bp->set_response(response);
-                        }
-                    }
-                    break;
-
-                default:
-                    response = PROMPT_RESPONSE_NONE;
-                    tms_warnf("no response given.");
-                    break;
-            }
-        } while (response == PROMPT_RESPONSE_NONE);
-
-        P.focused = true;
-
-        gtk_widget_hide(GTK_WIDGET(d));
-    }
-
-    cur_prompt = 0;
-    prompt_is_open = false;
-
-    return false;
-}
-
 static gboolean _open_prompt_settings_dialog(gpointer unused) {
     activate_prompt_settings(NULL, 0);
     return false;
@@ -4439,7 +4354,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(properties_dialog));
     gtk_widget_hide(GTK_WIDGET(synth_dialog));
     gtk_widget_hide(GTK_WIDGET(prompt_settings_dialog));
-    //if (cur_prompt) gtk_widget_hide(GTK_WIDGET(cur_prompt));
     return false;
 }
 
@@ -4693,13 +4607,13 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiMessage::open((char *)data, MessageType::LevelInfo);
             break;
 
-#ifndef PRINCIPIA_BACKEND_IMGUI
         case DIALOG_PROMPT:
-            if (G) {
+            if (G)
                 G->reset_touch(false);
-            }
-            gdk_threads_add_timeout(40, _open_prompt_dialog, 0);
+            UiPrompt::open();
             break;
+
+#ifndef PRINCIPIA_BACKEND_IMGUI
         case DIALOG_PROMPT_SETTINGS: gdk_threads_add_idle(_open_prompt_settings_dialog, 0); break;
 #endif
 
@@ -4821,6 +4735,7 @@ void ui::render() {
     UiCamTargeter::layout();
     UiVendor::layout();
     UiFXEmitter::layout();
+    UiPrompt::layout();
 
 #ifdef PRINCIPIA_BACKEND_IMGUI
     UiLevelProperties::layout();

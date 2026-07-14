@@ -142,8 +142,6 @@ class ui
     static void render();
 };
 
-extern bool prompt_is_open;
-
 extern const char* tips_pc[];
 extern const char* tips_mobile[];
 extern const int num_tips_pc;
