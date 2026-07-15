@@ -287,11 +287,6 @@ struct gtk_level_property gtk_level_properties[] = {
 
 static int num_gtk_level_properties = sizeof(gtk_level_properties) / sizeof(gtk_level_properties[0]);
 
-/** --Soundman **/
-GtkDialog       *soundman_dialog;
-GtkComboBoxText *soundman_cb;
-GtkCheckButton  *soundman_catch_all;
-
 /** --Factory **/
 GtkDialog       *factory_dialog;
 GtkSpinButton   *factory_faction;
@@ -974,18 +969,6 @@ void on_sfx2_show(GtkWidget *wdg, void *ununused) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sfx2_loop), (e->properties[3].v.i8 == 1));
 
         gtk_combo_box_set_active(GTK_COMBO_BOX(sfx2_sub_cb), e->properties[2].v.i == SFX_CHUNK_RANDOM ? 0 : e->properties[2].v.i+1);
-    }
-}
-
-/** --Soundman **/
-void on_soundman_show(GtkWidget *wdg, void *ununused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_SOUNDMAN) {
-        if (e->properties[0].v.i >= SND__NUM) e->properties[0].v.i = SND__NUM-1;
-
-        gtk_combo_box_set_active(GTK_COMBO_BOX(soundman_cb), e->properties[0].v.i);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(soundman_catch_all), e->properties[1].v.i8 != 0);
     }
 }
 
@@ -2962,28 +2945,6 @@ int _gtk_loop(void *p) {
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
-    /** --Soundman **/
-    {
-        dialog = new_dialog_defaults("Sound Manager", &on_soundman_show);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-
-        soundman_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-        for (int x=0; x<SND__NUM; x++) {
-            gtk_combo_box_text_append_text(soundman_cb, sm::sound_lookup[x]->name);
-        }
-
-        soundman_catch_all = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Catch all"));
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Sound type</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(soundman_cb), false, false, 10);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(soundman_catch_all), false, false, 10);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        soundman_dialog = dialog;
-    }
-
     /** --SFX Emitter 2 **/
     {
         dialog = new_dialog_defaults("SFX Emitter", &on_sfx2_show);
@@ -4055,32 +4016,6 @@ static gboolean _open_sfx2_window(gpointer unused) {
     return false;
 }
 
-/** --Soundman **/
-static gboolean _open_soundman(gpointer unused) {
-    GtkDialog *d = soundman_dialog;
-
-    gint result = gtk_dialog_run(d);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_SOUNDMAN) {
-            e->properties[0].v.i = (uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(soundman_cb));
-
-            if (e->properties[0].v.i >= SND__NUM) e->properties[0].v.i = SND__NUM-1;
-
-            e->properties[1].v.i8 = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(soundman_catch_all)) ? 1 : 0;
-
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(d));
-
-    return false;
-}
-
 /** --Factory **/
 static gboolean _open_factory(gpointer unused) {
     GtkDialog *d = factory_dialog;
@@ -4420,9 +4355,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_ANIMAL:
             UiAnimal::open();
             break;
-#ifndef PRINCIPIA_BACKEND_IMGUI
-        case DIALOG_SOUNDMAN:       gdk_threads_add_idle(_open_soundman, 0); break;
-#endif
+        case DIALOG_SOUNDMAN:
+            UiSoundManager::open();
+            break;
         case DIALOG_POLYGON:
             UiPolygon::open();
             break;
@@ -4582,6 +4517,7 @@ void ui::render() {
     UiFXEmitter::layout();
     UiPrompt::layout();
     UiPromptSettings::layout();
+    UiSoundManager::layout();
 
 #ifdef PRINCIPIA_BACKEND_IMGUI
     UiLevelProperties::layout();

@@ -284,6 +284,7 @@
 	#include "ui/set_faction.cc"
 	#include "ui/settings.cc"
 	#include "ui/shape_extruder.cc"
+	#include "ui/sound_manager.cc"
 	#include "ui/sticky.cc"
 	#include "ui/synthesizer.cc"
 	#include "ui/timer.cc"
