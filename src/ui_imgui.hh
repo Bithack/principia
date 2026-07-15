@@ -56,3 +56,4 @@ namespace UiCamTargeter     { void open(); void layout(); }
 namespace UiVendor          { void open(); void layout(); }
 namespace UiFXEmitter       { void open(); void layout(); }
 namespace UiPrompt          { void open(); void layout(); }
+namespace UiPromptSettings  { void open(); void layout(); }

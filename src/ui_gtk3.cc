@@ -411,15 +411,6 @@ GtkRange       *synth_pulse_width;
 
 GtkComboBoxText *synth_waveform;
 
-/** --Prompt Settings Dialog **/
-GtkWindow       *prompt_settings_dialog;
-GtkTextView     *prompt_message;
-GtkEntry        *prompt_b1;
-GtkEntry        *prompt_b2;
-GtkEntry        *prompt_b3;
-GtkButton       *prompt_save;
-GtkButton       *prompt_cancel;
-
 gboolean on_digi_next_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data);
 gboolean on_digi_prev_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data);
 gboolean on_digi_insert_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data);
@@ -925,73 +916,6 @@ gboolean on_sequencer_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) 
 
             }
             break;
-    }
-
-    return false;
-}
-
-/** --Prompt Settings Dialog **/
-void on_prompt_show(GtkWidget *wdg, void *unused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_PROMPT) {
-        gtk_entry_set_text(prompt_b1, e->properties[0].v.s.buf);
-        gtk_entry_set_text(prompt_b2, e->properties[1].v.s.buf);
-        gtk_entry_set_text(prompt_b3, e->properties[2].v.s.buf);
-
-        GtkTextBuffer *tb = gtk_text_view_get_buffer(prompt_message);
-        gtk_text_buffer_set_text(tb, e->properties[3].v.s.buf, -1);
-    }
-}
-
-gboolean on_prompt_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape)
-        gtk_widget_hide(w);
-    else if (key->keyval == GDK_KEY_Return) {
-    }
-
-    return false;
-}
-
-gboolean on_prompt_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, prompt_cancel, user_data)) {
-        gtk_widget_hide(GTK_WIDGET(prompt_settings_dialog));
-    } else if (btn_pressed(w, prompt_save, user_data)) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_PROMPT) {
-            const char *b1 = gtk_entry_get_text(prompt_b1);
-            const char *b2 = gtk_entry_get_text(prompt_b2);
-            const char *b3 = gtk_entry_get_text(prompt_b3);
-
-            if (!strlen(b1) && !strlen(b2) && !strlen(b3)) {
-                ui::message("You must use at least one button.");
-                return false;
-            }
-
-            GtkTextIter start, end;
-            GtkTextBuffer *tb = gtk_text_view_get_buffer(prompt_message);
-            gtk_text_buffer_get_bounds(tb, &start, &end);
-
-            const char *message = gtk_text_buffer_get_text(tb, &start, &end, FALSE);
-
-            if (!strlen(message)) {
-                ui::message("You must enter a message.");
-                return false;
-            }
-
-            e->set_property(0, b1);
-            e->set_property(1, b2);
-            e->set_property(2, b3);
-            e->set_property(3, message);
-
-            gtk_widget_hide(GTK_WIDGET(prompt_settings_dialog));
-
-            ui::message("Prompt properties saved!");
-
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-        }
     }
 
     return false;
@@ -2225,10 +2149,6 @@ void on_properties_show(GtkWidget *wdg, void *unused) {
 
 void activate_open_state(GtkMenuItem *i, gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(open_state_window));
-}
-
-void activate_prompt_settings(GtkMenuItem *i, gpointer unused) {
-    gtk_widget_show_all(GTK_WIDGET(prompt_settings_dialog));
 }
 
 void activate_object(GtkMenuItem *i, gpointer unused) {
@@ -3840,75 +3760,6 @@ int _gtk_loop(void *p) {
         gtk_container_add(GTK_CONTAINER(sequencer_window), GTK_WIDGET(content));
     }
 
-    /** --Prompt settings dialog **/
-    {
-        prompt_settings_dialog = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-        gtk_container_set_border_width(GTK_CONTAINER(prompt_settings_dialog), 10);
-        gtk_window_set_default_size(GTK_WINDOW(prompt_settings_dialog), 400, 400);
-        gtk_widget_set_size_request(GTK_WIDGET(prompt_settings_dialog), 400, 400);
-        gtk_window_set_title(GTK_WINDOW(prompt_settings_dialog), "Prompt settings");
-        gtk_window_set_resizable(GTK_WINDOW(prompt_settings_dialog), false);
-
-        apply_dialog_defaults(prompt_settings_dialog, on_prompt_show, on_prompt_keypress);
-
-        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-        GtkBox *inner_content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-
-        GtkWidget *l;
-        GtkBox *hb;
-
-        l = gtk_label_new("Message");
-        prompt_message = GTK_TEXT_VIEW(gtk_text_view_new());
-        gtk_box_pack_start(inner_content, l, false, false, 0);
-        gtk_box_pack_start(inner_content, GTK_WIDGET(prompt_message), true, true, 0);
-
-        l = gtk_label_new("Leave a button text empty if you don't want to use it.");
-        gtk_box_pack_start(inner_content, l, false, false, 0);
-
-        hb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-        l = gtk_label_new("Button 1:");
-        prompt_b1 = GTK_ENTRY(gtk_entry_new());
-        gtk_box_pack_start(hb, l, false, false, 0);
-        gtk_box_pack_start(hb, GTK_WIDGET(prompt_b1), false, false, 0);
-        gtk_box_pack_start(inner_content, GTK_WIDGET(hb), false, false, 0);
-
-        hb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-        l = gtk_label_new("Button 2:");
-        prompt_b2 = GTK_ENTRY(gtk_entry_new());
-        gtk_box_pack_start(hb, l, false, false, 0);
-        gtk_box_pack_start(hb, GTK_WIDGET(prompt_b2), false, false, 0);
-        gtk_box_pack_start(inner_content, GTK_WIDGET(hb), false, false, 0);
-
-        hb = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-        l = gtk_label_new("Button 3:");
-        prompt_b3 = GTK_ENTRY(gtk_entry_new());
-        gtk_box_pack_start(hb, l, false, false, 0);
-        gtk_box_pack_start(hb, GTK_WIDGET(prompt_b3), false, false, 0);
-        gtk_box_pack_start(inner_content, GTK_WIDGET(hb), false, false, 0);
-
-        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
-        gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
-        gtk_box_set_spacing(GTK_BOX(button_box), 5);
-
-        /* Save */
-        prompt_save = GTK_BUTTON(gtk_button_new_with_label("Save"));
-        g_signal_connect(prompt_save, "clicked",
-                G_CALLBACK(on_prompt_btn_click), 0);
-
-        /* Cancel */
-        prompt_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(prompt_cancel, "clicked",
-                G_CALLBACK(on_prompt_btn_click), 0);
-
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(prompt_save));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(prompt_cancel));
-
-        gtk_box_pack_start(content, GTK_WIDGET(inner_content), 1, 1, 0);
-        gtk_box_pack_start(content, GTK_WIDGET(button_box), 0, 0, 0);
-
-        gtk_container_add(GTK_CONTAINER(prompt_settings_dialog), GTK_WIDGET(content));
-    }
-
     gdk_threads_add_idle(_sig_ui_ready, 0);
 
 
@@ -4035,11 +3886,6 @@ static gboolean _open_level_properties(gpointer unused) {
 
     gtk_widget_hide(GTK_WIDGET(properties_dialog));
 
-    return false;
-}
-
-static gboolean _open_prompt_settings_dialog(gpointer unused) {
-    activate_prompt_settings(NULL, 0);
     return false;
 }
 
@@ -4353,7 +4199,6 @@ static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(object_window));
     gtk_widget_hide(GTK_WIDGET(properties_dialog));
     gtk_widget_hide(GTK_WIDGET(synth_dialog));
-    gtk_widget_hide(GTK_WIDGET(prompt_settings_dialog));
     return false;
 }
 
@@ -4613,9 +4458,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiPrompt::open();
             break;
 
-#ifndef PRINCIPIA_BACKEND_IMGUI
-        case DIALOG_PROMPT_SETTINGS: gdk_threads_add_idle(_open_prompt_settings_dialog, 0); break;
-#endif
+        case DIALOG_PROMPT_SETTINGS:
+            UiPromptSettings::open();
+            break;
 
         default:
             tms_warnf("Unhandled dialog ID: %d", num);
@@ -4736,6 +4581,7 @@ void ui::render() {
     UiVendor::layout();
     UiFXEmitter::layout();
     UiPrompt::layout();
+    UiPromptSettings::layout();
 
 #ifdef PRINCIPIA_BACKEND_IMGUI
     UiLevelProperties::layout();

@@ -270,6 +270,8 @@
 	#include "ui/pkg_lvl_selector.cc"
 	#include "ui/play_menu.cc"
 	#include "ui/polygon.cc"
+	#include "ui/prompt_settings.cc"
+	#include "ui/prompt.cc"
 	#include "ui/publish.cc"
 	#include "ui/published.cc"
 	#include "ui/quickadd.cc"
