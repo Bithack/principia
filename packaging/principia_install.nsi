@@ -8,9 +8,9 @@ ManifestDPIAware true
 !define MUI_ICON "..\packaging\icon.ico"
 !define VER_MAJOR 2026
 !define VER_MINOR 07
-!define VER_BUILD 09
+!define VER_BUILD 15
 
-!define VERSION "2026.07.09"
+!define VERSION "2026.07.15"
 
 !define LOGO_FILE "install_logo.bmp"
 !define LOGO_PATH "..\packaging\${LOGO_FILE}"
