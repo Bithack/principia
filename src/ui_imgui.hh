@@ -58,3 +58,4 @@ namespace UiFXEmitter       { void open(); void layout(); }
 namespace UiPrompt          { void open(); void layout(); }
 namespace UiPromptSettings  { void open(); void layout(); }
 namespace UiSoundManager    { void open(); void layout(); }
+namespace UiSequencer       { void open(); void layout(); }

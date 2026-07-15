@@ -281,6 +281,7 @@
 	#include "ui/sandbox_menu.cc"
 	#include "ui/sandbox_mode.cc"
 	#include "ui/save.cc"
+	#include "ui/sequencer.cc"
 	#include "ui/set_faction.cc"
 	#include "ui/settings.cc"
 	#include "ui/shape_extruder.cc"

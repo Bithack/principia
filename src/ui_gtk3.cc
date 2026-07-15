@@ -15,7 +15,6 @@
 #include "object_factory.hh"
 #include "pkgman.hh"
 #include "robot_base.hh"
-#include "sequencer.hh"
 #include "settings.hh"
 #include "sfxemitter.hh"
 #include "simplebg.hh"
@@ -377,17 +376,6 @@ GtkComboBoxText *robot_bolts;
 GtkComboBoxText *robot_back_equipment;
 GtkComboBoxText *robot_front_equipment;
 GtkComboBoxText *robot_head_equipment;
-
-/** --Sequencer **/
-GtkWindow       *sequencer_window;
-GtkLabel        *sequencer_state;
-GtkEntry        *sequencer_sequence;
-GtkSpinButton   *sequencer_seconds;
-GtkSpinButton   *sequencer_milliseconds;
-GtkCheckButton  *sequencer_wrap_around;
-GtkButton       *sequencer_save;
-GtkButton       *sequencer_cancel;
-int              sequencer_num_steps;
 
 /** --Synthesizer **/
 GtkDialog       *synth_dialog;
@@ -798,122 +786,6 @@ void on_synth_show(GtkWidget *wdg, void *unused) {
 
         gtk_widget_grab_focus(GTK_WIDGET(synth_hz_low));
     }
-}
-
-/** --Sequencer **/
-void sequencer_time_changed(GtkSpinButton *btn, gpointer unused) {
-    char tmp[128];
-    int seconds = gtk_spin_button_get_value(sequencer_seconds);
-    int milliseconds = gtk_spin_button_get_value(sequencer_milliseconds);
-    uint32_t full_time = (seconds*1000) + milliseconds;
-
-    if (full_time < SEQUENCER_MIN_TIME) {
-        milliseconds = SEQUENCER_MIN_TIME;
-        gtk_spin_button_set_value(sequencer_milliseconds, SEQUENCER_MIN_TIME);
-        full_time = SEQUENCER_MIN_TIME;
-    }
-
-    snprintf(tmp, 127, "%d.%ds. %d steps", seconds, milliseconds, sequencer_num_steps);
-    gtk_label_set_text(sequencer_state, tmp);
-}
-
-gboolean sequencer_sequence_focus_out(GtkWidget *wdg, GdkEventFocus *event, gpointer unused) {
-    const char *tmp = gtk_entry_get_text(sequencer_sequence);
-    sequencer_num_steps = 0;
-
-    if (!tmp) {
-        sequencer_num_steps = 0;
-    } else {
-        while (*tmp && sequencer_num_steps < SEQUENCER_MAX_LENGTH) {
-            if (*tmp == '1' || *tmp == '0') ++sequencer_num_steps;
-            ++tmp;
-        }
-    }
-
-    sequencer_time_changed(0, 0); /* refresh the state label */
-    return false;
-}
-
-void on_sequencer_show(GtkWidget *wdg, void *unused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_SEQUENCER) {
-        float s = floor((float)(e->properties[1].v.i) / 1000.f);
-        float ms = (float)(e->properties[1].v.i % 1000);
-        gtk_spin_button_set_value(sequencer_seconds, s);
-        gtk_spin_button_set_value(sequencer_milliseconds, ms);
-
-        gtk_entry_set_text(sequencer_sequence, e->properties[0].v.s.buf);
-
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sequencer_wrap_around), e->properties[2].v.i8 == 1);
-
-        sequencer_num_steps = ((sequencer*)e)->get_num_steps();
-
-        sequencer_sequence_focus_out(0,0,0);
-
-        gtk_widget_grab_focus(GTK_WIDGET(sequencer_sequence));
-    }
-}
-
-gboolean on_sequencer_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, sequencer_cancel, user_data)) {
-        gtk_widget_hide(GTK_WIDGET(sequencer_window));
-    } else if (btn_pressed(w, sequencer_save, user_data)) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_SEQUENCER) {
-            const char *tmp = gtk_entry_get_text(sequencer_sequence);
-            gtk_spin_button_update(sequencer_seconds);
-            gtk_spin_button_update(sequencer_milliseconds);
-            bool wrap_around = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sequencer_wrap_around));
-            int seconds = gtk_spin_button_get_value(sequencer_seconds);
-            int milliseconds = gtk_spin_button_get_value(sequencer_milliseconds);
-            uint32_t full_time = (seconds*1000) + milliseconds;
-            if (full_time < SEQUENCER_MIN_TIME)
-                full_time = SEQUENCER_MIN_TIME;
-
-            if (!strlen(tmp)) {
-                e->set_property(0, "010101010");
-            } else {
-                e->set_property(0, tmp);
-            }
-
-            e->properties[1].v.i = full_time;
-            e->properties[2].v.i8 = wrap_around ? 1 : 0;
-
-            ((sequencer*)e)->refresh_sequence();
-
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-
-            gtk_widget_hide(GTK_WIDGET(sequencer_window));
-        }
-    }
-
-    return false;
-}
-
-gboolean on_sequencer_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    switch (key->keyval) {
-        case GDK_KEY_Escape:
-            gtk_widget_hide(w);
-            return false;
-
-        case GDK_KEY_Return:
-            {
-                if (gtk_widget_has_focus(GTK_WIDGET(sequencer_cancel))) {
-                    on_sequencer_click(GTK_WIDGET(sequencer_cancel), NULL, GINT_TO_POINTER(1));
-                } else {
-                    on_sequencer_click(GTK_WIDGET(sequencer_save), NULL, GINT_TO_POINTER(1));
-                }
-                gtk_widget_hide(w);
-                return true;
-
-            }
-            break;
-    }
-
-    return false;
 }
 
 /** --SFX Emitter **/
@@ -3637,90 +3509,6 @@ int _gtk_loop(void *p) {
         gtk_widget_show_all(GTK_WIDGET(content));
     }
 
-    /** --Sequencer **/
-    {
-        sequencer_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-        gtk_window_set_default_size(GTK_WINDOW(sequencer_window), 400, 400);
-        gtk_widget_set_size_request(GTK_WIDGET(sequencer_window), 400, 400);
-        gtk_window_set_title(GTK_WINDOW(sequencer_window), "Sequencer settings");
-        gtk_window_set_resizable(GTK_WINDOW(sequencer_window), false);
-        apply_dialog_defaults(sequencer_window, on_sequencer_show, on_sequencer_keypress);
-
-        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-
-        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
-        gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
-        gtk_box_set_spacing(GTK_BOX(button_box), 5);
-
-        sequencer_save   = GTK_BUTTON(gtk_button_new_with_label("Save"));
-        g_signal_connect(sequencer_save, "clicked",
-                G_CALLBACK(on_sequencer_click), 0);
-
-        sequencer_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(sequencer_cancel, "clicked",
-                G_CALLBACK(on_sequencer_click), 0);
-
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(sequencer_save));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(sequencer_cancel));
-
-        GtkGrid *table = create_settings_table();
-        {
-            int y = -1;
-
-            sequencer_sequence = GTK_ENTRY(gtk_entry_new());
-            g_signal_connect(sequencer_sequence, "focus-out-event", G_CALLBACK(sequencer_sequence_focus_out), 0);
-            //hack: update in realtime:
-            g_signal_connect(sequencer_sequence, "changed", G_CALLBACK(sequencer_sequence_focus_out), 0);
-
-            sequencer_seconds = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                        GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 360, 1, 1, 0)),
-                        50, 0));
-            g_signal_connect(sequencer_seconds, "value-changed", G_CALLBACK(sequencer_time_changed), 0);
-
-            sequencer_milliseconds = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                        GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 950, 50, 50, 0)),
-                        50, 0));
-            g_signal_connect(sequencer_milliseconds, "value-changed", G_CALLBACK(sequencer_time_changed), 0);
-
-            sequencer_wrap_around = GTK_CHECK_BUTTON(gtk_check_button_new());
-
-            sequencer_state = GTK_LABEL(gtk_label_new("0.0s"));
-            gtk_label_set_xalign(GTK_LABEL(sequencer_state), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(sequencer_state), 0.5f);
-
-            gtk_grid_attach(table, GTK_WIDGET(sequencer_state), 0, ++y, 3, 1);
-
-            add_setting_row(
-                table, ++y,
-                "Sequence",
-                GTK_WIDGET(sequencer_sequence)
-            );
-
-            add_setting_row(
-                table, ++y,
-                "Seconds",
-                GTK_WIDGET(sequencer_seconds)
-            );
-
-            add_setting_row(
-                table, ++y,
-                "Milliseconds",
-                GTK_WIDGET(sequencer_milliseconds)
-            );
-
-            add_setting_row(
-                table, ++y,
-                "Wrap Around",
-                GTK_WIDGET(sequencer_wrap_around)
-            );
-        }
-
-        gtk_box_pack_start(content, GTK_WIDGET(table), 1, 1, 0);
-        gtk_box_pack_start(content, GTK_WIDGET(button_box), 0, 0, 0);
-
-        gtk_container_add(GTK_CONTAINER(sequencer_window), GTK_WIDGET(content));
-    }
-
     gdk_threads_add_idle(_sig_ui_ready, 0);
 
 
@@ -3874,13 +3662,6 @@ static gboolean _open_object_dialog(gpointer unused) {
 
 static gboolean _open_robot_window(gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(robot_window));
-    return false;
-}
-
-/** --Sequencer **/
-static gboolean _open_sequencer(gpointer unused) {
-    gtk_widget_show_all(GTK_WIDGET(sequencer_window));
-
     return false;
 }
 
@@ -4308,9 +4089,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             gdk_threads_add_idle(_open_synth, 0);
 #endif
             break;
-#ifndef PRINCIPIA_BACKEND_IMGUI
-        case DIALOG_SEQUENCER:      gdk_threads_add_idle(_open_sequencer, 0); break;
-#endif
+        case DIALOG_SEQUENCER:
+            UiSequencer::open();
+            break;
         case DIALOG_SETTINGS:
             UiSettings::open();
             break;
@@ -4518,6 +4299,7 @@ void ui::render() {
     UiPrompt::layout();
     UiPromptSettings::layout();
     UiSoundManager::layout();
+    UiSequencer::layout();
 
 #ifdef PRINCIPIA_BACKEND_IMGUI
     UiLevelProperties::layout();
