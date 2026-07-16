@@ -117,13 +117,6 @@ GtkTreeView  *object_treeview;
 GtkButton    *object_btn_open;
 GtkButton    *object_btn_cancel;
 
-/* --Export */
-GtkWindow *export_window;
-GtkEntry  *export_entry;
-GtkLabel  *export_status;
-GtkButton *export_ok;
-GtkButton *export_cancel;
-
 /** --Level properties **/
 GtkDialog       *properties_dialog;
 GtkButton       *lvl_ok;
@@ -1804,45 +1797,6 @@ gboolean on_open_state_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     return false;
 }
 
-/** --Export **/
-void on_export_show(GtkWidget *wdg, void *unused) {
-    gtk_entry_set_text(export_entry, "");
-
-    gtk_widget_grab_focus(GTK_WIDGET(export_entry));
-}
-
-gboolean on_export_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, export_cancel, user_data)) {
-        gtk_widget_hide(GTK_WIDGET(export_window));
-    } else if (btn_pressed(w, export_ok, user_data)) {
-        if (gtk_entry_get_text_length(export_entry) > 0) {
-            char *name = strdup(gtk_entry_get_text(export_entry));
-            tms_infof("set export name to %s", name);
-
-            P.add_action(ACTION_EXPORT_OBJECT, name);
-            gtk_widget_hide(GTK_WIDGET(export_window));
-        } else {
-            gtk_label_set_text(export_status, "You must enter a name!");
-        }
-    }
-
-    return false;
-}
-
-gboolean on_export_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape)
-        gtk_widget_hide(GTK_WIDGET(export_window));
-    else if (key->keyval == GDK_KEY_Return) {
-        if (gtk_widget_has_focus(GTK_WIDGET(export_cancel))) {
-            on_export_btn_click(GTK_WIDGET(export_cancel), NULL, GINT_TO_POINTER(1));
-        } else {
-            on_export_btn_click(GTK_WIDGET(export_ok), NULL, GINT_TO_POINTER(1));
-        }
-    }
-
-    return false;
-}
-
 /** --Level properties **/
 static void on_level_flag_toggled(GtkToggleButton *btn, gpointer _flag) {
     bool toggled = gtk_toggle_button_get_active(btn);
@@ -2008,10 +1962,6 @@ void activate_open_state(GtkMenuItem *i, gpointer unused) {
 
 void activate_object(GtkMenuItem *i, gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(object_window));
-}
-
-void activate_export(GtkMenuItem *i, gpointer unused) {
-    gtk_widget_show_all(GTK_WIDGET(export_window));
 }
 
 void activate_controls(GtkMenuItem *i, gpointer unused) {
@@ -2322,57 +2272,6 @@ int _gtk_loop(void *p) {
 
         add_text_column(open_state_treeview, "Name", OSC_ID);
         add_text_column(open_state_treeview, "Modified", OSC_NAME);
-    }
-
-    /** --Export **/
-    {
-        export_window = new_window_defaults("Export object", &on_export_show, &on_export_keypress);
-        gtk_window_set_default_size(GTK_WINDOW(export_window), 400, 100);
-        gtk_widget_set_size_request(GTK_WIDGET(export_window), 400, 100);
-
-        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-        GtkBox *entries = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-        GtkBox *bottom_content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-
-        /* Name entry */
-        export_entry = GTK_ENTRY(gtk_entry_new());
-        gtk_entry_set_max_length(export_entry, 255);
-        gtk_entry_set_activates_default(export_entry, true);
-
-        /* Name label */
-        gtk_box_pack_start(GTK_BOX(entries), new_lbl("<b>Enter a name for this object</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(entries), GTK_WIDGET(export_entry), false, false, 0);
-
-        /* Buttons and button box */
-        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
-        gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
-        gtk_box_set_spacing(GTK_BOX(button_box), 5);
-
-        /* OK button */
-        export_ok = GTK_BUTTON(gtk_button_new_with_label("Save"));
-        g_signal_connect(export_ok, "clicked",
-                G_CALLBACK(on_export_btn_click), 0);
-
-        /* Cancel button */
-        export_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(export_cancel, "clicked",
-                G_CALLBACK(on_export_btn_click), 0);
-
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(export_ok));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(export_cancel));
-
-        /* Status label */
-        export_status = GTK_LABEL(gtk_label_new(0));
-        gtk_label_set_xalign(GTK_LABEL(export_status), 0.0f);
-        gtk_label_set_yalign(GTK_LABEL(export_status), 0.5f);
-
-        gtk_box_pack_start(bottom_content, GTK_WIDGET(export_status), 1, 1, 0);
-        gtk_box_pack_start(bottom_content, GTK_WIDGET(button_box), 0, 0, 0);
-
-        gtk_box_pack_start(content, GTK_WIDGET(entries), 1, 1, 0);
-        gtk_box_pack_start(content, GTK_WIDGET(bottom_content), 0, 0, 0);
-
-        gtk_container_add(GTK_CONTAINER(export_window), GTK_WIDGET(content));
     }
 
     /** --Level properties **/
@@ -3638,11 +3537,6 @@ static gboolean _open_level_properties(gpointer unused) {
     return false;
 }
 
-static gboolean _open_export(gpointer unused) {
-    activate_export(NULL, 0);
-    return false;
-}
-
 static gboolean _open_open_state_dialog(gpointer unused) {
     activate_open_state(NULL, 0);
     return false;
@@ -3975,9 +3869,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             gdk_threads_add_idle(_open_level_properties, 0);
 #endif
             break;
-#ifndef PRINCIPIA_BACKEND_IMGUI
-        case DIALOG_EXPORT:         gdk_threads_add_idle(_open_export, 0); break;
-#endif
+        case DIALOG_EXPORT:
+            UiExport::open();
+            break;
         case DIALOG_PLAY_MENU:
             UiPlayMenu::open();
             break;
@@ -4300,6 +4194,7 @@ void ui::render() {
     UiPromptSettings::layout();
     UiSoundManager::layout();
     UiSequencer::layout();
+    UiExport::layout();
 
 #ifdef PRINCIPIA_BACKEND_IMGUI
     UiLevelProperties::layout();

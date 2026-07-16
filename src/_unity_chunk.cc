@@ -255,6 +255,7 @@
 	#include "ui/decoration.cc"
 	#include "ui/emitter.cc"
 	#include "ui/event_listener.cc"
+	#include "ui/export.cc"
 	#include "ui/frequency.cc"
 	#include "ui/fxemitter.cc"
 	#include "ui/item.cc"
