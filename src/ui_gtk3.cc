@@ -20,7 +20,6 @@
 #include "simplebg.hh"
 #include "soundmanager.hh"
 #include "speaker.hh"
-#include "treasure_chest.hh"
 #include "ui.hh"
 #include <SDL3/SDL.h>
 #include <sstream>
@@ -292,27 +291,6 @@ enum {
   FACTORY_COLUMN_INDEX,
   FACTORY_COLUMN_RECIPE,
   FACTORY_COLUMN_RECIPE_ID,
-};
-
-/** --Treasure chest **/
-GtkDialog       *tchest_dialog;
-GtkScale       *tchest_auto_absorb;
-GtkListStore    *tchest_liststore;
-GtkTreeView     *tchest_treeview;
-GtkComboBoxText *tchest_entity;
-GtkComboBoxText *tchest_sub_entity;
-GtkSpinButton   *tchest_count;
-GtkButton       *tchest_add_entity;
-GtkButton       *tchest_remove_selected;
-GtkButton       *tchest_cancel;
-
-uint32_t tchest_translations[MAX_OF_ID] = {0, };
-
-enum {
-  TCHEST_COLUMN_G_ID,
-  TCHEST_COLUMN_SUB_ID,
-  TCHEST_COLUMN_NAME,
-  TCHEST_COLUMN_COUNT,
 };
 
 /** --Digital Display **/
@@ -938,185 +916,6 @@ void on_factory_show(GtkWidget *wdg, void *ununused) {
         }
 
         factory_calculate_indices();
-    }
-}
-
-/** --Treasure chest **/
-static void on_tchest_entity_changed(GtkComboBoxText *cb, gpointer user_data) {
-    int index = gtk_combo_box_get_active(GTK_COMBO_BOX(cb));
-    if (index < 0) {
-        return;
-    }
-    int g_id = -1;
-    for (int x=0; x<MAX_OF_ID; ++x) {
-        if (tchest_translations[x] == index) {
-            g_id = x;
-            break;
-        }
-    }
-
-    if (g_id < 0) {
-        tms_errorf("invalid g_id: %d", g_id);
-        return;
-    }
-
-    GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(tchest_sub_entity));
-    int num = gtk_tree_model_iter_n_children(model, 0);
-    for (int x=0; x<num; ++x) {
-        gtk_combo_box_text_remove(tchest_sub_entity, 0);
-    }
-
-    if (g_id == O_ITEM) {
-        for (int x=0; x<NUM_ITEMS; x++) {
-            item_cb_append(tchest_sub_entity, x, false);
-        }
-
-        int item_id = rand()%NUM_ITEMS;
-
-        gtk_combo_box_set_active(GTK_COMBO_BOX(tchest_sub_entity), item_id);
-
-    } else if (g_id == O_RESOURCE) {
-        for (int x=0; x<NUM_RESOURCES; x++) {
-            gtk_combo_box_text_append_text(tchest_sub_entity, resource_data[x].name);
-        }
-
-        gtk_combo_box_set_active(GTK_COMBO_BOX(tchest_sub_entity), rand()%NUM_RESOURCES);
-    }
-}
-
-static void on_tchest_selection_changed(GtkTreeView *tv, gpointer user_data) {
-    GtkTreeSelection *sel;
-    GtkTreeIter       iter;
-
-    sel = gtk_tree_view_get_selection(tv);
-    if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
-        gtk_widget_set_sensitive(GTK_WIDGET(tchest_remove_selected), true);
-    } else {
-        gtk_widget_set_sensitive(GTK_WIDGET(tchest_remove_selected), false);
-    }
-}
-
-static gboolean on_tchest_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, tchest_add_entity, user_data)) {
-        char search[128];
-        strcpy(search, get_cb_val(tchest_entity));
-        int len = strlen(search);
-        int found_arg = -1;
-        int found_score = -10000000;
-
-        for (int x=0; x<menu_objects.size(); ++x) {
-            int diff = strncasecmp(search, menu_objects[x].e->get_name(), len);
-            /* Only look for 'exact' matches, meaning they must contain that exact string in the beginning
-             * i.e. 'sub' fits 'sub' and 'sublayer plank' */
-
-            if (diff == 0) {
-                /* Now we find out what the real difference between the match is */
-                int score = strcasecmp(search, menu_objects[x].e->get_name());
-
-                if (score == 0) {
-                    /* A return value of 0 means it's an exacth match, i.e. 'sub' == 'sub' */
-                    found_arg = menu_objects[x].e->g_id;
-                    found_score = 0;
-                    break;
-                } else if (score < 0 && score > found_score) {
-                    /* Otherwise, we could settle for this half-match, i.e. 'sub' == 'sublayer plank' */
-                    found_arg = menu_objects[x].e->g_id;
-                    found_score = score;
-                }
-            }
-        }
-
-        if (found_arg >= 0) {
-            gtk_spin_button_update(tchest_count);
-
-            int g_id = found_arg;
-            int sub_id = gtk_combo_box_get_active(GTK_COMBO_BOX(tchest_sub_entity));
-            int count = gtk_spin_button_get_value(tchest_count);
-
-            char name[128];
-
-            if (g_id == O_ITEM)
-                snprintf(name, 127, "Item (%s)", item_options[sub_id].name);
-            else if (g_id == O_RESOURCE)
-                snprintf(name, 127, "Resource (%s)", resource_data[sub_id].name);
-            else
-                strcpy(name, search);
-
-            GtkTreeIter iter;
-            gtk_list_store_append(tchest_liststore, &iter);
-            gtk_list_store_set(tchest_liststore, &iter,
-                    TCHEST_COLUMN_G_ID, g_id,
-                    TCHEST_COLUMN_SUB_ID, sub_id,
-                    TCHEST_COLUMN_NAME, name,
-                    TCHEST_COLUMN_COUNT, count,
-                    -1
-                    );
-        }
-    } else if (btn_pressed(w, tchest_remove_selected, user_data)) {
-        GtkTreeSelection *sel;
-        GtkTreeIter       iter;
-
-        sel = gtk_tree_view_get_selection(tchest_treeview);
-        if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
-            gtk_list_store_remove(tchest_liststore, &iter);
-            gtk_widget_set_sensitive(GTK_WIDGET(tchest_remove_selected), false);
-        }
-    }
-
-    return false;
-}
-
-gboolean on_tchest_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape)
-        gtk_widget_hide(w);
-    else if (key->keyval == GDK_KEY_Return) {
-        if (gtk_widget_has_focus(GTK_WIDGET(tchest_cancel))) {
-            gtk_dialog_response(tchest_dialog, GTK_RESPONSE_CANCEL);
-        } else {
-            gtk_dialog_response(tchest_dialog, GTK_RESPONSE_ACCEPT);
-        }
-    }
-
-    return false;
-}
-
-void on_tchest_show(GtkWidget *wdg, void *ununused) {
-    entity *e = G->selection.e;
-
-    if (!e || e->g_id != O_TREASURE_CHEST)
-        return;
-
-    gtk_spin_button_set_value(tchest_count, 1);
-    gtk_combo_box_set_active(GTK_COMBO_BOX(tchest_entity), tchest_translations[O_ITEM]);
-
-    gtk_list_store_clear(tchest_liststore);
-
-    char *str = strdup(e->properties[0].v.s.buf);
-    std::vector<struct treasure_chest_item> items = treasure_chest::parse_items(str);
-    free(str);
-
-    for (std::vector<struct treasure_chest_item>::iterator it = items.begin();
-            it != items.end(); ++it) {
-        struct treasure_chest_item &tci = *it;
-
-        char name[128];
-
-        if (tci.g_id == O_ITEM)
-            snprintf(name, 127, "Item (%s)", item_options[tci.sub_id].name);
-        else if (tci.g_id == O_RESOURCE)
-            snprintf(name, 127, "Resource (%s)", resource_data[tci.sub_id].name);
-        else
-            snprintf(name, 127, "%s", menu_objects.at((gid_to_menu_pos[tci.g_id])).e->get_name());
-
-        GtkTreeIter iter;
-        gtk_list_store_append(tchest_liststore, &iter);
-        gtk_list_store_set(tchest_liststore, &iter,
-                TCHEST_COLUMN_G_ID, tci.g_id,
-                TCHEST_COLUMN_SUB_ID, tci.sub_id,
-                TCHEST_COLUMN_NAME, name,
-                TCHEST_COLUMN_COUNT, tci.count,
-                -1
-                );
     }
 }
 
@@ -2864,138 +2663,6 @@ int _gtk_loop(void *p) {
         factory_dialog = dialog;
     }
 
-    /** --Treasure chest **/
-    {
-        dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-            "Treasure chest",
-            0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-            "_OK", GTK_RESPONSE_ACCEPT,
-            NULL
-        ));
-        tchest_cancel = GTK_BUTTON(gtk_dialog_add_button(dialog, "_Cancel", GTK_RESPONSE_REJECT));
-
-        apply_dialog_defaults(dialog);
-
-        gtk_widget_set_size_request(GTK_WIDGET(dialog), 750, 300);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-        GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-        GtkWidget *l;
-
-        GtkGrid *tbl = GTK_GRID(gtk_grid_new());
-        gtk_grid_set_row_spacing(tbl, 5);
-        gtk_grid_set_column_spacing(tbl, 5);
-
-        int x = 0;
-
-        tchest_entity = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-        gtk_grid_attach(tbl, new_clbl("Entity"), 0, x, 1, 1);
-        gtk_grid_attach(tbl, GTK_WIDGET(tchest_entity), 1, x, 1, 1);
-        ++x;
-
-        g_signal_connect(tchest_entity, "changed", G_CALLBACK(on_tchest_entity_changed), 0);
-
-        tchest_sub_entity = new_item_cb();
-        gtk_grid_attach(tbl, new_clbl("Sub-entity"), 0, x, 1, 1);
-        gtk_grid_attach(tbl, GTK_WIDGET(tchest_sub_entity), 1, x, 1, 1);
-        ++x;
-
-        tchest_count = GTK_SPIN_BUTTON(gtk_spin_button_new(
-            GTK_ADJUSTMENT(gtk_adjustment_new(1, 1, 65535, 1, 1, 0)),
-            1, 0
-        ));
-        gtk_grid_attach(tbl, new_clbl("Amount"), 0, x, 1, 1);
-        gtk_grid_attach(tbl, GTK_WIDGET(tchest_count), 1, x, 1, 1);
-        ++x;
-
-        //spacing
-        GtkWidget* spacer = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-        gtk_widget_set_vexpand(spacer, true);
-        gtk_grid_attach(tbl, GTK_WIDGET(spacer), 0, x, 2, 1);
-        ++x;
-
-        //Button box (add/remove entity)
-
-        tchest_add_entity = GTK_BUTTON(gtk_button_new_with_label("Add entity"));
-        g_signal_connect(
-            tchest_add_entity, "clicked",
-            G_CALLBACK(on_tchest_btn_click), 0
-        );
-
-        tchest_remove_selected = GTK_BUTTON(gtk_button_new_with_label("Remove selected"));
-        g_signal_connect(
-            tchest_remove_selected, "clicked",
-            G_CALLBACK(on_tchest_btn_click), 0
-        );
-
-        GtkButtonBox* button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
-        gtk_button_box_set_layout(button_box, GTK_BUTTONBOX_EXPAND);
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(tchest_add_entity));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(tchest_remove_selected));
-        gtk_grid_attach(tbl, GTK_WIDGET(button_box), 0, x, 2, 1);
-        ++x;
-
-        {
-            /*                                        g_id        sub_id      Name,          Count */
-            tchest_liststore = gtk_list_store_new(4, G_TYPE_INT, G_TYPE_INT, G_TYPE_STRING, G_TYPE_INT);
-            GtkTreeModel *model = GTK_TREE_MODEL(tchest_liststore);
-
-            tchest_treeview = GTK_TREE_VIEW(gtk_tree_view_new_with_model(model));
-            g_signal_connect(
-                tchest_treeview, "cursor-changed",
-                G_CALLBACK(on_tchest_selection_changed), 0
-            );
-            g_signal_connect(
-                tchest_treeview, "columns-changed",
-                G_CALLBACK(on_tchest_selection_changed), 0
-            );
-
-            GtkCellRenderer *renderer;
-            GtkTreeViewColumn *column;
-            model = gtk_tree_view_get_model(tchest_treeview);
-
-            renderer = gtk_cell_renderer_text_new();
-            column = gtk_tree_view_column_new_with_attributes(
-                "Name",
-                renderer,
-                "text",
-                TCHEST_COLUMN_NAME,
-                NULL
-            );
-            gtk_tree_view_column_set_sort_column_id(column, TCHEST_COLUMN_NAME);
-            gtk_tree_view_append_column(tchest_treeview, column);
-
-            renderer = gtk_cell_renderer_text_new();
-            column = gtk_tree_view_column_new_with_attributes(
-                "Amount",
-                renderer,
-                "text",
-                TCHEST_COLUMN_COUNT,
-                NULL
-            );
-            gtk_tree_view_column_set_sort_column_id(column, TCHEST_COLUMN_COUNT);
-            gtk_tree_view_append_column(tchest_treeview, column);
-        }
-
-        GtkWidget *sw = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(
-            GTK_SCROLLED_WINDOW(sw),
-            GTK_POLICY_AUTOMATIC,
-            GTK_POLICY_AUTOMATIC
-        );
-        gtk_container_add(GTK_CONTAINER(sw), GTK_WIDGET(tchest_treeview));
-
-        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(tbl), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(sw), true, true, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(hbox), true, true, 0);
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        g_signal_connect(dialog, "key-press-event", G_CALLBACK(on_tchest_keypress), 0);
-        g_signal_connect(dialog, "show", G_CALLBACK(on_tchest_show), 0);
-
-        tchest_dialog = dialog;
-    }
-
     /** --SFX Emitter dialog **/
     {
         sfx_dialog = new_dialog_defaults("SFX Emitter", &on_sfx_show);
@@ -3751,59 +3418,6 @@ static gboolean _open_factory(gpointer unused) {
     return false;
 }
 
-/** --Treasure chest **/
-static gboolean _open_treasure_chest(gpointer unused) {
-    GtkDialog *d = tchest_dialog;
-
-    gint result = gtk_dialog_run(d);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_TREASURE_CHEST) {
-            treasure_chest *tc = static_cast<treasure_chest*>(e);
-
-            GtkTreeModel *model = GTK_TREE_MODEL(tchest_liststore);
-            GtkTreeIter iter;
-            int x = 0;
-            std::stringstream ss;
-
-            if (gtk_tree_model_get_iter_first(model, &iter)) {
-                do {
-                    GValue val_g_id = {0, };
-                    GValue val_sub_id = {0, };
-                    GValue val_count = {0, };
-                    gtk_tree_model_get_value(model, &iter, TCHEST_COLUMN_G_ID, &val_g_id);
-                    gtk_tree_model_get_value(model, &iter, TCHEST_COLUMN_SUB_ID, &val_sub_id);
-                    gtk_tree_model_get_value(model, &iter, TCHEST_COLUMN_COUNT, &val_count);
-
-                    gint g_id = g_value_get_int(&val_g_id);
-                    gint sub_id = g_value_get_int(&val_sub_id);
-                    gint count = g_value_get_int(&val_count);
-
-                    if (x > 0) {
-                        ss << ";";
-                    }
-
-                    ss << g_id << ":" << sub_id << ":" << count;
-
-                    ++x;
-                } while (gtk_tree_model_iter_next(model, &iter));
-            }
-
-            tc->set_property(0, ss.str().c_str());
-            tms_debugf("TC Loot string: %s", tc->properties[0].v.s.buf);
-
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(d));
-
-    return false;
-}
-
 static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(open_state_window));
     gtk_widget_hide(GTK_WIDGET(object_window));
@@ -4011,13 +3625,8 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_FACTORY:        gdk_threads_add_idle(_open_factory, 0); break;
 #endif
         case DIALOG_TREASURE_CHEST:
-#ifndef PRINCIPIA_BACKEND_IMGUI
-            gdk_threads_add_idle(_open_treasure_chest, 0);
-#else
             UiTreasureChest::open();
-#endif
             break;
-
         case DIALOG_RUBBER:
             UiRubber::open();
             break;
@@ -4195,12 +3804,12 @@ void ui::render() {
     UiSoundManager::layout();
     UiSequencer::layout();
     UiExport::layout();
+    UiTreasureChest::layout();
 
 #ifdef PRINCIPIA_BACKEND_IMGUI
     UiLevelProperties::layout();
     UiRobot::layout();
     UiSynthesizer::layout();
-    UiTreasureChest::layout();
 #endif
 
     imgui_driver.post_render();
