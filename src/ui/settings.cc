@@ -368,7 +368,7 @@ namespace UiSettings {
                     ImGui::GetStyle().ItemSpacing.y + //Separator spacing
                     (ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.); // Buttons
                 if (ImGui::GetContentRegionAvail().y > button_area_height) {
-                    ImGui::SetCursorPosY(ImGui::GetContentRegionMax().y - button_area_height);
+                    ImGui::SetCursorPosY((ImGui::GetContentRegionAvail().y + ImGui::GetCursorScreenPos().y - ImGui::GetWindowPos().y) - button_area_height);
                 }
                 ImGui::Separator();
                 ImGui::BeginDisabled(is_saving);

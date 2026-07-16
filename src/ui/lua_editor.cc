@@ -123,10 +123,8 @@ namespace UiLuaEditor {
                         | ((int)use_external_editor * ESCRIPT_USE_EXTERNAL_EDITOR);
             }
 
-            if (use_external_editor)
-                ImGui::BeginChild("left_panel", UI(550., 350.), false);
-
-            ImGui::PushFont(ui_font_mono.font);
+            ImGui::BeginChild("left_panel", UI(550., 350.25), false);
+            ImGui::PushFont(ui_font_mono.font, 0.0f);
 
             if (use_external_editor)
                 ImGui::BeginDisabled();
@@ -155,11 +153,9 @@ namespace UiLuaEditor {
                     snprintf(url, 2047, "file://%s", pkgman::get_cache_path(W->level_id_type));
                     ui::open_url(url);
                 }
-
-                ImGui::EndChild();
             }
 
-            ImGui::Spacing();
+            ImGui::EndChild();
 
             ImGui::Checkbox("Use external editor", &use_external_editor);
             ImGui::SetItemTooltip("Check this file if you want to edit the Lua from an external editor. \n(Toggling will save the current code)");

@@ -121,13 +121,6 @@ namespace UiLevelProperties {
                         ImGui::Dummy(bs);
                         ImVec2 after_dummy = ImGui::GetCursorPos();
 
-                        ImGui::GetWindowDrawList()->AddRect(
-                            ImVec2(p_min.x + ix / 2, p_min.y + iy / 2),
-                            ImVec2(p_max.x - ix / 2, p_max.y - iy / 2),
-                            ImColor(255, 255, 255, 64),
-                            5., 0, 2.
-                        );
-
                         ImGui::SetCursorPos(ImVec2(c.x, c.y + bs.y / 2 - iy / 2));
                         slider("###x0", &W->level.size_x[0], -1.);
 

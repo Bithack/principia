@@ -26,19 +26,6 @@ void ImGui_CenterNextWindow() {
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 }
 
-// unused, do we need this?
-void ImGui_BeginScaleFont(float scale) {
-    ImGui::GetFont()->Scale = scale;
-    ImGui::PushFont(ImGui::GetFont());
-}
-
-// unused, do we need this?
-void ImGui_EndScaleFont() {
-    ImGui::GetFont()->Scale = 1.;
-    ImGui::PopFont();
-    ImGui::GetFont()->Scale = 1.;
-}
-
 void handle_do_open(bool *do_open, const char* name) {
     if (*do_open) {
         *do_open = false;
@@ -185,7 +172,7 @@ void ImguiDriver::pre_render() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::PushFont(ui_font.font);
+    ImGui::PushFont(ui_font.font, 0.0f);
 
 #ifdef DEBUG
     ui_demo_layout();

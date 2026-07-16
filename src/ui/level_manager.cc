@@ -78,7 +78,7 @@ namespace UiLevelManager {
                 //Align stuff to the right
                 //lvlname width + padding
                 ImGui::SameLine();
-                ImGui::SetCursorPosX(ImGui::GetContentRegionMax().x - UI(200.));
+                ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x + ImGui::GetCursorScreenPos().x - ImGui::GetWindowPos().x) - UI(200.));
 
                 //Actual level name field
                 ImGui::PushItemWidth(UI(200.));

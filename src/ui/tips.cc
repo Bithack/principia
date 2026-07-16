@@ -23,7 +23,7 @@ namespace UiTips {
             ImGuiStyle &style = ImGui::GetStyle();
             float font_size = ImGui::GetFontSize();
             ImVec2 frame_padding = style.FramePadding;
-            ImVec2 content_region = ImGui::GetContentRegionMax();
+            ImVec2 content_region = ImGui::GetContentRegionAvail() + ImGui::GetCursorScreenPos() - ImGui::GetWindowPos();
 
             if (ImGui::BeginChild("###tips-content-ctx", UI(0, 130), false, FRAME_FLAGS)) {
                 ImGui::TextWrapped("%s", touch ? tips_mobile[ctip] : tips_pc[ctip]);
