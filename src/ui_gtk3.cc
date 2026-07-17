@@ -15,9 +15,7 @@
 #include "object_factory.hh"
 #include "pkgman.hh"
 #include "robot_base.hh"
-#include "settings.hh"
 #include "sfxemitter.hh"
-#include "simplebg.hh"
 #include "soundmanager.hh"
 #include "speaker.hh"
 #include "ui.hh"
@@ -116,168 +114,6 @@ GtkTreeView  *object_treeview;
 GtkButton    *object_btn_open;
 GtkButton    *object_btn_cancel;
 
-/** --Level properties **/
-GtkDialog       *properties_dialog;
-GtkButton       *lvl_ok;
-GtkButton       *lvl_cancel;
-GtkRadioButton  *lvl_radio_adventure;
-GtkRadioButton  *lvl_radio_puzzle;
-GtkRadioButton  *lvl_radio_custom;
-GtkEntry        *lvl_title;
-GtkTextView     *lvl_descr;
-GtkComboBoxText *lvl_bg;
-GtkColorButton  *lvl_bg_color;
-uint32_t         new_bg_color;
-GtkEntry        *lvl_width_left;
-GtkEntry        *lvl_width_right;
-GtkEntry        *lvl_height_down;
-GtkEntry        *lvl_height_up;
-GtkButton       *lvl_autofit;
-GtkSpinButton   *lvl_gx;
-GtkSpinButton   *lvl_gy;
-GtkScale       *lvl_pos_iter;
-GtkScale       *lvl_vel_iter;
-GtkScale       *lvl_prismatic_tol;
-GtkScale       *lvl_pivot_tol;
-GtkScale       *lvl_linear_damping;
-GtkScale       *lvl_angular_damping;
-GtkScale       *lvl_joint_friction;
-GtkScale       *lvl_enemy_absorb_time;
-GtkScale       *lvl_player_respawn_time;
-
-GtkEntry        *lvl_score;
-GtkCheckButton  *lvl_pause_on_win;
-GtkCheckButton  *lvl_show_score;
-GtkButton       *lvl_upgrade;
-
-enum ROW_TYPES {
-    ROW_CHECKBOX,
-    ROW_HSCALE,
-};
-
-struct gtk_level_property {
-    uint64_t flag;
-    const char *label;
-    const char *help;
-    GtkCheckButton *checkbutton;
-};
-
-struct gtk_level_property gtk_level_properties[] = {
-    { LVL_DISABLE_LAYER_SWITCH,
-      "Disable layer switch",
-      "If adventure mode, disable manual layer switching of the robots.\nIf puzzle mode, disable layer switching of objects." },
-    { LVL_DISABLE_INTERACTIVE,
-      "Disable interactive",
-      "Disable the ability to handle interactive objects." },
-    { LVL_DISABLE_FALL_DAMAGE,
-      "Disable fall damage",
-      "Disable the damage robots take when they fall." },
-    { LVL_DISABLE_CONNECTIONS,
-      "Disable connections",
-      "Puzzle mode only, disable the ability to create connections." },
-    { LVL_DISABLE_STATIC_CONNS,
-      "Disable static connections",
-      "Puzzle mode only, disable connections to static objects such as platforms." },
-    { LVL_DISABLE_JUMP,
-      "Disable jumping",
-      "Adventure mode only, disable the robots ability to manually jump." },
-    { LVL_DISABLE_ROBOT_HIT_SCORE,
-      "Disable robot hit score",
-      "Disable score increase by shooting other robots." },
-    { LVL_DISABLE_ZOOM,
-      "Disable zoom",
-      "Disable the players ability to zoom." },
-    { LVL_DISABLE_CAM_MOVEMENT,
-      "Disable cam movement",
-      "Disable the players ability to manually move the camera." },
-    { LVL_DISABLE_INITIAL_WAIT,
-      "Disable initial wait",
-      "Disable the waiting state when a level is started." },
-    { LVL_UNLIMITED_ENEMY_VISION,
-      "Unlimited enemy vision",
-      "If enabled, enemy robots will see the player from any distance and through any obstacles, and always try to find a path to the player." },
-    { LVL_ENABLE_INTERACTIVE_DESTRUCTION,
-      "Interactive destruction",
-      "If enabled, interactive objects can be destroyed by shooting them a few times or blowing them up." },
-    { LVL_ABSORB_DEAD_ENEMIES,
-      "Absorb dead enemies",
-      "If enabled, dead enemies will disappear from the game after a short interval after they die." },
-    { LVL_SNAP,
-      "Snap by default",
-      "For puzzle levels, when the player drags or rotates an object it will snap to a grid by default (good for easy beginner levels)." },
-    { LVL_NAIL_CONNS,
-      "Hide beam connections",
-      "Use less visible nail-shaped connections for planks and beams. Existing connections will not be changed if this flag is changed." },
-    { LVL_DISABLE_CONTINUE_BUTTON,
-      "Disable continue button",
-      "If initial wait is disabled, this option disables the Continue button in the lower right corner. Use pkgwarp to go to the next level instead." },
-    { LVL_SINGLE_LAYER_EXPLOSIONS,
-      "Single-layer explosions",
-      "Enable this flag to prevent explosions from reaching objects in other layers." },
-    { LVL_DISABLE_DAMAGE,
-      "Disable damage",
-      "Disable damage to any robot." },
-    { LVL_DISABLE_3RD_LAYER,
-      "Disable third layer",
-      "If enabled and puzzle mode, disable moving objects to the third layer." },
-    { LVL_PORTRAIT_MODE,
-      "Portrait mode",
-      "If enabled, the view will be set to portrait mode (vertical) during play." },
-    { LVL_DISABLE_RC_CAMERA_SNAP,
-      "Disable RC camera snap",
-      "If enabled, the camera won't move to any selected RC." },
-    { LVL_DISABLE_PHYSICS,
-      "Disable physics",
-      "If enabled, physics simulation in the level will be disabled." },
-    { LVL_DO_NOT_REQUIRE_DRAGFIELD,
-      "Do not require dragfield",
-      "If enabled, dragfields are not required to move interactive objects." },
-    { LVL_DISABLE_ROBOT_SPECIAL_ACTION,
-      "Disable robot special action",
-      "If enabled, the adventure robot cannot perform its special action." },
-    { LVL_DISABLE_ADVENTURE_MAX_ZOOM,
-      "Disable adventure max zoom",
-      "If enabled, the zoom is no longer limited when following the adventure robot." },
-    { LVL_DISABLE_ROAM_LAYER_SWITCH,
-      "Disable roam layer switch",
-      "Disable the roaming robots ability to change layer." },
-    { LVL_CHUNKED_LEVEL_LOADING,
-      "Chunked level loading",
-      "Splits up the level into chunks, leading to better performance for large levels." },
-    { LVL_DISABLE_CAVEVIEW,
-      "Disable adventure caveview",
-      "Disable the caveview which appears when the adventure robot is in layer two, with terrain in front of him in layer three." },
-    { LVL_DISABLE_ROCKET_TRIGGER_EXPLOSIVES,
-      "Disable rocket triggering explosives",
-      "Disable the rocket from triggering any explosives when contact with its flames occurs." },
-    { LVL_STORE_SCORE_ON_GAME_OVER,
-      "Store high score on game over",
-      "Allow players to submit a high score even if they did not win the level." },
-    { LVL_ALLOW_HIGH_SCORE_SUBMISSIONS,
-      "Allow high score submissions",
-      "Allow players to submit their high scores to be displayed on your levels community page." },
-    { LVL_LOWER_SCORE_IS_BETTER,
-      "Lower score is better",
-      "A lower score is considered better than a higher score." },
-    { LVL_AUTOMATICALLY_SUBMIT_SCORE,
-      "Automatically submit score on finish",
-      "Automatically submit score for the user when the level finishes." },
-    { LVL_DISABLE_ENDSCREENS,
-      "Disable end-screens",
-      "Disable any end-game sound or messages. Works well when Pause on WIN is disabled. Note that this also disabled the score submission button.\nTo submit highscore without the button you can use the luascript function game:submit_score()." },
-    { LVL_ALLOW_QUICKSAVING,
-      "Allow quicksaving",
-      "If enabled, the player can save his progress at any time." },
-    { LVL_ALLOW_RESPAWN_WITHOUT_CHECKPOINT,
-      "Allow respawn without checkpoint",
-      "If disabled, robots cannot respawn if they are not connected to any checkpoint." },
-    { LVL_DEAD_CREATURE_DESTRUCTION,
-      "Allow dead creature destruction",
-      "If enabled, creature corpses can be destroyed by shooting them." },
-};
-
-static int num_gtk_level_properties = sizeof(gtk_level_properties) / sizeof(gtk_level_properties[0]);
-
 /** --Factory **/
 GtkDialog       *factory_dialog;
 GtkSpinButton   *factory_faction;
@@ -318,9 +154,6 @@ GtkComboBoxText *sfx2_cb;
 GtkComboBoxText *sfx2_sub_cb;
 GtkCheckButton  *sfx2_global;
 GtkCheckButton  *sfx2_loop;
-
-/** --Level upgrade Dialog **/
-GtkDialog       *confirm_upgrade_dialog;
 
 /** --Robot **/
 GtkWindow       *robot_window;
@@ -428,11 +261,6 @@ static void item_cb_append(GtkComboBoxText *cb, uint32_t item_id, bool first_is_
 static void clear_cb(GtkComboBoxText *cb) {
     GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(cb));
     gtk_list_store_clear(GTK_LIST_STORE(model));
-}
-
-static GtkCheckButton *new_check_button(const char *lbl) {
-    GtkCheckButton *ret = GTK_CHECK_BUTTON(gtk_check_button_new_with_label(lbl));
-    return ret;
 }
 
 static GtkButton *new_lbtn(const char *text, gboolean (*on_click)(GtkWidget*, GdkEventButton*, gpointer)) {
@@ -547,73 +375,11 @@ static GtkWindow *new_window_defaults(const char *title, GtkCallback on_show=0, 
     return GTK_WINDOW(r);
 }
 
-static inline void update_all_spin_buttons(GtkWidget *wdg, gpointer unused) {
-    if (GTK_IS_SPIN_BUTTON(wdg))
-        gtk_spin_button_update(GTK_SPIN_BUTTON(wdg));
-    else if (GTK_IS_CONTAINER(wdg))
-        gtk_container_forall(GTK_CONTAINER(wdg), update_all_spin_buttons, NULL);
-}
-
-struct cb_find_data {
-    int index;
-    const char *str;
-};
-
 static gchar *format_joint_strength(GtkScale *scale, gdouble value) {
     if (value >= 1.0)
         return g_strdup("Indestructible");
     else
         return g_strdup_printf("%0.*f", gtk_scale_get_digits(scale), value);
-}
-
-gboolean foreach_model_find_str(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct cb_find_data** user_data) {
-    GValue val = {0, };
-    gtk_tree_model_get_value(model, iter, 0, &val);
-
-    if (strcmp(g_value_get_string(&val), (*user_data)->str) == 0) {
-        gint *index = gtk_tree_path_get_indices(path);
-
-        (*user_data)->index = index[0];
-        g_value_unset(&val);
-        return true;
-    }
-
-    g_value_unset(&val);
-    return false;
-}
-
-const char *get_cb_val(GtkComboBoxText *cb) {
-    GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(cb));
-    GtkTreeIter iter;
-    gboolean r = false;
-    r = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(cb), &iter);
-    if (r == false) {
-        tms_errorf("unable to get cb value");
-        return "";
-    }
-
-    const char *ret;
-    GValue val = {0, };
-
-    gtk_tree_model_get_value(model, &iter, 0, &val);
-    ret = g_value_dup_string(&val);
-
-    g_value_unset(&val);
-    return ret;
-}
-
-gint find_cb_val(GtkComboBoxText *cb, const char *str) {
-    gint ret = -1;
-    struct cb_find_data *d = (struct cb_find_data*)malloc(sizeof(struct cb_find_data));
-    d->index = -1;
-    d->str = str;
-
-    GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(cb));
-    gtk_tree_model_foreach(model, (GtkTreeModelForeachFunc)(foreach_model_find_str), &d);
-    ret = d->index;
-    free(d);
-
-    return ret;
 }
 
 bool btn_pressed(GtkWidget *ref, GtkButton *btn, gpointer user_data) {
@@ -1074,54 +840,6 @@ void activate_object_row(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn
     confirm_import((uint32_t)_level_id);
 
     gtk_widget_hide(GTK_WIDGET(object_window));
-}
-
-gboolean on_autofit_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, (GtkButton*)w, user_data))
-        P.add_action(ACTION_AUTOFIT_LEVEL_BORDERS, 0);
-
-    return false;
-}
-
-gboolean on_lvl_bg_changed(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    for (const int *ptr = colored_bgs; ; ++ptr) {
-        if ((*ptr == -1) || (*ptr == gtk_combo_box_get_active(GTK_COMBO_BOX(lvl_bg)))) {
-            gtk_widget_set_visible(GTK_WIDGET(lvl_bg_color), *ptr != -1);
-            break;
-        }
-    }
-
-    return false;
-}
-
-gboolean on_lvl_bg_color_set(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    GtkColorChooser *sel = GTK_COLOR_CHOOSER(lvl_bg_color);
-
-    GdkRGBA new_color;
-    gtk_color_chooser_get_rgba(sel, &new_color);
-
-    tms_debugf("new_r: %.2f", new_color.red);
-    tms_debugf("new_g: %.2f", new_color.green);
-    tms_debugf("new_b: %.2f", new_color.blue);
-
-    new_bg_color = pack_rgba(new_color.red, new_color.green, new_color.blue, 1.f);
-
-    return false;
-}
-
-gboolean on_upgrade_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, (GtkButton*)w, user_data)) {
-        gint result = gtk_dialog_run(confirm_upgrade_dialog);
-
-        if (result == GTK_RESPONSE_ACCEPT) {
-            P.add_action(ACTION_UPGRADE_LEVEL, 0);
-            _close_all_dialogs(0);
-        }
-
-        gtk_widget_hide(GTK_WIDGET(confirm_upgrade_dialog));
-    }
-
-    return false;
 }
 
 gboolean on_open_state_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
@@ -1596,165 +1314,6 @@ gboolean on_open_state_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused)
     return false;
 }
 
-/** --Level properties **/
-static void on_level_flag_toggled(GtkToggleButton *btn, gpointer _flag) {
-    bool toggled = gtk_toggle_button_get_active(btn);
-    uint64_t flag = VOID_TO_UINT64(_flag);
-    tms_debugf("flag: %" PRIu64, flag);
-
-    switch (flag) {
-        case LVL_ABSORB_DEAD_ENEMIES:
-            gtk_widget_set_sensitive(GTK_WIDGET(lvl_enemy_absorb_time), toggled);
-            break;
-    }
-}
-
-gboolean on_properties_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape)
-        gtk_widget_hide(w);
-    else if (key->keyval == GDK_KEY_Return) {
-        if (gtk_widget_has_focus(GTK_WIDGET(lvl_cancel))) {
-            gtk_button_clicked(lvl_cancel);
-        } else if (gtk_widget_has_focus(GTK_WIDGET(lvl_descr))) {
-            /* do nothing */
-        } else {
-            gtk_button_clicked(lvl_ok);
-        }
-    }
-
-    return false;
-
-}
-
-void refresh_borders() {
-    char tmp[128];
-    sprintf(tmp, "%d", W->level.size_x[0]);
-    gtk_entry_set_text(lvl_width_left, tmp);
-
-    sprintf(tmp, "%d", W->level.size_x[1]);
-    gtk_entry_set_text(lvl_width_right, tmp);
-
-    sprintf(tmp, "%d", W->level.size_y[0]);
-    gtk_entry_set_text(lvl_height_down, tmp);
-
-    sprintf(tmp, "%d", W->level.size_y[1]);
-    gtk_entry_set_text(lvl_height_up, tmp);
-
-}
-
-/**
- * Get stuff from the currently loaded level and fill in the fields
- **/
-void on_properties_show(GtkWidget *wdg, void *unused) {
-    char *current_descr;
-    char current_name[257];
-    char tmp[128];
-
-    current_descr = (char*)malloc(W->level.descr_len+1);
-    memcpy(current_descr, W->level.descr, W->level.descr_len);
-    current_descr[W->level.descr_len] = '\0';
-    GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(lvl_descr);
-    gtk_text_buffer_set_text(text_buffer, current_descr, -1);
-
-    memcpy(current_name, W->level.name, W->level.name_len);
-    current_name[W->level.name_len] = '\0';
-    gtk_entry_set_text(lvl_title, current_name);
-
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lvl_radio_adventure), (W->level.type == LCAT_ADVENTURE));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lvl_radio_puzzle), (W->level.type == LCAT_PUZZLE));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lvl_radio_custom), (W->level.type == LCAT_CUSTOM));
-
-    refresh_borders();
-
-    gtk_spin_button_set_value(lvl_gx, W->level.gravity_x);
-    gtk_spin_button_set_value(lvl_gy, W->level.gravity_y);
-
-    /* Gameplay */
-    sprintf(tmp, "%u", W->level.final_score);
-    gtk_entry_set_text(lvl_score, tmp);
-
-    if (W->level.version >= 7) {
-        gtk_widget_set_sensitive(GTK_WIDGET(lvl_show_score), true);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lvl_show_score), W->level.show_score);
-        gtk_widget_set_sensitive(GTK_WIDGET(lvl_pause_on_win), true);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lvl_pause_on_win), W->level.pause_on_finish);
-    } else {
-        gtk_widget_set_sensitive(GTK_WIDGET(lvl_show_score), false);
-        gtk_widget_set_sensitive(GTK_WIDGET(lvl_pause_on_win), false);
-    }
-
-    if (W->level.version >= 9) {
-        /* TODO: Check current game mode and see if these should be enabled or not.
-         * also add an on_click to the type radio buttons which updates this */
-        tms_infof("flags: %" PRIu64, W->level.flags);
-        for (int x=0; x<num_gtk_level_properties; ++x) {
-            gtk_widget_set_sensitive(GTK_WIDGET(gtk_level_properties[x].checkbutton), true);
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_level_properties[x].checkbutton), ((uint64_t)(W->level.flags & gtk_level_properties[x].flag) != 0));
-        }
-    } else {
-        for (int x=0; x<num_gtk_level_properties; ++x) {
-            gtk_widget_set_sensitive(GTK_WIDGET(gtk_level_properties[x].checkbutton), false);
-        }
-    }
-
-    char vv[32];
-
-    if (W->level.version == LEVEL_VERSION) {
-        snprintf(vv, 31, "%d (latest)", LEVEL_VERSION);
-        gtk_button_set_label(GTK_BUTTON(lvl_upgrade), vv);
-        gtk_widget_set_sensitive(GTK_WIDGET(lvl_upgrade), false);
-    } else {
-        snprintf(vv, 31, "%d (Upgrade to %d)", W->level.version, LEVEL_VERSION);
-        gtk_button_set_label(GTK_BUTTON(lvl_upgrade), vv);
-        gtk_widget_set_sensitive(GTK_WIDGET(lvl_upgrade), true);
-
-    }
-
-    gtk_range_set_value(GTK_RANGE(lvl_enemy_absorb_time), (double)W->level.dead_enemy_absorb_time);
-    gtk_range_set_value(GTK_RANGE(lvl_player_respawn_time), (double)W->level.time_before_player_can_respawn);
-
-    gtk_widget_set_sensitive(GTK_WIDGET(lvl_enemy_absorb_time), W->level.flag_active(LVL_ABSORB_DEAD_ENEMIES));
-
-    uint8_t vel_iter = W->level.velocity_iterations;
-    uint8_t pos_iter = W->level.position_iterations;
-    gtk_range_set_value(GTK_RANGE(lvl_vel_iter), (double)vel_iter);
-
-    gtk_range_set_value(GTK_RANGE(lvl_pos_iter), (double)pos_iter);
-
-    gtk_range_set_value(GTK_RANGE(lvl_prismatic_tol), W->level.prismatic_tolerance);
-    gtk_range_set_value(GTK_RANGE(lvl_pivot_tol), W->level.pivot_tolerance);
-
-    gtk_range_set_value(GTK_RANGE(lvl_linear_damping), W->level.linear_damping);
-    gtk_range_set_value(GTK_RANGE(lvl_angular_damping), W->level.angular_damping);
-    gtk_range_set_value(GTK_RANGE(lvl_joint_friction), W->level.joint_friction);
-
-    gtk_combo_box_set_active(GTK_COMBO_BOX(lvl_bg), W->level.bg);
-    new_bg_color = W->level.bg_color;
-
-    {
-        GdkRGBA bg_color;
-        float r, g, b, a;
-
-        unpack_rgba(W->level.bg_color, &r, &g, &b, &a);
-
-        bg_color.red   = r;
-        bg_color.green = g;
-        bg_color.blue  = b;
-        bg_color.alpha = 1.0;
-
-        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(lvl_bg_color), &bg_color);
-    }
-
-    for (const int *ptr = colored_bgs; ; ++ptr) {
-        if (*ptr == -1 || *ptr == W->level.bg) {
-            gtk_widget_set_visible(GTK_WIDGET(lvl_bg_color), *ptr != -1);
-            break;
-        }
-    }
-
-    free(current_descr);
-}
-
 void activate_open_state(GtkMenuItem *i, gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(open_state_window));
 }
@@ -2071,342 +1630,6 @@ int _gtk_loop(void *p) {
 
         add_text_column(open_state_treeview, "Name", OSC_ID);
         add_text_column(open_state_treeview, "Modified", OSC_NAME);
-    }
-
-    /** --Level properties **/
-    {
-        properties_dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-            "Level properties",
-            0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-            NULL, NULL
-        ));
-
-        apply_dialog_defaults(properties_dialog, on_properties_show, on_properties_keypress);
-
-        GtkBox *layout = GTK_BOX(gtk_dialog_get_content_area(properties_dialog));
-
-        GtkNotebook *nb = GTK_NOTEBOOK(gtk_notebook_new());
-        gtk_widget_set_size_request(GTK_WIDGET(nb), 550, 550);
-        gtk_notebook_set_tab_pos(nb, GTK_POS_TOP);
-
-        GtkGrid *tbl_info = create_settings_table();
-        {
-            int y = -1;
-
-            lvl_title = GTK_ENTRY(gtk_entry_new());
-            lvl_descr = GTK_TEXT_VIEW(gtk_text_view_new());
-            gtk_text_view_set_wrap_mode(lvl_descr, GTK_WRAP_WORD);
-
-            GtkBox* lvl_type_box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-
-            lvl_radio_adventure = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(NULL, "Adventure"));
-            lvl_radio_puzzle = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(gtk_radio_button_get_group(lvl_radio_adventure), "Puzzle"));
-            lvl_radio_custom = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(gtk_radio_button_get_group(lvl_radio_adventure), "Custom"));
-
-            gtk_container_add(GTK_CONTAINER(lvl_type_box), GTK_WIDGET(lvl_radio_adventure));
-            gtk_container_add(GTK_CONTAINER(lvl_type_box), GTK_WIDGET(lvl_radio_puzzle));
-            gtk_container_add(GTK_CONTAINER(lvl_type_box), GTK_WIDGET(lvl_radio_custom));
-
-            GtkScrolledWindow *ew = GTK_SCROLLED_WINDOW(gtk_scrolled_window_new(0, 0));
-            gtk_scrolled_window_set_min_content_height(ew, 256);
-            gtk_scrolled_window_set_policy(ew, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-            gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(lvl_descr));
-
-            GtkWidget *fr = gtk_frame_new(NULL);
-            gtk_container_add(GTK_CONTAINER(fr), GTK_WIDGET(ew));
-
-            add_setting_row(
-                tbl_info, ++y,
-                "Name", GTK_WIDGET(lvl_title)
-            );
-
-            add_setting_row(
-                tbl_info, ++y,
-                "Description", GTK_WIDGET(fr)
-            );
-
-            add_setting_row(
-                tbl_info, ++y,
-                "Type", GTK_WIDGET(lvl_type_box)
-            );
-        }
-
-        GtkGrid *tbl_world = create_settings_table();
-        {
-            int y = -1;
-
-            lvl_bg = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-            gtk_widget_set_hexpand(GTK_WIDGET(lvl_bg), true);
-            g_signal_connect(lvl_bg, "changed", G_CALLBACK(on_lvl_bg_changed), 0);
-
-            for (int x=0; x<num_bgs; x++) {
-                gtk_combo_box_text_append_text(lvl_bg, available_bgs[x]);
-            }
-
-            lvl_bg_color = GTK_COLOR_BUTTON(gtk_color_button_new());
-            gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(lvl_bg_color), false);
-            g_signal_connect(lvl_bg_color, "color-set", G_CALLBACK(on_lvl_bg_color_set), 0);
-
-            GtkBox* lvl_bg_box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-            gtk_container_add(GTK_CONTAINER(lvl_bg_box), GTK_WIDGET(lvl_bg));
-            gtk_container_add(GTK_CONTAINER(lvl_bg_box), GTK_WIDGET(lvl_bg_color));
-
-            lvl_width_left = GTK_ENTRY(gtk_entry_new());
-            lvl_width_right = GTK_ENTRY(gtk_entry_new());
-            lvl_height_down = GTK_ENTRY(gtk_entry_new());
-            lvl_height_up = GTK_ENTRY(gtk_entry_new());
-
-            lvl_autofit = (GtkButton*)gtk_button_new_with_label("Auto-fit borders");
-            g_signal_connect(lvl_autofit, "clicked",
-                    G_CALLBACK(on_autofit_btn_click), 0);
-
-            lvl_gx = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                        GTK_ADJUSTMENT(gtk_adjustment_new(1, -MAX_GRAVITY, MAX_GRAVITY, 1, 1, 0)),
-                        1, 0));
-            lvl_gy = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                        GTK_ADJUSTMENT(gtk_adjustment_new(1, -MAX_GRAVITY, MAX_GRAVITY, 1, 1, 0)),
-                        1, 0));
-
-            add_setting_row(
-                tbl_world, ++y,
-                "Background",
-                GTK_WIDGET(lvl_bg_box)
-            );
-
-            add_setting_row(
-                tbl_world, ++y,
-                "Left border",
-                GTK_WIDGET(lvl_width_left)
-            );
-
-            add_setting_row(
-                tbl_world, ++y,
-                "Right border",
-                GTK_WIDGET(lvl_width_right)
-            );
-
-            add_setting_row(
-                tbl_world, ++y,
-                "Bottom border",
-                GTK_WIDGET(lvl_height_down)
-            );
-
-            add_setting_row(
-                tbl_world, ++y,
-                "Top border",
-                GTK_WIDGET(lvl_height_up)
-            );
-
-            gtk_grid_attach(
-                tbl_world,
-                GTK_WIDGET(lvl_autofit),
-                0, ++y, 3, 1
-            );
-
-            add_setting_row(
-                tbl_world, ++y,
-                "Gravity X",
-                GTK_WIDGET(lvl_gx)
-            );
-
-            add_setting_row(
-                tbl_world, ++y,
-                "Gravity Y",
-                GTK_WIDGET(lvl_gy)
-            );
-        }
-
-        GtkGrid *tbl_physics = create_settings_table();
-        {
-            int y = -1;
-
-            lvl_pos_iter = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 10, 255, 5));
-            lvl_vel_iter = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 10, 255, 5));
-
-            lvl_prismatic_tol = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, .075f, 0.0125f/2.f));
-            lvl_pivot_tol = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, .075f, 0.0125f/2.f));
-
-            lvl_linear_damping = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 10.0f, 0.05f));
-            lvl_angular_damping = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 10.0f, 0.05f));
-            lvl_joint_friction = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 10.0f, 0.05f));
-
-            add_setting_row(
-                tbl_physics, ++y,
-                "Position iterations",
-                GTK_WIDGET(lvl_pos_iter),
-                "The amount of position iterations primarily affects dynamic objects. Lower = better performance."
-            );
-
-            add_setting_row(
-                tbl_physics, ++y,
-                "Velocity iterations",
-                GTK_WIDGET(lvl_vel_iter),
-                "Primarily affects motors and connection. Lower = better performance."
-            );
-
-            add_setting_row(
-                tbl_physics, ++y,
-                "Prismatic tolerance",
-                GTK_WIDGET(lvl_prismatic_tol)
-            );
-
-            add_setting_row(
-                tbl_physics, ++y,
-                "Pivot tolerance",
-                GTK_WIDGET(lvl_pivot_tol)
-            );
-
-            add_setting_row(
-                tbl_physics, ++y,
-                "Linear damping",
-                GTK_WIDGET(lvl_linear_damping)
-            );
-
-            add_setting_row(
-                tbl_physics, ++y,
-                "Angular damping",
-                GTK_WIDGET(lvl_angular_damping)
-            );
-
-            add_setting_row(
-                tbl_physics, ++y,
-                "Joint friction",
-                GTK_WIDGET(lvl_joint_friction)
-            );
-        }
-
-        GtkGrid *tbl_gameplay = create_settings_table();
-        {
-            int y = -1;
-
-            lvl_score = GTK_ENTRY(gtk_entry_new());
-
-            lvl_enemy_absorb_time = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 60.f, 0.1f));
-            lvl_player_respawn_time = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.f, 10.f, 0.1f));
-
-            add_setting_row(
-                tbl_gameplay, ++y,
-                "Final score",
-                GTK_WIDGET(lvl_score),
-                "What score the player has to reach to win the level."
-            );
-
-            add_setting_row(
-                tbl_gameplay, ++y,
-                "Level version",
-                GTK_WIDGET(lvl_upgrade = (GtkButton*) gtk_button_new())
-            );
-            g_signal_connect(lvl_upgrade, "clicked", G_CALLBACK(on_upgrade_btn_click), 0);
-
-            add_setting_row(
-                tbl_gameplay, ++y,
-                "Pause on win",
-                GTK_WIDGET(lvl_pause_on_win = (GtkCheckButton*) gtk_check_button_new()),
-                "Pause the simulation once the win condition has been reached."
-            );
-
-            add_setting_row(
-                tbl_gameplay, ++y,
-                "Display score",
-                GTK_WIDGET(lvl_show_score = (GtkCheckButton*) gtk_check_button_new()),
-                "Display the score in the top-right corner."
-            );
-
-            add_setting_row(
-                tbl_gameplay, ++y,
-                "Creature absorb time",
-                GTK_WIDGET(lvl_enemy_absorb_time),
-                "Time before dead creatures are absorbed"
-            );
-
-            add_setting_row(
-                tbl_gameplay, ++y,
-                "Player respawn time",
-                GTK_WIDGET(lvl_player_respawn_time),
-                "Delay between a player's death and their ability to respawn"
-            );
-
-            for (int x=0; x<num_gtk_level_properties; ++x) {
-                struct gtk_level_property *prop = &gtk_level_properties[x];
-                add_setting_row(
-                    tbl_gameplay, ++y,
-                    prop->label,
-                    GTK_WIDGET(prop->checkbutton = GTK_CHECK_BUTTON(gtk_check_button_new())),
-                    prop->help
-                );
-                g_signal_connect(prop->checkbutton, "toggled", G_CALLBACK(on_level_flag_toggled), UINT_TO_VOID(prop->flag));
-            }
-        }
-
-        lvl_ok      = GTK_BUTTON(gtk_dialog_add_button(properties_dialog, "_OK", GTK_RESPONSE_ACCEPT));
-        lvl_cancel  = GTK_BUTTON(gtk_dialog_add_button(properties_dialog, "_Cancel", GTK_RESPONSE_REJECT));
-
-        GtkWidget *view_info = gtk_viewport_new(0,0);
-        GtkWidget *win_info = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (win_info),
-                      GTK_POLICY_NEVER,
-                      GTK_POLICY_AUTOMATIC);
-        gtk_container_add(GTK_CONTAINER(view_info), GTK_WIDGET(tbl_info));
-        gtk_container_set_border_width(GTK_CONTAINER(tbl_info), 5);
-        gtk_container_set_border_width(GTK_CONTAINER(view_info), 0);
-        gtk_container_add(GTK_CONTAINER(win_info), GTK_WIDGET(view_info));
-        gtk_notebook_append_page(nb, win_info, gtk_label_new("Info"));
-
-        GtkWidget *view_world = gtk_viewport_new(0,0);
-        GtkWidget *win_world = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (win_world),
-                      GTK_POLICY_NEVER,
-                      GTK_POLICY_AUTOMATIC);
-        gtk_container_add(GTK_CONTAINER(view_world), GTK_WIDGET(tbl_world));
-        gtk_container_add(GTK_CONTAINER(win_world), view_world);
-        gtk_notebook_append_page(nb, win_world, gtk_label_new("World"));
-
-        GtkWidget *view_physics = gtk_viewport_new(0,0);
-        GtkWidget *win_physics = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (win_physics),
-                      GTK_POLICY_NEVER,
-                      GTK_POLICY_AUTOMATIC);
-        gtk_container_add(GTK_CONTAINER(view_physics), GTK_WIDGET(tbl_physics));
-        gtk_container_add(GTK_CONTAINER(win_physics), view_physics);
-        gtk_notebook_append_page(nb, win_physics, gtk_label_new("Physics"));
-
-        GtkWidget *view_gameplay = gtk_viewport_new(0,0);
-        GtkWidget *win_gameplay = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (win_gameplay),
-                      GTK_POLICY_NEVER,
-                      GTK_POLICY_AUTOMATIC);
-        gtk_container_add(GTK_CONTAINER(view_gameplay), GTK_WIDGET(tbl_gameplay));
-        gtk_container_add(GTK_CONTAINER(win_gameplay), view_gameplay);
-        gtk_notebook_append_page(nb, win_gameplay, gtk_label_new("Gameplay"));
-
-        gtk_box_pack_start(GTK_BOX(layout), GTK_WIDGET(nb), false, false, 0);
-        gtk_widget_show_all(GTK_WIDGET(nb));
-
-        gtk_widget_show_all(GTK_WIDGET(layout));
-    }
-
-    /* confirm upgrade version dialog */
-    {
-        confirm_upgrade_dialog = new_dialog_defaults("Confirm Upgrade");
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(confirm_upgrade_dialog));
-
-        GtkWidget *t = gtk_label_new(0);
-        gtk_label_set_markup(GTK_LABEL(t),
-        "<b>Are you sure you want to upgrade the version of this level?</b>"
-        "\n\n"
-        "To get access to new features the version associated with this level "
-        "must be upgraded. This action can not be undone. Please save a copy before "
-        "upgrading your level."
-        "\n\n"
-        "By upgrading this level, some object properties such as density, "
-        "restitution, friction and applied forces might differ from earlier versions and affect "
-        "how your level is simulated."
-        );
-        gtk_widget_set_size_request(GTK_WIDGET(t), 400, -1);
-        gtk_label_set_line_wrap(GTK_LABEL(t), true);
-        gtk_box_pack_start(GTK_BOX(content), t, false, false, 0);
-        gtk_widget_show_all(GTK_WIDGET(content));
     }
 
     /** --Digital display **/
@@ -3093,117 +2316,6 @@ static gboolean _sig_ui_ready(gpointer unused) {
     return false;
 }
 
-static gboolean _open_level_properties(gpointer unused) {
-    gint result = gtk_dialog_run(properties_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        const char *name = gtk_entry_get_text(lvl_title);
-        int name_len = strlen(name);
-        W->level.name_len = name_len;
-        memcpy(W->level.name, name, name_len);
-
-        GtkTextIter start, end;
-        GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(lvl_descr);
-
-        gtk_text_buffer_get_bounds(text_buffer, &start, &end);
-
-        const char *descr = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
-        int descr_len = strlen(descr);
-
-        if (descr_len > 0) {
-            W->level.descr_len = descr_len;
-            W->level.descr = (char*)realloc(W->level.descr, descr_len);
-
-            memcpy(W->level.descr, descr, descr_len);
-        } else
-            W->level.descr_len = 0;
-
-        uint16_t left  = (uint16_t)atoi(gtk_entry_get_text(lvl_width_left));
-        uint16_t right = (uint16_t)atoi(gtk_entry_get_text(lvl_width_right));
-        uint16_t down  = (uint16_t)atoi(gtk_entry_get_text(lvl_height_down));
-        uint16_t up    = (uint16_t)atoi(gtk_entry_get_text(lvl_height_up));
-
-        float w = (float)left + (float)right;
-        float h = (float)down + (float)up;
-
-        bool resized = false;
-
-        if (w < 5.f) {
-            resized = true;
-            left += 6-(uint16_t)w;
-        }
-        if (h < 5.f) {
-            resized = true;
-            down += 6-(uint16_t)w;
-        }
-
-        if (resized)
-            ui::message("Your level size was increased to the minimum allowed.");
-
-        W->level.size_x[0] = left;
-        W->level.size_x[1] = right;
-        W->level.size_y[0] = down;
-        W->level.size_y[1] = up;
-        W->level.gravity_x = (float)gtk_spin_button_get_value(lvl_gx);
-        W->level.gravity_y = (float)gtk_spin_button_get_value(lvl_gy);
-
-        W->level.dead_enemy_absorb_time = gtk_range_get_value(GTK_RANGE(lvl_enemy_absorb_time));
-        W->level.time_before_player_can_respawn = gtk_range_get_value(GTK_RANGE(lvl_player_respawn_time));
-
-        uint8_t vel_iter = (uint8_t)gtk_range_get_value(GTK_RANGE(lvl_vel_iter));
-        uint8_t pos_iter = (uint8_t)gtk_range_get_value(GTK_RANGE(lvl_pos_iter));
-
-        float prismatic_tolerance = gtk_range_get_value(GTK_RANGE(lvl_prismatic_tol));
-        float pivot_tolerance = gtk_range_get_value(GTK_RANGE(lvl_pivot_tol));
-
-        float angular_damping = gtk_range_get_value(GTK_RANGE(lvl_angular_damping));
-        float joint_friction = gtk_range_get_value(GTK_RANGE(lvl_joint_friction));
-        float linear_damping = gtk_range_get_value(GTK_RANGE(lvl_linear_damping));
-
-        W->level.angular_damping = angular_damping;
-        W->level.joint_friction = joint_friction;
-        W->level.linear_damping = linear_damping;
-
-        W->level.prismatic_tolerance = prismatic_tolerance;
-        W->level.pivot_tolerance = pivot_tolerance;
-
-        tms_infof("vel_iter: %d,  pos_iter: %d", vel_iter, pos_iter);
-        W->level.velocity_iterations = vel_iter;
-        W->level.position_iterations = pos_iter;
-        W->level.final_score = (uint32_t)atoi(gtk_entry_get_text(lvl_score));
-
-        if (W->level.version >= 7) {
-            W->level.show_score = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_show_score));
-            W->level.pause_on_finish = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_pause_on_win));
-        }
-
-        if (W->level.version >= 9) {
-            W->level.show_score = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_show_score));
-            W->level.flags = 0;
-            for (int x=0; x<num_gtk_level_properties; ++x) {
-                W->level.flags |= ((int)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtk_level_properties[x].checkbutton)) * gtk_level_properties[x].flag);
-            }
-        }
-
-        W->level.bg = gtk_combo_box_get_active(GTK_COMBO_BOX(lvl_bg));
-        W->level.bg_color = new_bg_color;
-
-        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_radio_adventure))) {
-            P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_ADVENTURE);
-        } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_radio_puzzle))) {
-            P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_PUZZLE);
-        } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lvl_radio_custom))) {
-            P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_CUSTOM);
-        }
-
-        P.add_action(ACTION_RELOAD_LEVEL, 0);
-    }
-
-    gtk_widget_hide(GTK_WIDGET(properties_dialog));
-
-    return false;
-}
-
 static gboolean _open_open_state_dialog(gpointer unused) {
     activate_open_state(NULL, 0);
     return false;
@@ -3421,7 +2533,6 @@ static gboolean _open_factory(gpointer unused) {
 static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(open_state_window));
     gtk_widget_hide(GTK_WIDGET(object_window));
-    gtk_widget_hide(GTK_WIDGET(properties_dialog));
     gtk_widget_hide(GTK_WIDGET(synth_dialog));
     return false;
 }
@@ -3477,11 +2588,7 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             break;
 
         case DIALOG_LEVEL_PROPERTIES:
-#ifdef PRINCIPIA_BACKEND_IMGUI
             UiLevelProperties::open();
-#else
-            gdk_threads_add_idle(_open_level_properties, 0);
-#endif
             break;
         case DIALOG_EXPORT:
             UiExport::open();
@@ -3722,9 +2829,7 @@ void ui::emit_signal(int num, void *data/*=0*/) {
             break;
 
         case SIGNAL_REFRESH_BORDERS:
-#ifndef PRINCIPIA_BACKEND_IMGUI
-            refresh_borders();
-#endif
+            UiLevelProperties::reload_border_sizes();
             break;
     }
 
@@ -3805,9 +2910,9 @@ void ui::render() {
     UiSequencer::layout();
     UiExport::layout();
     UiTreasureChest::layout();
+    UiLevelProperties::layout();
 
 #ifdef PRINCIPIA_BACKEND_IMGUI
-    UiLevelProperties::layout();
     UiRobot::layout();
     UiSynthesizer::layout();
 #endif

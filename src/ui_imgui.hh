@@ -23,7 +23,7 @@ namespace UiSandboxMode     { void open(); void layout(); }
 namespace UiQuickadd        { void open(); void layout(); }
 namespace UiSynthesizer     { void open(entity *e = G->selection.e); void layout(); }
 namespace UiObjColorPicker  { void open(bool alpha = false, entity *e = G->selection.e); void layout(); }
-namespace UiLevelProperties { void open(); void layout(); }
+namespace UiLevelProperties { void open(); void layout(); void reload_border_sizes(); }
 namespace UiSave            { void open(bool copy_flag); void layout(); }
 namespace UiNewLevel        { void open(); void layout(); }
 namespace UiFrequency       { void open(bool is_range); void layout(); }
