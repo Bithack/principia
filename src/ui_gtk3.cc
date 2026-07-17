@@ -4,7 +4,6 @@
  * more time than absolutely necessary on this backend.
  */
 
-#include "adventure.hh"
 #include "display.hh"
 #include "faction.hh"
 #include "factory.hh"
@@ -14,7 +13,6 @@
 #include "menu-play.hh"
 #include "object_factory.hh"
 #include "pkgman.hh"
-#include "robot_base.hh"
 #include "sfxemitter.hh"
 #include "soundmanager.hh"
 #include "speaker.hh"
@@ -155,31 +153,6 @@ GtkComboBoxText *sfx2_sub_cb;
 GtkCheckButton  *sfx2_global;
 GtkCheckButton  *sfx2_loop;
 
-/** --Robot **/
-GtkWindow       *robot_window;
-GtkButton       *robot_btn_ok;
-GtkButton       *robot_btn_cancel;
-GtkRadioButton  *robot_state_idle;
-GtkRadioButton  *robot_state_walk;
-GtkRadioButton  *robot_state_dead;
-GtkCheckButton  *robot_roam;
-GtkRadioButton  *robot_dir_left;
-GtkRadioButton  *robot_dir_random;
-GtkRadioButton  *robot_dir_right;
-GtkRadioButton  *robot_faction[NUM_FACTIONS];
-GtkListStore    *robot_ls_equipment;
-GtkTreeView     *robot_tv_equipment;
-enum {
-  ROBOT_COLUMN_EQUIPPED,
-  ROBOT_COLUMN_ITEM,
-  ROBOT_COLUMN_ITEM_ID,
-};
-GtkComboBoxText *robot_head;
-GtkComboBoxText *robot_feet;
-GtkComboBoxText *robot_bolts;
-GtkComboBoxText *robot_back_equipment;
-GtkComboBoxText *robot_front_equipment;
-GtkComboBoxText *robot_head_equipment;
 
 /** --Synthesizer **/
 GtkDialog       *synth_dialog;
@@ -889,300 +862,6 @@ gboolean on_object_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_dat
             gtk_widget_hide(GTK_WIDGET(object_window));
         } else {
             tms_infof("No row selected.");
-        }
-    }
-
-    return false;
-}
-
-/** --Robot **/
-static void robot_item_toggled(GtkCellRendererToggle *cell, gchar *path_str, gpointer data) {
-    GtkTreeModel *model = (GtkTreeModel *)data;
-    GtkTreeIter iter;
-    GtkTreePath *path = gtk_tree_path_new_from_string(path_str);
-    gboolean fixed;
-
-    gtk_tree_model_get_iter(model, &iter, path);
-    gtk_tree_model_get(model, &iter, 0, &fixed, -1);
-
-    fixed ^= 1;
-
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, fixed, -1);
-
-    gtk_tree_path_free(path);
-}
-
-static void on_robot_show(GtkWidget *wdg, void *unused) {
-    entity *e = G->selection.e;
-    if (e && e->flag_active(ENTITY_IS_ROBOT)) {
-        clear_cb(robot_head_equipment);
-        clear_cb(robot_head);
-        clear_cb(robot_back_equipment);
-        clear_cb(robot_front_equipment);
-        clear_cb(robot_feet);
-        clear_cb(robot_bolts);
-
-        for (int x=0; x<NUM_HEAD_EQUIPMENT_TYPES; ++x) {
-            GtkComboBoxText *cb = robot_head_equipment;
-            uint32_t item_id = _head_equipment_to_item[x];
-
-            item_cb_append(cb, item_id, true);
-        }
-
-        for (int x=0; x<NUM_HEAD_TYPES; ++x) {
-            GtkComboBoxText *cb = robot_head;
-            uint32_t item_id = _head_to_item[x];
-
-            item_cb_append(cb, item_id, true);
-        }
-
-        for (int x=0; x<NUM_BACK_EQUIPMENT_TYPES; ++x) {
-            GtkComboBoxText *cb = robot_back_equipment;
-            uint32_t item_id = _back_to_item[x];
-
-            item_cb_append(cb, item_id, true);
-        }
-
-        for (int x=0; x<NUM_FRONT_EQUIPMENT_TYPES; ++x) {
-            GtkComboBoxText *cb = robot_front_equipment;
-            uint32_t item_id = _front_to_item[x];
-
-            item_cb_append(cb, item_id, true);
-        }
-
-        for (int x=0; x<NUM_FEET_TYPES; ++x) {
-            GtkComboBoxText *cb = robot_feet;
-            uint32_t item_id = _feet_to_item[x];
-
-            item_cb_append(cb, item_id, true);
-        }
-
-        for (int x=0; x<NUM_BOLT_SETS; ++x) {
-            GtkComboBoxText *cb = robot_bolts;
-            uint32_t item_id = _bolt_to_item[x];
-
-            item_cb_append(cb, item_id, false);
-        }
-
-        /* Clear all equipment boxes and refill them. */
-        if (e->id == G->state.adventure_id && W->is_adventure()) {
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_state_idle), false);
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_state_walk), false);
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_state_dead), false);
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_roam),       false);
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_dir_left),   false);
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_dir_random), false);
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_dir_right),  false);
-        } else {
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_state_idle), true);
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_state_walk), true);
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_state_dead), true);
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_roam),       true);
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_dir_left),   true);
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_dir_random), true);
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_dir_right),  true);
-        }
-
-        if (static_cast<creature*>(e)->has_feature(CREATURE_FEATURE_HEAD)) {
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_head), true);
-            gtk_combo_box_set_active(GTK_COMBO_BOX(robot_head), e->properties[ROBOT_PROPERTY_HEAD].v.i8);
-
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_head_equipment), true);
-            gtk_combo_box_set_active(GTK_COMBO_BOX(robot_head_equipment), e->properties[ROBOT_PROPERTY_HEAD_EQUIPMENT].v.i8);
-        } else {
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_head_equipment), false);
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_head), false);
-        }
-
-        if (static_cast<creature*>(e)->has_feature(CREATURE_FEATURE_BACK_EQUIPMENT)) {
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_back_equipment), true);
-            gtk_combo_box_set_active(GTK_COMBO_BOX(robot_back_equipment), e->properties[ROBOT_PROPERTY_BACK].v.i8);
-        } else {
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_back_equipment), false);
-        }
-
-        if (static_cast<creature*>(e)->has_feature(CREATURE_FEATURE_FRONT_EQUIPMENT)) {
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_front_equipment), true);
-            gtk_combo_box_set_active(GTK_COMBO_BOX(robot_front_equipment), e->properties[ROBOT_PROPERTY_FRONT].v.i8);
-        } else {
-            gtk_widget_set_sensitive(GTK_WIDGET(robot_front_equipment), false);
-        }
-
-        gtk_combo_box_set_active(GTK_COMBO_BOX(robot_feet), e->properties[8].v.i8);
-        gtk_combo_box_set_active(GTK_COMBO_BOX(robot_bolts), e->properties[ROBOT_PROPERTY_BOLT_SET].v.i8);
-
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(robot_state_idle), (e->properties[1].v.i8 == CREATURE_IDLE));
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(robot_state_walk), (e->properties[1].v.i8 == CREATURE_WALK));
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(robot_state_dead), (e->properties[1].v.i8 == CREATURE_DEAD));
-
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(robot_roam), (bool)(e->properties[2].v.i8));
-
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(robot_dir_left), (e->properties[4].v.i8 == 1));
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(robot_dir_right), (e->properties[4].v.i8 == 2));
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(robot_state_walk), (e->properties[4].v.i8 != 1 && e->properties[4].v.i8 != 2));
-
-        for (int x=0; x<NUM_FACTIONS; ++x) {
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(robot_faction[x]), (e->properties[6].v.i8 == x));
-        }
-
-        gtk_list_store_clear(robot_ls_equipment);
-
-        std::vector<uint32_t> equipment;
-
-        std::vector<char*> eq_parts = p_split(e->properties[ROBOT_PROPERTY_EQUIPMENT].v.s.buf, e->properties[ROBOT_PROPERTY_EQUIPMENT].v.s.len, ";");
-
-        for (std::vector<char*>::iterator it = eq_parts.begin();
-                it != eq_parts.end(); ++it) {
-            equipment.push_back(atoi(*it));
-        }
-
-        GtkTreeIter iter;
-        for (int x=0; x<NUM_ITEMS; ++x) {
-            struct item_option *io = &item_options[x];
-
-            if (io->category != ITEM_CATEGORY_WEAPON &&
-                io->category != ITEM_CATEGORY_TOOL &&
-                io->category != ITEM_CATEGORY_CIRCUIT
-                ) {
-                continue;
-            }
-
-            gtk_list_store_append(robot_ls_equipment, &iter);
-
-            gboolean equipped = FALSE;
-            for (std::vector<uint32_t>::iterator it = equipment.begin(); it != equipment.end(); ++it) {
-                if (*it == x) {
-                    equipped = TRUE;
-                    break;
-                }
-            }
-            gtk_list_store_set(robot_ls_equipment, &iter,
-                    ROBOT_COLUMN_EQUIPPED, equipped,
-                    ROBOT_COLUMN_ITEM, item::get_ui_name(x),
-                    ROBOT_COLUMN_ITEM_ID, x,
-                    -1
-                    );
-        }
-    }
-}
-
-gboolean on_robot_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, robot_btn_cancel, user_data)) {
-        gtk_widget_hide(GTK_WIDGET(robot_window));
-    } else if (btn_pressed(w, robot_btn_ok, user_data)) {
-        entity *e = G->selection.e;
-
-        if (e && e->flag_active(ENTITY_IS_ROBOT)) {
-            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(robot_state_idle))) {
-                e->properties[1].v.i8 = CREATURE_IDLE;
-            } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(robot_state_walk))) {
-                e->properties[1].v.i8 = CREATURE_WALK;
-            } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(robot_state_dead))) {
-                e->properties[1].v.i8 = CREATURE_DEAD;
-            } else {
-                tms_warnf("Unknown robot state");
-            }
-
-            if (static_cast<creature*>(e)->has_feature(CREATURE_FEATURE_HEAD)) {
-                e->properties[ROBOT_PROPERTY_HEAD].v.i8 = gtk_combo_box_get_active(GTK_COMBO_BOX(robot_head));
-                e->properties[ROBOT_PROPERTY_HEAD_EQUIPMENT].v.i8 = gtk_combo_box_get_active(GTK_COMBO_BOX(robot_head_equipment));
-            }
-
-            if (static_cast<creature*>(e)->has_feature(CREATURE_FEATURE_BACK_EQUIPMENT)) {
-                e->properties[ROBOT_PROPERTY_BACK].v.i8 = gtk_combo_box_get_active(GTK_COMBO_BOX(robot_back_equipment));
-            }
-
-            if (static_cast<creature*>(e)->has_feature(CREATURE_FEATURE_FRONT_EQUIPMENT)) {
-                e->properties[ROBOT_PROPERTY_FRONT].v.i8 = gtk_combo_box_get_active(GTK_COMBO_BOX(robot_front_equipment));
-            }
-
-            e->properties[ROBOT_PROPERTY_FEET].v.i8 = gtk_combo_box_get_active(GTK_COMBO_BOX(robot_feet));
-            e->properties[ROBOT_PROPERTY_BOLT_SET].v.i8 = gtk_combo_box_get_active(GTK_COMBO_BOX(robot_bolts));
-
-            e->properties[ROBOT_PROPERTY_ROAMING].v.i8 = (uint8_t)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(robot_roam));
-
-            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(robot_dir_left))) {
-                e->properties[4].v.i8 = 1;
-                ((robot_base*)e)->set_i_dir(DIR_LEFT);
-            } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(robot_dir_random))) {
-                e->properties[4].v.i8 = 0;
-                ((robot_base*)e)->set_i_dir(0.f);
-            } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(robot_dir_right))) {
-                e->properties[4].v.i8 = 2;
-                ((robot_base*)e)->set_i_dir(DIR_RIGHT);
-            } else {
-                tms_warnf("Unknown default direction");
-            }
-
-            for (int x=0; x<=NUM_FACTIONS; ++x) {
-                if (x == NUM_FACTIONS) {
-                    e->properties[6].v.i8 = FACTION_ENEMY;
-                    ((robot_base*)e)->set_faction(e->properties[6].v.i8);
-                } else {
-                    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(robot_faction[x]))) {
-                        e->properties[6].v.i8 = x;
-                        ((robot_base*)e)->set_faction(e->properties[6].v.i8);
-                        break;
-                    }
-                }
-            }
-
-            GtkTreeModel *model = GTK_TREE_MODEL(robot_ls_equipment);
-            GtkTreeIter iter;
-            int x = 0;
-            std::stringstream ss;
-
-            if (gtk_tree_model_get_iter_first(
-                        model,
-                        &iter)) {
-                do {
-                    GValue val = {0, };
-                    GValue val_id = {0, };
-                    gtk_tree_model_get_value(model,
-                            &iter,
-                            ROBOT_COLUMN_EQUIPPED,
-                            &val);
-                    gtk_tree_model_get_value(model,
-                            &iter,
-                            ROBOT_COLUMN_ITEM_ID,
-                            &val_id);
-                    gboolean enabled = g_value_get_boolean(&val);
-                    gint id = g_value_get_int(&val_id);
-                    if (enabled == TRUE) {
-                        if (x > 0) {
-                            ss << ";";
-                        }
-
-                        ss << id;
-
-                        ++ x;
-                    }
-                } while (gtk_tree_model_iter_next(model, &iter));
-            }
-
-            e->set_property(ROBOT_PROPERTY_EQUIPMENT, ss.str().c_str());
-
-            ui::message("Robot properties saved!");
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-
-            W->add_action(e->id, ACTION_CALL_ON_LOAD);
-        }
-
-        gtk_widget_hide(GTK_WIDGET(robot_window));
-    }
-
-    return false;
-}
-
-gboolean on_robot_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape) {
-        gtk_widget_hide(w);
-    } else if (key->keyval == GDK_KEY_Return) {
-        if (gtk_widget_has_focus(GTK_WIDGET(robot_btn_cancel))) {
-            on_robot_btn_click(GTK_WIDGET(robot_btn_cancel), NULL, GINT_TO_POINTER(1));
-        } else {
-            on_robot_btn_click(GTK_WIDGET(robot_btn_ok), NULL, GINT_TO_POINTER(1));
         }
     }
 
@@ -2023,187 +1702,6 @@ int _gtk_loop(void *p) {
         gtk_container_add(GTK_CONTAINER(multi_config_window), GTK_WIDGET(content));
     }
 
-    /** --Robot **/
-    {
-        robot_window = new_window_defaults("Robot settings", &on_robot_show, &on_robot_keypress);
-
-        int y = 0;
-
-        robot_head_equipment = new_item_cb();
-        robot_head = new_item_cb();
-        robot_back_equipment = new_item_cb();
-        robot_front_equipment = new_item_cb();
-        robot_feet = new_item_cb();
-        robot_bolts = new_item_cb();
-
-        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-
-        GtkGrid *tbl = GTK_GRID(gtk_grid_new());
-        gtk_grid_set_row_spacing(tbl, 3);
-        gtk_grid_set_column_spacing(tbl, 5);
-
-        robot_state_idle = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
-            NULL, "Idle"
-        ));
-        robot_state_walk = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label_from_widget(
-            robot_state_idle, "Walking"
-        ));
-        robot_state_dead = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label_from_widget(
-            robot_state_idle, "Dead"
-        ));
-
-        robot_dir_left = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
-            NULL, "Left"
-        ));
-        robot_dir_random = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label_from_widget(
-            robot_dir_left, "Random"
-        ));
-        robot_dir_right = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label_from_widget(
-            robot_dir_left, "Right"
-        ));
-
-        gtk_grid_attach(tbl, new_rlbl("Default state"), 0, y, 1, 1);
-        gtk_grid_attach(tbl, GTK_WIDGET(robot_state_idle), 1, y, 1, 1);
-        y++;
-        gtk_grid_attach(tbl, GTK_WIDGET(robot_state_walk), 1, y, 1, 1);
-        y++;
-        gtk_grid_attach(tbl, GTK_WIDGET(robot_state_dead), 1, y, 1, 1);
-        y++;
-
-        robot_roam = GTK_CHECK_BUTTON(gtk_check_button_new());
-        gtk_grid_attach(tbl, new_rlbl("Roaming"), 0, y, 1, 1);
-        gtk_grid_attach(tbl, GTK_WIDGET(robot_roam), 1, y, 1, 1);
-        y++;
-
-        gtk_grid_attach(tbl, gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), 0, y, 2, 1);
-        y++;
-
-        gtk_grid_attach(tbl, new_rlbl("Initial direction"), 0, y, 1, 1);
-        gtk_grid_attach(tbl, GTK_WIDGET(robot_dir_left), 1, y, 1, 1);
-        y++;
-        gtk_grid_attach(tbl, GTK_WIDGET(robot_dir_random), 1, y, 1, 1);
-        y++;
-        gtk_grid_attach(tbl, GTK_WIDGET(robot_dir_right), 1, y, 1, 1);
-        y++;
-
-        gtk_grid_attach(tbl, gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), 0, y, 2, 1);
-        y++;
-
-        gtk_grid_attach(tbl, new_rlbl("Faction"), 0, y, 1, 1);
-        for (int x = 0; x < NUM_FACTIONS; ++x) {
-            robot_faction[x] = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
-                x==0 ? 0 : gtk_radio_button_get_group(robot_faction[0]), factions[x].name)
-            );
-            gtk_grid_attach(tbl, GTK_WIDGET(robot_faction[x]), 1, y, 1, 1);
-            y++;
-        }
-
-        gtk_grid_attach(tbl, new_rlbl("Head equipment"), 0, y, 1, 1);
-        gtk_grid_attach(tbl, GTK_WIDGET(robot_head_equipment), 1, y, 1, 1);
-        y++;
-
-        gtk_grid_attach(tbl, new_rlbl("Head"), 0, y, 1, 1);
-        gtk_grid_attach(tbl, GTK_WIDGET(robot_head), 1, y, 1, 1);
-        y++;
-
-        gtk_grid_attach(tbl, new_rlbl("Back equipment"), 0, y, 1, 1);
-        gtk_grid_attach(tbl, GTK_WIDGET(robot_back_equipment), 1, y, 1, 1);
-        y++;
-
-        gtk_grid_attach(tbl, new_rlbl("Front equipment"), 0, y, 1, 1);
-        gtk_grid_attach(tbl, GTK_WIDGET(robot_front_equipment), 1, y, 1, 1);
-        y++;
-
-        gtk_grid_attach(tbl, new_rlbl("Feet"), 0, y, 1, 1);
-        gtk_grid_attach(tbl, GTK_WIDGET(robot_feet), 1, y, 1, 1);
-        y++;
-
-        gtk_grid_attach(tbl, new_rlbl("Bolt set"), 0, y, 1, 1);
-        gtk_grid_attach(tbl, GTK_WIDGET(robot_bolts), 1, y, 1, 1);
-        y++;
-
-        {
-            /*                                         equipped        name           ID */
-            robot_ls_equipment = gtk_list_store_new(3, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_INT);
-            GtkTreeModel *model = GTK_TREE_MODEL(robot_ls_equipment);
-
-            robot_tv_equipment = GTK_TREE_VIEW(gtk_tree_view_new_with_model(model));
-
-            GtkCellRenderer *renderer;
-            GtkTreeViewColumn *column;
-            model = gtk_tree_view_get_model(robot_tv_equipment);
-
-            renderer = gtk_cell_renderer_toggle_new();
-            g_signal_connect(renderer, "toggled", G_CALLBACK(robot_item_toggled), model);
-            column = gtk_tree_view_column_new_with_attributes(
-                "Equipped",
-                renderer,
-                "active",
-                ROBOT_COLUMN_EQUIPPED,
-                NULL
-            );
-            gtk_tree_view_column_set_sizing(GTK_TREE_VIEW_COLUMN(column), GTK_TREE_VIEW_COLUMN_FIXED);
-            gtk_tree_view_append_column(robot_tv_equipment, column);
-
-            renderer = gtk_cell_renderer_text_new();
-            column = gtk_tree_view_column_new_with_attributes(
-                "Item",
-                renderer,
-                "text",
-                ROBOT_COLUMN_ITEM,
-                NULL
-            );
-            gtk_tree_view_column_set_expand(column, true);
-            gtk_tree_view_column_set_sort_column_id(column, 2);
-            gtk_tree_view_append_column(robot_tv_equipment, column);
-        }
-
-        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
-        gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
-        gtk_box_set_spacing(GTK_BOX(button_box), 5);
-
-        robot_btn_ok = GTK_BUTTON(gtk_button_new_with_label("OK"));
-        g_signal_connect(
-            robot_btn_ok, "clicked",
-            G_CALLBACK(on_robot_btn_click), NULL
-        );
-
-        robot_btn_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(
-            robot_btn_cancel, "clicked",
-            G_CALLBACK(on_robot_btn_click), NULL
-        );
-
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(robot_btn_ok));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(robot_btn_cancel));
-
-        GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-
-        GtkScrolledWindow *robot_tv_equipment_scroll = GTK_SCROLLED_WINDOW(
-            gtk_scrolled_window_new(NULL, NULL)
-        );
-        gtk_container_add(
-            GTK_CONTAINER(robot_tv_equipment_scroll),
-            GTK_WIDGET(robot_tv_equipment)
-        );
-        gtk_scrolled_window_set_propagate_natural_width(
-            robot_tv_equipment_scroll, true
-        );
-        gtk_scrolled_window_set_policy(
-            robot_tv_equipment_scroll,
-            GTK_POLICY_NEVER,
-            GTK_POLICY_AUTOMATIC
-        );
-
-        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(tbl), true, true, 0);
-        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(robot_tv_equipment_scroll), true, true, 0);
-
-        gtk_box_pack_start(content, GTK_WIDGET(hbox), true, true, 0);
-        gtk_box_pack_start(content, GTK_WIDGET(button_box), 0, 0, 0);
-
-        gtk_container_add(GTK_CONTAINER(robot_window), GTK_WIDGET(content));
-    }
-
     /** --Synth **/
     {
         synth_dialog = new_dialog_defaults("Synthesizer", &on_synth_show, &on_synth_keypress);
@@ -2330,11 +1828,6 @@ static gboolean _open_multiemitter_dialog(gpointer unused) {
 static gboolean _open_object_dialog(gpointer unused) {
     object_window_multiemitter = false;
     activate_object(NULL, 0);
-    return false;
-}
-
-static gboolean _open_robot_window(gpointer unused) {
-    gtk_widget_show_all(GTK_WIDGET(robot_window));
     return false;
 }
 
@@ -2687,11 +2180,7 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiPkgLvlSelector::open();
             break;
         case DIALOG_ROBOT:
-#ifdef PRINCIPIA_BACKEND_IMGUI
             UiRobot::open();
-#else
-            gdk_threads_add_idle(_open_robot_window, 0);
-#endif
             break;
         case DIALOG_TIMER:
             UiTimer::open();
@@ -2911,9 +2400,9 @@ void ui::render() {
     UiExport::layout();
     UiTreasureChest::layout();
     UiLevelProperties::layout();
+    UiRobot::layout();
 
 #ifdef PRINCIPIA_BACKEND_IMGUI
-    UiRobot::layout();
     UiSynthesizer::layout();
 #endif
 
