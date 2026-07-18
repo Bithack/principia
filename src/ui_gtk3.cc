@@ -4,7 +4,6 @@
  * more time than absolutely necessary on this backend.
  */
 
-#include "display.hh"
 #include "faction.hh"
 #include "factory.hh"
 #include "game.hh"
@@ -127,20 +126,6 @@ enum {
   FACTORY_COLUMN_RECIPE_ID,
 };
 
-/** --Digital Display **/
-GtkDialog       *digi_dialog;
-GtkCheckButton  *digi_wrap;
-GtkToggleButton *digi_check[7][5];
-GtkSpinButton   *digi_initial;
-
-GtkLabel   *digi_label;
-
-GtkButton   *digi_prev;
-GtkButton   *digi_next;
-GtkButton   *digi_insert;
-GtkButton   *digi_append;
-GtkButton   *digi_delete;
-
 /** --SFX Emitter **/
 GtkDialog       *sfx_dialog;
 GtkComboBoxText *sfx_cb;
@@ -170,12 +155,6 @@ GtkRange       *synth_vol_vibrato_extent;
 GtkRange       *synth_pulse_width;
 
 GtkComboBoxText *synth_waveform;
-
-gboolean on_digi_next_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data);
-gboolean on_digi_prev_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data);
-gboolean on_digi_insert_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data);
-gboolean on_digi_append_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data);
-gboolean on_digi_delete_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data);
 
 static gboolean on_window_close(GtkWidget *w, void *unused) {
     P.focused = true;
@@ -221,35 +200,12 @@ static GtkComboBoxText *new_item_cb() {
     return cb;
 }
 
-static void item_cb_append(GtkComboBoxText *cb, uint32_t item_id, bool first_is_none) {
-    GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(cb));
-    int num = gtk_tree_model_iter_n_children(model, 0);
-
-    if (first_is_none && num == 0)
-        gtk_combo_box_text_append_text(cb, "None");
-    else
-        gtk_combo_box_text_append_text(cb, item::get_ui_name(item_id));
-}
-
-static void clear_cb(GtkComboBoxText *cb) {
-    GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(cb));
-    gtk_list_store_clear(GTK_LIST_STORE(model));
-}
-
 static GtkButton *new_lbtn(const char *text, gboolean (*on_click)(GtkWidget*, GdkEventButton*, gpointer)) {
     GtkButton *btn = GTK_BUTTON(gtk_button_new_with_label(text));
     g_signal_connect(btn, "clicked",
             G_CALLBACK(on_click), 0);
 
     return btn;
-}
-
-static GtkWidget *new_clbl(const char *text) {
-    GtkWidget *r = gtk_label_new(0);
-    gtk_label_set_markup(GTK_LABEL(r), text);
-    gtk_label_set_xalign(GTK_LABEL(r), 0.0f);
-    gtk_label_set_yalign(GTK_LABEL(r), 0.5f);
-    return r;
 }
 
 static GtkWidget *new_rlbl(const char *text) {
@@ -365,115 +321,6 @@ bool btn_pressed(GtkWidget *ref, GtkButton *btn, gpointer user_data) {
     );
 }
 
-/** --digital display **/
-
-uint64_t symbols[DISPLAY_MAX_SYMBOLS];
-int num_digi_symbols = 0;
-int curr_digi_symbol = 0;
-
-void digi_load_symbols() {
-    display *e = (display*)G->selection.e;
-
-    num_digi_symbols = e->num_symbols;
-    curr_digi_symbol = e->properties[1].v.i8;
-
-    memcpy(symbols, e->symbols, DISPLAY_MAX_SYMBOLS*sizeof(uint64_t));
-}
-
-void digi_refresh_symbol() {
-    char txt[256];
-
-    if (curr_digi_symbol < 0) curr_digi_symbol = num_digi_symbols-1;
-    else if (curr_digi_symbol >= num_digi_symbols) curr_digi_symbol = 0;
-
-    sprintf(txt, "<b>Symbol %d/%d</b>", curr_digi_symbol+1, num_digi_symbols);
-    gtk_label_set_markup(GTK_LABEL(digi_label), txt);
-
-    for (int y=0; y<7; y++) {
-        for (int x=0; x<5; x++) {
-            gtk_toggle_button_set_active(
-                GTK_TOGGLE_BUTTON(digi_check[y][x]),
-                (symbols[curr_digi_symbol] & (1ull << ((uint64_t)y*5ull + (uint64_t)x))) ? true : false
-            );
-        }
-    }
-}
-
-void on_digi_toggle(GtkToggleButton *togglebutton, gpointer user_data) {
-    uint64_t which = (uint64_t)user_data;
-
-    if (gtk_toggle_button_get_active(togglebutton))
-        symbols[curr_digi_symbol] |= (1ull << which);
-    else
-        symbols[curr_digi_symbol] &= ~(1ull << which);
-}
-
-gboolean on_digi_next_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    curr_digi_symbol ++;
-    digi_refresh_symbol();
-    return false;
-}
-
-gboolean on_digi_prev_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    curr_digi_symbol --;
-    digi_refresh_symbol();
-    return false;
-}
-
-gboolean on_digi_insert_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (num_digi_symbols < DISPLAY_MAX_SYMBOLS) {
-        num_digi_symbols ++;
-
-        size_t sz = (num_digi_symbols - curr_digi_symbol - 1)*sizeof(uint64_t);
-        if (sz > 0)
-            memcpy(&symbols[curr_digi_symbol+1], &symbols[curr_digi_symbol], sz);
-        memset(&symbols[curr_digi_symbol], 0, sizeof(uint64_t));
-        digi_refresh_symbol();
-    }
-    return false;
-}
-
-gboolean on_digi_append_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (num_digi_symbols < DISPLAY_MAX_SYMBOLS) {
-        num_digi_symbols ++;
-        digi_refresh_symbol();
-    }
-    return false;
-}
-
-gboolean on_digi_delete_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (num_digi_symbols > 1) {
-        if (curr_digi_symbol == num_digi_symbols-1) {
-            num_digi_symbols --;
-        } else {
-            size_t sz = (num_digi_symbols - (curr_digi_symbol+1))*sizeof(uint64_t);
-            if (sz > 0) {
-                memcpy(&symbols[curr_digi_symbol], &symbols[curr_digi_symbol+1], sz);
-            }
-            num_digi_symbols --;
-        }
-        digi_refresh_symbol();
-    }
-    return false;
-}
-
-void on_digi_show(GtkWidget *wdg, void *unused) {
-    entity *e = G->selection.e;
-
-    if (e && (e->g_id == O_PASSIVE_DISPLAY || e->g_id == O_ACTIVE_DISPLAY)) {
-
-        digi_load_symbols();
-        digi_refresh_symbol();
-
-        gtk_spin_button_set_value(digi_initial, e->properties[1].v.i8+1);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(digi_wrap), e->properties[0].v.i8);
-
-        if (e->g_id == O_ACTIVE_DISPLAY)
-            gtk_widget_set_sensitive(GTK_WIDGET(digi_wrap), false);
-        else
-            gtk_widget_set_sensitive(GTK_WIDGET(digi_wrap), true);
-    }
-}
 
 /** --Synthesizer **/
 void on_synth_show(GtkWidget *wdg, void *unused) {
@@ -1311,112 +1158,6 @@ int _gtk_loop(void *p) {
         add_text_column(open_state_treeview, "Modified", OSC_NAME);
     }
 
-    /** --Digital display **/
-    {
-        digi_dialog = new_dialog_defaults("Display settings", &on_digi_show);
-
-        gtk_widget_set_size_request(GTK_WIDGET(digi_dialog), 200, 450);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(digi_dialog));
-        gtk_box_set_spacing(GTK_BOX(content), 7);
-
-        {
-            GtkBox *spin = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
-            digi_wrap = GTK_CHECK_BUTTON(gtk_check_button_new());
-            gtk_box_pack_start(GTK_BOX(spin), new_lbl("<b>Wrap around</b>"), false, false, 0);
-            gtk_box_pack_start(GTK_BOX(spin), GTK_WIDGET(digi_wrap), false, false, 0);
-            gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(spin), false, false, 0);
-        }
-        {
-            GtkBox *spin = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
-            digi_initial = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                    GTK_ADJUSTMENT(gtk_adjustment_new(1, 1, 40, 1, 1, 0)),
-                    1, 0));
-            gtk_box_pack_start(GTK_BOX(spin), new_lbl("<b>Initial position</b>"), false, false, 0);
-            gtk_box_pack_start(GTK_BOX(spin), GTK_WIDGET(digi_initial), false, false, 0);
-            gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(spin), false, false, 0);
-        }
-
-        {
-            digi_label = GTK_LABEL(new_clbl("<b>Symbol 1/36</b>"));
-
-            GtkGrid *tbl_symbol = GTK_GRID(gtk_grid_new());
-
-            gtk_grid_set_row_homogeneous(tbl_symbol, true);
-            gtk_grid_set_column_homogeneous(tbl_symbol, true);
-            gtk_grid_set_row_spacing(tbl_symbol, 0);
-            gtk_grid_set_column_spacing(tbl_symbol, 0);
-
-            for (int y=0; y < 7; y++) {
-                for (int x=0; x < 5; x++) {
-                    //Create ToggleButton
-                    GtkToggleButton* check = GTK_TOGGLE_BUTTON(gtk_toggle_button_new());
-                    gtk_toggle_button_set_mode(check, false);
-                    digi_check[y][x] = check;
-
-                    //Add .display-cell class
-                    GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(check));
-                    gtk_style_context_add_class(context, "display-cell");
-
-                    //Add to table
-                    gtk_grid_attach(
-                        tbl_symbol,
-                        GTK_WIDGET(check),
-                        x, y, 1, 1
-                    );
-
-                    //Connect toggled signal
-                    g_signal_connect(
-                        check, "toggled",
-                        G_CALLBACK(on_digi_toggle),
-                        (void*)(uintptr_t)((y * 5) + x)
-                    );
-                }
-            }
-
-            //Create aspect frame and put tbl_symbol into it, to ensure perfect aspect ratio
-            GtkAspectFrame* aspect_frame = GTK_ASPECT_FRAME(gtk_aspect_frame_new(NULL, .5f, .5f, 5.f / 7.f, false));
-            gtk_container_add(GTK_CONTAINER(aspect_frame), GTK_WIDGET(tbl_symbol));
-
-            gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(digi_label), false, false, 0);
-            gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(aspect_frame), true, true, 0);
-        }
-
-        {
-            GtkBox *btns = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-
-            digi_prev = GTK_BUTTON(gtk_button_new_with_label("Previous"));
-            gtk_box_pack_start(GTK_BOX(btns), GTK_WIDGET(digi_prev), false, false, 0);
-            g_signal_connect(digi_prev, "clicked", G_CALLBACK(on_digi_prev_click), 0);
-
-            digi_next = GTK_BUTTON(gtk_button_new_with_label("Next"));
-            gtk_box_pack_start(GTK_BOX(btns), GTK_WIDGET(digi_next), false, false, 0);
-            g_signal_connect(digi_next, "clicked", G_CALLBACK(on_digi_next_click), 0);
-            gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(btns), false, false, 0);
-
-            btns = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
-
-            digi_insert = GTK_BUTTON(gtk_button_new_with_label("Insert before"));
-            gtk_box_pack_start(GTK_BOX(btns), GTK_WIDGET(digi_insert), false, false, 0);
-            g_signal_connect(digi_insert, "clicked", G_CALLBACK(on_digi_insert_click), 0);
-
-            digi_append = GTK_BUTTON(gtk_button_new_with_label("Append"));
-            gtk_box_pack_start(GTK_BOX(btns), GTK_WIDGET(digi_append), false, false, 0);
-            g_signal_connect(digi_append, "clicked", G_CALLBACK(on_digi_append_click), 0);
-
-            gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(btns), false, false, 0);
-            btns = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5));
-
-            digi_delete = GTK_BUTTON(gtk_button_new_with_label("Delete current symbol"));
-            gtk_box_pack_start(GTK_BOX(btns), GTK_WIDGET(digi_delete), false, false, 0);
-            g_signal_connect(digi_delete, "clicked", G_CALLBACK(on_digi_delete_click), 0);
-
-            gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(btns), false, false, 0);
-        }
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
     /** --SFX Emitter 2 **/
     {
         dialog = new_dialog_defaults("SFX Emitter", &on_sfx2_show);
@@ -1885,41 +1626,6 @@ static gboolean _open_multi_config(gpointer unused) {
     return false;
 }
 
-static gboolean _open_digi_window(gpointer unused) {
-    gint result = gtk_dialog_run(digi_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-        if (e && (e->g_id == O_PASSIVE_DISPLAY || e->g_id == O_ACTIVE_DISPLAY)) {
-            e->properties[0].v.i8 = (uint8_t)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(digi_wrap));
-            e->properties[1].v.i8 = gtk_spin_button_get_value(digi_initial)-1;
-
-            char str[DISPLAY_MAX_SYMBOLS*35+1];
-            int ss=0;
-
-            for (int s=0; s<num_digi_symbols; s++) {
-                for (int y=0; y<7; y++) {
-                    for (int x=0; x<5; x++) {
-                        if (symbols[s] & (1ull << (uint64_t)(y*5+x)))
-                            str[ss] = '1';
-                        else
-                            str[ss] = '0';
-                        ss++;
-                    }
-                }
-            }
-
-            str[ss] = '\0';
-            e->set_property(2, str);
-            ((display*)e)->load_symbols();
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(digi_dialog));
-
-    return false;
-}
-
 static gboolean _open_sfx_window(gpointer unused) {
     gint result = gtk_dialog_run(sfx_dialog);
 
@@ -2157,9 +1863,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_STICKY:
             UiSticky::open();
             break;
-#ifndef PRINCIPIA_BACKEND_IMGUI
-        case DIALOG_DIGITALDISPLAY: gdk_threads_add_idle(_open_digi_window, 0); break;
-#endif
+        case DIALOG_DIGITALDISPLAY:
+            UiDigitalDisplay::open();
+            break;
         case DIALOG_FXEMITTER:
             UiFXEmitter::open();
             break;
@@ -2401,6 +2107,7 @@ void ui::render() {
     UiTreasureChest::layout();
     UiLevelProperties::layout();
     UiRobot::layout();
+    UiDigitalDisplay::layout();
 
 #ifdef PRINCIPIA_BACKEND_IMGUI
     UiSynthesizer::layout();

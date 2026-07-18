@@ -60,3 +60,4 @@ namespace UiPromptSettings  { void open(); void layout(); }
 namespace UiSoundManager    { void open(); void layout(); }
 namespace UiSequencer       { void open(); void layout(); }
 namespace UiExport          { void open(); void layout(); }
+namespace UiDigitalDisplay  { void open(); void layout(); }
