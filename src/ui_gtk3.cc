@@ -9,7 +9,6 @@
 #include "menu-play.hh"
 #include "object_factory.hh"
 #include "pkgman.hh"
-#include "speaker.hh"
 #include "ui.hh"
 #include <SDL3/SDL.h>
 #include <tms/cpp.hh>
@@ -46,18 +45,6 @@ enum {
     OSC_ID_TYPE,
 
     OSC_NUM_COLUMNS
-};
-
-static guint valid_keys[9] = {
-    GDK_KEY_1,
-    GDK_KEY_2,
-    GDK_KEY_3,
-    GDK_KEY_4,
-    GDK_KEY_5,
-    GDK_KEY_6,
-    GDK_KEY_7,
-    GDK_KEY_8,
-    GDK_KEY_9
 };
 
 /** --Open state **/
@@ -105,24 +92,6 @@ GtkTreeView  *object_treeview;
 GtkButton    *object_btn_open;
 GtkButton    *object_btn_cancel;
 
-
-/** --Synthesizer **/
-GtkDialog       *synth_dialog;
-GtkSpinButton   *synth_hz_low;
-GtkSpinButton   *synth_hz_high;
-
-GtkRange       *synth_bitcrushing;
-
-GtkRange       *synth_freq_vibrato_hz;
-GtkRange       *synth_freq_vibrato_extent;
-
-GtkRange       *synth_vol_vibrato_hz;
-GtkRange       *synth_vol_vibrato_extent;
-
-GtkRange       *synth_pulse_width;
-
-GtkComboBoxText *synth_waveform;
-
 static gboolean on_window_close(GtkWidget *w, void *unused) {
     P.focused = true;
     gtk_widget_hide(w);
@@ -155,18 +124,6 @@ static GtkWidget *new_lbl(const char *text) {
     return r;
 }
 
-static GtkComboBoxText *new_item_cb() {
-    GtkListStore *store;
-    GtkComboBoxText *cb;
-
-    store = gtk_list_store_new(1, G_TYPE_STRING);
-
-    cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-    g_object_unref(store);
-
-    return cb;
-}
-
 static GtkButton *new_lbtn(const char *text, gboolean (*on_click)(GtkWidget*, GdkEventButton*, gpointer)) {
     GtkButton *btn = GTK_BUTTON(gtk_button_new_with_label(text));
     g_signal_connect(btn, "clicked",
@@ -175,13 +132,6 @@ static GtkButton *new_lbtn(const char *text, gboolean (*on_click)(GtkWidget*, Gd
     return btn;
 }
 
-static GtkWidget *new_rlbl(const char *text) {
-    GtkWidget *r = gtk_label_new(0);
-    gtk_label_set_markup(GTK_LABEL(r), text);
-    gtk_label_set_xalign(GTK_LABEL(r), 1.0f);
-    gtk_label_set_yalign(GTK_LABEL(r), 0.5f);
-    return r;
-}
 
 static void notebook_append(GtkNotebook *nb, const char *title, GtkBox *base) {
     gtk_notebook_append_page(nb, GTK_WIDGET(base), new_lbl(title));
@@ -201,63 +151,6 @@ static void apply_dialog_defaults(
 
     if (on_keypress)
         g_signal_connect(w, "key-press-event", G_CALLBACK(on_keypress), 0);
-}
-
-static GtkGrid *create_settings_table() {
-    GtkGrid *tbl = GTK_GRID(gtk_grid_new());
-
-    gtk_grid_set_column_spacing(tbl, 15);
-    gtk_grid_set_row_spacing(tbl, 6);
-
-    gtk_grid_set_column_homogeneous(tbl, false);
-    gtk_grid_set_row_homogeneous(tbl, false);
-
-    g_object_set (
-        G_OBJECT(tbl),
-        "margin", 10,
-        NULL
-    );
-
-    return tbl;
-}
-
-static void add_setting_row(GtkGrid *tbl, int y, const char *label, GtkWidget *widget, const char *help_text = NULL) {
-    //label
-    gtk_grid_attach(
-        tbl, new_rlbl(label),
-        0, y,
-        1, 1
-    );
-
-    //widget
-    gtk_widget_set_hexpand(widget, true);
-    gtk_grid_attach(
-        tbl, widget,
-        1, y,
-        1, 1
-    );
-
-    //help
-    if (help_text) {
-        gtk_grid_attach(
-            tbl, help_widget(help_text),
-            2, y,
-            1, 1
-        );
-    }
-}
-
-static GtkDialog *new_dialog_defaults(const char *title, GtkCallback on_show=0, gboolean (*on_keypress)(GtkWidget*, GdkEventKey*, gpointer)=0) {
-    GtkWidget *r = gtk_dialog_new_with_buttons(
-            title,
-            0, (GtkDialogFlags)(0),
-            "_OK", GTK_RESPONSE_ACCEPT,
-            "_Cancel", GTK_RESPONSE_REJECT,
-            NULL);
-
-    apply_dialog_defaults(r, on_show, on_keypress);
-
-    return GTK_DIALOG(r);
 }
 
 static GtkWindow *new_window_defaults(const char *title, GtkCallback on_show=0, gboolean (*on_keypress)(GtkWidget*, GdkEventKey*, gpointer)=0) {
@@ -286,30 +179,6 @@ bool btn_pressed(GtkWidget *ref, GtkButton *btn, gpointer user_data) {
             GPOINTER_TO_INT(user_data) == 1
         )
     );
-}
-
-
-/** --Synthesizer **/
-void on_synth_show(GtkWidget *wdg, void *unused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_SYNTHESIZER) {
-        float low = e->properties[0].v.f;
-        float high = e->properties[1].v.f;
-        gtk_spin_button_set_value(synth_hz_low, low);
-        gtk_spin_button_set_value(synth_hz_high, high);
-
-        gtk_range_set_value(synth_bitcrushing, e->properties[3].v.f);
-
-        gtk_range_set_value(synth_pulse_width, e->properties[8].v.f);
-        gtk_range_set_value(synth_vol_vibrato_hz, e->properties[4].v.f);
-        gtk_range_set_value(synth_freq_vibrato_hz, e->properties[5].v.f);
-        gtk_range_set_value(synth_vol_vibrato_extent, e->properties[6].v.f);
-        gtk_range_set_value(synth_freq_vibrato_extent, e->properties[7].v.f);
-        gtk_combo_box_set_active(GTK_COMBO_BOX(synth_waveform), e->properties[2].v.i);
-
-        gtk_widget_grab_focus(GTK_WIDGET(synth_hz_low));
-    }
 }
 
 void on_object_show(GtkWidget *wdg, void *unused) {
@@ -554,52 +423,6 @@ gboolean on_object_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
     return false;
 }
 
-gboolean on_synth_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape)
-        gtk_widget_hide(w);
-    else if (key->keyval == GDK_KEY_Return) {
-        /* duplicate code from _open_synth */
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_SYNTHESIZER) {
-            gtk_spin_button_update(synth_hz_low);
-            gtk_spin_button_update(synth_hz_high);
-            //gtk_spin_button_update(synth_vol_vibrato);
-            //gtk_spin_button_update(synth_freq_vibrato);
-            //gtk_spin_button_update(synth_bitcrushing);
-            float low = gtk_spin_button_get_value(synth_hz_low);
-            float high = gtk_spin_button_get_value(synth_hz_high);
-            float pw = gtk_range_get_value(synth_pulse_width);
-            float vb = gtk_range_get_value(synth_vol_vibrato_hz);
-            float fb = gtk_range_get_value(synth_freq_vibrato_hz);
-            float vba = gtk_range_get_value(synth_vol_vibrato_extent);
-            float fba = gtk_range_get_value(synth_freq_vibrato_extent);
-            float bitcrushing = gtk_range_get_value(synth_bitcrushing);
-
-            if (high < low) high = low;
-
-            e->properties[0].v.f = low;
-            e->properties[1].v.f = high;
-
-            int index = gtk_combo_box_get_active(GTK_COMBO_BOX(synth_waveform));
-
-            e->properties[2].v.i = index;
-
-            e->properties[3].v.f = bitcrushing;
-            e->properties[4].v.f = vb;
-            e->properties[5].v.f = fb;
-
-            e->properties[6].v.f = vba;
-            e->properties[7].v.f = fba;
-
-            e->properties[8].v.f = pw;
-        }
-        gtk_widget_hide(w);
-    }
-
-    return false;
-}
-
 gboolean on_open_state_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
     if (key->keyval == GDK_KEY_Escape)
         gtk_widget_hide(w);
@@ -787,10 +610,6 @@ int _gtk_loop(void *p) {
         "gtk-tooltip-timeout", 100,
         NULL
     );
-
-    GtkDialog *dialog;
-
-    /** --Menu **/
 
     /** --Open object **/
     {
@@ -1015,100 +834,6 @@ int _gtk_loop(void *p) {
         gtk_container_add(GTK_CONTAINER(multi_config_window), GTK_WIDGET(content));
     }
 
-    /** --Synth **/
-    {
-        synth_dialog = new_dialog_defaults("Synthesizer", &on_synth_show, &on_synth_keypress);
-
-        gtk_widget_set_size_request(GTK_WIDGET(synth_dialog), 350, -1);
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(synth_dialog));
-
-        GtkGrid *tbl_settings = create_settings_table();
-        {
-            int y = -1;
-
-            synth_hz_low = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                        GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 440*8, 20, .1, 0)),
-                        50, 0));
-
-            synth_hz_high = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                        GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 440*8, 20, .1, 0)),
-                        50, 0));
-
-            synth_bitcrushing = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 64, 1));
-
-            synth_pulse_width = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 1., .01f));
-
-            synth_freq_vibrato_hz = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 32, 1));
-            synth_freq_vibrato_extent = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 1., .01));
-
-            synth_vol_vibrato_hz = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 32, 1));
-            synth_vol_vibrato_extent = GTK_RANGE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 1, .01));
-
-            synth_waveform = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-
-            for (int x=0; x<NUM_WAVEFORMS; ++x) {
-                gtk_combo_box_text_append_text(synth_waveform, speaker_options[x]);
-            }
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Base frequency",
-                GTK_WIDGET(synth_hz_low)
-            );
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Peak frequency",
-                GTK_WIDGET(synth_hz_high)
-            );
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Waveform",
-                GTK_WIDGET(synth_waveform)
-            );
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Pulse width",
-                GTK_WIDGET(synth_pulse_width)
-            );
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Bitcrushing",
-                GTK_WIDGET(synth_bitcrushing)
-            );
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Volume vibrato Hz",
-                GTK_WIDGET(synth_vol_vibrato_hz)
-            );
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Volume vibrato extent",
-                GTK_WIDGET(synth_vol_vibrato_extent)
-            );
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Freq vibrato Hz",
-                GTK_WIDGET(synth_freq_vibrato_hz)
-            );
-
-            add_setting_row(
-                tbl_settings, ++y,
-                "Freq vibrato extent",
-                GTK_WIDGET(synth_freq_vibrato_extent)
-            );
-        }
-
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(tbl_settings), false, false, 0);
-        gtk_widget_show_all(GTK_WIDGET(content));
-    }
-
     gdk_threads_add_idle(_sig_ui_ready, 0);
 
     gtk_main();
@@ -1142,48 +867,6 @@ static gboolean _open_object_dialog(gpointer unused) {
     return false;
 }
 
-/** --Synthesizer **/
-static gboolean _open_synth(gpointer unused) {
-    gint result = gtk_dialog_run(synth_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_SYNTHESIZER) {
-            float low = gtk_spin_button_get_value(synth_hz_low);
-            float high = gtk_spin_button_get_value(synth_hz_high);
-            float pw = gtk_range_get_value(synth_pulse_width);
-            float vb = gtk_range_get_value(synth_vol_vibrato_hz);
-            float fb = gtk_range_get_value(synth_freq_vibrato_hz);
-            float vbe = gtk_range_get_value(synth_vol_vibrato_extent);
-            float fbe = gtk_range_get_value(synth_freq_vibrato_extent);
-            float bitcrushing = gtk_range_get_value(synth_bitcrushing);
-
-            if (high < low) high = low;
-
-            e->properties[0].v.f = low;
-            e->properties[1].v.f = high;
-
-            int index = gtk_combo_box_get_active(GTK_COMBO_BOX(synth_waveform));
-
-            e->properties[2].v.i = index;
-
-            e->properties[3].v.f = bitcrushing;
-            e->properties[4].v.f = vb;
-            e->properties[5].v.f = fb;
-
-            e->properties[6].v.f = vbe;
-            e->properties[7].v.f = fbe;
-
-            e->properties[8].v.f = pw;
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(synth_dialog));
-
-    return false;
-}
-
 static gboolean _open_multi_config(gpointer unused) {
     g_object_set(
         G_OBJECT(multi_config_plastic_color),
@@ -1199,7 +882,6 @@ static gboolean _open_multi_config(gpointer unused) {
 static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(open_state_window));
     gtk_widget_hide(GTK_WIDGET(object_window));
-    gtk_widget_hide(GTK_WIDGET(synth_dialog));
     return false;
 }
 
@@ -1360,13 +1042,8 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_TIMER:
             UiTimer::open();
             break;
-
         case DIALOG_SYNTHESIZER:
-#ifdef PRINCIPIA_BACKEND_IMGUI
             UiSynthesizer::open();
-#else
-            gdk_threads_add_idle(_open_synth, 0);
-#endif
             break;
         case DIALOG_SEQUENCER:
             UiSequencer::open();
@@ -1578,10 +1255,7 @@ void ui::render() {
     UiFactory::layout();
     UiSfxEmitter::layout();
     UiSfxEmitterLegacy::layout();
-
-#ifdef PRINCIPIA_BACKEND_IMGUI
     UiSynthesizer::layout();
-#endif
 
     imgui_driver.post_render();
 }
