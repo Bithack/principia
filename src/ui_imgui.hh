@@ -61,3 +61,4 @@ namespace UiSoundManager    { void open(); void layout(); }
 namespace UiSequencer       { void open(); void layout(); }
 namespace UiExport          { void open(); void layout(); }
 namespace UiDigitalDisplay  { void open(); void layout(); }
+namespace UiFactory         { void open(); void layout(); }

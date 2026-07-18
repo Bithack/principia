@@ -4,10 +4,7 @@
  * more time than absolutely necessary on this backend.
  */
 
-#include "faction.hh"
-#include "factory.hh"
 #include "game.hh"
-#include "item.hh"
 #include "main.hh"
 #include "menu-play.hh"
 #include "object_factory.hh"
@@ -17,7 +14,6 @@
 #include "speaker.hh"
 #include "ui.hh"
 #include <SDL3/SDL.h>
-#include <sstream>
 #include <tms/cpp.hh>
 
 #if !defined(SDL_PLATFORM_ANDROID) && !defined(NO_UI)
@@ -110,21 +106,6 @@ GtkTreeModel *object_treemodel;
 GtkTreeView  *object_treeview;
 GtkButton    *object_btn_open;
 GtkButton    *object_btn_cancel;
-
-/** --Factory **/
-GtkDialog       *factory_dialog;
-GtkSpinButton   *factory_faction;
-GtkSpinButton   *factory_oil;
-GtkSpinButton   *factory_resources[NUM_RESOURCES];
-GtkListStore    *factory_liststore;
-GtkTreeView     *factory_treeview;
-GtkButton       *factory_cancel;
-enum {
-  FACTORY_COLUMN_ENABLED,
-  FACTORY_COLUMN_INDEX,
-  FACTORY_COLUMN_RECIPE,
-  FACTORY_COLUMN_RECIPE_ID,
-};
 
 /** --SFX Emitter **/
 GtkDialog       *sfx_dialog;
@@ -398,110 +379,6 @@ void on_sfx2_show(GtkWidget *wdg, void *ununused) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sfx2_loop), (e->properties[3].v.i8 == 1));
 
         gtk_combo_box_set_active(GTK_COMBO_BOX(sfx2_sub_cb), e->properties[2].v.i == SFX_CHUNK_RANDOM ? 0 : e->properties[2].v.i+1);
-    }
-}
-
-/** --Factory **/
-static void factory_calculate_indices() {
-    tms_debugf("Calculating indices...");
-    GtkTreeModel *model = GTK_TREE_MODEL(factory_liststore);
-    GtkTreeIter iter;
-    int index = 0;
-
-    if (gtk_tree_model_get_iter_first(
-            model,
-            &iter)) {
-        do {
-            GValue val = {0, };
-            gtk_tree_model_get_value(model,
-                                     &iter,
-                                     FACTORY_COLUMN_ENABLED,
-                                     &val);
-            gboolean enabled = g_value_get_boolean(&val);
-            if (enabled == TRUE) {
-                gtk_list_store_set(factory_liststore, &iter, FACTORY_COLUMN_INDEX, ++index, -1);
-            } else {
-                gtk_list_store_set(factory_liststore, &iter, FACTORY_COLUMN_INDEX, -1, -1);
-            }
-        } while (gtk_tree_model_iter_next(model, &iter));
-    }
-}
-
-static void factory_enable_toggled(GtkCellRendererToggle *cell, gchar *path_str, gpointer data) {
-    GtkTreeModel *model = (GtkTreeModel *)data;
-    GtkTreeIter iter;
-    GtkTreePath *path = gtk_tree_path_new_from_string(path_str);
-    gboolean fixed;
-
-    gtk_tree_model_get_iter(model, &iter, path);
-    gtk_tree_model_get(model, &iter, 0, &fixed, -1);
-
-    fixed ^= 1;
-
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, fixed, -1);
-
-    gtk_tree_path_free(path);
-
-    factory_calculate_indices();
-}
-
-gboolean on_factory_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape)
-        gtk_widget_hide(w);
-    else if (key->keyval == GDK_KEY_Return) {
-        if (gtk_widget_has_focus(GTK_WIDGET(factory_cancel))) {
-            gtk_dialog_response(factory_dialog, GTK_RESPONSE_CANCEL);
-        } else {
-            gtk_dialog_response(factory_dialog, GTK_RESPONSE_ACCEPT);
-        }
-    }
-
-    return false;
-}
-
-void on_factory_show(GtkWidget *wdg, void *ununused) {
-    entity *e = G->selection.e;
-
-    if (e && IS_FACTORY(e->g_id)) {
-        gtk_spin_button_set_value(factory_oil, e->properties[1].v.i);
-        gtk_spin_button_set_value(factory_faction, e->properties[2].v.i);
-        for (int x=0; x<NUM_RESOURCES; ++x) {
-            gtk_spin_button_set_value(factory_resources[x], e->properties[FACTORY_NUM_EXTRA_PROPERTIES+x].v.i);
-        }
-
-        factory *fa = static_cast<factory*>(e);
-
-        std::vector<struct factory_object> &objs = fa->objects();
-
-        gtk_list_store_clear(factory_liststore);
-
-        std::vector<uint32_t> recipes;
-        factory::generate_recipes(&recipes, fa->properties[0].v.s.buf);
-
-        GtkTreeIter iter;
-        for (std::vector<struct factory_object>::const_iterator it = objs.begin();
-                it != objs.end(); ++it) {
-            const struct factory_object &fo = *it;
-            int x = it - objs.begin();
-
-            gtk_list_store_append(factory_liststore, &iter);
-            gboolean enabled = FALSE;
-            for (std::vector<uint32_t>::iterator it = recipes.begin(); it != recipes.end(); ++it) {
-                if (*it == x) {
-                    enabled = TRUE;
-                    break;
-                }
-            }
-            gtk_list_store_set(factory_liststore, &iter,
-                    FACTORY_COLUMN_ENABLED, enabled,
-                    FACTORY_COLUMN_INDEX, -1,
-                    FACTORY_COLUMN_RECIPE, ((fa->factory_type == FACTORY_ARMORY || fa->factory_type == FACTORY_OIL_MIXER) ? item_options[fo.gid].name : of::get_object_name_by_gid(fo.gid)),
-                    FACTORY_COLUMN_RECIPE_ID, x,
-                    -1
-                    );
-        }
-
-        factory_calculate_indices();
     }
 }
 
@@ -1188,124 +1065,6 @@ int _gtk_loop(void *p) {
         sfx2_dialog = dialog;
     }
 
-    /** --Factory **/
-    {
-        dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(
-                "Factory",
-                0, (GtkDialogFlags)(0)/*GTK_DIALOG_MODAL*/,
-                "_OK", GTK_RESPONSE_ACCEPT,
-                NULL));
-        factory_cancel = GTK_BUTTON(gtk_dialog_add_button(dialog, "_Cancel", GTK_RESPONSE_REJECT));
-
-        apply_dialog_defaults(dialog);
-
-        gtk_widget_set_size_request(GTK_WIDGET(dialog), 450, 300);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-        GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-        GtkWidget *l;
-
-        GtkGrid *tbl = GTK_GRID(gtk_grid_new());
-
-        gtk_grid_set_row_spacing(tbl, 5);
-        gtk_grid_set_column_spacing(tbl, 5);
-
-        int x = 0;
-
-        l = gtk_label_new("Oil");
-        gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-        factory_oil = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                    GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 65535, 1, 1, 0)),
-                    1, 0));
-        gtk_grid_attach(tbl, l, 0, x, 1, 1);
-        gtk_grid_attach(tbl, GTK_WIDGET(factory_oil), 1, x, 1, 1);
-        ++x;
-
-        for (; x<NUM_RESOURCES+1; ++x) {
-            GtkWidget *l = gtk_label_new(resource_data[x-1].name);
-            gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-            gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-            factory_resources[x-1] = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                        GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, 65535, 1, 1, 0)),
-                        1, 0));
-            gtk_grid_attach(tbl, l, 0, x, 1, 1);
-            gtk_grid_attach(tbl, GTK_WIDGET(factory_resources[x-1]), 1, x, 1, 1);
-        }
-
-        l = gtk_label_new("Faction");
-        gtk_label_set_xalign(GTK_LABEL(l), 0.0f);
-        gtk_label_set_yalign(GTK_LABEL(l), 0.5f);
-        factory_faction = GTK_SPIN_BUTTON(gtk_spin_button_new(
-                    GTK_ADJUSTMENT(gtk_adjustment_new(1, 0, NUM_FACTIONS-1, 1, 1, 0)),
-                    1, 0));
-        gtk_grid_attach(tbl, l, 0, x, 1, 1);
-        gtk_grid_attach(tbl, GTK_WIDGET(factory_faction), 1, x, 1, 1);
-        ++x;
-
-        {
-            /*                                        Included        Order        Name,         ID */
-            factory_liststore = gtk_list_store_new(4, G_TYPE_BOOLEAN, G_TYPE_INT, G_TYPE_STRING, G_TYPE_INT);
-            GtkTreeModel *model = GTK_TREE_MODEL(factory_liststore);
-
-            factory_treeview = GTK_TREE_VIEW(gtk_tree_view_new_with_model(model));
-
-            GtkCellRenderer *renderer;
-            GtkTreeViewColumn *column;
-            model = gtk_tree_view_get_model(factory_treeview);
-
-            renderer = gtk_cell_renderer_toggle_new();
-            g_signal_connect(renderer, "toggled", G_CALLBACK(factory_enable_toggled), model);
-
-            column = gtk_tree_view_column_new_with_attributes(
-                "Enabled",
-                renderer,
-                "active", 0,
-                NULL
-            );
-            gtk_tree_view_append_column(factory_treeview, column);
-
-            renderer = gtk_cell_renderer_text_new();
-            column = gtk_tree_view_column_new_with_attributes(
-                "Index",
-                renderer,
-                "text",
-                1,
-                NULL
-            );
-            gtk_tree_view_column_set_sort_column_id(column, 1);
-            gtk_tree_view_append_column(factory_treeview, column);
-
-            renderer = gtk_cell_renderer_text_new();
-            column = gtk_tree_view_column_new_with_attributes(
-                "Recipe",
-                renderer,
-                "text",
-                2,
-                NULL
-            );
-            gtk_tree_view_column_set_sort_column_id(column, 2);
-            gtk_tree_view_column_set_expand(column, true);
-            gtk_tree_view_append_column(factory_treeview, column);
-        }
-
-        GtkWidget *sw = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
-                GTK_POLICY_AUTOMATIC,
-                GTK_POLICY_AUTOMATIC);
-        gtk_container_add(GTK_CONTAINER(sw), GTK_WIDGET(factory_treeview));
-
-        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(tbl), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(sw), true, true, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(hbox), true, true, 0);
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        g_signal_connect(dialog, "key-press-event", G_CALLBACK(on_factory_keypress), 0);
-        g_signal_connect(dialog, "show", G_CALLBACK(on_factory_show), 0);
-
-        factory_dialog = dialog;
-    }
-
     /** --SFX Emitter dialog **/
     {
         sfx_dialog = new_dialog_defaults("SFX Emitter", &on_sfx_show);
@@ -1669,66 +1428,6 @@ static gboolean _open_sfx2_window(gpointer unused) {
     return false;
 }
 
-/** --Factory **/
-static gboolean _open_factory(gpointer unused) {
-    GtkDialog *d = factory_dialog;
-
-    gint result = gtk_dialog_run(d);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && IS_FACTORY(e->g_id)) {
-            factory *f = static_cast<factory*>(e);
-
-            gtk_spin_button_update(factory_oil);
-            gtk_spin_button_update(factory_faction);
-
-            f->properties[1].v.i = gtk_spin_button_get_value(factory_oil);
-            f->properties[2].v.i = gtk_spin_button_get_value(factory_faction);
-            for (int x=0; x<NUM_RESOURCES; ++x) {
-                gtk_spin_button_update(factory_resources[x]);
-                f->properties[FACTORY_NUM_EXTRA_PROPERTIES+x].v.i = gtk_spin_button_get_value(factory_resources[x]);
-            }
-
-            GtkTreeModel *model = GTK_TREE_MODEL(factory_liststore);
-            GtkTreeIter iter;
-            int x = 0;
-            std::stringstream ss;
-
-            if (gtk_tree_model_get_iter_first(model, &iter)) {
-                do {
-                    GValue val = {0, };
-                    GValue val_id = {0, };
-                    gtk_tree_model_get_value(model, &iter, FACTORY_COLUMN_ENABLED, &val);
-                    gtk_tree_model_get_value(model, &iter, FACTORY_COLUMN_RECIPE_ID, &val_id);
-                    gboolean enabled = g_value_get_boolean(&val);
-                    gint id = g_value_get_int(&val_id);
-                    if (enabled == TRUE) {
-                        if (x != 0) {
-                            ss << ';';
-                        }
-
-                        ss << id;
-
-                        ++ x;
-                    }
-                } while (gtk_tree_model_iter_next(model, &iter));
-            }
-
-            f->set_property(0, ss.str().c_str());
-            tms_debugf("Recipe string: %s", f->properties[0].v.s.buf);
-
-            P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-            P.add_action(ACTION_RESELECT, 0);
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(d));
-
-    return false;
-}
-
 static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(open_state_window));
     gtk_widget_hide(GTK_WIDGET(object_window));
@@ -1923,9 +1622,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_VENDOR:
             UiVendor::open();
             break;
-#ifndef PRINCIPIA_BACKEND_IMGUI
-        case DIALOG_FACTORY:        gdk_threads_add_idle(_open_factory, 0); break;
-#endif
+        case DIALOG_FACTORY:
+            UiFactory::open();
+            break;
         case DIALOG_TREASURE_CHEST:
             UiTreasureChest::open();
             break;
@@ -2108,6 +1807,7 @@ void ui::render() {
     UiLevelProperties::layout();
     UiRobot::layout();
     UiDigitalDisplay::layout();
+    UiFactory::layout();
 
 #ifdef PRINCIPIA_BACKEND_IMGUI
     UiSynthesizer::layout();
