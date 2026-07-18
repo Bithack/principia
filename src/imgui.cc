@@ -103,19 +103,19 @@ static void update_imgui_ui_scale() {
 
 static void principia_style() {
     ImGui::StyleColorsDark();
-    ImGuiStyle *style = &ImGui::GetStyle();
-    ImVec4* colors = style->Colors;
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImVec4* colors = style.Colors;
+
+    colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.05f, 0.05f, 0.05f, 0.25f);
 
     //Rounding
-    style->FramePadding = ImVec2(10, 6);
-    style->ItemSpacing  = ImVec2(10, 8);
-    style->CellPadding  = ImVec2(10, 4);
-    style->FrameRounding  = style->GrabRounding  = 2.3f;
-    style->WindowRounding = style->PopupRounding = style->ChildRounding = 3.0f;
-
-    //style->FrameBorderSize = .5;
-
-    colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.05f, 0.05f, 0.05f, 0.35f);
+    style.FramePadding = ImVec2(10, 6);
+    style.ItemSpacing  = ImVec2(10, 8);
+    style.CellPadding  = ImVec2(10, 4);
+    style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
+    style.SeparatorTextBorderSize = style.SeparatorSize = 1.0f;
+    style.FrameRounding  = style.GrabRounding  = 2.3f;
+    style.WindowRounding = style.PopupRounding = style.ChildRounding = 3.0f;
 }
 
 //On debug builds, open imgui demo window by pressing Shift+F9
