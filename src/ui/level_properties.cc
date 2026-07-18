@@ -527,9 +527,9 @@ namespace UiLevelProperties {
         if (ImGui::BeginPopupModal("Level properties", REF_TRUE, MODAL_FLAGS)) {
 
             const float footer_height =
+                ImGui::GetStyle().SeparatorSize +
                 ImGui::GetFrameHeightWithSpacing() +
-                ImGui::GetStyle().ItemSpacing.y +
-                ImGui::GetStyle().WindowPadding.y * 1.5f;
+                ImGui::GetStyle().ItemSpacing.y;
 
             // Everything except the footer.
             ImGui::BeginChild("##properties", ImVec2(0, -footer_height), false);
@@ -556,7 +556,15 @@ namespace UiLevelProperties {
 
             ImGui::EndChild();
 
-            ImGui_ButtonBar(apply_properties);
+            ImGui::Separator();
+
+            if (ImGui_SaveButton())
+                apply_properties();
+
+            ImGui::SameLine();
+
+            if (ImGui_CancelButton())
+                ImGui::CloseCurrentPopup();
 
             ImGui::EndPopup();
         }
