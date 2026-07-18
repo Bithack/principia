@@ -9,8 +9,6 @@
 #include "menu-play.hh"
 #include "object_factory.hh"
 #include "pkgman.hh"
-#include "sfxemitter.hh"
-#include "soundmanager.hh"
 #include "speaker.hh"
 #include "ui.hh"
 #include <SDL3/SDL.h>
@@ -106,18 +104,6 @@ GtkTreeModel *object_treemodel;
 GtkTreeView  *object_treeview;
 GtkButton    *object_btn_open;
 GtkButton    *object_btn_cancel;
-
-/** --SFX Emitter **/
-GtkDialog       *sfx_dialog;
-GtkComboBoxText *sfx_cb;
-GtkCheckButton  *sfx_global;
-
-/** --SFX Emitter 2 **/
-GtkDialog       *sfx2_dialog;
-GtkComboBoxText *sfx2_cb;
-GtkComboBoxText *sfx2_sub_cb;
-GtkCheckButton  *sfx2_global;
-GtkCheckButton  *sfx2_loop;
 
 
 /** --Synthesizer **/
@@ -323,62 +309,6 @@ void on_synth_show(GtkWidget *wdg, void *unused) {
         gtk_combo_box_set_active(GTK_COMBO_BOX(synth_waveform), e->properties[2].v.i);
 
         gtk_widget_grab_focus(GTK_WIDGET(synth_hz_low));
-    }
-}
-
-/** --SFX Emitter **/
-void on_sfx_show(GtkWidget *wdg, void *ununused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_SFX_EMITTER) {
-        if (e->properties[0].v.i >= NUM_SFXEMITTER_OPTIONS) e->properties[0].v.i = NUM_SFXEMITTER_OPTIONS-1;
-
-        gtk_combo_box_set_active(GTK_COMBO_BOX(sfx_cb), e->properties[0].v.i);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sfx_global), (e->properties[1].v.i8 == 1));
-    }
-}
-
-/** --SFX Emitter 2 **/
-static void on_sfx2_cb_changed(GtkComboBoxText *cb, gpointer user_data) {
-    int index = gtk_combo_box_get_active(GTK_COMBO_BOX(cb));
-    if (index < 0) {
-        return;
-    }
-
-    GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(sfx2_sub_cb));
-    int num = gtk_tree_model_iter_n_children(model, 0);
-    for (int x=0; x<num; ++x) {
-        gtk_combo_box_text_remove(sfx2_sub_cb, 0);
-    }
-
-    const sm_sound *snd = sm::get_sound_by_id(index);
-
-    if (!snd) {
-        return;
-    }
-
-    gtk_combo_box_text_append_text(sfx2_sub_cb, "Random");
-    for (int x=0; x<snd->num_chunks; ++x) {
-        const sm_chunk &chunk = snd->chunks[x];
-
-        if (chunk.name) {
-            gtk_combo_box_text_append_text(sfx2_sub_cb, chunk.name);
-        }
-    }
-
-    gtk_combo_box_set_active(GTK_COMBO_BOX(sfx2_sub_cb), 0);
-}
-void on_sfx2_show(GtkWidget *wdg, void *ununused) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_SFX_EMITTER) {
-        if (e->properties[0].v.i >= SND__NUM) e->properties[0].v.i = SND__NUM-1;
-
-        gtk_combo_box_set_active(GTK_COMBO_BOX(sfx2_cb), e->properties[0].v.i);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sfx2_global), (e->properties[1].v.i8 == 1));
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sfx2_loop), (e->properties[3].v.i8 == 1));
-
-        gtk_combo_box_set_active(GTK_COMBO_BOX(sfx2_sub_cb), e->properties[2].v.i == SFX_CHUNK_RANDOM ? 0 : e->properties[2].v.i+1);
     }
 }
 
@@ -725,18 +655,6 @@ void activate_object(GtkMenuItem *i, gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(object_window));
 }
 
-void activate_controls(GtkMenuItem *i, gpointer unused) {
-    G->render_controls = true;
-}
-
-void activate_restart_level(GtkMenuItem *i, gpointer unused) {
-    P.add_action(ACTION_RESTART_LEVEL, 0);
-}
-
-void activate_back(GtkMenuItem *i, gpointer unused) {
-    P.add_action(ACTION_BACK, 0);
-}
-
 /** --Multi config **/
 static void on_multi_config_show(GtkWidget *wdg, void *unused) {
     gtk_range_set_value(GTK_RANGE(multi_config_joint_strength), 1.0);
@@ -860,63 +778,8 @@ static void on_multi_config_tab_changed(GtkNotebook *nb, GtkWidget *page, gint t
     gtk_widget_set_sensitive(GTK_WIDGET(multi_config_apply), (tab_num != TAB_MISCELLANEOUS));
 }
 
-const gchar* css_global = R"(
-    .display-cell {
-        border: none;
-        box-shadow: none;
-        border-radius: 0;
-        background: #101010;
-    }
-
-    .display-cell:checked {
-        background: #5fbd5a;
-    }
-
-    .code-editor {
-        font-family: "Cascadia Mono Normal", "Cascadia Mono", "Ubuntu Mono Normal", "Ubuntu Mono", monospace, mono;
-        font-size: 1.25em;
-    }
-)";
-
-void load_gtk_css() {
-    //Load global CSS
-    {
-        GtkCssProvider* css_provider = gtk_css_provider_new();
-        gtk_css_provider_load_from_data(
-            css_provider,
-            css_global,
-            -1, NULL
-        );
-        gtk_style_context_add_provider_for_screen(
-            gdk_screen_get_default(),
-            GTK_STYLE_PROVIDER(css_provider),
-            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
-        );
-    }
-
-    //Try to load debug.css in debug builds
-    #ifdef DEBUG
-    {
-        GtkCssProvider* css_provider = gtk_css_provider_new();
-        gtk_css_provider_load_from_path (
-            css_provider,
-            "debug.css",
-            NULL
-        );
-        gtk_style_context_add_provider_for_screen(
-            gdk_screen_get_default(),
-            GTK_STYLE_PROVIDER(css_provider),
-            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
-        );
-    }
-    #endif
-}
-
 int _gtk_loop(void *p) {
     gtk_init(NULL, NULL);
-
-    //Load CSS themes
-    load_gtk_css();
 
     g_object_set(
         gtk_settings_get_default(),
@@ -1033,56 +896,6 @@ int _gtk_loop(void *p) {
 
         add_text_column(open_state_treeview, "Name", OSC_ID);
         add_text_column(open_state_treeview, "Modified", OSC_NAME);
-    }
-
-    /** --SFX Emitter 2 **/
-    {
-        dialog = new_dialog_defaults("SFX Emitter", &on_sfx2_show);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(dialog));
-
-        sfx2_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-        for (int x=0; x<SND__NUM; x++) {
-            gtk_combo_box_text_append_text(sfx2_cb, sm::sound_lookup[x]->name);
-        }
-
-        sfx2_sub_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-
-        g_signal_connect(sfx2_cb, "changed", G_CALLBACK(on_sfx2_cb_changed), 0);
-
-        sfx2_global = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Global sound"));
-        sfx2_loop = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Loop"));
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Sound</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(sfx2_cb), false, false, 10);
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Sound chunk</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(sfx2_sub_cb), false, false, 10);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(sfx2_global), false, false, 10);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(sfx2_loop), false, false, 10);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
-
-        sfx2_dialog = dialog;
-    }
-
-    /** --SFX Emitter dialog **/
-    {
-        sfx_dialog = new_dialog_defaults("SFX Emitter", &on_sfx_show);
-
-        GtkBox *content = GTK_BOX(gtk_dialog_get_content_area(sfx_dialog));
-
-        sfx_cb = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
-        for (int x=0; x<NUM_SFXEMITTER_OPTIONS; x++) {
-            gtk_combo_box_text_append_text(sfx_cb, sfxemitter_options[x].name);
-        }
-
-        sfx_global = GTK_CHECK_BUTTON(gtk_check_button_new_with_label("Global sound"));
-
-        gtk_box_pack_start(GTK_BOX(content), new_lbl("<b>Sound</b>"), false, false, 0);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(sfx_cb), false, false, 10);
-        gtk_box_pack_start(GTK_BOX(content), GTK_WIDGET(sfx_global), false, false, 10);
-
-        gtk_widget_show_all(GTK_WIDGET(content));
     }
 
     /** --Multi config **/
@@ -1298,9 +1111,7 @@ int _gtk_loop(void *p) {
 
     gdk_threads_add_idle(_sig_ui_ready, 0);
 
-
     gtk_main();
-
 
     return T_OK;
 }
@@ -1381,49 +1192,6 @@ static gboolean _open_multi_config(gpointer unused) {
     );
 
     gtk_widget_show_all(GTK_WIDGET(multi_config_window));
-
-    return false;
-}
-
-static gboolean _open_sfx_window(gpointer unused) {
-    gint result = gtk_dialog_run(sfx_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_SFX_EMITTER) {
-            e->set_property(0, (uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(sfx_cb)));
-            e->set_property(1, (uint8_t)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sfx_global)));
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(sfx_dialog));
-
-    return false;
-}
-
-static gboolean _open_sfx2_window(gpointer unused) {
-    gint result = gtk_dialog_run(sfx2_dialog);
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        entity *e = G->selection.e;
-
-        if (e && e->g_id == O_SFX_EMITTER) {
-            e->set_property(0, (uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(sfx2_cb)));
-            e->set_property(1, (uint8_t)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sfx2_global)));
-            e->set_property(3, (uint8_t)gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sfx2_loop)));
-
-            uint32_t active_sub = (uint32_t)gtk_combo_box_get_active(GTK_COMBO_BOX(sfx2_sub_cb));
-
-            if (active_sub == 0) {
-                e->properties[2].v.i = SFX_CHUNK_RANDOM;
-            } else {
-                e->properties[2].v.i = active_sub - 1;
-            }
-        }
-    }
-
-    gtk_widget_hide(GTK_WIDGET(sfx2_dialog));
 
     return false;
 }
@@ -1571,10 +1339,12 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_EVENTLISTENER:
             UiEventListener::open();
             break;
-#ifndef PRINCIPIA_BACKEND_IMGUI
-        case DIALOG_SFXEMITTER:     gdk_threads_add_idle(_open_sfx_window, 0); break;
-        case DIALOG_SFXEMITTER_2:   gdk_threads_add_idle(_open_sfx2_window, 0); break;
-#endif
+        case DIALOG_SFXEMITTER:
+            UiSfxEmitterLegacy::open();
+            break;
+        case DIALOG_SFXEMITTER_2:
+            UiSfxEmitter::open();
+            break;
         case DIALOG_CAMTARGETER:
             UiCamTargeter::open();
             break;
@@ -1706,8 +1476,6 @@ void ui::emit_signal(int num, void *data/*=0*/) {
     wait_ui_ready();
 #endif
 
-    /* XXX this stuff probably needs to be added to gdk_threads_idle_add()! */
-
     switch (num) {
         case SIGNAL_LOGIN_SUCCESS:
             UiLogin::complete_login(num);
@@ -1808,6 +1576,8 @@ void ui::render() {
     UiRobot::layout();
     UiDigitalDisplay::layout();
     UiFactory::layout();
+    UiSfxEmitter::layout();
+    UiSfxEmitterLegacy::layout();
 
 #ifdef PRINCIPIA_BACKEND_IMGUI
     UiSynthesizer::layout();
