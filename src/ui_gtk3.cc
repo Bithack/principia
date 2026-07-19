@@ -7,7 +7,6 @@
 #include "game.hh"
 #include "main.hh"
 #include "menu-play.hh"
-#include "object_factory.hh"
 #include "pkgman.hh"
 #include "ui.hh"
 #include <SDL3/SDL.h>
@@ -19,8 +18,6 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
-
-static gboolean _close_all_dialogs(gpointer unused);
 
 bool   ui_ready = false;
 SDL_Condition  *ui_cond;
@@ -55,35 +52,6 @@ GtkButton    *open_state_btn_open;
 GtkButton    *open_state_btn_cancel;
 static bool   open_state_no_testplaying = false;
 
-/** --Multi config **/
-GtkWindow    *multi_config_window;
-GtkNotebook  *multi_config_nb;
-GtkButton    *multi_config_apply;
-GtkButton    *multi_config_cancel;
-int           multi_config_cur_tab = 0;
-enum {
-    TAB_JOINT_STRENGTH,
-    TAB_PLASTIC_COLOR,
-    TAB_PLASTIC_DENSITY,
-    TAB_CONNECTION_RENDER_TYPE,
-    TAB_MISCELLANEOUS,
-
-    NUM_MULTI_CONFIG_TABS
-};
-/* Joint strength */
-GtkScale    *multi_config_joint_strength;
-/* Plastic color */
-GtkColorChooserWidget *multi_config_plastic_color;
-/* Plastic density */
-GtkScale    *multi_config_plastic_density;
-/* Connection render type */
-GtkRadioButton  *multi_config_render_type_normal;
-GtkRadioButton  *multi_config_render_type_small;
-GtkRadioButton  *multi_config_render_type_hide;
-/* Miscellaneous */
-GtkButton       *multi_config_unlock_all;
-GtkButton       *multi_config_disconnect_all;
-
 /** --Open object **/
 bool         object_window_multiemitter;
 GtkWindow    *object_window;
@@ -98,12 +66,6 @@ static gboolean on_window_close(GtkWidget *w, void *unused) {
     return true;
 }
 
-static GtkWidget* help_widget(const char *text) {
-    GtkWidget *r = gtk_image_new_from_icon_name("help-about", GTK_ICON_SIZE_MENU); //16px
-    gtk_widget_set_tooltip_text(r, text);
-    return r;
-}
-
 static GtkCellRenderer *add_text_column(GtkTreeView *tv, const char *title, int id) {
     GtkCellRenderer *renderer;
     GtkTreeViewColumn *column;
@@ -115,26 +77,6 @@ static GtkCellRenderer *add_text_column(GtkTreeView *tv, const char *title, int 
     gtk_tree_view_append_column(tv, column);
 
     return renderer;
-}
-
-static GtkWidget *new_lbl(const char *text) {
-    GtkWidget *r = gtk_label_new(0);
-    gtk_label_set_markup(GTK_LABEL(r), text);
-
-    return r;
-}
-
-static GtkButton *new_lbtn(const char *text, gboolean (*on_click)(GtkWidget*, GdkEventButton*, gpointer)) {
-    GtkButton *btn = GTK_BUTTON(gtk_button_new_with_label(text));
-    g_signal_connect(btn, "clicked",
-            G_CALLBACK(on_click), 0);
-
-    return btn;
-}
-
-
-static void notebook_append(GtkNotebook *nb, const char *title, GtkBox *base) {
-    gtk_notebook_append_page(nb, GTK_WIDGET(base), new_lbl(title));
 }
 
 static void apply_dialog_defaults(
@@ -162,13 +104,6 @@ static GtkWindow *new_window_defaults(const char *title, GtkCallback on_show=0, 
     apply_dialog_defaults(r, on_show, on_keypress);
 
     return GTK_WINDOW(r);
-}
-
-static gchar *format_joint_strength(GtkScale *scale, gdouble value) {
-    if (value >= 1.0)
-        return g_strdup("Indestructible");
-    else
-        return g_strdup_printf("%0.*f", gtk_scale_get_digits(scale), value);
 }
 
 bool btn_pressed(GtkWidget *ref, GtkButton *btn, gpointer user_data) {
@@ -478,129 +413,6 @@ void activate_object(GtkMenuItem *i, gpointer unused) {
     gtk_widget_show_all(GTK_WIDGET(object_window));
 }
 
-/** --Multi config **/
-static void on_multi_config_show(GtkWidget *wdg, void *unused) {
-    gtk_range_set_value(GTK_RANGE(multi_config_joint_strength), 1.0);
-
-    bool any_entity_locked = false;
-
-    bool enabled_tabs[NUM_MULTI_CONFIG_TABS];
-    for (int x=0; x<NUM_MULTI_CONFIG_TABS; ++x) {
-        enabled_tabs[x] = false;
-    }
-
-    enabled_tabs[TAB_JOINT_STRENGTH]            = true;
-    enabled_tabs[TAB_CONNECTION_RENDER_TYPE]    = true;
-    enabled_tabs[TAB_MISCELLANEOUS]             = true;
-
-    if (G->state.sandbox && W->is_paused() && !G->state.test_playing) {
-        if (G->get_mode() == GAME_MODE_MULTISEL && G->selection.m) {
-            for (std::set<entity*>::iterator i = G->selection.m->begin();
-                    i != G->selection.m->end(); i++) {
-                entity *e = *i;
-
-                if (e->flag_active(ENTITY_IS_PLASTIC)) {
-                    enabled_tabs[TAB_PLASTIC_COLOR] = true;
-                    enabled_tabs[TAB_PLASTIC_DENSITY] = true;
-                }
-
-                if (e->flag_active(ENTITY_IS_LOCKED)) {
-                    any_entity_locked = true;
-                }
-            }
-        }
-    }
-
-    for (int x=0; x<NUM_MULTI_CONFIG_TABS; ++x) {
-        GtkWidget *page = gtk_notebook_get_nth_page(multi_config_nb, x);
-
-        if (!enabled_tabs[x])
-            gtk_widget_hide(page);
-        else
-            gtk_widget_show(page);
-    }
-
-    gtk_widget_set_sensitive(GTK_WIDGET(multi_config_unlock_all), any_entity_locked);
-}
-
-static gboolean on_multi_config_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, multi_config_cancel, user_data)) {
-        gtk_widget_hide(GTK_WIDGET(multi_config_window));
-    } else if (btn_pressed(w, multi_config_apply, user_data)) {
-        tms_debugf("cur tab: %d", multi_config_cur_tab);
-
-        switch (multi_config_cur_tab) {
-            case TAB_JOINT_STRENGTH:
-                {
-                    float val = tclampf(gtk_range_get_value(GTK_RANGE(multi_config_joint_strength)), 0.f, 1.f);
-                    P.add_action(ACTION_MULTI_JOINT_STRENGTH, INT_TO_VOID(val * 100.f));
-                }
-                break;
-
-            case TAB_PLASTIC_COLOR:
-                {
-                    GdkRGBA color;
-                    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(multi_config_plastic_color), &color);
-
-                    tvec4 *vec = (tvec4*)malloc(sizeof(tvec4));
-                    vec->r = color.red;
-                    vec->g = color.green;
-                    vec->b = color.blue;
-                    vec->a = 1.0f;
-
-                    P.add_action(ACTION_MULTI_PLASTIC_COLOR, (void*)vec);
-                }
-                break;
-
-            case TAB_PLASTIC_DENSITY:
-                {
-                    float val = tclampf(gtk_range_get_value(GTK_RANGE(multi_config_plastic_density)), 0.f, 1.f);
-                    P.add_action(ACTION_MULTI_PLASTIC_DENSITY, INT_TO_VOID(val * 100.f));
-                }
-                break;
-
-            case TAB_CONNECTION_RENDER_TYPE:
-                {
-                    uint8_t render_type = CONN_RENDER_DEFAULT;
-
-                    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(multi_config_render_type_normal))) {
-                        render_type = CONN_RENDER_DEFAULT;
-                    } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(multi_config_render_type_small))) {
-                        render_type = CONN_RENDER_SMALL;
-                    } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(multi_config_render_type_hide))) {
-                        render_type = CONN_RENDER_HIDE;
-                    }
-
-                    P.add_action(ACTION_MULTI_CHANGE_CONNECTION_RENDER_TYPE, UINT_TO_VOID(render_type));
-                }
-                break;
-
-            default:
-                tms_errorf("Unknown multi config tab: %d", multi_config_cur_tab);
-                return false;
-                break;
-        }
-
-        gtk_widget_hide(GTK_WIDGET(multi_config_window));
-    } else if (btn_pressed(w, multi_config_unlock_all, user_data)) {
-        P.add_action(ACTION_MULTI_UNLOCK_ALL, 0);
-
-        gtk_widget_hide(GTK_WIDGET(multi_config_window));
-    } else if (btn_pressed(w, multi_config_disconnect_all, user_data)) {
-        P.add_action(ACTION_MULTI_DISCONNECT_ALL, 0);
-
-        gtk_widget_hide(GTK_WIDGET(multi_config_window));
-    }
-
-    return false;
-}
-
-static void on_multi_config_tab_changed(GtkNotebook *nb, GtkWidget *page, gint tab_num, gpointer unused) {
-    multi_config_cur_tab = tab_num;
-
-    gtk_widget_set_sensitive(GTK_WIDGET(multi_config_apply), (tab_num != TAB_MISCELLANEOUS));
-}
-
 int _gtk_loop(void *p) {
     gtk_init(NULL, NULL);
 
@@ -717,123 +529,6 @@ int _gtk_loop(void *p) {
         add_text_column(open_state_treeview, "Modified", OSC_NAME);
     }
 
-    /** --Multi config **/
-    {
-        multi_config_window = new_window_defaults("Multi config", &on_multi_config_show);
-        gtk_window_set_default_size(GTK_WINDOW(multi_config_window), 600, 350);
-        gtk_widget_set_size_request(GTK_WIDGET(multi_config_window), 600, 350);
-
-        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-        GtkBox *entries = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-
-        GtkNotebook *nb = GTK_NOTEBOOK(gtk_notebook_new());
-        gtk_notebook_set_tab_pos(nb, GTK_POS_TOP);
-        g_signal_connect(nb, "switch-page", G_CALLBACK(on_multi_config_tab_changed), 0);
-
-        /* Buttons and button box */
-        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
-        gtk_button_box_set_layout(GTK_BUTTON_BOX(button_box), GTK_BUTTONBOX_END);
-        gtk_box_set_spacing(GTK_BOX(button_box), 5);
-
-        /* Log in button */
-        multi_config_apply = GTK_BUTTON(gtk_button_new_with_label("Apply"));
-        g_signal_connect(multi_config_apply, "clicked",
-                G_CALLBACK(on_multi_config_btn_click), 0);
-
-        /* Cancel button */
-        multi_config_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(multi_config_cancel, "clicked",
-                G_CALLBACK(on_multi_config_btn_click), 0);
-
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(multi_config_apply));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(multi_config_cancel));
-
-        {
-            /* Joint strength */
-            GtkBox *box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-
-            multi_config_joint_strength = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.0, 1.0, 0.05));
-            g_signal_connect(multi_config_joint_strength, "format-value", G_CALLBACK(format_joint_strength), 0);
-
-            gtk_box_pack_start(box, GTK_WIDGET(multi_config_joint_strength), 0, 0, 0);
-            gtk_box_pack_start(box, new_lbl("Settings a new joint might make your selection change it's position/state slightly.\nMake sure you save your level before you press Apply."), 0, 0, 0);
-
-            notebook_append(nb, "Joint strength", box);
-        }
-
-        {
-            /* Plastic color */
-            GtkBox *box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-
-            multi_config_plastic_color = GTK_COLOR_CHOOSER_WIDGET(gtk_color_chooser_widget_new());
-
-            gtk_box_pack_start(box, GTK_WIDGET(multi_config_plastic_color), 0, 0, 0);
-            gtk_box_pack_start(box, new_lbl("This will change the color of all plastic objects in your current selection."), 1, 1, 0);
-
-            notebook_append(nb, "Plastic color", box);
-        }
-
-        {
-            /* Plastic density */
-            GtkBox *box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-
-            multi_config_plastic_density = GTK_SCALE(gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.0, 1.0, 0.05));
-
-            gtk_box_pack_start(box, GTK_WIDGET(multi_config_plastic_density), 0, 0, 0);
-            gtk_box_pack_start(box, new_lbl("This will change the density of all plastic objects in your current selection."), 1, 1, 0);
-
-            notebook_append(nb, "Plastic density", box);
-        }
-
-        {
-            /* Connection render type */
-            GtkBox *box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-
-            multi_config_render_type_normal = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
-                        0, "Default"));
-            multi_config_render_type_small = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
-                        gtk_radio_button_get_group(multi_config_render_type_normal), "Small"));
-            multi_config_render_type_hide = GTK_RADIO_BUTTON(gtk_radio_button_new_with_label(
-                        gtk_radio_button_get_group(multi_config_render_type_normal), "Hide"));
-
-            gtk_box_pack_start(box, GTK_WIDGET(multi_config_render_type_normal), 0, 0, 0);
-            gtk_box_pack_start(box, GTK_WIDGET(multi_config_render_type_small), 0, 0, 0);
-            gtk_box_pack_start(box, GTK_WIDGET(multi_config_render_type_hide), 0, 0, 0);
-            gtk_box_pack_start(box, new_lbl("This will change the render type of all connections in your current selection."), 1, 1, 0);
-
-            notebook_append(nb, "Connection render type", box);
-        }
-
-        {
-            /* Miscellaneous */
-            GtkBox *box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-
-            multi_config_unlock_all = new_lbtn("Unlock all", &on_multi_config_btn_click);
-            multi_config_disconnect_all = new_lbtn("Disconnect all", &on_multi_config_btn_click);
-
-            {
-                GtkBox *hbox = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-                gtk_box_pack_start(hbox, GTK_WIDGET(multi_config_unlock_all), 1, 1, 0);
-                gtk_box_pack_start(hbox, help_widget("Unlock any previously locked entities.\nOnly active if at least one of the selected entities is locked."), 0, 0, 0);
-
-                gtk_box_pack_start(box, GTK_WIDGET(hbox), 0, 0, 0);
-            }
-            gtk_box_pack_start(box, GTK_WIDGET(multi_config_disconnect_all), 0, 0, 0);
-            gtk_box_pack_start(box, new_lbl("Click on any of the buttons above to perform the given action on your current selection."), 1, 1, 0);
-
-            notebook_append(nb, "Miscellaneous", box);
-        }
-
-        gtk_box_pack_start(entries, GTK_WIDGET(nb), 1, 1, 0);
-
-        multi_config_nb = nb;
-
-        gtk_box_pack_start(content, GTK_WIDGET(entries), 1, 1, 0);
-        gtk_box_pack_start(content, GTK_WIDGET(button_box), 0, 0, 0);
-
-        gtk_container_add(GTK_CONTAINER(multi_config_window), GTK_WIDGET(content));
-    }
-
     gdk_threads_add_idle(_sig_ui_ready, 0);
 
     gtk_main();
@@ -867,27 +562,9 @@ static gboolean _open_object_dialog(gpointer unused) {
     return false;
 }
 
-static gboolean _open_multi_config(gpointer unused) {
-    g_object_set(
-        G_OBJECT(multi_config_plastic_color),
-        "show-editor", FALSE,
-        NULL
-    );
-
-    gtk_widget_show_all(GTK_WIDGET(multi_config_window));
-
-    return false;
-}
-
 static gboolean _close_all_dialogs(gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(open_state_window));
     gtk_widget_hide(GTK_WIDGET(object_window));
-    return false;
-}
-
-static gboolean _close_absolutely_all_dialogs(gpointer unused) {
-    _close_all_dialogs(0);
-
     return false;
 }
 
@@ -934,7 +611,6 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_SANDBOX_MENU:
             UiSandboxMenu::open();
             break;
-
         case DIALOG_LEVEL_PROPERTIES:
             UiLevelProperties::open();
             break;
@@ -947,7 +623,6 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_QUICKADD:
             UiQuickadd::open();
             break;
-
         case DIALOG_SHAPEEXTRUDER:
             UiShapeExtruder::open();
             break;
@@ -965,7 +640,6 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_POLYGON_COLOR:
             UiObjColorPicker::open();
             break;
-
         case DIALOG_SAVE:
             UiSave::open(false);
             break;
@@ -975,7 +649,6 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_OPEN:
             UiLevelManager::open();
             break;
-
 #ifndef PRINCIPIA_BACKEND_IMGUI
         case DIALOG_OPEN_STATE:
             if (data && VOID_TO_UINT8(data) == 1) {
@@ -990,7 +663,6 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_OPEN_OBJECT:    gdk_threads_add_idle(_open_object_dialog, 0); break;
         case DIALOG_MULTIEMITTER:   gdk_threads_add_idle(_open_multiemitter_dialog, 0); break;
 #endif
-
         case DIALOG_EMITTER:
             UiEmitter::open();
             break;
@@ -1096,39 +768,35 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_KEY_LISTENER:
             UiKeyListener::open();
             break;
-#ifndef PRINCIPIA_BACKEND_IMGUI
-        case DIALOG_MULTI_CONFIG:   gdk_threads_add_idle(_open_multi_config, 0); break;
-
-        case CLOSE_ALL_DIALOGS:     gdk_threads_add_idle(_close_all_dialogs, 0); break;
-        case CLOSE_ABSOLUTELY_ALL_DIALOGS: gdk_threads_add_idle(_close_absolutely_all_dialogs, 0); break;
-#else
+        case DIALOG_MULTI_CONFIG:
+            UiMultiConfig::open();
+            break;
         case CLOSE_ABSOLUTELY_ALL_DIALOGS:
         case CLOSE_ALL_DIALOGS:
+#ifndef PRINCIPIA_BACKEND_IMGUI
+            gdk_threads_add_idle(_close_all_dialogs, 0);
+            break;
+#else
             tms_infof("XXX: CLOSE_ALL_DIALOGS/CLOSE_ABSOLUTELY_ALL_DIALOGS (200/201) are intentionally ignored");
             break;
 #endif
-
         case DIALOG_PUBLISH:
             UiPublish::open();
             break;
         case DIALOG_LOGIN:
             UiLogin::open();
             break;
-
         case DIALOG_LEVEL_INFO:
             UiMessage::open((char *)data, MessageType::LevelInfo);
             break;
-
         case DIALOG_PROMPT:
             if (G)
                 G->reset_touch(false);
             UiPrompt::open();
             break;
-
         case DIALOG_PROMPT_SETTINGS:
             UiPromptSettings::open();
             break;
-
         default:
             tms_warnf("Unhandled dialog ID: %d", num);
             break;
@@ -1256,6 +924,7 @@ void ui::render() {
     UiSfxEmitter::layout();
     UiSfxEmitterLegacy::layout();
     UiSynthesizer::layout();
+    UiMultiConfig::layout();
 
     imgui_driver.post_render();
 }

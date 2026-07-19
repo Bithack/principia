@@ -64,3 +64,4 @@ namespace UiDigitalDisplay  { void open(); void layout(); }
 namespace UiFactory         { void open(); void layout(); }
 namespace UiSfxEmitter      { void open(); void layout(); }
 namespace UiSfxEmitterLegacy { void open(); void layout(); }
+namespace UiMultiConfig     { void open(); void layout(); }

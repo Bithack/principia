@@ -268,6 +268,7 @@
 	#include "ui/login.cc"
 	#include "ui/lua_editor.cc"
 	#include "ui/message.cc"
+	#include "ui/multi_config.cc"
 	#include "ui/new_level.cc"
 	#include "ui/obj_color_picker.cc"
 	#include "ui/pkg_lvl_selector.cc"
