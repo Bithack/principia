@@ -65,3 +65,4 @@ namespace UiFactory         { void open(); void layout(); }
 namespace UiSfxEmitter      { void open(); void layout(); }
 namespace UiSfxEmitterLegacy { void open(); void layout(); }
 namespace UiMultiConfig     { void open(); void layout(); }
+namespace UiOpenState      { void open(bool no_testplaying = false); void layout(); }
