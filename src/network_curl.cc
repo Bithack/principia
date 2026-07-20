@@ -626,7 +626,7 @@ int network::login(void *p) {
 
     unlock_curl("login");
 
-    free(data);
+    delete data;
 
     return 0;
 }

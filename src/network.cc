@@ -208,7 +208,7 @@ void handle_version_check(char *body) {
     P.message = strdup(body);
 }
 
-void handle_successful_publish(lvledit lvl, header_data &hd, int *community_id) {
+void handle_successful_publish(lvledit &lvl, header_data &hd, int *community_id) {
     // Check for messages
     if (hd.error_message) {
         ui::message(hd.error_message);

@@ -68,7 +68,7 @@ void handle_login(header_data &hd, int http_code);
 
 void handle_version_check(char *body);
 
-void handle_successful_publish(lvledit lvl, header_data &hd, int *community_id);
+void handle_successful_publish(lvledit &lvl, header_data &hd, int *community_id);
 
 #ifdef SDL_PLATFORM_ANDROID
 extern "C" {
