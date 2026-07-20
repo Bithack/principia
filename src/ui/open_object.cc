@@ -99,10 +99,10 @@ namespace UiOpenObject {
 					ImGui::PopID();
 				}
 
-				if (!any_found)
-					ImGui::TextDisabled("No multiselections found.");
-
 				ImGui::EndTable();
+
+				if (!any_found)
+					ImGui::TextDisabled("No objects found.");
 			}
 
 			ImGui::EndChild();

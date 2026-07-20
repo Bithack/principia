@@ -3,7 +3,6 @@
 #include "factory.hh"
 #include "faction.hh"
 #include "game.hh"
-#include "imgui.h"
 #include "imgui.hh"
 #include "main.hh"
 #include <sstream>

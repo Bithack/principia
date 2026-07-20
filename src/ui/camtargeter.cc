@@ -68,8 +68,8 @@ namespace UiCamTargeter {
             ImGui::RadioButton("Local", &_offset_mode, 1);
             offset_mode = (uint8_t)_offset_mode;
 
-            ImGui::DragFloat("X offset", &x_offset, .1, -150.f, 150.f, "%.2f");
-            ImGui::DragFloat("Y offset", &y_offset, .1, -150.f, 150.f, "%.2f");
+            ImGui::DragFloat("X offset", &x_offset, .1, -150.f, 150.f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+            ImGui::DragFloat("Y offset", &y_offset, .1, -150.f, 150.f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 
             ImGui_ButtonBar(apply_properties);
 

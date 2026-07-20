@@ -65,14 +65,14 @@ namespace UiVariable {
         handle_do_open(&do_open, "Variable chooser");
 
         ImGui_CenterNextWindow();
-        ImGui::SetNextWindowSize(ImVec2(400., 0.));
+        ImGui::SetNextWindowSize(UI(280., 0.));
         if (ImGui::BeginPopupModal("Variable chooser", REF_TRUE, MODAL_FLAGS)) {
             ImGui::Text("Variable name:");
             ImGui::InputText("##VariableName", variable_name, IM_ARRAYSIZE(variable_name));
 
-            ImGui::Dummy(ImVec2(0.0f, 5.0f));
+            ImGui_ButtonBarPadding();
 
-            ImGui::BeginChild("cuddles##VariableHelp", ImVec2(0, 80.f), true);
+            ImGui::BeginChild("cuddles##VariableHelp", UI(0, 0), ImGuiChildFlags_Borders | ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeY);
 
             ImGui::Text("Variable management");
 

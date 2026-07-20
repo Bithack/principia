@@ -1,6 +1,5 @@
 #include "entity.hh"
 #include "game.hh"
-#include "imgui.h"
 #include "imgui.hh"
 #include "main.hh"
 
@@ -96,11 +95,19 @@ namespace UiMultiConfig {
     }
 
     static int tab_miscellaneous() {
-        ImGui::TextWrapped("Unlock any previously locked objects.\nOnly active if at least one selected object is locked.");
+        ImGui::TextWrapped("Unlock any previously locked objects.");
+
+        if (!any_entity_locked)
+            ImGui::BeginDisabled();
 
         if (ImGui::Button("Unlock all")) {
             P.add_action(ACTION_MULTI_UNLOCK_ALL, 0);
             ImGui::CloseCurrentPopup();
+        }
+
+        if (!any_entity_locked) {
+            ImGui::SetItemTooltip("No locked objects in selection.");
+            ImGui::EndDisabled();
         }
 
         ImGui::Separator();

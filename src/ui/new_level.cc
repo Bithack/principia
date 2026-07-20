@@ -14,6 +14,9 @@ static bool do_open = false;
         ImGui_CenterNextWindow();
         if (ImGui::BeginPopupModal("New level###new-level", REF_TRUE, MODAL_FLAGS)) {
 
+            if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+                ImGui::CloseCurrentPopup();
+
             if (ImGui::Button("Custom")) {
                 P.add_action(ACTION_NEW_LEVEL, LCAT_CUSTOM);
                 ImGui::CloseCurrentPopup();

@@ -1,5 +1,6 @@
 #include "imgui.hh"
 #include "main.hh"
+#include "ui.hh"
 
 namespace UiExport {
     static bool do_open = false;
@@ -7,6 +8,7 @@ namespace UiExport {
 
     void export_object() {
         P.add_action(ACTION_EXPORT_OBJECT, strdup(obj_name));
+        ui::message("Object exported!");
 
         ImGui::CloseCurrentPopup();
     }
@@ -24,14 +26,20 @@ namespace UiExport {
 
             ImGui::Text("Enter a name for this object:");
 
-            ImGui::InputText("##obj_name", obj_name, IM_ARRAYSIZE(obj_name));
+            bool activate = ImGui::InputText(
+                "##obj_name",
+                obj_name,
+                IM_ARRAYSIZE(obj_name),
+                ImGuiInputTextFlags_EnterReturnsTrue);
 
             bool disabled = obj_name[0] == '\0';
+
+            ImGui_ButtonBarPadding();
 
             if (disabled)
                 ImGui::BeginDisabled();
 
-            if (ImGui_SaveButton())
+            if (ImGui_SaveButton() || activate)
                 export_object();
 
             if (disabled)

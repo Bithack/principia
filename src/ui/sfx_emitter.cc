@@ -1,6 +1,5 @@
 #include "entity.hh"
 #include "game.hh"
-#include "imgui.h"
 #include "imgui.hh"
 #include "sfxemitter.hh"
 #include "soundmanager.hh"
