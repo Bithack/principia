@@ -88,11 +88,20 @@ menu_main::menu_main()
     this->refresh_widgets();
 }
 
+static bool warned_web_version = false;
+
 int
 menu_main::resume()
 {
     menu_base::resume();
     this->refresh_widgets();
+
+#if defined(SDL_PLATFORM_EMSCRIPTEN) && !defined(DEBUG)
+    if (!warned_web_version) {
+        ui::message("Note: The web version of Principia is experimental! Some features may not work as expected.", true);
+        warned_web_version = true;
+    }
+#endif
 
     return T_OK;
 }
