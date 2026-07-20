@@ -3,7 +3,7 @@
 #include <tms/cpp.hh>
 #include <SDL3/SDL.h>
 
-#if defined(PRINCIPIA_BACKEND_IMGUI) || defined(UI_IMGUI_IN_GTK)
+#if defined(PRINCIPIA_BACKEND_IMGUI)
 
 // This is a modified version of the SDL3 platform implementation for Dear Imgui,
 // which rewrites some things (notably events) to work more tightly with TMS.

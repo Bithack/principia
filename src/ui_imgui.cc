@@ -1,9 +1,3 @@
-/**
- * Note: The GTK3 dialog backend is deprecated and will be replaced with the
- * Imgui backend on desktop platforms when it is finished. Don't spend any
- * more time than absolutely necessary on this backend.
- */
-
 #include "game.hh"
 #include "main.hh"
 #include "ui.hh"
@@ -12,142 +6,17 @@
 
 #if !defined(SDL_PLATFORM_ANDROID) && !defined(NO_UI)
 
-#ifndef PRINCIPIA_BACKEND_IMGUI
-
-#include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
-
-bool   ui_ready = false;
-SDL_Condition  *ui_cond;
-SDL_Mutex *ui_lock;
-static gboolean _sig_ui_ready(gpointer unused);
-
-static gboolean on_window_close(GtkWidget *w, void *unused) {
-    P.focused = true;
-    gtk_widget_hide(w);
-    return true;
-}
-
-static GtkCellRenderer *add_text_column(GtkTreeView *tv, const char *title, int id) {
-    GtkCellRenderer *renderer;
-    GtkTreeViewColumn *column;
-
-    renderer = GTK_CELL_RENDERER(gtk_cell_renderer_text_new());
-    column = GTK_TREE_VIEW_COLUMN(gtk_tree_view_column_new_with_attributes(title, renderer, "text", id, NULL));
-
-    gtk_tree_view_column_set_sort_column_id(column, id);
-    gtk_tree_view_append_column(tv, column);
-
-    return renderer;
-}
-
-static void apply_dialog_defaults(
-    void *w,
-    GtkCallback on_show=0,
-    gboolean (*on_keypress)(GtkWidget*, GdkEventKey*, gpointer)=0
-) {
-    gtk_window_set_position(GTK_WINDOW(w), GTK_WIN_POS_CENTER);
-    gtk_window_set_keep_above(GTK_WINDOW(w), TRUE);
-    g_signal_connect(w, "delete-event", G_CALLBACK(on_window_close), 0);
-
-    if (on_show)
-        g_signal_connect(w, "show", G_CALLBACK(on_show), 0);
-
-    if (on_keypress)
-        g_signal_connect(w, "key-press-event", G_CALLBACK(on_keypress), 0);
-}
-
-static GtkWindow *new_window_defaults(const char *title, GtkCallback on_show=0, gboolean (*on_keypress)(GtkWidget*, GdkEventKey*, gpointer)=0) {
-    GtkWidget *r = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_container_set_border_width(GTK_CONTAINER(r), 10);
-    gtk_window_set_title(GTK_WINDOW(r), title);
-    gtk_window_set_resizable(GTK_WINDOW(r), false);
-
-    apply_dialog_defaults(r, on_show, on_keypress);
-
-    return GTK_WINDOW(r);
-}
-
-bool btn_pressed(GtkWidget *ref, GtkButton *btn, gpointer user_data) {
-    return (
-        ref == GTK_WIDGET(btn) &&
-        (
-            ((gtk_widget_get_state_flags(ref) & GTK_STATE_ACTIVE) != 0) ||
-            GPOINTER_TO_INT(user_data) == 1
-        )
-    );
-}
-
-
-int _gtk_loop(void *p) {
-    gtk_init(NULL, NULL);
-
-    g_object_set(
-        gtk_settings_get_default(),
-        "gtk-application-prefer-dark-theme", true,
-        "gtk-tooltip-timeout", 100,
-        NULL
-    );
-
-    gdk_threads_add_idle(_sig_ui_ready, 0);
-
-    gtk_main();
-
-    return T_OK;
-}
-
-static gboolean _sig_ui_ready(gpointer unused) {
-    SDL_LockMutex(ui_lock);
-    ui_ready = true;
-    SDL_SignalCondition(ui_cond);
-    SDL_UnlockMutex(ui_lock);
-
-    return false;
-}
-
-static gboolean _close_all_dialogs(gpointer unused) {
-    return false;
-}
-
-static void wait_ui_ready() {
-    SDL_LockMutex(ui_lock);
-    if (!ui_ready) {
-        SDL_WaitConditionTimeout(ui_cond, ui_lock, 4000);
-        if (!ui_ready) tms_fatalf("Could not initialise game (GTK not ready)");
-    }
-    SDL_UnlockMutex(ui_lock);
-}
-
-#endif
-
 #include "imgui.hh"
 #include "ui_imgui.hh"
 
 static ImguiDriver imgui_driver;
 
 void ui::init() {
-#ifndef PRINCIPIA_BACKEND_IMGUI
-    ui_lock = SDL_CreateMutex();
-    ui_cond = SDL_CreateCondition();
-    ui_ready = false;
-
-    SDL_Thread *gtk_thread;
-
-    gtk_thread = SDL_CreateThread(_gtk_loop, "_gtk_loop", 0);
-
-    if (gtk_thread == NULL)
-        tms_errorf("SDL_CreateThread failed: %s", SDL_GetError());
-#endif
-
     imgui_driver = ImguiDriver();
     imgui_driver.init();
 }
 
 void ui::open_dialog(int num, void *data/*=0*/) {
-#ifndef PRINCIPIA_BACKEND_IMGUI
-    wait_ui_ready();
-#endif
-
     switch (num) {
         case DIALOG_SANDBOX_MENU:
             UiSandboxMenu::open();
@@ -309,13 +178,8 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             break;
         case CLOSE_ABSOLUTELY_ALL_DIALOGS:
         case CLOSE_ALL_DIALOGS:
-#ifndef PRINCIPIA_BACKEND_IMGUI
-            gdk_threads_add_idle(_close_all_dialogs, 0);
-            break;
-#else
             tms_infof("XXX: CLOSE_ALL_DIALOGS/CLOSE_ABSOLUTELY_ALL_DIALOGS (200/201) are intentionally ignored");
             break;
-#endif
         case DIALOG_PUBLISH:
             UiPublish::open();
             break;
@@ -337,10 +201,6 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             tms_warnf("Unhandled dialog ID: %d", num);
             break;
     }
-
-#ifndef PRINCIPIA_BACKEND_IMGUI
-    gdk_display_flush(gdk_display_get_default());
-#endif
 }
 
 void ui::open_sandbox_tips() {
@@ -353,9 +213,6 @@ void ui::set_next_action(int action_id) {
 }
 
 void ui::emit_signal(int num, void *data/*=0*/) {
-#ifndef PRINCIPIA_BACKEND_IMGUI
-    wait_ui_ready();
-#endif
 
     switch (num) {
         case SIGNAL_LOGIN_SUCCESS:

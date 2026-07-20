@@ -214,7 +214,7 @@
 #include "ui_android.cc"
 #include "ui.cc"
 #include "ui_dummy.cc"
-#include "ui_gtk3.cc"
+#include "ui_imgui.cc"
 #include "valueshift.cc"
 #include "var_getter.cc"
 #include "var_setter.cc"
@@ -244,7 +244,7 @@
 	#include "tms/backend/pipe.cc"
 #endif
 
-#if defined(PRINCIPIA_BACKEND_IMGUI) || defined(UI_IMGUI_IN_GTK)
+#if defined(PRINCIPIA_BACKEND_IMGUI)
 	#include "ui/animal.cc"
 	#include "ui/camtargeter.cc"
 	#include "ui/command_pad.cc"

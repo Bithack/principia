@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <vector>
 
-#if defined(PRINCIPIA_BACKEND_IMGUI) || defined(UI_IMGUI_IN_GTK)
+#if defined(PRINCIPIA_BACKEND_IMGUI)
 
 // imgui_impl_tms.cc
 IMGUI_IMPL_API bool ImGui_ImplSDL3_Init();

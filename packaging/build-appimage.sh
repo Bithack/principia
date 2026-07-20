@@ -66,9 +66,8 @@ APPRUN
 chmod +x AppRun
 
 # List of libraries from the system that should be bundled in the AppImage.
-# We are very conservative with what is bundled, GTK3 is expected to be already
-# installed by the user and other libraries like libcurl and libfreetype are
-# expected to already exist on the system.
+# We are very conservative with what is bundled, libraries like libcurl
+# and libfreetype are expected to already exist on the system.
 INCLUDE_LIBS=(
 	libjpeg.so.62
 	libpng16.so.16

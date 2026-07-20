@@ -133,13 +133,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
 
     SDL_SetHint(SDL_HINT_VIDEO_WAYLAND_SCALE_TO_DISPLAY, "1");
 
-#ifdef SDL_PLATFORM_LINUX
-    // Principia crashes instantly on GNOME with Wayland and libdecor, while having no window decorations if
-    // libdecor is not used. Just go back to X11 (with XWayland for those on Wayland) until we can switch off
-    // of GTK for dialogs.
-    SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "x11,wayland");
-#endif
-
     redirect_log_output();
 
     print_log_header();

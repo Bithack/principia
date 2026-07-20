@@ -63,16 +63,10 @@ else()
 	set(SCREENSHOT_BUILD FALSE)
 endif()
 
-if(EMSCRIPTEN)
-	set(BACKEND_IMGUI TRUE)
-else()
-	option(BACKEND_IMGUI "Enable incomplete Dear Imgui dialog backend (Experimental)" FALSE)
-endif()
-
 if(ANDROID OR SCREENSHOT_BUILD)
-	set(IMGUI_IN_GTK FALSE)
+	set(BACKEND_IMGUI FALSE)
 else()
-	set(IMGUI_IN_GTK TRUE)
+	set(BACKEND_IMGUI TRUE)
 endif()
 
 if(LINUX)
@@ -132,7 +126,7 @@ else()
 	list(APPEND SRCS ${MAIN_SRCS})
 endif()
 
-if(BACKEND_IMGUI OR IMGUI_IN_GTK)
+if(BACKEND_IMGUI)
 	if(UNITY_BUILD)
 		list(APPEND SRCS lib/imgui/_unity_chunk.cc)
 	else()
@@ -144,19 +138,8 @@ if(BACKEND_IMGUI OR IMGUI_IN_GTK)
 	endif()
 endif()
 
-# Optional dependencies not found on Android or in the screenshot build
+# Optional dependencies not found in the screenshot build
 if(NOT SCREENSHOT_BUILD)
-	if(NOT ANDROID AND NOT EMSCRIPTEN)
-		if(NOT BACKEND_IMGUI)
-			find_package(PkgConfig REQUIRED)
-			pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
-		endif()
-
-		if(NOT BACKEND_IMGUI)
-			include_directories(${GTK3_INCLUDE_DIRS})
-		endif()
-	endif()
-
 	if(NOT EMSCRIPTEN)
 		find_package(CURL REQUIRED)
 		include_directories(${CURL_INCLUDE_DIR})
@@ -205,10 +188,6 @@ if(NOT EMSCRIPTEN)
 
 	if(NOT SCREENSHOT_BUILD AND NOT EMSCRIPTEN)
 		list(APPEND LIBS ${CURL_LIBRARIES})
-
-		if(NOT ANDROID AND NOT BACKEND_IMGUI)
-			list(APPEND LIBS ${GTK3_LIBRARIES})
-		endif()
 	endif()
 endif()
 
@@ -245,20 +224,12 @@ elseif(SCREENSHOT_BUILD)
 	add_definitions(-DNO_UI -DSCREENSHOT_BUILD)
 endif()
 
-if(BACKEND_IMGUI OR IMGUI_IN_GTK)
-	add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
+if(BACKEND_IMGUI)
+	add_definitions(-DPRINCIPIA_BACKEND_IMGUI -DIMGUI_DEFINE_MATH_OPERATORS)
 
 	if(SHOULD_USE_GLES)
 		add_definitions(-DIMGUI_IMPL_OPENGL_ES2)
 	endif()
-endif()
-
-if(BACKEND_IMGUI)
-	add_definitions(-DPRINCIPIA_BACKEND_IMGUI)
-endif()
-
-if(IMGUI_IN_GTK)
-	add_definitions(-DUI_IMGUI_IN_GTK)
 endif()
 
 # Use a safe subset of fast math flags

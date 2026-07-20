@@ -189,9 +189,6 @@ Section "" SecCore
     File "release\principia.exe"
     File /x "opengl32.dll" "release\*.dll"
 
-    File /r "release\lib"
-    File /r "release\share"
-
     File /r /x android "..\data"
 
     WriteRegStr HKCR "principia" "" "URL:Principia"
