@@ -6,7 +6,6 @@
 
 #include "game.hh"
 #include "main.hh"
-#include "pkgman.hh"
 #include "ui.hh"
 #include <SDL3/SDL.h>
 #include <tms/cpp.hh>
@@ -22,24 +21,6 @@ bool   ui_ready = false;
 SDL_Condition  *ui_cond;
 SDL_Mutex *ui_lock;
 static gboolean _sig_ui_ready(gpointer unused);
-
-/* open window columns */
-enum {
-    OC_ID,
-    OC_NAME,
-    OC_VERSION,
-    OC_DATE,
-
-    OC_NUM_COLUMNS
-};
-
-/** --Open object **/
-bool         object_window_multiemitter;
-GtkWindow    *object_window;
-GtkTreeModel *object_treemodel;
-GtkTreeView  *object_treeview;
-GtkButton    *object_btn_open;
-GtkButton    *object_btn_cancel;
 
 static gboolean on_window_close(GtkWidget *w, void *unused) {
     P.focused = true;
@@ -97,137 +78,6 @@ bool btn_pressed(GtkWidget *ref, GtkButton *btn, gpointer user_data) {
     );
 }
 
-void on_object_show(GtkWidget *wdg, void *unused) {
-    GtkTreeIter iter;
-
-    gtk_list_store_clear(GTK_LIST_STORE(object_treemodel));
-
-    lvlfile *level = pkgman::get_levels(LEVEL_PARTIAL);
-
-    while (level) {
-        gtk_list_store_append(GTK_LIST_STORE(object_treemodel), &iter);
-        gtk_list_store_set(GTK_LIST_STORE(object_treemodel), &iter,
-                OC_ID, level->id,
-                OC_NAME, level->name,
-                OC_DATE, level->modified_date,
-                -1
-                );
-        lvlfile *next = level->next;
-        delete level;
-        level = next;
-    }
-
-    GtkTreePath      *path;
-    GtkTreeSelection *sel;
-
-    path = gtk_tree_path_new_from_indices(0, -1);
-    sel  = gtk_tree_view_get_selection(object_treeview);
-
-    gtk_tree_model_get_iter(object_treemodel,
-                            &iter,
-                            path);
-
-    GValue val = {0, };
-
-    gtk_tree_model_get_value(object_treemodel,
-                             &iter,
-                             0,
-                             &val);
-
-    gtk_tree_selection_select_path(sel, path);
-
-    gtk_tree_path_free(path);
-}
-
-static void confirm_import(uint32_t level_id) {
-    if (object_window_multiemitter)
-        P.add_action(ACTION_MULTIEMITTER_SET, level_id);
-    else
-        P.add_action(ACTION_SELECT_IMPORT_OBJECT, level_id);
-}
-
-void activate_object_row(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *col, gpointer user_data) {
-    GtkTreeIter iter;
-    GtkTreeModel *model = gtk_tree_view_get_model(view);
-    gtk_tree_model_get_iter_from_string(model, &iter, gtk_tree_path_to_string(path));
-
-    guint _level_id;
-    gtk_tree_model_get(model, &iter,
-                       OC_ID, &_level_id,
-                       -1);
-
-    confirm_import((uint32_t)_level_id);
-
-    gtk_widget_hide(GTK_WIDGET(object_window));
-}
-
-gboolean on_object_btn_click(GtkWidget *w, GdkEventButton *ev, gpointer user_data) {
-    if (btn_pressed(w, object_btn_cancel, user_data)) {
-        gtk_widget_hide(GTK_WIDGET(object_window));
-    } else if (btn_pressed(w, object_btn_open, user_data)) {
-        /* open ! */
-        GtkTreeSelection *sel;
-        GtkTreeIter       iter;
-        GValue            val = {0, };
-
-        sel = gtk_tree_view_get_selection(object_treeview);
-        if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
-            /* A row is selected */
-
-            /* Fetch the value of the first column into `val' */
-            gtk_tree_model_get_value(object_treemodel,
-                                     &iter,
-                                     0,
-                                     &val);
-
-            uint32_t level_id = g_value_get_uint(&val);
-
-            confirm_import(level_id);
-
-            gtk_widget_hide(GTK_WIDGET(object_window));
-        } else {
-            tms_infof("No row selected.");
-        }
-    }
-
-    return false;
-}
-
-gboolean on_object_keypress(GtkWidget *w, GdkEventKey *key, gpointer unused) {
-    if (key->keyval == GDK_KEY_Escape)
-        gtk_widget_hide(w);
-    else if (key->keyval == GDK_KEY_Return) {
-        GtkTreeSelection *sel;
-        GtkTreeIter       iter;
-        GValue            val = {0, };
-
-        sel = gtk_tree_view_get_selection(object_treeview);
-        if (gtk_tree_selection_get_selected(sel, NULL, &iter)) {
-            /* A row is selected */
-
-            /* Fetch the value of the first column into `val' */
-            gtk_tree_model_get_value(object_treemodel,
-                                     &iter,
-                                     0,
-                                     &val);
-
-            uint32_t level_id = g_value_get_uint(&val);
-
-            confirm_import(level_id);
-
-            gtk_widget_hide(w);
-            return true;
-        } else {
-            tms_infof("No row selected.");
-        }
-    }
-
-    return false;
-}
-
-void activate_object(GtkMenuItem *i, gpointer unused) {
-    gtk_widget_show_all(GTK_WIDGET(object_window));
-}
 
 int _gtk_loop(void *p) {
     gtk_init(NULL, NULL);
@@ -238,60 +88,6 @@ int _gtk_loop(void *p) {
         "gtk-tooltip-timeout", 100,
         NULL
     );
-
-    /** --Open object **/
-    {
-        object_window = new_window_defaults("Import object", &on_object_show, &on_object_keypress);
-        gtk_window_set_default_size(GTK_WINDOW(object_window), 600, 600);
-        gtk_widget_set_size_request(GTK_WIDGET(object_window), 600, 600);
-        gtk_window_set_resizable(GTK_WINDOW(object_window), true);
-
-        GtkBox *content = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 5));
-
-        GtkListStore *store;
-
-        store = gtk_list_store_new(OC_NUM_COLUMNS, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
-
-        object_treemodel = GTK_TREE_MODEL(store);
-
-        gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), OC_DATE, GTK_SORT_DESCENDING);
-
-        object_treeview = GTK_TREE_VIEW(gtk_tree_view_new_with_model(object_treemodel));
-        gtk_tree_view_set_search_column(object_treeview, OC_NAME);
-        g_signal_connect(GTK_WIDGET(object_treeview), "row-activated", G_CALLBACK(activate_object_row), 0);
-
-        GtkWidget *ew = gtk_scrolled_window_new(0,0);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (ew),
-                      GTK_POLICY_AUTOMATIC,
-                      GTK_POLICY_AUTOMATIC);
-
-        GtkButtonBox *button_box = GTK_BUTTON_BOX(gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL));
-        gtk_box_set_spacing(GTK_BOX(button_box), GTK_BUTTONBOX_END);
-        gtk_box_set_spacing(GTK_BOX(button_box), 5);
-
-        /* Open button */
-        object_btn_open   = GTK_BUTTON(gtk_button_new_with_label("Open"));
-        g_signal_connect(object_btn_open, "clicked",
-                G_CALLBACK(on_object_btn_click), 0);
-
-        object_btn_cancel = GTK_BUTTON(gtk_button_new_with_label("Cancel"));
-        g_signal_connect(object_btn_cancel, "clicked",
-                G_CALLBACK(on_object_btn_click), 0);
-
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(object_btn_open));
-        gtk_container_add(GTK_CONTAINER(button_box), GTK_WIDGET(object_btn_cancel));
-
-        gtk_box_pack_start(content, GTK_WIDGET(ew), 1, 1, 0);
-        gtk_box_pack_start(content, GTK_WIDGET(button_box), 0, 0, 0);
-
-        gtk_container_add(GTK_CONTAINER(ew), GTK_WIDGET(object_treeview));
-        gtk_container_add(GTK_CONTAINER(object_window), GTK_WIDGET(content));
-
-        add_text_column(object_treeview, "ID", OC_ID);
-        add_text_column(object_treeview, "Name", OC_NAME);
-        add_text_column(object_treeview, "Version", OC_VERSION);
-        add_text_column(object_treeview, "Modified", OC_DATE);
-    }
 
     gdk_threads_add_idle(_sig_ui_ready, 0);
 
@@ -309,20 +105,7 @@ static gboolean _sig_ui_ready(gpointer unused) {
     return false;
 }
 
-static gboolean _open_multiemitter_dialog(gpointer unused) {
-    object_window_multiemitter = true;
-    activate_object(NULL, 0);
-    return false;
-}
-
-static gboolean _open_object_dialog(gpointer unused) {
-    object_window_multiemitter = false;
-    activate_object(NULL, 0);
-    return false;
-}
-
 static gboolean _close_all_dialogs(gpointer unused) {
-    gtk_widget_hide(GTK_WIDGET(object_window));
     return false;
 }
 
@@ -410,14 +193,12 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_OPEN_STATE:
             UiOpenState::open(data && VOID_TO_UINT8(data) == 1);
             break;
-#ifndef PRINCIPIA_BACKEND_IMGUI
         case DIALOG_OPEN_OBJECT:
-            gdk_threads_add_idle(_open_object_dialog, 0);
+            UiOpenObject::open(false);
             break;
         case DIALOG_MULTIEMITTER:
-            gdk_threads_add_idle(_open_multiemitter_dialog, 0);
+            UiOpenObject::open(true);
             break;
-#endif
         case DIALOG_EMITTER:
             UiEmitter::open();
             break;
@@ -681,6 +462,7 @@ void ui::render() {
     UiSynthesizer::layout();
     UiMultiConfig::layout();
     UiOpenState::layout();
+    UiOpenObject::layout();
 
     imgui_driver.post_render();
 }

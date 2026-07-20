@@ -271,6 +271,7 @@
 	#include "ui/multi_config.cc"
 	#include "ui/new_level.cc"
 	#include "ui/obj_color_picker.cc"
+	#include "ui/open_object.cc"
 	#include "ui/open_state.cc"
 	#include "ui/pkg_lvl_selector.cc"
 	#include "ui/play_menu.cc"
