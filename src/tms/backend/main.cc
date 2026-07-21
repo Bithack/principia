@@ -214,7 +214,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
         return SDL_APP_FAILURE;
     }
 
+#ifdef SDL_PLATFORM_EMSCRIPTEN
     SDL_SetWindowFillDocument(_tms._window, true);
+#endif
 
 #ifdef SDL_PLATFORM_ANDROID
     SDL_GetWindowSizeInPixels(_tms._window, &_tms.window_width, &_tms.window_height);
