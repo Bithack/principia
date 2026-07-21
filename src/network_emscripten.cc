@@ -490,49 +490,53 @@ int network::download_level(void *p) {
 
     tms_infof("_play_id = %d -----------------------", _play_id);
 
-    // callbacks
-    static auto success_cb = [](emscripten_fetch_t *fetch) {
-        const char *path = (const char*)fetch->userData;
+    P.add_action(ACTION_REFRESH_HEADER_DATA, 0);
+
+    static auto download_level_callback = [](int status, const char *headers, const void *body, size_t body_size, void *userdata) {
+        if (status != 200 || !body) {
+            tms_errorf("Failed to download level (status %d) -> %s", status, (const char*)userdata ? (const char*)userdata : "(null)");
+            free((void*)((const char*)userdata));
+            if (status == 404)
+                _play_downloading_error = DOWNLOAD_GENERIC_ERROR;
+            else
+                _play_downloading_error = DOWNLOAD_CHECK_INTERNET_CONNECTION;
+
+            _play_downloading = false;
+            return;
+        }
+
+        header_data hd = {};
+        parse_js_headers(status, headers, &hd);
+
+        P.add_action(ACTION_REFRESH_HEADER_DATA, 0);
+
+        const char *path = (const char*)userdata;
         FILE *f = fopen(path, "wb");
         if (f) {
-            fwrite(fetch->data, 1, fetch->numBytes, f);
+            fwrite(body, 1, body_size, f);
             fclose(f);
             tms_infof("Saved level to %s", path);
         } else {
             tms_errorf("Could not open %s for writing", path);
             _play_downloading_error = DOWNLOAD_WRITE_ERROR;
         }
-        emscripten_fetch_close(fetch);
         free((void*)path);
-        _play_downloading = false;
-    };
 
-    static auto error_cb = [](emscripten_fetch_t *fetch) {
-        const char *path = (const char*)fetch->userData;
-        tms_errorf("Failed to download level (status %d) -> %s", fetch->status, path ? path : "(null)");
-        emscripten_fetch_close(fetch);
-        free((void*)path);
-        if (fetch->status == 404) {
-            _play_downloading_error = DOWNLOAD_GENERIC_ERROR;
-        } else {
-            _play_downloading_error = DOWNLOAD_CHECK_INTERNET_CONNECTION;
-        }
         _play_downloading = false;
     };
 
     // allocate and pass save path as userData
     char *user = strdup(save_path);
 
-    emscripten_fetch_attr_t attr;
-    emscripten_fetch_attr_init(&attr);
-    strcpy(attr.requestMethod, "GET");
-    attr.onsuccess = +[](emscripten_fetch_t *fetch){ success_cb(fetch); };
-    attr.onerror = +[](emscripten_fetch_t *fetch){ error_cb(fetch); };
-    attr.userData = user;
-    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
+    emscripten_fetch_request(
+        "GET",
+        url,
+        nullptr,
+        nullptr,
+        0,
+        download_level_callback,
+        user);
 
-    _play_downloading = true;
-    emscripten_fetch(&attr, url);
     return T_OK;
 }
 
