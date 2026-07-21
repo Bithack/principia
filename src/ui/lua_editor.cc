@@ -157,8 +157,10 @@ namespace UiLuaEditor {
 
             ImGui::EndChild();
 
+#ifndef SDL_PLATFORM_EMSCRIPTEN
             ImGui::Checkbox("Use external editor", &use_external_editor);
             ImGui::SetItemTooltip("Check this file if you want to edit the Lua from an external editor. \n(Toggling will save the current code)");
+#endif
 
             if (!use_external_editor) {
                 if (ImGui::Button("Save (Ctrl+S)", UI(100., 0.)) || (io.KeyCtrl && ImGui::IsKeyReleased(ImGuiKey_S))) {
