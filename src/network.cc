@@ -1,7 +1,10 @@
 #include "network.hh"
+#include "crc.hh"
+#include "game.hh"
 #include "menu_shared.hh"
 #include "gui.hh"
 #include "pkgman.hh"
+#include "progress.hh"
 #include "ui.hh"
 #include "version.hh"
 #include "world.hh"
@@ -231,5 +234,90 @@ void handle_successful_publish(lvledit &lvl, header_data &hd, int *community_id)
         /* we did not receive any data back, an unknown error occurred */
         tms_errorf("no data received");
         _publish_lvl_uploading_error = true;
+    }
+}
+
+bool prepare_submit_score(submit_score_data *data) {
+    tms_assertf(W->is_playing(), "submit score called when the level was paused");
+
+    int highscore_level_offset = highscore_offset(W->level.community_id);
+
+    lvledit lvl;
+
+    if (!lvl.open(LEVEL_DB, W->level.local_id)) {
+        tms_errorf("could not open level");
+        return false;
+    }
+
+    uint32_t timestamp = (uint32_t)time(NULL);
+    const lvl_progress *base_lp = progress::get_level_progress(W->level_id_type, W->level.local_id);
+
+    uint32_t last_score = base_lp->last_score;
+
+    uint32_t crc32_data[5];
+    uint32_t more_data[5];
+
+    more_data[HS_VER_DATA_TIMESTAMP] = timestamp;
+    more_data[HS_VER_DATA_REVISION] = lvl.lvl.revision;
+    more_data[HS_VER_DATA_TYPE] = W->level_id_type;
+    more_data[HS_VER_DATA_PRINCIPIA_VERSION] = principia_version_code();
+    more_data[HS_VER_DATA_VERSION] = W->level.version;
+
+    for (int x = 0; x < 5; ++x) {
+        tms_infof("fetching progress for level with id %d", BASE_HIGHSCORE_LEVEL_ID + x);
+        lvl_progress *lp = progress::get_level_progress(LEVEL_MAIN, BASE_HIGHSCORE_LEVEL_ID + x);
+        crc32_data[x] = crc32_level(lvl.lvl, lvl.lb, timestamp, last_score, x);
+        tms_debugf("%d got crc: %08X", x, crc32_data[x]);
+
+        lp->last_score = more_data[(x + highscore_level_offset) % 5];
+
+        tms_infof("Last score: %u", lp->last_score);
+    }
+
+    for (int x = 0; x < 5; ++x) {
+        lvl_progress *lp = progress::get_level_progress(LEVEL_MAIN, BASE_HIGHSCORE_LEVEL_ID + x);
+        lp->top_score = crc32_data[(x + highscore_level_offset) % 5];
+
+        tms_infof("Top score: %08X", lp->top_score);
+    }
+
+    progress::commit();
+
+    /* TODO: add cool stuff, like crc32 stuff here */
+
+    /* and when we're done with sbuuuuutmi score, we remove that secret stuff again */
+
+    /* what is the secret stuff? incomprehensible comments */
+
+    data->community_id = W->level.community_id;
+    data->progress_path = progress::path;
+
+    return true;
+}
+
+void handle_submit_score(header_data &hd, int http_code) {
+    if (hd.error_message) {
+        ui::message(hd.error_message);
+
+        free(hd.error_message);
+    }
+
+    if (hd.notify_message) {
+        ui::message(hd.notify_message);
+
+        free(hd.notify_message);
+        G->state.submitted_score = true;
+    }
+
+    switch (hd.error_action) {
+        case ERROR_ACTION_LOG_IN:
+            ui::next_action = ACTION_SUBMIT_SCORE;
+            ui::open_dialog(DIALOG_LOGIN);
+            break;
+    }
+
+    if (http_code != 200) {
+        tms_errorf("submit score failed with http code %d", http_code);
+        ui::message("An error occurred while submitting your score. Please check your internet connection and try again.", true);
     }
 }

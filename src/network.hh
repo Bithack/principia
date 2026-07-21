@@ -70,6 +70,16 @@ void handle_version_check(char *body);
 
 void handle_successful_publish(lvledit &lvl, header_data &hd, int *community_id);
 
+
+struct submit_score_data {
+    uint32_t community_id;
+    const char *progress_path;
+};
+
+bool prepare_submit_score(submit_score_data *data);
+
+void handle_submit_score(header_data &hd, int http_code);
+
 #ifdef SDL_PLATFORM_ANDROID
 extern "C" {
     void P_get_cookie_data(char **token);

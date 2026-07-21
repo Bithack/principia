@@ -1,12 +1,10 @@
 #include "network.hh"
-#include "crc.hh"
-#include "game.hh"
 #include "main.hh"
 #include "menu_shared.hh"
 #include "object_factory.hh"
-#include "progress.hh"
 #include "ui.hh"
 #include "version.hh"
+#include "world.hh"
 #include <tms/cpp.hh>
 
 #if !defined(SCREENSHOT_BUILD) && !defined(SDL_PLATFORM_EMSCRIPTEN)
@@ -452,131 +450,58 @@ int network::publish_level(void *p) {
 }
 
 int network::submit_score(void *p) {
-    tms_assertf(W->is_playing(), "submit score called when the level was paused");
+    submit_score_data data;
 
-    CURLcode r;
-
-    int highscore_level_offset = highscore_offset(W->level.community_id);
-
-    lvledit lvl;
-
-    if (!lvl.open(LEVEL_DB, W->level.local_id)) {
-        tms_errorf("could not open level");
-        return false;
+    if (!prepare_submit_score(&data)) {
+        _submit_score_done = true;
+        return T_ERR;
     }
-
-    uint32_t timestamp = (uint32_t)time(NULL);
-    const lvl_progress *base_lp = progress::get_level_progress(W->level_id_type, W->level.local_id);
-    uint32_t last_score = base_lp->last_score;
-
-    uint32_t crc32_data[5];
-    uint32_t more_data[5];
-    more_data[HS_VER_DATA_TIMESTAMP] = timestamp;
-    more_data[HS_VER_DATA_REVISION] = lvl.lvl.revision;
-    more_data[HS_VER_DATA_TYPE] = W->level_id_type;
-    more_data[HS_VER_DATA_PRINCIPIA_VERSION] = principia_version_code();
-    more_data[HS_VER_DATA_VERSION] = W->level.version;
-
-    for (int x=0; x<5; ++x) {
-        tms_infof("fetching progress for level with id %d", BASE_HIGHSCORE_LEVEL_ID+x);
-        lvl_progress *lp = progress::get_level_progress(LEVEL_MAIN, BASE_HIGHSCORE_LEVEL_ID+x);
-        crc32_data[x] = crc32_level(lvl.lvl, lvl.lb, timestamp, last_score, x);
-        tms_debugf("%d got crc: %08X", x, crc32_data[x]);
-
-        lp->last_score = more_data[(x+highscore_level_offset)%5];
-
-        tms_infof("Last score: %u", lp->last_score);
-    }
-
-    for (int x=0; x<5; ++x) {
-        lvl_progress *lp = progress::get_level_progress(LEVEL_MAIN, BASE_HIGHSCORE_LEVEL_ID+x);
-        lp->top_score = crc32_data[(x+highscore_level_offset)%5];
-        tms_infof("Top score: %08X", lp->top_score);
-    }
-
-    progress::commit();
-
-    /* TODO: add cool stuff, like crc32 stuff here */
-
-    /* and when we're done with sbuuuuutmi score, we remove that secret stuff again */
 
     lock_curl("submit_score");
-    if (P.curl) {
-        struct header_data hd = {0};
-        init_curl_defaults(P.curl);
-
-        curl_mime* mime = curl_mime_init(P.curl);
-        curl_mimepart* part;
-
-        part = curl_mime_addpart(mime);
-        curl_mime_name(part, "data.bin");
-        curl_mime_filedata(part, progress::path);
-
-        char tmp[32];
-        sprintf(tmp, "%u", W->level.community_id);
-
-        part = curl_mime_addpart(mime);
-        curl_mime_name(part, "lvl_id");
-        curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
-
-        CURL_CUDDLES;
-
-        COMMUNITY_URL("internal/submit_score");
-        curl_easy_setopt(P.curl, CURLOPT_URL, url);
-
-        curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
-
-        curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
-
-        curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
-
-        r = curl_easy_perform(P.curl);
-        if (r == CURLE_OK) {
-            // Check for messages
-            bool displayed_message = false;
-            if (hd.error_message) {
-                if (!displayed_message) {
-                    ui::message(hd.error_message);
-                    displayed_message = true;
-                }
-
-                free(hd.error_message);
-            }
-            if (hd.notify_message) {
-                if (!displayed_message) {
-                    ui::message(hd.notify_message);
-                    displayed_message = true;
-                }
-
-                free(hd.notify_message);
-
-                G->state.submitted_score = true;
-            }
-
-            switch (hd.error_action) {
-                case ERROR_ACTION_LOG_IN:
-                    ui::next_action = ACTION_SUBMIT_SCORE;
-                    ui::open_dialog(DIALOG_LOGIN);
-                    break;
-            }
-        } else {
-            switch (r) {
-                case CURLE_OPERATION_TIMEDOUT:
-                    ui::message("Unable to submit your score.\nYour internet connection seems to be unstable! Please try again.", true);
-                    break;
-
-                case CURLE_COULDNT_RESOLVE_HOST:
-                    ui::message("Unable to submit your score.\nError: Unable to resolve hostname. Please check your internet connection.", true);
-                    break;
-
-                default:
-                    ui::message("An unknown error occurred when submitting your score. Check your internet connection and try again.", true);
-                    break;
-            }
-        }
-
-        curl_mime_free(mime);
+    if (!P.curl) {
+        tms_errorf("unable to initialize curl handle!");
+        unlock_curl("submit_score");
+        _submit_score_done = true;
+        return T_ERR;
     }
+
+    struct header_data hd = {0};
+    init_curl_defaults(P.curl);
+
+    curl_mime* mime = curl_mime_init(P.curl);
+    curl_mimepart* part;
+
+    part = curl_mime_addpart(mime);
+    curl_mime_name(part, "data.bin");
+    curl_mime_filedata(part, data.progress_path);
+
+    char tmp[32];
+    sprintf(tmp, "%u", W->level.community_id);
+
+    part = curl_mime_addpart(mime);
+    curl_mime_name(part, "lvl_id");
+    curl_mime_data(part, tmp, CURL_ZERO_TERMINATED);
+
+    CURL_CUDDLES;
+
+    COMMUNITY_URL("internal/submit_score");
+    curl_easy_setopt(P.curl, CURLOPT_URL, url);
+
+    curl_easy_setopt(P.curl, CURLOPT_WRITEHEADER, &hd);
+
+    curl_easy_setopt(P.curl, CURLOPT_MIMEPOST, mime);
+
+    curl_easy_setopt(P.curl, CURLOPT_CONNECTTIMEOUT, 15L);
+
+    CURLcode r = curl_easy_perform(P.curl);
+    if (r == CURLE_OK)
+        handle_submit_score(hd, 200);
+    else if (r == CURLE_OPERATION_TIMEDOUT || r == CURLE_COULDNT_RESOLVE_HOST)
+        ui::message("Unable to submit your score.\nYour internet connection seems to be unstable! Please try again.", true);
+    else
+        ui::message("An unknown error occurred when submitting your score. Check your internet connection and try again.", true);
+
+    curl_mime_free(mime);
 
     _submit_score_done = true;
 

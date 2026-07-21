@@ -315,7 +315,75 @@ int network::publish_level(void *p) {
 
     return T_OK;
 }
-int network::submit_score(void *p) { return 0; }
+
+int network::submit_score(void *p) {
+    submit_score_data data;
+
+    if (!prepare_submit_score(&data)) {
+        _submit_score_done = true;
+        return false;
+    }
+
+    FILE *f = fopen(data.progress_path, "rb");
+    if (!f) {
+        tms_errorf("could not open progress file");
+        _submit_score_done = true;
+        return false;
+    }
+
+    fseek(f, 0, SEEK_END);
+    size_t size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    void *data_bin = malloc(size);
+
+    if (fread(data_bin, 1, size, f) != size) {
+        fclose(f);
+        tms_errorf("could not read progress file");
+        _submit_score_done = true;
+        return false;
+    }
+    fclose(f);
+
+    std::string boundary = "PrincipiaBoundary" + std::to_string(rand());
+    std::string payload =
+        "--" + boundary + "\r\n"
+        "Content-Disposition: form-data; name=\"data.bin\"; "
+        "filename=\"data.bin\"\r\n"
+        "Content-Type: application/octet-stream\r\n"
+        "\r\n" +
+        std::string(static_cast<const char *>(data_bin), size) +
+        "\r\n"
+        "--" + boundary + "\r\n"
+        "Content-Disposition: form-data; name=\"lvl_id\"\r\n"
+        "\r\n" +
+        std::to_string(data.community_id) +
+        "\r\n"
+        "--" + boundary + "--\r\n";
+
+    static auto submit_score_fetch_callback = [](int status, const char *headers, const void *body, size_t body_size, void *userdata) {
+        tms_infof("(Emscripten) Submit score callback with status %d", status);
+
+        header_data hd = {};
+        parse_js_headers(status, headers, &hd);
+
+        handle_submit_score(hd, status);
+        _submit_score_done = true;
+    };
+
+    COMMUNITY_URL("internal/submit_score");
+
+    emscripten_fetch_request(
+        "POST",
+        url,
+        std::string("Content-Type: multipart/form-data; boundary=" + boundary).c_str(),
+        payload.data(),
+        payload.size(),
+        submit_score_fetch_callback,
+        nullptr);
+
+    return T_OK;
+}
 
 int network::login(void *p) {
     login_data *data = static_cast<login_data*>(p);
