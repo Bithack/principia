@@ -24,7 +24,7 @@ namespace UiLevelProperties {
     static float angular_damping;
     static float joint_friction;
 
-    static int final_score;
+    static uint32_t final_score;
     static bool pause_on_win;
     static bool display_score;
     static float creature_absorb_time;
@@ -67,8 +67,6 @@ namespace UiLevelProperties {
             down += 6-(uint16_t)w;
         }
 
-        if (resized)
-            ui::message("Your level size was increased to the minimum allowed.");
 
         W->level.size_x[0] = left;
         W->level.size_x[1] = right;
@@ -101,6 +99,11 @@ namespace UiLevelProperties {
             P.add_action(ACTION_SET_LEVEL_TYPE, (void*)LCAT_CUSTOM);
 
         P.add_action(ACTION_RELOAD_LEVEL, 0);
+
+        if (resized)
+            ui::message("Your level size was increased to the minimum allowed.");
+        else
+            ui::message("Level properties applied successfully.");
 
         ImGui::CloseCurrentPopup();
     }
@@ -186,8 +189,8 @@ namespace UiLevelProperties {
         }
 
         ImGui::SeparatorText("Gravity");
-        ImGui::DragFloat("X###gravityx", &W->level.gravity_x, .1, -75., 75., "%.01f", ImGuiSliderFlags_AlwaysClamp);
-        ImGui::DragFloat("Y###gravityy", &W->level.gravity_y, .1, -75., 75., "%.01f", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::DragFloat("X###gravityx", &gravity[0], .1, -75., 75., "%.01f", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::DragFloat("Y###gravityy", &gravity[1], .1, -75., 75., "%.01f", ImGuiSliderFlags_AlwaysClamp);
     }
 
     void tab_physics() {
@@ -217,7 +220,7 @@ namespace UiLevelProperties {
 
     void tab_gameplay() {
         ImGui::TextUnformatted("Final score");
-        ImGui::InputInt("##final_score", &final_score);
+        ImGui::InputScalar("##final_score", ImGuiDataType_U32, &final_score);
         ImGui::SetItemTooltip("What score the player has to reach to win the level. (0 disables this win condition)");
 
         if (W->level.version == LEVEL_VERSION) {
@@ -310,7 +313,7 @@ namespace UiLevelProperties {
             LVL_DISABLE_LAYER_SWITCH,
             "Disable layer switch",
             "In adventure mode, disable manual robot layer switching.\nIn puzzle mode, restrict layer switching for objects.",
-            !((W->level.type == LCAT_PUZZLE) || (W->level.type == LCAT_ADVENTURE))
+            !((type == LCAT_PUZZLE) || (type == LCAT_ADVENTURE))
         );
         lvl_flag_toggle(
             LVL_DISABLE_INTERACTIVE,
@@ -326,25 +329,25 @@ namespace UiLevelProperties {
             LVL_DISABLE_CONNECTIONS,
             "Disable connections",
             "Disable the ability to create connections\n(Puzzle mode only)",
-            W->level.type != LCAT_PUZZLE
+            type != LCAT_PUZZLE
         );
         lvl_flag_toggle(
             LVL_DISABLE_STATIC_CONNS,
             "Disable static connections",
             "Disable connections to static objects such as platforms\n(Puzzle mode only)",
-            W->level.type != LCAT_PUZZLE
+            type != LCAT_PUZZLE
         );
         lvl_flag_toggle(
             LVL_DISABLE_JUMP,
             "Disable jumping",
             "Disable the robots ability to jump manually\n(Adventure mode only)",
-            W->level.type != LCAT_ADVENTURE
+            type != LCAT_ADVENTURE
         );
-        ///XXX: this applies to sandbox mode too, right?
         lvl_flag_toggle(
             LVL_DISABLE_ROBOT_HIT_SCORE,
             "Disable robot hit score",
-            "Do not award points for shooting other robots"
+            "Do not award points for shooting other robots\n(Adventure mode only)",
+            type != LCAT_ADVENTURE
         );
         lvl_flag_toggle(
             LVL_DISABLE_ZOOM,
@@ -380,7 +383,7 @@ namespace UiLevelProperties {
             LVL_SNAP,
             "Snap by default",
             "When the player drags or rotates an object it will snap to a grid by default (good for easy beginner levels).\n(Puzzle mode only)",
-            W->level.type != LCAT_PUZZLE
+            type != LCAT_PUZZLE
         );
         lvl_flag_toggle(
             LVL_NAIL_CONNS,
@@ -405,7 +408,8 @@ namespace UiLevelProperties {
         lvl_flag_toggle(
             LVL_DISABLE_3RD_LAYER,
             "Disable third layer",
-            "If enabled, prevents objects from being moved to the third layer."
+            "If enabled, prevents objects from being moved to the third layer.\n(Puzzle mode only)",
+            type != LCAT_PUZZLE
         );
         lvl_flag_toggle(
             LVL_PORTRAIT_MODE,
@@ -430,13 +434,14 @@ namespace UiLevelProperties {
         lvl_flag_toggle(
             LVL_DISABLE_ROBOT_SPECIAL_ACTION,
             "Disable robot special action",
-            "If enabled, the adventure robot won't be able to perform it's special action."
+            "If enabled, the adventure robot won't be able to perform it's special action.\n(Adventure mode only)",
+            type != LCAT_ADVENTURE
         );
         lvl_flag_toggle(
             LVL_DISABLE_ADVENTURE_MAX_ZOOM,
             "Disable adventure max zoom",
             "If enabled, the zoom will no longer be limited while following the adventure robot.\n(Adventure mode only)",
-            W->level.type != LCAT_ADVENTURE
+            type != LCAT_ADVENTURE
         );
         lvl_flag_toggle(
             LVL_DISABLE_ROAM_LAYER_SWITCH,
@@ -451,7 +456,8 @@ namespace UiLevelProperties {
         lvl_flag_toggle(
             LVL_DISABLE_CAVEVIEW,
             "Disable adventure caveview",
-            "Disable the caveview which appears when the adventure robot is in the second layer, with terrain in front of it in the third layer"
+            "Disable the caveview which appears when the adventure robot is in the second layer, with terrain in front of it in the third layer.\n(Adventure mode only)",
+            type != LCAT_ADVENTURE
         );
         lvl_flag_toggle(
             LVL_DISABLE_ROCKET_TRIGGER_EXPLOSIVES,
