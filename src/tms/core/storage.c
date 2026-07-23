@@ -198,6 +198,7 @@ static void move_matching_files(const char *srcdir, const char *dstdir, const ch
 
     FindClose(hFind);
 #else
+#ifndef SDL_PLATFORM_HAIKU
     DIR *dir = opendir(srcdir);
     if (!dir) return;
 
@@ -216,6 +217,7 @@ static void move_matching_files(const char *srcdir, const char *dstdir, const ch
         rename(src, dst);
     }
     closedir(dir);
+#endif
 #endif
 }
 
