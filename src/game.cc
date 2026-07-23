@@ -7647,6 +7647,11 @@ game::handle_input_paused(tms::event *ev, int action)
                     /* if there are more than one socket available, choose the "first" option */
                     this->select_socksel(0);
                     disable_menu = true;
+                } else if (this->state.sandbox) {
+                    if (!disable_menu)
+                        ui::open_dialog(DIALOG_QUICKADD);
+
+                    disable_menu = false;
                 }
                 break;
 
@@ -8055,13 +8060,7 @@ game::handle_input_paused(tms::event *ev, int action)
         }
     } else if (ev->type == TMS_EV_KEY_UP) {
         switch (ev->data.key.keycode) {
-            case TMS_KEY_SPACE:
-                if (!disable_menu) {
-                    ui::open_dialog(DIALOG_QUICKADD);
-                }
 
-                disable_menu = false;
-                break;
 
             case TMS_KEY_LEFT_SHIFT:
             case TMS_KEY_RIGHT_SHIFT:
