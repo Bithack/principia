@@ -56,8 +56,7 @@ namespace UiOpenObject {
 
 		if (ImGui::BeginPopupModal(multiemitter_mode ? "Select object###open_object" : "Import object###open_object", REF_TRUE, MODAL_FLAGS)) {
 
-            if (ImGui::IsKeyPressed(ImGuiKey_Escape))
-                ImGui::CloseCurrentPopup();
+			ImGui_CloseOnEsc();
 
 			ImGui::BeginChild("object_list_child", UI(0.f, 350.f), ImGuiChildFlags_NavFlattened, FRAME_FLAGS);
 
@@ -106,9 +105,6 @@ namespace UiOpenObject {
 			}
 
 			ImGui::EndChild();
-
-			if (ImGui::IsKeyPressed(ImGuiKey_Escape))
-				ImGui::CloseCurrentPopup();
 
 			ImGui::EndPopup();
 		}

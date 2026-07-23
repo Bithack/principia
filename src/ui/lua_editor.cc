@@ -103,7 +103,7 @@ namespace UiLuaEditor {
         handle_do_open(&do_open, "Lua Script");
         ImGui_CenterNextWindow();
 
-        if (ImGui::BeginPopupModal("Lua Script", has_unsaved_changes ? REF_TRUE : NULL,
+        if (ImGui::BeginPopupModal("Lua Script", has_unsaved_changes ? NULL : REF_TRUE,
                 MODAL_FLAGS | (has_unsaved_changes ? ImGuiWindowFlags_UnsavedDocument : 0))) {
 
             has_unsaved_changes = (codeText != saved_text);
@@ -163,7 +163,7 @@ namespace UiLuaEditor {
 #endif
 
             if (!use_external_editor) {
-                if (ImGui::Button("Save (Ctrl+S)", UI(100., 0.)) || (io.KeyCtrl && ImGui::IsKeyReleased(ImGuiKey_S))) {
+                if (ImGui::Button("Save (Ctrl+S)", UI(100., 0.)) || (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_S))) {
                     apply_properties();
                     reload_code();
                 }

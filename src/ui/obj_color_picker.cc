@@ -10,8 +10,14 @@ namespace UiObjColorPicker {
     std::string wintitle{"Color"};
 
     void open(bool alpha, entity *entity) {
-        do_open = true;
         entity_ptr = entity;
+        if (!entity_ptr) {
+            tms_errorf("open_color_picker: entity is null");
+            return;
+        }
+
+        do_open = true;
+
         tvec4 color = entity->get_color();
         ref_color[0] = color.r;
         ref_color[1] = color.g;
@@ -27,9 +33,8 @@ namespace UiObjColorPicker {
         ImGui_CenterNextWindow();
 
         if (ImGui::BeginPopupModal(wintitle.c_str(), REF_TRUE, MODAL_FLAGS)) {
-            if (ImGui::IsKeyReleased(ImGuiKey_Escape) || ImGui::IsKeyReleased(ImGuiKey_Enter)) {
+            if (ImGui_EscAction() || ImGui_EnterAction())
                 ImGui::CloseCurrentPopup();
-            }
 
             tvec4 color = entity_ptr->get_color();
             float color_arr[4] = {

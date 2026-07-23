@@ -18,14 +18,14 @@ namespace UiCommunity {
 
             ImGui::Dummy(UI(0.0f, 25.0f));
 
-            if (ImGui::Button("Yes", UI(70., 0.)) || ImGui::IsKeyPressed(ImGuiKey_Enter)) {
+            if (ImGui::Button("Yes", UI(70., 0.)) || ImGui_EnterAction()) {
                 P.add_action(ACTION_GOTO_MAINMENU, 0);
                 ImGui::CloseCurrentPopup();
             }
 
             ImGui::SameLine();
 
-            if (ImGui::Button("No", UI(70., 0.)) || ImGui::IsKeyPressed(ImGuiKey_Escape)) {
+            if (ImGui::Button("No", UI(70., 0.)) || ImGui_EscAction()) {
                 ImGui::CloseCurrentPopup();
             }
 

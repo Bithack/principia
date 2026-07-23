@@ -4,10 +4,12 @@
 #include "item.hh"
 #include "main.hh"
 #include "types.hh"
+#include "ui.hh"
 
 namespace UiQuickadd {
     static bool do_open = false;
     static std::string query{""};
+    static std::string trimmed_query{""};
 
     enum class ItemCategory {
         MenuObject,
@@ -51,13 +53,27 @@ namespace UiQuickadd {
         search_results.clear();
         low_confidence.clear();
 
+        trimmed_query = query;
+
+        // trim leading whitespace
+        trimmed_query.erase(
+            trimmed_query.begin(),
+            std::find_if(trimmed_query.begin(), trimmed_query.end(),
+            [](unsigned char ch) { return !std::isspace(ch); }));
+
+        // trim trailing whitespace
+        trimmed_query.erase(
+            std::find_if(trimmed_query.rbegin(),
+            trimmed_query.rend(),
+            [](unsigned char ch) { return !std::isspace(ch); }).base(), trimmed_query.end());
+
         for (int i = 0; i < haystack.size(); i++) {
             SearchItem item = haystack[i];
             std::string name = resolve_item_name(item);
 
-            if (lax_search(name, query))
+            if (lax_search(name, trimmed_query))
                 search_results.push_back(i);
-            else if (lax_search(query, name))
+            else if (lax_search(trimmed_query, name))
                 low_confidence.push_back(i);
         }
 
@@ -71,7 +87,7 @@ namespace UiQuickadd {
 
         tms_debugf(
             "search \"%s\" %d/%d matched, (%d low confidence)",
-            query.c_str(),
+            trimmed_query.c_str(),
             (int) search_results.size(),
             (int) haystack.size(),
             (int) low_confidence.size()
@@ -116,6 +132,7 @@ namespace UiQuickadd {
     void open() {
         do_open = true;
         query = "";
+        trimmed_query = "";
         search_results.clear();
         init_haystack();
         search();
@@ -138,14 +155,14 @@ namespace UiQuickadd {
     void layout() {
         handle_do_open(&do_open, "quickadd");
         if (ImGui::BeginPopup("quickadd", POPUP_FLAGS)) {
-            if (ImGui::IsKeyReleased(ImGuiKey_Escape)) {
+            if (ImGui::IsKeyPressed(ImGuiKey_Escape)) {
                 ImGui::CloseCurrentPopup();
                 ImGui::EndPopup();
                 return;
             }
-            if (ImGui::IsWindowAppearing()) {
+
+            if (ImGui::IsWindowAppearing())
                 ImGui::SetKeyboardFocusHere();
-            }
 
             if (ImGui::InputTextWithHint(
                 "###qs-search",
@@ -176,14 +193,22 @@ namespace UiQuickadd {
                     ImGui::PopID();
                 }
                 if (search_results.size() == 0) {
-                    SearchItem item = haystack[last_viable_solution];
-                    if (ImGui::Selectable(resolve_item_name(item).c_str())) {
-                        activate_item(item);
-                        ImGui::CloseCurrentPopup();
+                    if (strcasecmp(trimmed_query.c_str(), "s" "nefler") == 0) {
+                        if (ImGui::Selectable("S" "nefler")) {
+                            ui::message("Coming soon!");
+                            ImGui::CloseCurrentPopup();
+                        }
+                    } else {
+                        SearchItem item = haystack[last_viable_solution];
+                        if (ImGui::Selectable(resolve_item_name(item).c_str())) {
+                            activate_item(item);
+                            ImGui::CloseCurrentPopup();
+                        }
                     }
                 }
                 ImGui::EndChild();
             }
+
             ImGui::EndPopup();
         }
     }

@@ -74,8 +74,7 @@ namespace UiOpenState {
         ImGui::SetNextWindowSize(UI(600., 0.));
         if (ImGui::BeginPopupModal("Open state", REF_TRUE, MODAL_FLAGS)) {
 
-            if (ImGui::IsKeyPressed(ImGuiKey_Escape))
-                ImGui::CloseCurrentPopup();
+            ImGui_CloseOnEsc();
 
             ImGui::BeginChild("state_list_child", UI(0., 350.), ImGuiChildFlags_NavFlattened, FRAME_FLAGS);
 

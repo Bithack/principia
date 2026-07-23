@@ -13,7 +13,7 @@ namespace UiFrequency {
 
     static bool this_is_tx = false;
     static uint32_t freq_range_start;
-    static int freq_range_size;
+    static int freq_range_size = 0;
 
     typedef struct {
         bool is_tx;
@@ -92,13 +92,21 @@ namespace UiFrequency {
 
         range = is_range;
 
+        if (!e) {
+            tms_errorf("frequency: no entity selected");
+            return;
+        }
+
         this_is_tx =
             (e->g_id == O_TRANSMITTER) ||
             (e->g_id == O_MINI_TRANSMITTER) ||
             (e->g_id == O_BROADCASTER);
 
         freq_range_start = e->properties[0].v.i;
-        freq_range_size = e->properties[1].v.i;
+        if (is_range)
+            freq_range_size = e->properties[1].v.i;
+        else
+            freq_range_size = 0;
 
         update_freq_space();
     }

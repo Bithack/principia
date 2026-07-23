@@ -85,6 +85,9 @@ namespace UiRobot {
     void open() {
         entity* e = G->selection.e;
 
+        if (!e || !e->flag_active(ENTITY_IS_ROBOT))
+            return;
+
         default_state = e->properties[ROBOT_PROPERTY_STATE].v.i8;
         roaming = e->properties[ROBOT_PROPERTY_ROAMING].v.i8 != 0;
         initial_dir = e->properties[ROBOT_PROPERTY_DIR].v.i8;

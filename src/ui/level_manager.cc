@@ -73,6 +73,9 @@ namespace UiLevelManager {
         if (ImGui::BeginPopupModal("Level Manager", REF_TRUE, MODAL_FLAGS)) {
             bool any_level_found = false;
 
+            if (pending_delete_id == 0)
+                ImGui_CloseOnEsc();
+
             //Top action bar
             {
                 //Align stuff to the right

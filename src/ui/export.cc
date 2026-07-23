@@ -39,7 +39,7 @@ namespace UiExport {
             if (disabled)
                 ImGui::BeginDisabled();
 
-            if (ImGui_SaveButton() || activate)
+            if (ImGui_SaveButton() || (!disabled && activate))
                 export_object();
 
             if (disabled)

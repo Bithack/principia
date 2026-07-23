@@ -564,7 +564,7 @@ namespace UiLevelProperties {
 
             ImGui::Separator();
 
-            if (ImGui_SaveButton())
+            if (ImGui_SaveButton() || ImGui_SaveKeybind())
                 apply_properties();
 
             ImGui::SameLine();

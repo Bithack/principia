@@ -55,13 +55,32 @@ inline ImVec2 UI(float x, float y) {
 #define ImGui_ButtonBar(func) \
 	ImGui_ButtonBarPadding(); \
 \
-	if (ImGui_SaveButton()) \
+	if (ImGui_SaveButton() || ImGui_SaveKeybind()) \
 		func(); \
 \
 	ImGui::SameLine(); \
 \
-	if (ImGui_CancelButton()) \
+	if (ImGui_CancelButton() ) \
 		ImGui::CloseCurrentPopup()
+
+inline bool ImGui_EnterAction() {
+	return ImGui::IsKeyPressed(ImGuiKey_Enter) && !ImGui::IsAnyItemFocused();
+}
+
+inline bool ImGui_EscAction() {
+	return ImGui::IsKeyPressed(ImGuiKey_Escape) && !ImGui::IsAnyItemFocused();
+}
+
+inline void ImGui_CloseOnEsc() {
+	if (ImGui_EscAction())
+		ImGui::CloseCurrentPopup();
+}
+
+inline bool ImGui_SaveKeybind() {
+	// TODO: this doesn't work too well for whatever reason
+	//return ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_Enter);
+	return false;
+}
 
 inline void ImGui_ButtonBarPadding() {
 	ImGui::Dummy(UI(0.0f, 5.0f));

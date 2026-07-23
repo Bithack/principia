@@ -38,21 +38,24 @@ namespace UiFXEmitter {
     }
 
     void open() {
-        do_open = true;
-
         entity *e = G->selection.e;
-        if (e && e->g_id == O_FX_EMITTER) {
-            radius = e->properties[0].v.f;
-            count = e->properties[1].v.i;
-            interval = e->properties[2].v.f;
-            for (int n = 0; n < 4; ++n) {
-                effects[n] = e->properties[3 + n].v.i;
-                if (effects[n] == FX_INVALID)
-                    effects[n] = 0;
-                else
-                    effects[n]++;
-            }
+        if (!e || e->g_id != O_FX_EMITTER) {
+            tms_errorf("fxemitter: no entity selected");
+            return;
         }
+
+        radius = e->properties[0].v.f;
+        count = e->properties[1].v.i;
+        interval = e->properties[2].v.f;
+        for (int n = 0; n < 4; ++n) {
+            effects[n] = e->properties[3 + n].v.i;
+            if (effects[n] == FX_INVALID)
+                effects[n] = 0;
+            else
+                effects[n]++;
+        }
+
+        do_open = true;
     }
 
     void layout() {

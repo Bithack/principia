@@ -58,18 +58,21 @@ namespace UiConfirm {
 
             ImGui::Dummy(UI(0.0f, 25.0f));
 
-            if (ImGui::Button(confirm_button1, UI(70., 0.))) {
+            bool enter_pressed = ImGui_EnterAction();
+            bool esc_pressed = ImGui_EscAction();
+
+            if (ImGui::Button(confirm_button1, UI(70., 0.)) || enter_pressed) {
                 P.add_action(confirm_action1, confirm_action1_data);
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();
-            if (ImGui::Button(confirm_button2, UI(70., 0.))) {
+            if (ImGui::Button(confirm_button2, UI(70., 0.)) || (confirm_button3 == 0 && esc_pressed)) {
                 P.add_action(confirm_action2, confirm_action2_data);
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();
             if (confirm_button3 != 0) {
-                if (ImGui::Button(confirm_button3, UI(70., 0.))) {
+                if (ImGui::Button(confirm_button3, UI(70., 0.)) || esc_pressed) {
                     P.add_action(confirm_action3, confirm_action3_data);
                     ImGui::CloseCurrentPopup();
                 }

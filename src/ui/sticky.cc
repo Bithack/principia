@@ -11,6 +11,11 @@ namespace UiSticky {
 
     void apply_properties() {
         entity* e = G->selection.e;
+        if (!e || e->g_id != O_STICKY_NOTE) {
+            tms_errorf("sticky: no entity selected");
+            return;
+        }
+
         if (e->properties[0].v.s.buf) {
             free(e->properties[0].v.s.buf);
         }
@@ -24,12 +29,18 @@ namespace UiSticky {
     }
 
     void open() {
+        do_open = true;
+
         entity* e = G->selection.e;
+        if (!e || e->g_id != O_STICKY_NOTE) {
+            tms_errorf("sticky: no entity selected");
+            return;
+        }
+
         text = e->properties[0].v.s.buf ? e->properties[0].v.s.buf : "Hello!";
         center_x = e->properties[1].v.i8 != 0;
         center_y = e->properties[2].v.i8 != 0;
         font_size = e->properties[3].v.i8;
-        do_open = true;
     }
 
     void layout() {

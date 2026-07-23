@@ -20,6 +20,8 @@ namespace UiTips {
 
         ImGui::SetNextWindowSize(UI(320, 200));
         if (ImGui::BeginPopupModal("Tips and tricks", REF_TRUE, MODAL_FLAGS)) {
+            ImGui_CloseOnEsc();
+
             ImGuiStyle &style = ImGui::GetStyle();
             float font_size = ImGui::GetFontSize();
             ImVec2 frame_padding = style.FramePadding;
@@ -49,9 +51,9 @@ namespace UiTips {
             const char* close_text = "Close";
             const ImVec2 close_text_size = ImGui::CalcTextSize(close_text);
             ImGui::SetCursorPosX(content_region.x - (close_text_size.x + frame_padding.x * 2.));
-            if (ImGui::Button(close_text) || ImGui::IsKeyPressed(ImGuiKey_Escape)) {
+            if (ImGui::Button(close_text))
                 ImGui::CloseCurrentPopup();
-            }
+
             ImGui::EndPopup();
         }
     }

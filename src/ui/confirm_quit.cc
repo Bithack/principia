@@ -14,6 +14,8 @@ namespace UiConfirmQuit {
         ImGui::SetNextWindowSize(UI(280., .0));
 
         if (ImGui::BeginPopupModal("Confirm Quit", NULL, MODAL_FLAGS)) {
+            ImGui_CloseOnEsc();
+
             ImGui::TextWrapped("Are you sure you want to quit?\n\nAny unsaved changes will be lost!");
 
             ImGui::Dummy(UI(0.0f, 25.0f));

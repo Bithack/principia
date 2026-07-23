@@ -63,7 +63,7 @@ namespace UiPromptSettings {
             if (disabled)
                 ImGui::BeginDisabled();
 
-            if (ImGui_SaveButton())
+            if (ImGui_SaveButton() || (!disabled && ImGui_SaveKeybind()))
                 apply_properties();
 
             if (disabled)

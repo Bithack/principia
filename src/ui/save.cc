@@ -40,7 +40,7 @@ namespace UiSave {
         handle_do_open(&do_open, "###save");
         ImGui_CenterNextWindow();
         if (ImGui::BeginPopupModal(copy ? "Save as...###save" : "Save###save", REF_TRUE, MODAL_FLAGS)) {
-            ImGuiStyle& style = ImGui::GetStyle();
+            ImGui_CloseOnEsc();
 
             ImGui::TextUnformatted("Level name:");
 
@@ -55,10 +55,23 @@ namespace UiSave {
                 ImGuiInputTextFlags_EnterReturnsTrue
             );
 
-            ImGui_ButtonBar(apply_properties);
+            bool disabled = level_name[0] == '\0';
 
-            if (activate)
+            ImGui_ButtonBarPadding();
+
+            if (disabled)
+                ImGui::BeginDisabled();
+
+            if (ImGui_SaveButton() || (!disabled && activate))
                 apply_properties();
+
+            if (disabled)
+                ImGui::EndDisabled();
+
+            ImGui::SameLine();
+
+            if (ImGui_CancelButton())
+                ImGui::CloseCurrentPopup();
 
             ImGui::EndPopup();
         }
