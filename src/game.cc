@@ -8045,6 +8045,13 @@ game::handle_input_paused(tms::event *ev, int action)
 
                 disable_menu = false;
                 break;
+
+            case TMS_KEY_LEFT_ALT:
+                if (!disable_menu)
+                    ui::open_dialog(DIALOG_SANDBOX_MENU);
+
+                disable_menu = false;
+                break;
         }
     } else if (ev->type == TMS_EV_KEY_UP) {
         switch (ev->data.key.keycode) {
@@ -8063,15 +8070,6 @@ game::handle_input_paused(tms::event *ev, int action)
                     this->wdg_additive->faded = !this->multi.additive_selection;
                 }
                 break;
-
-            case TMS_KEY_LEFT_CTRL:
-            case TMS_KEY_RIGHT_CTRL:
-                if (!disable_menu)
-                    ui::open_dialog(DIALOG_SANDBOX_MENU);
-
-                disable_menu = false;
-                break;
-
         }
     } else if (ev->type == TMS_EV_POINTER_MOVE) {
         if (this->menu_handle_event(ev) == EVENT_DONE) {
