@@ -55,7 +55,7 @@ int _pipe_listener(void *p)
 
     return T_OK;
 
-#elif defined(SDL_PLATFORM_HAIKU) || defined(SDL_PLATFORM_EMSCRIPTEN)
+#elif defined(SDL_PLATFORM_HAIKU) || defined(SDL_PLATFORM_EMSCRIPTEN) || defined(SDL_PLATFORM_SWITCH)
 
     // Unimplemented
     return 0;
@@ -158,7 +158,7 @@ void setup_pipe(int argc, char **argv)
         SDL_CreateThread(_pipe_listener, "_pipe_listener", 0);
     }
 
-#elif defined(SDL_PLATFORM_HAIKU) || defined(SDL_PLATFORM_EMSCRIPTEN)
+#elif defined(SDL_PLATFORM_HAIKU) || defined(SDL_PLATFORM_EMSCRIPTEN) || defined(SDL_PLATFORM_SWITCH)
 
     // Unimplemented
 

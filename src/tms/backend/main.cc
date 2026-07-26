@@ -45,7 +45,7 @@ to reproduce it, if possible.
 }
 
 void redirect_log_output() {
-#if !defined(DEBUG) && !defined(SDL_PLATFORM_EMSCRIPTEN)
+#if defined(SDL_PLATFORM_SWITCH) || (!defined(DEBUG) && !defined(SDL_PLATFORM_EMSCRIPTEN))
     char logfile[1024];
     snprintf(logfile, 1023, "%s/run.log", tms_storage_path());
 
@@ -71,7 +71,7 @@ void print_log_header() {
 }
 
 static void find_data_dir() {
-#ifndef SDL_PLATFORM_ANDROID
+#if !defined(SDL_PLATFORM_ANDROID) && !defined(SDL_PLATFORM_SWITCH)
     // Check if we're in the right place
     struct stat st{};
     if (stat("data", &st) != 0) {
@@ -159,7 +159,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     _tms.window_width = 1280;
     _tms.window_height = 720;
 
-#elif !defined(SDL_PLATFORM_ANDROID)
+#elif !defined(SDL_PLATFORM_ANDROID) && !defined(SDL_PLATFORM_SWITCH)
     const SDL_DisplayMode *mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
     SDL_Point screen;
     if (mode) {
@@ -189,7 +189,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
 
     uint32_t flags = SDL_WINDOW_OPENGL | 0;
 
-#ifdef SDL_PLATFORM_ANDROID
+#if defined(SDL_PLATFORM_ANDROID) || defined(SDL_PLATFORM_SWITCH)
     flags |= SDL_WINDOW_FULLSCREEN;
 #else
     _tms.window_width = settings["window_width"]->v.i;
@@ -218,7 +218,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_SetWindowFillDocument(_tms._window, true);
 #endif
 
-#ifdef SDL_PLATFORM_ANDROID
+#if defined(SDL_PLATFORM_ANDROID) || defined(SDL_PLATFORM_SWITCH)
     SDL_GetWindowSizeInPixels(_tms._window, &_tms.window_width, &_tms.window_height);
 #endif
 

@@ -61,7 +61,7 @@ const char *tms_storage_path(void)
 {
 #ifdef __ANDROID__
     return SDL_GetAndroidExternalStoragePath();
-#elif defined(__EMSCRIPTEN__)
+#elif defined(__EMSCRIPTEN__) || defined(SDL_PLATFORM_SWITCH)
     return SDL_GetPrefPath("Bithack", "Principia");
 #elif defined(SCREENSHOT_BUILD)
     return "storage";
@@ -99,7 +99,7 @@ const char *tms_storage_cache_path(void)
 {
 #ifdef __ANDROID__
     return SDL_GetAndroidCachePath();
-#elif defined(__EMSCRIPTEN__)
+#elif defined(__EMSCRIPTEN__) || defined(SDL_PLATFORM_SWITCH)
     return SDL_GetPrefPath("Bithack", "Principia");
 #elif defined(SCREENSHOT_BUILD)
     return "/tmp/principia_cache";

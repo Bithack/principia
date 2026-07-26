@@ -29,17 +29,27 @@ static void apply_very_bad_settings()
     settings["hide_tips"]->v.b = true;
 }
 
+static int get_logical_cores() {
+#ifdef SDL_PLATFORM_EMSCRIPTEN
+    // XXX: Setting workers to anything other than 0 to disable it causes lockups
+    return 0;
+#elif defined(SDL_PLATFORM_SWITCH)
+    // Trying to retrieve the core count from SDL causes a hang, hardcode it for now.
+    // (Switch is a quad-core ARM CPU)
+    return 4;
+#else
+    return SDL_GetNumLogicalCPUCores();
+#endif
+}
+
 #ifdef SDL_PLATFORM_EMSCRIPTEN
     #define ENABLE_SHADOWS_DEFAULT false
     #define ENABLE_AO_DEFAULT false
     #define WINDOW_RESIZABLE_DEFAULT true
-    // XXX: Setting workers to anything other than 0 to disable it causes lockups
-    #define NUM_WORKERS_DEFAULT 0
 #else
     #define ENABLE_SHADOWS_DEFAULT true
     #define ENABLE_AO_DEFAULT true
     #define WINDOW_RESIZABLE_DEFAULT false
-    #define NUM_WORKERS_DEFAULT SDL_GetNumLogicalCPUCores()
 #endif
 
 #ifdef SDL_PLATFORM_ANDROID
@@ -139,8 +149,8 @@ _settings::init()
     this->add("tutorial", S_UINT32, 0);
     this->add("display_fps", S_UINT8, 0);
 
-    this->add("num_workers", S_UINT8, NUM_WORKERS_DEFAULT);
-    tms_infof("num workers (real): %d", SDL_GetNumLogicalCPUCores());
+    this->add("num_workers", S_UINT8, get_logical_cores());
+    tms_infof("num workers (real): %d", get_logical_cores());
 
     this->add("dna_sandbox_back", S_BOOL, false);
     this->add("hide_tips", S_BOOL, false);
