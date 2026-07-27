@@ -41,4 +41,8 @@ endif()
 
 add_definitions(-DSDL_LEAN_AND_MEAN=1)
 
-add_subdirectory(lib/SDL EXCLUDE_FROM_ALL)
+if(NINTENDO_SWITCH)
+	add_subdirectory(lib/SDL-switch EXCLUDE_FROM_ALL)
+else()
+	add_subdirectory(lib/SDL EXCLUDE_FROM_ALL)
+endif()

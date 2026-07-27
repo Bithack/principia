@@ -40,7 +40,15 @@ static void unlock_curl(const char *invoker="N/A") {
     tms_infof("%s unlocked curl!", invoker);
 }
 
+#ifdef SDL_PLATFORM_SWITCH
+#include <switch.h>
+#endif
+
 void network::init() {
+#ifdef SDL_PLATFORM_SWITCH
+    socketInitializeDefault();
+#endif
+
     P.curl_mutex = SDL_CreateMutex();
     if (!P.curl_mutex)
         tms_fatalf("Unable to create curl mutex.");
