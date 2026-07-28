@@ -1,33 +1,10 @@
 #include "settings.hh"
+#include <cerrno>
 #include <tms/cpp.hh>
-
-#ifdef BUILD_VALGRIND
-#include <valgrind/valgrind.h>
-#endif
-
-#include <errno.h>
 
 struct shadow_res {int x; int y;};
 
 _settings settings;
-
-// Set all graphics settings to their lowest for e.g. emscripten or valgrind
-static void apply_very_bad_settings()
-{
-    settings["num_workers"]->v.i = 0;
-    settings["ao_map_res"]->v.i = 256;
-    settings["shadow_quality"]->v.u8 = 0;
-    settings["shadow_map_resx"]->v.i = 256;
-    settings["shadow_map_resy"]->v.i = 256;
-    settings["shadow_map_precision"]->v.i = 0;
-    settings["postprocess"]->v.b = false;
-    settings["debug"]->v.b = false;
-    settings["enable_shadows"]->v.b = false;
-    settings["enable_bloom"]->v.b = false;
-    settings["enable_ao"]->v.b = false;
-    settings["render_edev_labels"]->v.b = false;
-    settings["hide_tips"]->v.b = true;
-}
 
 static int get_logical_cores() {
 #ifdef SDL_PLATFORM_EMSCRIPTEN
@@ -66,9 +43,7 @@ static int get_logical_cores() {
     #define USE_GLES false
 #endif
 
-void
-_settings::init()
-{
+void _settings::init() {
     this->_data.clear();
 
     /** -Graphics **/
@@ -177,9 +152,7 @@ _settings::init()
     }
 }
 
-bool
-_settings::load(void)
-{
+bool _settings::load() {
     FILE *fh = fopen(this->filename, "r");
 
     if (!fh) {
@@ -219,11 +192,10 @@ _settings::load(void)
                 continue;
             }
 
-            if (on_key) {
+            if (on_key)
                 key[k++] = buf[i];
-            } else {
+            else
                 val[k++] = buf[i];
-            }
         }
 
         val[k] = '\0';
@@ -244,11 +216,10 @@ _settings::load(void)
                     it->second->v.u32 = (uint32_t)strtoul(val, NULL, 10);
                     break;
                 case S_FLOAT:
-                    if (it->second->clamp) {
+                    if (it->second->clamp)
                         it->second->v.f = tclampf(atof(val), 0.f, 1.f);
-                    } else {
+                    else
                         it->second->v.f = atof(val);
-                    }
                     break;
                 case S_BOOL:
                     it->second->v.b = (int8_t)strtol(val, NULL, 10);
@@ -266,24 +237,10 @@ _settings::load(void)
 
     tms_infof("num workers (user): %d", settings["num_workers"]->v.i);
 
-#ifdef BUILD_VALGRIND
-    if (RUNNING_ON_VALGRIND) {
-        tms_debugf("Running on valgrind, forcing settings to bad!");
-        apply_very_bad_settings();
-    }
-#endif
-
     return true;
 }
 
-bool
-_settings::save(void)
-{
-#ifdef BUILD_VALGRIND
-    // don't save the shitty valgrind settings file
-    if (RUNNING_ON_VALGRIND) return true;
-#endif
-
+bool _settings::save() {
     FILE *fh = fopen(this->filename, "w+");
 
     if (!fh) {
@@ -323,13 +280,9 @@ _settings::save(void)
     return true;
 }
 
-void
-_settings::clean(void)
-{
-}
+void _settings::clean() {}
 
-_settings::~_settings()
-{
+_settings::~_settings() {
     for (std::map<const char*, setting*>::iterator it = this->_data.begin();
             it != this->_data.end(); ++it) {
         delete it->second;

@@ -36,12 +36,6 @@
 #include <ctime>
 #include <unistd.h>
 
-#ifdef BUILD_VALGRIND
-#include <valgrind/valgrind.h>
-#else
-#define RUNNING_ON_VALGRIND 0
-#endif
-
 #include <sys/stat.h>
 
 #include <tms/cpp.hh>
@@ -1581,10 +1575,7 @@ static int initial_loader(int step) {
             menu_shared::init();
             adventure::init();
 
-            if (!RUNNING_ON_VALGRIND)
-                sm::init();
-            else
-                tms_debugf("Running on valgrind, disabling soundmanager.");
+            sm::init();
 
             P.s_loading_screen->set_text("Loading workers...");
             break;
