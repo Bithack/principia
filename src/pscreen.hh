@@ -43,6 +43,8 @@ class pending_render
         , subtype(ST_NONE)
         , index(_index)
     { }
+
+    virtual ~pending_render() = default;
 };
 
 class rounded_square : public pending_render
