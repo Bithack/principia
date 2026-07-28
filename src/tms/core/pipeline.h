@@ -47,7 +47,7 @@ struct tms_rstate {
     int               *last_loc;
 
     int (*render_entities_fn)(struct tms_rstate *state, struct tms_entity **ee, int count);
-    int (**sort_fns)(void*, void*);
+    int (**sort_fns)(struct tms_rstate *, void *);
 };
 
 struct uniform {

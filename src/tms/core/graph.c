@@ -1,40 +1,33 @@
+#include "util.h"
+#include <glad/gl.h>
 #include <tms/core/glob.h>
 #include <tms/math/glob.h>
-#include "util.h"
-
-#include <glad/gl.h>
-
-#pragma GCC push_options
-#pragma GCC optimize ("O0")
 
 static int enable_blending(struct tms_rstate *state, void *blend);
-static int bind_program(struct tms_rstate *state, struct tms_program *program);
-static int bind_texture0(struct tms_rstate *state, struct tms_texture *texture);
-static int bind_texture1(struct tms_rstate *state, struct tms_texture *texture);
-static int bind_texture2(struct tms_rstate *state, struct tms_texture *texture);
-static int bind_texture3(struct tms_rstate *state, struct tms_texture *texture);
-static int bind_varray(struct tms_rstate *state, struct tms_varray *va);
-static int bind_mesh(struct tms_rstate *state, struct tms_gbuffer *m);
+static int bind_program(struct tms_rstate *state, void *value);
+static int bind_texture0(struct tms_rstate *state, void *value);
+static int bind_texture1(struct tms_rstate *state, void *value);
+static int bind_texture2(struct tms_rstate *state, void *value);
+static int bind_texture3(struct tms_rstate *state, void *value);
+static int bind_varray(struct tms_rstate *state, void *value);
+static int bind_mesh(struct tms_rstate *state, void *value);
 static int flat(struct tms_rstate *state, void *);
 static int bind_prio(struct tms_rstate *state, void *val);
 
-static int render_entities(struct tms_rstate *state, struct tms_entity **ee, int count);
-static int render_branch(struct tms_rstate *s, struct _branch *b, int *sort_v, int depth);
-static void branch_remove_entity(struct tms_graph *g, struct _branch *b, struct tms_entity *e);
-static inline struct _branch * get_branch(struct tms_graph *g, struct tms_entity *e);
+typedef int (*tms_sort_fn)(struct tms_rstate *, void *);
 
-static const int (*sort_fns[])(void*, void*) = {
-    (const int (*)(void*, void*)) enable_blending,
-    (const int (*)(void*, void*)) bind_program,
-    (const int (*)(void*, void*)) bind_texture0,
-    (const int (*)(void*, void*)) bind_texture1,
-    (const int (*)(void*, void*)) bind_texture2,
-    (const int (*)(void*, void*)) bind_texture3,
-    (const int (*)(void*, void*)) bind_varray,
-    (const int (*)(void*, void*)) bind_mesh,
-    (const int (*)(void*, void*)) flat,
-    (const int (*)(void*, void*)) bind_prio,
-    (const int (*)(void*, void*)) bind_prio,
+static const tms_sort_fn sort_fns[] = {
+    enable_blending,
+    bind_program,
+    bind_texture0,
+    bind_texture1,
+    bind_texture2,
+    bind_texture3,
+    bind_varray,
+    bind_mesh,
+    flat,
+    bind_prio,
+    bind_prio,
 };
 
 /* 1 or 0 depending on whether the sorting
@@ -55,16 +48,13 @@ static const int sort_boolean[] = {
     0,
 };
 
-struct tms_graph *tms_graph_alloc(void)
-{
+struct tms_graph *tms_graph_alloc(void) {
     struct tms_graph *g = calloc(1, sizeof(struct tms_graph));
 
     return g;
 }
 
-void
-tms_graph_init(struct tms_graph *g, struct tms_scene *s, int pipeline)
-{
+void tms_graph_init(struct tms_graph *g, struct tms_scene *s, int pipeline) {
     if (pipeline >= TMS_NUM_PIPELINES)
         tms_fatalf("attempted to create scene graph with invalid pipeline number");
 
@@ -92,16 +82,11 @@ tms_graph_init(struct tms_graph *g, struct tms_scene *s, int pipeline)
     memcpy(g->sort_fns, sort_fns, sizeof(sort_fns));
 }
 
-void
-tms_graph_set_sort_callback(struct tms_graph *g, int sort,
-        int (*fun)(struct tms_rstate* rstate, void* value))
-{
-    g->sort_fns[sort] = (int (*)(void *, void *))fun;
+void tms_graph_set_sort_callback(struct tms_graph *g, int sort, tms_sort_fn fun) {
+    g->sort_fns[sort] = fun;
 }
 
-int
-tms_graph_is_entity_culled(struct tms_graph *g, struct tms_entity *e)
-{
+int tms_graph_is_entity_culled(struct tms_graph *g, struct tms_entity *e) {
     tms_assertf(e->scene == g->scene, "entity(%p) scene(%p) not equal to graph(%p) scene(%p)", e, e->scene, g, g->scene);
 
     if (!e->graph_loc[g->scene_pos].branch)
@@ -110,9 +95,7 @@ tms_graph_is_entity_culled(struct tms_graph *g, struct tms_entity *e)
     return e->graph_loc[g->scene_pos].pos >= e->graph_loc[g->scene_pos].branch->num_unculled || e->graph_loc[g->scene_pos].branch->cull_step != g->cull_step;
 }
 
-void
-tms_graph_uncull_entity(struct tms_graph *g, struct tms_entity *e)
-{
+void tms_graph_uncull_entity(struct tms_graph *g, struct tms_entity *e) {
     if (!e->scene || e->scene != g->scene) {
         tms_warnf("cannot uncull entity that is not added");
         return;
@@ -152,12 +135,8 @@ uncull_children:
         tms_graph_uncull_entity(g, e->children[x]);
 }
 
-
-/* get the branch that the given entity would be
- * placed in */
-static inline struct _branch *
-get_branch(struct tms_graph *g, struct tms_entity *e)
-{
+/// get the branch that the given entity would be placed in
+static inline struct _branch *get_branch(struct tms_graph *g, struct tms_entity *e) {
     void *refval = 0;
     struct _branch *br = &g->root;
 
@@ -192,7 +171,7 @@ get_branch(struct tms_graph *g, struct tms_entity *e)
                 case TMS_SORT_VARRAY: refval = e->mesh->vertex_array; break;
                 case TMS_SORT_MESH: refval = e->mesh->indices; break;
                 case TMS_SORT_PRIO: refval = (void *)(intptr_t)e->prio; break;
-                case TMS_SORT_PRIO_BIASED: refval = (void *)(intptr_t)e->prio+e->prio_bias; break;
+                case TMS_SORT_PRIO_BIASED: refval = (void *)(intptr_t)(e->prio+e->prio_bias); break;
                 case TMS_SORT_BLENDING: refval = (void *)(intptr_t)e->material->pipeline[g->p].blend_mode; break;
                 default: tms_fatalf("invalid scene sorting");
             }
@@ -244,23 +223,7 @@ get_branch(struct tms_graph *g, struct tms_entity *e)
     return br;
 }
 
-static int
-render_entities(struct tms_rstate *state,
-                struct tms_entity **ee,
-                int count)
-{
-#if 0
-    if (state->p == 0) {
-        tms_infof("rendering %d entities", count);
-        if (count == 1) {
-            return T_OK;
-        }
-        /*
-        if (count == 792)
-            return T_OK;*/
-    }
-#endif
-
+static int render_entities(struct tms_rstate *state, struct tms_entity **ee, int count) {
     for (int x=0; x<count; x++, ee++) {
         struct tms_entity *e = *ee;
         struct tms_mesh *m = e->mesh;
@@ -277,28 +240,23 @@ render_entities(struct tms_rstate *state,
             int start = m->i_start;
             int count = m->i_count;
 
-            if (count == -1) {
-                count = m->indices->usize / (m->i32?sizeof(int):sizeof(short));
-            }
+            if (count == -1)
+                count = m->indices->usize / (m->i32 ? sizeof(int) : sizeof(short));
 
             if (count) glDrawElements(
                 m->primitive_type,
                 count,
-                (m->i32?GL_UNSIGNED_INT:GL_UNSIGNED_SHORT),
-                (char*)(start * (m->i32?sizeof(int):sizeof(short)))
+                (m->i32 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT),
+                (char*)(start * (m->i32 ? sizeof(int) : sizeof(short)))
             );
-        } else {
+        } else
             glDrawArrays(m->primitive_type, 0, m->vertex_array->gbufs[0].gbuf->usize / m->vertex_array->gbufs[0].vsize);
-        }
     }
-    //glFlush();
 
     return T_OK;
 }
 
-static
-void branch_remove_branch(struct _branch *b, struct _branch *c)
-{
+static void branch_remove_branch(struct _branch *b, struct _branch *c) {
     if (b->fixed)
         return;
 
@@ -316,12 +274,11 @@ void branch_remove_branch(struct _branch *b, struct _branch *c)
     free(c);
 
     if (b->num_nodes == 0)
-        if (b->parent) branch_remove_branch(b->parent, b);
+        if (b->parent)
+            branch_remove_branch(b->parent, b);
 }
 
-static void
-branch_remove_entity(struct tms_graph *g, struct _branch *b, struct tms_entity *e)
-{
+static void branch_remove_entity(struct tms_graph *g, struct _branch *b, struct tms_entity *e) {
     for (int x=0; x<b->num_nodes; x++) {
         if (b->nodes.as_entity[x] == e) {
             /* found it, now swap it with the last element in the array */
@@ -349,12 +306,7 @@ branch_remove_entity(struct tms_graph *g, struct _branch *b, struct tms_entity *
     /* XXX: assert error? */
 }
 
-static int
-render_branch(struct tms_rstate *s,
-              struct _branch *b,
-              int *sort_v,
-              int depth)
-{
+static int render_branch(struct tms_rstate *s, struct _branch *b, int *sort_v, int depth) {
     if (depth > 0) {
         if (*sort_v == TMS_SORT_PRIO && s->graph->sort_reverse_prio) {
             for (int x=b->num_nodes-1; x>=0; x--) {
@@ -378,9 +330,7 @@ render_branch(struct tms_rstate *s,
     return T_OK;
 }
 
-int
-tms_graph_remove_entity_with_children(struct tms_graph *g, struct tms_entity *e)
-{
+int tms_graph_remove_entity_with_children(struct tms_graph *g, struct tms_entity *e) {
     tms_graph_remove_entity(g, e);
     for (int x=0; x<e->num_children; x++)
         tms_graph_remove_entity_with_children(g,e->children[x]);
@@ -388,9 +338,7 @@ tms_graph_remove_entity_with_children(struct tms_graph *g, struct tms_entity *e)
     return T_OK;
 }
 
-int
-tms_graph_remove_entity(struct tms_graph *g, struct tms_entity *e)
-{
+int tms_graph_remove_entity(struct tms_graph *g, struct tms_entity *e) {
     if (!e->material || !e->material->pipeline[g->p].program)
         return T_OK;
 
@@ -408,9 +356,7 @@ tms_graph_remove_entity(struct tms_graph *g, struct tms_entity *e)
     return T_OK;
 }
 
-int
-tms_graph_add_entity_with_children(struct tms_graph *g, struct tms_entity *e)
-{
+int tms_graph_add_entity_with_children(struct tms_graph *g, struct tms_entity *e) {
     tms_graph_add_entity(g, e);
     for (int x=0; x<e->num_children; x++)
         tms_graph_add_entity_with_children(g,e->children[x]);
@@ -418,17 +364,14 @@ tms_graph_add_entity_with_children(struct tms_graph *g, struct tms_entity *e)
     return T_OK;
 }
 
-int
-tms_graph_add_entity(struct tms_graph *g, struct tms_entity *e)
-{
-    /* only add the entity if it's compatible with this graph's
-     * pipeline */
+int tms_graph_add_entity(struct tms_graph *g, struct tms_entity *e) {
+    // only add the entity if it's compatible with this graph's pipeline
     if (!e->material || !e->material->pipeline[g->p].program) {
         //tms_errorf("material does not have a shader program");
         return T_OK;
     }
 
-    /* skip the entity if it doesnt have a mesh */
+    // skip the entity if it doesnt have a mesh
     if (!e->mesh)
         return T_OK;
 
@@ -448,9 +391,7 @@ tms_graph_add_entity(struct tms_graph *g, struct tms_entity *e)
 }
 
 /*
-static void
-dump_branch(struct tms_scene_branch *b, int *sorting, int depth, int maxdepth)
-{
+static void dump_branch(struct tms_scene_branch *b, int *sorting, int depth, int maxdepth) {
     char indent[depth+1];
     for (int x=0; x<depth; x++)
         indent[x] = ' ';
@@ -483,9 +424,7 @@ dump_branch(struct tms_scene_branch *b, int *sorting, int depth, int maxdepth)
 */
 
 /*
-void
-tms_scene_dump_tree(struct tms_scene *s)
-{
+void tms_scene_dump_tree(struct tms_scene *s) {
     dump_branch(&s->root, s->sorting, 0, s->sort_depth);
 }
 */
@@ -493,9 +432,7 @@ tms_scene_dump_tree(struct tms_scene *s)
 /**
  * @relates tms_graph
  **/
-int
-tms_graph_render(struct tms_graph *g, struct tms_camera *cam, void *pipeline_data)
-{
+int tms_graph_render(struct tms_graph *g, struct tms_camera *cam, void *pipeline_data) {
     struct tms_rstate state;
 
     state.p = g->p;
@@ -513,48 +450,38 @@ tms_graph_render(struct tms_graph *g, struct tms_camera *cam, void *pipeline_dat
 
     glActiveTexture(GL_TEXTURE0);
 
-    if (g->full_pipeline) {
+    if (g->full_pipeline)
         tms_pipeline_begin_render(state.p);
-    }
 
     int status = render_branch(&state, &g->root, g->sorting, g->sort_depth);
 
-    if (state.last_va && state.last_loc) {
+    if (state.last_va && state.last_loc)
         tms_varray_unbind_attributes(state.last_va, state.last_loc);
-    }
 
-    if (g->post_fn != 0) {
+    if (g->post_fn != 0)
         g->post_fn(&state);
-    }
 
-    if (g->full_pipeline) {
+    if (g->full_pipeline)
         tms_pipeline_end_render(state.p);
-    }
 
     return status;
 }
 
 /**  sorting functions **/
 
-static int
-flat(struct tms_rstate *state,
-     void *f)
-{
-    if (f) {
+static int flat(struct tms_rstate *state, void *f) {
+    if (f)
         glDisable(GL_CULL_FACE);
-    } else
+    else
         glEnable(GL_CULL_FACE);
 
     return T_OK;
 }
 
-static int
-enable_blending(struct tms_rstate *state,
-                void *blend)
-{
-    if (blend == 0) {
+static int enable_blending(struct tms_rstate *state, void *blend) {
+    if (blend == 0)
         glDisable(GL_BLEND);
-    } else {
+    else {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
@@ -562,28 +489,25 @@ enable_blending(struct tms_rstate *state,
     return T_OK;
 }
 
-static int
-bind_texture0(struct tms_rstate *state,
-              struct tms_texture *texture)
-{
+static int bind_texture0(struct tms_rstate *state, void *value) {
+    struct tms_texture *texture = value;
+
     if (state->active_tex != 0) {
         glActiveTexture(GL_TEXTURE0);
         state->active_tex = 0;
     }
+
     if (!texture) {
         glBindTexture(GL_TEXTURE_2D, 0);
         return T_OK;
     }
-#if 0
-    tms_infof("binding texture 0: %s", texture->filename);
-#endif
+
     return tms_texture_bind(texture);
 }
 
-static int
-bind_texture1(struct tms_rstate *state,
-              struct tms_texture *texture)
-{
+static int bind_texture1(struct tms_rstate *state, void *value) {
+    struct tms_texture *texture = value;
+
     if (state->active_tex != 1) {
         glActiveTexture(GL_TEXTURE1);
         state->active_tex = 1;
@@ -592,16 +516,13 @@ bind_texture1(struct tms_rstate *state,
         glBindTexture(GL_TEXTURE_2D, 0);
         return T_OK;
     }
-#if 0
-    tms_infof("binding texture 1: %s", texture->filename);
-#endif
+
     return tms_texture_bind(texture);
 }
 
-static int
-bind_texture2(struct tms_rstate *state,
-              struct tms_texture *texture)
-{
+static int bind_texture2(struct tms_rstate *state, void *value) {
+    struct tms_texture *texture = value;
+
     if (state->active_tex != 2) {
         glActiveTexture(GL_TEXTURE2);
         state->active_tex = 2;
@@ -613,10 +534,9 @@ bind_texture2(struct tms_rstate *state,
     return tms_texture_bind(texture);
 }
 
-static int
-bind_texture3(struct tms_rstate *state,
-              struct tms_texture *texture)
-{
+static int bind_texture3(struct tms_rstate *state, void *value) {
+    struct tms_texture *texture = value;
+
     if (state->active_tex != 3) {
         glActiveTexture(GL_TEXTURE3);
         state->active_tex = 3;
@@ -628,20 +548,18 @@ bind_texture3(struct tms_rstate *state,
     return tms_texture_bind(texture);
 }
 
-static int
-bind_varray(struct tms_rstate *state,
-            struct tms_varray *va)
-{
+static int bind_varray(struct tms_rstate *state, void *value) {
+    struct tms_varray *va = value;
+
     int *locations = tms_program_get_locations(state->program, va);
     state->last_va = va;
     state->last_loc = locations;
     return tms_varray_bind_attributes(va, locations);
 }
 
-static int
-bind_mesh(struct tms_rstate *state,
-          struct tms_gbuffer *m)
-{
+static int bind_mesh(struct tms_rstate *state, void *value) {
+    struct tms_gbuffer *m = value;
+
     if (m) {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->vbo);
 
@@ -651,25 +569,14 @@ bind_mesh(struct tms_rstate *state,
     return T_OK;
 }
 
-static int bind_prio(struct tms_rstate *state, void *val)
-{
+static int bind_prio(struct tms_rstate *state, void *val) {
     return T_OK;
 }
 
-static int
-bind_program(struct tms_rstate *state,
-             struct tms_program *program)
-{
+static int bind_program(struct tms_rstate *state, void *value) {
+    struct tms_program *program = value;
+
     tms_program_bind(program);
-
-#if 0
-    static Uint32 ss=0;
-
-    if (state->p == 0) {
-        tms_infof("binding program: %s (since last %d)", program->parent->name, SDL_GetTicks() - ss);
-        ss = SDL_GetTicks();
-    }
-#endif
 
     /* bind all global pipeline uniforms */
     tms_pipeline_apply_global_uniforms(state->p, state, program);
@@ -678,5 +585,3 @@ bind_program(struct tms_rstate *state,
 
     return T_OK;
 }
-
-#pragma GCC pop_options

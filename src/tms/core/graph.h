@@ -48,13 +48,15 @@ struct value {
  **/
 struct tms_graph {
     struct tms_scene *scene;
-    int (*sort_fns[TMS_SORT__MAX])(void *, void*);
+    int (*sort_fns[TMS_SORT__MAX])(struct tms_rstate *, void*);
 
     void (*post_fn)(struct tms_rstate*);
 
     int scene_pos;
-    int p; /* pipeline */
-    int full_pipeline; /* if set to 1, pipeline begin and end functions are called */
+    /// pipeline
+    int p;
+    /// if set to 1, pipeline begin and end functions are called
+    int full_pipeline;
     int cull_step;
     int enable_culling;
 
@@ -74,15 +76,11 @@ int tms_graph_add_entity(struct tms_graph *g, struct tms_entity *e);
 int tms_graph_render(struct tms_graph *g, struct tms_camera *cam, void *data);
 void tms_graph_uncull_entity(struct tms_graph *g, struct tms_entity *e);
 
-static inline void
-tms_graph_enable_culling(struct tms_graph *g, int enable)
-{
+static inline void tms_graph_enable_culling(struct tms_graph *g, int enable) {
     g->enable_culling = enable;
 }
 
-static inline void
-tms_graph_cull_all(struct tms_graph *g)
-{
+static inline void tms_graph_cull_all(struct tms_graph *g) {
     g->cull_step ++;
 }
 
