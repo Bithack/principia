@@ -6,6 +6,7 @@
 
 #if !defined(SDL_PLATFORM_ANDROID) && !defined(NO_UI)
 
+#include "imgui_internal.h"
 #include "imgui.hh"
 #include "ui_imgui.hh"
 
@@ -178,7 +179,7 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             break;
         case CLOSE_ABSOLUTELY_ALL_DIALOGS:
         case CLOSE_ALL_DIALOGS:
-            tms_infof("XXX: CLOSE_ALL_DIALOGS/CLOSE_ABSOLUTELY_ALL_DIALOGS (200/201) are intentionally ignored");
+            ImGui::ClosePopupsOverWindow(nullptr, true);
             break;
         case DIALOG_PUBLISH:
             UiPublish::open();
