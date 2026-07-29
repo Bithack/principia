@@ -24,4 +24,6 @@ ui::confirm(const char *text,
 void ui::alert(const char*, uint8_t/*=ALERT_INFORMATION*/) {};
 void ui::render(){};
 
+bool ui::is_blocking() { return false; }
+
 #endif

@@ -325,4 +325,9 @@ void ui::render() {
     imgui_driver.post_render();
 }
 
+bool ui::is_blocking() {
+    ImGuiIO& io = ImGui::GetIO();
+    return io.WantCaptureKeyboard || io.WantCaptureMouse;
+}
+
 #endif

@@ -1555,6 +1555,11 @@ game::unset_caveview_zoom_limits()
 }
 
 void game::step_tooltip() {
+    if (ui::is_blocking()) {
+        this->hov_text->active = false;
+        return;
+    }
+
     uint64_t diff = _tms.last_time - move_time;
     if (((this->hov_text->active && diff > HOVER_TIME_ACTIVE) || (this->hov_text->active == false && diff > HOVER_TIME)) && !move_queried) {
         move_queried = true;

@@ -140,6 +140,8 @@ class ui
             );
     static void alert(const char *text, uint8_t alert_type=ALERT_INFORMATION);
     static void render();
+
+    static bool is_blocking();
 };
 
 extern const char* tips_pc[];

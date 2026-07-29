@@ -1080,6 +1080,9 @@ widget_manager::render()
         }
     }
 
+    if (ui::is_blocking())
+        return;
+
     for (std::deque<principia_wdg*>::iterator it = this->widgets.begin();
             it != this->widgets.end(); ++it) {
         principia_wdg *w = *it;

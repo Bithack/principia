@@ -2287,4 +2287,6 @@ Java_com_bithack_principia_PrincipiaBackend_triggerCreateLevel(
 
 void ui::render() {}
 
+bool ui::is_blocking() { return false; }
+
 #endif
