@@ -78,13 +78,15 @@ checkpoint::solve_electronics(void)
 
     bool do_activate = (bool)roundf(this->s_in[0].get_value());
 
-    if (do_activate) {
-        /* register as the current checkpoint in game */
-        if (adventure::player) {
+    // Only do activation logic in adventure levels as that is the only level type
+    // with the concept of an adventure robot. In other level types, this will
+    // spawn an endless amount of robots.
+    if (do_activate && W->level.type == LCAT_ADVENTURE) {
+        // Register as the current checkpoint in game
+        if (adventure::player)
             adventure::player->set_checkpoint(this);
-        } else {
+        else
             adventure::checkpoint_activated(this);
-        }
     }
 
     this->s_out[0].write((float)this->spawned);
@@ -94,4 +96,3 @@ checkpoint::solve_electronics(void)
 
     return 0;
 }
-

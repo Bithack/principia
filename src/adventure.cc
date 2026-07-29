@@ -588,23 +588,24 @@ adventure::on_player_die()
 void
 adventure::checkpoint_activated(checkpoint *cp)
 {
-    if (!adventure::player) {
-        robot_base *r = static_cast<robot_base*>(of::create_with_id(O_ROBOT, W->level.get_adventure_id()));
+    if (adventure::player)
+        return;
 
-        b2Vec2 p = cp->local_to_world(b2Vec2(0.f, 1.f), 0);
-        float a = cp->get_angle();
-        int l = cp->get_layer();
+    robot_base *r = static_cast<robot_base*>(of::create_with_id(O_ROBOT, W->level.get_adventure_id()));
 
-        r->_pos = p;
-        r->_angle = a;
-        r->set_layer(l);
-        r->layer_new = r->get_layer();
-        r->layer_old = r->get_layer();
-        r->layer_blend = 1.f;
-        G->emit(r, 0, b2Vec2(0.f,0.f), true);
-        adventure::set_player(r, false);
-        adventure::respawn();
-    }
+    b2Vec2 p = cp->local_to_world(b2Vec2(0.f, 1.f), 0);
+    float a = cp->get_angle();
+    int l = cp->get_layer();
+
+    r->_pos = p;
+    r->_angle = a;
+    r->set_layer(l);
+    r->layer_new = r->get_layer();
+    r->layer_old = r->get_layer();
+    r->layer_blend = 1.f;
+    G->emit(r, 0, b2Vec2(0.f,0.f), true);
+    adventure::set_player(r, false);
+    adventure::respawn();
 }
 
 #define KILL_COUNTER_MAX 50
