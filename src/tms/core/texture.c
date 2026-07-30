@@ -379,8 +379,12 @@ tms_texture_upload(struct tms_texture *tex)
             colors = GL_RGB;
             format = GL_RGB;
 
-            if (!tms.use_gles && tex->gamma_correction) {
-                format = GL_SRGB;
+            if (tex->gamma_correction) {
+                if (tms.use_gles) {
+                    colors = GL_SRGB_EXT;
+                    format = GL_SRGB_EXT;
+                } else
+                    format = GL_SRGB;
             }
             break;
 
@@ -388,8 +392,12 @@ tms_texture_upload(struct tms_texture *tex)
             colors = GL_RGBA;
             format = GL_RGBA;
 
-            if (!tms.use_gles && tex->gamma_correction) {
-                format = GL_SRGB8_ALPHA8;
+            if (tex->gamma_correction) {
+                if (tms.use_gles) {
+                    colors = GL_SRGB_ALPHA_EXT;
+                    format = GL_SRGB_ALPHA_EXT;
+                } else
+                    format = GL_SRGB8_ALPHA8;
             }
             break;
 

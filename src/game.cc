@@ -235,74 +235,11 @@ const char *src_output[2] = {
 
     "uniform mediump sampler2D tex_0;"
     "varying lowp vec2 FS_texcoord;"
-
-    /*
-    "const float A = .2;"
-    "const float B = .34;"
-    "const float C = .3;"
-    "const float D = .2;"
-    "const float E = .069;"
-    "const float F = .25;"
-    */
-
-    /*
-    "const float A = 0.15;"
-    "const float B = 0.50;"
-    "const float C = 0.10;"
-    "const float D = 0.20;"
-    "const float E = 0.02;"
-    "const float F = 0.25;"
-    */
-
-    "const float A = .25;"
-    "const float B = .11;"
-    "const float C = .2;"
-    "const float D = .3;"
-    "const float E = .07;"
-    "const float F = .25;"
-
-    "const vec3 W = vec3(0.45, 0.45, 0.45);"
-
-    "vec3 tonemap(vec3 x) {"
-        "return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F)) - E/F;"
-    "}"
-
     "void main(void) {"
-        /*
-        "float vignette;"
-        "vignette = distance(vec2(.5, .5), FS_texcoord);"
-        "vignette *= vignette;"
-        "vignette = 1.-vignette;"
-        "vignette = 1.;"
-        //"gl_FragColor = vec4(sqrt(vec3(tonemap(texture2D(tex_0, FS_texcoord).rgb)"
-        //" * (1./.1880678)))*vignette, 1.);"
-        "gl_FragColor = vec4(tonemap(texture2D(tex_0, FS_texcoord).rgb)/tonemap(W)*vignette, 1.);"
-        //"gl_FragColor = vec4(sqrt(texture2D(tex_0, FS_texcoord).rgb), 1.);"
-        //
-        //
-        */
-
-        /*
-        "vec3 col = texture2D(tex_0, FS_texcoord).rgb;"
-        "col = max(vec3(0.), col-.01);"
-        "gl_FragColor = vec4("
-            "(col*(6.2*col+.5))/(col*(6.2*col+1.7))+.06"
-            ", 1.);"
-            */
-
-        //"vec3 col = pow(texture2D(tex_0, FS_texcoord).rgb, vec3(1./2.2));"
         //"vec3 col = sqrt(texture2D(tex_0, FS_texcoord).rgb);"
-        "vec3 col = sqrt(texture2D(tex_0, FS_texcoord).rgb);"
+        "vec3 col = pow(texture2D(tex_0, FS_texcoord).rgb, vec3(1./2.2));"
         "gl_FragColor = vec4(col, 1.);"
     "}"
-
-    //"void main(void) {"
-        //"gl_FragColor = pow(texture2D(tex_0, FS_texcoord), vec4(1./2.2, 1./2.2, 1./2.2, 1.));"
-        //"gl_FragColor = sqrt(texture2D(tex_0, FS_texcoord));"
-        //"gl_FragColor = vec4(sqrt(texture2D(tex_0, FS_texcoord).rgb), 1.);"
-        //"gl_FragColor = pow(texture2D(tex_0, FS_texcoord), vec4(1./2.2, 1./2.2, 1./2.2, 1.));"
-    //"}"
-
 };
 
 const char *tutorial_texts[NUM_TUTORIAL_TEXTS] =
@@ -1203,19 +1140,21 @@ game::init_framebuffers()
         this->bloom_fb = 0;
     }
 
-    if (!_tms.use_gles) {
-        if (settings["postprocess"]->v.b) {
-            tms_infof("Postprocess time");
-            this->main_fb = tms_fb_alloc(_tms.window_width, _tms.window_height, 0);
-            tms_fb_add_texture(this->main_fb, GL_RGBA, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
-            tms_fb_enable_depth(this->main_fb, GL_DEPTH_COMPONENT16);
+    if (settings["postprocess"]->v.b) {
+        tms_infof("Postprocess time");
+        this->main_fb = tms_fb_alloc(_tms.window_width, _tms.window_height, 0);
+        tms_fb_add_texture(this->main_fb, GL_RGBA, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
+        tms_fb_enable_depth(this->main_fb, GL_DEPTH_COMPONENT16);
 
+        if (settings["enable_bloom"]->v.b) {
             this->bloom_fb = tms_fb_alloc(_tms.window_width, _tms.window_height, 1);
             tms_fb_add_texture(this->bloom_fb, GL_RGBA, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
         } else {
-            this->main_fb = 0;
             this->bloom_fb = 0;
         }
+    } else {
+        this->main_fb = 0;
+        this->bloom_fb = 0;
     }
 }
 
@@ -2889,7 +2828,7 @@ game::render()
             tms_fb_swap_blur3x3(tms_pipeline_get_framebuffer(3));
     }
 
-    if (!_tms.use_gles && settings["postprocess"]->v.b)
+    if (settings["postprocess"]->v.b)
         tms_fb_bind(this->main_fb);
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render after shadow/ao", ierr);
@@ -3031,61 +2970,64 @@ game::render()
     tms_ddraw_set_matrices(this->dd, this->cam->view, this->cam->projection);
     //tms_ddraw_line3d(this->dd, 0, 0, 0, this->light.x*2.f, this->light.y*2.f, this->light.z*2.f);
 
-    if (!_tms.use_gles && settings["postprocess"]->v.b) {
+    if (settings["postprocess"]->v.b) {
         tms_fb_unbind(this->main_fb);
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
 
-#if 0
-        if (settings["gamma_correct"]->v.b)
+        if (!_tms.use_gles && settings["gamma_correct"]->v.b)
+            glEnable(GL_FRAMEBUFFER_SRGB);
+
+        // Alternate gamma correction implementation that uses a shader instead. Unsure whether we should use this always.
+        if (_tms.use_gles && settings["gamma_correct"]->v.b)
             tms_fb_render(this->main_fb, prg_output);
         else
             tms_fb_render(this->main_fb, _tms_fb_copy_program);
-#endif
 
-        if (settings["gamma_correct"]->v.b)
-            glEnable(GL_FRAMEBUFFER_SRGB);
-
-        tms_fb_render(this->main_fb, _tms_fb_copy_program);
-
-        if (settings["gamma_correct"]->v.b)
+        if (!_tms.use_gles && settings["gamma_correct"]->v.b)
             glDisable(GL_FRAMEBUFFER_SRGB);
 
         glBindTexture(GL_TEXTURE_2D, this->main_fb->fb_texture[0][0]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
         if (glad_glGenerateMipmap)
             glGenerateMipmap(GL_TEXTURE_2D);
         else
             glGenerateMipmapEXT(GL_TEXTURE_2D);
 
-        glDisable(GL_BLEND);
-        glDisable(GL_DEPTH_TEST);
-        tms_fb_render_to(this->main_fb, this->bloom_fb, prg_brightpass);
-        tms_fb_swap_blur5x5(this->bloom_fb);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE);
-        glDisable(GL_DEPTH_TEST);
-
-        glBindTexture(GL_TEXTURE_2D, this->bloom_fb->fb_texture[this->bloom_fb->toggle][0]);
-        if (glad_glGenerateMipmap)
-            glGenerateMipmap(GL_TEXTURE_2D);
-        else
-            glGenerateMipmapEXT(GL_TEXTURE_2D);
-
-        for (int x=0; x<7; x++) {
-            glBlendColor(1.f, 1.f, 1.f, .05f);
-            glBindTexture(GL_TEXTURE_2D, this->bloom_fb->fb_texture[this->bloom_fb->toggle][0]);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, x);
-            tms_fb_render(this->bloom_fb, _tms_fb_copy_program);
-        }
-        glBlendColor(1.f, 1.f, 1.f, 1.f);
-        glBindTexture(GL_TEXTURE_2D, this->bloom_fb->fb_texture[this->bloom_fb->toggle][0]);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-        glDisable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glEnable(GL_DEPTH_TEST);
         tms_assertf((ierr = glGetError()) == 0, "gl error %d after postprocess", ierr);
+
+        if (settings["enable_bloom"]->v.b) {
+            glDisable(GL_BLEND);
+            glDisable(GL_DEPTH_TEST);
+            tms_fb_render_to(this->main_fb, this->bloom_fb, prg_brightpass);
+            tms_fb_swap_blur5x5(this->bloom_fb);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE);
+            glDisable(GL_DEPTH_TEST);
+
+            glBindTexture(GL_TEXTURE_2D, this->bloom_fb->fb_texture[this->bloom_fb->toggle][0]);
+            if (glad_glGenerateMipmap)
+                glGenerateMipmap(GL_TEXTURE_2D);
+            else
+                glGenerateMipmapEXT(GL_TEXTURE_2D);
+
+            for (int x=0; x<7; x++) {
+                glBlendColor(1.f, 1.f, 1.f, .05f);
+                glBindTexture(GL_TEXTURE_2D, this->bloom_fb->fb_texture[this->bloom_fb->toggle][0]);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, x);
+                tms_fb_render(this->bloom_fb, _tms_fb_copy_program);
+            }
+            glBlendColor(1.f, 1.f, 1.f, 1.f);
+            glBindTexture(GL_TEXTURE_2D, this->bloom_fb->fb_texture[this->bloom_fb->toggle][0]);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+            glDisable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glEnable(GL_DEPTH_TEST);
+
+            tms_assertf((ierr = glGetError()) == 0, "gl error %d after bloom", ierr);
+        }
     }
 
     glDisable(GL_DEPTH_TEST);

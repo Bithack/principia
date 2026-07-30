@@ -16,7 +16,6 @@ struct tms_singleton _tms = {
     .window_width = 0,
     .window_height = 0,
     .gamma = 2.2,
-    .gl_extensions = "",
     .delta_cap = 0,
     .emulating_portrait = 0,
     .use_gles = false
@@ -35,8 +34,6 @@ int tms_preinit(void) {
 int
 tms_init(void)
 {
-    tms.gl_extensions = (const char*)glGetString(GL_EXTENSIONS);
-
     tmat4_set_ortho(tms.window_projection, 0, tms.window_width, 0, tms.window_height, 1, -1);
 
 

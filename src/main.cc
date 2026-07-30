@@ -1101,7 +1101,7 @@ void setup_opengl_settings() {
         }
 
         if (settings["shadow_map_depth_texture"]->is_uninitialized()) {
-            if (strstr(_tms.gl_extensions, "GL_OES_depth_texture") != 0) {
+            if (GLAD_GL_OES_depth_texture) {
                 tms_infof("GL_OES_depth_texture: YES");
                 settings["shadow_map_depth_texture"]->v.b = 1;
             } else {
@@ -1110,14 +1110,22 @@ void setup_opengl_settings() {
             }
         }
 
-        // XXX: We need to really fix gamma correction on GLES...
-        settings["gamma_correct"]->v.b = 0;
+        if (settings["gamma_correct"]->is_uninitialized()) {
+            // Not sure if the world is ready for this yet...
+            if (false && GLAD_GL_EXT_sRGB && GLAD_GL_EXT_sRGB_write_control) {
+                tms_infof("GL_EXT_sRGB: YES");
+                settings["gamma_correct"]->v.b = 1;
+                settings["postprocess"]->v.b = 1;
+            } else {
+                tms_infof("GL_EXT_sRGB: NO");
+                settings["gamma_correct"]->v.b = 0;
+            }
+        }
     } else
 #endif
     {
         if (settings["shadow_map_precision"]->is_uninitialized()) {
-            if (strstr(_tms.gl_extensions, "GL_ARB_texture_float") != 0
-                || strstr(_tms.gl_extensions, "GL_ATI_texture_float") != 0) {
+            if (GLAD_GL_ARB_texture_float || GLAD_GL_ATI_texture_float) {
                 tms_infof("GL_ARB_texture_float: YES");
                 settings["shadow_map_precision"]->v.i = 1;
             } else {
@@ -1127,8 +1135,7 @@ void setup_opengl_settings() {
         }
 
         if (settings["gamma_correct"]->is_uninitialized()) {
-            if (strstr(_tms.gl_extensions, "GL_EXT_texture_sRGB") != 0
-                && strstr(_tms.gl_extensions, "GL_EXT_framebuffer_sRGB") != 0) {
+            if (GLAD_GL_EXT_texture_sRGB && GLAD_GL_EXT_framebuffer_sRGB) {
                 tms_infof("GL_EXT_texture_sRGB+GL_EXT_framebuffer_sRGB: YES");
                 settings["gamma_correct"]->v.b = 1;
             } else {

@@ -36,10 +36,8 @@ static int get_logical_cores() {
 #endif
 
 #ifdef TMS_USE_GLES
-    #define GAMMA_CORRECT_DEFAULT false
     #define USE_GLES true
 #else
-    #define GAMMA_CORRECT_DEFAULT -1
     #define USE_GLES false
 #endif
 
@@ -70,7 +68,7 @@ void _settings::init() {
     // Postprocessing
     this->add("postprocess",        S_BOOL,  false);
     this->add("enable_bloom",       S_BOOL,  false);
-    this->add("gamma_correct",      S_BOOL,  GAMMA_CORRECT_DEFAULT);
+    this->add("gamma_correct",      S_BOOL,  -1);
 
     // VSync
     this->add("vsync",              S_BOOL,  true);

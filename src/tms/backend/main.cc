@@ -255,6 +255,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
 
     tms_infof("GL Info: %s/%s/%s", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
     tms_infof("GLSL Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+    tms_infof("GL Extensions: %s", glGetString(GL_EXTENSIONS));
 
 #ifdef SDL_PLATFORM_WINDOWS
 
