@@ -7,7 +7,7 @@ namespace UiSticky {
     static bool center_x = true;
     static bool center_y = true;
     static int font_size = 2;
-    static std::string text = "Hello!";
+    static char text[251] = "Hello!";
 
     void apply_properties() {
         entity* e = G->selection.e;
@@ -19,12 +19,12 @@ namespace UiSticky {
         if (e->properties[0].v.s.buf) {
             free(e->properties[0].v.s.buf);
         }
-        e->properties[0].v.s.buf = strdup(text.c_str());
+        e->properties[0].v.s.buf = strdup(text);
         e->properties[1].v.i8 = static_cast<uint8_t>(center_x);
         e->properties[2].v.i8 = static_cast<uint8_t>(center_y);
         e->properties[3].v.i8 = static_cast<uint8_t>(font_size);
 
-        P.add_action(ACTION_SET_STICKY_TEXT, text.c_str());
+        P.add_action(ACTION_SET_STICKY_TEXT, text);
         ImGui::CloseCurrentPopup();
     }
 
@@ -37,7 +37,8 @@ namespace UiSticky {
             return;
         }
 
-        text = e->properties[0].v.s.buf ? e->properties[0].v.s.buf : "Hello!";
+        strncpy(text, e->properties[0].v.s.buf ? e->properties[0].v.s.buf : "Hello!", sizeof(text) - 1);
+        text[sizeof(text) - 1] = '\0';
         center_x = e->properties[1].v.i8 != 0;
         center_y = e->properties[2].v.i8 != 0;
         font_size = e->properties[3].v.i8;
@@ -55,7 +56,7 @@ namespace UiSticky {
 
             ImGui::SliderInt("Font Size", &font_size, 0, 3, "%d", ImGuiSliderFlags_AlwaysClamp);
             ImGui::SeparatorText("Text");
-            ImGui::InputTextMultiline("##text", &text, ImVec2(UI(210), ImGui::GetTextLineHeight() * 8));
+            ImGui::InputTextMultiline("##text", text, sizeof(text), ImVec2(UI(210), ImGui::GetTextLineHeight() * 8));
 
             ImGui_ButtonBar(apply_properties);
 

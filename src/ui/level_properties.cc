@@ -160,7 +160,7 @@ namespace UiLevelProperties {
 
         ImGui::TextUnformatted("Description");
         ImGui::SetNextItemWidth(-1);
-        ImGui::InputTextMultiline("###LevelDescr", &description);
+        ImGui::InputTextMultiline("###LevelDescr", &description, ImVec2(0,0), ImGuiInputTextFlags_WordWrap);
 
         ImGui::SeparatorText("Type");
         if (ImGui::RadioButton("Adventure", type == LCAT_ADVENTURE))

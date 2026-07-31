@@ -36,7 +36,7 @@ namespace UiPrompt {
         handle_do_open(&do_open, "Prompt");
 
         ImGui_CenterNextWindow();
-        ImGui::SetNextWindowSize(UI(280, .0));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(UI(300), 0), ImVec2(FLT_MAX, FLT_MAX));
         if (ImGui::BeginPopupModal("Prompt", NULL, MODAL_FLAGS)) {
             ImGui::TextWrapped("%s", prompt_text);
 
@@ -46,7 +46,8 @@ namespace UiPrompt {
                 if (response_text[i].empty())
                     continue;
 
-                if (ImGui::Button(response_text[i].c_str(), UI(70.f, 0.f))) {
+                std::string button_label = response_text[i] + "##prompt_button_" + std::to_string(i);
+                if (ImGui::Button(button_label.c_str())) {
                     base_prompt *bp = G->current_prompt->get_base_prompt();
 
                     if (bp) {

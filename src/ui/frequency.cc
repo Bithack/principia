@@ -60,11 +60,18 @@ namespace UiFrequency {
                 continue;
 
             const FreqUsr &usr = x.first;
-            for (uint32_t f = usr.range_start; f <= usr.range_end; ++f) {
+            if (usr.range_start == usr.range_end) {
                 if (usr.is_tx)
-                    freq_counts[f].first++;
+                    freq_counts[usr.range_start].first++;
                 else
-                    freq_counts[f].second++;
+                    freq_counts[usr.range_start].second++;
+            } else {
+                for (uint32_t f = usr.range_start; f <= usr.range_end; ++f) {
+                    if (usr.is_tx)
+                        freq_counts[f].first++;
+                    else
+                        freq_counts[f].second++;
+                }
             }
         }
     }
@@ -116,15 +123,15 @@ namespace UiFrequency {
 
         ImGui_CenterNextWindow();
         if (ImGui::BeginPopupModal("Frequency", REF_TRUE, MODAL_FLAGS)) {
-            unsigned int max_freq = 4294967040; // 2^32 - 256
-            ImGui::DragScalar("Frequency", ImGuiDataType_U32, &freq_range_start, .1, 0, &max_freq);
+            unsigned int max_freq = range ? 4294967040 /* 2^32 - 256 */ : 4294967295 /* 2^32 - 1 */;
+            ImGui::DragScalar("Frequency", ImGuiDataType_U32, &freq_range_start, .1, 0, &max_freq, "%u", ImGuiSliderFlags_AlwaysClamp);
             freq_range_size++;
             if (range)
                 ImGui::SliderInt("Range", &freq_range_size, 1, 255, "%d", ImGuiSliderFlags_AlwaysClamp);
             freq_range_size--;
 
             ImGui::Text(
-                range ? "%s on frequencies: %d-%d" : "%s on frequency: %d",
+                range ? "%s on frequencies: %u-%u" : "%s on frequency: %u",
                 this_is_tx ? "Transmitting" : "Listening",
                 freq_range_start,
                 freq_range_start + freq_range_size
@@ -143,7 +150,7 @@ namespace UiFrequency {
                     for (const auto &p : counts) {
                         ImGui::TableNextRow();
                         ImGui::TableNextColumn();
-                        ImGui::Text("%d", p.first);
+                        ImGui::Text("%u", p.first);
                         ImGui::TableNextColumn();
                         ImGui::Text("%d", p.second.second);
                         ImGui::TableNextColumn();

@@ -226,7 +226,9 @@ namespace UiSettings {
         ImGui::SliderFloat(
             "###volume-slider",
             local_settings["muted"]->v.b ? REF_FZERO : ((float*) &local_settings["volume"]->v.f),
-            0.f, 1.f
+            0.f, 1.f,
+            "%.2f",
+            ImGuiSliderFlags_AlwaysClamp
         );
         if (ImGui::IsItemDeactivatedAfterEdit()) {
             float volume = sm::volume;
