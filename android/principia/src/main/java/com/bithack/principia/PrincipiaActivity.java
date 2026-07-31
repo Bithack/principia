@@ -282,7 +282,12 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         mSingleton = this;
 
         super.onCreate(savedInstanceState);
-                this.init_webview();
+
+        try {
+            this.init_webview();
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to init webview: "+e);
+        }
 
         this.handle_intent(this.getIntent());
 
