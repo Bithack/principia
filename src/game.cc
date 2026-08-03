@@ -709,43 +709,67 @@ render_hidden_prio(struct tms_rstate *rstate, void *value)
     return T_OK;
 }
 
-void
-post_fn(struct tms_rstate *state)
-{
-    if (W->is_adventure() && adventure::player && G->caveview_size > 0.f) {
-        glDepthMask(0);
-        struct tms_entity *e = G->caveview;
-        glDisable(GL_DEPTH_TEST);
-        /* render the caveview fade stuff */
-        struct tms_program *prog = m_bg_fixed.pipeline[0].program;
-        tms_entity_apply_uniforms(e, state->p);
-        tms_pipeline_apply_combined_uniforms(state->p, state, prog, e);
-        tms_program_bind(prog);
-        tmat4_load_identity(G->caveview->M);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, W->cwindow->caveview->gl_texture);
-        tmat4_translate(G->caveview->M,
-                //roundf(adventure::player->get_position().x*2.)/2.f- .25f,
-                //roundf((adventure::player->get_position().y+.5f)*2.)/2.f- .25f,
-                G->caveview_pos.x,
-                G->caveview_pos.y,
-                //(adventure::player->get_position().x*2.)/2.f- .25f,
-                //(adventure::player->get_position().y+.5f)*2./2.f- .25f,
-                2.0);
-        tmat4_scale(G->caveview->M, CAVEVIEW_SIZE/2, CAVEVIEW_SIZE/2, 0.f);
-        tmat4_copy(state->modelview, state->view);
-        tmat4_multiply(state->modelview, e->M);
-        tms_pipeline_apply_local_uniforms(state->p, state, prog, e);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-        tms_mesh_render(const_cast<tms_mesh*>(tms_meshfactory_get_square()), prog);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDisable(GL_BLEND);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glDepthFunc(GL_LESS);
-        glDepthMask(0xff);
-    }
+static void render_caveview(struct tms_rstate *state) {
+    if (!W->is_adventure() || !adventure::player || G->caveview_size <= 0.f)
+        return;
+
+    glDepthMask(GL_FALSE);
+    glDisable(GL_DEPTH_TEST);
+
+    struct tms_entity *e = G->caveview;
+
+    /* Render the caveview fade texture */
+    struct tms_program *prog = m_bg_fixed.pipeline[0].program;
+
+    tms_entity_apply_uniforms(e, state->p);
+    tms_pipeline_apply_combined_uniforms(state->p, state, prog, e);
+
+    tms_program_bind(prog);
+
+    tmat4_load_identity(G->caveview->M);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, W->cwindow->caveview->gl_texture);
+
+    tmat4_translate(G->caveview->M, G->caveview_pos.x, G->caveview_pos.y, 2.0);
+
+    tmat4_scale(G->caveview->M, CAVEVIEW_SIZE / 2.f, CAVEVIEW_SIZE / 2.f, 0.f);
+
+    tmat4_copy(state->modelview, state->view);
+    tmat4_multiply(state->modelview, e->M);
+
+    tms_pipeline_apply_local_uniforms(state->p, state, prog, e);
+
+    glEnable(GL_BLEND);
+
+    glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+
+    tms_mesh_render(const_cast<tms_mesh *>(tms_meshfactory_get_square()), prog);
+
+    glDisable(GL_BLEND);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
+}
+
+static void render_caveview_after_postprocess() {
+    struct tms_rstate state;
+
+    memset(&state, 0, sizeof(state));
+
+    state.p = G->graph->p;
+
+    tmat4_copy(state.view, G->cam->view);
+    tmat4_copy(state.projection, G->cam->projection);
+
+    render_caveview(&state);
+}
+
+void post_fn(struct tms_rstate *state) {
+    if (!settings["postprocess"]->v.b)
+        render_caveview(state);
 
     /* TODO: copy blending stuff from material/escript */
     bool base_initialized = false;
@@ -2834,8 +2858,6 @@ game::render()
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render after shadow/ao", ierr);
     glDisable(GL_BLEND);
 
-    //ss = SDL_GetTicks();
-
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render before bg", ierr);
 
     if (!_tms.use_gles && settings["gamma_correct"]->v.b && !settings["postprocess"]->v.b)
@@ -2986,6 +3008,8 @@ game::render()
 
         if (!_tms.use_gles && settings["gamma_correct"]->v.b)
             glDisable(GL_FRAMEBUFFER_SRGB);
+
+        render_caveview_after_postprocess();
 
         glBindTexture(GL_TEXTURE_2D, this->main_fb->fb_texture[0][0]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
