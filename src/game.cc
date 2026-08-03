@@ -2954,10 +2954,6 @@ game::render()
     glEnable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    if (!W->is_paused() && W->level.type == LCAT_ADVENTURE) {
-        adventure::render();
-    }
-
     glDisable(GL_BLEND);
     glEnable(GL_CULL_FACE);
 
@@ -3062,6 +3058,9 @@ game::render()
     this->render_controls_help();
 
     this->render_gui();
+
+    if (!W->is_paused() && W->level.type == LCAT_ADVENTURE)
+        adventure::render();
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d after gui", ierr);
     if (this->state.sandbox && W->is_paused()) {
