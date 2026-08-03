@@ -2923,7 +2923,8 @@ game::render()
                 tms_texture_render(tex_bg);
             }
         } else {
-            glClearColor(.05f, .05f, .05f, 1.f);
+            float bgf = GAMMA_CORRECTF(0.05f);
+            glClearColor(bgf, bgf, bgf, 1.f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
     }
