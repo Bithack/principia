@@ -185,7 +185,7 @@ static const char *trans_sources[] = {
     "uniform vec2 position_trans;"
     "uniform vec2 position_trans_lower;"
 
-    "void main(void) {"
+    "void main() {"
         "vec2 tx = texcoord+texcoord_trans;"
         "vec2 trans = position_trans;"
         "if (position.y < 0.01) trans = position_trans_lower;"
@@ -196,7 +196,7 @@ static const char *trans_sources[] = {
     "uniform sampler2D tex_0;"
     "varying lowp vec2 FS_texcoord;"
 
-    "void main(void) {"
+    "void main() {"
         "gl_FragColor = texture2D(tex_0, FS_texcoord);"
     "}"
 };
@@ -206,7 +206,7 @@ const char *src_brightpass[2] = {
     "attribute vec2 texcoord;"
     "varying lowp vec2 FS_texcoord;"
 
-    "void main(void) {"
+    "void main() {"
         "FS_texcoord = texcoord;"
         "gl_Position = vec4(position, 0., 1.);"
     "}"
@@ -214,7 +214,7 @@ const char *src_brightpass[2] = {
     "uniform mediump sampler2D tex_0;"
     "varying lowp vec2 FS_texcoord;"
 
-    "void main(void) {"
+    "void main() {"
         "vec3 color = texture2D(tex_0, FS_texcoord).rgb;"
         "float lum = dot(color, vec3(0.33, 0.33, 0.33));"
         "lum = lum*lum;"
@@ -227,7 +227,7 @@ const char *src_output[2] = {
     "attribute vec2 texcoord;"
     "varying lowp vec2 FS_texcoord;"
 
-    "void main(void) {"
+    "void main() {"
         "FS_texcoord = texcoord;"
         "gl_Position = vec4(position, 0., 1.);"
     "}"
@@ -235,15 +235,14 @@ const char *src_output[2] = {
 
     "uniform mediump sampler2D tex_0;"
     "varying lowp vec2 FS_texcoord;"
-    "void main(void) {"
+    "void main() {"
         //"vec3 col = sqrt(texture2D(tex_0, FS_texcoord).rgb);"
         "vec3 col = pow(texture2D(tex_0, FS_texcoord).rgb, vec3(1./2.2));"
         "gl_FragColor = vec4(col, 1.);"
     "}"
 };
 
-const char *tutorial_texts[NUM_TUTORIAL_TEXTS] =
-{
+const char *tutorial_texts[NUM_TUTORIAL_TEXTS] = {
     /* TUTORIAL_TEXT_PICKUP_EQUIPMENT */
     "When you find loose robot equipment, use the\n"
     "compressor tool to pick it up, bring it to a\n"
@@ -280,9 +279,7 @@ const char *tutorial_text_4th_mobile =
     "touch and swipe from your character to where you\n"
     "want to create the ladder step.";
 
-bool
-game_sorter::distance_to_creature::operator()(activator *a, activator *b)
-{
+bool game_sorter::distance_to_creature::operator()(activator *a, activator *b) {
     const b2Vec2 &player_pos = this->c->get_position();
     const float dist_a = b2Distance(a->get_activator_pos(), player_pos);
     const float dist_b = b2Distance(b->get_activator_pos(), player_pos);
@@ -299,9 +296,7 @@ GLuint trans_program_scale_loc;
 GLuint trans_program_pos_loc;
 GLuint trans_program_poslower_loc;
 
-static void
-deactive_misc_wdg(panel::widget **wdg)
-{
+static void deactive_misc_wdg(panel::widget **wdg) {
     tms_debugf("DEACTIVATE");
     if (*wdg) {
         tms_debugf("DEACTIVATE WDG %p %p", wdg, *wdg);
@@ -320,9 +315,7 @@ deactive_misc_wdg(panel::widget **wdg)
     }
 }
 
-static void
-active_slider_render(struct tms_wdg *w, struct tms_surface *s)
-{
+static void active_slider_render(struct tms_wdg *w, struct tms_surface *s) {
     float px = w->pos.x, py = w->pos.y;
     float sx = 1.f, sy = 0.f;
     float r = 0.f;
@@ -370,9 +363,7 @@ active_slider_render(struct tms_wdg *w, struct tms_surface *s)
     tms_ddraw_set_color(s->ddraw, TVEC4_INLINE(old));
 }
 
-static void
-active_vslider_render(struct tms_wdg *w, struct tms_surface *s)
-{
+static void active_vslider_render(struct tms_wdg *w, struct tms_surface *s) {
     float px = w->pos.x, py = w->pos.y;
     float sx = 0.f, sy = 1.f;
     float r = -90.f; // base rotation of vertical slider is -90
@@ -420,9 +411,7 @@ active_vslider_render(struct tms_wdg *w, struct tms_surface *s)
     tms_ddraw_set_color(s->ddraw, TVEC4_INLINE(old));
 }
 
-static void
-active_radial_render(struct tms_wdg *w, struct tms_surface *s)
-{
+static void active_radial_render(struct tms_wdg *w, struct tms_surface *s) {
     float px = w->pos.x, py = w->pos.y;
     float r = 0.f;
 
@@ -478,9 +467,7 @@ active_radial_render(struct tms_wdg *w, struct tms_surface *s)
     }
 }
 
-static void
-active_field_render(struct tms_wdg *w, struct tms_surface *s)
-{
+static void active_field_render(struct tms_wdg *w, struct tms_surface *s) {
     float px = w->pos.x, py = w->pos.y;
     float sx = 1.f, sy = 1.f;
     float r = 0.f;
@@ -532,9 +519,7 @@ active_field_render(struct tms_wdg *w, struct tms_surface *s)
     }
 }
 
-static bool
-set_active_double(panel::widget *wdg)
-{
+static bool set_active_double(panel::widget *wdg) {
     bool is_self = (G->active_hori_wdg == wdg && G->active_vert_wdg == wdg);
 
     if (G->active_hori_wdg || G->active_vert_wdg) {
@@ -558,9 +543,7 @@ set_active_double(panel::widget *wdg)
     return true;
 }
 
-static bool
-set_active_slider(panel::widget **active_wdg, panel::widget *wdg)
-{
+static bool set_active_slider(panel::widget **active_wdg, panel::widget *wdg) {
     bool is_self = (*active_wdg == wdg);
 
     if (*active_wdg) {
@@ -587,9 +570,7 @@ set_active_slider(panel::widget **active_wdg, panel::widget *wdg)
     return true;
 }
 
-static bool
-try_activate_slider(int slot)
-{
+static bool try_activate_slider(int slot) {
     if (wdg_misc[slot]) {
         bool ret = true;
         bool warp = false;
@@ -634,9 +615,7 @@ try_activate_slider(int slot)
     return false;
 }
 
-int
-render_foreground(struct tms_rstate *state, void *value)
-{
+int render_foreground(struct tms_rstate *state, void *value) {
     int val = VOID_TO_INT(value);
 
     if (val == 3) {
@@ -648,9 +627,7 @@ render_foreground(struct tms_rstate *state, void *value)
     return 1;
 }
 
-int
-render_next_prio(struct tms_rstate *state, void *value)
-{
+int render_next_prio(struct tms_rstate *state, void *value) {
     int val = VOID_TO_INT(value);
 
     switch (val) {
@@ -682,9 +659,7 @@ render_next_prio(struct tms_rstate *state, void *value)
     return T_OK;
 }
 
-int
-render_hidden_prio(struct tms_rstate *rstate, void *value)
-{
+int render_hidden_prio(struct tms_rstate *rstate, void *value) {
     int val = VOID_TO_INT(value);
 
     switch (val) {
@@ -829,9 +804,7 @@ void post_fn(struct tms_rstate *state) {
     /* TODO: disable blending, re-enable depth testing */
 }
 
-void
-ao_post_fn(struct tms_rstate *state)
-{
+void ao_post_fn(struct tms_rstate *state) {
     /// XXX: what?
     return;
     if (W->level.type == LCAT_ADVENTURE && adventure::player) {
@@ -857,8 +830,7 @@ ao_post_fn(struct tms_rstate *state)
     }
 }
 
-int ao_mask_color(struct tms_rstate *state, void *value)
-{
+int ao_mask_color(struct tms_rstate *state, void *value) {
     int val = VOID_TO_INT(value);
 
     switch (val) {
@@ -876,21 +848,18 @@ int ao_mask_color(struct tms_rstate *state, void *value)
     return T_OK;
 }
 
-int sort_blending(struct tms_rstate *rstate, void *value)
-{
+int sort_blending(struct tms_rstate *rstate, void *value) {
     int val = VOID_TO_INT(value);
 
     rstate->graph->sort_reverse_prio = 0;
 
     if (P.best_variable_in_the_world == 1337) {
-        if (val != TMS_BLENDMODE_OFF) {
+        if (val != TMS_BLENDMODE_OFF)
             return 1;
-        }
     } else {
         switch (val) {
             default:
             case TMS_BLENDMODE_OFF:
-
                 if (P.best_variable_in_the_world3 == 1) {
                     rstate->graph->sort_reverse_prio = 1;
                     glEnable(GL_BLEND);
@@ -929,29 +898,23 @@ int sort_blending(struct tms_rstate *rstate, void *value)
     return T_OK;
 }
 
-void
-on_panel_change(tms_wdg *w, float value)
-{
+void on_panel_change(tms_wdg *w, float value) {
     if (value == 1.f) {
-        if (W->is_adventure()) {
+        if (W->is_adventure())
             G->set_control_panel(adventure::player);
-        } else {
+        else
             G->set_control_panel(0);
-        }
     }
 }
 
 static std::map<uint32_t, float> hp_offsets;
 
-
 static const int NUM_ACTIVATOR_BINDINGS = 3;
-
 static const char *activator_strings[NUM_ACTIVATOR_BINDINGS] = {
     "E",
     "S+E",
     "C+E",
 };
-
 static p_text *activator_texts[NUM_ACTIVATOR_BINDINGS];
 
 game *G = 0;
@@ -966,8 +929,7 @@ game::game()
     , help_dragpanel(0)
     , panel_edit_need_scroll(false)
     , render_controls(false)
-    , tex_controls(0)
-{
+    , tex_controls(0) {
     G = this;
 
     this->layer_vis = 7;
@@ -1095,25 +1057,19 @@ game::game()
     this->init_camera();
 }
 
-game::~game()
-{
+game::~game() {
     delete this->wm;
-    if (this->score_text) {
+    if (this->score_text)
         delete this->score_text;
-    }
-
-    if (this->numfeed_text) {
+    if (this->numfeed_text)
         delete this->numfeed_text;
-    }
-    if (this->text_small) {
+    if (this->text_small)
         delete this->text_small;
-    }
-    if (this->info_label) {
+    if (this->info_label)
         delete this->info_label;
-    }
-    if (this->help_dragpanel) {
+    if (this->help_dragpanel)
         delete this->help_dragpanel;
-    }
+
     gui_spritesheet::cleanup();
     tms_atlas_free(this->texts);
 
@@ -1126,9 +1082,7 @@ game::~game()
     }
 }
 
-bool
-game::occupy_prompt_slot()
-{
+bool game::occupy_prompt_slot() {
     uint64_t cur_time = _tms.last_time;
 
     for (int x=0; x<NUM_PROMPT_SLOTS; ++x) {
@@ -1143,9 +1097,7 @@ game::occupy_prompt_slot()
     return false;
 }
 
-void
-game::init_framebuffers()
-{
+void game::init_framebuffers() {
     tms_infof("Initializing game framebuffers");
 
     if (!this->icon_fb) {
@@ -1182,9 +1134,7 @@ game::init_framebuffers()
     }
 }
 
-void
-game::init_shaders()
-{
+void game::init_shaders() {
     tms_infof("Compiling shaders...");
 
     struct tms_shader *sh;
@@ -1208,9 +1158,7 @@ game::init_shaders()
     prg_brightpass = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 }
 
-void
-game::init_graphs()
-{
+void game::init_graphs() {
     tms_infof("Loading graphs...");
 
     this->graph = this->get_scene()->create_graph(0);
@@ -1256,9 +1204,7 @@ game::init_graphs()
     tms_graph_enable_culling(this->outline_graph, 0);
 }
 
-void
-game::init_camera()
-{
+void game::init_camera() {
     tms_infof("Loading camera...");
 
     this->cam = new tms::camera();
@@ -1286,9 +1232,7 @@ game::init_camera()
     this->gi_cam->far = LAYER_DEPTH*3 + .5f;// + .75f;
 }
 
-void
-game::reset_touch(bool hard/*=true*/)
-{
+void game::reset_touch(bool hard/*=true*/) {
     hover_cursorfield = 0;
     current_interacting = -1;
 
@@ -1301,16 +1245,14 @@ game::reset_touch(bool hard/*=true*/)
         resizing[x] = false;
 
         if (!hard) {
-            if (in_cursorfield[x]) {
-                in_cursorfield[x]->pressed --;
-            }
+            if (in_cursorfield[x])
+                in_cursorfield[x]->pressed--;
         }
         in_cursorfield[x] = 0;
 
         if (!hard) {
-            if (drag_cursorfield[x]) {
-                drag_cursorfield[x]->dragged --;
-            }
+            if (drag_cursorfield[x])
+                drag_cursorfield[x]->dragged--;
         }
         drag_cursorfield[x] = 0;
 
@@ -1350,9 +1292,8 @@ game::reset_touch(bool hard/*=true*/)
             interacting[x] = 0;
             mover_joint[x] = 0;
         }
-    } else {
+    } else
         this->drop_interacting();
-    }
 
     if (!settings["touch_controls"]->v.b)
         move_time = _tms.last_time;
@@ -1366,9 +1307,7 @@ game::reset_touch(bool hard/*=true*/)
     this->reset_touch_gui();
 }
 
-int
-game::pause()
-{
+int game::pause() {
     tms_debugf("game::pause");
     sm::stop_all();
     ui::open_dialog(CLOSE_ABSOLUTELY_ALL_DIALOGS);
@@ -1379,9 +1318,7 @@ game::pause()
     return T_OK;
 }
 
-int
-game::resume(void)
-{
+int game::resume() {
     this->render_controls = false;
 
     if (this->resume_action == GAME_START_NEW_ADVENTURE) {
@@ -1424,9 +1361,7 @@ game::resume(void)
     return T_OK;
 }
 
-void
-game::back()
-{
+void game::back() {
     tms_debugf("BACK PRESSED");
     if (this->state.test_playing) {
         this->state.test_playing = false;
@@ -1457,17 +1392,13 @@ game::back()
 
 }
 
-b2Joint*
-game::create_joint(b2JointDef *jd)
-{
+b2Joint *game::create_joint(b2JointDef *jd) {
     return W->b2->CreateJoint(jd);
 }
 
 static float saved_z;
 
-void
-game::set_caveview_zoom_limits(bool update)
-{
+void game::set_caveview_zoom_limits(bool update) {
     saved_z = this->cam->_position.z;
 
     if (caveview_size >= 2.f) {
@@ -1511,9 +1442,7 @@ game::set_caveview_zoom_limits(bool update)
     //tms_debugf("cam pos: %f", this->cam->_position.z);
 }
 
-void
-game::unset_caveview_zoom_limits()
-{
+void game::unset_caveview_zoom_limits() {
     this->cam->_position.z = saved_z;
 }
 
@@ -1595,9 +1524,7 @@ void game::step_tooltip() {
     }
 }
 
-int
-game::step(double dt)
-{
+int game::step(double dt) {
 #ifndef SCREENSHOT_BUILD
     if (!P.focused) {
         _tms.time_accum = 0;
@@ -1841,25 +1768,23 @@ game::step(double dt)
     ss = SDL_GetTicks();
 #endif
 
-    if (W->is_paused() && this->_mode == GAME_MODE_DRAW && drawing) {
+    if (W->is_paused() && this->_mode == GAME_MODE_DRAW && drawing)
         this->handle_draw(0, touch_pos[0].x, touch_pos[0].y);
-    }
 
 #define BASE_BORDER_SCROLL_SPEED 1.f
 
     if (settings["border_scroll_enabled"]->v.b) {
         double fps_mod = (_tms.fps_mean < 60. ? 60. : _tms.fps_mean) / 60.;
 
-        if (cam_move_x[0]) {
+        if (cam_move_x[0])
             this->cam->_position.x -= BASE_BORDER_SCROLL_SPEED * settings["border_scroll_speed"]->v.f * cam_move_x[0] * 0.25f / fps_mod;
-        } else if (cam_move_x[1]) {
+        else if (cam_move_x[1])
             this->cam->_position.x += BASE_BORDER_SCROLL_SPEED * settings["border_scroll_speed"]->v.f * cam_move_x[1] * 0.25f / fps_mod;
-        }
-        if (cam_move_y[0]) {
+
+        if (cam_move_y[0])
             this->cam->_position.y -= BASE_BORDER_SCROLL_SPEED * settings["border_scroll_speed"]->v.f * cam_move_y[0] * 0.25f / fps_mod;
-        } else if (cam_move_y[1]) {
+        else if (cam_move_y[1])
             this->cam->_position.y += BASE_BORDER_SCROLL_SPEED * settings["border_scroll_speed"]->v.f * cam_move_y[1] * 0.25f / fps_mod;
-        }
     }
 
 #undef BASE_BORDER_SCROLL_SPEED
@@ -2117,9 +2042,8 @@ game::step(double dt)
     }
 
     /* XXX place this somewhere else? */
-    if (W->is_paused() || W->level.type == LCAT_ADVENTURE) {
+    if (W->is_paused() || W->level.type == LCAT_ADVENTURE)
         this->update_pairs();
-    }
 
     sm::position.x = this->cam->_position.x;
     sm::position.y = this->cam->_position.y;
@@ -2134,15 +2058,6 @@ game::step(double dt)
         if (!_tms.emulating_portrait) {
             top = tms_camera_unproject(this->cam, _tms.window_width, _tms.window_height, dd.z);
             bottom = tms_camera_unproject(this->cam, 0.f, 0.f, dd.z);
-
-#if false && defined DEBUG
-            const float CHUNK_EXTRA_CULLING = .4f;
-            float ff = CHUNK_EXTRA_CULLING*this->cam->_position.z;
-            top.x -= ff;
-            top.y -= ff;
-            bottom.x += ff;
-            bottom.y += ff;
-#endif
         } else {
             top = tms_camera_unproject(this->cam, 0, _tms.window_height, dd.z);
             bottom = tms_camera_unproject(this->cam, _tms.window_width, 0.f, dd.z);
@@ -2168,7 +2083,7 @@ game::step(double dt)
             tms_infof("top: %.2f/%.2f/%.2f", top.x, top.y, top.z);
             tms_infof("bottom: %.2f/%.2f/%.2f", bottom.x, bottom.y, bottom.z);
             tms_infof("min: %.2f/%.2f", min_x, min_y);
-            tms_infof("max: %.2f/%.2f", max_y, max_y);
+            tms_infof("max: %.2f/%.2f", max_x, max_y);
             tms_infof("cam pos: %.2f/%.2f %.2f", this->cam->_position.x, this->cam->_position.y, this->cam->_position.z);
             tms_infof("dd: %.2f/%.2f/%.2f", dd.x, dd.y, dd.z);
 
@@ -2226,9 +2141,7 @@ game::step(double dt)
     return T_OK;
 }
 
-void
-game::update_ghost_entity(entity *ths)
-{
+void game::update_ghost_entity(entity *ths) {
     if (ths->flag_active(ENTITY_CUSTOM_GHOST_UPDATE)) {
         ths->ghost_update();
     } else {
@@ -2239,9 +2152,7 @@ game::update_ghost_entity(entity *ths)
     }
 }
 
-void
-game::update_static_entities()
-{
+void game::update_static_entities() {
     pixel::reset_counter();
     tpixel::reset_counter();
 
@@ -2276,9 +2187,7 @@ game::update_static_entities()
     }
 }
 
-void
-game::update_entities()
-{
+void game::update_entities() {
 #ifdef PROFILING
     Uint32 ss = SDL_GetTicks();
 #endif
@@ -2358,15 +2267,14 @@ game::update_entities()
 
         tmat3_copy_mat4_sub3x3(e->N, e->M);
 
-        if (conn->multilayer && conn->type == CONN_WELD) {
+        if (conn->multilayer && conn->type == CONN_WELD)
             tmat4_scale(e->M, .10f, .10f, 1.0f);
-        } else if (conn->render_type == CONN_RENDER_NAIL) {
+        else if (conn->render_type == CONN_RENDER_NAIL)
             tmat4_scale(e->M, 1.f, 1.f, 0.5f);
-        } else if (conn->multilayer && conn->render_type == CONN_RENDER_SMALL) {
+        else if (conn->multilayer && conn->render_type == CONN_RENDER_SMALL)
             tmat4_scale(e->M, 1.f, 1.f, .75f);
-        } else if (!conn->multilayer && conn->render_type == CONN_RENDER_SMALL) {
+        else if (!conn->multilayer && conn->render_type == CONN_RENDER_SMALL)
             tmat4_scale(e->M, .5f, .5f, 1.f);
-        }
     }
 
 #ifdef PROFILING
@@ -2402,8 +2310,7 @@ game::update_entities()
 #endif
 }
 
-static inline void _uncull(struct tms_entity *e)
-{
+static inline void _uncull(struct tms_entity *e) {
     if (e->scene && tms_scene_is_entity_culled(G->get_scene(), (struct tms_entity*)e)) {
         tms_scene_uncull_entity(G->get_scene(), (struct tms_entity*)e);
         tms_graph_uncull_entity(G->graph, (struct tms_entity*)e);
@@ -2412,9 +2319,7 @@ static inline void _uncull(struct tms_entity *e)
     }
 }
 
-static inline void
-_uncull_full(entity *e)
-{
+static inline void _uncull_full(entity *e) {
     _uncull(e);
 
     edevice *ee;
@@ -2446,9 +2351,7 @@ _uncull_full(entity *e)
     if (e->gr) _uncull(e->gr);
 }
 
-bool
-_uncull_handler::ReportFixture(b2Fixture *f)
-{
+bool _uncull_handler::ReportFixture(b2Fixture *f) {
     entity *e;
 
     if ((e = static_cast<entity*>(f->GetUserData()))) {
@@ -2473,9 +2376,7 @@ _uncull_handler::ReportFixture(b2Fixture *f)
     return true;
 }
 
-bool
-_box_select_handler::ReportFixture(b2Fixture *f)
-{
+bool _box_select_handler::ReportFixture(b2Fixture *f) {
     entity *e;
 
     if ((e = static_cast<entity*>(f->GetUserData()))) {
@@ -2491,9 +2392,7 @@ _box_select_handler::ReportFixture(b2Fixture *f)
     return true;
 }
 
-int
-game::render()
-{
+int game::render() {
     // only delay on android (XXX: why?)
 #ifdef SDL_PLATFORM_ANDROID
     if (!P.focused)
@@ -2945,9 +2844,8 @@ game::render()
 
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-    if (W->is_paused() || W->level.type == LCAT_ADVENTURE) {
+    if (W->is_paused() || W->level.type == LCAT_ADVENTURE)
         this->render_selected_entity();
-    }
 
     this->render_highlighted();
     this->render_trails();
@@ -3624,9 +3522,7 @@ game::render()
     return T_OK;
 }
 
-void
-game::add_error(entity *e, uint8_t error_type/*=ERROR_NONE*/, const char *message/*=0*/)
-{
+void game::add_error(entity *e, uint8_t error_type/*=ERROR_NONE*/, const char *message/*=0*/) {
     std::set<er*>::iterator it = this->errors.begin();
     for (; it != this->errors.end(); ++it) {
         er *error = static_cast<er*>(*it);
@@ -3649,9 +3545,7 @@ game::add_error(entity *e, uint8_t error_type/*=ERROR_NONE*/, const char *messag
     }
 }
 
-void
-game::clear_errors()
-{
+void game::clear_errors() {
     std::set<er*>::iterator it = this->errors.begin();
     for (; it != this->errors.end(); ++it) {
         delete *it;
@@ -3660,15 +3554,11 @@ game::clear_errors()
     this->errors.clear();
 }
 
-void
-game::reselect()
-{
+void game::reselect() {
     this->selection.select(this->selection.e, this->selection.b, this->selection.offs, this->selection.frame, true);
 }
 
-void
-game::render_tt()
-{
+void game::render_tt() {
     for (int x=0; x<MAX_TUTORIAL_TEXTS; x++) {
         if (this->tt[x].life <= 0.f)
             return;
@@ -3702,16 +3592,7 @@ game::render_tt()
     }
 }
 
-/**
- * Render any pending activators.
- * The pending activators will be cleared just before the pending activators
- * are refreshed.
- *
- * This currently happens in game::render()
- **/
-void
-game::render_activators(void)
-{
+void game::render_activators() {
     if (!this->pending_activators.empty()) {
         float mv[16];
         float p[16];
@@ -3758,9 +3639,7 @@ game::render_activators(void)
     }
 }
 
-void
-game::render_starred(void)
-{
+void game::render_starred() {
     if (settings["render_gui"]->is_false()) {
         return;
     }
@@ -3796,9 +3675,7 @@ game::render_starred(void)
     }
 }
 
-void
-game::render_controls_help()
-{
+void game::render_controls_help() {
     if (settings["touch_controls"]->v.b)
         return;
 
@@ -3848,9 +3725,7 @@ game::render_controls_help()
             ALIGN_CENTER, ALIGN_BOTTOM);
 }
 
-void
-game::render_existing_connections(void)
-{
+void game::render_existing_connections() {
     float mv[16];
     float p[16];
     tmat4_copy(p, this->cam->projection);
@@ -3871,9 +3746,7 @@ game::render_existing_connections(void)
     }
 }
 
-void
-game::render_connections(void)
-{
+void game::render_connections() {
     c_map::iterator i = this->pairs.begin();
 
     if (this->get_mode() == GAME_MODE_SELECT_SOCKET
@@ -3911,12 +3784,7 @@ game::render_connections(void)
     }
 }
 
-/**
- * Render the connection type selection menu
- **/
-void
-game::render_conn_types()
-{
+void game::render_conn_types() {
     float mv[16];
     float p[16];
 
@@ -3968,9 +3836,7 @@ game::render_conn_types()
     tms_ddraw_set_color(this->dd, 1.0f, 1.0f, 1.0f, 1.f);
 }
 
-void
-game::select_socksel(int x)
-{
+void game::select_socksel(int x) {
     if (!this->ss_plug && !this->ss_asker) {
         /* ss_plug is 0 if we're unplugging */
         this->perform_socket_action(x);
@@ -4076,14 +3942,7 @@ game::select_socksel(int x)
     this->state.modified = true;
 }
 
-/**
- * Render the socket selection menu, and
- * store the sockets in the game object so we can identify
- * clicks on them later.
- **/
-void
-game::render_socksel()
-{
+void game::render_socksel() {
     if (!this->ss_edev) {
         tms_errorf("object we're trying to render sockets for isn't there anymore, abort");
         this->set_mode(GAME_MODE_DEFAULT);
@@ -4303,10 +4162,7 @@ game::render_socksel()
     }
 }
 
-/* highlight the currently selected entity */
-void
-game::render_selected_entity()
-{
+void game::render_selected_entity() {
     this->state.edev_labels = false;
 
     if (!this->selection.enabled() || !this->selection.e)
@@ -4414,9 +4270,7 @@ game::render_selected_entity()
     glDisable(GL_BLEND);
 }
 
-void
-game::render_selected_connection()
-{
+void game::render_selected_connection() {
     if (this->selection.enabled() && this->selection.c) {
         glDisable(GL_DEPTH_TEST);
         connection *c = this->selection.c;
@@ -4436,9 +4290,7 @@ game::render_selected_connection()
 
 }
 
-void
-game::drop_interacting(void)
-{
+void game::drop_interacting() {
     if (W->level.type == LCAT_ADVENTURE)
         this->selection.disable();
 
@@ -4451,9 +4303,7 @@ game::drop_interacting(void)
     this->set_mode(GAME_MODE_DEFAULT);
 }
 
-void
-game::drop_if_interacting(entity *e)
-{
+void game::drop_if_interacting(entity *e) {
     for (int x=0; x<MAX_INTERACTING; x++) {
         if (interacting[x] == e) {
             this->destroy_mover(x);
@@ -4462,9 +4312,7 @@ game::drop_if_interacting(entity *e)
     }
 }
 
-int
-game::interacting_with(entity *e)
-{
+int game::interacting_with(entity *e) {
     for (int x=0; x<MAX_INTERACTING; x++) {
         if (interacting[x] == e) {
             return current_interacting != -1 && dragging[current_interacting] ? 2 : 1;
@@ -4474,9 +4322,7 @@ game::interacting_with(entity *e)
     return false;
 }
 
-int
-game::is_mover_joint(b2Joint *j)
-{
+int game::is_mover_joint(b2Joint *j) {
     for (int x=0; x<MAX_INTERACTING; x++) {
         if (mover_joint[x] == j) {
             return x;
@@ -4486,9 +4332,7 @@ game::is_mover_joint(b2Joint *j)
     return -1;
 }
 
-void
-game::render_trails()
-{
+void game::render_trails() {
     for (int x=0; x<MAX_INTERACTING; x++) {
         if (interacting[x]) {
             int num = interacting_p[x];
@@ -4542,9 +4386,7 @@ game::render_trails()
     }
 }
 
-static void
-fadeout_update_matrices(struct tms_entity *e, b2Vec2 velocity, bool scale=false)
-{
+static void fadeout_update_matrices(struct tms_entity *e, b2Vec2 velocity, bool scale=false) {
     for (int c=0; c<e->num_children; c++) {
         fadeout_update_matrices(e->children[c], velocity);
     }
@@ -4560,9 +4402,7 @@ fadeout_update_matrices(struct tms_entity *e, b2Vec2 velocity, bool scale=false)
     }
 }
 
-void
-game::render_highlighted()
-{
+void game::render_highlighted() {
     for (int x=0; x<NUM_HL; x++) {
         struct hl *hl = &this->hls[x];
 
@@ -4729,9 +4569,7 @@ game::render_highlighted()
     }
 }
 
-void
-game::free_fadeout(fadeout_event *ev)
-{
+void game::free_fadeout(fadeout_event *ev) {
     /* TODO: cleanup.
      *       ALSO masure we clean up if the game is paused before
      *       a fadeout is completed !!!!! */
@@ -4746,15 +4584,7 @@ game::free_fadeout(fadeout_event *ev)
     delete ev;
 }
 
-/**
- * Open a menu for choosing which socket to attach the
- * given plug to.
- *
- * If p is 0, we open the socket unplug menu for the given edevice
- **/
-void
-game::open_socket_selector(entity *e, edevice *edev, int action/*=0*/)
-{
+void game::open_socket_selector(entity *e, edevice *edev, int action/*=0*/) {
     tms_infof("open socket selector");
     this->ss_quickplug_step2 = false;
     this->ss_action = action;
@@ -4781,9 +4611,7 @@ game::open_socket_selector(entity *e, edevice *edev, int action/*=0*/)
     }
 }
 
-void
-game::set_follow_object(entity *e, bool snap, bool preserve_pos/*=false*/)
-{
+void game::set_follow_object(entity *e, bool snap, bool preserve_pos/*=false*/) {
     if (this->follow_object == e && e != 0)
         return;
 
@@ -4819,9 +4647,7 @@ game::set_follow_object(entity *e, bool snap, bool preserve_pos/*=false*/)
     }
 }
 
-void
-game::setup_panel(panel *p)
-{
+void game::setup_panel(panel *p) {
     adventure::clear_widgets();
     this->current_panel = p;
 
@@ -4877,12 +4703,9 @@ game::setup_panel(panel *p)
     }
 }
 
-/**
- * TODO: fix spaghetti
- **/
-void
-game::set_control_panel(entity *e)
-{
+void game::set_control_panel(entity *e) {
+    // TODO: fix spaghetti
+
     if (e) {
         /* If the entity is in the list of starred objects, remove it from that list. */
         this->starred.erase(e);
@@ -4892,7 +4715,7 @@ game::set_control_panel(entity *e)
         return;
     }
 
-    /* We've recieved an unique RC.
+    /* We've received an unique RC.
      * Begin by resetting all labels and special events for any previous RCs. */
     for (int x=0; x<MAX_DIR_BTN; ++x) {
         wdg_up[x] = 0;
@@ -4974,9 +4797,7 @@ game::set_control_panel(entity *e)
     }
 }
 
-void
-game::reset()
-{
+void game::reset() {
     disable_menu = false;
     sm::stop_all();
     this->selection.disable();
@@ -5111,12 +4932,7 @@ game::reset()
     G->caveview_zoom = 0.f;
 }
 
-/**
- * Apply state directly from world by reading
- **/
-void
-game::load_state()
-{
+void game::load_state() {
     tms_debugf("loading game/world state");
 
     /* copy information about the worlds buffer and set the pointer to point at
@@ -5185,9 +5001,7 @@ game::load_state()
     }
 }
 
-void
-game::write_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void game::write_state(lvlinfo *lvl, lvlbuf *lb) {
     lb->ensure(this->get_state_size());
 
     lb->w_float(this->state.time_mul);
@@ -5236,9 +5050,7 @@ game::write_state(lvlinfo *lvl, lvlbuf *lb)
     }
 }
 
-size_t
-game::get_state_size()
-{
+size_t game::get_state_size() {
     return
         sizeof(float)    /* timemul */
         + sizeof(uint32_t) /* adventure_id */
@@ -5276,33 +5088,29 @@ game::get_state_size()
         ;
 }
 
-void
-game::apply_level_properties()
-{
+void game::apply_level_properties() {
     W->cwindow->set_seed(W->level.seed);
 
     this->state.adventure_id = W->level.get_adventure_id();
 
     if (!adventure::player) {
         entity *player = W->get_entity_by_id(this->state.adventure_id);
-        if (player) {
+        if (player)
             adventure::player = static_cast<creature*>(player);
-        }
     }
 
-    if (!this->caveview->scene) {
+    if (!this->caveview->scene)
         this->get_scene()->add_entity(static_cast<tms::entity*>(this->caveview));
-    }
 
-    if (this->state.abo_architect_mode) {
+    if (this->state.abo_architect_mode)
         this->set_architect_mode(false);
-    }
 
 #ifdef SDL_PLATFORM_ANDROID
-    if (W->level.flag_active(LVL_PORTRAIT_MODE)) {
+    if (W->level.flag_active(LVL_PORTRAIT_MODE))
 #else
-    if (false) {
+    if (false)
 #endif
+    {
         _tms.emulating_portrait = true;
         this->cam->up = (tvec3){1.f, 0.f, 0.f};
     } else  {
@@ -5310,9 +5118,8 @@ game::apply_level_properties()
         this->cam->up = (tvec3){0.f, 1.f, 0.f};
     }
 
-    if (W->level.type == LCAT_ADVENTURE) {
+    if (W->level.type == LCAT_ADVENTURE)
         this->cam->_position.z = 12.f;
-    }
 
     this->cam->_position.x = W->level.sandbox_cam_x;
     this->cam->_position.y = W->level.sandbox_cam_y;
@@ -5323,12 +5130,9 @@ game::apply_level_properties()
     this->check_all_entities();
 }
 
-void
-game::init_background()
-{
-    if (this->bgent->scene) {
+void game::init_background() {
+    if (this->bgent->scene)
         this->get_scene()->remove_entity(this->bgent);
-    }
 
     material_factory::background_id = W->level.bg;
     tms_infof("setting bg to %d", material_factory::background_id);
@@ -5370,23 +5174,9 @@ game::init_background()
     this->state.bg_color.a = a;
 }
 
-void
-game::on_play()
-{
-
-}
-
-void
-game::on_pause()
-{
-
-}
-
 static bool just_paused = false;
 
-void
-game::do_pause()
-{
+void game::do_pause() {
     W->save_cache(W->level_id_type, W->level.local_id);
 
     if (!settings["touch_controls"]->v.b)
@@ -5415,9 +5205,7 @@ game::do_pause()
     this->refresh_widgets();
 }
 
-void
-game::do_play()
-{
+void game::do_play() {
     tms_infof("Playing");
 
     if (!this->state.sandbox && W->level.type == LCAT_PUZZLE) {
@@ -5453,9 +5241,7 @@ game::do_play()
     this->open_play(level_id_type, local_id, this->state.pkg, this->state.sandbox || this->state.test_playing, G->state.is_main_puzzle ? 2 : 0);
 }
 
-void
-game::clear_entities()
-{
+void game::clear_entities() {
     tms_scene_clear_entities(this->get_scene());
     this->u_static.clear();
     this->u_static_custom.clear();
@@ -5468,9 +5254,7 @@ game::clear_entities()
     this->u_joint_pivot.clear();
 }
 
-void
-game::add_entity(entity *e, bool soft)
-{
+void game::add_entity(entity *e, bool soft) {
     this->get_scene()->add_entity(e);
 
     switch (e->curr_update_method) {
@@ -5512,18 +5296,14 @@ game::add_entity(entity *e, bool soft)
             break;
     }
 
-    if (e->flag_active(ENTITY_DO_UPDATE_EFFECTS)) {
+    if (e->flag_active(ENTITY_DO_UPDATE_EFFECTS))
         this->u_effects.insert(e);
-    }
 
-    if (e->flag_active(ENTITY_IS_LOCKED)) {
+    if (e->flag_active(ENTITY_IS_LOCKED))
         this->locked.insert(e);
-    }
 }
 
-void
-game::destroy_mover(uint8_t x, bool do_not_deselect)
-{
+void game::destroy_mover(uint8_t x, bool do_not_deselect) {
     this->lock();
 
     if (mover_joint[x]) {
@@ -5568,9 +5348,7 @@ game::destroy_mover(uint8_t x, bool do_not_deselect)
     this->unlock();
 }
 
-void
-game::remove_entity(entity *e)
-{
+void game::remove_entity(entity *e) {
     if (this->hov_ent == e) {
         this->hov_ent = 0;
         this->hov_text->active = false;
@@ -5586,13 +5364,11 @@ game::remove_entity(entity *e)
         if (e->flag_active(ENTITY_IS_EDEVICE)) {
             edevice *ed = e->get_edevice();
             if (ed) {
-                if (ed == this->ss_asker) {
+                if (ed == this->ss_asker)
                     this->ss_asker = 0;
-                }
 
-                if (ed == this->ss_edev) {
+                if (ed == this->ss_edev)
                     this->ss_edev = 0;
-                }
             }
         }
 
@@ -5601,24 +5377,22 @@ game::remove_entity(entity *e)
         }
     } else {
         for (int x=0; x<MAX_P; ++x) {
-            if (drag_cursorfield[x] == e) {
+            if (drag_cursorfield[x] == e)
                 drag_cursorfield[x] = 0;
-            }
-            if (in_cursorfield[x] == e) {
+
+            if (in_cursorfield[x] == e)
                 in_cursorfield[x] = 0;
-            }
         }
 
-        if (hover_cursorfield == e) {
+        if (hover_cursorfield == e)
             hover_cursorfield = 0;
-        }
     }
 
     /* if this object is highlighted, disable its highlight */
     for (int x=0; x<NUM_HL; x++) {
-        if (this->hls[x].type & HL_TYPE_MULTI && this->hls[x].entities) {
+        if (this->hls[x].type & HL_TYPE_MULTI && this->hls[x].entities)
             this->hls[x].entities->erase(e);
-        }
+
         if (this->hls[x].e == e) {
             this->hls[x].e = 0;
             this->hls[x].time = 0.f;
@@ -5636,9 +5410,8 @@ game::remove_entity(entity *e)
             i ++ ) {
         fadeout_event *ev = *i;
 
-        if (ev->absorber == e) {
+        if (ev->absorber == e)
             ev->absorber = 0;
-        }
     }
 
     /* if the object is a robot, remove possible hp stuff */
@@ -5651,12 +5424,11 @@ game::remove_entity(entity *e)
 
     this->loots.erase(e);
 
-    if (this->selection.e == e) {
+    if (this->selection.e == e)
         this->selection.disable();
-    }
-    if (this->sel_p_ent == e) {
+
+    if (this->sel_p_ent == e)
         this->sel_p_ent = 0;
-    }
 
     this->u_static.erase(e);
     this->u_static_custom.erase(e);
@@ -5674,9 +5446,7 @@ game::remove_entity(entity *e)
     this->get_scene()->remove_entity(e);
 }
 
-void
-game::set_copy_entity(uint8_t slot, entity *e)
-{
+void game::set_copy_entity(uint8_t slot, entity *e) {
     if (slot >= MAX_COPY_ENTITIES) return;
 
     copy_entity[slot] = e;
@@ -5687,9 +5457,7 @@ game::set_copy_entity(uint8_t slot, entity *e)
     }
 }
 
-void
-game::copy_properties(entity *destination, entity *source, bool hl/*=false*/)
-{
+void game::copy_properties(entity *destination, entity *source, bool hl/*=false*/) {
     if (destination && source && source->compatible_with(destination)) {
         for (int x=0; x<destination->num_properties; ++x) {
             switch (destination->properties[x].type) {
@@ -5727,68 +5495,59 @@ game::copy_properties(entity *destination, entity *source, bool hl/*=false*/)
     }
 }
 
-void
-game::add_entities(
+void game::add_entities(
         std::map<uint32_t, entity*> *entities,
         std::map<uint32_t, group*> *groups,
         std::set<connection*> *connections,
-        std::set<cable*> *cables
-        )
-{
-    for (std::map<uint32_t, entity*>::iterator i = entities->begin();
-            i != entities->end(); i++) {
+        std::set<cable*> *cables) {
+
+    for (std::map<uint32_t, entity*>::iterator i = entities->begin(); i != entities->end(); i++) {
         this->add_entity(i->second);
     }
 
-    for (std::map<uint32_t, group*>::iterator i = groups->begin();
-            i != groups->end(); i++) {
+    for (std::map<uint32_t, group*>::iterator i = groups->begin(); i != groups->end(); i++) {
         i->second->create_mesh();
         i->second->finalize();
         this->add_entity(i->second);
     }
 
-    for (std::set<connection *>::iterator i = connections->begin();
-            i != connections->end(); i++) {
+    for (std::set<connection *>::iterator i = connections->begin(); i != connections->end(); i++) {
         if ((*i)->self_ent)
             this->add_entity((*i)->self_ent);
     }
 
-    for (std::set<cable *>::iterator i = cables->begin();
-            i != cables->end(); i++) {
+    for (std::set<cable *>::iterator i = cables->begin(); i != cables->end(); i++) {
         this->add_entity(*i);
     }
 }
 
-void
-game::check_all_entities()
-{
+void game::check_all_entities() {
     this->starred.clear();
     this->locked.clear();
 
-    for (std::map<uint32_t, entity*>::iterator i = W->all_entities.begin();
-            i != W->all_entities.end(); i++) {
+    for (std::map<uint32_t, entity*>::iterator i = W->all_entities.begin(); i != W->all_entities.end(); i++) {
         if (!this->state.sandbox && W->is_puzzle()) {
-            if (i->second->is_moveable()) this->starred.insert(i->second);
+            if (i->second->is_moveable())
+                this->starred.insert(i->second);
         } else if (this->state.sandbox && W->is_paused()) {
-            if (i->second->is_locked()) this->locked.insert(i->second);
+            if (i->second->is_locked())
+                this->locked.insert(i->second);
         }
 
         if (!W->is_adventure() && i->second->is_control_panel() && i->second != this->current_panel) {
-            if (((panel*)i->second)->widgets_in_use) this->starred.insert(i->second);
+            if (((panel*)i->second)->widgets_in_use)
+                this->starred.insert(i->second);
         }
     }
 
-    for (std::set<cable*>::iterator i = W->cables.begin();
-            i != W->cables.end(); i++) {
+    for (std::set<cable*>::iterator i = W->cables.begin(); i != W->cables.end(); i++) {
         if (!this->state.sandbox && W->level.type == LCAT_PUZZLE) {
             if ((*i)->is_moveable() && ((*i)->p[0]->s == 0 && (*i)->p[1]->s == 0)) this->starred.insert(*i);
         }
     }
 }
 
-void
-game::apply_pending_connection(int n)
-{
+void game::apply_pending_connection(int n) {
     entity *saved = this->selection.e;
     for (c_map::iterator it = this->pairs.begin(); it != this->pairs.end(); ++it) {
         connection *c = it->second;
@@ -5805,16 +5564,7 @@ game::apply_pending_connection(int n)
     this->selection.select(saved);
 }
 
-/**
- * Available keybindings.
- *
- * F5     Quicksave
- * F9     Quickload
- * C      Restore camera position
- **/
-int
-game::handle_input_playing(tms::event *ev, int action)
-{
+int game::handle_input_playing(tms::event *ev, int action) {
     if (ev->type == TMS_EV_POINTER_DOWN) {
         ui::open_dialog(CLOSE_ALL_DIALOGS);
 
@@ -5981,9 +5731,8 @@ game::handle_input_playing(tms::event *ev, int action)
                 if (W->level.flag_active(LVL_ALLOW_QUICKSAVING)) {
                     this->save_state();
                     ui::message("Saved!");
-                } else {
+                } else
                     ui::message("This level does not support quick saving.");
-                }
                 break;
 
             case TMS_KEY_F9:
@@ -6021,9 +5770,9 @@ game::handle_input_playing(tms::event *ev, int action)
                                 "Yes",  ACTION_WORLD_PAUSE,
                                 "No",   ACTION_IGNORE);
                     }
-                } else {
+                } else
                     this->do_pause();
-                }
+
                 break;
 
             case TMS_KEY_C:
@@ -6034,13 +5783,12 @@ game::handle_input_playing(tms::event *ev, int action)
                 break;
 
             case TMS_KEY_Q:
-                if (ev->data.key.mod & TMS_MOD_CTRL) {
+                if (ev->data.key.mod & TMS_MOD_CTRL)
                     ui::open_dialog(DIALOG_CONFIRM_QUIT);
-                } else {
 #ifdef DEBUG
+                else
                     this->print_stats();
 #endif
-                }
                 break;
 
             case SDL_SCANCODE_MENU:
@@ -6048,18 +5796,17 @@ game::handle_input_playing(tms::event *ev, int action)
                 break;
         }
     } else if (ev->type == TMS_EV_KEY_DOWN || ev->type == TMS_EV_KEY_REPEAT) {
-        if (this->menu_handle_event(ev) == EVENT_DONE) {
+        if (this->menu_handle_event(ev) == EVENT_DONE)
             return EVENT_DONE;
-        }
+
         if (W->is_adventure()) {
-            if (adventure::handle_input_playing(ev, action) == EVENT_DONE) {
+            if (adventure::handle_input_playing(ev, action) == EVENT_DONE)
                 return EVENT_DONE;
-            }
         }
     } else if (ev->type == TMS_EV_KEY_UP) {
-        if (this->menu_handle_event(ev)) {
+        if (this->menu_handle_event(ev))
             return T_OK;
-        }
+
         switch (ev->data.key.keycode) {
             case TMS_KEY_W:
                 if (wdg_up[0]) {
@@ -6719,17 +6466,14 @@ game::handle_input_playing(tms::event *ev, int action)
 
                     case TMS_WDG_RADIAL:
                         {
-#define REQUIRE_RADIAL_THRESHOLD
-
                             pt.x -= this->wdg_base_x;
                             pt.y -= this->wdg_base_y;
-#ifdef REQUIRE_RADIAL_THRESHOLD
+
                             const float ax = std::abs(pt.x);
                             const float ay = std::abs(pt.y);
                             const float len = tmath_sqrt(ax*ax+ay*ay);
                             static const float radial_threshold = 0.200f * _tms.xppcm;
                             if (len > radial_threshold) {
-#endif
                                 float a = atan2(pt.y, pt.x) + (M_PI*2.f);
 
                                 const bool shift_down = this->shift_down();
@@ -6753,9 +6497,7 @@ game::handle_input_playing(tms::event *ev, int action)
                                 a = fabs(a) / (M_PI*2);
 
                                 wdg->value[0] = a;
-#ifdef REQUIRE_RADIAL_THRESHOLD
                             }
-#endif
                         }
                         break;
                 }
@@ -6780,9 +6522,7 @@ game::handle_input_playing(tms::event *ev, int action)
     return T_OK;
 }
 
-void
-game::proceed()
-{
+void game::proceed() {
     tms_infof("Proceeding from %d", W->level.local_id);
     if (this->state.pkg != 0) {
         tms_infof("curr pkg %p", this->state.pkg);
@@ -6803,19 +6543,15 @@ game::proceed()
             this->open_play(this->state.pkg->type, next, this->state.pkg, false);
         }
 
-        if (this->state.pkg->first_is_menu) {
+        if (this->state.pkg->first_is_menu)
             this->state.waiting = false;
-        }
 
         return;
-    } else {
+    } else
         this->do_pause();
-    }
 }
 
-void
-game::finish(bool success)
-{
+void game::finish(bool success) {
     if (!this->state.finished) {
         W->save_cache(W->level_id_type, W->level.local_id);
 
@@ -6825,29 +6561,24 @@ game::finish(bool success)
 
         uint8_t level_id_type = W->level_id_type;
 
-        if (level_id_type >= LEVEL_LOCAL_STATE) {
+        if (level_id_type >= LEVEL_LOCAL_STATE)
             level_id_type -= LEVEL_LOCAL_STATE;
-        }
 
-        if (G->state.is_main_puzzle) {
+        if (G->state.is_main_puzzle)
             level_id_type = LEVEL_MAIN;
-        }
 
         lvl_progress *p = 0;
 
-        if (level_id_type < LEVEL_LOCAL_STATE) {
+        if (level_id_type < LEVEL_LOCAL_STATE)
             p = progress::get_level_progress(level_id_type, W->level.local_id);
-        }
 
         if (success) {
-            if (p) {
+            if (p)
                 p->completed = 1;
-            }
 
             W->events[WORLD_EVENT_LEVEL_COMPLETED] ++;
-        } else {
+        } else
             W->events[WORLD_EVENT_GAME_OVER] ++;
-        }
 
         if (p && (success || W->level.flag_active(LVL_STORE_SCORE_ON_GAME_OVER))) {
             p->last_score = this->get_real_score();
@@ -6871,17 +6602,14 @@ game::finish(bool success)
             //this->proceed();
         }
 
-        if (p) {
+        if (p)
             progress::commit();
-        }
 
         if (!W->level.flag_active(LVL_DISABLE_ENDSCREENS)) {
-            if (success) {
+            if (success)
                 sm::play(&sm::win, 0.f, 0.f, 0, 1.f, false, 0, true);
-            } else {
+            else
                 sm::play(&sm::lose, 0.f, 0.f, 0, 1.f, false, 0, true);
-            }
-
         }
 
         if (!this->state.submitted_score && W->level.flag_active(LVL_ALLOW_HIGH_SCORE_SUBMISSIONS)
@@ -6897,9 +6625,7 @@ game::finish(bool success)
     this->refresh_widgets();
 }
 
-void
-game::open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing/*=false*/, int is_main_puzzle/*=0*/)
-{
+void game::open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing/*=false*/, int is_main_puzzle/*=0*/) {
     tms_infof("playing level %d, type %d", id, id_type);
 
     this->layer_vis_saved = this->layer_vis;
@@ -6958,23 +6684,16 @@ game::open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing/*=fals
     this->begin_play();
 
 #ifndef SCREENSHOT_BUILD
-    if (test_playing) {
+    if (test_playing)
         this->state.fade = 0.2f;
-    } else {
+    else
         this->state.fade = 1.0f;
-    }
 #endif
 
     this->refresh_widgets();
 }
 
-/**
- * Prepare playing the world, this is always called after a level
- * has been opened for playing
- **/
-void
-game::begin_play(bool has_state)
-{
+void game::begin_play(bool has_state) {
     if (W->is_adventure()) {
         if (this->state.adventure_id != 0) {
             entity *e = W->get_entity_by_id(this->state.adventure_id);
@@ -6985,11 +6704,10 @@ game::begin_play(bool has_state)
                 /* if we have a state, the cam pos and everything else is set
                  * from that, otherwise we just call adventure::set_player and it will
                  * set everything up for us */
-                if (has_state) {
+                if (has_state)
                     adventure::player = c;
-                } else {
+                else
                     adventure::set_player(c, true);
-                }
             }
         }
 
@@ -6999,9 +6717,7 @@ game::begin_play(bool has_state)
     this->refresh_widgets();
 }
 
-void
-game::create_level(int type, bool empty, bool play)
-{
+void game::create_level(int type, bool empty, bool play) {
     switch (type) {
         case LCAT_PUZZLE:     tms_infof("Creating a Puzzle level"); break;
         case LCAT_ADVENTURE:  tms_infof("Creating an Adventure level"); break;
@@ -7032,12 +6748,9 @@ game::create_level(int type, bool empty, bool play)
     }
 }
 
-void
-game::open_state(int id_type, uint32_t id, uint32_t save_id)
-{
-    if (id_type < LEVEL_LOCAL_STATE) {
+void game::open_state(int id_type, uint32_t id, uint32_t save_id) {
+    if (id_type < LEVEL_LOCAL_STATE)
         id_type += LEVEL_LOCAL_STATE;
-    }
 
     tms_infof("opening state %u of %d level %u", save_id, id_type, id);
 
@@ -7055,9 +6768,7 @@ game::open_state(int id_type, uint32_t id, uint32_t save_id)
     this->state.test_playing = test;
 }
 
-void
-game::open_sandbox(int id_type, uint32_t id)
-{
+void game::open_sandbox(int id_type, uint32_t id) {
     this->reset();
     this->state.sandbox = true;
     this->state.puzzle_state = 0;
@@ -7076,18 +6787,14 @@ game::open_sandbox(int id_type, uint32_t id)
     this->refresh_widgets();
 }
 
-bool
-game::delete_level(int id_type, uint32_t id, uint32_t save_id)
-{
+bool game::delete_level(int id_type, uint32_t id, uint32_t save_id) {
     char path[1024];
     pkgman::get_level_full_path(id_type, id, save_id, path);
 
     return (unlink(path) == 0);
 }
 
-bool
-game::delete_partial(uint32_t id)
-{
+bool game::delete_partial(uint32_t id) {
     char path[1024];
     snprintf(path, 1023, "%s/%d.pobj", pkgman::get_level_path(LEVEL_LOCAL), id);
     tms_debugf("Deleting partial %u at %s", id, path);
@@ -7095,13 +6802,12 @@ game::delete_partial(uint32_t id)
     return (unlink(path) == 0);
 }
 
-void
-game::save_state()
-{
+void game::save_state() {
     if (W->level.version < LEVEL_VERSION_1_5) {
-        ui::message("State saving not supported in levels created with Principia<1.5");
+        ui::message("State saving not supported in levels created with Principia < 1.5");
         return;
     }
+
     tms_debugf("saving state");
     W->level.sandbox_cam_x = this->cam->_position.x;
     W->level.sandbox_cam_y = this->cam->_position.y;
@@ -7109,9 +6815,7 @@ game::save_state()
     W->save(SAVE_TYPE_STATE);
 }
 
-bool
-game::autosave()
-{
+bool game::autosave() {
     if (!this->state.sandbox) {
         tms_debugf("Can't save while outside the sandbox.");
         return false;
@@ -7126,9 +6830,7 @@ game::autosave()
     return W->save(SAVE_TYPE_AUTOSAVE);
 }
 
-bool
-game::save(bool create_icon/*=true*/, bool force/*=false*/)
-{
+bool game::save(bool create_icon/*=true*/, bool force/*=false*/) {
     if (!this->state.sandbox && !force) {
         tms_debugf("Can't save while outside the sandbox.");
         return false;
@@ -7148,9 +6850,7 @@ game::save(bool create_icon/*=true*/, bool force/*=false*/)
     return W->save();
 }
 
-bool
-game::save_copy()
-{
+bool game::save_copy() {
     W->level.local_id = 0;
     W->level.parent_id = W->level.community_id;
     W->level.community_id = 0;
@@ -7158,9 +6858,7 @@ game::save_copy()
     return this->save();
 }
 
-void
-game::select_random_entity()
-{
+void game::select_random_entity() {
     entity *e = 0;
     size_t sz = W->all_entities.size();
 
@@ -7179,9 +6877,7 @@ game::select_random_entity()
     } while (!e || e->g_id != O_MINI_TRANSMITTER);
 }
 
-void
-game::snap_to_camera(screenshot_marker *sm)
-{
+void game::snap_to_camera(screenshot_marker *sm) {
     if (sm->is_hidden()) {
         this->cam->_position.x = sm->saved_position.x;
         this->cam->_position.y = sm->saved_position.y;
@@ -7198,19 +6894,12 @@ game::snap_to_camera(screenshot_marker *sm)
     this->cam_vel.z = 0.f;
 }
 
-bool
-game::player_can_build()
-{
+bool game::player_can_build() {
     return W->level.type == LCAT_ADVENTURE && adventure::player && adventure::is_player_alive()
             && adventure::player->get_tool() && adventure::player->get_tool_type() == TOOL_BUILDER;
 }
 
-/**
- * Create an icon for the current level
- **/
-void
-game::create_icon()
-{
+void game::create_icon() {
     GLuint err;
     float cam_width = (float)_tms.window_height;
     float cam_height = (float)_tms.window_height;
@@ -7281,10 +6970,7 @@ game::create_icon()
     if ((err = glGetError()) != 0) tms_infof("icon creation done: %u", err);
 }
 
-/* resize the current level to fit the borders around the content */
-void
-game::fit_level_borders()
-{
+void game::fit_level_borders() {
     float min_x = -100, max_x = 100, min_y = 100, max_y = 100;
 
     /* calculate bounds wants a std set, we have a map... bad luck */
@@ -7314,9 +7000,7 @@ game::fit_level_borders()
     ui::emit_signal(SIGNAL_REFRESH_BORDERS);
 }
 
-void
-game::select_import_object(uint32_t id)
-{
+void game::select_import_object(uint32_t id) {
     if (this->multi.import) {
         delete this->multi.import;
         this->multi.import = 0;
@@ -7345,9 +7029,7 @@ game::select_import_object(uint32_t id)
     this->refresh_widgets();
 }
 
-void
-game::import_object(uint32_t id)
-{
+void game::import_object(uint32_t id) {
     std::map<uint32_t, entity*> entities;
     std::map<uint32_t, group*> groups;
     std::set<connection*> connections;
@@ -7357,25 +7039,19 @@ game::import_object(uint32_t id)
     this->add_entities(&entities, &groups, &connections, &cables);
 }
 
-void
-game::export_object(const char *name)
-{
-    if (this->selection.m) {
+void game::export_object(const char *name) {
+    if (this->selection.m)
         W->save_partial(this->selection.m, name, pkgman::get_next_object_id());
-    }
 }
 
-void
-game::handle_draw(int pid, int mx, int my)
-{
+void game::handle_draw(int pid, int mx, int my) {
     tvec3 tproj;
     W->get_layer_point(this->cam, mx, my, 0, &tproj);
     int depth = this->state.edit_layer;
     int z = 0;
 
-    if (!this->brush_layer_inclusion) {
+    if (!this->brush_layer_inclusion)
         z = depth;
-    }
 
     for (; z<depth+1; z++) {
 
@@ -7386,11 +7062,9 @@ game::handle_draw(int pid, int mx, int my)
 
         std::set<level_chunk *> affected;
 
-        for (int h=-size/2; h<=size/2; h++) {
-            for (int w=-size/2; w<=size/2; w++) {
+        for (int h=-size/2; h<=size/2; h++)
+            for (int w=-size/2; w<=size/2; w++)
                 affected.insert(W->cwindow->set_pixel(cx+w, cy+h, z, this->brush_material));
-            }
-        }
 
         for (std::set<level_chunk*>::iterator i = affected.begin(); i != affected.end(); i++) {
             (*i)->remerge();
@@ -7399,84 +7073,29 @@ game::handle_draw(int pid, int mx, int my)
     }
 }
 
-void
-game::numkey_pressed(uint8_t key)
-{
+void game::numkey_pressed(uint8_t key) {
     if (this->get_mode() == GAME_MODE_MULTISEL) {
         principia_wdg *wdg = this->wm->get_widget(AREA_BOTTOM_LEFT, key);
 
-        if (wdg && wdg->_type == TMS_WDG_BUTTON) {
+        if (wdg && wdg->_type == TMS_WDG_BUTTON)
             wdg->click();
-        }
     } else {
         if (key > MAX_COPY_ENTITIES) {
             tms_errorf("handle_slot called with slot %u, even though the max number of copy entities is %d", key, MAX_COPY_ENTITIES);
             return;
         }
 
-        if (this->shift_down()) {
+        if (this->shift_down())
             this->copy_properties(this->selection.e, copy_entity[key], true);
-        } else {
+        else
             this->set_copy_entity(key, this->selection.e);
-        }
     }
 }
 
-/**
- * Available keybindings.
- *
- * I            Show help about selected object.
- *
- * CTRL+S       Save level
- * U            Save level
- * CTRL+O       Open "open level"-dialog
- * CTRL+N       New level
- * CTRL+Q       Quit
- * Space        Quickadd, or confirm socket selection (choosing first available)
- * J            Publish level
- * R            Toggle rotate entity mode
- * G            Toggle grab entity mode
- * P            Play level
- *
- * WASD         Move camera
- * M/N          Zoom camera
- * Shift+M      Toggle multiselect mode
- * B            Back to main menu
- *
- * Del          Delete selected object
- * Shift+Del    Delete selected multiobject
- *
- * Page Down    Move selected entity one layer forward (looping)
- * X            Move selected entity one layer forward (looping)
- * Z            Move selected entity one layer backward (looping)
- *
- * SHIFT+Q      Disconnect all
- * SHIFT+E      Connect all
- * T            Emulate socket disconnect button click
- * Y            Emulate config button click
- * H            "Connection selection"
- * Comma        Duplicate selected entity
- * 1-5          Copy selected entity properties
- * Shift+1-5    Paste copied properties on to selected entity
- * F5           Restore camera position
- * CTRL+F7      Select random entity
- *
- * Debug bindings:
- * F1           Enable debug draw
- * F2           Toggle robot roaming
- * CTRL+F8      Save copy
- * CTRL+F9      Clamp IDs of current level
- * CTRL+F10     Open next UI dialog
- * CTRL+F11     Reload graphics
- * CTRL+F12     Delete all loose cables and plugs
- * O            Open latest saved level
- **/
 static const float CAM_NORMAL_JUMP  = 0.25f;
 static const float CAM_BIG_JUMP     = 1.f;
 
-int
-game::handle_input_paused(tms::event *ev, int action)
-{
+int game::handle_input_paused(tms::event *ev, int action) {
     if (ev->type == TMS_EV_KEY_DOWN) {
         if (this->menu_handle_event(ev)) {
             return EVENT_DONE;
@@ -8862,15 +8481,11 @@ game::handle_input_paused(tms::event *ev, int action)
     return T_OK;
 }
 
-void
-game::post_interact_select(entity *e)
-{
+void game::post_interact_select(entity *e) {
     W->post_interact.insert(e);
 }
 
-int
-game::interact_select(entity *e)
-{
+int game::interact_select(entity *e) {
     int found = -1;
 
     if (!e) return -1;
@@ -9015,13 +8630,8 @@ game::interact_select(entity *e)
     return found;
 }
 
-#define BOLD_BEGIN
-#define BOLD_END
-
 // used with ENTITY_HAS_TRACKER
-void
-game::check_select_object(int x, int y, int pid)
-{
+void game::check_select_object(int x, int y, int pid) {
     if (this->selection.e_saved != 0) {
         entity *e = this->sel_p_ent;
 
@@ -9034,11 +8644,11 @@ game::check_select_object(int x, int y, int pid)
                     if (this->sel_p_ent) {
                         entity *e = this->sel_p_ent;
                         snprintf(msg, 2047,
-                                      BOLD_BEGIN "Name:" BOLD_END " %s\n"
-                                      BOLD_BEGIN "ID:" BOLD_END " %u\n"
-                                      BOLD_BEGIN "Type ID (g_id):" BOLD_END " %u\n"
-                                      BOLD_BEGIN "Position:" BOLD_END " %.2f/%.2f\n"
-                                      BOLD_BEGIN "Angle:" BOLD_END " %.2f\n",
+                                      "Name: %s\n"
+                                      "ID: %u\n"
+                                      "Type ID (g_id): %u\n"
+                                      "Position: %.2f/%.2f\n"
+                                      "Angle: %.2f\n",
                                       e->get_name(),
                                       e->id,
                                       e->g_id,
@@ -9049,8 +8659,8 @@ game::check_select_object(int x, int y, int pid)
                         tvec3 p;
                         W->get_layer_point(this->cam, x, y, 0, &p);
                         snprintf(msg, 2047,
-                                      BOLD_BEGIN "No entity selected." BOLD_END "\n"
-                                      BOLD_BEGIN "Click position:" BOLD_END " %.2f/%.2f\n",
+                                      "No entity selected.\n"
+                                      "Click position: %.2f/%.2f\n",
                                       p.x, p.y
                                 );
                     }
@@ -9368,9 +8978,7 @@ game::check_select_object(int x, int y, int pid)
     }
 }
 
-bool
-game::check_click_socksel()
-{
+bool game::check_click_socksel() {
     b2Vec2 click = b2Vec2(pt[this->ss_edev->get_entity()->get_layer()].x, pt[this->ss_edev->get_entity()->get_layer()].y);
 
     /* loop through all socket icons and check distance */
@@ -9400,9 +9008,7 @@ game::check_click_socksel()
     return false;
 }
 
-bool
-game::check_click_rotate(int x, int y)
-{
+bool game::check_click_rotate(int x, int y) {
     if (this->selection.e->flag_active(ENTITY_ALLOW_ROTATION) && !this->selection.e->flag_active(ENTITY_CONNECTED_TO_BREADBOARD) &&
             (W->is_paused() || this->player_can_build())) {
         tvec3 pt;
@@ -9437,9 +9043,7 @@ game::check_click_rotate(int x, int y)
     return false;
 }
 
-bool
-game::check_click_conntype(int x, int y)
-{
+bool game::check_click_conntype(int x, int y) {
     tvec3 dd = tms_camera_project(this->cam, this->cam->_position.x, this->cam->_position.y,this->cs_conn->layer*LAYER_DEPTH+((LAYER_DEPTH/2.f)*this->cs_conn->multilayer));
     tvec3 v1 = tms_camera_unproject(this->cam, 0.f, 0.f, dd.z);
     tvec3 v2 = tms_camera_unproject(this->cam, _tms.xppcm*.5f, 0.f, dd.z);
@@ -9465,9 +9069,7 @@ game::check_click_conntype(int x, int y)
     return true;
 }
 
-bool
-game::check_quick_plug(uint64_t diff, int x, int y)
-{
+bool game::check_quick_plug(uint64_t diff, int x, int y) {
     tms_infof("checking quickplug %" PRIu64, diff);
     if (((this->state.sandbox && W->is_paused()) || (!W->is_paused() && this->player_can_build())) && this->get_mode() == GAME_MODE_DEFAULT) {
         if (diff < 300000) {
@@ -9507,9 +9109,7 @@ game::check_quick_plug(uint64_t diff, int x, int y)
     return false;
 }
 
-bool
-game::check_click_shape_resize(int x, int y)
-{
+bool game::check_click_shape_resize(int x, int y) {
     tms_debugf("check click shape resize");
 
     if (W->is_paused() && this->selection.e && this->selection.e->flag_active(ENTITY_IS_RESIZABLE)) {
@@ -9546,9 +9146,7 @@ game::check_click_shape_resize(int x, int y)
     return false;
 }
 
-void
-game::handle_shape_resize(float x, float y)
-{
+void game::handle_shape_resize(float x, float y) {
     entity *e = this->selection.e;
 
     if (!e) return;
@@ -9592,15 +9190,11 @@ game::handle_shape_resize(float x, float y)
     }
 }
 
-int
-game::get_selected_shape_corner()
-{
+int game::get_selected_shape_corner() {
     return resize_index;
 }
 
-void
-game::render_shape_resize()
-{
+void game::render_shape_resize() {
     entity *e = this->selection.e;
 
     b2PolygonShape *sh = e->get_resizable_shape();
@@ -9633,9 +9227,7 @@ game::render_shape_resize()
     }
 }
 
-bool
-game::check_click_conn(int x, int y)
-{
+bool game::check_click_conn(int x, int y) {
     c_map::iterator i = this->pairs.begin();
 
     for (;i != this->pairs.end(); ) {
@@ -9679,9 +9271,7 @@ game::check_click_conn(int x, int y)
     return false;
 }
 
-void
-game::recheck_all_placements()
-{
+void game::recheck_all_placements() {
     W->step_count = 0;
     if (this->check_placement_allowed(this->selection.e)) {
         this->selection.e->on_release(this);
@@ -9714,9 +9304,7 @@ game::recheck_all_placements()
     }
 }
 
-bool
-overlap_query::ReportFixture(b2Fixture *fx)
-{
+bool overlap_query::ReportFixture(b2Fixture *fx) {
     b2Body* body = fx->GetBody();
     b2Shape* shape = fx->GetShape();
 
@@ -9736,9 +9324,7 @@ overlap_query::ReportFixture(b2Fixture *fx)
     return true;
 }
 
-bool
-game::ingame_layerswitch_test(entity *e, int dir)
-{
+bool game::ingame_layerswitch_test(entity *e, int dir) {
     if (e->body && e->conn_ll == 0) {
         b2AABB aabb;
         overlap_query oq;
@@ -9764,9 +9350,7 @@ game::ingame_layerswitch_test(entity *e, int dir)
     return false;
 }
 
-bool
-game::check_placement_allowed(entity *e)
-{
+bool game::check_placement_allowed(entity *e) {
     if (this->state.sandbox)
         return true;
 
@@ -9811,9 +9395,7 @@ game::check_placement_allowed(entity *e)
     return true;
 }
 
-int
-game::handle_input(tms::event *ev, int action)
-{
+int game::handle_input(tms::event *ev, int action) {
     if (ev->type == TMS_EV_KEY_PRESS || ev->type == TMS_EV_KEY_UP || ev->type == TMS_EV_KEY_REPEAT) {
         // Whenever a keyevent is received, we store its keymod state
         this->previous_keymod = this->current_keymod;
@@ -9862,9 +9444,7 @@ game::handle_input(tms::event *ev, int action)
     return this->handle_input_playing(ev, action);
 }
 
-void
-game::animate_disconnect(entity *e)
-{
+void game::animate_disconnect(entity *e) {
     /* create disconnect animations */
     connection *c = e->conn_ll;
     while (c) {
@@ -9873,15 +9453,13 @@ game::animate_disconnect(entity *e)
     }
 }
 
-bool
-game::damage_entity(entity *e, b2Fixture *fx, float dmg, const b2Vec2 &world_point,
+bool game::damage_entity(entity *e, b2Fixture *fx, float dmg, const b2Vec2 &world_point,
         damage_type dmg_type, uint8_t damage_source, uint32_t attacker_id,
         bool damage_creature/*=true*/,
         bool damage_block/*=true*/,
         bool damage_interactive/*=true*/,
         bool damage_plant/*=true*/
-        )
-{
+        ) {
     if (e->is_interactive()) {
         if (damage_interactive) {
             this->damage_interactive(e, fx, fx->GetUserData2(), dmg, world_point, dmg_type);
@@ -9927,9 +9505,7 @@ game::damage_entity(entity *e, b2Fixture *fx, float dmg, const b2Vec2 &world_poi
     return false;
 }
 
-void
-game::damage_interactive(entity *e, b2Fixture *f, void *udata2, float dmg, const b2Vec2 &world_point, damage_type dmg_type)
-{
+void game::damage_interactive(entity *e, b2Fixture *f, void *udata2, float dmg, const b2Vec2 &world_point, damage_type dmg_type) {
     if (e->g_id == O_TPIXEL || e->g_id == O_CHUNK) {
         this->damage_tpixel(e, f, udata2, dmg, world_point, dmg_type);
     } else if (e->g_id == O_PLANT) {
@@ -9947,9 +9523,7 @@ game::damage_interactive(entity *e, b2Fixture *f, void *udata2, float dmg, const
     }
 }
 
-void
-game::damage_tpixel(entity *e, b2Fixture *f, void *udata2, float dmg, const b2Vec2 &world_point, damage_type dmg_type)
-{
+void game::damage_tpixel(entity *e, b2Fixture *f, void *udata2, float dmg, const b2Vec2 &world_point, damage_type dmg_type) {
     struct tpixel_desc *desc = (struct tpixel_desc *)udata2;
 
     bool do_fadeout = false;
@@ -10141,9 +9715,7 @@ game::damage_tpixel(entity *e, b2Fixture *f, void *udata2, float dmg, const b2Ve
     }
 }
 
-void
-game::emit_partial_from_buffer(const char *buf, uint16_t buf_len, b2Vec2 position)
-{
+void game::emit_partial_from_buffer(const char *buf, uint16_t buf_len, b2Vec2 position) {
     tms_infof("emit partial from buffer");
     tms_assertf(W->is_paused() == false, "emit (multi) called when world was paused");
 
@@ -10151,33 +9723,18 @@ game::emit_partial_from_buffer(const char *buf, uint16_t buf_len, b2Vec2 positio
     W->to_be_emitted.push_back(ee);
 }
 
-void
-game::emit(entity *e, entity *emitter, b2Vec2 velocity, bool immediate)
-{
+void game::emit(entity *e, entity *emitter, b2Vec2 velocity, bool immediate) {
     tms_assertf(W->is_paused() == false, "emit (single) called when world was paused");
 
     pending_emit ee(e, emitter, velocity);
 
     W->to_be_emitted.push_back(ee);
 
-    if (immediate) {
+    if (immediate)
         W->emit_all();
-    }
 }
 
-/**
- * post_emit should be used whenever the emit needs to be placed in a "dangerous" place.
- * Dangerous places include any function that are called when an entity is loaded,
- * added to world, emitted. Such as:
- * init()
- * setup()
- * on_entity_play()
- * on_load()
- * add_to_world()
- **/
-void
-game::post_emit(entity *e, entity *emitter, b2Vec2 velocity)
-{
+void game::post_emit(entity *e, entity *emitter, b2Vec2 velocity) {
     tms_assertf(W->is_paused() == false, "emit (single) called when world was paused");
 
     pending_emit ee(e, emitter, velocity);
@@ -10185,9 +9742,7 @@ game::post_emit(entity *e, entity *emitter, b2Vec2 velocity)
     W->post_to_be_emitted.push_back(ee);
 }
 
-void
-game::absorb(std::set<entity *> *loop)
-{
+void game::absorb(std::set<entity *> *loop) {
     tms_assertf(W->is_paused() == false, "absorb (multi) called when world was paused");
 
     tms_infof("absorbing loop");
@@ -10198,9 +9753,7 @@ game::absorb(std::set<entity *> *loop)
     }
 }
 
-bool
-game::absorb(entity *e, bool include_connection/*=false*/, entity *absorber/*=0*/, b2Vec2 absorber_point/*=b2Vec2(0.f, 0.f)*/, uint8_t absorber_frame/*=0*/)
-{
+bool game::absorb(entity *e, bool include_connection/*=false*/, entity *absorber/*=0*/, b2Vec2 absorber_point/*=b2Vec2(0.f, 0.f)*/, uint8_t absorber_frame/*=0*/) {
     tms_assertf(W->is_paused() == false, "absorb (simple) called when world was paused");
 
     // return false for any entities that have already been absorbed
@@ -10220,9 +9773,7 @@ game::absorb(entity *e, bool include_connection/*=false*/, entity *absorber/*=0*
     return false;
 }
 
-bool
-game::timed_absorb(uint32_t id, double time)
-{
+bool game::timed_absorb(uint32_t id, double time) {
     tms_assertf(W->is_paused() == false, "absorb (timed) called when world was paused");
 
     int64_t itime = (int64_t)(time * 1000000.0);
@@ -10236,9 +9787,7 @@ game::timed_absorb(uint32_t id, double time)
     return true;
 }
 
-bool
-game::timed_absorb(entity *e, double time)
-{
+bool game::timed_absorb(entity *e, double time) {
     if (e) {
         if (e->flag_active(ENTITY_IS_ABSORBED)) return false;
 
@@ -10251,22 +9800,19 @@ game::timed_absorb(entity *e, double time)
 }
 
 /* construct an entity at the mouse position */
-entity*
-game::editor_construct_entity(uint32_t g_id, int pid/*=0*/, bool force_on_pid/*=false*/, b2Vec2 offs/*=b2Vec2(0.f,0.f)*/)
-{
+entity *game::editor_construct_entity(uint32_t g_id, int pid, bool force_on_pid, b2Vec2 offs) {
     if (!this->state.sandbox) {
         tms_errorf("can not create an entity if not sandbox");
         return 0;
     }
 
     // Override for partial
-    if (g_id == O_DAMPER_2) {
+    if (g_id == O_DAMPER_2)
         g_id = O_DAMPER;
-    } else if (g_id == O_RUBBERBAND_2) {
+    else if (g_id == O_RUBBERBAND_2)
         g_id = O_RUBBERBAND;
-    } else if (g_id == O_OPEN_PIVOT_2) {
+    else if (g_id == O_OPEN_PIVOT_2)
         g_id = O_OPEN_PIVOT;
-    }
 
     tvec3 pos;
     if (!settings["touch_controls"]->v.b) {
@@ -10378,19 +9924,15 @@ game::editor_construct_entity(uint32_t g_id, int pid/*=0*/, bool force_on_pid/*=
         this->recent[0] = (int)e->g_id;
     }
 
-    if (W->is_paused()) {
+    if (W->is_paused())
         ui::emit_signal(SIGNAL_ENTITY_CONSTRUCTED, UINT_TO_VOID(e->id));
-    }
 
     this->state.modified = true;
 
     return e;
 }
 
-/* construct an item at the mouse position */
-entity*
-game::editor_construct_item(uint32_t item_id)
-{
+entity *game::editor_construct_item(uint32_t item_id) {
     uint32_t g_id = O_ITEM;
     if (!this->state.sandbox) {
         tms_errorf("can not create an entity if not sandbox");
@@ -10402,9 +9944,8 @@ game::editor_construct_item(uint32_t item_id)
         float mx, my;
         SDL_GetMouseState(&mx, &my);
         W->get_layer_point(this->cam, (int)mx, _tms.window_height-(int)my, 0.f, &pos);
-    } else {
+    } else
         pos = this->cam->_position;
-    }
 
     entity *e = of::create(g_id);
 
@@ -10425,7 +9966,6 @@ game::editor_construct_item(uint32_t item_id)
         e->set_angle(this->selection.e->get_angle());
         e->set_layer(this->selection.e->get_layer());
         e->set_moveable(this->selection.e->is_moveable());
-
     }
 
     e->on_load(true, false);
@@ -10441,10 +9981,7 @@ game::editor_construct_item(uint32_t item_id)
     return e;
 }
 
-/* construct an item at the mouse position */
-entity*
-game::editor_construct_decoration(uint32_t decoration_id)
-{
+entity *game::editor_construct_decoration(uint32_t decoration_id) {
     uint32_t g_id = O_DECORATION;
     if (!this->state.sandbox) {
         tms_errorf("can not create an entity if not sandbox");
@@ -10456,9 +9993,8 @@ game::editor_construct_decoration(uint32_t decoration_id)
         float mx, my;
         SDL_GetMouseState(&mx, &my);
         W->get_layer_point(this->cam, (int)mx, _tms.window_height-(int)my, 0.f, &pos);
-    } else {
+    } else
         pos = this->cam->_position;
-    }
 
     entity *e = of::create(g_id);
 
@@ -10479,7 +10015,6 @@ game::editor_construct_decoration(uint32_t decoration_id)
         e->set_angle(this->selection.e->get_angle());
         e->set_layer(this->selection.e->get_layer());
         e->set_moveable(this->selection.e->is_moveable());
-
     }
 
     e->on_load(true, false);
@@ -10495,16 +10030,12 @@ game::editor_construct_decoration(uint32_t decoration_id)
     return e;
 }
 
-void
-game::update_last_cursor_pos(int x, int y)
-{
+void game::update_last_cursor_pos(int x, int y) {
     this->last_cursor_pos_x = x;
     this->last_cursor_pos_y = y;
 }
 
-void
-game::refresh_last_cursor_pos()
-{
+void game::refresh_last_cursor_pos() {
     if (!settings["touch_controls"]->v.b) {
         float mx, my;
         SDL_GetMouseState(&mx, &my);
@@ -10513,9 +10044,7 @@ game::refresh_last_cursor_pos()
     }
 }
 
-b2Vec2
-game::get_last_cursor_pos(int layer)
-{
+b2Vec2 game::get_last_cursor_pos(int layer) {
     this->refresh_last_cursor_pos();
 
     tvec3 pt;
@@ -10523,9 +10052,7 @@ game::get_last_cursor_pos(int layer)
     return b2Vec2(pt.x, pt.y);
 }
 
-void
-game::puzzle_play(int type)
-{
+void game::puzzle_play(int type) {
     if (type == PUZZLE_SIMULATE) {
         this->save(false, true);
         this->do_play();
@@ -10541,18 +10068,13 @@ game::puzzle_play(int type)
     }
 }
 
-void
-game::refresh_score()
-{
+void game::refresh_score() {
     this->state.m_score = this->get_real_score();
 }
 
-void
-game::add_score(int score)
-{
-    if (this->state.finished) {
+void game::add_score(int score) {
+    if (this->state.finished)
         return;
-    }
 
     if (score > 0) {
         this->score_highlight += score/250.f;
@@ -10561,65 +10083,52 @@ game::add_score(int score)
 
     int new_score = this->get_real_score() + score;
 
-    if (new_score < 0) {
+    if (new_score < 0)
         new_score = 0;
-    }
 
     W->score_helper = new_score ^ SCORE_XOR;
 
     this->refresh_score();
 
     if (W->is_playing()) {
-        if (this->get_score() >= W->level.final_score && W->level.final_score != 0) {
+        if (this->get_score() >= W->level.final_score && W->level.final_score != 0)
             this->finish(true);
-        }
     }
 }
 
-void
-game::set_score(int new_score)
-{
-    if (this->state.finished) {
+void game::set_score(int new_score) {
+    if (this->state.finished)
         return;
-    }
 
     if (this->get_score() != new_score) {
         this->score_highlight += (new_score - this->get_score()) / 250.f;
         this->score_highlight = fminf(this->score_highlight, 1.f);
     }
 
-    if (new_score < 0) {
+    if (new_score < 0)
         new_score = 0;
-    }
 
     W->score_helper = new_score ^ SCORE_XOR;
 
     this->refresh_score();
 
     if (W->is_playing()) {
-        if (this->get_score() >= W->level.final_score && W->level.final_score != 0) {
+        if (this->get_score() >= W->level.final_score && W->level.final_score != 0)
             this->finish(true);
-        }
     }
 }
 
-void
-game::destroy_joint(b2Joint *j)
-{
+void game::destroy_joint(b2Joint *j) {
     if (W->is_paused()) return;
     W->to_be_destroyed.insert(j);
 }
 
-void
-game::add_destructable_joint(b2Joint *j, float max_force)
-{
+void game::add_destructable_joint(b2Joint *j, float max_force) {
     if (W->is_paused()) return;
     W->destructable_joints.insert(std::make_pair(j, max_force));
 }
 
-void
-selection_handler::select(entity_set *new_m)
-{
+void selection_handler::select(entity_set *new_m) {
     if (G->multi.additive_selection && this->m) {
         /* First we check if this will be an addition or a removal */
         bool remove = false;
@@ -10667,9 +10176,7 @@ selection_handler::select(entity_set *new_m)
     G->refresh_widgets();
 }
 
-void
-selection_handler::select(connection *c)
-{
+void selection_handler::select(connection *c) {
     this->disable(false);
     this->c = c;
 
@@ -10688,9 +10195,7 @@ selection_handler::select(connection *c)
     G->refresh_widgets();
 }
 
-void
-selection_handler::select(entity *e, b2Body *b, tvec2 offs, uint8_t frame, bool ui)
-{
+void selection_handler::select(entity *e, b2Body *b, tvec2 offs, uint8_t frame, bool ui) {
     G->set_mode(GAME_MODE_DEFAULT);
 
     this->disable(false);
@@ -10736,9 +10241,7 @@ selection_handler::select(entity *e, b2Body *b, tvec2 offs, uint8_t frame, bool 
     G->refresh_widgets();
 }
 
-void
-selection_handler::disable(bool refresh_widgets/*=true*/)
-{
+void selection_handler::disable(bool refresh_widgets/*=true*/) {
     //tms_infof("Disabling selection");
     if (this->m) {
         for (int x=0; x<NUM_HL; x++) {
@@ -10759,19 +10262,15 @@ selection_handler::disable(bool refresh_widgets/*=true*/)
     if (G) {
         G->state.edev_labels = false;
 
-        if (refresh_widgets) {
+        if (refresh_widgets)
             G->refresh_widgets();
-        }
     }
 }
 
-void
-game::say_goodbye(b2Joint *j)
-{
+void game::say_goodbye(b2Joint *j) {
     if (W->is_adventure() && adventure::is_player_alive()) {
-        if (j == adventure::player->activator_joint) {
+        if (j == adventure::player->activator_joint)
             adventure::player->activator_joint = 0;
-        }
     }
 
     W->destructable_joints.erase(j);
@@ -10858,9 +10357,7 @@ game::say_goodbye(b2Joint *j)
     }
 }
 
-void
-game::window_size_changed()
-{
+void game::window_size_changed() {
     this->cam->width = _tms.window_width;
     this->cam->height = _tms.window_height;
     if (this->get_surface() && this->get_surface()->ddraw) {
@@ -10874,9 +10371,7 @@ game::window_size_changed()
 
 static entity *previous_panel = 0;
 
-void
-game::set_mode(int new_mode)
-{
+void game::set_mode(int new_mode) {
     int cur_mode = this->get_mode();
 
     /* Any 'exit mode code' can be placed here */
@@ -10973,9 +10468,7 @@ game::set_mode(int new_mode)
 static struct tms_wdg *inventory_widgets[NUM_RESOURCES];
 static bool inventory_widgets_initialized = false;
 
-void
-inventory_widget_on_change(struct tms_wdg *w, float values[2])
-{
+void inventory_widget_on_change(struct tms_wdg *w, float values[2]) {
     float value = values[0];
     if (value == 1.f) {
         int resource_id = VOID_TO_INT(w->data);
@@ -10986,17 +10479,13 @@ inventory_widget_on_change(struct tms_wdg *w, float values[2])
 
         adventure::player->drop_resource(resource_id, G->drop_amount, b2Vec2(adventure::player->look_dir*1.25f, .75f));
 
-        if (!adventure::player->get_num_resources(resource_id)) {
+        if (!adventure::player->get_num_resources(resource_id))
             G->refresh_inventory_widgets();
-        }
-    } else {
+    } else
         G->dropping = -1;
-    }
 }
 
-static void
-init_inventory_widgets()
-{
+static void init_inventory_widgets() {
     if (inventory_widgets_initialized) return;
 
     int iw = _tms.xppcm*.375f;
@@ -11013,9 +10502,7 @@ init_inventory_widgets()
     inventory_widgets_initialized = true;
 }
 
-void
-game::show_inventory_widgets()
-{
+void game::show_inventory_widgets() {
     init_inventory_widgets();
 
     int ih = _tms.yppcm*.375f;
@@ -11036,17 +10523,12 @@ game::show_inventory_widgets()
     this->inventory_highest_y = y;
 }
 
-void
-game::hide_inventory_widgets()
-{
-    for (int n=0; n<NUM_RESOURCES; ++n) {
+void game::hide_inventory_widgets() {
+    for (int n=0; n<NUM_RESOURCES; ++n)
         this->get_surface()->remove_widget(inventory_widgets[n]);
-    }
 }
 
-void
-game::refresh_inventory_widgets()
-{
+void game::refresh_inventory_widgets() {
     if (this->get_mode() != GAME_MODE_INVENTORY) return;
 
     int ih = _tms.yppcm*.375f;
@@ -11067,9 +10549,7 @@ game::refresh_inventory_widgets()
     this->inventory_highest_y = y;
 }
 
-void
-game::draw_entity_bar(entity *e, float v, float y_offset, const tvec3 &color, float alpha)
-{
+void game::draw_entity_bar(entity *e, float v, float y_offset, const tvec3 &color, float alpha) {
     b2Vec2 p = e->get_position() + b2Vec2(0.f, y_offset);
     float barw = v * (BAR_WIDTH-.05f);
     float mv[16];
@@ -11093,13 +10573,7 @@ game::draw_entity_bar(entity *e, float v, float y_offset, const tvec3 &color, fl
             );
 }
 
-/**
- * Can be used to perform an immediate camera move,
- * regardless of dt and the likes, bypassing cam_vel.
- **/
-void
-game::cam_move(float x, float y, float z)
-{
+void game::cam_move(float x, float y, float z) {
     if (!W->level.flag_active(LVL_DISABLE_CAM_MOVEMENT) || (this->state.sandbox && W->is_paused())) {
         this->cam->_position.x -= x;
         this->cam->_position.y -= y;
@@ -11113,12 +10587,7 @@ game::cam_move(float x, float y, float z)
     }
 }
 
-/**
- * Delete the current multiselection
- **/
-void
-game::_multidelete()
-{
+void game::_multidelete() {
     if (this->get_mode() == GAME_MODE_MULTISEL && this->selection.m) {
         do {
             entity_set my_copy(*this->selection.m);
@@ -11144,9 +10613,7 @@ game::_multidelete()
     }
 }
 
-void
-game::passthru_input(tms::event *ev)
-{
+void game::passthru_input(tms::event *ev) {
     if (ev->type == TMS_EV_KEY_PRESS || ev->type == TMS_EV_KEY_UP) {
         for (std::set<key_listener*>::iterator it = W->key_listeners.begin();
                 it != W->key_listeners.end(); ++it) {
@@ -11170,9 +10637,7 @@ game::passthru_input(tms::event *ev)
     }
 }
 
-void
-game::perform_socket_action(int x)
-{
+void game::perform_socket_action(int x) {
     if (W->is_adventure() && W->is_playing()) {
         if (this->ss_socks[x]->p) {
             if (this->ss_action == SS_ACTION_SELECT) {
@@ -11189,9 +10654,9 @@ game::perform_socket_action(int x)
         }
     } else {
         if (this->ss_action == SS_ACTION_SELECT) {
-            if (this->ss_socks[x]->p) {
+            if (this->ss_socks[x]->p)
                 this->selection.select(this->ss_socks[x]->p);
-            }
+
         } else {
             this->ss_socks[x]->unplug();
 
@@ -11200,9 +10665,7 @@ game::perform_socket_action(int x)
     }
 }
 
-void
-game::play_sound(uint32_t sound_id, float x, float y, uint8_t random, float volume, bool loop/*=false*/, void *indent/*=0*/, bool global/*=false*/)
-{
+void game::play_sound(uint32_t sound_id, float x, float y, uint8_t random, float volume, bool loop/*=false*/, void *indent/*=0*/, bool global/*=false*/) {
     sm_sound *snd = static_cast<sm_sound*>(soundman::translate(sound_id));
     if (!snd) return;
 
@@ -11219,75 +10682,53 @@ game::play_sound(uint32_t sound_id, float x, float y, uint8_t random, float volu
         }
     }
 
-    if (volume <= SM_MIN_VOLUME && indent) {
+    if (volume <= SM_MIN_VOLUME && indent)
         sm::stop(snd, indent);
-    } else {
+    else
         sm::play(snd, x, y, random, volume, loop, indent, global);
-    }
 }
 
-/**
- * Safe function to call from play-mode to queue up a level restart. (Same behaviour as P on PC)
- **/
-void
-game::restart_level()
-{
+void game::restart_level() {
     if (!this->_restart_level) {
         this->_restart_level = true;
         P.add_action(ACTION_WORLD_PAUSE, 0);
     }
 }
 
-/**
- * Safe function to call from play-mode to queue up a score submission.
- **/
-void
-game::submit_score()
-{
-    if (!this->state.submitted_score) {
-        if (!this->_submit_score) {
-            this->_submit_score = true;
-            if (settings["score_ask_before_submitting"]->is_true()) {
-                ui::confirm("Do you want to submit your highscore?",
-                        "Yes",    principia_action(ACTION_SUBMIT_SCORE, 0),
-                        "No",     principia_action(ACTION_IGNORE, 0)
-                        );
-            } else {
-                P.add_action(ACTION_SUBMIT_SCORE, 0);
-            }
-        }
-    }
+void game::submit_score() {
+    if (this->state.submitted_score || this->_submit_score)
+        return;
+
+    this->_submit_score = true;
+    if (settings["score_ask_before_submitting"]->is_true()) {
+        ui::confirm("Do you want to submit your highscore?",
+                "Yes",    principia_action(ACTION_SUBMIT_SCORE, 0),
+                "No",     principia_action(ACTION_IGNORE, 0)
+                );
+    } else
+        P.add_action(ACTION_SUBMIT_SCORE, 0);
 }
 
-void
-game::destroy_possible_mover(entity *e)
-{
+void game::destroy_possible_mover(entity *e) {
     for (int x=0; x<MAX_INTERACTING; x++) {
-        if (interacting[x] == e) {
+        if (interacting[x] == e)
             this->destroy_mover(x);
-        }
     }
 }
 
-void
-game::set_architect_mode(bool val)
-{
+void game::set_architect_mode(bool val) {
     if (val) {
-        if (!this->grident->scene) {
+        if (!this->grident->scene)
             this->get_scene()->add_entity(this->grident);
-        }
     } else {
-        if (this->grident->scene) {
+        if (this->grident->scene)
             this->get_scene()->remove_entity(this->grident);
-        }
     }
 
     this->state.abo_architect_mode = val;
 }
 
-static void
-fix_entity(entity *e, uint32_t old_id, uint32_t new_id)
-{
+static void fix_entity(entity *e, uint32_t old_id, uint32_t new_id) {
     for (uint8_t np = 0; np < e->num_properties; ++np) {
         property *p = &e->properties[np];
 
@@ -11297,9 +10738,7 @@ fix_entity(entity *e, uint32_t old_id, uint32_t new_id)
     }
 }
 
-static void
-update_entity_id_changed(uint32_t old_id, uint32_t new_id, std::map<uint32_t, entity*> *c1, std::map<uint32_t, entity*> *c2)
-{
+static void update_entity_id_changed(uint32_t old_id, uint32_t new_id, std::map<uint32_t, entity*> *c1, std::map<uint32_t, entity*> *c2) {
     if (old_id == new_id) return;
 
     if (c1) {
@@ -11317,11 +10756,113 @@ update_entity_id_changed(uint32_t old_id, uint32_t new_id, std::map<uint32_t, en
     }
 }
 
+int game::post_render() {
+    if (this->info_label && this->info_label->active)
+        this->info_label->render(this->get_surface()->ddraw, true);
+
+    pscreen::post_render();
+
+    if (!settings["touch_controls"]->v.b && this->hov_text->active)
+        this->hov_text->render(this->get_surface()->ddraw, true);
+
+    return T_OK;
+}
+
+connection *game::set_connection_strength(connection *c, float strength) {
+    tms_infof("Set connection strength: %.2f", strength);
+    if (strength == 1.f)
+        c->max_force = INFINITY;
+    else
+        c->max_force = strength * CONN_MAX_FORCE;
+
+    tms_infof("p  0 %f %f %p %p", c->p.x, c->p.y, c->e->get_body(0), c->e->gr);
+    tms_infof("p2 0 %f %f %p %p", c->p_s.x, c->p_s.y, c->o->get_body(0), c->o->gr);
+
+    if (c->type == CONN_GROUP || c->type == CONN_PLATE) {
+        /* readd the connection */
+        connection copy = *c;
+        copy.p = c->e->local_to_world(c->p, c->f[0]);
+        tms_infof("destroy conn: %p", c);
+        c->e->destroy_connection(c);
+
+        if (copy.owned) {
+            tms_infof("owned");
+            *c = copy;
+        } else {
+            c = this->get_tmp_conn();
+            *c = copy;
+        }
+
+        c->j = 0;
+        c->self_ent = 0;
+
+        if (strength == 1.f && c->type == CONN_PLATE) {
+            c->type = CONN_GROUP;
+            tms_infof("setting type to GROUP %p", c);
+        } else if (strength < 1.f && c->type == CONN_GROUP) {
+            tms_infof("setting type to PLATE %p", c);
+            c->type = CONN_PLATE;
+        }
+
+        tms_infof("conn_ll: %p %p", c->e->conn_ll, c->o->conn_ll);
+
+        c = this->apply_connection(c, -1);
+
+        tms_infof("p  1 %f %f %p %p", c->p.x, c->p.y, c->e->get_body(0), c->e->gr);
+        tms_infof("p2 1 %f %f %p %p", c->p_s.x, c->p_s.y, c->o->get_body(0), c->o->gr);
+    }
+
+    return c;
+}
+
+void game::multiselect_perform(void (*cb)(entity*, void*), void *userdata) {
+    if (this->state.sandbox && W->is_paused() && !this->state.test_playing) {
+        if (this->get_mode() == GAME_MODE_MULTISEL && this->selection.m) {
+            // We need to copy the entity list, because we're likely going to modify it.
+            std::set<entity*> cloned_ent(*this->selection.m);
+            std::set<entity*>::iterator i = cloned_ent.begin();
+            for (; i != cloned_ent.end(); i++) {
+                cb(*i, userdata);
+            }
+            cloned_ent.clear();
+        }
+    }
+}
+
+bool game::apply_multiselection(entity *e) {
+    bool include_custom_conns = true;
+    bool include_static = false;
+
+    entity_set *loop = new entity_set();
+    if (this->multi.follow_connections) {
+        if (this->sel_p_ent->g_id == O_PIXEL) {
+            ((pixel*)this->sel_p_ent)->gather_connected_pixels(loop);
+        } else {
+            this->sel_p_ent->gather_connected_entities(
+                    loop,
+                    this->multi.follow_cables,
+                    include_custom_conns,
+                    include_static,
+                    this->multi.select_through_layers);
+        }
+    } else {
+        loop->insert(this->sel_p_ent);
+    }
+
+    if (loop->size()) {
+        this->selection.select(loop);
+
+        return true;
+    } else {
+        delete loop;
+
+        return false;
+    }
+}
+
 #ifdef DEBUG
 
-void
-game::clamp_entities()
-{
+void game::clamp_entities() {
     Uint32 ss = SDL_GetTicks();
     tms_debugf("Clamping all entities...");
 
@@ -11401,127 +10942,7 @@ game::clamp_entities()
     of::_id = id;
 }
 
-#endif
-
-int
-game::post_render()
-{
-    if (this->info_label && this->info_label->active) {
-        this->info_label->render(this->get_surface()->ddraw, true);
-    }
-
-    pscreen::post_render();
-
-    if (!settings["touch_controls"]->v.b && this->hov_text->active) {
-        this->hov_text->render(this->get_surface()->ddraw, true);
-    }
-
-    return T_OK;
-}
-
-connection*
-game::set_connection_strength(connection *c, float strength)
-{
-    tms_infof("Set connection strength: %.2f", strength);
-    if (strength == 1.f) {
-        c->max_force = INFINITY;
-    } else {
-        c->max_force = strength * CONN_MAX_FORCE;
-    }
-
-    tms_infof("p  0 %f %f %p %p", c->p.x, c->p.y, c->e->get_body(0), c->e->gr);
-    tms_infof("p2 0 %f %f %p %p", c->p_s.x, c->p_s.y, c->o->get_body(0), c->o->gr);
-
-    if (c->type == CONN_GROUP || c->type == CONN_PLATE) {
-        /* readd the connection */
-        connection copy = *c;
-        copy.p = c->e->local_to_world(c->p, c->f[0]);
-        tms_infof("destroy conn: %p", c);
-        c->e->destroy_connection(c);
-
-        if (copy.owned) {
-            tms_infof("owned");
-            *c = copy;
-        } else {
-            c = this->get_tmp_conn();
-            *c = copy;
-        }
-
-        c->j = 0;
-        c->self_ent = 0;
-
-        if (strength == 1.f && c->type == CONN_PLATE) {
-            c->type = CONN_GROUP;
-            tms_infof("setting type to GROUP %p", c);
-        } else if (strength < 1.f && c->type == CONN_GROUP) {
-            tms_infof("setting type to PLATE %p", c);
-            c->type = CONN_PLATE;
-        }
-
-        tms_infof("conn_ll: %p %p", c->e->conn_ll, c->o->conn_ll);
-
-        c = this->apply_connection(c, -1);
-
-        tms_infof("p  1 %f %f %p %p", c->p.x, c->p.y, c->e->get_body(0), c->e->gr);
-        tms_infof("p2 1 %f %f %p %p", c->p_s.x, c->p_s.y, c->o->get_body(0), c->o->gr);
-    }
-
-    return c;
-}
-
-void
-game::multiselect_perform(void (*cb)(entity*, void*), void *userdata)
-{
-    if (this->state.sandbox && W->is_paused() && !this->state.test_playing) {
-        if (this->get_mode() == GAME_MODE_MULTISEL && this->selection.m) {
-            // We need to copy the entity list, because we're likely going to modify it.
-            std::set<entity*> cloned_ent(*this->selection.m);
-            std::set<entity*>::iterator i = cloned_ent.begin();
-            for (; i != cloned_ent.end(); i++) {
-                cb(*i, userdata);
-            }
-            cloned_ent.clear();
-        }
-    }
-}
-
-bool
-game::apply_multiselection(entity *e)
-{
-    bool include_custom_conns = true;
-    bool include_static = false;
-
-    entity_set *loop = new entity_set();
-    if (this->multi.follow_connections) {
-        if (this->sel_p_ent->g_id == O_PIXEL) {
-            ((pixel*)this->sel_p_ent)->gather_connected_pixels(loop);
-        } else {
-            this->sel_p_ent->gather_connected_entities(
-                    loop,
-                    this->multi.follow_cables,
-                    include_custom_conns,
-                    include_static,
-                    this->multi.select_through_layers);
-        }
-    } else {
-        loop->insert(this->sel_p_ent);
-    }
-
-    if (loop->size()) {
-        this->selection.select(loop);
-
-        return true;
-    } else {
-        delete loop;
-
-        return false;
-    }
-}
-
-#ifdef DEBUG
-
-void game::print_screen_point_info(int x, int y)
-{
+void game::print_screen_point_info(int x, int y) {
     tvec3 tproj[3];
     for (int l=0; l<3; l++) { W->get_layer_point(this->cam, x, y, l, &tproj[l]); }
     terrain_coord coord(tproj[0].x, tproj[0].y);
@@ -11555,8 +10976,7 @@ void game::print_screen_point_info(int x, int y)
 
 }
 
-void game::print_stats()
-{
+void game::print_stats() {
     printf("--- CHUNK PRELOADER ---\n");
     printf("heap size:\t\t%" PRIu64 "/%" PRIu64 "\n", W->cwindow->preloader.heap.size, W->cwindow->preloader.heap.cap);
     printf("level size:\t\t%" PRIu64 "/%" PRIu64 "\n", W->cwindow->preloader.w_lb.size, W->cwindow->preloader.w_lb.cap);
@@ -11568,18 +10988,14 @@ void game::print_stats()
 
 #endif
 
-bool
-game::autosave_exists()
-{
+bool game::autosave_exists() {
     char autosave_path[1024];
     snprintf(autosave_path, 1023, "%s/.autosave", pkgman::get_level_path(LEVEL_LOCAL));
 
     return file_exists(autosave_path);
 }
 
-void
-game::open_latest_state(bool require_equal_id, tms::screen *previous_screen/*=0*/)
-{
+void game::open_latest_state(bool require_equal_id, tms::screen *previous_screen/*=0*/) {
     lvlfile *level = pkgman::get_levels(LEVEL_LOCAL_STATE);
     lvlfile *next;
 
@@ -11629,9 +11045,7 @@ game::open_latest_state(bool require_equal_id, tms::screen *previous_screen/*=0*
     }
 }
 
-void
-game::add_loot(entity *host, uint8_t resource_type, int num, float life/*=1.f*/)
-{
+void game::add_loot(entity *host, uint8_t resource_type, int num, float life/*=1.f*/) {
     typedef std::multimap<entity*, struct loot>::iterator iterator;
     std::pair<iterator, iterator> ip = this->loots.equal_range(host);
 
@@ -11654,9 +11068,7 @@ game::add_loot(entity *host, uint8_t resource_type, int num, float life/*=1.f*/)
     }
 }
 
-void
-game::close_tt(int what)
-{
+void game::close_tt(int what) {
     for (int x=0; x<MAX_TUTORIAL_TEXTS; x++) {
         if (this->tt[x].what == what) {
             this->tt[x].life = 0.f;
@@ -11664,9 +11076,7 @@ game::close_tt(int what)
     }
 }
 
-void
-game::add_tt(int what, entity *e, b2Vec2 pos, float life)
-{
+void game::add_tt(int what, entity *e, b2Vec2 pos, float life) {
     if (!this->state.new_adventure) {
         return;
     }
@@ -11696,9 +11106,7 @@ game::add_tt(int what, entity *e, b2Vec2 pos, float life)
     this->tt[x].pos = pos;
 }
 
-void
-game::finished_tt(int what)
-{
+void game::finished_tt(int what) {
     if (!this->state.new_adventure) {
         return;
     }
@@ -11706,9 +11114,7 @@ game::finished_tt(int what)
     settings["tutorial"]->v.u32 |= what;
 }
 
-void
-game::add_hp(entity *host, float percent, tvec3 &color/*=TV_HP_RED*/, float time/*=1.f*/, bool regen/*=false*/)
-{
+void game::add_hp(entity *host, float percent, tvec3 &color/*=TV_HP_RED*/, float time/*=1.f*/, bool regen/*=false*/) {
     int x;
     bool found = false;
 
@@ -11738,9 +11144,7 @@ game::add_hp(entity *host, float percent, tvec3 &color/*=TV_HP_RED*/, float time
     hps[x].regen = regen;
 }
 
-void
-game::render_help_icon(const std::set<entity*> &set, float off_x, float off_y)
-{
+void game::render_help_icon(const std::set<entity*> &set, float off_x, float off_y) {
     struct tms_sprite *spr = gui_spritesheet::get_sprite(S_ROUNDED_HELP);
 
     const b2Vec2 player_pos = adventure::player->get_position();
@@ -11779,9 +11183,7 @@ game::render_help_icon(const std::set<entity*> &set, float off_x, float off_y)
     }
 }
 
-bool
-game::check_click_help_icon(const std::set<entity*> &set, float off_x, float off_y, b2Vec2 click_pos, struct principia_action click_action)
-{
+bool game::check_click_help_icon(const std::set<entity*> &set, float off_x, float off_y, b2Vec2 click_pos, struct principia_action click_action) {
     const b2Vec2 player_pos = adventure::player->get_position();
 
     for (std::set<entity*>::const_iterator it = set.begin();

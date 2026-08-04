@@ -217,22 +217,20 @@ struct menu_obj {
     struct tms_sprite *name;
 };
 
-class _uncull_handler : public b2QueryCallback
-{
+class _uncull_handler : public b2QueryCallback {
   public:
     bool ReportFixture(b2Fixture *f);
 };
 
-class _box_select_handler : public b2QueryCallback
-{
+class _box_select_handler : public b2QueryCallback {
   public:
     bool ReportFixture(b2Fixture *f);
 };
 
 extern std::vector<struct menu_obj> menu_objects;
 
-/* used to test the placement of a simple object, so the user does not
- * place objects inside other objects, or between two objects */
+/// used to test the placement of a simple object, so the user does not
+/// place objects inside other objects, or between two objects
 class overlap_query : public b2QueryCallback
 {
   public:
@@ -296,7 +294,7 @@ class selection_handler
         this->reset();
     }
 
-    inline void reset(){
+    inline void reset() {
         this->e_saved = 0;
         this->c_saved = 0;
     }
@@ -304,8 +302,7 @@ class selection_handler
     inline bool enabled() {return e != 0 || c != 0 || m != 0;}
     void disable(bool refresh_widgets=true);
 
-    void select(entity *e)
-    {
+    void select(entity *e) {
         this->select(e, 0, (tvec2){0,0}, 0, false);
     }
 
@@ -317,9 +314,8 @@ class selection_handler
 class gamestate
 {
   public:
-    gamestate()
-    {
-        this->modified = false; /* if the level has been modified in sandbox since open/create */
+    gamestate() {
+        this->modified = false; // if the level has been modified in sandbox since open/create
         this->last_autosave_try = 0;
         this->test_playing = false;
         this->fade = 0.f;
@@ -327,11 +323,7 @@ class gamestate
         this->finished = false;
         this->success = false;
         this->abo_architect_mode = false;
-#ifdef DEBUG
-        this->advanced_mode = true;
-#else
         this->advanced_mode = false;
-#endif
         this->finish_step = 0;
         this->waiting = false;
         this->gridsize = .25f;
@@ -352,19 +344,24 @@ class gamestate
     uint32_t adventure_id;
     float   fade;
     uint64_t last_autosave_try;
-    bool    abo_architect_mode; /* do not set manually, use the game set_architect_mode function */
+    /// do not set manually, use the game set_architect_mode function
+    bool    abo_architect_mode;
     bool    advanced_mode;
     bool    modified;
     bool    sandbox;
     bool    test_playing;
     bool    edev_labels;
-    bool    finished; /* whether the level has finished or not */
-    bool    success; /* win or lose finish state */
+    /// whether the level has finished or not
+    bool    finished;
+    /// win or lose finish state
+    bool    success;
     bool    ending;
     int     end_action;
     uint32_t end_warp;
-    uint32_t finish_step; /* what step we finished on */
-    bool    waiting; /* waiting for input, after a non-puzzle level has been loaded and to be played */
+    /// what step we finished on
+    uint32_t finish_step;
+    /// waiting for input, after a non-puzzle level has been loaded and to be played
+    bool    waiting;
     float   time_mul;
     float   gridsize;
     int     edit_layer;
@@ -539,15 +536,11 @@ class game : public pscreen
 
   protected:
 
-    inline bool
-    shift_down()
-    {
+    inline bool shift_down() {
         return this->current_keymod & TMS_MOD_SHIFT;
     }
 
-    inline bool
-    ctrl_down()
-    {
+    inline bool ctrl_down() {
         return this->current_keymod & TMS_MOD_CTRL;
     }
 
@@ -572,8 +565,8 @@ class game : public pscreen
     bool delete_partial(uint32_t id);
     bool autosave();
     bool save(bool create_icon=true, bool force=false);
-    bool save_copy(void);
-    void save_state(void);
+    bool save_copy();
+    void save_state();
     bool upload();
     void reselect();
     bool autosave_exists();
@@ -583,12 +576,13 @@ class game : public pscreen
 
     void update_ghost_entity(entity *ths);
 
-    /** in-game control panel shit **/
+    /// in-game control panel shit
     entity *current_panel;
     tms_wdg *w_panel_exit;
     void set_control_panel(entity *e);
     void setup_panel(panel *p);
 
+    /// Resize the current level to fit the borders around the content
     void fit_level_borders();
 
     void set_copy_entity(uint8_t slot, entity *e);
@@ -600,16 +594,17 @@ class game : public pscreen
     tms_fb *main_fb;
     tms_fb *bloom_fb;
 
+    /// Create an icon for the current level
     void create_icon();
 
     tms::graph *outline_graph;
 
-    /* entity fetched by hover query */
+    /// entity fetched by hover query
     entity *hov_ent;
     p_text *hov_text;
 
-    /* pending for selection*/
   public:
+    /// pending for selection
     entity *sel_p_ent;
   protected:
     b2Body *sel_p_body;
@@ -623,20 +618,19 @@ class game : public pscreen
     b2Vec2 grab_mouse_pos;
     float rot_mouse_base;
 
-    int _mode; /**< never set this manually **/
+    /// never set this manually
+    int _mode;
   public:
     void set_mode(int new_mode);
-    inline int get_mode()
-    {
+    inline int get_mode() {
         return this->_mode;
     }
 
-    inline float get_zoom()
-    {
+    inline float get_zoom() {
         return this->cam->_position.z;
     }
 
-    /** socket selection stuff **/
+    /// socket selection stuff
     edevice *ss_edev;
   protected:
     plug_base *ss_plug;
@@ -649,7 +643,7 @@ class game : public pscreen
 
     void perform_socket_action(int x);
 
-    /** connection selection shit */
+    /// connection selection shit
     connection *cs_conn;
     float cs_timer;
     bool cs_found;
@@ -660,28 +654,36 @@ class game : public pscreen
         b2Vec2 p;
     } ca[NUM_CA];
 
-    /** building stuff **/
+    /// building stuff
     c_map pairs;
 
     float   score_highlight;
 
-    void render_selected_entity(void);
-    void render_selected_connection(void);
-    void render_highlighted(void);
-    void render_trails(void);
-    void render_socksel(void);
+    /// highlight the currently selected entity
+    void render_selected_entity();
+    void render_selected_connection();
+    void render_highlighted();
+    void render_trails();
+    /// Render the socket selection menu, and store the sockets in the game
+    /// object so we can identify clicks on them later.
+    void render_socksel();
     void select_socksel(int x);
-    void render_conn_types(void);
-    void render_gui(void);
-    void render_selection_gui(void);
-    void render_noselection_gui(void);
-    void render_sandbox_menu(void);
-    void render_connections(void);
-    void render_existing_connections(void);
-    void render_edev_labels(void);
-    void render_activators(void);
-    void render_starred(void);
-    void render_controls_help(void);
+    /// Render the connection type selection menu
+    void render_conn_types();
+    void render_gui();
+    void render_selection_gui();
+    void render_noselection_gui();
+    void render_sandbox_menu();
+    void render_connections();
+    void render_existing_connections();
+    void render_edev_labels();
+
+    /// Render any pending activators.
+    /// The pending activators will be cleared just before the pending activators
+    /// are refreshed. This currently happens in game::render()
+    void render_activators();
+    void render_starred();
+    void render_controls_help();
 
     entity *get_pending_ent();
 
@@ -690,18 +692,17 @@ class game : public pscreen
     void reset_touch_gui();
     void do_play();
     void do_pause();
-    void on_play();
-    void on_pause();
 
     void resize_gui();
-    void refresh_gui(void);
+    void refresh_gui();
     void window_size_changed();
     void create_sandbox_menu();
     void apply_level_properties();
 
-    /* game/world state saving */
+    /// game/world state saving
     size_t get_state_size();
     void write_state(lvlinfo *lvl, lvlbuf *lb);
+    /// Apply state directly from world by reading
     void load_state();
 
     int get_gb_pos();
@@ -712,12 +713,12 @@ class game : public pscreen
     float get_bmenu_pad();
 
   protected:
-    void clear_entities(void);
-    void reset(void);
+    void clear_entities();
+    void reset();
 
-    void init_panel_edit(void);
+    void init_panel_edit();
     void panel_refresh_widgets();
-    void init_gearbox_edit(void);
+    void init_gearbox_edit();
     void init_sandbox_menu();
     struct tms_texture* get_sandbox_texture(int n);
     struct tms_texture* get_item_texture();
@@ -728,13 +729,13 @@ class game : public pscreen
     int inventory_handle_event(tms::event *ev);
     void gearbox_edit_handle_event(tms::event *ev);
     int repair_station_handle_event(tms::event *ev);
-    void render_factory(void);
-    void render_repair_station(void);
-    void render_inventory(void);
-    void render_panel_edit(void);
-    void render_gearbox_edit(void);
+    void render_factory();
+    void render_repair_station();
+    void render_inventory();
+    void render_panel_edit();
+    void render_gearbox_edit();
     void update_pairs();
-    void panel_edit_refresh(void);
+    void panel_edit_refresh();
     bool panel_edit_need_scroll;
 
     p_text *score_text;
@@ -747,15 +748,14 @@ class game : public pscreen
     void show_inventory_widgets();
     void hide_inventory_widgets();
 
-    /* add a connection animation, dir -1 or 1 */
-    inline void add_ca(float dir, b2Vec2 p)
-    {
+    /// add a connection animation, dir -1 or 1
+    inline void add_ca(float dir, b2Vec2 p) {
         for (int x=0; x<NUM_CA; x++) {
             if (this->ca[x].life < 0.f || this->ca[x].life > 1.f) {
                 this->ca[x].dir = dir;
-                if (dir < 0.f) {
+                if (dir < 0.f)
                     this->ca[x].life = 1.f;
-                } else
+                else
                     this->ca[x].life = 0.f;
                 this->ca[x].p = p;
                 return;
@@ -804,7 +804,7 @@ class game : public pscreen
         float time;
         tvec3 color;
         bool regen;
-        hp(){time=0;e=0;regen=false;};
+        hp() { time = 0; e = 0; regen = false; }
     };
 
     struct loot {
@@ -820,8 +820,7 @@ class game : public pscreen
             , name(_name)
             , num(_num)
             , life(_life)
-            , scale(0.f)
-        {
+            , scale(0.f) {
             this->text = new p_text(font::xlarge);
         }
     };
@@ -833,7 +832,7 @@ class game : public pscreen
         entity_set *entities;
         float time;
         uint8_t type;
-        hl(){
+        hl() {
             time = 0.f;
             type = HL_PRESET_DEFAULT;
             e = 0;
@@ -876,6 +875,9 @@ class game : public pscreen
 #ifdef DEBUG
     void print_stats();
     void print_screen_point_info(int x, int y);
+
+    std::set<game_debug_line*> debug_lines;
+    void clamp_entities();
 #endif
 
     int render();
@@ -887,14 +889,15 @@ class game : public pscreen
     void update_last_cursor_pos(int x, int y);
     int interacting_with(entity *e);
     int is_mover_joint(b2Joint *j);
-    bool do_drop_interacting; // delayed drop_interacting, to make sure it happens when the simulation is locked
-    void drop_interacting(void);
+    /// delayed drop_interacting, to make sure it happens when the simulation is locked
+    bool do_drop_interacting;
+    void drop_interacting();
     void drop_if_interacting(entity *e);
     void numkey_pressed(uint8_t key);
     int handle_input(tms::event *ev, int action);
     connection* apply_connection(connection *c, int option);
-    int resume(void);
-    int pause(void);
+    int resume();
+    int pause();
     void create_level(int type, bool empty, bool play);
     void snap_to_camera(screenshot_marker *sm);
 
@@ -910,8 +913,7 @@ class game : public pscreen
         lvledit *import;
         uint8_t box_select;
 
-        multi_options()
-        {
+        multi_options() {
             this->import = 0;
             this->cursor_size.Set(.75f, .75f);
             this->cursor.SetZero();
@@ -919,8 +921,7 @@ class game : public pscreen
             this->reset();
         }
 
-        void reset()
-        {
+        void reset() {
             this->follow_connections = true;
             this->follow_cables = false;
             this->additive_selection = false;
@@ -937,7 +938,8 @@ class game : public pscreen
 
     entity *follow_object;
     void set_follow_object(entity *e, bool snap, bool preserve_pos=false);
-    connection* set_connection_strength(connection *c, float strength); /* strength = value between 0.0 and 1.0, 1.0 being indestructible */
+    /// strength = value between 0.0 and 1.0, 1.0 being indestructible
+    connection* set_connection_strength(connection *c, float strength);
     void multiselect_perform(void (*cb)(entity*, void*), void *userdata=0);
     bool apply_multiselection(entity* e);
 
@@ -948,8 +950,11 @@ class game : public pscreen
     void add_entity(entity *e, bool soft=false);
     void destroy_mover(uint8_t x, bool do_not_deselect=false);
     void remove_entity(entity *e);
+    /// Construct an entity at the mouse position
     entity* editor_construct_entity(uint32_t g_id, int pid=0, bool force_on_pid=false, b2Vec2 offs=b2Vec2(0.f,0.f));
+    /// Construct an item at the mouse position
     entity* editor_construct_item(uint32_t item_id);
+    /// Construct a decoration at the mouse position
     entity* editor_construct_decoration(uint32_t decoration_id);
     void handle_draw(int pid, int mx, int my);
 
@@ -959,19 +964,16 @@ class game : public pscreen
     void refresh_score();
     void add_score(int score);
     void set_score(int new_score);
-    inline int get_score()
-    {
+    inline int get_score() {
         return this->state.m_score;
     }
 
-    inline int get_real_score()
-    {
+    inline int get_real_score() {
         return W->score_helper ^ SCORE_XOR;
     }
 
     void render_tt();
-    bool tt_is_active(int what)
-    {
+    bool tt_is_active(int what) {
         for (int x=0; x<MAX_TUTORIAL_TEXTS; x++) {
             if (tt[x].life > 0.f && tt[x].what == what) {
                 return true;
@@ -989,8 +991,7 @@ class game : public pscreen
 
     void add_loot(entity *host, uint8_t resource_type, int num, float time=5.5f);
 
-    inline void add_highlight_multi(entity_set *eset, uint8_t type=HL_PRESET_DEFAULT_MULTI, float t=1.f)
-    {
+    inline void add_highlight_multi(entity_set *eset, uint8_t type=HL_PRESET_DEFAULT_MULTI, float t=1.f) {
         /* Look for free slot */
         struct hl *slot = 0;
         for (int x=0; x<NUM_HL; x++) {
@@ -1012,8 +1013,7 @@ class game : public pscreen
         }
     }
 
-    inline void clear_hl(struct hl *slot)
-    {
+    inline void clear_hl(struct hl *slot) {
         if (slot->type & HL_TYPE_MULTI && slot->entities) {
             if (slot->type & HL_TYPE_DO_FREE) {
                 delete slot->entities;
@@ -1022,8 +1022,7 @@ class game : public pscreen
         }
     }
 
-    inline void add_highlight(entity *e, uint8_t type=HL_PRESET_DEFAULT, float t=1.f)
-    {
+    inline void add_highlight(entity *e, uint8_t type=HL_PRESET_DEFAULT, float t=1.f) {
         hl *found = 0;
         for (int x=0; x<NUM_HL; x++) {
             if (hls[x].time <= 0.f) {
@@ -1043,8 +1042,7 @@ class game : public pscreen
         }
     }
 
-    inline void remove_highlight(entity *e)
-    {
+    inline void remove_highlight(entity *e) {
         for (int x=0; x<NUM_HL; x++) {
             if (hls[x].e == e) {
                 hls[x].type = 0;
@@ -1086,6 +1084,17 @@ class game : public pscreen
     void damage_tpixel(entity *p, b2Fixture *f, void *udata2, float dmg, const b2Vec2 &world_point, damage_type dmg_type);
     void emit_partial_from_buffer(const char *buf, uint16_t buf_len, b2Vec2 position);
     void emit(entity *e, entity *emitter=0, b2Vec2 velocity=b2Vec2(0.f,0.f),bool immediate=false);
+
+    /**
+     * post_emit should be used whenever the emit needs to be placed in a "dangerous" place.
+     * Dangerous places include any function that are called when an entity is loaded,
+     * added to world, emitted. Such as:
+     * - init()
+     * - setup()
+     * - on_entity_play()
+     * - on_load()
+     * - add_to_world()
+     **/
     void post_emit(entity *e, entity *emitter=0, b2Vec2 velocity=b2Vec2(0.f,0.f));
     bool absorb(entity *e, bool include_connection=false, entity *absorber=0, b2Vec2 absorber_point=b2Vec2(0.f, 0.f), uint8_t absorber_frame=0);
     bool timed_absorb(uint32_t id, double time);
@@ -1098,7 +1107,7 @@ class game : public pscreen
     void handle_ingame_object_button(int btn);
     bool ingame_layerswitch_test(entity *e, int dir);
     bool check_placement_allowed(entity *e);
-    void recheck_all_placements(void);
+    void recheck_all_placements();
 
     bool add_pair(entity *e1, entity *e2, connection *c);
     void return_tmp_conn(connection *c);
@@ -1107,6 +1116,8 @@ class game : public pscreen
     void open_sandbox(int id_type, uint32_t id);
     void open_play(int id_type, uint32_t id, pkginfo *pkg, bool test_playing=false, int is_main_puzzle=0);
 
+    /// Prepare playing the world, this is always called after a level
+    /// has been opened for playing
     void begin_play(bool has_state=false);
 
     void finish(bool success);
@@ -1114,12 +1125,16 @@ class game : public pscreen
 
     void update_entities();
     void update_static_entities();
-    connection* get_tmp_conn(void);
+    connection* get_tmp_conn();
 
     void play_sound(uint32_t sound_id, float x, float y, uint8_t random, float volume, bool loop=false, void *ident=0, bool global=false);
 
-    // action 0 = disconnect
-    // action 1 = select
+    /**
+     * Open a menu for choosing which socket to attach the given plug to.
+     *
+     * - action 0 = disconnect
+     * - action 1 = select
+     */
     void open_socket_selector(entity *e, edevice *edev, int action=0);
     b2Joint* create_joint(b2JointDef *jd);
 
@@ -1129,28 +1144,31 @@ class game : public pscreen
         sprintf(this->numfeed_str, "%.*f", precision, num);
     }
 
+    /// Can be used to perform an immediate camera move,
+    /// regardless of dt and the likes, bypassing cam_vel.
     void cam_move(float x, float y, float z);
-
-#ifdef DEBUG
-    std::set<game_debug_line*> debug_lines;
-    void clamp_entities();
-#endif
 
     void render_num(float x, float y, int iw, int ih, float num, int precision=2, float extra_scale=0.f, bool render_background=true);
 
     void draw_entity_bar(entity *e, float v, float y_offset, const tvec3 &color, float alpha);
+
+    /// Delete the current multiselection
     void _multidelete();
 
     bool _restart_level;
     bool _submit_score;
+
+    /// Safe function to call from play-mode to queue up a level restart. (Same behaviour as P on PC)
     void restart_level();
+
+    /// Safe function to call from play-mode to queue up a score submission.
     void submit_score();
     void destroy_possible_mover(entity *e);
 
     void render_help_icon(const std::set<entity*> &set, float off_x, float off_y);
     bool check_click_help_icon(const std::set<entity*> &set, float off_x, float off_y, b2Vec2 click_pos, struct principia_action click_action);
 
-    /* Helper-functions that are meant to keep the main action-handler a bit cleaner. */
+    /// Helper-functions that are meant to keep the main action-handler a bit cleaner.
     void open_latest_state(bool require_equal_id, tms::screen *previous_screen=0);
 
     friend class selection_handler;
