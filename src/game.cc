@@ -176,72 +176,6 @@ static entity_set box_select_entities;
 
 static b2MotorJoint *mover_joint[MAX_INTERACTING];
 
-static const char *trans_sources[] = {
-    "attribute vec2 position;"
-    "attribute vec2 texcoord;"
-    "varying lowp vec2 FS_texcoord;"
-
-    "uniform vec2 texcoord_trans;"
-    "uniform vec2 position_trans;"
-    "uniform vec2 position_trans_lower;"
-
-    "void main() {"
-        "vec2 tx = texcoord+texcoord_trans;"
-        "vec2 trans = position_trans;"
-        "if (position.y < 0.01) trans = position_trans_lower;"
-        "FS_texcoord = tx;"
-        "gl_Position = vec4(position+trans, .99, 1.);"
-    "}",
-
-    "uniform sampler2D tex_0;"
-    "varying lowp vec2 FS_texcoord;"
-
-    "void main() {"
-        "gl_FragColor = texture2D(tex_0, FS_texcoord);"
-    "}"
-};
-
-const char *src_brightpass[2] = {
-    "attribute vec2 position;"
-    "attribute vec2 texcoord;"
-    "varying lowp vec2 FS_texcoord;"
-
-    "void main() {"
-        "FS_texcoord = texcoord;"
-        "gl_Position = vec4(position, 0., 1.);"
-    "}"
-    ,
-    "uniform mediump sampler2D tex_0;"
-    "varying lowp vec2 FS_texcoord;"
-
-    "void main() {"
-        "vec3 color = texture2D(tex_0, FS_texcoord).rgb;"
-        "float lum = dot(color, vec3(0.33, 0.33, 0.33));"
-        "lum = lum*lum;"
-        "gl_FragColor = vec4((lum - .5)*2.);"
-    "}"
-};
-
-const char *src_output[2] = {
-    "attribute vec2 position;"
-    "attribute vec2 texcoord;"
-    "varying lowp vec2 FS_texcoord;"
-
-    "void main() {"
-        "FS_texcoord = texcoord;"
-        "gl_Position = vec4(position, 0., 1.);"
-    "}"
-    ,
-
-    "uniform mediump sampler2D tex_0;"
-    "varying lowp vec2 FS_texcoord;"
-    "void main() {"
-        //"vec3 col = sqrt(texture2D(tex_0, FS_texcoord).rgb);"
-        "vec3 col = pow(texture2D(tex_0, FS_texcoord).rgb, vec3(1./2.2));"
-        "gl_FragColor = vec4(col, 1.);"
-    "}"
-};
-
 const char *tutorial_texts[NUM_TUTORIAL_TEXTS] = {
     /* TUTORIAL_TEXT_PICKUP_EQUIPMENT */
     "When you find loose robot equipment, use the\n"
@@ -1139,22 +1073,16 @@ void game::init_shaders() {
 
     struct tms_shader *sh;
 
-    sh = tms_shader_alloc();
-    tms_shader_compile(sh, GL_VERTEX_SHADER, trans_sources[0]);
-    tms_shader_compile(sh, GL_FRAGMENT_SHADER, trans_sources[1]);
+    sh = tms_shader_read("transform");
     trans_program = (tms_shader_get_program(sh, TMS_NO_PIPELINE));
     trans_program_shift_loc = tms_program_get_uniform(trans_program, "texcoord_trans");
     trans_program_pos_loc = tms_program_get_uniform(trans_program, "position_trans");
     trans_program_poslower_loc = tms_program_get_uniform(trans_program, "position_trans_lower");
 
-    sh = tms_shader_alloc();
-    tms_shader_compile(sh, GL_VERTEX_SHADER, src_output[0]);
-    tms_shader_compile(sh, GL_FRAGMENT_SHADER, src_output[1]);
+    sh = tms_shader_read("postprocess");
     prg_output = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 
-    sh = tms_shader_alloc();
-    tms_shader_compile(sh, GL_VERTEX_SHADER, src_brightpass[0]);
-    tms_shader_compile(sh, GL_FRAGMENT_SHADER, src_brightpass[1]);
+    sh = tms_shader_read("brightpass");
     prg_brightpass = tms_shader_get_program(sh, TMS_NO_PIPELINE);
 }
 

@@ -300,3 +300,43 @@ tms_shader_compile(struct tms_shader *s,
 
     return T_OK;
 }
+
+static void read_shader_file(const char *name, GLenum type, char **out) {
+    char path[1024];
+
+    snprintf(path, 1023, "data/shaders/%s.%s",
+            name, type == GL_VERTEX_SHADER ? "vp" : "fp");
+
+    SDL_IOStream *fh = SDL_IOFromFile(path, "rb");
+    if (!fh) {
+        *out = 0;
+        tms_errorf("Error reading shader at %s!", path);
+    }
+
+    SDL_SeekIO(fh, 0, SDL_IO_SEEK_END);
+    long size = SDL_TellIO(fh);
+    SDL_SeekIO(fh, 0, SDL_IO_SEEK_SET);
+
+    *out = (char*)malloc(size+1);
+
+    SDL_ReadIO(fh, *out, size);
+
+    (*out)[size] = '\0';
+
+    SDL_CloseIO(fh);
+}
+
+struct tms_shader *tms_shader_read(const char *name) {
+    struct tms_shader *sh = tms_shader_alloc();
+    char *buf = NULL;
+
+    read_shader_file(name, GL_VERTEX_SHADER, &buf);
+    tms_shader_compile(sh, GL_VERTEX_SHADER, buf);
+    free(buf);
+
+    read_shader_file(name, GL_FRAGMENT_SHADER, &buf);
+    tms_shader_compile(sh, GL_FRAGMENT_SHADER, buf);
+    free(buf);
+
+    return sh;
+}
