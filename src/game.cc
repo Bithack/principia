@@ -4347,7 +4347,9 @@ game::render_selected_entity()
     glEnable(GL_CULL_FACE);
     glColorMask(0,0,1,1);
 
-    tms_graph_render(this->outline_graph, this->cam, this);
+    for (int i = 0; i < (_tms.gamma_correct ? 3 : 1); ++i) {
+        tms_graph_render(this->outline_graph, this->cam, this);
+    }
 
     glBlendEquation(GL_FUNC_ADD);
     //glDisable(GL_BLEND);
