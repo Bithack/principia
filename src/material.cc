@@ -246,56 +246,6 @@ const int colored_bgs[] = {
     -1
 };
 
-static const char *menu_bgsources[] = {
-    R"(attribute vec2 position;
-    attribute vec2 texcoord;
-    uniform vec2 scale;
-    varying lowp vec2 FS_texcoord;
-
-    void main(void) {
-        FS_texcoord = texcoord * scale;
-        gl_Position = vec4(position, 0, 1.);
-    })",
-
-    R"(
-    uniform sampler2D tex_0;
-    uniform vec4      color;
-    varying lowp vec2 FS_texcoord;
-
-    void main(void) {
-        gl_FragColor = texture2D(tex_0, FS_texcoord)*color;
-    })"
-};
-
-static void
-read_shader(struct shader_load_data *sld, GLenum type, uint32_t global_flags, char **out)
-{
-    char path[1024];
-
-    snprintf(path, 1023, "data/shaders/%s.%s",
-            sld->name, type == GL_VERTEX_SHADER ? "vp" : "fp");
-
-    FILE_IN_ASSET(1);
-
-    _FILE *fh = _fopen(path, "rb");
-    if (fh) {
-        _fseek(fh, 0, SDL_IO_SEEK_END);
-        long size = _ftell(fh);
-        _fseek(fh, 0, SDL_IO_SEEK_SET);
-
-        *out = (char*)malloc(size+1);
-
-        _fread(*out, 1, size, fh);
-
-        (*out)[size] = '\0';
-
-        _fclose(fh);
-    } else {
-        *out = 0;
-        tms_errorf("Error reading shader at %s!", path);
-    }
-}
-
 struct shader_load_data shaders[] = {
     { SL_SHARED, "border_ao",               &shader_border_ao },
     { SL_SHARED, "border",                  &shader_border },
@@ -408,65 +358,6 @@ GLSL(
     }
 )
 };
-/*
-static const char *src_wheel[] = {
-GLSL(
-    attribute vec3 position;
-    attribute vec3 normal;
-    attribute vec2 texcoord;
-
-    varying lowp vec2 FS_diffuse;
-    varying lowp vec2 FS_texcoord;
-    VARYINGS
-
-    uniform mat4 MVP;
-    uniform mat4 MV;
-    uniform mat3 N;
-    UNIFORMS
-
-    varying lowp vec3 FS_normal;
-    varying lowp vec3 FS_eye;
-
-    void main(void)
-    {
-        vec3 nor = N*normal;
-        vec4 pos = MVP*vec4(position, 1.);
-
-        SET_SHADOW
-        SET_AMBIENT_OCCL
-
-        FS_texcoord = texcoord;
-        FS_diffuse = vec2(clamp(dot(LIGHT, nor)*_DIFFUSE, 0., 1.), .05*nor.z);
-
-        FS_normal = nor;
-        FS_eye = (MV*vec4(position, 1.)).xyz;
-
-        gl_Position = pos;
-    }
-),
-GLSL(
-    uniform sampler2D tex_0;
-    UNIFORMS
-
-    varying lowp vec2 FS_diffuse;
-    varying lowp vec2 FS_texcoord;
-    varying lowp vec3 FS_normal;
-    varying lowp vec3 FS_eye;
-    VARYINGS
-
-    void main(void)
-    {
-        vec4 color = texture2D(tex_0, FS_texcoord);
-        vec3 n = normalize(FS_normal);
-        vec3 e = normalize(FS_eye);
-        vec3 R = normalize(reflect(LIGHT, n));
-        float specular = pow(clamp(dot(R, e), .0, 1.), 6.);
-        gl_FragColor = SHADOW * (color + color*specular) * FS_diffuse.x + color.a * color * (_AMBIENT + FS_diffuse.y)*AMBIENT_OCCL
-                        ;
-    }
-)
-};
-*/
 
 void
 material_factory::upload_all()
@@ -966,9 +857,6 @@ material_factory::init()
     material_factory::background_id = 0;
     int ierr;
 
-    /* XXX: a gl error occurs when a gtk dialog is shown */
-    tms_assertf((ierr = glGetError()) == 0, "gl error %d at material factory init", ierr);
-
     tms_infof("Initializing material factor...");
 
     material_factory::init_shaders();
@@ -1208,34 +1096,8 @@ material_factory::init_shaders()
         char *buf;
         int r;
 
-        //tms_debugf("Reading %s vertex shader...", sld->name);
-        read_shader(sld, GL_VERTEX_SHADER, global_flags, &buf);
-        if (!buf) {
-            tms_infof("Failed to read %s vertex shader!", sld->name);
-            *sld->shader = (sld->fallback ? *sld->fallback : 0);
-            continue;
-        }
-
-        tms_infof("Compiling %s vertex shader...", sld->name);
-        //tms_infof("Data: '%s'", buf);
-        tms::shader *sh = new tms::shader(sld->name);
-        r = sh->compile(GL_VERTEX_SHADER, buf);
-        free(buf);
-        buf = 0;
-
-        //tms_debugf("Reading %s fragment shader...", sld->name);
-        read_shader(sld, GL_FRAGMENT_SHADER, global_flags, &buf);
-        if (!buf) {
-            tms_infof("Failed to read %s fragment shader!", sld->name);
-            *sld->shader = (sld->fallback ? *sld->fallback : 0);
-            continue;
-        }
-
-        tms_infof("Compiling %s fragment shader...", sld->name);
-        //tms_infof("Data: '%s'", buf);
-        r = sh->compile(GL_FRAGMENT_SHADER, buf);
-        free(buf);
-        buf = 0;
+        tms_infof("Compiling %s shader...", sld->name);
+        tms::shader *sh = static_cast<tms::shader *>(tms_shader_read(sld->name));
 
         *sld->shader = sh;
     }
@@ -1368,9 +1230,7 @@ material_factory::init_shaders()
     setlocale(LC_ALL, "C");
     setlocale(LC_NUMERIC, "C");
 
-    sh = new tms::shader("Menu BG");
-    sh->compile(GL_VERTEX_SHADER, menu_bgsources[0]);
-    sh->compile(GL_FRAGMENT_SHADER, menu_bgsources[1]);
+    sh = static_cast<tms::shader *>(tms_shader_read("menu_bg"));
     menu_bg_program = sh->get_program(TMS_NO_PIPELINE);
     menu_bg_color_loc = tms_program_get_uniform(menu_bg_program, "color");
     menu_bg_scale_loc = tms_program_get_uniform(menu_bg_program, "scale");

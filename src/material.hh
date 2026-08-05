@@ -4,10 +4,6 @@
 
 #define M_DENSITY 1.f
 
-#ifndef GLSL
-#define GLSL(...) #__VA_ARGS__
-#endif
-
 //#define AMBIENT ".08"
 //#define AMBIENT ".08"
 #define AMBIENT ".55"

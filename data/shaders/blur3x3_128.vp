@@ -1,0 +1,17 @@
+attribute vec2 position;
+attribute vec2 texcoord;
+
+varying lowp vec2 tx0;
+varying lowp vec2 tx1;
+varying lowp vec2 tx2;
+varying lowp vec2 tx3;
+varying lowp vec2 tx4;
+
+void main() {
+    tx0 = texcoord;
+    tx1 = texcoord + vec2(-1./128.,0.);
+    tx2 = texcoord + vec2(1./128.,0.);
+    tx3 = texcoord + vec2(0., 1./128.);
+    tx4 = texcoord + vec2(0.,-1./128.);
+    gl_Position = vec4(position, 0, 1.);
+}
