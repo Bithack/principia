@@ -1,46 +1,46 @@
-#include "game.hh"
 #include "main.hh"
-#include "loading_screen.hh"
-#include "soundmanager.hh"
-#include "ui.hh"
-#include "menu_shared.hh"
-#include "menu_pkg.hh"
-#include "menu_main.hh"
-#include "menu_create.hh"
-#include "menu-play.hh"
-#include "settings.hh"
-#include "material.hh"
-#include "object_factory.hh"
-#include "model.hh"
+#include "adventure.hh"
 #include "cable.hh"
-#include "ledbuffer.hh"
-#include "spritebuffer.hh"
-#include "textbuffer.hh"
+#include "display.hh"
+#include "emitter.hh"
+#include "faction.hh"
+#include "factory.hh"
 #include "fluidbuffer.hh"
+#include "game.hh"
+#include "group.hh"
+#include "gui.hh"
+#include "ledbuffer.hh"
 #include "linebuffer.hh"
-#include "sticky.hh"
-#include "rope.hh"
+#include "loading_screen.hh"
+#include "material.hh"
+#include "menu-play.hh"
+#include "menu_create.hh"
+#include "menu_main.hh"
+#include "menu_pkg.hh"
+#include "menu_shared.hh"
+#include "model.hh"
+#include "network.hh"
+#include "object_factory.hh"
 #include "polygon.hh"
 #include "progress.hh"
-#include "worker.hh"
-#include "emitter.hh"
-#include "display.hh"
-#include "group.hh"
-#include "tiles.hh"
-#include "faction.hh"
 #include "robot_base.hh"
-#include "factory.hh"
-#include "adventure.hh"
-#include "gui.hh"
-
+#include "rope.hh"
+#include "settings.hh"
+#include "soundmanager.hh"
+#include "spritebuffer.hh"
+#include "sticky.hh"
+#include "textbuffer.hh"
+#include "tiles.hh"
+#include "ui.hh"
+#include "worker.hh"
 #include <ctime>
+#include <sys/stat.h>
+#include <tms/cpp.hh>
 #include <unistd.h>
 
-#include <sys/stat.h>
-
-#include <tms/cpp.hh>
-
-#include "network.hh"
+#ifdef SCREENSHOT_BUILD
+#include "menu_ss.hh"
+#endif
 
 principia P={0};
 static struct tms_fb *gi_fb;
@@ -619,7 +619,11 @@ static void perform_action(int x, void *data) {
             if (!data) {
                 sm::stop_all();
             }
+#ifdef SCREENSHOT_BUILD
+            tms::set_screen(P.s_menu_ss);
+#else
             tms::set_screen(P.s_menu_main);
+#endif
             break;
 
         case ACTION_GOTO_CREATE:
@@ -1679,6 +1683,10 @@ static int initial_loader(int step) {
             break;
 
         case 14:
+#ifdef SCREENSHOT_BUILD
+            P.s_menu_ss = new menu_ss();
+            P.screens.push_back(P.s_menu_ss);
+#else
             P.s_menu_pkg = new menu_pkg();
             P.s_menu_main = new menu_main();
             P.s_menu_create = new menu_create();
@@ -1688,6 +1696,7 @@ static int initial_loader(int step) {
             P.screens.push_back(P.s_menu_main);
             P.screens.push_back(P.s_menu_create);
             P.screens.push_back(P.s_menu_play);
+#endif
 
             P.s_loading_screen->set_text("Loading progress...");
             break;
@@ -1701,11 +1710,7 @@ static int initial_loader(int step) {
         }
 
         case 16: {
-#ifdef SCREENSHOT_BUILD
-            P.s_loading_screen->set_text("Ready! o.o");
-#else
             P.s_loading_screen->set_text(0);
-#endif
 
             P.loaded = true;
             settings.save();

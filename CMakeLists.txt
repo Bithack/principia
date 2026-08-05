@@ -29,6 +29,12 @@ mark_as_advanced(UNITY_BUILD)
 
 option(USE_VENDORED_SDL3 "Build with vendored SDL3 library" FALSE)
 
+if(LINUX)
+	option(SCREENSHOT_BUILD "Build screenshotter build (Linux only)" FALSE)
+else()
+	set(SCREENSHOT_BUILD FALSE)
+endif()
+
 # Find core dependencies
 # ----------------------
 
@@ -56,12 +62,6 @@ endif()
 
 # Determine platform and backend
 # ------------------------------
-
-if(LINUX)
-	option(SCREENSHOT_BUILD "Build screenshotter build (Linux only)" FALSE)
-else()
-	set(SCREENSHOT_BUILD FALSE)
-endif()
 
 if(ANDROID OR SCREENSHOT_BUILD)
 	set(BACKEND_IMGUI FALSE)

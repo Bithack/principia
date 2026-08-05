@@ -120,6 +120,7 @@
 #include "menu_pkg.cc"
 #include "menu-play.cc"
 #include "menu_shared.cc"
+#include "menu_ss.cc"
 #include "minibot.cc"
 #include "mini_transmitter.cc"
 #include "misc.cc"

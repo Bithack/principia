@@ -9,6 +9,7 @@ class menu_pkg;
 class menu_main;
 class menu_create;
 class menu_play;
+class menu_ss;
 class loading_screen;
 class settings;
 class p_text;
@@ -144,6 +145,7 @@ extern class principia {
     menu_main      *s_menu_main;
     menu_create    *s_menu_create;
     menu_play      *s_menu_play;
+    menu_ss        *s_menu_ss;
 
     std::vector<pscreen*> screens;
 

@@ -4,6 +4,10 @@
 #include "text.hh"
 #include <tms/cpp.hh>
 
+#ifdef SCREENSHOT_BUILD
+#include "menu_ss.hh"
+#endif
+
 loading_screen::loading_screen()
 {
     float projection[16];
@@ -84,7 +88,11 @@ loading_screen::step_loading()
 tms::screen *loading_screen::get_next_screen()
 {
     if (next == 0) {
+#ifdef SCREENSHOT_BUILD
+        return P.s_menu_ss;
+#else
         return P.s_menu_main;
+#endif
     } else {
         return next;
     }
