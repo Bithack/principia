@@ -8,7 +8,6 @@
 
 tms::texture *menu_shared::tex_bg;
 tms::texture *menu_shared::tex_vignette;
-tms::texture *menu_shared::tex_menu_bottom;
 tms::texture *menu_shared::tex_principia;
 tms::texture *menu_shared::tex_vert_line;
 tms::texture *menu_shared::tex_hori_line;
@@ -27,88 +26,27 @@ p_text *menu_shared::text_message;
 
 int menu_shared::bar_height;
 
-void
-menu_shared::init()
-{
-    {
-        tms::texture *tex = new tms::texture();
+static tms::texture *load_menu_tex(const char *path, bool alpha) {
+    tms::texture *tex = new tms::texture();
 
-        tex->gamma_correction = 0;
-        tex->load("data/textures/menu/menu_bg.jpg");
-        tex->colors = GL_RGB;
+    tex->gamma_correction = 0;
+    tex->colors = alpha ? GL_RGBA : GL_RGB;
+    tex->load(path);
 
-        tex->upload();
+    tex->upload();
 
-        menu_shared::tex_bg = tex;
-    }
+    return tex;
+}
 
-    {
-        tms::texture *tex = new tms::texture();
+void menu_shared::init() {
+    menu_shared::tex_bg = load_menu_tex("data/textures/menu/menu_bg.jpg", false);
+    menu_shared::tex_vignette = load_menu_tex("data/textures/menu/vignette.png", true);
+    menu_shared::tex_principia = load_menu_tex("data/textures/menu/menu_principia.png", true);
+    menu_shared::tex_vert_line = load_menu_tex("data/textures/menu/vert_line.png", true);
+    menu_shared::tex_hori_line = load_menu_tex("data/textures/menu/hori_line.png", true);
 
-        tex->gamma_correction = 0;
-        tex->colors = GL_RGBA;
-        tex->load("data/textures/menu/vignette.png");
-
-        tex->upload();
-
-        menu_shared::tex_vignette = tex;
-    }
-
-    {
-        tms::texture *tex = new tms::texture();
-
-        tex->gamma_correction = 0;
-        tex->colors = GL_RGBA;
-
-        tex->load("data/textures/menu/menu_bottom.png");
-
-        tex->upload();
-
-        menu_shared::tex_menu_bottom = tex;
-    }
-
-    {
-        tms::texture *tex = new tms::texture();
-
-        tex->gamma_correction = 0;
-        tex->colors = GL_RGBA;
-
-        tex->load("data/textures/menu/menu_principia.png");
-
-        tex->upload();
-
-        menu_shared::tex_principia = tex;
-    }
-
-    {
-        tms::texture *tex = new tms::texture();
-
-        tex->gamma_correction = 0;
-        tex->colors = GL_RGBA;
-
-        tex->load("data/textures/menu/vert_line.png");
-
-        tex->upload();
-
-        menu_shared::tex_vert_line = tex;
-    }
-
-    {
-        tms::texture *tex = new tms::texture();
-
-        tex->gamma_correction = 0;
-        tex->colors = GL_RGBA;
-
-        tex->load("data/textures/menu/hori_line.png");
-
-        tex->upload();
-
-        menu_shared::tex_hori_line = tex;
-    }
-
-    for (int x=0; x<MAX_FEATURED_LEVELS_FETCHED; ++x) {
+    for (int x=0; x<MAX_FEATURED_LEVELS_FETCHED; ++x)
         menu_shared::fl[x].sprite = 0;
-    }
 
     menu_shared::text_version = new p_text(font::medium, ALIGN_CENTER, ALIGN_CENTER);
     menu_shared::text_version->set_text(principia_version_string());
@@ -120,28 +58,25 @@ menu_shared::init()
     menu_shared::text_message = new p_text(font::medium, ALIGN_CENTER, ALIGN_CENTER);
 }
 
-void
-menu_shared::refresh_message()
-{
+void menu_shared::refresh_message() {
     tms_debugf("Refreshing message...");
-    if (P.message) {
-        const char *pch = strchr(P.message, ':');
-        if (pch && strlen(P.message) > pch-P.message+1) {
-            if (menu_shared::text_message->text) {
-                if (strcmp(text_message->text, pch+1) == 0) {
-                    return;
-                }
+    if (!P.message)
+        return;
+
+    const char *pch = strchr(P.message, ':');
+    if (pch && strlen(P.message) > pch-P.message+1) {
+        if (menu_shared::text_message->text) {
+            if (strcmp(text_message->text, pch+1) == 0) {
+                return;
             }
-            menu_shared::text_message->set_text(pch+1);
-            menu_shared::text_message->color.a = 0.f;
-            menu_shared::text_message->outline_color.a = 0.f;
         }
+        menu_shared::text_message->set_text(pch+1);
+        menu_shared::text_message->color.a = 0.f;
+        menu_shared::text_message->outline_color.a = 0.f;
     }
 }
 
-void
-menu_shared::step()
-{
+void menu_shared::step() {
     switch (menu_shared::fl_state) {
         case FL_UPLOAD:
             tms_texture_upload(&gui_spritesheet::atlas->texture);

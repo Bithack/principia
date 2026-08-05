@@ -1,7 +1,7 @@
 #pragma once
 
 #include "menu-base.hh" // ;-)
-#include "main.hh"
+#include <vector>
 
 class principia_wdg;
 class widget_manager;

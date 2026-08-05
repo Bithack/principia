@@ -1,6 +1,6 @@
 #include "menu_main.hh"
+#include "font.hh"
 #include "game.hh"
-#include "gui.hh"
 #include "menu_create.hh"
 #include "menu_shared.hh"
 #include "misc.hh"
@@ -8,9 +8,7 @@
 #include "ui.hh"
 #include "widget_manager.hh"
 
-bool
-menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
-{
+bool menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid) {
     if (menu_base::widget_clicked(w, button_id, pid)) {
         return true;
     }
@@ -40,12 +38,7 @@ menu_main::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
     return true;
 }
 
-menu_main::menu_main()
-    : menu_base(true)
-{
-    this->wdg_settings->set_tooltip("Settings");
-    this->wdg_settings->add();
-
+menu_main::menu_main() : menu_base(true) {
     this->wdg_update_available = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
             BTN_UPDATE, AREA_TOP_CENTER);
@@ -53,18 +46,22 @@ menu_main::menu_main()
     this->wdg_update_available->priority = 900;
 
     this->wdg_play = this->wm->create_widget(
-            this->get_surface(), TMS_WDG_BUTTON,
-            BTN_PLAY, AREA_MENU_TOP_CENTER,
-            gui_spritesheet::get_sprite(S_MENU_PLAY));
+            this->get_surface(), TMS_WDG_LABEL,
+            BTN_PLAY, AREA_MENU_TOP_CENTER);
+    this->wdg_play->set_label("   Play   ", font::large);
     this->wdg_play->priority = 1000;
+    this->wdg_play->render_background = true;
     this->wdg_play->add();
+    this->wdg_play->label->set_scale(0.9);
 
     this->wdg_create = this->wm->create_widget(
-            this->get_surface(), TMS_WDG_BUTTON,
-            BTN_CREATE, AREA_MENU_TOP_CENTER,
-            gui_spritesheet::get_sprite(S_MENU_CREATE));
+            this->get_surface(), TMS_WDG_LABEL,
+            BTN_CREATE, AREA_MENU_TOP_CENTER);
+    this->wdg_create->set_label(" Create ", font::large);
     this->wdg_create->priority = 900;
+    this->wdg_create->render_background = true;
     this->wdg_create->add();
+    this->wdg_create->label->set_scale(0.9);
 
     this->wdg_browse_community = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
@@ -90,9 +87,7 @@ menu_main::menu_main()
 
 static bool warned_web_version = false;
 
-int
-menu_main::resume()
-{
+int menu_main::resume() {
     menu_base::resume();
     this->refresh_widgets();
 
@@ -106,19 +101,11 @@ menu_main::resume()
     return T_OK;
 }
 
-int
-menu_main::pause(void)
-{
+int menu_main::pause() {
     return T_OK;
 }
 
-int
-menu_main::render(void)
-{
-#ifdef SCREENSHOT_BUILD
-    return T_OK;
-#endif
-
+int menu_main::render() {
     menu_base::render();
 
     glViewport(
@@ -135,9 +122,7 @@ menu_main::render(void)
     return T_OK;
 }
 
-int
-menu_main::handle_input(tms::event *ev, int action)
-{
+int menu_main::handle_input(tms::event *ev, int action) {
     if (ev->type == TMS_EV_POINTER_DOWN) {
         if (!P.focused) {
             P.focused = true;
@@ -207,15 +192,8 @@ menu_main::handle_input(tms::event *ev, int action)
     return T_OK;
 }
 
-int
-menu_main::step(double dt)
-{
+int menu_main::step(double dt) {
     menu_base::step(dt);
-
-#ifdef SCREENSHOT_BUILD
-    SDL_Delay(150);
-    return T_OK;
-#endif
 
     if (this->wdg_message->label && this->wdg_message->label->color.a < 1.2f) {
         float incr = _tms.dt * 1.0f;
@@ -229,12 +207,7 @@ menu_main::step(double dt)
     return T_OK;
 }
 
-void
-menu_main::refresh_widgets()
-{
-#ifdef SCREENSHOT_BUILD
-    this->wm->remove_all();
-#else
+void menu_main::refresh_widgets() {
     menu_base::refresh_widgets();
 
     this->wdg_update_available->remove();
@@ -274,7 +247,6 @@ menu_main::refresh_widgets()
          * text is at its proper location */
         this->wm->rearrange();
     }
-#endif
 
     this->wm->rearrange();
     this->wm->rearrange();

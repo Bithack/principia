@@ -14,10 +14,7 @@ extern struct tms_program *menu_bg_program;
 extern GLuint              menu_bg_color_loc;
 extern GLuint              menu_bg_scale_loc;
 
-bool
-menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
-{
-
+bool menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid) {
     switch (button_id) {
         case BTN_VERSION:
             char msg[1024];
@@ -27,20 +24,18 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             ui::message(msg);
             break;
 
-        case BTN_USERNAME:
-            {
-                if (P.username) {
-                    P.num_unread_messages = 0;
-                    pscreen::refresh_username();
-                    P.add_action(ACTION_REFRESH_WIDGETS, 0);
+        case BTN_USERNAME: {
+            if (P.username) {
+                P.num_unread_messages = 0;
+                pscreen::refresh_username();
+                P.add_action(ACTION_REFRESH_WIDGETS, 0);
 
-                    COMMUNITY_URL("user/%s", P.username);
-                    ui::open_url(url);
-                } else {
-                    ui::open_dialog(DIALOG_LOGIN);
-                }
+                COMMUNITY_URL("user/%s", P.username);
+                ui::open_url(url);
+            } else {
+                ui::open_dialog(DIALOG_LOGIN);
             }
-            break;
+        } break;
 
         case BTN_MESSAGE: {
             COMMUNITY_URL("version-redir");
@@ -55,13 +50,11 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             ui::open_dialog(DIALOG_SETTINGS);
             break;
 
-        case BTN_ENTITY:
-            {
-                uint32_t id = VOID_TO_UINT32(w->data3);
-                COMMUNITY_URL("level/%u", id);
-                ui::open_url(url);
-            }
-            break;
+        case BTN_ENTITY: {
+            uint32_t id = VOID_TO_UINT32(w->data3);
+            COMMUNITY_URL("level/%u", id);
+            ui::open_url(url);
+        } break;
 
         case BTN_IGNORE: break;
         default:
@@ -71,9 +64,7 @@ menu_base::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
     return true;
 }
 
-menu_base::menu_base(bool _include_logo)
-    : include_logo(_include_logo)
-{
+menu_base::menu_base(bool _include_logo) : include_logo(_include_logo) {
     this->highlight = 0.f;
 
     this->refresh_scale();
@@ -114,35 +105,27 @@ menu_base::menu_base(bool _include_logo)
             gui_spritesheet::get_sprite(S_CONFIG), 0,
             0.7f);
     this->wdg_settings->priority = 500;
+    this->wdg_settings->set_tooltip("Settings");
     this->wdg_settings->add();
 }
 
-menu_base::~menu_base()
-{
+menu_base::~menu_base() {
     delete this->wm;
 }
 
-void
-menu_base::refresh_scale()
-{
+void menu_base::refresh_scale() {
     if (_tms.window_width < 1000) {
         this->scale = (float)_tms.window_width / 1000.f;
     } else {
-#ifdef SDL_PLATFORM_ANDROID
-        if (_tms.window_width > 1200) {
-            this->scale = (float)_tms.window_width / 1200.f;
+        if (_tms.window_width > 1280) {
+            this->scale = (float)_tms.window_width / 1280.f;
         } else {
             this->scale = 1.f;
         }
-#else
-        this->scale = 1.f;
-#endif
     }
 }
 
-void
-menu_base::window_size_changed()
-{
+void menu_base::window_size_changed() {
     this->refresh_scale();
 
     if (this->get_surface() && this->get_surface()->ddraw) {
@@ -157,13 +140,7 @@ menu_base::window_size_changed()
     this->refresh_widgets();
 }
 
-int
-menu_base::render()
-{
-#ifdef SCREENSHOT_BUILD
-    return T_OK;
-#endif
-
+int menu_base::render() {
     if (!P.focused)
         SDL_Delay(100);
 
@@ -200,22 +177,22 @@ menu_base::render()
 
     glDisable(GL_BLEND);
 
-    glViewport(
-            0,
-            0,
-            _tms.opengl_width, menu_shared::bar_height);
-    menu_shared::tex_menu_bottom->render();
+    glViewport(0, 0, _tms.opengl_width, _tms.opengl_height);
 
-    glViewport(
-            0,
-            _tms.opengl_height-menu_shared::bar_height,
-            _tms.opengl_width, menu_shared::bar_height);
-    menu_shared::tex_menu_bottom->render();
+    tms_ddraw *dd = this->get_surface()->ddraw;
+    tms_ddraw_set_color(dd, .02f, .02f, .02f, 1.f);
 
-    glViewport(
-            0,
-            0,
-            _tms.opengl_width, _tms.opengl_height);
+    tms_ddraw_square(dd,
+        (int)(_tms.opengl_width / 2),
+        (int)(menu_shared::bar_height / 2),
+        _tms.opengl_width,
+        menu_shared::bar_height);
+
+    tms_ddraw_square(dd,
+        (int)(_tms.opengl_width / 2),
+        _tms.opengl_height - (int)(menu_shared::bar_height / 2),
+        _tms.opengl_width,
+        menu_shared::bar_height);
 
     // yes we call step from within render! ultracool
     menu_shared::step();
@@ -225,17 +202,13 @@ menu_base::render()
     return T_OK;
 }
 
-int
-menu_base::resume()
-{
+int menu_base::resume() {
     this->highlight = 1.f;
 
     return T_OK;
 }
 
-int
-menu_base::step(double dt)
-{
+int menu_base::step(double dt) {
     this->highlight -= dt*4.f;
     if (this->highlight <= 0.f) {
         this->highlight = 0.f;
@@ -244,9 +217,7 @@ menu_base::step(double dt)
     return T_OK;
 }
 
-void
-menu_base::refresh_widgets()
-{
+void menu_base::refresh_widgets() {
     if (!this->wdg_message->surface && menu_shared::text_message && menu_shared::text_message->text) {
         this->wdg_message->add();
 

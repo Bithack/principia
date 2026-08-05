@@ -93,8 +93,6 @@ enum {
     S_BTN_LOCK,
     S_BTN_UNLOCK,
 
-    S_MENU_PLAY,
-    S_MENU_CREATE,
     S_BITHACK,
 
     S_ROUNDED_HELP,

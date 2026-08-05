@@ -14,9 +14,7 @@
 
 #define MENU_PADDING 3.f
 
-bool
-menu_play::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
-{
+bool menu_play::widget_clicked(principia_wdg *w, uint8_t button_id, int pid) {
     if (menu_base::widget_clicked(w, button_id, pid)) {
         return true;
     }
@@ -49,9 +47,7 @@ menu_play::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
     return true;
 }
 
-menu_play::menu_play()
-    : menu_base(false)
-{
+menu_play::menu_play() : menu_base(false) {
     this->wdg_back = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             BTN_BACK, AREA_MENU_TOP_LEFT,
@@ -102,9 +98,7 @@ menu_play::menu_play()
     this->refresh_widgets();
 }
 
-int
-menu_play::resume()
-{
+int menu_play::resume() {
     menu_base::resume();
 
     this->refresh_widgets();
@@ -112,15 +106,11 @@ menu_play::resume()
     return T_OK;
 }
 
-int
-menu_play::pause(void)
-{
+int menu_play::pause() {
     return T_OK;
 }
 
-int
-menu_play::handle_input(tms::event *ev, int action)
-{
+int menu_play::handle_input(tms::event *ev, int action) {
     if (ev->type == TMS_EV_POINTER_DOWN) {
         if (!P.focused) {
             P.focused = true;
@@ -170,9 +160,7 @@ menu_play::handle_input(tms::event *ev, int action)
     return T_OK;
 }
 
-int
-menu_play::step(double dt)
-{
+int menu_play::step(double dt) {
     menu_base::step(dt);
 
     if (this->wdg_message->label && this->wdg_message->label->color.a < 1.2f) {
@@ -187,13 +175,7 @@ menu_play::step(double dt)
     return T_OK;
 }
 
-int
-menu_play::render()
-{
-#ifdef SCREENSHOT_BUILD
-    return T_OK;
-#endif
-
+int menu_play::render() {
     menu_base::render();
 
     glViewport(
@@ -204,9 +186,7 @@ menu_play::render()
     return T_OK;
 }
 
-void
-menu_play::refresh_widgets()
-{
+void menu_play::refresh_widgets() {
     this->wm->remove_all();
 
     menu_base::refresh_widgets();

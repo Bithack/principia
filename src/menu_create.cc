@@ -1,9 +1,6 @@
 #include "menu_create.hh"
 #include "menu_shared.hh"
-#include "menu_pkg.hh"
 #include "main.hh"
-#include "misc.hh"
-#include "settings.hh"
 #include "ui.hh"
 #include "game.hh"
 #include "widget_manager.hh"
@@ -16,9 +13,7 @@
 
 #define MENU_PADDING 3.f
 
-bool
-menu_create::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
-{
+bool menu_create::widget_clicked(principia_wdg *w, uint8_t button_id, int pid) {
     if (menu_base::widget_clicked(w, button_id, pid)) {
         return true;
     }
@@ -77,10 +72,7 @@ menu_create::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
     return true;
 }
 
-menu_create::menu_create()
-    : menu_base(false)
-    , has_autosave(false)
-{
+menu_create::menu_create() : menu_base(false), has_autosave(false) {
     this->wdg_back = this->wm->create_widget(
             this->get_surface(), TMS_WDG_BUTTON,
             BTN_BACK, AREA_MENU_TOP_LEFT,
@@ -199,9 +191,7 @@ menu_create::menu_create()
     this->refresh_widgets();
 }
 
-int
-menu_create::resume()
-{
+int menu_create::resume() {
     menu_base::resume();
 
     this->has_autosave = G->autosave_exists();
@@ -211,15 +201,11 @@ menu_create::resume()
     return T_OK;
 }
 
-int
-menu_create::pause(void)
-{
+int menu_create::pause() {
     return T_OK;
 }
 
-int
-menu_create::handle_input(tms::event *ev, int action)
-{
+int menu_create::handle_input(tms::event *ev, int action) {
     if (ev->type == TMS_EV_POINTER_DOWN) {
         if (!P.focused) {
             P.focused = true;
@@ -266,9 +252,7 @@ menu_create::handle_input(tms::event *ev, int action)
     return T_OK;
 }
 
-int
-menu_create::step(double dt)
-{
+int menu_create::step(double dt) {
     menu_base::step(dt);
 
     if (this->wdg_message->label && this->wdg_message->label->color.a < 1.2f) {
@@ -283,13 +267,7 @@ menu_create::step(double dt)
     return T_OK;
 }
 
-int
-menu_create::render()
-{
-#ifdef SCREENSHOT_BUILD
-    return T_OK;
-#endif
-
+int menu_create::render() {
     menu_base::render();
 
     const int MARGIN_X = this->wm->get_margin_x();
@@ -324,14 +302,11 @@ menu_create::render()
             0,
             0,
             _tms.opengl_width, _tms.opengl_height);
-    //tms_texture_render(&gui_spritesheet::atlas->texture);
 
     return T_OK;
 }
 
-void
-menu_create::refresh_widgets()
-{
+void menu_create::refresh_widgets() {
     this->wm->remove_all();
 
     menu_base::refresh_widgets();

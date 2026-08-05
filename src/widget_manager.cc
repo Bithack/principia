@@ -703,11 +703,11 @@ widget_manager::init_areas()
 
     this->areas[AREA_MENU_TOP_CENTER].base_x = _tms.window_width/2.f;
     this->areas[AREA_MENU_TOP_CENTER].base_y = _tms.window_height - menu_shared::bar_height;
-    this->areas[AREA_MENU_TOP_CENTER].imodx  =  1.0f;
+    this->areas[AREA_MENU_TOP_CENTER].imodx  =  1.5f;
     this->areas[AREA_MENU_TOP_CENTER].imody  = -1.0f;
-    this->areas[AREA_MENU_TOP_CENTER].modx   =  1.0f;
+    this->areas[AREA_MENU_TOP_CENTER].modx   =  1.5f;
     this->areas[AREA_MENU_TOP_CENTER].mody   =  0.0f;
-    this->areas[AREA_MENU_TOP_CENTER].tmodx  = -0.5f;
+    this->areas[AREA_MENU_TOP_CENTER].tmodx  = -1.5f;
     this->areas[AREA_MENU_TOP_CENTER].tmody  = -1.0f;
     this->areas[AREA_MENU_TOP_CENTER].horizontal_align = ALIGN_CENTER;
     this->areas[AREA_MENU_TOP_CENTER].last_height = 0.f;
@@ -837,12 +837,12 @@ widget_manager::refresh_areas()
     } else if (this->get_home() == P.s_menu_main) {
         this->areas[AREA_MENU_TOP_CENTER].base_y =
               _tms.window_height
-            - (.75f*menu_shared::tex_principia->height*P.s_menu_main->scale)
+            - (.85f*menu_shared::tex_principia->height*P.s_menu_main->scale)
             - menu_shared::bar_height;
 
         this->areas[AREA_MENU_LEVELS].base_y = this->areas[AREA_MENU_TOP_CENTER].base_y - this->areas[AREA_MENU_TOP_CENTER].last_height;
         if (_tms.window_height > 500)
-            this->areas[AREA_MENU_LEVELS].base_y -= font::medium->get_height()*1.3f;
+            this->areas[AREA_MENU_LEVELS].base_y -= font::medium->get_height()*1.5f;
 
         this->areas[AREA_MENU_SUB_LEVELS].base_y =
             this->areas[AREA_MENU_LEVELS].bot.y;
