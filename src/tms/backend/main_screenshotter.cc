@@ -30,8 +30,6 @@
 
 FILE *_f_out = stdout;
 
-SDL_Window *_window;
-
 int keys[235];
 int mouse_down;
 static char *_storage_path = 0;
@@ -150,27 +148,20 @@ main(int argc, char **argv)
     _tms.xppcm = 108.f/2.54f * 1.5f;
     _tms.yppcm = 107.f/2.54f * 1.5f;
 
-    uint32_t flags = 0;
-
-    flags |= SDL_WINDOW_OPENGL;
-    flags |= 0;
+    uint32_t flags = SDL_WINDOW_OPENGL;
 
     tms_infof("Creating window...");
-    _window = SDL_CreateWindow("Principia Screenshotter", _tms.window_width, _tms.window_height, flags);
+    _tms._window = SDL_CreateWindow("Principia Screenshotter", _tms.window_width, _tms.window_height, flags);
 
-    if (_window == NULL) {
+    if (_tms._window == NULL) {
         tms_infof("ERROR: %s", SDL_GetError());
         exit(1);
     }
 
-    _tms._window = _window;
-
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-    SDL_GL_CreateContext(_window);
+    SDL_GL_CreateContext(_tms._window);
 
     int version = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
     tms_infof("Loaded GL version %d.%d", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
@@ -359,10 +350,8 @@ main(int argc, char **argv)
             step = STEP_SNAP;
         }
 
-        SDL_GL_SwapWindow(_window);
+        SDL_GL_SwapWindow(_tms._window);
         tms_end_frame();
-
-        SDL_Delay(1);
 
     } while (_tms.state != TMS_STATE_QUITTING);
 
