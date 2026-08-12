@@ -61,6 +61,7 @@
 #include "soundman.hh"
 #include "soundmanager.hh"
 #include "spritebuffer.hh"
+#include "sticky.hh"
 #include "terrain.hh" /* for print_screen_point_info */
 #include "text.hh"
 #include "textbuffer.hh"
@@ -4858,6 +4859,8 @@ void game::reset() {
 
     G->caveview_size = 0.f;
     G->caveview_zoom = 0.f;
+
+    sticky::_clear_texture();
 }
 
 void game::load_state() {

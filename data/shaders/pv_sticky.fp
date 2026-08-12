@@ -22,7 +22,7 @@ void main(void)
     vec3 n = FS_normal;
     vec3 e = FS_eye;
     vec3 R = normalize(reflect(LIGHT, n));
-    float specular = pow(clamp(dot(R, e), .0, 1.), 6.);
+    float specular = pow(clamp(dot(R, e), .0, 1.), 9.);
 
     gl_FragColor = FS_diffuse_texcoord.x*specular*.5 + shadow * col * FS_diffuse_texcoord.x + col * ambient;
 }

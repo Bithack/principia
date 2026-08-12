@@ -2,7 +2,7 @@
 
 #include "entity.hh"
 
-#define STICKY_MAX_LINES 4
+#define STICKY_MAX_LINES 8
 #define STICKY_MAX_PER_LINE 32
 
 class sticky : public entity
@@ -25,6 +25,8 @@ class sticky : public entity
     static bool initialized;
     static void _init();
     static void _deinit();
+
+    static void _clear_texture();
 
     sticky();
     ~sticky();

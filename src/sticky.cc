@@ -12,7 +12,7 @@
 
 #define NUM_SLOTS 33
 
-#define NOTE_FONT "data/fonts/easyspeech.ttf"
+#define NOTE_FONT "data/fonts/GloriaHallelujah-Regular.ttf"
 #define NUM_SIZES 4
 
 #define PIXELSZ 1
@@ -23,7 +23,7 @@
 #define WIDTH 256
 #define HEIGHT 256
 
-#define FONT_SCALING_FACTOR 2.
+#define FONT_SCALING_FACTOR 1.5
 
 //computed
 #define UV_X ((double) WIDTH / (double) TEX_WIDTH)
@@ -65,15 +65,6 @@ static int utf8_to_latin1(const char *src, char *dst, int dst_sz) {
 static void note_font_measure(p_font *f, const char *text, int *out_w, int *out_h) {
     size_t len = strlen(text);
     char *buf = (char*)malloc(len + 1);
-
-    if (!buf) {
-        if (out_w)
-            *out_w = 0;
-        if (out_h)
-            *out_h = f->height;
-
-        return;
-    }
 
     utf8_to_latin1(text, buf, (int)len + 1);
 
@@ -190,6 +181,11 @@ void sticky::_deinit(void) {
             note_font[x] = nullptr;
         }
     }
+}
+
+void sticky::_clear_texture() {
+    tms_texture_clear_buffer(&sticky::texture, 0);
+    tms_texture_upload(&sticky::texture);
 }
 
 sticky::sticky() {
@@ -355,7 +351,7 @@ void sticky::draw_text(const char *txt) {
 
     unsigned char *buf = tms_texture_get_buffer(&sticky::texture);
 
-    int line_skip = note_font[this->properties[3].v.i8]->lineskip;
+    int line_skip = note_font[this->properties[3].v.i8]->lineskip *0.7f;
 
     for (size_t text_line = 0; text_line < this->currline; text_line++) {
         /* Skip any lines that do not contain any content */
@@ -372,7 +368,14 @@ void sticky::draw_text(const char *txt) {
         }
 
         //Alignment/centering
-        int align_y = this->properties[2].v.i8 ? ((HEIGHT + this->currline * line_skip) / 2.) : HEIGHT-1;
+        int align_y = HEIGHT - 1;
+        if (this->properties[2].v.i8) {
+            int block_height = note_font[this->properties[3].v.i8]->height +
+                (this->currline - 1) * line_skip;
+
+            align_y = (HEIGHT + block_height) / 2;
+        }
+
         int align_x = this->properties[1].v.i8 ? ((WIDTH - srf->w) / 2.) : 0;
 
         for (int y = 0; y < srf->h; y++) {
@@ -396,6 +399,9 @@ void sticky::draw_text(const char *txt) {
 
                     //Source
                     int data_offset = (y * srf->pitch) + x;
+
+                    // If pixel is transparent, skip it
+                    if (((unsigned char*) srf->pixels)[data_offset] == 0) continue;
 
                     //Source -> Destination
                     unsigned char data = ((unsigned char*) srf->pixels)[data_offset];
