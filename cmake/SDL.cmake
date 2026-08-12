@@ -8,12 +8,12 @@ if(NINTENDO_SWITCH)
 		"SKIP"
 	)
 else()
-	set(DEP_SDL_VER "3.4.12")
+	set(DEP_SDL_VER "3.4.14")
 	download_dep_tarball(
 		"SDL"
 		"${DEP_SDL_VER}"
 		"https://github.com/libsdl-org/SDL/releases/download/release-${DEP_SDL_VER}/SDL3-${DEP_SDL_VER}.tar.gz"
-		"f07b958a9ac5020fb7a44cadb957f658b2149c3c8abb4f63145fac9303249db7"
+		"30d4aa2b3037718142b32dffd4e72f917ebb6cc5227150e7bb9c45efb2153aeb"
 	)
 endif()
 
