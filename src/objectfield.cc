@@ -1,4 +1,5 @@
 #include "objectfield.hh"
+#include "creature.hh"
 #include "material.hh"
 #include "model.hh"
 #include "game.hh"

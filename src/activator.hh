@@ -1,29 +1,33 @@
 #pragma once
 
-#include "creature.hh"
 #include <Box2D/Box2D.h>
+#include <cstdint>
 #include <map>
-#include <tms/cpp.hh>
 
 class entity;
 class creature;
 
 enum attachment_type {
-    /* No attachment between the activator and the activatee is made. */
+    /// No attachment between the activator and the activatee is made.
     ATTACHMENT_NONE,
 
-    /* A joint is created between the activator and the activatee */
+    /// A joint is created between the activator and the activatee
     ATTACHMENT_JOINT,
 
-    /* No joint is created, but the activate is commanded to stand still
-     * using the FIXED-flag. */
+    /// No joint is created, but the activate is commanded to stand still
+    /// using the FIXED-flag.
     ATTACHMENT_FIXED,
 };
 
 #define ACTIVATOR_REQUIRE_RIDING_CIRCUIT (1ULL << 0)
 
-class activator
-{
+/**
+ * Activators are points that the adventure robot can interact with.
+ * They can either cause the robot to be attached (e.g. panels and backpacks)
+ * or just used to activate something (e.g. treasure chests), see the
+ * attachment_type enum for more information.
+ */
+class activator {
   protected:
     std::map<creature*, int> visitors;
 
