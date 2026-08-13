@@ -1,13 +1,11 @@
 #include "absorber.hh"
+#include "adventure.hh"
+#include "game.hh"
 #include "material.hh"
 #include "model.hh"
-#include "game.hh"
-#include "adventure.hh"
-
 #include "object_factory.hh"
 
-absorber::absorber(int size)
-{
+absorber::absorber(int size) {
     this->set_flag(ENTITY_DO_STEP, true);
     this->set_flag(ENTITY_HAS_TRACKER, true);
 
@@ -18,11 +16,10 @@ absorber::absorber(int size)
 
     if (this->size == 0) {
         this->absorber_w = .375f;
-        if (W->level.version >= LEVEL_VERSION_1_5) {
+        if (W->level.version >= LEVEL_VERSION_1_5)
             this->absorber_h = .375f;
-        } else {
+        else
             this->absorber_h = .475f;
-        }
 
         const float qw = this->absorber_w/2.f+0.15f;
         const float qh = this->absorber_h/2.f+0.55f;
@@ -88,9 +85,7 @@ absorber::absorber(int size)
     }
 }
 
-void
-absorber::add_to_world()
-{
+void absorber::add_to_world() {
     b2BodyDef bd;
     bd.type = (this->size == 0 ? this->get_dynamic_type() : b2_staticBody);
     bd.position = _pos;
@@ -167,32 +162,25 @@ absorber::add_to_world()
     }
 }
 
-void
-absorber::setup()
-{
+void absorber::setup() {
     this->state = 0;
     this->time = absorb_interval;
     this->do_accumulate = false;
     this->absorbed = false;
 }
 
-void
-absorber::init()
-{
+void absorber::init() {
     this->absorb_interval = (uint64_t)(roundf(((double)this->properties[0].v.f)*1000000.));
     this->pending_fixtures.clear();
 }
 
-void
-absorber::step()
-{
+void absorber::step() {
     int g_id = this->properties[1].v.i;
 
     this->time += G->timemul(WORLD_STEP);
 
-    if (!this->do_accumulate && this->time >= this->absorb_interval) {
+    if (!this->do_accumulate && this->time >= this->absorb_interval)
         this->time = this->absorb_interval;
-    }
 
     switch (this->state) {
         case 0:
@@ -233,49 +221,37 @@ absorber::step()
     }
 }
 
-void
-absorber::on_touch(b2Fixture *my, b2Fixture *other)
-{
+void absorber::on_touch(b2Fixture *my, b2Fixture *other) {
     entity *e = (entity*)other->GetUserData();
     if (!other->IsSensor() && e && this->can_handle(e) && e != adventure::player) {
         this->pending_fixtures.push_back(other);
     }
 }
 
-void
-absorber::on_untouch(b2Fixture *my, b2Fixture *other)
-{
+void absorber::on_untouch(b2Fixture *my, b2Fixture *other) {
     entity *e = (entity*)other->GetUserData();
     if (!other->IsSensor() && e && this->can_handle(e) && e != adventure::player) {
         this->pending_fixtures.remove(other);
     }
 }
 
-float
-absorber::get_slider_snap(int s)
-{
+float absorber::get_slider_snap(int s) {
     return 1.f / 19.f;
 }
 
-float
-absorber::get_slider_value(int s)
-{
+float absorber::get_slider_value(int s) {
     float v = (((float)this->properties[0].v.i) / 100.f) - 1.f;
 
     return v / 19.f;
 }
 
-void
-absorber::on_slider_change(int s, float value)
-{
+void absorber::on_slider_change(int s, float value) {
     uint32_t ai = (uint32_t)((1.f + (value * 19.f)) * 100.f);
     this->set_property(0, ai);
     G->show_numfeed((float)ai / 1000.f);
 }
 
-edevice*
-absorber::solve_electronics()
-{
+edevice *absorber::solve_electronics() {
     if (!this->s_out[0].written()) {
         this->s_out[0].write(this->absorbed ? 1.f : 0.f);
         this->absorbed = false;
@@ -305,9 +281,7 @@ absorber::solve_electronics()
     return 0;
 }
 
-void
-absorber::update_effects()
-{
+void absorber::update_effects() {
     b2Vec2 p = this->get_position();
     tmat4_load_identity(field->M);
     tmat4_translate(field->M, p.x, p.y, this->get_layer());
@@ -328,9 +302,7 @@ absorber::update_effects()
     }
 }
 
-bool
-absorber::can_handle(entity *e)
-{
+bool absorber::can_handle(entity *e) {
     if (this->size == 0) { /* mini absorber */
         switch (e->g_id) {
             case O_BALL:
@@ -386,16 +358,13 @@ absorber::can_handle(entity *e)
     return false;
 }
 
-autoabsorber::autoabsorber()
-{
+autoabsorber::autoabsorber() {
     this->set_num_properties(1);
     this->properties[0].type = P_INT8;
     this->properties[0].v.i8 = 1;
 }
 
-edevice*
-autoabsorber::solve_electronics()
-{
+edevice *autoabsorber::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 
@@ -409,9 +378,7 @@ autoabsorber::solve_electronics()
     return 0;
 }
 
-edevice*
-autoprotector::solve_electronics()
-{
+edevice *autoprotector::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 

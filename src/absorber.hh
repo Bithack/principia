@@ -5,10 +5,17 @@
 
 #include <list>
 
-class absorber : public edev_multiconnect
-{
+/**
+ * Class representing the Absorber and Mini absorber objects.
+ *
+ * Player Wiki ref:
+ * - https://principia-web.se/wiki/Absorber
+ * - https://principia-web.se/wiki/Mini_absorber
+ */
+class absorber : public edev_multiconnect {
   private:
-    int size; /* 0 = mini, 1 = big */
+    /// 0 = mini absorber, 1 = absorber
+    int size;
     std::list<b2Fixture*> pending_fixtures;
 
     /* State-variables */
@@ -27,8 +34,14 @@ class absorber : public edev_multiconnect
     float field_life;
 
   public:
+    /// 0 = mini absorber, 1 = absorber
     absorber(int size);
-    const char *get_name(){if (this->size == 0)return "Mini absorber"; else return "Absorber";};
+    const char *get_name() {
+        if (this->size == 0)
+            return "Mini Absorber";
+        else
+            return "Absorber";
+    }
 
     void add_to_world();
 
@@ -42,15 +55,16 @@ class absorber : public edev_multiconnect
     float get_slider_snap(int s);
     float get_slider_value(int s);
     void on_slider_change(int s, float value);
-    const char *get_slider_label(int s){return "Absorb Interval";};
+    const char *get_slider_label(int s) {
+        return "Absorb Interval";
+    }
 
     edevice* solve_electronics();
 
     bool can_handle(entity *e);
     void update_effects();
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::write_state(lvl, lb);
 
         lb->w_s_uint8(this->absorbed ? 1 : 0);
@@ -59,8 +73,7 @@ class absorber : public edev_multiconnect
         lb->w_s_uint64(this->time);
     }
 
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::read_state(lvl, lb);
 
         this->absorbed = (lb->r_uint8() != 0);
@@ -70,17 +83,29 @@ class absorber : public edev_multiconnect
     }
 };
 
-class autoabsorber : public i1o0gate
-{
+/**
+ * Class representing the Auto Absorber object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Auto_Absorber
+ */
+class autoabsorber : public i1o0gate {
   public:
     autoabsorber();
-    const char *get_name(){return "Auto Absorber";};
+    const char *get_name() {
+        return "Auto Absorber";
+    }
     edevice* solve_electronics();
 };
 
-class autoprotector : public i1o0gate
-{
+/**
+ * Class representing the Auto Protector object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Auto_Protector
+ */
+class autoprotector : public i1o0gate {
   public:
-    const char *get_name(){return "Auto Protector";};
+    const char *get_name() {
+        return "Auto Protector";
+    }
     edevice* solve_electronics();
 };
