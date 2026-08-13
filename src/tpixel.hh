@@ -45,7 +45,6 @@ struct tpixel_desc : public ud2_info {
     float hp;
     uint8_t grass;
 
-
     struct tpixel_desc_1_5_1 {
         uint8_t half; /* 0 = full pixel, 1..4 = corner */
     } desc_1_5_1;
@@ -84,7 +83,6 @@ struct tpixel_desc : public ud2_info {
 #ifndef _NO_TMS
 
 #include "basepixel.hh"
-#include "resource.hh"
 
 #define TPIXEL_DYN_BUF 3
 
@@ -95,8 +93,12 @@ extern struct tpixel_material {
     float drops[NUM_RESOURCES];
 } tpixel_materials[NUM_TPIXEL_MATERIALS];
 
-class tpixel : public basepixel
-{
+/**
+ * Class representing the Textured Pixel object (Block).
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Block
+ */
+class tpixel : public basepixel {
   private:
     struct tms_entity ore;
 
@@ -108,19 +110,17 @@ class tpixel : public basepixel
 
     tpixel();
 
-
     static void initialize();
     static struct tms_entity *get_entity(int x);
     static void reset_counter();
     static void upload_buffers();
 
-    const char *get_name(void)
-    {
-        if (this->body) {
+    const char *get_name() {
+        if (this->body)
             return tpixel_materials[this->properties[1].v.i8].name;
-        }
-        return "Block";
-    };
+        else
+            return "Block";
+    }
 
     void prepare_fadeout();
     void update();
@@ -137,7 +137,12 @@ class tpixel : public basepixel
 
     float get_slider_snap(int s);
     float get_slider_value(int s);
-    const char *get_slider_label(int s){if (s==0)return basepixel::get_slider_label(s);else return "Material";};
+    const char *get_slider_label(int s) {
+        if (s == 0)
+            return basepixel::get_slider_label(s);
+        else
+            return "Material";
+    }
     void on_slider_change(int s, float value);
 
   private:

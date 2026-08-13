@@ -1,5 +1,4 @@
 #include "basepixel.hh"
-#include "object_factory.hh"
 
 #define USE_NEW_SEARCH
 #define PIXEL_GRID .5f
@@ -11,8 +10,7 @@ basepixel *basepixel::found[PIXEL_GRID_MAX*PIXEL_GRID_MAX];
 int basepixel::search_width = 0;
 bool basepixel::disable_search = false;
 
-basepixel::basepixel()
-{
+basepixel::basepixel() {
     this->set_flag(ENTITY_IS_STATIC, true);
     this->got_pos = false;
 
@@ -22,28 +20,20 @@ basepixel::basepixel()
     this->num_sliders = 1;
 }
 
-void
-basepixel::setup()
-{
+void basepixel::setup() {
     this->update_appearance();
 }
 
-void
-basepixel::on_pause()
-{
+void basepixel::on_pause() {
     this->update_appearance();
 }
 
-void
-basepixel::on_load(bool created, bool has_state)
-{
+void basepixel::on_load(bool created, bool has_state) {
     this->on_slider_change(-1, (float)this->properties[0].v.i8 / 3.f);
     this->update_appearance();
 }
 
-void
-basepixel::update_fixture()
-{
+void basepixel::update_fixture() {
     if (this->body) {
         b2PolygonShape *shape = static_cast<b2PolygonShape*>(this->fx->GetShape());
         float sz = this->get_size() * 1.001f;
@@ -51,29 +41,21 @@ basepixel::update_fixture()
     }
 }
 
-float
-basepixel::get_slider_value(int s)
-{
+float basepixel::get_slider_value(int s) {
     return (float)this->properties[0].v.i8 / 3.f;
 }
 
-float
-basepixel::get_slider_snap(int s)
-{
+float basepixel::get_slider_snap(int s) {
     return 1.f/3.f;
 }
 
-void
-basepixel::construct()
-{
+void basepixel::construct() {
     this->set_position(this->get_position().x, this->get_position().y, 0);
     this->update_fixture();
     this->update_appearance();
 }
 
-bool
-basepixel::ReportFixture(b2Fixture *f)
-{
+bool basepixel::ReportFixture(b2Fixture *f) {
     entity *e = static_cast<entity*>(f->GetUserData());
 
     if (e && (e->g_id == O_PIXEL || e->g_id == O_TPIXEL) && e != this && e->get_layer() == this->get_layer()) {
@@ -161,9 +143,7 @@ basepixel::ReportFixture(b2Fixture *f)
     return true;
 }
 
-bool
-basepixel::search(float start_x, float start_y, int search_width, float *rx, float *ry)
-{
+bool basepixel::search(float start_x, float start_y, int search_width, float *rx, float *ry) {
     if (basepixel::disable_search)
         return true;
 
@@ -261,9 +241,7 @@ done:
     return success;
 }
 
-void
-basepixel::gather_connected_pixels(std::set<entity*> *entities, int depth/*=-1*/)
-{
+void basepixel::gather_connected_pixels(std::set<entity*> *entities, int depth/*=-1*/) {
     tms_debugf("UNIMPLEMENTED FUNCTION");
     /*
     float ox, oy;
@@ -282,9 +260,7 @@ basepixel::gather_connected_pixels(std::set<entity*> *entities, int depth/*=-1*/
     */
 }
 
-void
-basepixel::set_position(float x, float y, uint8_t fr)
-{
+void basepixel::set_position(float x, float y, uint8_t fr) {
     float gox = fmod(this->width, PIXEL_GRID);
     float goy = fmod(this->height, PIXEL_GRID);
 
@@ -295,8 +271,6 @@ basepixel::set_position(float x, float y, uint8_t fr)
         float rx=0.f, ry=0.f;
 
         this->got_pos = this->search(x, y, basepixel::radius, &rx, &ry);
-        //free(this->found);
-        //this->found = 0;
 
         x = rx;
         y = ry;
@@ -307,12 +281,9 @@ basepixel::set_position(float x, float y, uint8_t fr)
         entity::set_position(x,y,fr);
 }
 
-void
-basepixel::on_slider_change(int s, float value)
-{
+void basepixel::on_slider_change(int s, float value) {
     uint32_t size = (uint32_t)roundf(value*3.f);
     this->set_property(0, size);
-    //this->set_mesh(mesh_factory::box[size]);
 
     if (s != -1) {
         this->disconnect_all();
@@ -320,9 +291,7 @@ basepixel::on_slider_change(int s, float value)
     }
 }
 
-void
-basepixel::recreate_shape(bool skip_search, bool dynamic)
-{
+void basepixel::recreate_shape(bool skip_search, bool dynamic) {
     if (this->body && this->fx) {
         this->body->DestroyFixture(this->fx);
         this->fx = 0;
@@ -331,14 +300,10 @@ basepixel::recreate_shape(bool skip_search, bool dynamic)
     float s = this->get_size() * 1.001f;
     this->create_rect(dynamic?b2_dynamicBody : b2_staticBody, s,s, this->material);
 
-    if (!skip_search) {
+    if (!skip_search)
         this->set_position(this->get_position().x, this->get_position().y, 0);
-    }
 }
 
-void
-basepixel::add_to_world()
-{
+void basepixel::add_to_world() {
     this->recreate_shape(true);
 }
-

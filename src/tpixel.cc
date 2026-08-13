@@ -200,9 +200,7 @@ float tpixel::_cam_x = 0.f, tpixel::_cam_y = 0.f;
 
 #define MAX_TPIXELS 8192*2
 
-void
-tpixel::initialize()
-{
+void tpixel::initialize() {
     if (initialized)
         return;
 
@@ -252,9 +250,7 @@ tpixel::initialize()
     initialized = true;
 }
 
-void
-tpixel::reset_counter()
-{
+void tpixel::reset_counter() {
     _modified = true;
 
     for (int x=0; x<3; x++) {
@@ -266,15 +262,11 @@ tpixel::reset_counter()
     /* TODO relative to camera */
 }
 
-struct tms_entity*
-tpixel::get_entity(int x)
-{
+struct tms_entity *tpixel::get_entity(int x) {
     return _e[x];
 }
 
-void
-tpixel::upload_buffers(void)
-{
+void tpixel::upload_buffers() {
     if (!_modified) return;
 
     _modified = false;
@@ -292,8 +284,7 @@ tpixel::upload_buffers(void)
     }
 }
 
-tpixel::tpixel()
-{
+tpixel::tpixel() {
     if (!initialized)
         initialize();
 
@@ -319,18 +310,14 @@ tpixel::tpixel()
     this->update_appearance();
 }
 
-void
-tpixel::on_load(bool created, bool has_state)
-{
+void tpixel::on_load(bool created, bool has_state) {
     basepixel::on_load(created, has_state);
     this->desc.reset();
     this->desc.size = this->properties[0].v.i8;
     this->set_block_type(this->properties[1].v.i8);
 }
 
-void
-tpixel::prepare_fadeout()
-{
+void tpixel::prepare_fadeout() {
     this->optimized_render = false;
     if (this->mesh == 0) {
         this->set_mesh(mesh_factory::get_mesh(MODEL_BOX_TEX));
@@ -339,10 +326,7 @@ tpixel::prepare_fadeout()
     this->M[14]+=.01f;
 }
 
-void
-tpixel::setup()
-{
-    //this->interactive_hp = this->properties[0].v.i8;
+void tpixel::setup() {
     this->interactive_hp = 1.f;
     this->oil = 100.f * (1.f+this->properties[1].v.i8*3) * (1.f+this->properties[0].v.i8*3);
     this->desc.reset();
@@ -357,41 +341,31 @@ tpixel::setup()
     basepixel::setup();
 }
 
-float
-tpixel::get_slider_value(int s)
-{
-    if (s == 0) {
+float tpixel::get_slider_value(int s) {
+    if (s == 0)
         return basepixel::get_slider_value(s);
-    } else {
+    else
         return ((float)this->properties[1].v.i8) / (NUM_TPIXEL_MATERIALS-1);
-    }
 }
 
-float
-tpixel::get_slider_snap(int s)
-{
-    if (s == 0) {
+float tpixel::get_slider_snap(int s) {
+    if (s == 0)
         return basepixel::get_slider_snap(s);
-    } else {
+    else
         return 1.f/(NUM_TPIXEL_MATERIALS-1);
-    }
 }
 
-void
-tpixel::set_block_type(int mat)
-{
+void tpixel::set_block_type(int mat) {
     mat = std::min(NUM_TPIXEL_MATERIALS-1, mat);
 
     this->properties[1].v.i8 = mat;
 
     this->desc.material = mat;
 
-    if (this->ore.parent) {
+    if (this->ore.parent)
         tms_entity_remove_child(this, &this->ore);
-    }
-    if (this->ore.scene) {
+    if (this->ore.scene)
         tms_scene_remove_entity(this->scene, &this->ore);
-    }
 
     tms_entity_set_mesh(&this->ore, mesh_factory::get_mesh((this->properties[2].v.i8 %2) == 0 ?MODEL_ORE:MODEL_ORE2));
 
@@ -405,18 +379,14 @@ tpixel::set_block_type(int mat)
         this->set_material(tpixel_materials[mat].material);
         this->set_uniform("~color", TVEC4_INLINE(tpixel_materials[mat].color));
 
-        if (!this->ore.parent) {
+        if (!this->ore.parent)
             tms_entity_add_child(this, &this->ore);
-        }
-        if (!this->ore.scene && this->scene) {
+        if (!this->ore.scene && this->scene)
             tms_scene_add_entity(this->scene, &this->ore);
-        }
     }
 }
 
-void
-tpixel::on_slider_change(int s, float value)
-{
+void tpixel::on_slider_change(int s, float value) {
     if (s == 0 || s == -1) {
         basepixel::on_slider_change(s, value);
     } else {
@@ -430,20 +400,14 @@ tpixel::on_slider_change(int s, float value)
     }
 }
 
-void
-tpixel::construct()
-{
+void tpixel::construct() {
     /* make sure the texture variation is not copied */
     this->properties[2].v.i8 = 1+rand()%254;
 
     basepixel::construct();
 }
 
-void
-tpixel::update()
-{
-    //if (this->body) {
-
+void tpixel::update() {
     if (this->optimized_render && this->body) {
         b2Vec2 p = this->get_position();
         float a = this->get_angle();
@@ -530,24 +494,11 @@ tpixel::update()
         //tmat4_scale(this->M, .8f, .8f,1.f);
         tmat4_scale(this->M, as, as, as);
     }
-        /*
-    } else {
-        tmat4_load_identity(this->M);
-        tmat4_translate(this->M, this->_pos.x, this->_pos.y, 0);
-        tmat4_rotate(this->M, this->_angle * (180.f/M_PI), 0, 0, -1);
-        tmat3_copy_mat4_sub3x3(this->N, this->M);
-    }
-*/
 }
 
-void
-tpixel::update_appearance()
-{
-}
+void tpixel::update_appearance() { }
 
-void
-tpixel::recreate_shape(bool skip_search, bool dynamic)
-{
+void tpixel::recreate_shape(bool skip_search, bool dynamic) {
     if (this->body && this->fx) {
         this->body->DestroyFixture(this->fx);
         this->fx = 0;
@@ -580,12 +531,8 @@ tpixel::recreate_shape(bool skip_search, bool dynamic)
     }
 }
 
-void
-tpixel::drop_loot(int num/*=1*/)
-{
+void tpixel::drop_loot(int num/*=1*/) {
     b2Vec2 pos = this->get_position();
-
-    tms_debugf("jkljkljkl %d", num);
 
     for (int x=0; x<num; ++x) {
         for (int n=0; n<NUM_RESOURCES; ++n) {

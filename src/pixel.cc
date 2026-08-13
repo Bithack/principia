@@ -27,9 +27,7 @@ float pixel::_cam_x = 0.f, pixel::_cam_y = 0.f;
 
 #define MAX_PIXELS 8192*2
 
-void
-pixel::initialize()
-{
+void pixel::initialize() {
     if (initialized)
         return;
 
@@ -79,16 +77,12 @@ pixel::initialize()
     initialized = true;
 }
 
-void
-pixel::remove_from_world()
-{
+void pixel::remove_from_world() {
     basepixel::remove_from_world();
     W->remove_receiver(this->properties[4].v.i, this);
 }
 
-void
-pixel::reset_counter()
-{
+void pixel::reset_counter() {
     _modified = true;
 
     for (int x=0; x<3; x++) {
@@ -100,35 +94,28 @@ pixel::reset_counter()
     /* TODO relative to camera */
 }
 
-struct tms_entity*
-pixel::get_entity(int x)
-{
+struct tms_entity *pixel::get_entity(int x) {
     return _e[x];
 }
 
-void
-pixel::upload_buffers(void)
-{
+void pixel::upload_buffers() {
     if (!_modified) return;
 
     _modified = false;
 
     for (int x=0; x<3; x++) {
         int count = _counter[x];
-        if (count > (MAX_PIXELS/2)-1) {
+        if (count > (MAX_PIXELS/2)-1)
             count = (MAX_PIXELS/2)-1;
-        }
         _mesh[x]->i_start = 0;
         _mesh[x]->i_count = (count*indices_per_pixel);
 
-        if (count) {
+        if (count)
             _buf[x]->upload_partial((count*vertices_per_pixel) * sizeof(struct pixel_vert));
-        }
     }
 }
 
-pixel::pixel()
-{
+pixel::pixel() {
     if (!initialized)
         initialize();
 
@@ -166,9 +153,7 @@ pixel::pixel()
     this->optimized_render = false;
 }
 
-void pixel::update()
-{
-    //if (this->body) {
+void pixel::update() {
 
     if (this->optimized_render) {
         b2Vec2 p = this->get_position();
@@ -237,19 +222,9 @@ void pixel::update()
 
         tmat4_scale(this->M, as, as, tclampf(as, 0.f, 1.f));
     }
-        /*
-    } else {
-        tmat4_load_identity(this->M);
-        tmat4_translate(this->M, this->_pos.x, this->_pos.y, 0);
-        tmat4_rotate(this->M, this->_angle * (180.f/M_PI), 0, 0, -1);
-        tmat3_copy_mat4_sub3x3(this->N, this->M);
-    }
-*/
 }
 
-void
-pixel::mstep()
-{
+void pixel::mstep() {
     this->alpha = 1.f-this->pending_value;
 
     if (fabsf(this->alpha - this->last_size) > .01f) {
@@ -300,9 +275,7 @@ pixel::mstep()
 #endif
 }
 
-void
-pixel::init()
-{
+void pixel::init() {
     if (this->properties[4].v.i == 0) {
         /* make sure we are NOT added to the worlds stepable list */
         W->mstepable.erase(this);
@@ -314,9 +287,7 @@ pixel::init()
     }
 }
 
-void
-pixel::setup()
-{
+void pixel::setup() {
     this->last_size = -1.f;
     this->reset_recv_value();
 
@@ -324,9 +295,7 @@ pixel::setup()
     this->update_appearance();
 }
 
-void
-pixel::on_pause()
-{
+void pixel::on_pause() {
     this->dynamic = false;
     this->alpha = 1.f;
     this->last_size = -1.f;
@@ -334,17 +303,13 @@ pixel::on_pause()
     basepixel::on_pause();
 }
 
-void
-pixel::on_load(bool created, bool has_state)
-{
+void pixel::on_load(bool created, bool has_state) {
     basepixel::on_load(created, has_state);
 
     this->set_optimized_render(this->properties[4].v.i8 == 0);
 }
 
-void
-pixel::set_optimized_render(bool enable)
-{
+void pixel::set_optimized_render(bool enable) {
     this->optimized_render = enable;
 
     if (enable) {
@@ -355,9 +320,7 @@ pixel::set_optimized_render(bool enable)
     }
 }
 
-void
-pixel::update_fixture()
-{
+void pixel::update_fixture() {
     if (this->body) {
         b2PolygonShape *shape = static_cast<b2PolygonShape*>(this->fx->GetShape());
         float s = this->get_size() * 1.001f; /* XXX: This is very important */
@@ -366,9 +329,7 @@ pixel::update_fixture()
     }
 }
 
-void
-pixel::update_appearance()
-{
+void pixel::update_appearance() {
     float r = this->properties[1].v.f;
     float g = this->properties[2].v.f;
     float b = this->properties[3].v.f;
@@ -384,17 +345,13 @@ pixel::update_appearance()
     }
 }
 
-void
-pixel::construct()
-{
+void pixel::construct() {
     basepixel::construct();
 
     this->set_optimized_render(this->properties[4].v.i8 == 0);
 }
 
-void
-pixel::recreate_shape(bool skip_search, bool dynamic)
-{
+void pixel::recreate_shape(bool skip_search, bool dynamic) {
     if (this->body && this->fx) {
         this->body->DestroyFixture(this->fx);
         this->fx = 0;
@@ -404,14 +361,11 @@ pixel::recreate_shape(bool skip_search, bool dynamic)
 
     this->create_rect(dynamic?b2_dynamicBody : b2_staticBody, s, s, this->material);
 
-    if (!skip_search) {
+    if (!skip_search)
         this->set_position(this->get_position().x, this->get_position().y, 0);
-    }
 }
 
-void
-pixel::set_color(tvec4 c)
-{
+void pixel::set_color(tvec4 c) {
     this->properties[1].v.f = c.r;
     this->properties[2].v.f = c.g;
     this->properties[3].v.f = c.b;
@@ -419,9 +373,7 @@ pixel::set_color(tvec4 c)
     this->update_appearance();
 }
 
-tvec4
-pixel::get_color()
-{
+tvec4 pixel::get_color() {
     float r = this->properties[1].v.f;
     float g = this->properties[2].v.f;
     float b = this->properties[3].v.f;

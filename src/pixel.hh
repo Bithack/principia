@@ -5,9 +5,12 @@
 
 #define PIXEL_DYN_BUF 3
 
-class pixel : public basepixel,
-              public receiver_base
-{
+/**
+ * Class representing the Pixel object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Pixel
+ */
+class pixel : public basepixel, public receiver_base {
   private:
     float alpha;
     float last_size;
@@ -29,7 +32,7 @@ class pixel : public basepixel,
     static void upload_buffers();
     void remove_from_world();
 
-    const char *get_name(void){return "Pixel";};
+    const char *get_name() { return "Pixel"; }
 
     void set_optimized_render(bool enable);
     void mstep();
@@ -44,15 +47,13 @@ class pixel : public basepixel,
     void update_fixture();
     void construct();
 
-    inline float get_alpha()
-    {
+    inline float get_alpha() {
         return this->alpha;
     }
     void set_color(tvec4 c);
     tvec4 get_color();
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::write_state(lvl, lb);
 
         lb->w_s_float(this->alpha);
@@ -60,8 +61,7 @@ class pixel : public basepixel,
         lb->w_s_float(this->pending_value);
     }
 
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::read_state(lvl, lb);
 
         this->alpha = lb->r_float();
