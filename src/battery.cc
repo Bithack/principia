@@ -3,9 +3,7 @@
 #include "model.hh"
 #include "world.hh"
 
-battery::battery(int what)
-    : voltage(3.f)
-{
+battery::battery() : voltage(3.f) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_BATTERY3V));
     this->set_material(&m_battery);
 
@@ -23,15 +21,11 @@ battery::battery(int what)
     this->set_as_rect(.75f*.5f, 1.2f*.5f);
 }
 
-edevice*
-battery::solve_electronics()
-{
-    if (W->level.version >= 25) {
+edevice *battery::solve_electronics() {
+    if (W->level.version >= 25)
         this->s_out[0].write(this->voltage*3.f);
-    } else {
+    else
         this->s_out[0].write(this->voltage);
-    }
 
     return 0;
 }
-

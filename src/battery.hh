@@ -2,14 +2,16 @@
 
 #include "edevice.hh"
 
-#define BATTERY_3V 0
-
-class battery : public brcomp_multiconnect
-{
+/**
+ * Class representing the Battery (3V) object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Battery_(3V)
+ */
+class battery : public brcomp_multiconnect {
     float voltage;
   public:
-    battery(int what);
+    battery();
 
     edevice* solve_electronics();
-    const char* get_name(){return "Battery (3V)";};
+    const char* get_name() { return "Battery (3V)"; }
 };
