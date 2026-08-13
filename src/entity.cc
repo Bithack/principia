@@ -3,6 +3,7 @@
 #include "group.hh"
 #include "gear.hh"
 #include "game.hh"
+#include "resource.hh"
 #include "rubberband.hh"
 #include "pivot.hh"
 #include "damper.hh"

@@ -48,6 +48,7 @@
 #include "ragdoll.hh"
 #include "rand.hh"
 #include "rc_activator.hh"
+#include "resource.hh"
 #include "robot.hh"
 #include "robot_parts.hh"
 #include "robotman.hh"

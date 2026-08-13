@@ -165,6 +165,7 @@
 #include "robotman.cc"
 #include "robot_parts.cc"
 #include "rocket.cc"
+#include "room.cc"
 #include "rope.cc"
 #include "rotozoom.cc"
 #include "rubberband.cc"

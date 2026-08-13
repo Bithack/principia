@@ -4,6 +4,7 @@
 #include "game.hh"
 #include "gui.hh"
 #include "model.hh"
+#include "resource.hh"
 #include "robot_parts.hh"
 #include "spritebuffer.hh"
 #include "ui.hh"

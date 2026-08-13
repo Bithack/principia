@@ -1,9 +1,10 @@
+#include "factory.hh"
 #include "const.hh"
 #include "entity.hh"
-#include "factory.hh"
 #include "faction.hh"
 #include "game.hh"
 #include "imgui.hh"
+#include "resource.hh"
 #include "main.hh"
 #include <sstream>
 

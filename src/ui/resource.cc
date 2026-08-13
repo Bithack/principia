@@ -1,3 +1,4 @@
+#include "resource.hh"
 #include "const.hh"
 #include "game.hh"
 #include "imgui.hh"

@@ -3,6 +3,7 @@
 #include "imgui.hh"
 #include "item.hh"
 #include "main.hh"
+#include "resource.hh"
 #include <sstream>
 #include <string>
 

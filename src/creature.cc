@@ -7,6 +7,7 @@
 #include "fxemitter.hh"
 #include "game.hh"
 #include "item.hh"
+#include "resource.hh"
 #include "robot_parts.hh"
 #include "settings.hh"
 #include "world.hh"

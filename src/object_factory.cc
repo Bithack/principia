@@ -41,6 +41,7 @@
 #include "epsilon.hh"
 #include "erandom.hh"
 #include "escript.hh"
+#include "esub.hh"
 #include "eventlistener.hh"
 #include "explosive.hh"
 #include "factory.hh"
@@ -75,6 +76,7 @@
 #include "mini_transmitter.hh"
 #include "minibot.hh"
 #include "motor.hh"
+#include "muladd.hh"
 #include "object_finder.hh"
 #include "objectfield.hh"
 #include "oilrig.hh"
@@ -84,6 +86,7 @@
 #include "pixel.hh"
 #include "pkgwarp.hh"
 #include "plant.hh"
+#include "player_activator.hh"
 #include "pointer.hh"
 #include "polygon.hh"
 #include "prompt.hh"
@@ -98,6 +101,7 @@
 #include "robot.hh"
 #include "robotman.hh"
 #include "rocket.hh"
+#include "room.hh"
 #include "rope.hh"
 #include "rubberband.hh"
 #include "sawtooth.hh"
@@ -144,9 +148,6 @@
 #include "wmotor.hh"
 #include "world.hh"
 #include "ysplitter.hh"
-#include "muladd.hh"
-#include "esub.hh"
-#include "player_activator.hh"
 
 static entity* new_plank() { return new beam(BEAM_THICK); }
 static entity* new_thinplank() { return new beam(BEAM_THIN); }
@@ -229,7 +230,7 @@ static entity* new_gearbox() { return new gearbox(); }
 static entity* new_ctrlmini() { return new ctrlmini(); }
 static entity* new_ctrlservo() { return new ctrlservo(); }
 static entity* new_ctrlfplus() { return new ctrlfplus(); }
-static entity* new_battery3v() { return new battery(BATTERY_3V); }
+static entity* new_battery3v() { return new battery(); }
 static entity* new_damper1() { return new damper_1(); }
 static entity* new_damper2() { return new damper_2(); }
 static entity* new_gameman() { return new gameman(); }
