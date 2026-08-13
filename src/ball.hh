@@ -4,8 +4,15 @@
 
 void ball_update_customz(struct tms_entity *e);
 
-class ball : public entity
-{
+/**
+ * Class representing all ball objects (Ball, Metal Ball, Interactive Ball).
+ *
+ * Player Wiki ref:
+ * - https://principia-web.se/wiki/Ball
+ * - https://principia-web.se/wiki/Metal_Ball
+ * - https://principia-web.se/wiki/Interactive_Ball
+ */
+class ball : public entity {
   private:
     int btype;
 
@@ -32,8 +39,8 @@ class ball : public entity
         if (btype == 0)
             return "Ball";
         else if (btype == 1)
-            return "Metal ball";
+            return "Metal Ball";
         else
-            return "Interactive ball";
+            return "Interactive Ball";
     };
 };
