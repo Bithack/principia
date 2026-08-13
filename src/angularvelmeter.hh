@@ -2,11 +2,15 @@
 
 #include "velmeter.hh"
 
-class angularvelmeter : public velmeter
-{
+/**
+ * Class representing the Angular Vel. Meter object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Angular_Vel._Meter
+ */
+class angularvelmeter : public velmeter {
   public:
     angularvelmeter();
-    const char *get_name(){return "Angular vel. meter";};
+    const char *get_name(){return "Angular Vel. Meter";};
 
     edevice* solve_electronics();
 };

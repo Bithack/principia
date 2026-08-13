@@ -1,23 +1,12 @@
 #include "angularvelmeter.hh"
 #include "game.hh"
 
-/**
- * Sockets:
- * OUT0 = CCW
- * OUT1 = CW
- *
- * Properties:
- * 0 = float, Sensitivity
- **/
-angularvelmeter::angularvelmeter()
-{
+angularvelmeter::angularvelmeter() {
     this->s_out[0].tag = SOCK_TAG_NONE;
     this->s_out[1].tag = SOCK_TAG_NONE;
 }
 
-edevice*
-angularvelmeter::solve_electronics()
-{
+edevice *angularvelmeter::solve_electronics() {
     float av = 0.f;
     float vel = 0.f;
 
