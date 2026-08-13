@@ -3,9 +3,7 @@
 #include "material.hh"
 #include "world.hh"
 
-clip::clip(int _clip_type)
-    : clip_type(_clip_type)
-{
+clip::clip(int _clip_type) : clip_type(_clip_type) {
     this->set_flag(ENTITY_DO_UPDATE, false);
     this->set_flag(ENTITY_DO_STEP, true);
 
@@ -44,17 +42,14 @@ clip::clip(int _clip_type)
 
     this->menu_scale = 1.75f;
 
-    if (W->level.version < LEVEL_VERSION_1_5_1) {
+    if (W->level.version < LEVEL_VERSION_1_5_1)
         this->layer_mask = 15;
-    }
 
     this->c.init_owned(0, this);
     this->c.type = CONN_GROUP;
 }
 
-edevice*
-clip::solve_electronics(void)
-{
+edevice *clip::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 
