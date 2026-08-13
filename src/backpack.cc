@@ -2,9 +2,7 @@
 #include "model.hh"
 #include "material.hh"
 
-backpack::backpack()
-    : activator(ATTACHMENT_JOINT)
-{
+backpack::backpack() : activator(ATTACHMENT_JOINT) {
     this->set_flag(ENTITY_ALLOW_CONNECTIONS, false);
     this->set_flag(ENTITY_HAS_ACTIVATOR, true);
 
@@ -17,18 +15,12 @@ backpack::backpack()
     this->query_pt = b2Vec2(-.125f, 0.f);
 }
 
-void
-backpack::on_touch(b2Fixture *my, b2Fixture *other)
-{
-    if (my == this->fx_sensor) {
+void backpack::on_touch(b2Fixture *my, b2Fixture *other) {
+    if (my == this->fx_sensor)
         this->activator_touched(other);
-    }
 }
 
-void
-backpack::on_untouch(b2Fixture *my, b2Fixture *other)
-{
-    if (my == this->fx_sensor) {
+void backpack::on_untouch(b2Fixture *my, b2Fixture *other) {
+    if (my == this->fx_sensor)
         this->activator_untouched(other);
-    }
 }
