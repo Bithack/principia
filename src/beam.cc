@@ -4,8 +4,7 @@
 #include "game.hh"
 #include "ui.hh"
 
-class beam_ray_cb : public b2RayCastCallback
-{
+class beam_ray_cb : public b2RayCastCallback {
   public:
     entity *result;
     beam *ignore;
@@ -15,14 +14,12 @@ class beam_ray_cb : public b2RayCastCallback
     b2Vec2 vec;
     int dir;
 
-    beam_ray_cb(beam *ignore)
-    {
+    beam_ray_cb(beam *ignore) {
         this->ignore = ignore;
         result = 0;
     }
 
-    float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-    {
+    float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
         if (f->IsSensor()) {
             return -1.f;
         }
@@ -84,8 +81,7 @@ class beam_ray_cb : public b2RayCastCallback
     }
 };
 
-beam::beam(int btype)
-{
+beam::beam(int btype) {
     this->do_update_fixture = false;
     this->btype = btype;
     this->type = ENTITY_PLANK;
@@ -149,9 +145,8 @@ beam::beam(int btype)
         this->set_property(0, (uint32_t)1);
         this->num_sliders = 0;
         this->set_mesh(mesh_factory::get_mesh(MODEL_SEPARATOR));
-    } else {
+    } else
         this->set_property(0, (uint32_t)3);
-    }
 
     this->c[0].init_owned(0, this);
     this->c[0].type = CONN_GROUP;
@@ -168,18 +163,14 @@ beam::beam(int btype)
     this->update_fixture();
 }
 
-connection*
-beam::load_connection(connection &conn)
-{
+connection *beam::load_connection(connection &conn) {
     this->c[conn.o_index] = conn;
     this->c[0].angle = M_PI;
     this->c[1].angle = 0.f;
     return &this->c[conn.o_index];
 }
 
-void
-beam::on_load(bool created, bool has_state)
-{
+void beam::on_load(bool created, bool has_state) {
     this->update_fixture();
 
     if (this->btype == BEAM_PLASTIC || this->btype == BEAM_SEP) {
@@ -188,16 +179,12 @@ beam::on_load(bool created, bool has_state)
         float b = this->properties[3].v.f;
         this->set_uniform("~color", r, g, b, 1.f);
 
-        if (created) {
+        if (created)
             this->set_color4(r, g, b);
-        }
     }
 }
 
-
-void
-beam::set_color(tvec4 c)
-{
+void beam::set_color(tvec4 c) {
     if (this->btype == BEAM_PLASTIC || this->btype == BEAM_SEP) {
         this->properties[1].v.f = c.r;
         this->properties[2].v.f = c.g;
@@ -210,23 +197,18 @@ beam::set_color(tvec4 c)
     }
 }
 
-tvec4
-beam::get_color()
-{
+tvec4 beam::get_color() {
     if (this->btype == BEAM_PLASTIC || this->btype == BEAM_SEP) {
         float r = this->properties[1].v.f;
         float g = this->properties[2].v.f;
         float b = this->properties[3].v.f;
 
         return tvec4f(r, g, b, 1.0f);
-    } else {
+    } else
         return tvec4f(0.f, 0.f, 0.f, 0.f);
-    }
 }
 
-void
-beam::update_fixture()
-{
+void beam::update_fixture() {
     uint32_t size = this->properties[0].v.i;
     if (size > 3) size = 3;
     this->properties[0].v.i = (uint32_t)size;
@@ -267,17 +249,13 @@ beam::update_fixture()
     }
 }
 
-void
-beam::tick()
-{
+void beam::tick() {
     if (this->do_update_fixture) {
         this->update_fixture();
     }
 }
 
-void
-beam::on_slider_change(int s, float value)
-{
+void beam::on_slider_change(int s, float value) {
     if (s <= 0) {
         uint32_t size = (uint32_t)roundf(value * 3.f);
         G->animate_disconnect(this);
@@ -292,9 +270,7 @@ beam::on_slider_change(int s, float value)
     }
 }
 
-void
-beam::find_pairs()
-{
+void beam::find_pairs() {
     beam_ray_cb handler(this);
 
     for (int x=0; x<2; x++) {
@@ -321,68 +297,12 @@ beam::find_pairs()
             this->c[x].f[1] = handler.result_frame;
             this->c[x].o_data = handler.result->get_fixture_connection_data(handler.result_fx);
 
-            if (W->level.flag_active(LVL_NAIL_CONNS)) {
+            if (W->level.flag_active(LVL_NAIL_CONNS))
                 this->c[x].render_type = CONN_RENDER_NAIL;
-            } else {
+            else
                 this->c[x].render_type = CONN_RENDER_DEFAULT;
-            }
+
             G->add_pair(this, handler.result, &this->c[x]);
         }
     }
-}
-
-room::room()
-{
-    this->set_flag(ENTITY_IS_DEV, true);
-    this->set_flag(ENTITY_ALLOW_CONNECTIONS, true);
-    this->set_flag(ENTITY_IS_LOW_PRIO, true);
-    this->layer_mask = 1;
-    this->num_sliders = 2;
-
-    this->set_num_properties(2);
-    this->properties[0].type = P_INT;
-    this->properties[0].v.i = 1;
-    this->properties[1].type = P_INT;
-    this->properties[1].v.i = 1;
-
-    this->set_mesh(mesh_factory::get_mesh(MODEL_ROOM_BG));
-    this->set_material(&m_room);
-    this->set_uniform("size", 2.f, 2.f, 0.f, 0.f);
-    this->set_uniform("ao_mask2", 1.f, 0.f, 0.f, 0.f);
-
-    this->set_as_rect(2.48f/2.f, 2.48f/2.f);
-}
-
-
-void
-room::set_layer(int z)
-{
-    switch (z) {
-        case 0: this->set_uniform("ao_mask2", 1.f, 0.f, 0.f, 0.f); break;
-        case 1: this->set_uniform("ao_mask2", 0.f, 1.f, 0.f, 0.f); break;
-        case 2: this->set_uniform("ao_mask2", 0.f, 0.f, 1.f, 0.f); break;
-    }
-    entity::set_layer(z);
-}
-
-void
-room::on_slider_change(int s, float value)
-{
-    if (s == 0) {
-        uint32_t num_corners = (uint32_t)roundf(value * 4.f);
-        G->animate_disconnect(this);
-        this->disconnect_all();
-        this->set_property(0, num_corners);
-    } else {
-        this->properties[1].v.i = roundf(value);
-    }
-}
-
-void
-room::create_sensor()
-{
-    /* abuse of the craete_sensor function, we actually force the fixture not to collide with dynamic objects */
-    b2Filter d = world::get_filter_for_layer(this->get_layer(), 1);
-    d.groupIndex = 1+this->get_layer();
-    this->fx->SetFilterData(d);
 }
