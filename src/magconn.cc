@@ -4,11 +4,7 @@
 #include "material.hh"
 #include "game.hh"
 
-magsock::magsock()
-    : plug(0)
-    , connected(0)
-    , sensor(0)
-{
+magsock::magsock() : plug(0), connected(0), sensor(0) {
     this->scaleselect = true;
     this->scalemodifier = 3.f;
 
@@ -37,9 +33,7 @@ magsock::magsock()
     this->query_sides[3].Set( qw, 0.f); /* right */
 }
 
-void
-magsock::add_to_world()
-{
+void magsock::add_to_world() {
     b2PolygonShape shape;
     b2PolygonShape sensor;
 
@@ -72,18 +66,13 @@ magsock::add_to_world()
     (this->sensor = this->body->CreateFixture(&fd_sensor))->SetUserData(this);
 }
 
-void
-magsock::set_layer(int z)
-{
+void magsock::set_layer(int z) {
     entity::set_layer(z);
-    if (this->sensor) {
+    if (this->sensor)
         this->sensor->SetFilterData(world::get_filter_for_layer(z));
-    }
 }
 
-edevice*
-magsock::solve_electronics()
-{
+edevice *magsock::solve_electronics() {
     if (this->plug) {
         if (!this->plug->s_in[0].is_ready())
             return this->plug->s_in[0].get_connected_edevice();
@@ -98,40 +87,37 @@ magsock::solve_electronics()
     return 0;
 }
 
-void
-magsock::step()
-{
-    if (this->connected) {
-        float adiff = tmath_adist(this->plug->get_angle(), this->get_angle());
+void magsock::step() {
+    if (!this->connected)
+        return;
 
-        b2Vec2 pd = this->plug->get_position() - this->local_to_world(b2Vec2(0,.24f), 0);
+    float adiff = tmath_adist(this->plug->get_angle(), this->get_angle());
 
-        float dist = pd.Length();
-        pd *= 1.f/dist;
+    b2Vec2 pd = this->plug->get_position() - this->local_to_world(b2Vec2(0,.24f), 0);
 
-        dist = fmaxf(dist, 0.1f);
-        dist = fminf(dist, 0.9f);
+    float dist = pd.Length();
+    pd *= 1.f/dist;
 
-        dist = powf(dist, 4.f);
-        dist = 1.f-dist;
+    dist = fmaxf(dist, 0.1f);
+    dist = fminf(dist, 0.9f);
 
-        pd *= -dist * .08 ;//*10.f;
+    dist = powf(dist, 4.f);
+    dist = 1.f-dist;
 
-        adiff = adiff * .05f * .1f;
+    pd *= -dist * .08 ;//*10.f;
 
-        this->plug->get_body(0)->ApplyAngularImpulse(adiff);
-        this->plug->get_body(0)->ApplyLinearImpulse(pd, this->plug->get_body(0)->GetWorldCenter());
+    adiff = adiff * .05f * .1f;
 
-        this->body->ApplyAngularImpulse(-adiff);
+    this->plug->get_body(0)->ApplyAngularImpulse(adiff);
+    this->plug->get_body(0)->ApplyLinearImpulse(pd, this->plug->get_body(0)->GetWorldCenter());
 
-        pd *= -1.f;
-        this->body->ApplyLinearImpulse(pd, this->body->GetWorldCenter());
-    }
+    this->body->ApplyAngularImpulse(-adiff);
+
+    pd *= -1.f;
+    this->body->ApplyLinearImpulse(pd, this->body->GetWorldCenter());
 }
 
-void
-magsock::on_touch(b2Fixture *a, b2Fixture *b)
-{
+void magsock::on_touch(b2Fixture *a, b2Fixture *b) {
     if (this->connected)
         return;
 
@@ -146,9 +132,7 @@ magsock::on_touch(b2Fixture *a, b2Fixture *b)
     }
 }
 
-void
-magsock::on_untouch(b2Fixture *a, b2Fixture *b)
-{
+void magsock::on_untouch(b2Fixture *a, b2Fixture *b) {
     if (a == this->sensor && b == this->connected) {
         this->plug->sock = 0;
         this->plug = 0;
@@ -156,9 +140,7 @@ magsock::on_untouch(b2Fixture *a, b2Fixture *b)
     }
 }
 
-magplug::magplug()
-    : sock(0)
-{
+magplug::magplug() : sock(0) {
     this->scaleselect = true;
     this->scalemodifier = 3.f;
 
@@ -184,9 +166,7 @@ magplug::magplug()
     this->query_sides[2].SetZero(); /* down */
 }
 
-edevice*
-magplug::solve_electronics()
-{
+edevice *magplug::solve_electronics() {
     if (this->sock) {
         this->s_out[0].write(1.f);
         this->s_out[1].write(0.f);
@@ -201,4 +181,3 @@ magplug::solve_electronics()
 
     return 0;
 }
-

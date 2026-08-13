@@ -5,6 +5,11 @@
 class magsock;
 class magplug;
 
+/**
+ * Class representing the Magnetic Socket object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Magnetic_Socket
+ */
 class magsock : public edev_multiconnect
 {
   private:
@@ -20,13 +25,18 @@ class magsock : public edev_multiconnect
 
     void on_touch(b2Fixture *a, b2Fixture *b);
     void on_untouch(b2Fixture *a, b2Fixture *b);
-    void step(void);
+    void step();
     edevice* solve_electronics();
-    const char* get_name(){return "Magnetic socket";}
+    const char* get_name() { return "Magnetic Socket"; }
 
     friend class magplug;
 };
 
+/**
+ * Class representing the Magnetic Plug object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Magnetic_Plug
+ */
 class magplug : public ecomp_multiconnect
 {
   private:
@@ -36,7 +46,7 @@ class magplug : public ecomp_multiconnect
     magplug();
 
     edevice* solve_electronics();
-    const char* get_name(){return "Magnetic plug";}
+    const char* get_name() { return "Magnetic Plug"; }
 
     friend class magsock;
 };
