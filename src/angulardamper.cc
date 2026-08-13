@@ -5,8 +5,7 @@
 #include "game.hh"
 #include "object_factory.hh"
 
-angulardamper::angulardamper()
-{
+angulardamper::angulardamper() {
     this->set_flag(ENTITY_IS_DEV, true);
     this->set_flag(ENTITY_DO_STEP, true);
 
@@ -35,12 +34,9 @@ angulardamper::angulardamper()
     this->set_as_circle(.5f);
 }
 
-bool
-angulardamper::ReportFixture(b2Fixture *f)
-{
-    if (f->IsSensor()) {
+bool angulardamper::ReportFixture(b2Fixture *f) {
+    if (f->IsSensor())
         return true;
-    }
 
     entity *e = (entity*)f->GetUserData();
     b2Body *b = f->GetBody();
@@ -56,12 +52,9 @@ angulardamper::ReportFixture(b2Fixture *f)
     return true;
 }
 
-float32
-angulardamper::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
-    if (f->IsSensor()) {
+float32 angulardamper::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
+    if (f->IsSensor())
         return -1.f;
-    }
 
     b2Body *b = f->GetBody();
     entity *e = static_cast<entity*>(f->GetUserData());
@@ -75,12 +68,7 @@ angulardamper::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, 
     return -1;
 }
 
-//void angulardamper::on_grab(game *g){};
-//void angulardamper::on_release(game *g){};
-
-void
-angulardamper::find_pairs()
-{
+void angulardamper::find_pairs() {
     if (this->c.pending && this->body) {
         b2Vec2 p;
         this->query_point = p = this->local_to_world(b2Vec2(0.f, .0f), 0);
@@ -103,9 +91,7 @@ angulardamper::find_pairs()
     }
 }
 
-connection *
-angulardamper::load_connection(connection &conn)
-{
+connection *angulardamper::load_connection(connection &conn) {
     if (conn.o_index == 0) {
         this->layer_mask = 15;
         this->c = conn;
@@ -117,16 +103,12 @@ angulardamper::load_connection(connection &conn)
     return 0;
 }
 
-void
-angulardamper::update_frame(bool hard)
-{
+void angulardamper::update_frame(bool hard) {
     this->c.j = 0;
     this->c.create_joint(0);
 }
 
-void
-angulardamper::step()
-{
+void angulardamper::step() {
     b2RevoluteJoint *j = static_cast<b2RevoluteJoint*>(this->c.j);
 
     if (!j)
@@ -144,9 +126,7 @@ angulardamper::step()
     j->EnableMotor(true);
 }
 
-bool
-angulardamper::connection_destroy_joint(connection *c)
-{
+bool angulardamper::connection_destroy_joint(connection *c) {
     this->layer_mask = 9;
 
     if (this->fx)
@@ -157,9 +137,7 @@ angulardamper::connection_destroy_joint(connection *c)
     return false;
 }
 
-void
-angulardamper::connection_create_joint(connection *c)
-{
+void angulardamper::connection_create_joint(connection *c) {
     if (c == &this->c) {
         b2RevoluteJointDef rjd;
         rjd.collideConnected = false;
@@ -191,15 +169,12 @@ angulardamper::connection_create_joint(connection *c)
     }
 }
 
-void
-angulardamper::on_slider_change(int s, float value)
-{
+void angulardamper::on_slider_change(int s, float value) {
     float v;
-    if (s == 0) {
+    if (s == 0)
         v = (value / 5.f) * 9.f + 0.2f;
-    } else if (s == 1) {
+    else if (s == 1)
         v = (value * 40.f) * 18.f + 40.f;
-    }
 
     if (s == 0 || s == 1) {
         this->set_property(s, v);
