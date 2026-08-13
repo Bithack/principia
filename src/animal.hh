@@ -13,7 +13,8 @@ struct animal_data {
     uint8_t feet_type;
     uint8_t head_type;
     float feet_offset;
-    float feet_width; /* distance from the first feet pair to the second, only for quadruped feet */
+    /// distance from the first feet pair to the second, only for quadruped feet
+    float feet_width;
     float default_speed;
     float default_jump_strength;
     tms::material *material;
@@ -42,8 +43,12 @@ enum {
 
 extern struct animal_data animal_data[NUM_ANIMAL_TYPES];
 
-class animal : public creature, public activator
-{
+/**
+ * Class representing the Animal object (Cow, Pig, Ostrich).
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Animal
+ */
+class animal : public creature, public activator {
   public:
     animal(uint32_t animal_type);
 
@@ -60,10 +65,9 @@ class animal : public creature, public activator
 
     void reset_friction();
 
-    b2Fixture *get_body_fixture() {return f_body;};
+    b2Fixture *get_body_fixture() {return f_body; }
 
-    const char *get_name()
-    {
+    const char *get_name() {
         if (this->get_animal_type() < NUM_ANIMAL_TYPES)
             return animal_data[this->get_animal_type()].name;
 
@@ -74,8 +78,7 @@ class animal : public creature, public activator
 
     bool is_roaming();
 
-    inline uint32_t get_animal_type()
-    {
+    inline uint32_t get_animal_type() {
         return this->properties[0].v.i;
     }
 
@@ -114,30 +117,25 @@ class animal : public creature, public activator
 
     void perform_logic();
 
-    int get_default_feet_type()
-    {
+    int get_default_feet_type() {
         uint32_t at = this->get_animal_type();
         return animal_data[at].feet_type;
     }
 
-    int get_default_head_type()
-    {
+    int get_default_head_type() {
         uint32_t at = this->get_animal_type();
         return animal_data[at].head_type;
     }
 
-    float get_slider_snap(int s)
-    {
+    float get_slider_snap(int s) {
         return .1f;
-    };
+    }
 
-    float get_slider_value(int s)
-    {
+    float get_slider_value(int s) {
         return this->properties[1].v.f;
     }
 
-    void on_slider_change(int s, float value)
-    {
+    void on_slider_change(int s, float value) {
         if (s == 0) {
             this->properties[1].v.f = value;
             this->update_age(true);
@@ -146,12 +144,11 @@ class animal : public creature, public activator
     }
 
     const char *get_slider_label(int s) {
-        if (s == 0) {
+        if (s == 0)
             return "Age";
-        } else {
+        else
             return "";
-        }
-    };
+    }
 
     activator *get_activator() { return this; }
     entity *get_activator_entity() { return this; }

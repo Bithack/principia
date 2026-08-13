@@ -104,15 +104,11 @@ animal::animal(uint32_t animal_type)
     this->num_sliders = 1;
 }
 
-void
-animal::reset_damping()
-{
+void animal::reset_damping() {
     this->set_damping(ANIMAL_ANGULAR_DAMPING);
 }
 
-void
-animal::init()
-{
+void animal::init() {
     creature::init();
 
     this->logic_timer_max = ANIMAL_LOGIC_TIMER_MAX;
@@ -123,30 +119,22 @@ animal::init()
     this->do_update_fixture = true;
 }
 
-void
-animal::restore()
-{
+void animal::restore() {
     creature::restore();
     //this->setup();
 
     this->recalculate_effects();
 }
 
-void
-animal::write_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void animal::write_state(lvlinfo *lvl, lvlbuf *lb) {
     creature::write_state(lvl,lb);
 }
 
-void
-animal::read_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void animal::read_state(lvlinfo *lvl, lvlbuf *lb) {
     creature::read_state(lvl,lb);
 }
 
-void
-animal::setup()
-{
+void animal::setup() {
     creature::setup();
 
     this->damage_multiplier = 1.5f;
@@ -159,15 +147,11 @@ animal::setup()
     this->recalculate_effects();
 }
 
-void
-animal::on_pause()
-{
+void animal::on_pause() {
     creature::on_pause();
 }
 
-void
-animal::update_fixture()
-{
+void animal::update_fixture() {
     if (this->body) {
         uint32_t at = this->get_animal_type();
         b2PolygonShape *shape = static_cast<b2PolygonShape*>(this->f_body->GetShape());
@@ -178,14 +162,11 @@ animal::update_fixture()
         this->body->ResetMassData();
     }
 
-    if (this->feet) {
+    if (this->feet)
         this->feet->update_fixture();
-    }
 }
 
-void
-animal::update()
-{
+void animal::update() {
     b2Transform t;
     if (this->body != 0) {
         t = this->body->GetTransform();
@@ -211,31 +192,25 @@ animal::update()
     tmat4_scale(this->M, this->get_scale(), this->get_scale(), this->get_scale());
 }
 
-void
-animal::tick()
-{
+void animal::tick() {
     if (this->do_recreate_shape) {
         this->recreate_shape();
         this->do_recreate_shape = false;
     }
 }
 
-void
-animal::update_age(bool force)
-{
-    if (this->properties[1].v.f < 0.f) {
+void animal::update_age(bool force) {
+    if (this->properties[1].v.f < 0.f)
         this->properties[1].v.f = 0.f;
-    } else if (this->properties[1].v.f > 1.f) {
+    else if (this->properties[1].v.f > 1.f)
         this->properties[1].v.f = 1.f;
-    }
 
-    if (this->properties[1].v.f < 1.f/3.f) {
+    if (this->properties[1].v.f < 1.f/3.f)
         this->age_state = AGE_CHILD;
-    } else if (this->properties[1].v.f < 2.f/3.f) {
+    else if (this->properties[1].v.f < 2.f/3.f)
         this->age_state = AGE_TEENAGER;
-    } else {
+    else
         this->age_state = AGE_ADULT;
-    }
 
     if (force || this->previous_age_state != this->age_state) {
         switch (this->age_state) {
@@ -251,9 +226,7 @@ animal::update_age(bool force)
     this->previous_age_state = this->age_state;
 }
 
-void
-animal::step()
-{
+void animal::step() {
     this->properties[1].v.f += ANIMAL_AGING_SPEED;
     this->update_age();
 
@@ -272,15 +245,11 @@ animal::step()
     creature::step();
 }
 
-void
-animal::mstep()
-{
+void animal::mstep() {
     creature::mstep();
 }
 
-void
-animal::on_load(bool created, bool has_state)
-{
+void animal::on_load(bool created, bool has_state) {
     uint32_t at = this->get_animal_type();
     if (at >= NUM_ANIMAL_TYPES) at = NUM_ANIMAL_TYPES - 1;
 
@@ -290,9 +259,7 @@ animal::on_load(bool created, bool has_state)
     creature::on_load(created, has_state);
 }
 
-void
-animal::recreate_shape()
-{
+void animal::recreate_shape() {
     uint32_t at = this->get_animal_type();
 
     if (at >= NUM_ANIMAL_TYPES) {
@@ -315,9 +282,7 @@ animal::recreate_shape()
     this->create_fixtures();
 }
 
-void
-animal::create_fixtures()
-{
+void animal::create_fixtures() {
     uint32_t at = this->get_animal_type();
 
     switch (animal_data[at].body_shape) {
@@ -372,9 +337,7 @@ animal::create_fixtures()
     this->update_fixture();
 }
 
-void
-animal::create_head_joint()
-{
+void animal::create_head_joint() {
     this->destroy_head_joint();
 
     if (this->body && this->equipments[EQUIPMENT_HEAD] && this->equipments[EQUIPMENT_HEAD]->body) {
@@ -411,9 +374,7 @@ animal::create_head_joint()
     }
 }
 
-void
-animal::action_on()
-{
+void animal::action_on() {
     switch (this->get_animal_type()) {
         case ANIMAL_TYPE_OSTRICH:
             this->speed_modifier = 2.f;
@@ -421,9 +382,7 @@ animal::action_on()
     }
 }
 
-void
-animal::action_off()
-{
+void animal::action_off() {
     switch (this->get_animal_type()) {
         case ANIMAL_TYPE_OSTRICH:
             this->speed_modifier = -1.f;
@@ -431,9 +390,7 @@ animal::action_off()
     }
 }
 
-void
-animal::set_animal_type(uint32_t at)
-{
+void animal::set_animal_type(uint32_t at) {
     if (at >= NUM_ANIMAL_TYPES) at = NUM_ANIMAL_TYPES - 1;
 
     this->properties[0].v.i = at;
@@ -455,92 +412,80 @@ animal::set_animal_type(uint32_t at)
     this->recreate_head_on_dir_change = true;
 }
 
-void
-animal::reset_friction()
-{
+void animal::reset_friction() {
     this->set_friction(m_robot.friction);
 }
 
-bool
-animal::is_roaming()
-{
+bool animal::is_roaming() {
     return this->id != G->state.adventure_id && !this->flag_active(CREATURE_BEING_RIDDEN);
 }
 
-void
-animal::perform_logic()
-{
-    if (this->is_alive()) {
-        if (this->id != G->state.adventure_id) {
-            this->roam_setup_target();
+void animal::perform_logic() {
+    if (!this->is_alive())
+        return;
 
-            if (this->roam_target) {
-                if (this->is_wandering()) {
-                    this->set_speed(this->base_speed);
-                    this->set_creature_flag(CREATURE_WANDERING, false);
-                }
+    if (this->id == G->state.adventure_id)
+        return;
 
-                bool hostile = false;
+    this->roam_setup_target();
 
-                if (this->roam_target_type == TARGET_ENEMY) {
-                    hostile = true;
-                }
-
-                this->layer_dir = 0;
-                // XXX: Is there any reason for why we set new_dir here every step?
-                //this->new_dir = DIR_LEFT;
-
-                /* Check whether the target is within shooting range,
-                 * and if anything is in the way of our shooting. */
-                this->roam_gather_sight();
-
-                /* Check if we're somehow blocked, unable to move */
-                this->roam_check_blocked();
-
-                /* Calculate the distance between the robot and its target,
-                 * decide whether or not it needs to move toward
-                 * or away from the target. */
-                this->roam_update_dir();
-
-                /* Gather data about surroundings.
-                 * If roam_update_dir has told us we need to move in a direction,
-                 * that's the direction we will gather data for */
-                this->roam_gather();
-
-                this->roam_look();
-
-                if (hostile) {
-                    this->roam_attack();
-                }
-
-                this->roam_jump();
-
-                if (!W->level.flag_active(LVL_DISABLE_ROAM_LAYER_SWITCH)) {
-                    this->roam_layermove();
-                }
-
-                this->roam_walk();
-
-                this->roam_aim();
-            } else {
-                this->roam_gather();
-
-                this->roam_jump();
-
-                this->roam_target_id = 0;
-
-                this->roam_wander();
-            }
+    if (this->roam_target) {
+        if (this->is_wandering()) {
+            this->set_speed(this->base_speed);
+            this->set_creature_flag(CREATURE_WANDERING, false);
         }
+
+        bool hostile = false;
+        if (this->roam_target_type == TARGET_ENEMY)
+            hostile = true;
+
+        this->layer_dir = 0;
+        // XXX: Is there any reason for why we set new_dir here every step?
+        //this->new_dir = DIR_LEFT;
+
+        /* Check whether the target is within shooting range,
+         * and if anything is in the way of our shooting. */
+        this->roam_gather_sight();
+
+        /* Check if we're somehow blocked, unable to move */
+        this->roam_check_blocked();
+
+        /* Calculate the distance between the robot and its target,
+         * decide whether or not it needs to move toward
+         * or away from the target. */
+        this->roam_update_dir();
+
+        /* Gather data about surroundings.
+         * If roam_update_dir has told us we need to move in a direction,
+         * that's the direction we will gather data for */
+        this->roam_gather();
+
+        this->roam_look();
+
+        if (hostile)
+            this->roam_attack();
+
+        this->roam_jump();
+
+        if (!W->level.flag_active(LVL_DISABLE_ROAM_LAYER_SWITCH))
+            this->roam_layermove();
+
+        this->roam_walk();
+
+        this->roam_aim();
+    } else {
+        this->roam_gather();
+
+        this->roam_jump();
+
+        this->roam_target_id = 0;
+
+        this->roam_wander();
     }
 }
 
-void
-animal::attack(int add_cooldown)
-{
+void animal::attack(int add_cooldown) {
     uint32_t at = this->get_animal_type();
-    //float amin = animal_data[at].neck_angle.x;
-    //float amax = animal_data[at].neck_angle.y;
 
     switch (at) {
         case ANIMAL_TYPE_OSTRICH:
@@ -553,34 +498,24 @@ animal::attack(int add_cooldown)
     }
 }
 
-void
-animal::attack_stop()
-{
+void animal::attack_stop() {
     this->target_neck_angle = 0.f;
 }
 
-void
-animal::activate(creature *by)
-{
+void animal::activate(creature *by) {
     tms_infof("the animal has been activated");
 }
 
-void
-animal::on_touch(b2Fixture *my, b2Fixture *other)
-{
+void animal::on_touch(b2Fixture *my, b2Fixture *other) {
     creature::on_touch(my, other);
 
-    if (my == this->fx_sensor) {
+    if (my == this->fx_sensor)
         this->activator_touched(other);
-    }
 }
 
-void
-animal::on_untouch(b2Fixture *my, b2Fixture *other)
-{
+void animal::on_untouch(b2Fixture *my, b2Fixture *other) {
     creature::on_untouch(my, other);
 
-    if (my == this->fx_sensor) {
+    if (my == this->fx_sensor)
         this->activator_untouched(other);
-    }
 }
