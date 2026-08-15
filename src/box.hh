@@ -8,8 +8,15 @@ enum {
     BOX_PLASTIC,
 };
 
-class box : public composable, public b2QueryCallback
-{
+/**
+ * Class representing box objects (Box, Interactive Box, Plastic Box).
+ *
+ * Player Wiki ref:
+ * - https://principia-web.se/wiki/Box
+ * - https://principia-web.se/wiki/Interactive_Box
+ * - https://principia-web.se/wiki/Plastic_Box
+ */
+class box : public composable, public b2QueryCallback {
   private:
     connection c_back;
     connection c_front;
@@ -25,19 +32,24 @@ class box : public composable, public b2QueryCallback
   public:
     box(int box_type);
 
-    const char *get_name(void){
+    const char *get_name() {
         switch (this->box_type) {
             case BOX_NORMAL: return "Box";
             case BOX_INTERACTIVE: return "Interactive Box";
             case BOX_PLASTIC: return "Plastic Box";
+            default: return "";
         }
-        return "";
-    };
+    }
 
     void setup();
     float get_slider_snap(int s);
     float get_slider_value(int s);
-    const char *get_slider_label(int s){if (s == 0) return "Size"; else return "Density scale";};
+    const char *get_slider_label(int s) {
+        if (s == 0)
+            return "Size";
+        else
+            return "Density scale";
+    }
     void on_slider_change(int s, float value);
 
     connection* load_connection(connection &conn);
@@ -46,13 +58,17 @@ class box : public composable, public b2QueryCallback
     bool ReportFixture(b2Fixture *f);
     void find_pairs();
 
-    void set_density_scale(float v)
-    {
-        if (this->box_type == BOX_PLASTIC) {
+    void set_density_scale(float v) {
+        if (this->box_type == BOX_PLASTIC)
             this->properties[4].v.f = v;
-        }
     }
-    float get_density_scale(){if (this->box_type == 2) return this->properties[4].v.f; else return 1.f;};
+
+    float get_density_scale(){
+        if (this->box_type == 2)
+            return this->properties[4].v.f;
+        else
+            return 1.f;
+    }
 
     void set_color(tvec4 c);
     tvec4 get_color();

@@ -23,11 +23,12 @@ enum {
 
 class robot_base;
 
-/** 
- * A command "plate" which directs the robot_base when it steps on it
- **/
-class command : public edev
-{
+/**
+ * Class representing the Command Pad object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Command_Pad
+ */
+class command : public edev {
   private:
     float last_apply;
     bool do_apply;
@@ -40,7 +41,7 @@ class command : public edev
 
   public:
     command();
-    const char *get_name(void){return "Command pad";};
+    const char *get_name() { return "Command Pad"; }
     void write_quickinfo(char *out);
 
     void on_load(bool created, bool has_state);
@@ -60,8 +61,7 @@ class command : public edev
     float get_slider_snap(int s);
     float get_slider_value(int s);
     void on_slider_change(int s, float value);
-    const char *get_slider_label(int s)
-    {
+    const char *get_slider_label(int s) {
         switch (this->cmd) {
             case COMMAND_ATTACK: return "Bullet Force";
             case COMMAND_AIM: return "Arm Angle";
@@ -71,18 +71,16 @@ class command : public edev
             case COMMAND_SETSPEED: return "New Speed";
         }
         return "";
-    };
+    }
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::write_state(lvl, lb);
 
         lb->w_s_float(this->last_apply);
         lb->w_s_bool(this->active);
     }
 
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::read_state(lvl, lb);
 
         this->last_apply = lb->r_float();

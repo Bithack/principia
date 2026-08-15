@@ -56,9 +56,7 @@ button::button(int _button_type)
     this->query_sides[3].Set( qw, 0.f); /* right */
 }
 
-void
-button::add_to_world()
-{
+void button::add_to_world() {
     tms_debugf("add to world");
     b2BodyDef bd;
     bd.type = this->get_dynamic_type();
@@ -89,33 +87,26 @@ button::add_to_world()
     switch_fd.friction = .1f;
     switch_fd.restitution = .1f;
     switch_fd.isSensor = false;
-    if (W->is_paused()) {
+    if (W->is_paused())
         switch_fd.filter = world::get_filter_for_layer(this->get_layer(), 0);
-    } else {
+    else
         switch_fd.filter = world::get_filter_for_layer(this->get_layer(), 15);
-    }
 
     (this->switch_fx = this->body->CreateFixture(&switch_fd))->SetUserData(this);
 }
 
-void
-button::on_touch(b2Fixture *my, b2Fixture *other)
-{
+void button::on_touch(b2Fixture *my, b2Fixture *other) {
     this->num_blocking ++;
 }
 
-void
-button::on_untouch(b2Fixture *my, b2Fixture *other)
-{
+void button::on_untouch(b2Fixture *my, b2Fixture *other) {
     this->num_blocking --;
 
-    if (this->num_blocking <= 0 && this->button_type == BUTTON_TOGGLE) {
+    if (this->num_blocking <= 0 && this->button_type == BUTTON_TOGGLE)
         this->step_action = STEP_UP;
-    }
 }
 
-void button::step()
-{
+void button::step() {
     if (this->down_time >= 0.f) {
         this->down_time -= 0.1f * G->get_time_mul();
         return;
@@ -144,36 +135,26 @@ void button::step()
     this->step_action = STEP_NONE;
 }
 
-void
-button::update(void)
-{
+void button::update() {
     this->mswitch->update();
     entity_fast_update(this);
 }
 
-void
-button::ghost_update(void)
-{
+void button::ghost_update() {
     this->mswitch->update();
     entity_fast_update(this);
 }
 
-void
-button::restore()
-{
+void button::restore() {
     this->switch_fx->SetSensor(this->switch_sensor_status);
 }
 
-void
-button::set_layer(int z)
-{
+void button::set_layer(int z) {
     entity::set_layer(z);
     this->mswitch->set_layer(z);
 }
 
-edevice*
-button::solve_electronics()
-{
+edevice *button::solve_electronics() {
     this->s_out[0].write(this->pressed ? 1.f : 0.f);
 
     /* always done immediately */
@@ -181,17 +162,14 @@ button::solve_electronics()
 }
 
 void
-button::press()
-{
-    if (!this->switch_fx->IsSensor()) {
+button::press() {
+    if (!this->switch_fx->IsSensor())
         this->step_action = STEP_PRESS_DOWN;
-    }
 }
 
 /////////////////////
 
-button::bswitch::bswitch(button *parent)
-{
+button::bswitch::bswitch(button *parent) {
     this->parent = parent;
     this->set_mesh(mesh_factory::get_mesh(MODEL_BUTTON_SWITCH));
     this->set_material(&m_pv_colored);
@@ -199,21 +177,15 @@ button::bswitch::bswitch(button *parent)
     this->set_uniform("~color", .7f, .7f, .7f, 1.f);
 }
 
-b2Vec2
-button::bswitch::get_position()
-{
+b2Vec2 button::bswitch::get_position() {
     return this->parent->local_to_world(b2Vec2(0.f, (this->parent->body && this->parent->switch_fx->IsSensor())?0.f:SWITCH_OFFS), 0);
 }
 
-float
-button::bswitch::get_angle()
-{
+float button::bswitch::get_angle() {
     return this->parent->get_angle();
 }
 
-void
-button::bswitch::update()
-{
+void button::bswitch::update() {
     b2Vec2 p = this->get_position();
     float a = this->get_angle();
 
@@ -230,4 +202,3 @@ button::bswitch::update()
 
     tmat3_copy_mat4_sub3x3(this->N, this->M);
 }
-

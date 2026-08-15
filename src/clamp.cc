@@ -1,9 +1,7 @@
 #include "clamp.hh"
 #include "game.hh"
 
-clamp::clamp()
-    : prev_value(0.f)
-{
+clamp::clamp() : prev_value(0.f) {
     this->num_sliders = 2;
 
     this->set_num_properties(2);
@@ -13,9 +11,7 @@ clamp::clamp()
     this->properties[1].v.f = 1.f;
 }
 
-edevice*
-clamp::solve_electronics()
-{
+edevice *clamp::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 
@@ -38,9 +34,7 @@ clamp::solve_electronics()
 
 }
 
-void
-clamp::on_slider_change(int s, float value)
-{
+void clamp::on_slider_change(int s, float value) {
     this->properties[s].v.f = value;
     G->show_numfeed(value);
 }

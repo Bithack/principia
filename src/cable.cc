@@ -1,12 +1,10 @@
 #include "cable.hh"
-#include "game.hh"
 #include "edevice.hh"
+#include "game.hh"
+#include "ifdevice.hh"
 #include "material.hh"
 #include "model.hh"
 #include "world.hh"
-#include "ifdevice.hh"
-
-#include <cstdlib>
 
 #define QUALITY 4
 #define SEGSIZE .5f
@@ -47,9 +45,7 @@ static int indices_per_plug = 0;
 
 static volatile int counter = 0;
 
-void
-cable::_init(void)
-{
+void cable::_init() {
     if (initialized)
         return;
 
@@ -163,9 +159,7 @@ cable::_init(void)
     initialized = true;
 }
 
-void
-cable::reset_counter(void)
-{
+void cable::reset_counter() {
     counter = 0;
     for (int x=0; x<3; x++)
         plug_counter[x] = 0;
@@ -185,16 +179,14 @@ cable::reset_counter(void)
     }
 }
 
-struct tms_entity*
-cable::get_entity(void)
-{
+struct tms_entity *cable::get_entity() {
     return _e;
 }
 
-void
-cable::upload_buffers(void)
-{
-    if (counter > MAX_CABLES-1) counter = MAX_CABLES-1;
+void cable::upload_buffers() {
+    if (counter > MAX_CABLES-1)
+        counter = MAX_CABLES-1;
+
     _mesh->i_start = 0;
     _mesh->i_count = counter*(ibuf->size/MAX_CABLES) / sizeof(uint16_t);
     if (counter)
@@ -202,20 +194,18 @@ cable::upload_buffers(void)
 
     for (int x=0; x<3; x++) {
         int count = plug_counter[x];
-        if (count > (MAX_PLUGS)-1) {
+        if (count > (MAX_PLUGS)-1)
             count = (MAX_PLUGS)-1;
-        }
+
         plug_mesh[x]->i_start = 0;
         plug_mesh[x]->i_count = count*(indices_per_plug);
 
-        if (count) {
+        if (count)
             plug_buf[x]->upload_partial((count*vertices_per_plug) * sizeof(struct cable_vert));
-        }
     }
 }
 
-cable::cable(int type)
-{
+cable::cable(int type) {
     cable::_init();
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
     this->set_flag(ENTITY_ALLOW_ROTATION,       false);
@@ -254,57 +244,34 @@ cable::cable(int type)
     this->num_sliders = 1;
 }
 
-cable::~cable()
-{
-    if (this->ji) {
+cable::~cable() {
+    if (this->ji)
         this->ji->data = 0;
-    }
-
-    /*
-    if (this->p[0]) {
-        this->p[0]->c = 0;
-    }
-    if (this->p[1]) {
-        this->p[1]->c = 0;
-    }
-    */
 }
 
-void
-cable::construct()
-{
+void cable::construct() {
     this->set_position(_pos.x, _pos.y);
 }
 
-float
-cable::get_slider_snap(int s)
-{
+float cable::get_slider_snap(int s) {
     return .1f;
 }
 
-float
-cable::get_slider_value(int s)
-{
+float cable::get_slider_value(int s) {
     return this->extra_length / CABLE_MAX_EXTRA_LENGTH;
 }
 
-void
-cable::on_slider_change(int s, float value)
-{
+void cable::on_slider_change(int s, float value) {
     this->extra_length = value * CABLE_MAX_EXTRA_LENGTH;
     G->show_numfeed(this->extra_length);
 }
 
-void
-cable::set_position(float x, float y, uint8_t frame/*=0*/)
-{
+void cable::set_position(float x, float y, uint8_t frame/*=0*/) {
     this->p[0]->set_position(x+.5f,y+.5f);
     this->p[1]->set_position(x-.5f,y-.5f);
 }
 
-void
-cable::add_to_world()
-{
+void cable::add_to_world() {
     this->p[0]->add_to_world();
     this->p[1]->add_to_world();
 
@@ -312,38 +279,26 @@ cable::add_to_world()
     this->create_joint();
 }
 
-void
-cable::remove_from_world()
-{
+void cable::remove_from_world() {
     this->p[0]->remove_from_world();
     this->p[1]->remove_from_world();
 }
 
-void
-cable::pre_write(void)
-{
+void cable::pre_write() {
     this->p[0]->pre_write();
     this->p[1]->pre_write();
 }
 
-void
-plug::pre_write(void)
-{
-}
+void plug::pre_write() { }
 
-void
-cable::destroy_joint()
-{
+void cable::destroy_joint() {
     if (this->joint) {
         W->b2->DestroyJoint(this->joint);
         this->joint = 0;
     }
 }
 
-
-void
-cable::create_joint()
-{
+void cable::create_joint() {
     this->destroy_joint();
 
     //b2RopeJointDef rjd;
@@ -424,22 +379,17 @@ cable::create_joint()
     }
 }
 
-void
-cable::ghost_update(void)
-{
+void cable::ghost_update() {
     this->update();
 }
 
-void
-cable::update(void)
-{
+void cable::update() {
     int num = __sync_fetch_and_add(&counter, 1);
 
     if (num > MAX_CABLES - 1) num = MAX_CABLES - 1;
 
-    if (W->is_paused() && W->b2) {
+    if (W->is_paused() && W->b2)
         this->create_joint(); /* update the length of the cable every frame if we are paused */
-    }
 
     int base = num*(((buf->size/MAX_CABLES))/sizeof(struct cable_vert));
     cable_vert *v = ((cable_vert *)buf->get_buffer())+base;
@@ -500,11 +450,10 @@ cable::update(void)
         b-=leftover;
 
         float h;
-        if (r-b < .001f) {
+        if (r-b < .001f)
             h = 0.f;
-        } else {
+        else
             h = sqrtf(powf(r/2.f, 2.f) - powf(b/2.f, 2.f));
-        }
 
         for (int y=freq/2; y<num_p; y+=freq) {
             int _p0 = y - freq/2;
@@ -517,11 +466,11 @@ cable::update(void)
             tvec2 nor = (tvec2){-(pt[_p1].y-pt[_p0].y), (pt[_p1].x-pt[_p0].x)};
             float norlen = tvec2_magnitude(&nor);
             float il;
-            if (norlen < 0.001f) {
+            if (norlen < 0.001f)
                 il = 0.f;
-            } else {
+            else
                 il = 1.f/norlen;
-            }
+
             nor.x *= il;
             nor.y *= il;
 
@@ -545,11 +494,10 @@ cable::update(void)
         float tlen = tvec3_magnitude(&tangent);
         float ilen;
 
-        if (tlen < 0.000001f) {
+        if (tlen < 0.000001f)
             ilen = 0.f;
-        } else {
+        else
             ilen = 1.f/tlen;
-        }
 
         tangent.x *= ilen;
         tangent.y *= ilen;
@@ -573,8 +521,7 @@ cable::update(void)
     this->p[1]->update();
 }
 
-plug::plug(cable *c)
-{
+plug::plug(cable *c) {
     this->set_flag(ENTITY_IS_HIGH_PRIO,         true);
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
     this->set_flag(ENTITY_ALLOW_ROTATION,       false);
@@ -602,9 +549,7 @@ plug::plug(cable *c)
     }
 }
 
-void
-plug::update_mesh()
-{
+void plug::update_mesh() {
     switch (this->c->ctype) {
         case CABLE_BLACK:
             this->set_mesh(mesh_factory::get_mesh(MODEL_PLUG_FEMALE));
@@ -619,21 +564,15 @@ plug::update_mesh()
     }
 }
 
-void
-cable::on_load(bool created, bool has_state)
-{
-}
+void cable::on_load(bool created, bool has_state) { }
 
-bool
-cable::connect(plug *p, edevice *e, uint8_t s)
-{
+bool cable::connect(plug *p, edevice *e, uint8_t s) {
     isocket *ss;
 
-    if (s > 127) {
+    if (s > 127)
         ss = &e->s_out[s-128];
-    } else {
+    else
         ss = &e->s_in[s];
-    }
 
     bool ret = this->connect(p, e, ss);
 
@@ -642,9 +581,7 @@ cable::connect(plug *p, edevice *e, uint8_t s)
     return ret;
 }
 
-void
-cable::disconnect(plug *p)
-{
+void cable::disconnect(plug *p) {
     if (p->plugged_edev) {
         edevice *e = p->plugged_edev;
         int dir = e->get_socket_dir(p->s);
@@ -666,9 +603,7 @@ cable::disconnect(plug *p)
     }
 }
 
-bool
-cable::connect(plug *p, edevice *e, isocket *s)
-{
+bool cable::connect(plug *p, edevice *e, isocket *s) {
     int index;
 
     if (s->ctype != this->ctype) {
@@ -676,11 +611,11 @@ cable::connect(plug *p, edevice *e, isocket *s)
         return false;
     }
 
-    if (p == this->p[0]) {
+    if (p == this->p[0])
         index = 0;
-    } else if (p == this->p[1]) {
+    else if (p == this->p[1])
         index = 1;
-    } else {
+    else {
         tms_errorf("cable: this is not my plug! :(");
         return false;
     }
@@ -712,12 +647,9 @@ cable::connect(plug *p, edevice *e, isocket *s)
     return true;
 }
 
-void
-plug::remove_from_world()
-{
-    if (!this->c->freeze) {
+void plug::remove_from_world() {
+    if (!this->c->freeze)
         this->disconnect();
-    }
 
     if (this->body != 0) {
         this->body->GetWorld()->DestroyBody(this->body);
@@ -725,9 +657,7 @@ plug::remove_from_world()
     }
 }
 
-void
-plug::create_body()
-{
+void plug::create_body() {
     if (W && !this->body) {
         b2BodyDef bd;
         bd.type = this->get_dynamic_type();
@@ -755,9 +685,7 @@ plug::create_body()
     }
 }
 
-float
-plug::get_angle()
-{
+float plug::get_angle() {
     if (this->is_connected()) {
         return this->plugged_edev->get_entity()->get_angle()+this->s->angle;
     } else if (this->body) {
@@ -770,9 +698,7 @@ plug::get_angle()
     return -M_PI/2.f;
 }
 
-b2Vec2
-plug_base::get_position()
-{
+b2Vec2 plug_base::get_position() {
     if (this->is_connected()) {
         return this->plugged_edev->get_entity()->local_to_world(
                 this->s->lpos/* + b2Vec2(cosf(this->s->angle)*.15f, sinf(this->s->angle)*.15f)*/
@@ -783,9 +709,7 @@ plug_base::get_position()
     }
 }
 
-void
-plug_base::update(void)
-{
+void plug_base::update() {
     b2Vec2 p = this->get_position();
     float a = this->get_angle() + M_PI/2.f;
     float cs,sn;
@@ -833,9 +757,7 @@ plug_base::update(void)
     }
 }
 
-void
-plug_base::add_to_world()
-{
+void plug_base::add_to_world() {
     this->pending.clear();
 
     if (!this->is_connected()) {
@@ -848,34 +770,29 @@ plug_base::add_to_world()
 }
 
 /* permanently disconnect this plug */
-void
-plug::disconnect()
-{
-    if (this->is_connected()) {
-        /* displace the plug a little to visualize the disconnect */
-        float cs = cosf(this->s->angle);
-        float sn = sinf(this->s->angle);
+void plug::disconnect() {
+    if (!this->is_connected())
+        return;
 
-        this->_pos = this->get_position() + b2Vec2(cs*.5f,sn*.5f);
-        this->_angle = this->get_angle();
-        this->create_body();
-        this->c->disconnect(this);
-    }
+    /* displace the plug a little to visualize the disconnect */
+    float cs = cosf(this->s->angle);
+    float sn = sinf(this->s->angle);
+
+    this->_pos = this->get_position() + b2Vec2(cs*.5f,sn*.5f);
+    this->_angle = this->get_angle();
+    this->create_body();
+    this->c->disconnect(this);
 }
 
-int
-plug::connect(edevice *e, isocket *s)
-{
+int plug::connect(edevice *e, isocket *s) {
     plug_base *other = this->get_other();
     int dz = std::abs(this->get_layer() - other->get_layer());
 
-    if (dz > 1) {
+    if (dz > 1)
         return 1;
-    }
 
-    if (!this->c->connect(this, e, s)) {
+    if (!this->c->connect(this, e, s))
         return 2;
-    }
 
     if (this->body) {
         this->body->GetWorld()->DestroyBody(this->body);
@@ -885,9 +802,7 @@ plug::connect(edevice *e, isocket *s)
     return T_OK;
 }
 
-ifdevice*
-plug::find_ifdevice()
-{
+ifdevice *plug::find_ifdevice() {
     int limit = 0;
 
     plug *curr = this;
@@ -895,9 +810,8 @@ plug::find_ifdevice()
 
     while (curr && limit < 20 && (curr = curr->c->get_other(curr))) {
         if (curr->plugged_edev) {
-            if ((i = curr->plugged_edev->get_ifdevice())) {
+            if ((i = curr->plugged_edev->get_ifdevice()))
                 return i;
-            }
 
             for (int x=0; x<curr->plugged_edev->num_s_out; x++) {
                 if (curr->plugged_edev->s_out[x].ctype == CABLE_BLUE) {
@@ -905,9 +819,8 @@ plug::find_ifdevice()
                     break;
                 }
             }
-        } else {
+        } else
             break;
-        }
 
         limit ++;
     }
@@ -915,29 +828,21 @@ plug::find_ifdevice()
     return 0;
 }
 
-void
-plug_base::on_grab(game *g)
-{
+void plug_base::on_grab(game *g) {
     this->pending.clear();
 
     //entity::on_grab(g);
 }
 
-void
-plug_base::setup()
-{
+void plug_base::setup() {
     this->pending.clear();
 }
 
-void
-plug_base::on_pause()
-{
+void plug_base::on_pause() {
     this->pending.clear();
 }
 
-void
-plug_base::on_paused_touch(b2Fixture *my, b2Fixture *other)
-{
+void plug_base::on_paused_touch(b2Fixture *my, b2Fixture *other) {
     entity *o = (entity*)other->GetUserData();
     //tms_infof("TOUCH");
 
@@ -967,9 +872,7 @@ plug_base::on_paused_touch(b2Fixture *my, b2Fixture *other)
     }
 }
 
-void
-plug_base::set_layer(int z)
-{
+void plug_base::set_layer(int z) {
     plug_base *other = this->get_other();
 
     if (other) {
@@ -983,25 +886,18 @@ plug_base::set_layer(int z)
     entity::set_layer(z);
 }
 
-uint8_t
-plug_base::get_socket_index(void)
-{
+uint8_t plug_base::get_socket_index() {
     if (this->is_connected())
         return this->plugged_edev->get_socket_index(this->s);
 
     return 0;
 }
 
-void
-plug_base::on_paused_untouch(b2Fixture *my, b2Fixture *other)
-{
-    //tms_infof("untoch");
+void plug_base::on_paused_untouch(b2Fixture *my, b2Fixture *other) {
     this->pending.erase(static_cast<edevice*>(other->GetUserData()));
 }
 
-int
-plug::get_dir()
-{
+int plug::get_dir() {
     if (this->plugged_edev) {
         return this->plugged_edev->get_socket_dir(this->s);
     } else {
@@ -1014,41 +910,40 @@ plug::get_dir()
     return 0;
 }
 
-void
-plug_base::on_release(game *g)
-{
-    if (this->pending.size() > 0) {
-        tms_infof("num pending: %lu", (unsigned long)this->pending.size());
-        /* find the nearest pending */
-        edevice *nearest_edev = 0;
-        float dist = 3.f;
-        b2Vec2 p = this->get_position();
+void plug_base::on_release(game *g) {
+    if (this->pending.size() == 0)
+        return;
 
-        for (std::set<edevice*>::iterator i = this->pending.begin(); i != this->pending.end(); i++) {
-            /* loop through all connections and find the clostest */
-            edevice *e = *i;
-            for (int x=0; x<e->num_s_in; x++) {
-                float d = (p - e->get_entity()->local_to_world(e->s_in[x].lpos, 0)).LengthSquared();
+    tms_infof("num pending: %lu", (unsigned long)this->pending.size());
+    /* find the nearest pending */
+    edevice *nearest_edev = 0;
+    float dist = 3.f;
+    b2Vec2 p = this->get_position();
 
-                if (d < dist) {
-                    nearest_edev = e;
-                    dist = d;
-                }
-            }
-            for (int x=0; x<e->num_s_out; x++) {
-                float d = (p - e->get_entity()->local_to_world(e->s_out[x].lpos, 0)).LengthSquared();
+    for (std::set<edevice*>::iterator i = this->pending.begin(); i != this->pending.end(); i++) {
+        /* loop through all connections and find the clostest */
+        edevice *e = *i;
+        for (int x=0; x<e->num_s_in; x++) {
+            float d = (p - e->get_entity()->local_to_world(e->s_in[x].lpos, 0)).LengthSquared();
 
-                if (d < dist) {
-                    nearest_edev = e;
-                    dist = d;
-                }
+            if (d < dist) {
+                nearest_edev = e;
+                dist = d;
             }
         }
+        for (int x=0; x<e->num_s_out; x++) {
+            float d = (p - e->get_entity()->local_to_world(e->s_out[x].lpos, 0)).LengthSquared();
 
-        if (nearest_edev && (G->state.sandbox || nearest_edev->get_entity()->get_property_entity()->is_moveable())) {
-            G->add_highlight(nearest_edev->get_entity(), false);
-            g->open_socket_selector(this, nearest_edev);
+            if (d < dist) {
+                nearest_edev = e;
+                dist = d;
+            }
         }
+    }
+
+    if (nearest_edev && (G->state.sandbox || nearest_edev->get_entity()->get_property_entity()->is_moveable())) {
+        G->add_highlight(nearest_edev->get_entity(), false);
+        g->open_socket_selector(this, nearest_edev);
     }
 }
 

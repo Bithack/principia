@@ -2,13 +2,17 @@
 
 #include "robot_base.hh"
 
-class companion : public robot_base
-{
+/**
+ * Class representing the Companion object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Companion
+ */
+class companion : public robot_base {
   public:
     companion();
-    const char *get_name() { return "Companion"; };
+    const char *get_name() { return "Companion"; }
 
-    void setup(){robot_base::setup(); this->initialize_interactive();};
+    void setup();
     void init_body();
     void init_properties();
 

@@ -1,9 +1,8 @@
 #include "companion.hh"
-#include "model.hh"
 #include "faction.hh"
+#include "model.hh"
 
-companion::companion()
-{
+companion::companion() {
     this->set_flag(ENTITY_IS_INTERACTIVE, true);
     this->robot_type = ROBOT_TYPE_COMPANION;
     this->damage_multiplier = 0.5f;
@@ -17,9 +16,12 @@ companion::companion()
     //this->properties[2].v.i8 = 0; /* Roaming */
 }
 
-void
-companion::roam_update_dir()
-{
+void companion::setup() {
+    robot_base::setup();
+    this->initialize_interactive();
+}
+
+void companion::roam_update_dir() {
     b2Vec2 target_pos = this->roam_target->get_position();
 
     if (this->target_dist > 2.f) {

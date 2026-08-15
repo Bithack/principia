@@ -4,13 +4,17 @@
 
 #define BOMBER_RELOAD_TIME 200000
 
-class bomber : public robot_base
-{
+/**
+ * Class representing the Bomber object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Bomber
+ */
+class bomber : public robot_base {
     b2Fixture *f_outer;
 
   public:
     bomber();
-    const char *get_name() { return "Bomber"; };
+    const char *get_name() { return "Bomber"; }
 
     float aim_angle;
 

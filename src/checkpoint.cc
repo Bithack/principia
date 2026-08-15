@@ -4,10 +4,7 @@
 #include "material.hh"
 #include "model.hh"
 
-checkpoint::checkpoint()
-    : spawned(false)
-    , activated(false)
-{
+checkpoint::checkpoint() : spawned(false), activated(false) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_CHECKPOINT));
     this->set_material(&m_pv_colored);
     this->set_uniform("~color", CHECKPOINT_COLOR_INACTIVE);
@@ -39,9 +36,7 @@ checkpoint::checkpoint()
     this->query_sides[3].Set( qw, 0.f); /* right */
 }
 
-void
-checkpoint::add_to_world()
-{
+void checkpoint::add_to_world() {
     this->create_rect(this->get_dynamic_type(), .5f, .15f, this->material);
 
     if (!W->is_paused()) {
@@ -58,9 +53,7 @@ checkpoint::add_to_world()
     }
 }
 
-void
-checkpoint::on_touch(b2Fixture *my, b2Fixture *other)
-{
+void checkpoint::on_touch(b2Fixture *my, b2Fixture *other) {
     entity *e = static_cast<entity*>(other->GetUserData());
 
     if (!other->IsSensor() && e && e->is_creature()) {
@@ -69,9 +62,7 @@ checkpoint::on_touch(b2Fixture *my, b2Fixture *other)
     }
 }
 
-edevice*
-checkpoint::solve_electronics(void)
-{
+edevice *checkpoint::solve_electronics() {
     if (!this->s_in[0].is_ready()) {
         return this->s_in[0].get_connected_edevice();
     }

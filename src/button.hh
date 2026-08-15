@@ -2,8 +2,14 @@
 
 #include "edevice.hh"
 
-class button : public edev_multiconnect
-{
+/**
+ * Class representing the Button and Toggle Button objects.
+ *
+ * Player Wiki ref:
+ * - https://principia-web.se/wiki/Button
+ * - https://principia-web.se/wiki/Toggle_Button
+ */
+class button : public edev_multiconnect {
   private:
     class bswitch : public entity
     {
@@ -16,7 +22,7 @@ class button : public edev_multiconnect
         virtual b2Vec2 get_position();
         virtual float get_angle();
         virtual void update();
-        void add_to_world(){};
+        void add_to_world() {}
     };
 
     bswitch *mswitch;
@@ -27,8 +33,7 @@ class button : public edev_multiconnect
     float down_time;
     bool pressed;
 
-    /* Variable loaded from state to store whether the switch was
-     * a sensor or not. */
+    /// Variable loaded from state to store whether the switch was a sensor or not.
     bool switch_sensor_status;
 
   public:
@@ -36,31 +41,33 @@ class button : public edev_multiconnect
 
     void press();
     button(int button_type);
-    const char *get_name(){if (this->button_type==0)return "Button"; else return "Toggle Button";};
+    const char *get_name() {
+        if (this->button_type == 0)
+            return "Button";
+        else
+            return "Toggle Button";
+    }
 
     void step();
     void add_to_world();
     void on_touch(b2Fixture *my, b2Fixture *other);
     void on_untouch(b2Fixture *my, b2Fixture *other);
 
-    void update(void);
-    void ghost_update(void);
+    void update();
+    void ghost_update();
 
     void restore();
     void set_layer(int z);
     edevice* solve_electronics();
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::write_state(lvl, lb);
 
         lb->w_s_bool(this->pressed);
         lb->w_s_bool(this->switch_fx->IsSensor());
     }
 
-    void
-    read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::read_state(lvl, lb);
 
         this->pressed = lb->r_bool();

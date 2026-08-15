@@ -3,13 +3,14 @@
 #include "edevice.hh"
 #include "i1o1gate.hh"
 
-class ceilgate : public i1o1gate
-{
+/**
+ * Class representing the Ceil object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Ceil
+ */
+class ceilgate : public i1o1gate {
   public:
-    ceilgate() {
-        this->set_mesh(mesh_factory::get_mesh(MODEL_I1O1_INTEGER));
-    }
-    edevice* solve_electronics();
-    const char* get_name(){return "Ceil";}
+    ceilgate();
+    edevice *solve_electronics();
+    const char *get_name() { return "Ceil"; }
 };
-

@@ -1,12 +1,10 @@
 #include "box.hh"
-#include "model.hh"
-#include "material.hh"
 #include "game.hh"
+#include "material.hh"
+#include "model.hh"
 #include "ui.hh"
-#include "group.hh"
 
-box::box(int box_type)
-{
+box::box(int box_type) {
     this->type = ENTITY_WHEEL;
     this->box_type = box_type;
     this->set_mesh(mesh_factory::get_mesh(MODEL_BOX0));
@@ -20,17 +18,14 @@ box::box(int box_type)
             this->set_flag(ENTITY_IS_INTERACTIVE, true);
             break;
         case BOX_PLASTIC:
-            {
-                this->set_flag(ENTITY_HAS_CONFIG, true);
-                this->set_flag(ENTITY_IS_PLASTIC, true);
-                this->dialog_id = DIALOG_BEAM_COLOR;
+            this->set_flag(ENTITY_HAS_CONFIG, true);
+            this->set_flag(ENTITY_IS_PLASTIC, true);
+            this->dialog_id = DIALOG_BEAM_COLOR;
 
-                if (W->level.version >= LEVEL_VERSION_1_5) {
-                    this->set_material(&m_plastic);
-                } else {
-                    this->set_material(&m_pv_colored);
-                }
-            }
+            if (W->level.version >= LEVEL_VERSION_1_5)
+                this->set_material(&m_plastic);
+            else
+                this->set_material(&m_pv_colored);
             break;
     }
 
@@ -86,36 +81,26 @@ box::box(int box_type)
     this->set_as_rect(.5f, .5f);
 }
 
-void
-box::setup()
-{
-    if (this->box_type == BOX_INTERACTIVE) {
+void box::setup() {
+    if (this->box_type == BOX_INTERACTIVE)
         this->initialize_interactive();
-    }
 }
 
-float
-box::get_slider_value(int s)
-{
-    if (s == 0) {
+float box::get_slider_value(int s) {
+    if (s == 0)
         return (float)this->properties[0].v.i;
-    } else {
+    else
         return ((float)this->properties[4].v.f - ENTITY_DENSITY_SCALE_MIN) / ENTITY_DENSITY_SCALE_MAX;
-    }
 }
 
-float
-box::get_slider_snap(int s)
-{
+float box::get_slider_snap(int s) {
     if (s == 0)
         return 1.f;
     else
         return .05f;
 }
 
-void
-box::on_load(bool created, bool has_state)
-{
+void box::on_load(bool created, bool has_state) {
     this->on_slider_change(-1, (float)this->properties[0].v.i);
 
     if (this->box_type == BOX_PLASTIC) {
@@ -124,15 +109,12 @@ box::on_load(bool created, bool has_state)
         float b = this->properties[3].v.f;
         this->set_uniform("~color", r, g, b, 1.f);
 
-        if (created) {
+        if (created)
             this->set_color4(r, g, b);
-        }
     }
 }
 
-connection *
-box::load_connection(connection &conn)
-{
+connection *box::load_connection(connection &conn) {
     if (conn.o_index == 0) {
         this->c_back = conn;
         return &this->c_back;
@@ -147,9 +129,7 @@ box::load_connection(connection &conn)
     return 0;
 }
 
-void
-box::on_slider_change(int s, float value)
-{
+void box::on_slider_change(int s, float value) {
     if (s <= 0) {
         uint32_t size = (uint32_t)roundf(value);
         if (size > 1) size = 1;
@@ -175,9 +155,7 @@ box::on_slider_change(int s, float value)
     }
 }
 
-bool
-box::ReportFixture(b2Fixture *f)
-{
+bool box::ReportFixture(b2Fixture *f) {
     entity *e = (entity*)f->GetUserData();
     uint8_t fr = VOID_TO_UINT8(f->GetBody()->GetUserData());
 
@@ -204,9 +182,7 @@ box::ReportFixture(b2Fixture *f)
     return true;
 }
 
-void
-box::find_pairs()
-{
+void box::find_pairs() {
     if (this->c_back.pending || this->c_front.pending) {
         b2Vec2 p = this->get_position();
         b2AABB aabb;
@@ -247,31 +223,25 @@ box::find_pairs()
     this->sidecheck4(this->c_side);
 }
 
-void
-box::set_color(tvec4 c)
-{
+void box::set_color(tvec4 c) {
     if (this->box_type == 2) {
         this->properties[1].v.f = c.r;
         this->properties[2].v.f = c.g;
         this->properties[3].v.f = c.b;
         this->set_uniform("~color", TVEC4_INLINE(c));
 
-        if (this->gr) {
+        if (this->gr)
             W->add_action(this->id, ACTION_FINALIZE_GROUP);
-        }
     }
 }
 
-tvec4
-box::get_color()
-{
+tvec4 box::get_color() {
     if (this->box_type == 2) {
         float r = this->properties[1].v.f;
         float g = this->properties[2].v.f;
         float b = this->properties[3].v.f;
 
         return tvec4f(r, g, b, 1.0f);
-    } else {
+    } else
         return tvec4f(0.f, 0.f, 0.f, 0.f);
-    }
 }

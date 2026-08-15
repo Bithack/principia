@@ -1,12 +1,11 @@
 #include "bomber.hh"
-#include "model.hh"
-#include "game.hh"
 #include "explosive.hh"
+#include "game.hh"
+#include "model.hh"
 
 #define SHOOT_VELOCITY 25.f
 
-bomber::bomber()
-{
+bomber::bomber() {
     this->f_outer = 0;
 
     this->robot_type = ROBOT_TYPE_BOMBER;
@@ -28,9 +27,7 @@ bomber::bomber()
     this->attack_timer = 0;
 }
 
-void
-bomber::set_layer(int l)
-{
+void bomber::set_layer(int l) {
     robot_base::set_layer(l);
 
     if (this->f_body)
@@ -39,9 +36,7 @@ bomber::set_layer(int l)
         this->f_outer->SetFilterData(world::get_filter_for_layer(l, 1+8));
 }
 
-void
-bomber::roam_aim()
-{
+void bomber::roam_aim() {
     b2Vec2 r = this->get_position();
     b2Vec2 o = (this->roam_target_type == TARGET_POSITION ? this->roam_target_pos : this->roam_target->get_position());
     o -= r;
@@ -59,14 +54,11 @@ bomber::roam_aim()
     this->roam_target_aim = a;
 }
 
-void
-bomber::roam_attack()
-{
-    if (this->target_dist < 3.f) {
+void bomber::roam_attack() {
+    if (this->target_dist < 3.f)
         this->set_speed(this->properties[0].v.f + 7.5f);
-    } else {
+    else
         this->set_speed(this->properties[0].v.f);
-    }
 
     b2Vec2 r = this->get_position();
     b2Vec2 target_pos = (this->roam_target_type == TARGET_POSITION ? this->roam_target_pos : this->roam_target->get_position());
@@ -81,21 +73,16 @@ bomber::roam_attack()
     }
 }
 
-void
-bomber::step()
-{
+void bomber::step() {
     robot_base::step();
 
-    if (this->attack_timer > 0) {
+    if (this->attack_timer > 0)
         this->attack_timer -= G->timemul(WORLD_STEP);
-    } else {
+    else
         this->attack_timer = 0;
-    }
 }
 
-void
-bomber::attack(int add_cooldown)
-{
+void bomber::attack(int add_cooldown) {
     if (this->finished) return;
     if (roundf(this->i_dir) == 0.f) return;
     if (this->attack_timer > 0) return;
