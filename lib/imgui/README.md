@@ -1,7 +1,7 @@
 # Dear Imgui
 These are source files from the Dear Imgui library, for Principia's experimental Dear Imgui dialog backend.
 
-All files are currently taken from commit d94d0f3649c99d9a026518214f796aaacde707fe with the following modifications:
+All files are currently taken from commit 46d39d56febc2a00bdd2270dc88c8a13f2a0441a with the following modifications:
 
 - `imconfig.h` is entirely custom and should be kept
 - `imgui_impl_opengl3.cpp`:
