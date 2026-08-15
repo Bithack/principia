@@ -6,7 +6,7 @@ class velmeter : public i0o2gate
 {
   public:
     velmeter();
-    const char *get_name(){return "Velocity meter";};
+    const char *get_name(){return "Velocity Meter";};
 
     edevice* solve_electronics();
 

@@ -60,7 +60,7 @@ class mirror : public composable_multiconnect
   public:
     mirror();
 
-    const char *get_name(){return "Laser bouncer";};
+    const char *get_name(){return "Laser Bouncer";};
 };
 
 class laser_sensor : public ecomp_simpleconnect
@@ -69,7 +69,7 @@ class laser_sensor : public ecomp_simpleconnect
     laser_sensor();
     bool laserhit;
 
-    const char *get_name(){return "Laser sensor";};
+    const char *get_name(){return "Laser Sensor";};
     void setup(){this->laserhit=false;};
     edevice* solve_electronics(void);
     void on_load(bool created, bool has_state);

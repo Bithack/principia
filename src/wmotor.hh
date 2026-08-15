@@ -11,7 +11,7 @@ class wmotor : public entity
     wmotor();
     void add_to_world();
     void update();
-    const char *get_name(){return "Wall pivot";};
+    const char *get_name(){return "Wall Pivot";};
     void find_pairs();
     void connection_create_joint(connection *c);
     connection* load_connection(connection &conn);

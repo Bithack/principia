@@ -85,7 +85,7 @@ class passive_display : public display
 {
   public:
     passive_display();
-    const char *get_name() { return "Passive display"; };
+    const char *get_name() { return "Passive Display"; };
     edevice* solve_electronics();
 };
 
@@ -93,6 +93,6 @@ class active_display : public display
 {
   public:
     active_display();
-    const char *get_name() { return "Active display"; };
+    const char *get_name() { return "Active Display"; };
     edevice* solve_electronics();
 };

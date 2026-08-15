@@ -8,7 +8,7 @@ class valueshift : public i1o1gate
   public:
     valueshift();
     edevice* solve_electronics();
-    const char* get_name(){return "Value shift";}
+    const char* get_name(){return "Value Shift";}
 
     float get_slider_value(int s)
     {

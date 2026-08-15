@@ -17,7 +17,7 @@ class seesaw : public entity,
 
   public:
     seesaw();
-    const char* get_name(){return "Seesaw base";}
+    const char* get_name(){return "Seesaw Base";}
     void setup();
     void add_to_world();
     bool ReportFixture(b2Fixture *f);

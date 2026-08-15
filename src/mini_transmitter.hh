@@ -13,7 +13,7 @@ class mini_transmitter : public wireless_plug
     mini_transmitter();
     edevice *get_edevice(){return (edevice*)this;};
     entity *get_entity(){return (entity*)this;};
-    const char *get_name(){return "Mini transmitter";};
+    const char *get_name(){return "Mini Transmitter";};
 
     void begin()
     {

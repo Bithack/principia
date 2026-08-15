@@ -36,7 +36,7 @@ class explosive : public entity, public b2QueryCallback
     const char* get_name(){
         switch (this->explosive_type) {
             case 0: return "Bomb";
-            case 1: return "Land mine";
+            case 1: return "Landmine";
         }
         return "";
     }

@@ -14,7 +14,7 @@ class proximitysensor : public edev_multiconnect
 
   public:
     proximitysensor();
-    const char *get_name(void){return "Proximity sensor";};
+    const char *get_name(void){return "Proximity Sensor";};
 
     void on_load(bool created, bool has_state);
     void on_touch(b2Fixture *my, b2Fixture *other);

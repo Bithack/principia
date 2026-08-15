@@ -17,8 +17,8 @@ class gravityman : public ecomp_multiconnect
     gravityman(int _type);
     const char* get_name(){
         switch (this->_type) {
-            case GRAVITY_MANAGER: return "Gravity manager";
-            case GRAVITY_SETTER: return "Gravity setter";
+            case GRAVITY_MANAGER: return "Gravity Manager";
+            case GRAVITY_SETTER: return "Gravity Setter";
         }
 
         return "";

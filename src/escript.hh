@@ -100,7 +100,7 @@ class escript : public brcomp_multiconnect, public base_prompt
 
     escript();
     ~escript();
-    const char *get_name(){return "Lua Script";};
+    const char *get_name(){return "LuaScript";};
     void remove_from_world();
 
     int first_run;

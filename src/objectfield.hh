@@ -20,9 +20,9 @@ class objectfield : public edev_multiconnect
 
     const char* get_name(){
         switch (this->object_type) {
-            case OBJECT_FIELD_ID: return "ID field";
-            case OBJECT_FIELD_OBJECT: return "Object field";
-            case OBJECT_FIELD_TARGET_SETTER: return "Target setter";
+            case OBJECT_FIELD_ID: return "ID Field";
+            case OBJECT_FIELD_OBJECT: return "Object Field";
+            case OBJECT_FIELD_TARGET_SETTER: return "Target Setter";
         }
         return "";
     };

@@ -7,7 +7,7 @@ class var_setter : public i2o0gate
 {
   public:
     var_setter();
-    const char* get_name(){return "Var setter";}
+    const char* get_name(){return "Var Setter";}
 
     edevice* solve_electronics();
     void write_quickinfo(char *out);

@@ -14,5 +14,5 @@ class cursorfield : public i0o3gate
     cursorfield();
     edevice* solve_electronics(void);
 
-    const char *get_name(){return "Cursor field";};
+    const char *get_name(){return "Cursor Field";};
 };

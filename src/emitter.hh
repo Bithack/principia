@@ -33,9 +33,9 @@ class emitter : public edev_multiconnect
         switch (this->size) {
             case 1: return "Emitter";
             case 2: return "Multi-emitter";
-            case 0: default: return "Mini emitter";
+            case 0: default: return "Mini Emitter";
         }
-    };
+    }
 
     void on_touch(b2Fixture *my, b2Fixture *other);
     void on_untouch(b2Fixture *my, b2Fixture *other);

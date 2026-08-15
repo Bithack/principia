@@ -36,5 +36,5 @@ class sticky : public entity
     inline int get_slot(){return this->slot;};
     virtual void update(void);
     virtual void add_to_world();
-    const char *get_name(void){return "Sticky note";};
+    const char *get_name(void){return "Sticky Note";};
 };

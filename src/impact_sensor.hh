@@ -12,8 +12,8 @@ class impact_sensor : public ecomp_multiconnect
 
     impact_sensor(bool pressure);
     const char* get_name(){
-        if (this->pressure) return "Pressure sensor";
-        return "Impact sensor";
+        if (this->pressure) return "Pressure Sensor";
+        return "Impact Sensor";
     }
 
     void on_load(bool created, bool has_state);
