@@ -1,11 +1,11 @@
 #include <windows.h>
 
 #define VER_MAJOR 2026
-#define VER_MINOR 07
-#define VER_PATCH 15
+#define VER_MINOR 8
+#define VER_PATCH 16
 
-#define VER_STRING "2026.07.15"
-#define PRODUCT_VER_STRING "2026.07.15"
+#define VER_STRING "2026.08.16"
+#define PRODUCT_VER_STRING "2026.08.16"
 
 1 ICON "icon.ico"
 1 24 "principia.manifest"
