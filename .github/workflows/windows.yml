@@ -20,58 +20,42 @@ on:
 
 jobs:
   windows:
-    runs-on: windows-latest
-    defaults:
-      run:
-        shell: msys2 {0}
+    name: "${{ matrix.display }}"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - { display: "32-bit", bits: 32 }
+          - { display: "64-bit", bits: 64 }
+          #- { display: "64-bit (ARM)", bits: arm64 }
     steps:
       - uses: actions/checkout@v6
 
-      - uses: msys2/setup-msys2@v2
-        with:
-          update: true
-          release: false
-          msystem: CLANG64
-          pacboy: >-
-            git:
-            gcc:p
-            cmake:p
-            ninja:p
-            zlib:p
-            libpng:p
-            libjpeg-turbo:p
-            sdl3:p
-            nsis:p
-            7zip:p
-
-      - name: Install external packages
+      - name: Install build dependencies
         run: |
-         ./packaging/windows-install-pkgs.sh
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build nasm 7zip
+
+      - name: Download toolchain
+        run: |
+          sudo ./packaging/download-llvm-mingw.sh /usr
 
       - name: Build
         run: |
-          mkdir build; cd build
-          cmake .. -G Ninja
-          ninja -j4
-
-      - name: Bundle together installer and portable
-        run: |
-          cd build
-          ../packaging/windows_release.sh
-          ../packaging/windows_portable.sh
+          ./packaging/winbuild.sh ${{ matrix.bits }}
 
       - name: Upload output as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: principia-setup.exe
-          path: build/principia-setup.exe
+          name: principia_${{ matrix.bits }}.exe
+          path: build_win${{ matrix.bits }}/principia_win${{ matrix.bits }}.exe
           #archive: false
           if-no-files-found: error
 
       - name: Upload output as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: principia-portable.7z
-          path: build/principia-portable.7z
+          name: principia_${{ matrix.bits }}.7z
+          path: build_win${{ matrix.bits }}/principia_win${{ matrix.bits }}.7z
           #archive: false
           if-no-files-found: error
