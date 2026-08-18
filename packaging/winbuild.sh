@@ -117,24 +117,23 @@ build_principia() {
 
 download_nsis() {
 	NSIS_VER=3.12
-	NSIS_HASH="56581f90db321581c5381193d796fffcf2d24b2f8fed2160a6c6a3baa67f2c4f"
+	NSIS_HASH="abf79bf16fb3401a56777275e0a421b0cca63398b42b266711abceaeca16ec7e"
 
 	echo Downloading NSIS...
 
 	# if nsis/ directory does not exist, download NSIS and extract it there
 	if [ ! -d "nsis" ]; then
 		echo "Downloading NSIS..."
-		curl -L -o /tmp/nsis-$NSIS_VER.zip http://downloads.sourceforge.net/project/nsis/NSIS%203/$NSIS_VER/nsis-$NSIS_VER.zip
+		curl -L -o /tmp/nsis.tar.gz https://dl.principia-web.se/deps/win/nsis-custom-$NSIS_VER.tar.gz
 
-		echo "$NSIS_HASH  /tmp/nsis-$NSIS_VER.zip" | sha256sum -c -
+		echo "$NSIS_HASH  /tmp/nsis.tar.gz" | sha256sum -c -
 		if [ $? -ne 0 ]; then
 			echo "NSIS hash mismatch"
 			exit 1
 		fi
 
 		echo "Extracting NSIS..."
-		unzip /tmp/nsis-$NSIS_VER.zip -d /tmp/nsis-$NSIS_VER
-		mv /tmp/nsis-$NSIS_VER/nsis-$NSIS_VER nsis
+		tar -xzf /tmp/nsis.tar.gz
 	fi
 }
 
@@ -144,12 +143,12 @@ make_installer() {
 	echo Making installer...
 
 	cp ../packaging/principia_install.nsi .
-	wine nsis/makensis.exe \
-		/DARCH_NAME=win$ARCH \
-		/DVER_MAJOR=$VERSION_MAJOR \
-		/DVER_MINOR=$VERSION_MINOR \
-		/DVER_BUILD=$VERSION_BUILD \
-		/DVERSION=$VERSION \
+	./nsis/makensis \
+		-DARCH_NAME=win$ARCH \
+		-DVER_MAJOR=$VERSION_MAJOR \
+		-DVER_MINOR=$VERSION_MINOR \
+		-DVER_BUILD=$VERSION_BUILD \
+		-DVERSION=$VERSION \
 		principia_install.nsi
 }
 
