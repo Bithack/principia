@@ -4,6 +4,7 @@ ManifestDPIAware true
 
 !include "MUI2.nsh"
 !include "LogicLib.nsh"
+!include "WinVer.nsh"
 !include "x64.nsh"
 
 !define MUI_ICON "..\packaging\icon.ico"
@@ -81,9 +82,9 @@ FunctionEnd
 
 Function DrawLogo
     ; Windows 10, version 1607+
-    System::Call 'user32::GetDpiForWindow(p $HWNDPARENT)i .r0'
-
-    ${If} $0 == 0
+    ${If} ${AtLeastWaaS} 1607
+        System::Call 'user32::GetDpiForWindow(p $HWNDPARENT)i .r0'
+    ${Else}
         ; Fallback for older Windows versions
         System::Call 'user32::GetDC(p 0)p .r1'
         System::Call 'gdi32::GetDeviceCaps(p r1, i 88)i .r0'
