@@ -16,7 +16,7 @@ android {
         versionName "2026.08.16"
 
         externalNativeBuild {
-            cmake.arguments "-DUSE_VENDORED_SDL3=1"
+            cmake.arguments "-DUSE_VENDORED_SDL3=1", "-DUNITY_BUILD=1"
         }
 
         ndk {
