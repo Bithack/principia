@@ -8,6 +8,7 @@ on:
       - 'android/**'
       - 'data/**'
       - 'packaging/**'
+      - 'cmake/**'
       - 'CMakeLists.txt'
       - '.github/workflows/android.yml'
   pull_request:
@@ -17,6 +18,7 @@ on:
       - 'android/**'
       - 'data/**'
       - 'packaging/**'
+      - 'cmake/**'
       - 'CMakeLists.txt'
       - '.github/workflows/android.yml'
 
