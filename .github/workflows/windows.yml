@@ -22,7 +22,7 @@ on:
 
 jobs:
   windows:
-    name: "${{ matrix.display }}"
+    name: "Windows ${{ matrix.display }}"
     runs-on: ubuntu-latest
     strategy:
       matrix:
