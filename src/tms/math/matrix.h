@@ -44,7 +44,7 @@ void tmat4_translate(float *m, float x, float y, float z);
 void tmat4_lookat(float result[16], float eyeX, float eyeY, float eyeZ, float centerX, float centerY, float centerZ, float upX, float upY, float upZ);
 void tmat4_frustum(float *result, float left, float right, float bottom, float top, float nearVal, float farVal);
 void tmat4_dump(float *m);
-void tmat4_set_ortho(float *result, float left, float right, float bottom, float top, float near, float far);
+void tmat4_set_ortho(float *result, float left, float right, float bottom, float top, float _near, float _far);
 int  tmat4_invert(float *out);
 void tmat4_scale(float *m, float x, float y, float z);
 void tmat4_set_near_plane(float *m, tvec4 *plane);

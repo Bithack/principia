@@ -10,11 +10,6 @@
 #define TMS_CAMERA_PERSPECTIVE 2 /**< Enable perspective camera. If unset, the camera is orthographic. */
 #define TMS_CAMERA_LOOKAT      4 /**< If set, the camera's direction is calculated from a point given to tms_camera_lookat, otherwise the camera's direction is set using tms_camera_set_direction */
 
-#ifdef SDL_PLATFORM_WINDOWS
-#undef near
-#undef far
-#endif
-
 /**
  * Perspective/ortho2d camera convenience stuff.
  *
@@ -35,8 +30,10 @@ struct tms_camera {
     uint32_t          _flags;
     float             fov;
     float             aspect;
-    float             near;
-    float             far;
+    /// Near plane
+    float             p_near;
+    /// Far plane
+    float             p_far;
     float             velocity_damping;
 
     float width;

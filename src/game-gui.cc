@@ -1445,8 +1445,8 @@ game::init_gui(void)
     menu_cam->oheight = _tms.window_height;
 
     menu_cam->fov = 45.f;
-    menu_cam->near = -1.f;
-    menu_cam->far = 1.f;
+    menu_cam->p_near = -1.f;
+    menu_cam->p_far = 1.f;
 
     int n=0;
     for (n=0; n<of::num_categories; n++) {
@@ -2430,8 +2430,8 @@ game::create_sandbox_menu()
     int n = 0;
 
     struct tms_camera *cam = tms_camera_alloc();
-    cam->near = -1.f;
-    cam->far = 1.f;
+    cam->p_near = -1.f;
+    cam->p_far = 1.f;
     cam->owidth = s_size;
     cam->oheight = s_size * (_tms.yppcm / _tms.xppcm);
     tms_camera_set_position(cam, 0.f, 0.f, 0.f);

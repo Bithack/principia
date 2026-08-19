@@ -1152,14 +1152,14 @@ void game::init_camera() {
     this->ao_cam->width = 1024.f/50.f;
     this->ao_cam->height = 1024.f/50.f;
 
-    this->ao_cam->near = 0.0f - 2.0f;
-    this->ao_cam->far = LAYER_DEPTH*3 + .5f;// + .75f;
+    this->ao_cam->p_near = 0.0f - 2.0f;
+    this->ao_cam->p_far = LAYER_DEPTH*3 + .5f;// + .75f;
 
     this->gi_cam = new tms::camera();
     this->gi_cam->width = 1024.f/50.f;
     this->gi_cam->height = 1024.f/50.f;
-    this->gi_cam->near = 0.f - 2.f;
-    this->gi_cam->far = LAYER_DEPTH*3 + .5f;// + .75f;
+    this->gi_cam->p_near = 0.f - 2.f;
+    this->gi_cam->p_far = LAYER_DEPTH*3 + .5f;// + .75f;
 }
 
 void game::reset_touch(bool hard/*=true*/) {
@@ -1814,8 +1814,8 @@ int game::step(double dt) {
 
     this->set_caveview_zoom_limits(true);
 
-    this->cam->far = this->cam->_position.z+1.f;
-    this->cam->near = this->cam->_position.z-3*LAYER_DEPTH;
+    this->cam->p_far = this->cam->_position.z+1.f;
+    this->cam->p_near = this->cam->_position.z-3*LAYER_DEPTH;
 
     tvec3 l = this->light;
 
@@ -2715,21 +2715,21 @@ int game::render() {
 
                 float pp = 0.f;
 
-                float ff = this->cam->far;
-                float nn = this->cam->near;
+                float ff = this->cam->p_far;
+                float nn = this->cam->p_near;
 
 #define HORIZON_DIST 2500.f
 
-                this->cam->far = HORIZON_DIST+1.f;
-                this->cam->near = -10.f;
+                this->cam->p_far = HORIZON_DIST+1.f;
+                this->cam->p_near = -10.f;
                 this->cam->calculate();
 
                 tvec3 v1 = tms_camera_project(this->cam, this->cam->_position.x, 0.f, -HORIZON_DIST);
                 pp = (v1.y / this->cam->height) * 2.f;
 
                 /* reset camera */
-                this->cam->far = ff;
-                this->cam->near = nn;
+                this->cam->p_far = ff;
+                this->cam->p_near = nn;
                 this->cam->calculate();
 
                 tms_program_bind(trans_program);

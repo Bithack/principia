@@ -28,8 +28,8 @@ tms_camera_init(struct tms_camera *c)
     c->_flags = 0;
 
     c->fov = 55.f;
-    c->near = 1.f;
-    c->far = -100.f;
+    c->p_near = 1.f;
+    c->p_far = -100.f;
     c->velocity_damping = 0;
     c->up = (tvec3){0,1,0};
 
@@ -197,13 +197,13 @@ tms_camera_calculate(struct tms_camera *c)
 
     if (c->_flags & TMS_CAMERA_PERSPECTIVE) {
         tmat4_perspective(c->projection, c->fov, c->width/c->height,
-                               c->near, c->far);
+                               c->p_near, c->p_far);
     } else {
         /* orthographic camera */
         tmat4_set_ortho(c->projection,
                         -c->width/2.f, c->width/2.f,
                         -c->height/2.f, c->height/2.f,
-                        c->near, c->far);
+                        c->p_near, c->p_far);
     }
 
     if (c->_flags & TMS_CAMERA_LOOKAT) {

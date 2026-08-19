@@ -54,8 +54,8 @@ tms_scene_init(struct tms_scene *scene)
     scene->cull_step = 0; /* XXX */
 
     /*
-    scene->light.cam->near = 10.f;
-    scene->light.cam->far = 30.f;
+    scene->light.cam->p_near = 10.f;
+    scene->light.cam->p_far = 30.f;
     scene->light.cam->width = tms.window_width/80;
     scene->light.cam->height = tms.window_height/50;
     tms_scene_set_light_pos(scene, 0, 50.f, 0);

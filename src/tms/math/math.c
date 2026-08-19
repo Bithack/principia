@@ -352,23 +352,23 @@ tmat4_set_ortho(float *result,
 void
 tmat4_frustum(float *result,
                float left, float right, float bottom, float top,
-               float nearVal, float farVal)
+               float _near, float _far)
 {
-    result[0] = 2.0f*nearVal/(right-left);
+    result[0] = 2.0f*_near/(right-left);
     result[1] = 0.0f;
     result[2] = 0.0f;
     result[3] = 0.0f;
     result[4] = 0.0f;
-    result[5] = 2.0f*nearVal/(top-bottom);
+    result[5] = 2.0f*_near/(top-bottom);
     result[6] = 0.0f;
     result[7] = 0.0f;
     result[8] = (right+left)/(right-left);
     result[9] = (top+bottom)/(top-bottom);
-    result[10] = -(farVal+nearVal)/(farVal-nearVal);
+    result[10] = -(_far+_near)/(_far-_near);
     result[11] = -1.0f;
     result[12] = 0.0f;
     result[13] = 0.0f;
-    result[14] = -(2.0f*farVal*nearVal)/(farVal-nearVal);
+    result[14] = -(2.0f*_far*_near)/(_far-_near);
     result[15] = 0.0f;
 }
 

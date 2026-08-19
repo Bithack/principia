@@ -226,8 +226,8 @@ int menu_pkg::step(double dt) {
     float damping = powf(.025f, dt);
     this->cam->_velocity.x *= damping;
     this->cam->_position.x += this->cam->_velocity.x * dt;
-    this->cam->near = -1.f;
-    this->cam->far = 1.f;
+    this->cam->p_near = -1.f;
+    this->cam->p_far = 1.f;
 
     float max_x = (int)((float)this->pkg.num_levels / 9) * _tms.xppcm*4.f*1.2f + 2000;
     float min_x = _tms.window_width/2.f - 200.f;
