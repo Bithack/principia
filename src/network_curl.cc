@@ -208,16 +208,28 @@ static int progress_cb(
     return 0;
 }
 
+#ifdef SDL_PLATFORM_ANDROID
+#include <curl-ca-store/cacert.h>
+
+static void set_curl_ca_store(void *curl) {
+    curl_blob ca_blob;
+    ca_blob.data = const_cast<char *>(cacert_pem);
+    ca_blob.len = sizeof(cacert_pem);
+    ca_blob.flags = CURL_BLOB_COPY;
+
+    curl_easy_setopt(curl, CURLOPT_CAINFO_BLOB, &ca_blob);
+}
+#else
+static void set_curl_ca_store(void *curl) { }
+#endif
+
 /**
  * Initialise defaults for cURL on each request
  */
 static void init_curl_defaults(void *curl) {
     curl_easy_reset(P.curl);
 
-#ifdef SDL_PLATFORM_ANDROID
-    // XXX: Fix cert verification on Android
-    curl_easy_setopt(P.curl, CURLOPT_SSL_VERIFYPEER, 0);
-#endif
+    set_curl_ca_store(P.curl);
 
     char ua[512];
     snprintf(ua, 511, "Principia/%d (%s) (%s)",
