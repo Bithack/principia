@@ -56,19 +56,65 @@ dependencies {
 }
 
 // get precompiled deps
-tasks.register('downloadDeps', Download) {
-    src 'https://github.com/principia-game/android-deps/releases/download/latest/deps.zip'
-    dest new File(buildDir, 'deps.zip')
-    overwrite false
+def depsVersion = '2026-08-19'
+def depsZipName = "deps-${depsVersion}.zip"
+def depsUrl = "https://dl.principia-web.se/deps/android/${depsZipName}"
+def depsSha256 = '1349d086ef09197babb9a60ca23439c2d9be235512c88179f33be4daab9391c6'
+
+def depsZip = new File(buildDir, depsZipName)
+def depsDir = new File(buildDir.parent, '../deps')
+
+def sha256 = { File file ->
+    def digest = java.security.MessageDigest.getInstance('SHA-256')
+
+    file.withInputStream { input ->
+        byte[] buffer = new byte[1024 * 1024]
+        int n
+
+        while ((n = input.read(buffer)) != -1)
+            digest.update(buffer, 0, n)
+    }
+
+    digest.digest().collect { String.format('%02x', it) }.join()
 }
 
-tasks.register('getDeps', Copy) {
+tasks.register('downloadDeps', Download) {
+    src depsUrl
+    dest depsZip
+    overwrite false
+
+    onlyIf {
+        !depsZip.exists()
+    }
+}
+
+tasks.register('getDeps') {
+    def existedBefore = depsZip.exists()
+
     dependsOn downloadDeps
-    def deps = new File(buildDir.parent, '../deps')
-    if (!deps.exists()) {
-        deps.mkdir()
-        from zipTree(downloadDeps.dest)
-        into deps
+
+    doLast {
+        if (existedBefore) {
+            println "Dependency archive already exists, skipping verification and extraction"
+            return
+        }
+
+        println "New dependency archive downloaded: ${depsZip}"
+
+        def actualSha256 = sha256(depsZip)
+
+        if (!actualSha256.equalsIgnoreCase(depsSha256))
+            throw new GradleException(
+                "SHA-256 mismatch for ${depsZip.name}\n" +
+                "Expected: ${depsSha256}\n" +
+                "Actual:   ${actualSha256}")
+
+        println "SHA-256 OK"
+        println "Extracting dependencies..."
+
+        project.delete(depsDir)
+
+        copy { from zipTree(depsZip) into depsDir }
     }
 }
 
