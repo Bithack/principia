@@ -11,6 +11,8 @@ menu_ss::menu_ss() : menu_base(false) {
 }
 
 int menu_ss::render() {
+    SDL_Delay(250);
+
     glClearColor(0.02f, 0.02f, 0.02f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);

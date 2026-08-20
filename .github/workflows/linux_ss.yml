@@ -6,6 +6,7 @@ on:
       - 'src/**'
       - 'lib/**'
       - 'data/**'
+      - 'packaging/screenshotter-container/**'
       - 'cmake/**'
       - 'CMakeLists.txt'
       - '.github/workflows/linux_ss.yml'
@@ -14,12 +15,14 @@ on:
       - 'src/**'
       - 'lib/**'
       - 'data/**'
+      - 'packaging/screenshotter-container/**'
       - 'cmake/**'
       - 'CMakeLists.txt'
       - '.github/workflows/linux_ss.yml'
 
 jobs:
   linux_ss:
+    name: Screenshot build
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
@@ -43,3 +46,28 @@ jobs:
           name: screenshotter_artifact
           path: build/principia
           if-no-files-found: error
+
+  linux_ss_docker:
+    name: Screenshot build (Docker)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./packaging/screenshotter-container
+          file: ./packaging/screenshotter-container/Dockerfile
+          tags: principia-screenshotter:latest
+          outputs: type=docker,dest=/tmp/principia-screenshotter.tar
+
+      - name: Upload Docker image
+        uses: actions/upload-artifact@v7
+        with:
+          name: principia-screenshotter
+          path: /tmp/principia-screenshotter.tar
