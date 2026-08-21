@@ -2,6 +2,7 @@
 #include "game.hh"
 #include "imgui.hh"
 #include "prompt.hh"
+#include "main.hh"
 #include "world.hh"
 
 namespace UiPrompt {
@@ -12,6 +13,8 @@ namespace UiPrompt {
 
     void open() {
         do_open = true;
+
+        P.focused = false;
 
         if (W->is_adventure() && adventure::player) {
             adventure::player->stop_moving(DIR_LEFT);
@@ -54,6 +57,7 @@ namespace UiPrompt {
                         tms_debugf("setting prompt response from here");
                         bp->set_response(i + 1);
                     }
+                    P.focused = true;
                     ImGui::CloseCurrentPopup();
                 }
 
