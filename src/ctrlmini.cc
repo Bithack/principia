@@ -3,8 +3,7 @@
 #include "material.hh"
 #include "ifdevice.hh"
 
-ctrlmini::ctrlmini()
-{
+ctrlmini::ctrlmini() {
     this->num_s_in = 3;
     this->num_s_out = 1;
 
@@ -32,9 +31,7 @@ ctrlmini::ctrlmini()
     this->set_as_rect(1.25f*.5f, .313f*.5f);
 }
 
-edevice*
-ctrlmini::solve_electronics(void)
-{
+edevice *ctrlmini::solve_electronics() {
     if (!this->s_out[0].p)
         return 0;
 
@@ -48,16 +45,13 @@ ctrlmini::solve_electronics(void)
     float voltage = this->s_in[0].get_value();
     float speed = this->s_in[1].p ? this->s_in[1].get_value() : 1.f;
 
-    if (this->s_in[2].p) {
+    if (this->s_in[2].p)
         if ((bool)roundf(this->s_in[2].get_value()))
             speed *= -1.f;
-    }
 
     ifdevice *i = this->s_out[0].p->find_ifdevice();
-    if (i) {
+    if (i)
         i->ifstep(voltage, speed, 0.f, 0.f, false, false);
-    }
 
     return 0;
 }
-

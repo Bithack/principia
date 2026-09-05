@@ -1,10 +1,9 @@
 #include "cylinder.hh"
 #include "game.hh"
-#include "model.hh"
 #include "material.hh"
+#include "model.hh"
 
-cylinder::cylinder(int _type)
-{
+cylinder::cylinder(int _type) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_CYLINDER1));
 
     this->type = ENTITY_WHEEL;
@@ -13,9 +12,8 @@ cylinder::cylinder(int _type)
     if (this->obj_type == 1) {
         this->set_flag(ENTITY_IS_INTERACTIVE, true);
         this->set_material(&m_interactive);
-    } else {
+    } else
         this->set_material(&m_wood);
-    }
 
     this->layer_mask = 2+4;
 
@@ -44,27 +42,19 @@ cylinder::cylinder(int _type)
     this->properties[0].v.i = 1;
 }
 
-float
-cylinder::get_slider_value(int s)
-{
+float cylinder::get_slider_value(int s) {
     return (float)this->properties[0].v.i / 3.f;
 }
 
-float
-cylinder::get_slider_snap(int s)
-{
+float cylinder::get_slider_snap(int s) {
     return .333333333f;
 }
 
-void
-cylinder::on_load(bool created, bool has_state)
-{
+void cylinder::on_load(bool created, bool has_state) {
     this->on_slider_change(-1, (float)this->properties[0].v.i / 3.f);
 }
 
-connection *
-cylinder::load_connection(connection &conn)
-{
+connection *cylinder::load_connection(connection &conn) {
     if (conn.o_index == 0) {
         this->c_back = conn;
         return &this->c_back;
@@ -74,15 +64,11 @@ cylinder::load_connection(connection &conn)
     }
 }
 
-void
-cylinder::setup()
-{
+void cylinder::setup() {
     this->initialize_interactive();
 }
 
-void
-cylinder::on_slider_change(int s, float value)
-{
+void cylinder::on_slider_change(int s, float value) {
     uint32_t size = (uint32_t)roundf(value*3.f);
     if (size > 3) size = 3;
     this->set_property(0, size);
@@ -98,8 +84,7 @@ cylinder::on_slider_change(int s, float value)
     this->recreate_shape();
 }
 
-class cyl_query_cb : public b2QueryCallback
-{
+class cyl_query_cb : public b2QueryCallback {
   public:
     entity *result;
     b2Fixture *result_fx;
@@ -108,15 +93,13 @@ class cyl_query_cb : public b2QueryCallback
     int result_dir;
     b2Vec2 point;
 
-    cyl_query_cb(cylinder *ignore, b2Vec2 point)
-    {
+    cyl_query_cb(cylinder *ignore, b2Vec2 point) {
         this->result = 0;
         this->ignore = ignore;
         this->point = point;
     }
 
-    bool ReportFixture(b2Fixture *f)
-    {
+    bool ReportFixture(b2Fixture *f) {
         entity *e = (entity*)f->GetUserData();
         uint8_t fr = (uint8_t)(uintptr_t)f->GetBody()->GetUserData();
 
@@ -146,9 +129,7 @@ class cyl_query_cb : public b2QueryCallback
     }
 };
 
-void
-cylinder::find_pairs()
-{
+void cylinder::find_pairs() {
     if (this->c_back.pending || this->c_front.pending/* && this->body*/) {
         b2Vec2 p = this->get_position();//this->body->GetPosition();
         b2AABB aabb;

@@ -1,10 +1,9 @@
 #include "ctrlbase.hh"
-#include "model.hh"
-#include "material.hh"
 #include "ifdevice.hh"
+#include "material.hh"
+#include "model.hh"
 
-ctrlpass::ctrlpass()
-{
+ctrlpass::ctrlpass() {
     this->menu_scale = .75f;
 
     this->num_s_in = 1;
@@ -25,9 +24,7 @@ ctrlpass::ctrlpass()
     this->set_as_rect(.950f*.5f, .313f*.5f);
 }
 
-edevice*
-ctrlpass::solve_electronics(void)
-{
+edevice *ctrlpass::solve_electronics() {
     if (!this->s_out[0].p)
         return 0;
 
@@ -48,4 +45,3 @@ ctrlpass::solve_electronics(void)
 
     return 0;
 }
-

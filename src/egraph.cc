@@ -1,20 +1,19 @@
 #include "egraph.hh"
 #include "display.hh"
-#include "model.hh"
-#include "material.hh"
+#include "font.hh"
 #include "game.hh"
+#include "material.hh"
+#include "model.hh"
+#include "settings.hh"
 #include "textbuffer.hh"
 #include "world.hh"
-#include "settings.hh"
-#include "font.hh"
 
 static const float DW = (1.5f*.75f);
 static const float DH = (1.f*.75f);
 static const float LEFT = -DW/2.f;
 static const float STEP = DW/GRAPH_BUFSZ;
 
-egraph::egraph()
-{
+egraph::egraph() {
     memset(this->buffer, 0, sizeof(this->buffer));
     this->set_mesh(mesh_factory::get_mesh(MODEL_GRAPHER));
     this->set_material(&m_edev_dark);
@@ -30,25 +29,57 @@ egraph::egraph()
     this->set_as_rect(DW/2.f+.125f, DH/2.f+.2f);
 }
 
-void
-egraph::on_pause()
-{
+void egraph::on_pause() {
     memset(this->buffer, 0, sizeof(this->buffer));
     buf_p = 0;
 }
 
-void
-egraph::setup()
-{
+void egraph::setup() {
     memset(this->buffer, 0, sizeof(this->buffer));
     buf_p = 0;
 }
 
 #define SCALE 0.005f
 
-void
-egraph::update_effects(void)
-{
+void egraph::draw_value() {
+    b2Vec2 p = this->get_position();
+    float z = this->get_layer()*LAYER_DEPTH + .2f;
+
+    p_font *f = font::large;
+    float val = this->buffer[(this->buf_p-1)%GRAPH_BUFSZ];
+    char val_str[32];
+    snprintf(val_str, sizeof(val_str), "%.*f", 2, val);
+    float width = 0.f;
+    int slen = strlen(val_str);
+    struct glyph *g;
+
+    for (int i=0; i<slen; ++i)
+        if ((g = f->get_glyph(val_str[i])))
+            width += g->ax;
+
+    float x = p.x - 0.60f;
+    float y = p.y + 0.4f;
+
+    for (int i=0; i<slen; ++i) {
+        if ((g = f->get_glyph(val_str[i]))) {
+            float x2 = x + (g->bl + g->bw/2.f) * SCALE;
+            float y2 = y + (g->bt - g->bh/2.f) * SCALE;
+
+            x += g->ax * SCALE;
+            y += g->ay * SCALE;
+            textbuffer::add_char(g,
+                    x2,
+                    y2,
+                    z + 0.01f,
+                    .3f, .8f, .8f, 1.0f,
+                    g->bw*SCALE,
+                    g->bh*SCALE
+                    );
+        }
+    }
+}
+
+void egraph::update_effects() {
     float z = this->get_layer()*LAYER_DEPTH + .2f;
 
     b2Vec2 p = this->get_position();
@@ -80,42 +111,8 @@ egraph::update_effects(void)
             0.2f
             );
 
-
     if (settings["display_grapher_value"]->v.b && W->is_playing() && (G->state.sandbox || G->state.test_playing)) {
-        p_font *f = font::large;
-        float val = this->buffer[(this->buf_p-1)%GRAPH_BUFSZ];
-        char val_str[32];
-        sprintf(val_str, "%.*f", 2, val);
-        float width = 0.f;
-        int slen = strlen(val_str);
-        struct glyph *g;
-
-        for (int i=0; i<slen; ++i) {
-            if ((g = f->get_glyph(val_str[i]))) {
-                width += g->ax;
-            }
-        }
-
-        float x = p.x - 0.60f;
-        float y = p.y + 0.4f;
-
-        for (int i=0; i<slen; ++i) {
-            if ((g = f->get_glyph(val_str[i]))) {
-                float x2 = x + (g->bl + g->bw/2.f) * SCALE;
-                float y2 = y + (g->bt - g->bh/2.f) * SCALE;
-
-                x += g->ax * SCALE;
-                y += g->ay * SCALE;
-                textbuffer::add_char(g,
-                        x2,
-                        y2,
-                        z + 0.01f,
-                        .3f, .8f, .8f, 1.0f,
-                        g->bw*SCALE,
-                        g->bh*SCALE
-                        );
-            }
-        }
+        this->draw_value();
     }
 
     for (int x=0; x<GRAPH_BUFSZ; x++) {
@@ -139,9 +136,7 @@ egraph::update_effects(void)
     }
 }
 
-edevice*
-egraph::solve_electronics(void)
-{
+edevice *egraph::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 
@@ -156,4 +151,3 @@ egraph::solve_electronics(void)
 
     return 0;
 }
-

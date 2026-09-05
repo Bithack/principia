@@ -16,14 +16,11 @@ static int n = 0;
 
 static tvec4 base[4];
 
-void display::reset()
-{
+void display::reset() {
     n = 0;
 }
 
-tms::entity *
-display::get_full_entity()
-{
+tms::entity *display::get_full_entity() {
     if (_e) return _e;
 
     _e = new tms::entity();
@@ -39,9 +36,7 @@ display::get_full_entity()
     return _e;
 }
 
-void
-display::_init()
-{
+void display::_init() {
     verts = new tms::gbuffer(4*DISPLAY_MAX_TOTAL_SQUARES*sizeof(tvec4));
     verts->usage = TMS_GBUFFER_STREAM_DRAW;
 
@@ -75,9 +70,7 @@ display::_init()
     reset();
 }
 
-void
-display::add(float x, float y, float z, float sn, float cs, float col)
-{
+void display::add(float x, float y, float z, float sn, float cs, float col) {
     if (n < DISPLAY_MAX_TOTAL_SQUARES-1) {
         tvec4 *b = (tvec4*)verts->get_buffer();
 
@@ -95,9 +88,7 @@ display::add(float x, float y, float z, float sn, float cs, float col)
     }
 }
 
-void
-display::add_custom(float x, float y, float z, float width, float height, float sn, float cs, float col)
-{
+void display::add_custom(float x, float y, float z, float width, float height, float sn, float cs, float col) {
     if (n < DISPLAY_MAX_TOTAL_SQUARES-1) {
         tvec4 *b = (tvec4*)verts->get_buffer();
 
@@ -120,8 +111,7 @@ display::add_custom(float x, float y, float z, float width, float height, float 
     }
 }
 
-void display::upload()
-{
+void display::upload() {
     if (_mesh) {
         _mesh->i_start = 0;
         _mesh->i_count = n*6;
@@ -423,8 +413,7 @@ static char preset[] =
     "\0"
 ;
 
-display::display()
-{
+display::display() {
     this->set_flag(ENTITY_HAS_CONFIG, true);
 
     this->dialog_id = DIALOG_DIGITALDISPLAY;
@@ -452,30 +441,22 @@ display::display()
     this->properties[2].v.s.len = 0;
 }
 
-void
-display::construct()
-{
+void display::construct() {
     this->on_load(false, false);
 }
 
-void
-display::on_load(bool created, bool has_state)
-{
+void display::on_load(bool created, bool has_state) {
     this->load_symbols();
 }
 
-void
-display::setup()
-{
+void display::setup() {
     this->active_symbol = this->properties[1].v.i8;
 
     if (this->active_symbol >= this->num_symbols)
         this->active_symbol = this->num_symbols-1;
 }
 
-void
-display::on_pause()
-{
+void display::on_pause() {
     this->active_symbol = this->properties[1].v.i8;
     if (this->active_symbol >= this->num_symbols)
         this->active_symbol = this->num_symbols-1;
@@ -483,9 +464,7 @@ display::on_pause()
     this->active = true;
 }
 
-void
-display::update_effects()
-{
+void display::update_effects() {
     float sn = sinf(-this->get_angle());
     float cs = cosf(-this->get_angle());
 
@@ -507,9 +486,7 @@ display::update_effects()
     }
 }
 
-void
-display::load_symbols()
-{
+void display::load_symbols() {
     int sn = 0;
     char *s = this->properties[2].v.s.buf;
     this->num_symbols = 0;
@@ -541,8 +518,7 @@ display::load_symbols()
         this->active_symbol = this->num_symbols-1;
 }
 
-passive_display::passive_display()
-{
+passive_display::passive_display() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_DISPLAY));
     this->num_s_out = 0;
     this->num_s_in = 3;
@@ -561,9 +537,7 @@ passive_display::passive_display()
 
 }
 
-edevice*
-passive_display::solve_electronics()
-{
+edevice *passive_display::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -593,8 +567,7 @@ passive_display::solve_electronics()
     return 0;
 }
 
-active_display::active_display()
-{
+active_display::active_display() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_DISPLAY_ACTIVE));
     this->num_s_out = 1;
     this->num_s_in = 2;
@@ -611,9 +584,7 @@ active_display::active_display()
     this->s_out[0].lpos = b2Vec2( .2f, -.4f); /* current symbol fraction out */
 }
 
-edevice*
-active_display::solve_electronics()
-{
+edevice *active_display::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())

@@ -1,18 +1,15 @@
 #include "crc.hh"
 #include "pkgman.hh"
-
 #include <algorithm>
 #include <stdlib.h>
-#include <stdio.h>
 #include <unistd.h>
+#include <zlib.h>
 
 #ifndef _NO_TMS
 #include <tms/cpp.hh>
 #endif
 
-uint32_t
-crc32_uint64(uint32_t crc, uint64_t data)
-{
+uint32_t crc32_uint64(uint32_t crc, uint64_t data) {
     for (int x=0; x<8; ++x) {
         uint8_t cool = (data >> x*8) & 0xff;
         crc = crc32(crc, &cool, 1);
@@ -21,9 +18,7 @@ crc32_uint64(uint32_t crc, uint64_t data)
     return crc;
 }
 
-uint32_t
-crc32_uint32(uint32_t crc, uint32_t data)
-{
+uint32_t crc32_uint32(uint32_t crc, uint32_t data) {
     for (int x=0; x<4; ++x) {
         uint8_t cool = (data >> x*8) & 0xff;
         crc = crc32(crc, &cool, 1);
@@ -32,9 +27,7 @@ crc32_uint32(uint32_t crc, uint32_t data)
     return crc;
 }
 
-uint32_t
-crc32_level(const lvlinfo &lvl, const lvlbuf &lb, uint32_t timestamp, uint32_t last_score, int method)
-{
+uint32_t crc32_level(const lvlinfo &lvl, const lvlbuf &lb, uint32_t timestamp, uint32_t last_score, int method) {
 #ifndef _NO_TMS
     tms_assertf(method < 5, "only 5 methods of crc32_level are implemented.");
 

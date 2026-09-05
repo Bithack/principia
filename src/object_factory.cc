@@ -229,7 +229,7 @@ static entity* new_signalclip() { return new clip(CLIP_SIGNAL); }
 static entity* new_gearbox() { return new gearbox(); }
 static entity* new_ctrlmini() { return new ctrlmini(); }
 static entity* new_ctrlservo() { return new ctrlservo(); }
-static entity* new_ctrlfplus() { return new ctrlfplus(); }
+static entity* new_ctrlfplus() { return new ctrlfeedback(); }
 static entity* new_battery3v() { return new battery(); }
 static entity* new_damper1() { return new damper_1(); }
 static entity* new_damper2() { return new damper_2(); }

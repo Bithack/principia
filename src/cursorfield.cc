@@ -2,8 +2,7 @@
 #include "ui.hh"
 #include "world.hh"
 
-cursorfield::cursorfield()
-{
+cursorfield::cursorfield() {
     this->set_flag(ENTITY_HAS_CONFIG, true);
 
     this->dialog_id = DIALOG_CURSORFIELD;
@@ -23,9 +22,7 @@ cursorfield::cursorfield()
     this->properties[3].v.f = -.5f;
 }
 
-void
-cursorfield::init()
-{
+void cursorfield::init() {
     this->pressed = 0;
     this->hover = 0;
     this->dragged = 0;
@@ -56,9 +53,7 @@ cursorfield::init()
     }
 }
 
-edevice*
-cursorfield::solve_electronics(void)
-{
+edevice *cursorfield::solve_electronics() {
     this->s_out[0].write(this->pressed >0 ? 1.f : 0.f);
     this->s_out[1].write(this->dragged >0 ? 1.f : 0.f);
     this->s_out[2].write(this->hover >0 ? 1.f : 0.f);

@@ -145,8 +145,8 @@ enum {
 class checkpoint;
 class item;
 
-class stabilizer
-{
+/// Stabilizer for creature entities (not the same as the Stabilizer object)
+class stabilizer {
   public:
     b2Body *body;
     float max_force;
@@ -159,10 +159,10 @@ class stabilizer
     float get_offset();
 };
 
+/// Data for creature effects (health, speed, jump strength, etc...)
 struct creature_effect {
   public:
-    creature_effect(uint8_t type, uint8_t method, float modifier, uint32_t time)
-    {
+    creature_effect(uint8_t type, uint8_t method, float modifier, uint32_t time) {
         this->type = type;
         this->method = method;
         this->modifier = modifier;
@@ -175,12 +175,15 @@ struct creature_effect {
     uint8_t method;
 };
 
-class creature : public entity
-{
+/**
+ * Class representing a generic creature entity
+ */
+class creature : public entity {
   private:
     float   hp;
     float   max_hp;
-    float   attack_damage_modifier; /* multiplies the damage of bullets and other things this creature does to attack enemies */
+    /// multiplies the damage of bullets and other things this creature does to attack enemies
+    float   attack_damage_modifier;
 
     float   damage_accum[NUM_DAMAGE_TYPES];
     b2Vec2  velocity;
@@ -195,7 +198,7 @@ class creature : public entity
     creature();
     ~creature();
 
-    virtual const char *get_name(void) = 0;
+    virtual const char *get_name() = 0;
 
     std::map<uint8_t, creature_effect> effects;
 
@@ -206,22 +209,26 @@ class creature : public entity
     creature            *cur_riding;
     b2WeldJoint         *activator_joint;
 
-    b2Vec2  gravity_forces;
-    float   shock_forces;
+    b2Vec2 gravity_forces;
+    float  shock_forces;
 
-    int                      motion;
+    int motion;
 
-    int                      ladder_time; /* time since we last was on a ladder */
-    uint32_t                 ladder_id; /* id of the ladder */
+    /// time since we last were on a ladder
+    int      ladder_time;
+    /// id of the ladder
+    uint32_t ladder_id;
 
-    uint32_t                 last_attacker_id; /* ID of the last creature which did damage to us. */
+    /// ID of the last creature which did damage to us.
+    uint32_t last_attacker_id;
 
-    float                    damage_multiplier; /* sensitivity to receiving damage */
-    tvec2                    neck_pos;
-    tvec2                    head_pos;
-    bool                     recreate_head_on_dir_change;
+    /// sensitivity to receiving damage
+    float damage_multiplier;
+    tvec2 neck_pos;
+    tvec2 head_pos;
+    bool  recreate_head_on_dir_change;
 
-    int                      bolt_set;
+    int   bolt_set;
 
     robot_parts::head_base  *head;
     robot_parts::feet_base  *feet;
@@ -252,7 +259,7 @@ class creature : public entity
 
     b2Shape *body_shape;
 
-    /* fixtures for the layersensors */
+    /// fixtures for the layersensors
     b2Fixture *f_lback;
     b2Fixture *f_lfront;
 
@@ -278,7 +285,8 @@ class creature : public entity
     uint64_t    creature_flags;
 
     uint32_t    circuits;
-    uint32_t    circuits_compat; /* compatible circuits, creature-type specific */
+    /// compatible circuits, creature-type specific
+    uint32_t    circuits_compat;
 
     int         logic_timer;
     int         logic_timer_max;
@@ -307,15 +315,18 @@ class creature : public entity
     float       roam_optimal_small_distance;
 
     bool _mstep_layermove;
-    int  _mstep_jump; /* 1 low jump, 2 high jump */
+    /// 1 low jump, 2 high jump
+    int  _mstep_jump;
 
-    /* Variables related to querying the world */
+    /// Variables related to querying the world
     int     query_layer;
     int     found_ground;
     entity *found_entity;
 
-    int lback_count; /* num objects in back-layer */
-    int lfront_count; /* num objects in front-layer */
+    /// num objects in back-layer
+    int lback_count;
+    /// num objects in front-layer
+    int lfront_count;
     int real_lback_count;
     int real_lfront_count;
     int lfront_tpixel_count;
@@ -324,7 +335,7 @@ class creature : public entity
     int lfront_tick;
     int lfront_tpixel_tick;
 
-    /* variables set via various callbacks */
+    /// variables set via various callbacks
     bool shoot_target;
     b2Vec2 ground_pt;
     b2Vec2 ground_nor;
@@ -345,6 +356,11 @@ class creature : public entity
     virtual void remove_from_world();
     void on_load(bool created, bool has_state);
     void init();
+
+    /**
+     * Make sure animal/robot_base call recalculate_effects
+     * at the end of their setup() or restore()
+     */
     void setup();
     void restore();
     void on_pause();
@@ -354,8 +370,7 @@ class creature : public entity
 
     bool drop_resource(uint8_t resource_type, uint64_t amount, b2Vec2 relative_pos, float vel=0.f);
     void add_resource(uint8_t resource_type, int amount);
-    inline uint64_t get_num_resources(uint8_t resource_type) const
-    {
+    inline uint64_t get_num_resources(uint8_t resource_type) const {
         return (resource_type < NUM_RESOURCES ? this->inventory[resource_type] : 0);
     }
 
@@ -363,18 +378,26 @@ class creature : public entity
     void activate_closest_activator(int offset=0);
 
     virtual void respawn();
+    /**
+     * Apply accumulated damages since the last step
+     *
+     * Because we need to differentiate between the separate damage types
+     * to know how we should apply the damages, we will need to store damage_accum
+     * as an array with size NUM_DAMAGE_TYPES.
+     * In apply_damages, we loop through the damage accum for each damage type and
+     * apply it as the damage type commands.
+     **/
     void apply_damages();
     virtual void apply_destruction();
     void drop_item(uint32_t item_id);
     virtual void on_death();
 
-    virtual void init_adventure(){};
+    virtual void init_adventure() {}
 
     virtual void on_touch(b2Fixture *my, b2Fixture *other);
     virtual void on_untouch(b2Fixture *my, b2Fixture *other);
 
-    uint32_t get_num_bodies()
-    {
+    uint32_t get_num_bodies() {
         return CREATURE_MAX_BODIES;
     }
 
@@ -382,40 +405,37 @@ class creature : public entity
 
     virtual void perform_logic() = 0;
 
-    virtual b2Fixture *get_body_fixture()=0;
+    virtual b2Fixture *get_body_fixture() = 0;
 
-    b2Fixture *get_head_fixture()
-    {
-        if (this->head && this->head->parent == this) {
+    b2Fixture *get_head_fixture() {
+        if (this->head && this->head->parent == this)
             return this->head->fx;
-        }
 
         return 0;
     }
-    b2Body *get_head_body()
-    {
-        if (this->head && this->head->parent == this) {
+    b2Body *get_head_body() {
+        if (this->head && this->head->parent == this)
             return this->head->body;
-        }
 
         return 0;
     }
 
+    /// If the creature has feet, we need to make sure that the feet weigh
+    /// a specific ratio of the total weight for jump forces to work correctly
     void recalculate_mass_distribution();
 
-    bool is_standing()
-    {
+    bool is_standing() {
         float ref_angle = this->get_gravity_angle();
         float _a = this->get_down_angle();
 
         return fabsf(tmath_adist(_a, ref_angle)) <= CREATURE_MAX_GROUND_ADIST;
     }
 
-    virtual void create_head_joint() {};
+    virtual void create_head_joint() {}
     virtual void destroy_head_joint();
 
-    virtual void on_jump_end(){};
-    virtual void on_jump_begin(){};
+    virtual void on_jump_end() {}
+    virtual void on_jump_begin() {}
 
     void destroy_layermove_sensors();
     void create_layermove_sensors();
@@ -438,7 +458,8 @@ class creature : public entity
         bool        is_blocked;
         b2Vec2      pt;
 
-        /* stage 0: move through all layers and try to find a path
+        /**
+         * stage 0: move through all layers and try to find a path
          * to move or to jump over something
          *
          * stage 1: check all layers for something that we can destroy
@@ -449,80 +470,96 @@ class creature : public entity
         int         stage;
         bool        attempted_layers[2][3];
         bool        enable_walk;
-        bool        done; /* whether we're done attempting the current layer */
-        blocked_data()
-        {
+        /// whether we're done attempting the current layer
+        bool        done;
+        blocked_data() {
             this->stage=0;
             this->pt.SetZero();
 
             this->unset();
         }
-        void next_stage(){this->stage++;done=false;}
-        void previous_stage(int layer){this->stage--;this->attempted_layers[this->stage][layer] = false;done = false;};
-        void set(){
+        void next_stage() {
+            this->stage++;
+            done = false;
+        }
+        void previous_stage(int layer) {
+            this->stage--;
+            this->attempted_layers[this->stage][layer] = false;
+            done = false;
+        }
+        void set() {
             memset(attempted_layers, 0, sizeof(attempted_layers));
             done = false;
             is_blocked = true;
             stage = 0;
-        };
-        void unset(){
+        }
+
+        void unset() {
             is_blocked = false;
-            for (int s=0;s<2;++s) {
-                for (int l=0;l<3;++l) {
-                    this->attempted_layers[s][l]=false;
-                }
-            }
-        };
+            for (int s = 0; s < 2; ++s)
+                for (int l = 0; l < 3; ++l)
+                    this->attempted_layers[s][l] = false;
+        }
     } blocked;
 
     b2Vec2 get_gravity();
     float get_gravity_angle();
     float get_down_angle();
-    virtual float get_feet_speed(){return 1.f;};
+    virtual float get_feet_speed() { return 1.f; }
 
     void set_jump_state(int s, float force_mul=1.f, b2Vec2 dir_bias=b2Vec2(0.f,0.f));
 
     void deactivate_feet();
     void activate_feet();
-    /* mode 0 = default, mode 1 = jump, mode 2 = fold */
-    void create_feet_joint(int mode, b2Vec2 bias=b2Vec2(0,0));
+    /// mode 0 = default, mode 1 = jump, mode 2 = fold
+    void create_feet_joint(int mode, b2Vec2 bias = b2Vec2(0,0));
     void destroy_feet_joint();
     void detach_feet();
 
-    b2Vec2 get_roam_target_pos()
-    {
-        if (this->roam_target) {
+    b2Vec2 get_roam_target_pos() {
+        if (this->roam_target)
             return this->roam_target->get_position();
-        } else if (this->roam_target_type == TARGET_POSITION) {
+        else if (this->roam_target_type == TARGET_POSITION)
             return this->roam_target_pos;
-        } else {
+        else
             return b2Vec2(0,0);
-        }
     }
 
+    /// Target got absorbed (if the target is an interactive item, it was destroyed)
     virtual void roam_on_target_absorbed();
+    /// Default behaviour: Look at the target
     virtual void roam_look();
     virtual void roam_retarget();
+    /// Default behaviour: Aim at the target
     virtual void roam_aim();
+    /// Default behaviour: Do nothing
     virtual void roam_attack();
     virtual void roam_update_dir();
-    virtual int get_optimal_walking_dir(float tangent_dist); // part of roam_update_dir
+    /// part of roam_update_dir
+    virtual int get_optimal_walking_dir(float tangent_dist);
     virtual void roam_jump();
+    /// Gather information about the surroundings
     virtual void roam_gather();
+    /// Gather information on what we can see, particularly about our target
     virtual void roam_gather_sight();
+    /// Default behaviour for roam walk is to move toward the target
     virtual void roam_walk();
     virtual void roam_layermove();
+    /// check if we're somehow blocked, unable to move
     virtual void roam_check_blocked();
     virtual void roam_wander();
     virtual void roam_set_target(entity *e);
     virtual bool roam_can_target(entity *e, bool must_see=true);
+    /// Return true if we should untarget the current target
     virtual bool roam_neglect();
     virtual void roam_set_target_type();
     virtual void roam_unset_target();
+    /// Perform target actions such as picking up items if they're close enough
     virtual void roam_perform_target_actions();
+    /// Set up the current target from the saved id if we have one
     void roam_setup_target();
 
-    virtual bool can_jump(){return true;};
+    virtual bool can_jump() { return true; }
     virtual bool jump(bool forward_force, float force_mul=1.f);
     virtual void stop_jump();
 
@@ -540,18 +577,20 @@ class creature : public entity
     virtual void update();
     void look(int dir, bool force=false);
 
+    /// get the speed relative to gravity rotated 90 degrees
     double get_tangent_speed();
     double get_normal_speed();
     b2Vec2 get_normal_vector(float mag);
+    /// Get the distance to p along the tangent axis
     float get_tangent_distance(b2Vec2 p);
+    /// Get a vector along the gravity tangent of the given magnitude
     b2Vec2 get_tangent_vector(float mag);
 
-    virtual bool is_action_active() { return false; };
+    virtual bool is_action_active() { return false; }
 
     void set_ground_speed(float tangent, float normal);
 
-    inline void set_speed(float speed, bool recalculate=true)
-    {
+    inline void set_speed(float speed, bool recalculate=true) {
         this->base_speed = speed;
 
         if (this->base_speed < CREATURE_MIN_SPEED) this->base_speed = CREATURE_MIN_SPEED;
@@ -560,8 +599,7 @@ class creature : public entity
         if (recalculate) this->recalculate_effects();
     }
 
-    inline float get_speed()
-    {
+    inline float get_speed() {
         float s = this->speed * (this->speed_modifier < 0.f ? 1.f : this->speed_modifier);
 
         if (this->creature_flag_active(CREATURE_WANDERING))
@@ -569,23 +607,18 @@ class creature : public entity
 
         return s;
     }
-    inline float get_jump_strength()
-    {
+    inline float get_jump_strength() {
         return this->jump_strength + ((this->jump_strength_multiplier * this->jump_strength));
     }
 
-    float get_upper_mass()
-    {
+    float get_upper_mass() {
         float mass = 0.f;
         b2Body *b;
 
-        for (int x=0; x<this->get_num_bodies(); x++) {
-            if (x < 1 || x > 4) {
-                if ((b = this->get_body(x))) {
+        for (int x=0; x<this->get_num_bodies(); x++)
+            if (x < 1 || x > 4)
+                if ((b = this->get_body(x)))
                     mass += b->GetMass();
-                }
-            }
-        }
 
         return mass;
     }
@@ -596,11 +629,11 @@ class creature : public entity
     virtual bool is_neutral(entity *e) { return false; }
     virtual bool is_enemy(entity *e) { return false; }
 
-    /* Returns true if the creature is currently attached with an activator.
-     * This requires there to be a joint between the creature and the activator. */
+    /// Returns true if the creature is currently attached with an activator.
+    /// This requires there to be a joint between the creature and the activator.
     virtual bool is_attached_to_activator() { return (this->cur_activator != 0); }
 
-    /* Returns true if the creature is connected via a joint to another entity */
+    /// Returns true if the creature is connected via a joint to another entity
     bool has_attachment();
 
     bool is_player();
@@ -620,88 +653,81 @@ class creature : public entity
     inline bool is_moving_down() { return this->creature_flag_active(CREATURE_MOVING_DOWN); }
     virtual inline bool is_spikebot() { return false; }
 
-    inline bool has_circuit(uint32_t circuit) const
-    {
+    inline bool has_circuit(uint32_t circuit) const {
         return this->circuits & circuit;
     }
 
-    inline void set_has_circuit(uint32_t circuit, bool v)
-    {
-        if (v) {
+    inline void set_has_circuit(uint32_t circuit, bool v) {
+        if (v)
             this->circuits |= circuit;
-        } else {
+        else
             this->circuits &= ~circuit;
-        }
     }
 
-    inline bool has_feature(uint64_t flag) const
-    {
+    inline bool has_feature(uint64_t flag) const {
         return this->features & flag;
     }
 
-    inline bool creature_flag_active(uint64_t flag) const
-    {
+    inline bool creature_flag_active(uint64_t flag) const {
         return this->creature_flags & flag;
     }
 
     bool last_attacker_was_player() const;
 
-    inline void set_creature_flag(uint64_t flag, bool v)
-    {
-        if (v) {
+    inline void set_creature_flag(uint64_t flag, bool v) {
+        if (v)
             this->creature_flags |= flag;
-        } else {
+        else
             this->creature_flags &= ~flag;
-        }
     }
 
-    robot_parts::equipment *get_equipment_by_fixture(b2Fixture *f)
-    {
-        for (int x=0; x<NUM_EQUIPMENT_TYPES; x++) {
-            if (this->equipments[x] && this->equipments[x]->fx == f) {
+    robot_parts::equipment *get_equipment_by_fixture(b2Fixture *f) {
+        for (int x=0; x<NUM_EQUIPMENT_TYPES; x++)
+            if (this->equipments[x] && this->equipments[x]->fx == f)
                 return this->equipments[x];
-            }
-        }
 
         return 0;
     }
 
-    inline bool is_foot_fixture(b2Fixture *f)
-    {
-        if (!f) return false;
-        if (!this->feet || !this->feet->is_foot_fixture(f)) return false;
+    inline bool is_foot_fixture(b2Fixture *f) {
+        if (!f)
+            return false;
+
+        if (!this->feet || !this->feet->is_foot_fixture(f))
+            return false;
+
         return true;
     }
 
     virtual b2Fixture* get_sensor_fixture() { return 0; }
 
-    virtual float get_damage_multiplier(b2Fixture *f)
-    {
-        if (this->is_foot_fixture(f)) {
+    virtual float get_damage_multiplier(b2Fixture *f) {
+        if (this->is_foot_fixture(f))
             return this->feet->damage_multiplier;
-        } else
+        else
             return 1.f;
-    };
+    }
 
-    virtual float get_damage_sensitivity(b2Fixture *f)
-    {
-        if (this->is_foot_fixture(f)) {
+    virtual float get_damage_sensitivity(b2Fixture *f) {
+        if (this->is_foot_fixture(f))
             return this->feet->damage_sensitivity;
-        } else
+        else
             return 600.f;
-    };
+    }
 
-    inline int get_state() { return this->_state; }
-    inline bool state_active(int state) { return this->get_state() == state; }
+    inline int get_state() {
+        return this->_state;
+    }
+    inline bool state_active(int state) {
+        return this->get_state() == state;
+    }
     void set_state(int new_state);
 
-    inline void go()
-    {
+    inline void go() {
         this->set_state(CREATURE_WALK);
     }
 
-    inline void stop()
-    {
+    inline void stop() {
         if (this->finished) return;
 
         this->set_state(CREATURE_IDLE);
@@ -715,6 +741,8 @@ class creature : public entity
 
     void lose_balance();
     void try_regain_balance();
+
+    /// called from step if rounded value of i_dir has changed
     void on_dir_change();
 
     float get_z();
@@ -723,23 +751,21 @@ class creature : public entity
     virtual float get_adjusted_damage(float amount, b2Fixture *f, damage_type damage_type, uint8_t damage_source, uint32_t attacker_id);
 
     virtual robot_parts::tool* get_tool() const { return 0; }
-    int get_tool_type() const
-    {
+    int get_tool_type() const {
         return this->get_tool() ? this->get_tool()->get_arm_type() : -1;
     }
     virtual robot_parts::weapon* get_weapon() const { return 0; }
-    int get_weapon_type() const
-    {
+    int get_weapon_type() const {
         return this->get_weapon() ? this->get_weapon()->get_arm_type() : -1;
     }
 
-    float get_armour(){return this->armour;};
-    float get_max_armour(){return this->max_armour;};
-    float get_max_hp(){return this->max_hp;};
-    float get_hp(){return this->hp;};
-    void set_hp(float f){this->hp = f;};
-    bool increase_max_hp(float m)
-    {
+    float get_armour() { return this->armour; }
+    float get_max_armour() { return this->max_armour; }
+    float get_max_hp() { return this->max_hp; }
+    float get_hp() { return this->hp; }
+    void set_hp(float f) { this->hp = f; }
+
+    bool increase_max_hp(float m) {
         float cur_max_hp = this->max_hp;
         float new_max_hp = cur_max_hp + m;
 
@@ -758,9 +784,7 @@ class creature : public entity
     void attach_to(entity *e);
     void detach();
 
-    inline void
-    unset_attached()
-    {
+    inline void unset_attached() {
         if (this->body) {
             //this->body->SetAngularDamping(this->angular_damping);
         }
@@ -775,9 +799,7 @@ class creature : public entity
         this->fixed_dir = false;
     }
 
-    inline void
-    set_attached(int dir)
-    {
+    inline void set_attached(int dir) {
         //this->body->SetAngularDamping(20.f);
         //this->balance->limit = 500.f;
         //this->balance->max_force = 4.f;
@@ -790,48 +812,55 @@ class creature : public entity
 
     void set_checkpoint(checkpoint *c);
 
-    /* adventure mode */
+    /// adventure mode
     void stop_moving(int dir);
 
-    bool can_climb_ladder()
-    {
+    bool can_climb_ladder() {
         return this->feet && this->feet->can_climb_ladder();
     }
 
     void on_release_playing();
 
-    virtual bool consume(item *c, bool silent, bool first=false) {return false;};
-    virtual void attack(int add_cooldown=0) {};
-    virtual void attack_stop(){};
-    void tool_stop(){
-        if (this->get_tool()) {
+    virtual bool consume(item *c, bool silent, bool first = false) { return false; }
+    virtual void attack(int add_cooldown=0) {}
+    virtual void attack_stop() {}
+    void tool_stop() {
+        if (this->get_tool())
             this->get_tool()->stop();
-        }
-    };
-    virtual void action_on() {};
-    virtual void action_off() {};
+    }
+    virtual void action_on() {}
+    virtual void action_off() {}
 
-    virtual int get_default_feet_type(){return FEET_BIPED;};
-    virtual int get_default_head_type(){return HEAD_ROBOT;};
-    virtual int get_default_head_equipment_type(){return HEAD_EQUIPMENT_NULL;};
-    virtual int get_default_front_equipment_type(){return FRONT_EQUIPMENT_NULL;};
-    virtual int get_default_back_equipment_type(){return BACK_EQUIPMENT_NULL;};
-    virtual int get_default_bolt_set(){return BOLT_SET_STEEL;};
+    virtual int get_default_feet_type() { return FEET_BIPED; }
+    virtual int get_default_head_type() { return HEAD_ROBOT; }
+    virtual int get_default_head_equipment_type() { return HEAD_EQUIPMENT_NULL; }
+    virtual int get_default_front_equipment_type() { return FRONT_EQUIPMENT_NULL; }
+    virtual int get_default_back_equipment_type() { return BACK_EQUIPMENT_NULL; }
+    virtual int get_default_bolt_set() { return BOLT_SET_STEEL; }
 
     bool set_equipment(int e_category, int e_type);
     bool set_bolt_set(int type);
+    /**
+     * Set this creature's tool to the given tool by id,
+     * if a pointer to a tool is passed, that pointer is used instead.
+     * This allows the robot to keep an inventory of many tools
+     * and keep their states persistent.
+     **/
     bool set_tool(int tool_id, robot_parts::tool *t = 0);
+    /// See the comment on ::set_tool() about the optional pointer argument
     bool set_weapon(int weapon_id, robot_parts::weapon *t = 0);
 
     void remove_weapon(robot_parts::weapon *w);
     void remove_tool(robot_parts::tool *t);
 
     void add_to_world();
-    virtual void create_fixtures()=0;
+    virtual void create_fixtures() = 0;
 
-    virtual void aim(float a){};
-    virtual void modify_aim(float da){};
-    virtual float get_aim() { return 0.f; };
+    virtual void aim(float a) {}
+    virtual void modify_aim(float da) {}
+    virtual float get_aim() {
+        return 0.f;
+    }
 
     static float real_arm_angle(creature *c, float a);
 
@@ -840,8 +869,12 @@ class creature : public entity
     bool apply_effect(uint8_t item_type, const creature_effect &e);
     void recalculate_effects();
 
-    inline void set_attack_damage_modifier(float v) { this->attack_damage_modifier = v; }
-    inline float get_attack_damage_modifier() { return this->attack_damage_modifier; }
+    inline void set_attack_damage_modifier(float v) {
+        this->attack_damage_modifier = v;
+    }
+    inline float get_attack_damage_modifier() {
+        return this->attack_damage_modifier;
+    }
 
     friend class robot_base;
     friend class animal;

@@ -3,9 +3,7 @@
 #include "world.hh"
 #include "game.hh"
 
-void
-composable::set_position(float x, float y, uint8_t frame/*=0*/)
-{
+void composable::set_position(float x, float y, uint8_t frame/*=0*/) {
     //tms_debugf("composable::set_position(%.2f, %.2f)", x, y);
 
     if (!this->flag_active(ENTITY_CAN_MOVE))
@@ -37,9 +35,7 @@ composable::set_position(float x, float y, uint8_t frame/*=0*/)
     }
 }
 
-b2Vec2
-composable::get_position()
-{
+b2Vec2 composable::get_position() {
     if (this->body) {
         return this->body->GetPosition();
     } else if (this->gr && this->gr->body) {
@@ -49,9 +45,7 @@ composable::get_position()
     }
 }
 
-float
-composable::get_angle()
-{
+float composable::get_angle() {
     if (this->body) {
         return this->body->GetAngle();
     } else if (this->gr && this->gr->get_body(0)) { /* XXX: All groups should have bodies! */
@@ -60,15 +54,11 @@ composable::get_angle()
         return this->_angle;
 }
 
-void
-composable::set_angle(float a)
-{
+void composable::set_angle(float a) {
     entity::set_angle(a);
 }
 
-b2Vec2
-composable::local_vector_to_body(b2Vec2 p, uint8_t frame)
-{
+b2Vec2 composable::local_vector_to_body(b2Vec2 p, uint8_t frame) {
     if (this->gr) {
         float c,s;
         tmath_sincos(this->_angle, &s, &c);
@@ -84,9 +74,7 @@ composable::local_vector_to_body(b2Vec2 p, uint8_t frame)
     return entity::local_to_body(p,frame);
 }
 
-b2Vec2
-composable::local_to_body(b2Vec2 p, uint8_t frame)
-{
+b2Vec2 composable::local_to_body(b2Vec2 p, uint8_t frame) {
     if (this->gr) {
         float c,s;
         tmath_sincos(this->_angle, &s, &c);
@@ -104,9 +92,7 @@ composable::local_to_body(b2Vec2 p, uint8_t frame)
     return entity::local_to_body(p,frame);
 }
 
-b2Vec2
-composable::local_to_world(b2Vec2 p, uint8_t frame)
-{
+b2Vec2 composable::local_to_world(b2Vec2 p, uint8_t frame) {
     if (this->gr) {
         if (!this->gr->body) {
             //tms_debugf("Group %p has no body!!!!!!!!!!", this->gr);
@@ -127,15 +113,11 @@ composable::local_to_world(b2Vec2 p, uint8_t frame)
     return entity::local_to_world(p, frame);
 }
 
-b2Body *
-composable::get_body(uint8_t frame)
-{
+b2Body * composable::get_body(uint8_t frame) {
     return this->body ? this->body : (this->gr ? this->gr->body : 0);
 }
 
-b2Vec2
-composable::world_to_local(b2Vec2 p, uint8_t frame)
-{
+b2Vec2 composable::world_to_local(b2Vec2 p, uint8_t frame) {
     if (this->gr) {
         b2Vec2 pos = p;
 
@@ -156,9 +138,7 @@ composable::world_to_local(b2Vec2 p, uint8_t frame)
     return entity::world_to_local(p, frame);
 }
 
-void
-composable::refresh_poly_shape()
-{
+void composable::refresh_poly_shape() {
     this->active.poly.shape = this->orig.poly.shape;
 
     this->active.poly.shape.Scale(this->get_scale());
@@ -169,9 +149,7 @@ composable::refresh_poly_shape()
     fd.restitution = this->get_material()->restitution;
 }
 
-void
-composable::refresh_circle_shape()
-{
+void composable::refresh_circle_shape() {
     this->active.circle.shape = this->orig.circle.shape;
 
     this->active.circle.shape.Scale(this->get_scale());
@@ -182,9 +160,7 @@ composable::refresh_circle_shape()
     fd.restitution = this->get_material()->restitution;
 }
 
-void
-composable::set_as_circle(float r)
-{
+void composable::set_as_circle(float r) {
     this->orig.circle.shape = b2CircleShape();
     this->orig.circle.shape.m_radius = r;
     this->orig.circle.shape.m_p = b2Vec2(0.f, 0.f);
@@ -195,9 +171,7 @@ composable::set_as_circle(float r)
     this->refresh_circle_shape();
 }
 
-void
-composable::set_as_poly(b2Vec2 *verts, int num_verts)
-{
+void composable::set_as_poly(b2Vec2 *verts, int num_verts) {
     this->orig.poly.shape = b2PolygonShape();
     this->orig.poly.shape.Set(verts, num_verts, true);
 
@@ -207,9 +181,7 @@ composable::set_as_poly(b2Vec2 *verts, int num_verts)
     this->refresh_poly_shape();
 }
 
-void
-composable::set_as_rect(float width, float height)
-{
+void composable::set_as_rect(float width, float height) {
     this->orig.poly.shape = b2PolygonShape();
     this->orig.poly.shape.SetAsBox(width, height);
 
@@ -219,9 +191,7 @@ composable::set_as_rect(float width, float height)
     this->refresh_poly_shape();
 }
 
-void
-composable::set_as_tri(float width, float height)
-{
+void composable::set_as_tri(float width, float height) {
     b2Vec2 verts[3] = {
         b2Vec2(width/2.f, height/2.f),
         b2Vec2(-width/2.f, -height/2.f),
@@ -237,15 +207,11 @@ composable::set_as_tri(float width, float height)
     this->refresh_poly_shape();
 }
 
-void
-composable::recreate_fixtures(bool initial)
-{
+void composable::recreate_fixtures(bool initial) {
 
 }
 
-void
-composable::add_to_world()
-{
+void composable::add_to_world() {
     b2BodyDef bd;
     bd.type = this->get_dynamic_type();
     bd.position = this->_pos;
@@ -258,9 +224,7 @@ composable::add_to_world()
     this->create_sensor();
 }
 
-void
-composable::remove_from_world()
-{
+void composable::remove_from_world() {
     if (this->gr) {
         if (this->gr->body && this->fx_sensor) {
             this->gr->body->DestroyFixture(this->fx_sensor);
@@ -276,9 +240,7 @@ composable::remove_from_world()
     entity::remove_from_world();
 }
 
-void
-composable::create_sensor()
-{
+void composable::create_sensor() {
     if (W->is_paused()) return;
 
     float r = this->get_sensor_radius();
@@ -305,9 +267,7 @@ composable::create_sensor()
 
 b2Vec2 ComputeCentroid(const b2Vec2* vs, int32 count);
 
-void
-composable::update_shape(b2Vec2 local_pos, float local_angle)
-{
+void composable::update_shape(b2Vec2 local_pos, float local_angle) {
     if (this->fd.shape->m_type == b2Shape::e_circle) {
         ((b2CircleShape*)this->fd.shape)->m_p = local_pos;
     } else if (this->fd.shape->m_type == b2Shape::e_polygon) {
@@ -357,9 +317,7 @@ composable::update_shape(b2Vec2 local_pos, float local_angle)
     }
 }
 
-void
-composable::recreate_shape()
-{
+void composable::recreate_shape() {
     if (this->body) {
         this->body->DestroyFixture(&this->body->GetFixtureList()[0]);
         this->fd.filter = world::get_filter_for_layer(this->get_layer(), this->layer_mask);
@@ -367,16 +325,12 @@ composable::recreate_shape()
     }
 }
 
-connection *
-composable_simpleconnect::load_connection(connection &conn)
-{
+connection * composable_simpleconnect::load_connection(connection &conn) {
     this->c = conn;
     return &this->c;
 }
 
-float32
-composable_simpleconnect::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
+float32 composable_simpleconnect::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
     if (f->IsSensor()) {
         return -1.f;
     }
@@ -393,9 +347,7 @@ composable_simpleconnect::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2
     return -1;
 }
 
-void
-composable_simpleconnect::find_pairs()
-{
+void composable_simpleconnect::find_pairs() {
     if (this->c.pending) {
         this->query_result = 0;
 
@@ -415,23 +367,17 @@ composable_simpleconnect::find_pairs()
     }
 }
 
-connection *
-composable_multiconnect::load_connection(connection &conn)
-{
+connection * composable_multiconnect::load_connection(connection &conn) {
     this->c_side[conn.o_index] = conn;
     this->c_side[conn.o_index].render_type = CONN_RENDER_SMALL;
     return &this->c_side[conn.o_index];
 }
 
-void
-composable_multiconnect::find_pairs()
-{
+void composable_multiconnect::find_pairs() {
     this->sidecheck4(this->c_side);
 }
 
-void
-composable_multiconnect::set_as_rect(float width, float height)
-{
+void composable_multiconnect::set_as_rect(float width, float height) {
     composable::set_as_rect(width, height);
 
     const float qw = width/2.f+0.15f;

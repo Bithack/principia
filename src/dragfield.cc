@@ -4,8 +4,7 @@
 #include "spritebuffer.hh"
 #include "world.hh"
 
-dragfield::dragfield()
-{
+dragfield::dragfield() {
     this->num_sliders = 1;
     //this->menu_scale = .25f;
     this->update_method = ENTITY_UPDATE_CUSTOM;
@@ -51,20 +50,15 @@ dragfield::dragfield()
     this->num_inside = 0;
 }
 
-dragfield::~dragfield()
-{
+dragfield::~dragfield() {
     //tms_entity_free(lamp);
 }
 
-void
-dragfield::init()
-{
+void dragfield::init() {
     this->num_inside = 0;
 }
 
-void
-dragfield::update_effects()
-{
+void dragfield::update_effects() {
     if (this->num_inside) {
         b2Vec2 p = this->get_position();
         spritebuffer::add(p.x, p.y, this->get_layer()*LAYER_DEPTH+.5f,
@@ -73,9 +67,7 @@ dragfield::update_effects()
     }
 }
 
-void
-dragfield::update()
-{
+void dragfield::update() {
     entity_fast_update(this);
 
     b2Vec2 p = this->get_position();
@@ -88,29 +80,21 @@ dragfield::update()
         tms_entity_set_uniform4f(this->lamp, "~color", 0.4f, 0.4f, 0.4f, 1.f);
 }
 
-float
-dragfield::get_slider_value(int s)
-{
+float dragfield::get_slider_value(int s) {
     return this->properties[0].v.f / 5.f;
 }
 
-float
-dragfield::get_slider_snap(int s)
-{
+float dragfield::get_slider_snap(int s) {
     return .1f;
 }
 
-void
-dragfield::on_slider_change(int s, float value)
-{
+void dragfield::on_slider_change(int s, float value) {
     float radius = value * 5.f;
 
     this->set_size(radius);
 }
 
-void
-dragfield::add_to_world()
-{
+void dragfield::add_to_world() {
     float radius = this->properties[0].v.f;
 
     this->set_size(radius);
@@ -145,41 +129,37 @@ dragfield::add_to_world()
     }
 }
 
-void
-dragfield::on_touch(b2Fixture *my, b2Fixture *other)
-{
+void dragfield::on_touch(b2Fixture *my, b2Fixture *other) {
     entity *e = static_cast<entity*>(other->GetUserData());
 
-    if (e) {
-        if (e->flag_active(ENTITY_IS_INTERACTIVE)) {
-            tms_infof("touched an interactive entity %p", other);
-            ++e->in_dragfield;
+    if (!e)
+        return;
 
-            this->num_inside ++;
-        }
+    if (e->flag_active(ENTITY_IS_INTERACTIVE)) {
+        tms_infof("touched an interactive entity %p", other);
+        ++e->in_dragfield;
+
+        this->num_inside ++;
     }
 }
 
-void
-dragfield::on_untouch(b2Fixture *my, b2Fixture *other)
-{
+void dragfield::on_untouch(b2Fixture *my, b2Fixture *other) {
     entity *e = static_cast<entity*>(other->GetUserData());
 
-    if (e) {
-        if (e->flag_active(ENTITY_IS_INTERACTIVE)) {
-            tms_infof("untouched an interactive entity %p", other);
-            --e->in_dragfield;
-            this->num_inside --;
-            if (this->num_inside < 0) this->num_inside = 0;
-        }
+    if (!e)
+        return;
+
+    if (e->flag_active(ENTITY_IS_INTERACTIVE)) {
+        tms_infof("untouched an interactive entity %p", other);
+        --e->in_dragfield;
+        this->num_inside --;
+        if (this->num_inside < 0) this->num_inside = 0;
     }
 }
 
-void
-dragfield::set_size(float radius)
-{
-    if (radius>5.f) radius=5.f;
-    if (radius<0.f) radius=0.f;
+void dragfield::set_size(float radius) {
+    if (radius > 5.f) radius = 5.f;
+    if (radius < 0.f) radius = 0.f;
 
     this->set_property(0, radius);
 

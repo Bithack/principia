@@ -5,8 +5,7 @@
 
 class world;
 
-class composable : public entity
-{
+class composable : public entity {
   public:
     b2FixtureDef fd;
     b2Fixture   *fx_sensor;
@@ -25,22 +24,19 @@ class composable : public entity
         struct { b2CircleShape  shape; } circle;
     } active;
 
-    composable()
-    {
+    composable() {
         this->set_flag(ENTITY_IS_COMPOSABLE, true);
         this->fd.shape = 0;
         this->fx_sensor = 0;
     }
-    ~composable()
-    {
-    }
+    ~composable() {}
 
     void grouped_update();
 
     virtual void set_position(float x, float y, uint8_t frame=0);
     void set_angle(float a);
-    b2Vec2 get_position(void);
-    float get_angle(void);
+    b2Vec2 get_position();
+    float get_angle();
     b2Vec2 local_to_world(b2Vec2 p, uint8_t frame);
     b2Vec2 world_to_local(b2Vec2 p, uint8_t frame);
     b2Vec2 local_to_body(b2Vec2 p, uint8_t frame);
@@ -50,7 +46,7 @@ class composable : public entity
     virtual void set_as_rect(float width, float height);
     void set_as_tri(float width, float height);
     void set_as_poly(b2Vec2 *verts, int num_verts);
-    void recreate_shape(void);
+    void recreate_shape();
     void update_shape(b2Vec2 local_pos, float local_angle);
     virtual void update_frame(bool hard){};
 
@@ -61,25 +57,23 @@ class composable : public entity
     void remove_from_world();
 
     virtual void create_sensor();
-    virtual float get_sensor_radius() { return 0.f; };
-    virtual b2Vec2 get_sensor_offset() { return b2Vec2(0.f, 0.f); };
+    virtual float get_sensor_radius() { return 0.f; }
+    virtual b2Vec2 get_sensor_offset() { return b2Vec2(0.f, 0.f); }
 
     friend class group;
 };
 
-class composable_simpleconnect : public composable, public b2RayCastCallback
-{
+class composable_simpleconnect : public composable, public b2RayCastCallback {
   public:
     b2Vec2 query_pt;
-    b2Vec2 query_vec; /* Set in the constructor of the
-                         object, direction of raycast */
+    /// Set in the constructor of the object, direction of raycast
+    b2Vec2 query_vec;
     entity *query_result;
     b2Fixture *query_fx;
     uint8_t query_frame;
     connection c;
 
-    composable_simpleconnect()
-    {
+    composable_simpleconnect() {
         this->c.init_owned(0, this);
         this->c.type = CONN_GROUP;
         this->query_vec = b2Vec2(0.f, -.5f);
@@ -91,8 +85,7 @@ class composable_simpleconnect : public composable, public b2RayCastCallback
     void find_pairs();
 };
 
-class composable_multiconnect : public composable
-{
+class composable_multiconnect : public composable {
   public:
     connection c_side[4];
 
@@ -111,8 +104,7 @@ class composable_multiconnect : public composable
 
 void composable_fast_update(struct tms_entity *t);
 
-inline void composable::grouped_update()
-{
+inline void composable::grouped_update() {
     b2Vec2 p = this->gr->body->GetWorldPoint(this->_pos);
     float a = this->gr->body->GetAngle()+this->_angle;
 

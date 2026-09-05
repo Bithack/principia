@@ -7,12 +7,11 @@
 
 #define MAX_SPEED 20.f
 
-struct tms_sprite*
-conveyor::get_axis_rot_sprite(){
+struct tms_sprite *conveyor::get_axis_rot_sprite() {
     return gui_spritesheet::get_sprite(S_CONVEYOR_AXISROT);
 }
-class conveyor_query_cb : public b2QueryCallback
-{
+
+class conveyor_query_cb : public b2QueryCallback {
   public:
     entity *result;
     conveyor *ignore;
@@ -22,16 +21,14 @@ class conveyor_query_cb : public b2QueryCallback
     b2Vec2 point;
     uint8_t frame;
 
-    conveyor_query_cb(conveyor *ignore, b2Vec2 point, uint8_t frame)
-    {
+    conveyor_query_cb(conveyor *ignore, b2Vec2 point, uint8_t frame) {
         this->result = 0;
         this->ignore = ignore;
         this->point = point;
         this->frame = frame;
     }
 
-    bool ReportFixture(b2Fixture *f)
-    {
+    bool ReportFixture(b2Fixture *f) {
         entity *e = (entity*)f->GetUserData();
         uint8_t fr = (uint8_t)(uintptr_t)f->GetBody()->GetUserData();
 
@@ -61,8 +58,7 @@ class conveyor_query_cb : public b2QueryCallback
     }
 };
 
-conveyor::conveyor()
-{
+conveyor::conveyor() {
     this->speed_mul = 1.f;
     this->invert = false;
 
@@ -97,9 +93,8 @@ conveyor::conveyor()
     this->set_property(0, (uint32_t)5); /* conveyor length */
     this->set_property(1, 5.f); /* conveyor speed */
     this->properties[2].v.i8 = CONVEYOR_STATIC;
-    if (W->level.version >= LEVEL_VERSION_1_3_0_3) {
+    if (W->level.version >= LEVEL_VERSION_1_3_0_3)
         this->set_flag(ENTITY_ALLOW_AXIS_ROT, true);
-    }
 
     for (int n=0; n<2; ++n) {
         this->c_back[n].init_owned(2*n, this);
@@ -112,33 +107,25 @@ conveyor::conveyor()
     }
 }
 
-void
-conveyor::toggle_axis_rot()
-{
+void conveyor::toggle_axis_rot() {
     this->properties[2].v.i8 = (this->properties[2].v.i8+1) % 2;
     this->set_flag(ENTITY_AXIS_ROT, !this->flag_active(ENTITY_AXIS_ROT));
     this->do_recreate_shape = true;
 }
 
-void
-conveyor::tick()
-{
+void conveyor::tick() {
     if (this->do_recreate_shape) {
         this->recreate_shape();
         this->do_recreate_shape = false;
     }
 }
 
-void
-conveyor::setup()
-{
+void conveyor::setup() {
     this->invert = false;
     this->speed_mul = 1.f;
 }
 
-void
-conveyor::recreate_shape()
-{
+void conveyor::recreate_shape() {
     if (this->properties[0].v.i > 5) this->properties[0].v.i = 5;
 
     this->set_mesh(mesh_factory::get_mesh(MODEL_CONVEYOR0+this->properties[0].v.i));
@@ -205,37 +192,30 @@ conveyor::recreate_shape()
     this->body->SetSleepingAllowed(false);
 }
 
-float
-conveyor::get_tangent_speed()
-{
+float conveyor::get_tangent_speed() {
     float speed = this->properties[1].v.f * this->speed_mul;
     return (this->invert ? -speed : speed);
 }
 
-void
-conveyor::add_to_world()
-{
+void conveyor::add_to_world() {
     this->recreate_shape();
 }
 
-float
-conveyor::get_slider_snap(int s)
-{
-    if (s == 0) return 1.f / 5.f;
-    else return 1.f / 40.f;
+float conveyor::get_slider_snap(int s) {
+    if (s == 0)
+        return 1.f / 5.f;
+    else
+        return 1.f / 40.f;
 }
 
-float
-conveyor::get_slider_value(int s)
-{
-    if (s == 0) return ((float)this->properties[0].v.i) / 5.f;
+float conveyor::get_slider_value(int s) {
+    if (s == 0)
+        return ((float)this->properties[0].v.i) / 5.f;
     else
         return (this->properties[1].v.f/MAX_SPEED + 1.f) / 2.f;
 }
 
-void
-conveyor::on_slider_change(int s, float value)
-{
+void conveyor::on_slider_change(int s, float value) {
     if (s == 0) {
         uint32_t size = (uint32_t)roundf((value * 5.f));
 
@@ -249,17 +229,15 @@ conveyor::on_slider_change(int s, float value)
     }
 }
 
-edevice*
-conveyor::solve_electronics()
-{
+edevice *conveyor::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
         return this->s_in[1].get_connected_edevice();
 
-    if (this->s_in[0].p) {
+    if (this->s_in[0].p)
         this->speed_mul = this->s_in[0].get_value();
-    } else {
+    else {
         if (W->level.version >= 25 && W->level.type == LCAT_ADVENTURE)
             this->speed_mul = 0.f;
         else
@@ -271,9 +249,7 @@ conveyor::solve_electronics()
     return 0;
 }
 
-void
-conveyor::find_pairs()
-{
+void conveyor::find_pairs() {
     if (this->properties[2].v.i8 == CONVEYOR_STATIC) return;
 
     b2Vec2 _p[2] = {
@@ -311,9 +287,7 @@ conveyor::find_pairs()
     }
 }
 
-connection*
-conveyor::load_connection(connection &conn)
-{
+connection *conveyor::load_connection(connection &conn) {
     if (conn.o_index == 0) {
         this->c_back[0] = conn;
         return &this->c_back[0];

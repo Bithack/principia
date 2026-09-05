@@ -3,8 +3,7 @@
 #include "material.hh"
 #include "ifdevice.hh"
 
-ctrlfplus::ctrlfplus()
-{
+ctrlfeedback::ctrlfeedback() {
     this->num_s_in = 4;
     this->num_s_out = 4;
 
@@ -54,9 +53,7 @@ ctrlfplus::ctrlfplus()
     this->set_as_rect(2.175f*.5f, .313f*.5f);
 }
 
-edevice*
-ctrlfplus::solve_electronics(void)
-{
+edevice *ctrlfeedback::solve_electronics() {
     if (!this->s_out[0].p) {
         this->s_out[1].write(0.f);
         this->s_out[2].write(0.f);
@@ -82,7 +79,6 @@ ctrlfplus::solve_electronics(void)
             this->s_out[2].write(feed.torque);
             this->s_out[3].write(feed.error);
         }
-
     }
 
     if (!this->s_in[0].is_ready())
@@ -97,19 +93,16 @@ ctrlfplus::solve_electronics(void)
     float voltage = this->s_in[0].get_value();
     float speed = this->s_in[1].p?this->s_in[1].get_value():1.f;
 
-    if (this->s_in[2].p) {
+    if (this->s_in[2].p)
         if ((bool)roundf(this->s_in[2].get_value()))
             speed *= -1.f;
-    }
 
     bool has_tradeoff = (bool)this->s_in[3].p;
     float tradeoff = this->s_in[3].get_value();
 
     ifdevice *i = this->s_out[0].p->find_ifdevice();
-    if (i) {
+    if (i)
         i->ifstep(voltage, speed, 0.f, tradeoff, false, has_tradeoff);
-    }
 
     return 0;
 }
-

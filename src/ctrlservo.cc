@@ -1,10 +1,9 @@
 #include "ctrlbase.hh"
-#include "model.hh"
-#include "material.hh"
 #include "ifdevice.hh"
+#include "material.hh"
+#include "model.hh"
 
-ctrlservo::ctrlservo()
-{
+ctrlservo::ctrlservo() {
     this->num_s_in = 2;
     this->num_s_out = 3;
 
@@ -37,9 +36,7 @@ ctrlservo::ctrlservo()
     this->set_as_rect(1.875f*.5f, .313f*.5f);
 }
 
-edevice*
-ctrlservo::solve_electronics(void)
-{
+edevice *ctrlservo::solve_electronics() {
     if (!this->s_out[0].p)
         return 0;
 
@@ -56,7 +53,6 @@ ctrlservo::solve_electronics(void)
             this->s_out[1].write(feed.angle);
             this->s_out[2].write(feed.torque);
         }
-
     }
 
     if (!this->s_in[0].is_ready())
@@ -68,10 +64,8 @@ ctrlservo::solve_electronics(void)
     float angle = this->s_in[1].p ? this->s_in[1].get_value() : 1.f;
 
     ifdevice *i = this->s_out[0].p->find_ifdevice();
-    if (i) {
+    if (i)
         i->ifstep(voltage, 1.f, angle, 0.f, true, false);
-    }
 
     return 0;
 }
-

@@ -1,9 +1,7 @@
 #include "decay.hh"
 #include "game.hh"
 
-decay::decay()
-    : value(0.f)
-{
+decay::decay() : value(0.f) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_I1O1_EMPTY));
 
     this->num_sliders = 1;
@@ -13,9 +11,7 @@ decay::decay()
     this->properties[0].v.f = 0.95f; /* decay multiplier */
 }
 
-edevice*
-decay::solve_electronics()
-{
+edevice *decay::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 
@@ -33,15 +29,11 @@ decay::solve_electronics()
     return 0;
 }
 
-float
-decay::get_slider_value(int s)
-{
+float decay::get_slider_value(int s) {
     return (this->properties[0].v.f - 0.79f) * 5.f;
 }
 
-void
-decay::on_slider_change(int s, float value)
-{
+void decay::on_slider_change(int s, float value) {
     float v = value * 0.2f + 0.79f;
     this->properties[0].v.f = v;
     G->show_numfeed(v);

@@ -12,20 +12,14 @@
 #include "settings.hh"
 #include "world.hh"
 
-creature::creature()
-    : cur_activator(0)
-    , cur_riding(0)
-    , activator_joint(0)
-    , last_attacker_id(0)
-    , damage_multiplier(1.f)
-{
+creature::creature() : cur_activator(0), cur_riding(0), activator_joint(0), last_attacker_id(0), damage_multiplier(1.f) {
     this->last_damage_tick = 0;
     this->set_flag(ENTITY_DO_STEP,      true);
     this->set_flag(ENTITY_DO_PRE_STEP,  true);
     this->set_flag(ENTITY_DO_MSTEP,     true);
     this->set_flag(ENTITY_IS_CREATURE,  true);
 
-    /* XXX make sure we don't unload the player if the camera isnt focused on him! */
+    // XXX make sure we don't unload the player if the camera isnt focused on them!
     this->set_flag(ENTITY_DYNAMIC_UNLOADING, true);
 
     this->gravity_forces = b2Vec2(0.f, 0.f);
@@ -36,10 +30,10 @@ creature::creature()
 
     this->max_hp = CREATURE_BASE_MAX_HP;
 
-    /* make sure all shapes, bodies, etc are null */
-    for (int x=0; x<CREATURE_MAX_FEET_BODIES; x++) {
+    // make sure all shapes, bodies, etc are null
+    for (int x=0; x<CREATURE_MAX_FEET_BODIES; x++)
         this->j_feet[x] = 0;
-    }
+
     this->j_feet_count = 0;
     this->body_shape = 0;
     this->f_lback = 0;
@@ -64,10 +58,7 @@ creature::creature()
     this->current_checkpoint = 0;
     this->circuits = 0u;
 
-    this->circuits_compat =
-         CREATURE_CIRCUIT_REGENERATION
-       | CREATURE_CIRCUIT_ZOMBIE
-        ;
+    this->circuits_compat = CREATURE_CIRCUIT_REGENERATION | CREATURE_CIRCUIT_ZOMBIE;
 
     this->look_dir = 0;
     this->new_dir = DIR_LEFT;
@@ -91,7 +82,7 @@ creature::creature()
 
     this->cull_effects_method = CULL_EFFECTS_DISABLE;
 
-    /* specific per creature type */
+    // specific per creature type
     this->menu_scale = .75f;
     this->recreate_head_on_dir_change = false;
     this->width = 1.f;
@@ -99,9 +90,7 @@ creature::creature()
     this->fixed_dir = false;
 }
 
-void
-creature::init()
-{
+void creature::init() {
     entity::init();
 
     this->activators.clear();
@@ -109,7 +98,7 @@ creature::init()
     this->_mstep_jump = 0;
     memset(this->damage_accum, 0, sizeof(this->damage_accum));
 
-    /* XXX maybe we should save this between states? */
+    // XXX maybe we should save this between states?
     this->gather.found_ground_v[0] = false;
     this->gather.found_ground_v[1] = false;
     this->gather.found_ground_v[2] = false;
@@ -120,11 +109,11 @@ creature::init()
 
     this->blocked.unset();
 
-    /* roam state */
+    // roam state
     this->shoot_target = false;
-    this->roam_target = 0; /* overrided by roam_target_id later */
+    this->roam_target = 0; // overridden by roam_target_id later
 
-    /* temporary stuff */
+    // temporary stuff
     this->query_layer = 0;
     this->found_ground = 0;
     this->found_entity = 0;
@@ -150,18 +139,12 @@ creature::init()
 
     this->j_climb = 0;
 
-    /* XXX move to setup */
+    // XXX move to setup
     this->ladder_id = 0;
     this->ladder_time = 0;
 }
 
-/**
- * Make sure animal/robot_base call recalculate_effects
- * at the end of their setup() or restore()
- **/
-void
-creature::setup()
-{
+void creature::setup() {
     tms_debugf("creature setup %u", this->id);
     entity::setup();
 
@@ -172,7 +155,7 @@ creature::setup()
     this->default_angle = this->_angle;
     this->default_layer = this->get_layer();
 
-    /* modifiers, those commented out are set specifically by animal/robot_base */
+    // modifiers, those commented out are set specifically by animal/robot_base
     this->attack_damage_modifier = 1.f;
     this->speed_modifier = -1.f;
     this->jump_strength_multiplier = 0.f;
@@ -182,7 +165,7 @@ creature::setup()
     // this->base_jump_strength
     // this->base_speed
 
-    /* walking */
+    // walking
     this->on_ground = 0.f;
 
     this->death_step = 0;
@@ -192,7 +175,7 @@ creature::setup()
 
     this->creature_flags = 0ull;
 
-    /* roam state */
+    // roam state
     this->roam_target_id = 0;
     this->roam_target_type = TARGET_NONE;
     this->roam_target_pos.SetZero();
@@ -207,18 +190,14 @@ creature::setup()
 
     this->motion = MOTION_DEFAULT;
 
-    if (this->feet){
+    if (this->feet)
         this->feet->reset_angles();
-    }
 
-    if (this->id == G->state.adventure_id) {
+    if (this->id == G->state.adventure_id)
         this->init_adventure();
-    }
 }
 
-void
-creature::restore()
-{
+void creature::restore() {
     entity::restore();
 
     for (int x=1; x<this->get_num_bodies(); x++) {
@@ -228,22 +207,18 @@ creature::restore()
         }
     }
 
-    /* initialize things read by read_state */
+    // initialize things read by read_state
 
-    if (this->current_checkpoint) {
+    if (this->current_checkpoint)
         this->set_checkpoint(this->current_checkpoint);
-    }
 
-    if (this->cur_activator) {
+    if (this->cur_activator)
         this->attach_to(this->cur_activator->get_activator_entity());
-    }
 }
 
-void
-creature::write_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void creature::write_state(lvlinfo *lvl, lvlbuf *lb) {
     entity::write_state(lvl, lb);
-    /* write_state wrote the first body */
+    // write_state wrote the first body
     for (int x=1; x<this->get_num_bodies(); x++) {
         b2Vec2 velocity = this->get_body(x) ? this->get_body(x)->GetLinearVelocity() : b2Vec2(0.f, 0.f);
         float avel = this->get_body(x) ? this->get_body(x)->GetAngularVelocity() : 0.f;
@@ -307,7 +282,7 @@ creature::write_state(lvlinfo *lvl, lvlbuf *lb)
 
     lb->w_s_uint8(this->motion);
 
-    /* exclude current movement of adventure robot from the flags saved */
+    // exclude current movement of adventure robot from the flags saved
     uint64_t mask = ~(
               (this->id == G->state.adventure_id ? CREATURE_MOVING_LEFT : 0)
             | (this->id == G->state.adventure_id ? CREATURE_MOVING_RIGHT : 0)
@@ -321,25 +296,21 @@ creature::write_state(lvlinfo *lvl, lvlbuf *lb)
 
     lb->w_s_uint32(this->circuits);
 
-    /* equipments */
+    // equipments
     lb->w_s_uint8(this->bolt_set);
     for (int x=0; x<NUM_EQUIPMENT_TYPES_1_5; x++) {
         lb->w_s_uint32(this->equipments[x] ? this->equipments[x]->get_equipment_type() : 0);
-        if (this->equipments[x]) {
+        if (this->equipments[x])
             this->equipments[x]->write_state(lvl, lb);
-        }
     }
 
-    for (int x=0; x<NUM_RESOURCES_1_5; x++) {
+    for (int x=0; x<NUM_RESOURCES_1_5; x++)
         lb->w_s_uint64(this->inventory[x]);
-    }
 }
 
-void
-creature::read_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void creature::read_state(lvlinfo *lvl, lvlbuf *lb) {
     entity::read_state(lvl, lb);
-    /* read_state read the first body */
+    // read_state read the first body
     for (int x=1; x<this->get_num_bodies(); x++) {
         this->states[(x-1)][0] = lb->r_float();
         this->states[(x-1)][1] = lb->r_float();
@@ -350,12 +321,12 @@ creature::read_state(lvlinfo *lvl, lvlbuf *lb)
     this->death_step = lb->r_uint32();
     this->finished = (bool)lb->r_uint8();
 
-    /* base states, these rarely change, but base_speed for example can change if a robot steps on a command pad */
+    // base states, these rarely change, but base_speed for example can change if a robot steps on a command pad
     this->base_cooldown_multiplier = lb->r_float();
     this->base_speed = lb->r_float();
     this->base_jump_strength = lb->r_float();
 
-    /* current modifiers */
+    // current modifiers
     this->attack_damage_modifier = lb->r_float();
     this->speed_modifier = lb->r_float();
     this->jump_strength_multiplier = lb->r_float();
@@ -415,47 +386,36 @@ creature::read_state(lvlinfo *lvl, lvlbuf *lb)
     this->set_bolt_set(lb->r_uint8());
     for (int x=0; x<NUM_EQUIPMENT_TYPES_1_5; x++) {
         this->set_equipment(x, lb->r_uint32());
-        if (this->equipments[x]) {
+        if (this->equipments[x])
             this->equipments[x]->read_state(lvl, lb);
-        }
     }
 
-    for (int x=0; x<NUM_RESOURCES_1_5; x++) {
+    for (int x=0; x<NUM_RESOURCES_1_5; x++)
         this->inventory[x] = lb->r_uint64();
-    }
 }
 
-creature::~creature()
-{
-    if (this->body_shape) {
+creature::~creature() {
+    if (this->body_shape)
         delete this->body_shape;
-    }
 }
 
-void
-creature::remove_from_world()
-{
-    for (int x=0; x<NUM_EQUIPMENT_TYPES; x++) {
-        if (this->equipments[x]) {
+void creature::remove_from_world() {
+    for (int x=0; x<NUM_EQUIPMENT_TYPES; x++)
+        if (this->equipments[x])
             this->equipments[x]->remove_from_world();
-        }
-    }
 
-    for (int x=0; x<CREATURE_MAX_FEET_BODIES; x++) {
+    for (int x=0; x<CREATURE_MAX_FEET_BODIES; x++)
         this->j_feet[x] = 0;
-    }
+
     this->j_feet_count = 0;
 
-    if (adventure::player == this) {
+    if (adventure::player == this)
         adventure::player = 0;
-    }
 
     entity::remove_from_world();
 }
 
-void
-creature::on_load(bool created, bool has_state)
-{
+void creature::on_load(bool created, bool has_state) {
     this->layer_new = this->get_layer();
     this->layer_old = this->get_layer();
     this->layer_blend = 1.f;
@@ -475,32 +435,26 @@ creature::on_load(bool created, bool has_state)
     this->recalculate_effects();
 }
 
-void
-creature::on_pause()
-{
-    if (this->feet) this->feet->reset_angles();
+void creature::on_pause() {
+    if (this->feet)
+        this->feet->reset_angles();
 }
 
-bool
-creature::set_bolt_set(int type)
-{
+bool creature::set_bolt_set(int type) {
     this->bolt_set = type;
     return true;
 }
 
-void
-creature::add_to_world()
-{
+void creature::add_to_world() {
     b2BodyDef bd;
     b2BodyType bt;
 
-    if (W->is_paused() && W->is_puzzle() && !this->is_moveable()) {
-        /* Robots base body must be made static in puzzle levels if they're not supposed to be moveable.
-         * This is to prevent cheating :-) */
+    if (W->is_paused() && W->is_puzzle() && !this->is_moveable())
+        // Robots base body must be made static in puzzle levels if they're not supposed to be moveable.
+        // This is to prevent cheating :-)
         bt = b2_staticBody;
-    } else {
+    else
         bt = b2_dynamicBody;
-    }
 
     bd.type = bt;
     bd.position = this->_pos;
@@ -510,26 +464,21 @@ creature::add_to_world()
     this->body = b;
     this->body->SetSleepingAllowed(false);
 
-    if (this->balance) {
+    if (this->balance)
         this->balance->body = this->body;
-    }
 
     this->create_fixtures();
     this->reset_friction();
     this->reset_damping();
 
-    for (int x=0; x<NUM_EQUIPMENT_TYPES; x++) {
-        if (this->equipments[x]) {
+    for (int x=0; x<NUM_EQUIPMENT_TYPES; x++)
+        if (this->equipments[x])
             this->equipments[x]->add_to_world();
-        }
-    }
 
     this->recalculate_mass_distribution();
 }
 
-bool
-creature::set_equipment(int e_category, int e_type)
-{
+bool creature::set_equipment(int e_category, int e_type) {
     if (_equipment_required_features[e_category] != 0
         && !this->has_feature(_equipment_required_features[e_category])) {
         tms_debugf("creature does not support this equipment type");
@@ -537,9 +486,8 @@ creature::set_equipment(int e_category, int e_type)
     }
 
     if (this->equipments[e_category]) {
-        if (this->equipments[e_category]->get_equipment_type() == e_type) {
+        if (this->equipments[e_category]->get_equipment_type() == e_type)
             return false;
-        }
 
         this->equipments[e_category]->remove_as_child();
 
@@ -547,12 +495,11 @@ creature::set_equipment(int e_category, int e_type)
 
         delete this->equipments[e_category];
 
-        /* special things */
-        if (e_category == EQUIPMENT_HEAD) {
+        // special things
+        if (e_category == EQUIPMENT_HEAD)
             this->head = 0;
-        } else if (e_category == EQUIPMENT_FEET) {
+        else if (e_category == EQUIPMENT_FEET)
             this->feet = 0;
-        }
     }
 
     this->equipments[e_category] = robot_parts::equipment::make(this, e_category, e_type);
@@ -568,35 +515,28 @@ creature::set_equipment(int e_category, int e_type)
         this->equipments[e_category]->add_as_child();
     }
 
-    /* special things */
-    if (e_category == EQUIPMENT_HEAD) {
+    // special things
+    if (e_category == EQUIPMENT_HEAD)
         this->head = static_cast<robot_parts::head_base*>(this->equipments[e_category]);
-    } else if (e_category == EQUIPMENT_FEET) {
+    else if (e_category == EQUIPMENT_FEET)
         this->feet = static_cast<robot_parts::feet_base*>(this->equipments[e_category]);
-    }
 
     return true;
 }
 
-b2Vec2
-creature::get_gravity()
-{
+b2Vec2 creature::get_gravity() {
     b2Vec2 g = W->get_gravity();
     g += this->gravity_forces;
 
     return g;
 }
 
-float
-creature::get_gravity_angle()
-{
+float creature::get_gravity_angle() {
     b2Vec2 g = this->get_gravity();
     return atan2(g.y, g.x);
 }
 
-void
-creature::set_ground_speed(float tangent, float normal)
-{
+void creature::set_ground_speed(float tangent, float normal) {
     b2Vec2 f = b2Vec2(tangent, normal);
 
     if (f.LengthSquared() > 100000.f) {
@@ -624,19 +564,16 @@ creature::set_ground_speed(float tangent, float normal)
     //}
 }
 
-void
-creature::set_jump_state(int s, float force_mul, b2Vec2 bias)
-{
-    if (this->j_feet_count <= 0) {
+void creature::set_jump_state(int s, float force_mul, b2Vec2 bias) {
+    if (this->j_feet_count <= 0)
         return;
-    }
 
     switch (s) {
         default:
         case 0:
-            if (this->jumping == 1) {
+            if (this->jumping == 1)
                 this->set_jump_state(2); /* reset some stuff */
-            }
+
             this->jumping = 0;
             this->create_feet_joint(0);
 
@@ -652,9 +589,8 @@ creature::set_jump_state(int s, float force_mul, b2Vec2 bias)
                 this->j_feet[x]->SetMotorSpeed(-(this->get_jump_strength())*force_mul*(-(CREATURE_FEET_SPEED)*.75f));
                 this->j_feet[x]->SetMaxMotorForce(this->get_jump_strength()*this->get_total_mass()*CREATURE_FEET_FORCE);
 
-                if (this->feet->get_body(x)) {
+                if (this->feet->get_body(x))
                     this->feet->get_body(x)->SetFixedRotation(true);
-                }
             }
             this->body->SetFixedRotation(true);
             this->jump_time = 0;
@@ -667,29 +603,23 @@ creature::set_jump_state(int s, float force_mul, b2Vec2 bias)
             this->body->SetFixedRotation(false);
 
             for (int x=0; x<this->j_feet_count; x++) {
-                if (this->feet->get_body(x)) {
+                if (this->feet->get_body(x))
                     this->feet->get_body(x)->SetFixedRotation(false);
-                }
 
                 this->j_feet[x]->SetMotorSpeed(-CREATURE_FEET_SPEED);
                 this->j_feet[x]->SetMaxMotorForce(CREATURE_FEET_FORCE/2.f * this->get_total_mass());
             }
-
             break;
     }
 
     this->recalculate_mass_distribution();
 }
 
-float
-creature::get_down_angle()
-{
+float creature::get_down_angle() {
     return this->body->GetAngle() - M_PI/2.f;
 }
 
-void
-creature::deactivate_feet()
-{
+void creature::deactivate_feet() {
     for (int x=0; x<this->j_feet_count; x++) {
         if (this->j_feet[x]) {
             if (!this->is_dead()) {
@@ -704,9 +634,7 @@ creature::deactivate_feet()
     if (this->feet) this->feet->set_on(false);
 }
 
-void
-creature::activate_feet()
-{
+void creature::activate_feet() {
     for (int x=0; x<this->j_feet_count; x++) {
         if (this->j_feet[x]) {
             this->j_feet[x]->SetMaxMotorForce(CREATURE_FEET_FORCE*this->get_total_mass());
@@ -717,21 +645,13 @@ creature::activate_feet()
     if (this->feet) this->feet->set_on(true);
 }
 
-/**
- * If the creature has feet, we need to make sure that the feet weigh
- * a specific ratio of the total weight for jump forces to work correctly
- **/
-void
-creature::recalculate_mass_distribution()
-{
+void creature::recalculate_mass_distribution() {
     b2Body *b;
     b2MassData m;
 
-    for (int x=0; x<this->get_num_bodies(); x++) {
-        if (this->get_body(x)) {
+    for (int x=0; x<this->get_num_bodies(); x++)
+        if (this->get_body(x))
             this->get_body(x)->ResetMassData();
-        }
-    }
 
     if (this->feet) {
         float total = this->get_upper_mass();
@@ -749,13 +669,10 @@ creature::recalculate_mass_distribution()
                 float new_mass;
                 b->GetMassData(&m);
 
-                if (x >= 1 && x <= 4) {
-                    /* this is a feet body */
+                if (x >= 1 && x <= 4) // this is a feet body
                     new_mass = t;
-                } else {
-                    /* something other than feet */
+                else // something other than feet
                     new_mass = m.mass * inv;
-                }
 
                 m.I = (new_mass/m.mass) * m.I;
                 m.mass = new_mass;
@@ -765,9 +682,7 @@ creature::recalculate_mass_distribution()
     }
 }
 
-void
-creature::create_feet_joint(int mode, b2Vec2 bias)
-{
+void creature::create_feet_joint(int mode, b2Vec2 bias) {
     this->destroy_feet_joint();
 
     if (this->body && this->feet) {
@@ -783,13 +698,12 @@ creature::create_feet_joint(int mode, b2Vec2 bias)
                 pjd.upperTranslation = this->feet->get_offset();
                 pjd.lowerTranslation = 0.f;
             } else {
-                if (mode == 1) {
+                if (mode == 1)
                     pjd.lowerTranslation = CREATURE_JUMP_LEN * this->get_scale();
-                } else if (mode == 2) {
+                else if (mode == 2)
                     pjd.lowerTranslation = this->feet->get_offset()-.1f;
-                } else {
+                else
                     pjd.lowerTranslation = 0.f;
-                }
 
                 pjd.enableMotor = (mode != 2);
                 //pjd.upperTranslation = this->feet->get_offset();
@@ -802,11 +716,10 @@ creature::create_feet_joint(int mode, b2Vec2 bias)
             pjd.bodyA = this->body;
             pjd.bodyB = this->feet->get_body(x);
 
-            if (mode == 1) {
+            if (mode == 1)
                 pjd.localAxisA = this->body->GetLocalVector(-this->get_gravity());
-            } else {
+            else
                 pjd.localAxisA = b2Vec2(0.f, 1.f);
-            }
 
             pjd.localAxisA += bias;
 
@@ -820,9 +733,7 @@ creature::create_feet_joint(int mode, b2Vec2 bias)
     }
 }
 
-void
-creature::destroy_feet_joint()
-{
+void creature::destroy_feet_joint() {
     for (int x=0; x<j_feet_count; x++) {
         if (this->j_feet[x]) {
             this->body->GetWorld()->DestroyJoint(this->j_feet[x]);
@@ -833,15 +744,9 @@ creature::destroy_feet_joint()
     this->j_feet_count = 0;
 }
 
-void
-creature::detach_feet()
-{
-}
+void creature::detach_feet() {}
 
-/* check if we're somehow blocked, unable to move */
-void
-creature::roam_check_blocked()
-{
+void creature::roam_check_blocked() {
     if (this->new_dir != 0) {
         tms_debug_roam_cb("User attempting to move %d", this->new_dir);
         // We are attempting to move forward
@@ -875,24 +780,16 @@ creature::roam_check_blocked()
     }
 }
 
-/**
- * Target got absorbed (if the target is an interactive item, it was destroyed)
- **/
-void
-creature::roam_on_target_absorbed()
-{
+void creature::roam_on_target_absorbed() {
     this->roam_unset_target();
     this->roam_target_id = this->previous_roam_target_id;
     this->previous_roam_target_id = 0;
 
-    if (this->blocked.is_blocked && this->blocked.stage == 1) {
+    if (this->blocked.is_blocked && this->blocked.stage == 1)
         this->blocked.previous_stage(this->get_layer());
-    }
 }
 
-void
-creature::roam_retarget()
-{
+void creature::roam_retarget() {
     if (this->blocked.is_blocked && this->blocked.stage == 1
         && this->previous_roam_target_id == 0) {
         //tms_infof("looking for a new target %d %p", this->gather.found_obstacle[0], this->gather.obstacle[0]);
@@ -905,28 +802,21 @@ creature::roam_retarget()
     }
 }
 
-/**
- * Return true if we should untarget the current target
- **/
-bool
-creature::roam_neglect()
-{
+bool creature::roam_neglect() {
     if (!this->roam_target) return true;
 
     if (this->roam_target->flag_active(ENTITY_IS_CREATURE)) {
         creature *c = static_cast<creature*>(this->roam_target);
 
-        if (c->is_dead()) {
+        if (c->is_dead())
             return true;
-        }
     }
 
     if (this->roam_target_type == TARGET_ANCHOR) {
         anchor *anch = static_cast<anchor*>(this->roam_target);
 
-        if (!anch->is_active()) {
+        if (!anch->is_active())
             return true;
-        }
     }
 
     if (!W->level.flag_active(LVL_UNLIMITED_ENEMY_VISION) && this->roam_target_type != TARGET_ANCHOR) {
@@ -939,32 +829,24 @@ creature::roam_neglect()
     return false;
 }
 
-/* Default behaviour: Look at the target */
-void
-creature::roam_look()
-{
+void creature::roam_look() {
     b2Vec2 target_pos = this->get_roam_target_pos();
     float tangent_dist = this->get_tangent_distance(target_pos);
 
     if (!this->is_panicked()) {
-        if (tangent_dist < 0.f) {
+        if (tangent_dist < 0.f)
             this->look(DIR_LEFT);
-        } else {
+        else
             this->look(DIR_RIGHT);
-        }
     } else {
-        if (tangent_dist < 0.f) {
+        if (tangent_dist < 0.f)
             this->look(DIR_RIGHT);
-        } else {
+        else
             this->look(DIR_LEFT);
-        }
     }
 }
 
-/* Default behaviour: Aim at the target */
-void
-creature::roam_aim()
-{
+void creature::roam_aim() {
     b2Vec2 r = this->get_position();
     b2Vec2 o = this->roam_target->get_position();
     o -= r;
@@ -988,15 +870,9 @@ creature::roam_aim()
     this->roam_target_aim = a;
 }
 
-/* Default behaviour: Do nothing */
-void
-creature::roam_attack()
-{
-}
+void creature::roam_attack() { }
 
-void
-creature::roam_update_dir()
-{
+void creature::roam_update_dir() {
     b2Vec2 r = this->get_position();
     //tms_debugf("%.2f/%.2f | %.2f/%.2f", this->roam_target_pos.x, this->roam_target_pos.y, r.x, r.y);
     b2Vec2 target_pos = this->get_roam_target_pos();
@@ -1013,9 +889,8 @@ creature::roam_update_dir()
                     ) {
                 this->target_side = (tangent_dist < 0.f) ? DIR_LEFT : DIR_RIGHT;
                 tms_debug_roam_ud("Set target side to %d", this->target_side);
-            } else {
+            } else
                 target_side_accum *= .97f;
-            }
         }
 
         if (this->target_side != 0) {
@@ -1035,9 +910,7 @@ creature::roam_update_dir()
     }
 }
 
-int
-creature::get_optimal_walking_dir(float tangent_dist)
-{
+int creature::get_optimal_walking_dir(float tangent_dist) {
     if ((this->target_dist > this->roam_optimal_big_distance*TARGET_DIST_SCALE)
             || (!this->shoot_target && this->target_dist > 2.0f*TARGET_DIST_SCALE)) {
         tms_debug_roam_ud("%p move toward target", this);
@@ -1059,9 +932,7 @@ creature::get_optimal_walking_dir(float tangent_dist)
     return 0;
 }
 
-void
-creature::roam_jump()
-{
+void creature::roam_jump() {
     /* Jumping */
 
     if (this->on_ground <= 0.f)
@@ -1108,38 +979,20 @@ creature::roam_jump()
     }
 }
 
-/**
- * Gather information on what we can see, particularly about our target
- **/
-void
-creature::roam_gather_sight()
-{
-}
+void creature::roam_gather_sight() { }
 
-/**
- *
- **/
-void
-creature::roam_set_target_type()
-{
+void creature::roam_set_target_type() {
     this->roam_target_type = TARGET_ITEM;
 }
 
-void
-creature::roam_unset_target()
-{
+void creature::roam_unset_target() {
     this->attack_stop();
     this->roam_target = 0;
     this->roam_target_id = 0;
     this->roam_target_type = TARGET_NONE;
 }
 
-/**
- * Set up the current target from the saved id if we have one
- **/
-void
-creature::roam_setup_target()
-{
+void creature::roam_setup_target() {
     if (this->roam_target_type == TARGET_POSITION) {
         this->target_dist = b2Distance(this->get_position(), this->get_roam_target_pos());
     } else if (this->roam_target_id != 0) {
@@ -1167,16 +1020,11 @@ creature::roam_setup_target()
     }
 }
 
-void
-creature::on_release_playing()
-{
+void creature::on_release_playing() {
     this->recalculate_mass_distribution();
 }
 
-/* gather information about the surroundings */
-void
-creature::roam_gather()
-{
+void creature::roam_gather() {
     if (this->dir != 0) {
         this->gather.found_ground = false;
         this->found_ground = 0;
@@ -1254,12 +1102,7 @@ creature::roam_gather()
 
 }
 
-/**
- * Perform target actions such as picking up items if they're close enough
- **/
-void
-creature::roam_perform_target_actions()
-{
+void creature::roam_perform_target_actions() {
     if (this->roam_target_type == TARGET_ITEM) {
         if (this->target_layer == this->get_layer() && this->target_dist < 2.f) {
             b2Body *b = this->roam_target->get_body(0);
@@ -1288,11 +1131,8 @@ creature::roam_perform_target_actions()
     }
 }
 
-/* Default behaviour for roam walk is to move toward the target */
-void
-creature::roam_walk()
-{
-    /* Walking */
+void creature::roam_walk() {
+    // Walking
     if (!this->gather.found_ground) {
         tms_debug_roam_w("No ground found, stopping.");
         this->stop();
@@ -1324,14 +1164,12 @@ creature::roam_walk()
         tms_debug_roam_w("Stopping.");
         this->stop();
 
-        if (this->blocked.is_blocked) {
+        if (this->blocked.is_blocked)
             this->blocked.done = true;
-        }
     } else {
         // If the robot is set to wander, always force look dir to be same as walking dir
-        if (this->is_wandering() && this->new_dir != 0) {
+        if (this->is_wandering() && this->new_dir != 0)
             this->look(this->new_dir);
-        }
 
         if (this->new_dir != this->dir) {
             tms_debug_roam_w("Moving %s", this->new_dir == DIR_LEFT ? "left" : "right");
@@ -1342,30 +1180,27 @@ creature::roam_walk()
             tms_debug_roam_w(" > We were previously blocked, unset.");
             this->blocked.unset();
         }
-            this->go();
+
+        this->go();
     }
 }
 
-void
-creature::roam_set_target(entity *e)
-{
+void creature::roam_set_target(entity *e) {
     this->roam_target = e;
     this->roam_target_id = e->id;
 }
 
-void
-creature::roam_layermove()
-{
+void creature::roam_layermove() {
     int t_inc = 500000;
 
     if (this->layermove_pretimer > 0) {
         this->layermove_pretimer -= G->timemul(this->logic_timer_max);
-        if (this->layermove_pretimer < 0) this->layermove_pretimer = 0;
+        if (this->layermove_pretimer < 0)
+            this->layermove_pretimer = 0;
     }
 
-    if (this->layermove_timer > 0) {
+    if (this->layermove_timer > 0)
         this->layermove_timer -= G->timemul(this->logic_timer_max);
-    }
 
     /* don't try to change layer if we're lying down */
     if (fabsf(tmath_adist(this->get_down_angle(), this->get_gravity_angle())) > .75f) {
@@ -1500,14 +1335,11 @@ creature::roam_layermove()
     }
 }
 
-void
-creature::roam_wander()
-{
+void creature::roam_wander() {
     this->reset_limbs();
 
-    if (!this->is_wandering()) {
+    if (!this->is_wandering())
         this->set_creature_flag(CREATURE_WANDERING, true);
-    }
 
     this->dir_timer += G->timemul(this->logic_timer_max);
 
@@ -1528,15 +1360,11 @@ creature::roam_wander()
     this->roam_walk();
 }
 
-bool
-creature::roam_can_target(entity *e, bool must_see)
-{
+bool creature::roam_can_target(entity *e, bool must_see) {
     return false;
 }
 
-bool
-creature::layermove(int dir)
-{
+bool creature::layermove(int dir) {
     tms_debugf("has_attachment? maybe;-) frozen? %d climbingladder? %d canlayermove? %d",
             this->is_frozen(), this->is_climbing_ladder(), this->can_layermove());
 
@@ -1596,9 +1424,7 @@ creature::layermove(int dir)
     return true;
 }
 
-void
-creature::set_position(float x, float y, uint8_t fr)
-{
+void creature::set_position(float x, float y, uint8_t fr) {
     entity::set_position(x,y,fr);
 
     if (this->feet) {
@@ -1623,9 +1449,7 @@ creature::set_position(float x, float y, uint8_t fr)
     }
 }
 
-void
-creature::set_layer(int l)
-{
+void creature::set_layer(int l) {
     this->layer_old = this->get_layer();
 
     if (!W->is_paused()) {
@@ -1645,9 +1469,7 @@ creature::set_layer(int l)
     }
 }
 
-void
-creature::set_fixture_layer(int l)
-{
+void creature::set_fixture_layer(int l) {
     for (int x=0; x<NUM_EQUIPMENT_TYPES; x++) {
         if (this->equipments[x]) {
             this->equipments[x]->set_layer(l);
@@ -1655,10 +1477,7 @@ creature::set_fixture_layer(int l)
     }
 }
 
-/* get the speed relative to gravity rotated 90 degrees */
-double
-creature::get_tangent_speed()
-{
+double creature::get_tangent_speed() {
     b2Vec2 vel = this->body->GetLinearVelocity();
     b2Vec2 g = -this->get_gravity();
 
@@ -1686,8 +1505,7 @@ creature::get_tangent_speed()
     return vel.x*tx + vel.y*ty;
 }
 
-b2Vec2 creature::get_normal_vector(float mag)
-{
+b2Vec2 creature::get_normal_vector(float mag) {
     b2Vec2 vel = this->body->GetLinearVelocity();
     b2Vec2 g = -this->get_gravity();
     float l = g.Length();
@@ -1697,9 +1515,7 @@ b2Vec2 creature::get_normal_vector(float mag)
     return mag*g;
 }
 
-double
-creature::get_normal_speed()
-{
+double creature::get_normal_speed() {
     b2Vec2 vel = this->body->GetLinearVelocity();
     b2Vec2 g = -this->get_gravity();
 
@@ -1731,9 +1547,7 @@ creature::get_normal_speed()
     return vel.x*tx + vel.y*ty;
 }
 
-void
-creature::try_regain_balance()
-{
+void creature::try_regain_balance() {
     this->balance_regain += G->timemul(WORLD_STEP);
     if (this->balance_regain >= 400000) {
         this->set_creature_flag(CREATURE_LOST_BALANCE, false);
@@ -1742,9 +1556,7 @@ creature::try_regain_balance()
     }
 }
 
-void
-creature::lose_balance()
-{
+void creature::lose_balance() {
     this->last_ground_speed = b2Vec2(0.f, 0.f);
     this->set_friction(.9f);
     this->set_creature_flag(CREATURE_LOST_BALANCE, true);
@@ -1752,9 +1564,7 @@ creature::lose_balance()
     this->balance_regain = 0;
 }
 
-void
-creature::pre_step()
-{
+void creature::pre_step() {
     this->gravity_forces = b2Vec2(0.f, 0.f);
 
     if (this->real_lfront_count == 0 && this->lfront_count > 0) {
@@ -1786,43 +1596,31 @@ creature::pre_step()
     }
 }
 
-/**
- * called from step if rounded value of i_dir has changed
- **/
-void
-creature::on_dir_change()
-{
+void creature::on_dir_change() {
     int new_dir = (int)roundf(this->i_dir);
 
-    for (int x=0; x<NUM_EQUIPMENT_TYPES; x++) {
-        if (this->equipments[x]) {
+    for (int x=0; x<NUM_EQUIPMENT_TYPES; x++)
+        if (this->equipments[x])
             this->equipments[x]->on_dir_change();
-        }
-    }
 
     this->last_i_dir = roundf(this->i_dir);
 
     this->recalculate_mass_distribution();
 }
 
-void
-creature::step()
-{
+void creature::step() {
     //tms_debugf("ground speed %f %f, on_ground=%f", this->last_ground_speed.x, this->last_ground_speed.y, this->on_ground);
     //tms_debugf("real velocity: %f %f", this->body ? this->body->GetLinearVelocity().x : 0 ,this->body ? this->body->GetLinearVelocity().y : 0);
-    if (this->shock_forces > 300.f) {
+    if (this->shock_forces > 300.f)
         this->lose_balance();
-    }
 
     this->shock_forces = 0.f;
 
-    if (this->equipments[EQUIPMENT_BACK]) {
+    if (this->equipments[EQUIPMENT_BACK])
         this->equipments[EQUIPMENT_BACK]->step();
-    }
 
-    if (this->motion == MOTION_RIDING && this->cur_riding) {
+    if (this->motion == MOTION_RIDING && this->cur_riding)
         this->i_dir = this->cur_riding->i_dir;
-    }
 
     {
         float blend = .05f;
@@ -1830,16 +1628,14 @@ creature::step()
         this->velocity = (1.f-blend) * this->velocity + blend*vel;
 
         blend = .01f;
-        if (this->on_ground <= 0.f) {
+        if (this->on_ground <= 0.f)
             this->last_ground_speed = (1.f-blend) * this->last_ground_speed + blend*vel;
-        }
     }
 
     this->ladder_time += G->timemul(WORLD_STEP);
 
-    if (this->ladder_time > 16000) {
+    if (this->ladder_time > 16000)
         this->ladder_time = 16000;
-    }
 
     bool recalculate = false;
     std::map<uint8_t, creature_effect>::iterator e_it = this->effects.begin();
@@ -1854,9 +1650,8 @@ creature::step()
         }
     }
 
-    if (recalculate) {
+    if (recalculate)
         this->recalculate_effects();
-    }
 
     // handle body rotation logic
     {
@@ -1894,15 +1689,12 @@ creature::step()
 
     if (!this->finished) {
 
-        if (this->creature_flag_active(CREATURE_LOST_BALANCE)) {
-            if (fabsf(this->body->GetAngularVelocity()) < 2.f) {
+        if (this->creature_flag_active(CREATURE_LOST_BALANCE))
+            if (fabsf(this->body->GetAngularVelocity()) < 2.f)
                 this->try_regain_balance();
-            }
-        }
 
-        if (this->feet) {
+        if (this->feet)
             this->feet->step();
-        }
 
         bool apply = false;
         if ((this->on_ground > 0.f && standing)) {
@@ -1925,9 +1717,8 @@ creature::step()
         }
     }
 
-    if (this->layer_blend < 1.f) {
+    if (this->layer_blend < 1.f)
         this->layer_blend += WORLD_STEP/1000000.f * 5.f * G->get_time_mul();
-    }
 
     if (_mstep_jump) {
         this->jump(true, _mstep_jump == 1 ? .66f : 1.f);
@@ -2036,12 +1827,9 @@ creature::step()
     }
 }
 
-void
-creature::damage(float amount, b2Fixture *f, damage_type dt, uint8_t damage_source, uint32_t attacker_id)
-{
-    if (W->level.flag_active(LVL_DISABLE_DAMAGE)) {
+void creature::damage(float amount, b2Fixture *f, damage_type dt, uint8_t damage_source, uint32_t attacker_id) {
+    if (W->level.flag_active(LVL_DISABLE_DAMAGE))
         return;
-    }
 
     float real_dmg = this->get_adjusted_damage(amount, f, dt, damage_source, attacker_id);
     this->on_damage(real_dmg, f, dt, damage_source, attacker_id);
@@ -2049,45 +1837,39 @@ creature::damage(float amount, b2Fixture *f, damage_type dt, uint8_t damage_sour
     this->last_damage_tick = _tms.last_time;
 }
 
-float
-creature::get_adjusted_damage(float amount, b2Fixture *f, damage_type dt, uint8_t damage_source, uint32_t attacker_id)
-{
+float creature::get_adjusted_damage(float amount, b2Fixture *f, damage_type dt, uint8_t damage_source, uint32_t attacker_id) {
     float dmg = amount * this->damage_multiplier;
 
     robot_parts::equipment *eq = this->get_equipment_by_fixture(f);
 
-    if (eq) {
+    if (eq)
         dmg = eq->get_adjusted_damage(dmg, f, dt, damage_source, attacker_id);
-    } else if (f == this->get_body_fixture()) {
+    else if (f == this->get_body_fixture()) {
         /* if the inner body is hit, but we have back or front protection, get their values instead */
-        if (this->equipments[EQUIPMENT_FRONT]) {
+        if (this->equipments[EQUIPMENT_FRONT])
             dmg = this->equipments[EQUIPMENT_FRONT]->get_adjusted_damage(dmg, f, dt, damage_source, attacker_id);
-        } else if (this->equipments[EQUIPMENT_BACK]) {
+        else if (this->equipments[EQUIPMENT_BACK])
             dmg = this->equipments[EQUIPMENT_BACK]->get_adjusted_damage(dmg, f, dt, damage_source, attacker_id);
-        }
     }
     //tms_debugf("creature adjusted damage %f->%f [%p]", amount, dmg, f);
 
     return dmg;
 }
 
-void
-creature::on_damage(float dmg, b2Fixture *f, damage_type dt, uint8_t damage_source, uint32_t attacker_id)
-{
+void creature::on_damage(float dmg, b2Fixture *f, damage_type dt, uint8_t damage_source, uint32_t attacker_id) {
     const float threshold = 15.f + this->bolt_set * 20.f;
 
     /* TODO XXX extra strength per equipment type */
     if (this->bolt_set != BOLT_SET_DIAMOND) {
         if (dmg > threshold && dt == DAMAGE_TYPE_FORCE) {
-            if (this->equipments[EQUIPMENT_BACK] && f == this->equipments[EQUIPMENT_BACK]->fx) {
+            if (this->equipments[EQUIPMENT_BACK] && f == this->equipments[EQUIPMENT_BACK]->fx)
                 this->set_creature_flag(CREATURE_LOST_BACK, true);
-            } else if (this->equipments[EQUIPMENT_FRONT] && f == this->equipments[EQUIPMENT_FRONT]->fx) {
+            else if (this->equipments[EQUIPMENT_FRONT] && f == this->equipments[EQUIPMENT_FRONT]->fx)
                 this->set_creature_flag(CREATURE_LOST_FRONT, true);
-            } else if (this->equipments[EQUIPMENT_HEAD] && f == this->equipments[EQUIPMENT_HEAD]->fx) {
+            else if (this->equipments[EQUIPMENT_HEAD] && f == this->equipments[EQUIPMENT_HEAD]->fx)
                 this->set_creature_flag(CREATURE_LOST_HEAD, true);
-            } else if (this->equipments[EQUIPMENT_FEET] && this->is_foot_fixture(f)) {
+            //else if (this->equipments[EQUIPMENT_FEET] && this->is_foot_fixture(f))
                 //this->set_creature_flag(CREATURE_LOST_FEET, true);
-            }
         }
     }
 
@@ -2096,9 +1878,7 @@ creature::on_damage(float dmg, b2Fixture *f, damage_type dt, uint8_t damage_sour
     this->damage_accum[dt] += dmg;
 }
 
-void
-creature::apply_destruction()
-{
+void creature::apply_destruction() {
     for (int x=0; x<NUM_EQUIPMENT_TYPES; x++) {
         if (this->equipments[x] && _equipment_destruction_flags[x] != 0) {
             if (this->creature_flag_active(_equipment_destruction_flags[x])) {
@@ -2110,9 +1890,8 @@ creature::apply_destruction()
         }
     }
 
-    if (this->is_player()) {
+    if (this->is_player())
         return;
-    }
 
     if (this->creature_flag_active(CREATURE_LOST_WEAPON)) {
         this->set_creature_flag(CREATURE_LOST_WEAPON, false);
@@ -2143,9 +1922,7 @@ creature::apply_destruction()
     }
 }
 
-void
-creature::drop_item(uint32_t item_id)
-{
+void creature::drop_item(uint32_t item_id) {
     item *i = static_cast<item*>(of::create(O_ITEM));
     if (i) {
         i->set_item_type(item_id);
@@ -2165,9 +1942,7 @@ creature::drop_item(uint32_t item_id)
     }
 }
 
-void
-creature::mstep()
-{
+void creature::mstep() {
     switch (this->motion) {
         case MOTION_DEFAULT:
             break;
@@ -2287,42 +2062,31 @@ creature::mstep()
     }
 }
 
-void
-creature::update()
-{
-    for (int x=0; x<NUM_EQUIPMENT_TYPES; x++) {
-        if (this->equipments[x]) {
+void creature::update() {
+    for (int x=0; x<NUM_EQUIPMENT_TYPES; x++)
+        if (this->equipments[x])
             this->equipments[x]->update();
-        }
-    }
 }
 
-void
-creature::look(int dir, bool force/*=false*/)
-{
+void creature::look(int dir, bool force/*=false*/) {
     if (force) {
         this->look_dir = dir;
         return;
     }
 
-    if (this->fixed_dir) {
+    if (this->fixed_dir)
         return;
-    }
 
-    if (this->is_dead()) {
+    if (this->is_dead())
         return;
-    }
 
-    if (this->is_frozen()) {
+    if (this->is_frozen())
         return;
-    }
 
     this->look_dir = dir;
 }
 
-float32
-creature::cb_ground_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
+float32 creature::cb_ground_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
     entity *r = static_cast<entity*>(f->GetUserData());
 
     if (f->IsSensor()) {
@@ -2339,19 +2103,16 @@ creature::cb_ground_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const
         }
     }
 
-    if (world::fixture_get_layer(f) != self->query_layer) {
+    if (world::fixture_get_layer(f) != self->query_layer)
         return -1.f;
-    }
 
     if (r) {
-        /* ignore self */
-        if (r == this->self) {
+        // ignore self
+        if (r == this->self)
             return -1.f;
-        }
 
-        if (r->flag_active(ENTITY_IS_BULLET)) {
+        if (r->flag_active(ENTITY_IS_BULLET))
             return -1.f;
-        }
 
         if (r->g_id == O_SPIKES) {
             self->ground_pt = pt;
@@ -2368,9 +2129,7 @@ creature::cb_ground_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const
     return fraction;
 }
 
-void
-creature::stop_moving(int dir)
-{
+void creature::stop_moving(int dir) {
     if (this->finished) return;
 
     if (this->motion == MOTION_RIDING && this->is_player()) {
@@ -2394,16 +2153,13 @@ creature::stop_moving(int dir)
             this->move(DIR_LEFT);
         else
             this->stop();
-    } else if (dir == DIR_UP) {
+    } else if (dir == DIR_UP)
         this->set_creature_flag(CREATURE_MOVING_UP, false);
-    } else if (dir == DIR_DOWN) {
+    else if (dir == DIR_DOWN)
         this->set_creature_flag(CREATURE_MOVING_DOWN, false);
-    }
 }
 
-void
-creature::move(int dir, bool force/*=false*/)
-{
+void creature::move(int dir, bool force/*=false*/) {
     if (!force && (this->finished || this->is_frozen())) return;
 
     if (this->motion == MOTION_RIDING && this->is_player()) {
@@ -2438,19 +2194,13 @@ creature::move(int dir, bool force/*=false*/)
     this->dir = dir;
     this->go();
 
-    if (this->dir == DIR_LEFT) {
+    if (this->dir == DIR_LEFT)
         this->set_creature_flag(CREATURE_MOVING_LEFT, true);
-    } else if (this->dir == DIR_RIGHT) {
+    else if (this->dir == DIR_RIGHT)
         this->set_creature_flag(CREATURE_MOVING_RIGHT, true);
-    }
 }
 
-/**
- * Get a vector along the gravity tangent of the given magnitude
- **/
-b2Vec2
-creature::get_tangent_vector(float mag)
-{
+b2Vec2 creature::get_tangent_vector(float mag) {
     b2Vec2 g = -W->get_gravity();
 
     float ll = g.Length();
@@ -2474,36 +2224,24 @@ creature::get_tangent_vector(float mag)
     return tangent;
 }
 
-/**
- * Get the distance to p along the tangent axis
- **/
-float
-creature::get_tangent_distance(b2Vec2 p)
-{
+float creature::get_tangent_distance(b2Vec2 p) {
     p -= this->get_position();
     b2Vec2 tangent = this->get_tangent_vector(1.f);
     return p.x * tangent.x + p.y * tangent.y;
 }
 
-bool
-creature::is_player()
-{
-    if (W->is_paused()) {
+bool creature::is_player() {
+    if (W->is_paused())
         return this->id == G->state.adventure_id;
-    }
 
     return this == adventure::player;
 }
 
-float
-creature::get_z(void)
-{
+float creature::get_z() {
     return (this->layer_new * (this->layer_blend) +this->layer_old * (1.f-this->layer_blend)) * LAYER_DEPTH;
 }
 
-bool
-creature::jump(bool forward_force, float force_mul /*=1.f*/)
-{
+bool creature::jump(bool forward_force, float force_mul /*=1.f*/) {
     if (!this->can_jump()) return false;
     if (this->finished) return false;
     if (this->is_frozen()) return false;
@@ -2515,11 +2253,9 @@ creature::jump(bool forward_force, float force_mul /*=1.f*/)
         }
     }
 
-    if (this->equipments[EQUIPMENT_BACK]) {
-        if (static_cast<robot_parts::back*>(this->equipments[EQUIPMENT_BACK])->on_jump()) {
+    if (this->equipments[EQUIPMENT_BACK])
+        if (static_cast<robot_parts::back*>(this->equipments[EQUIPMENT_BACK])->on_jump())
             return true;
-        }
-    }
 
     if (W->level.flag_active(LVL_DISABLE_JUMP)) return false;
 
@@ -2584,12 +2320,10 @@ creature::jump(bool forward_force, float force_mul /*=1.f*/)
     return true;
 }
 
-void
-creature::stop_jump()
-{
-    if (this->equipments[EQUIPMENT_BACK]) {
+void creature::stop_jump() {
+    if (this->equipments[EQUIPMENT_BACK])
         static_cast<robot_parts::back*>(this->equipments[EQUIPMENT_BACK])->on_stop_jump();
-    }
+
     /*
     if (this->jumping && this->body) {
         this->body->ApplyLinearImpulse(this->body->GetWorldVector(b2Vec2(0.f, -2.f)), this->body->GetWorldCenter());
@@ -2599,78 +2333,65 @@ creature::stop_jump()
     */
 }
 
-bool
-creature::drop_resource(uint8_t resource_type, uint64_t amount, b2Vec2 relative_pos, float vel)
-{
+bool creature::drop_resource(uint8_t resource_type, uint64_t amount, b2Vec2 relative_pos, float vel) {
     amount = this->inventory[resource_type] > amount ? amount : this->inventory[resource_type];
 
-    if (amount) {
-        this->inventory[resource_type] -= amount;
-        if (adventure::player == this && adventure::current_factory) {
-            adventure::current_factory->add_resources(resource_type, amount);
-        } else {
-            resource *r = static_cast<resource*>(of::create(O_RESOURCE));
-            r->set_resource_type(resource_type);
-            r->set_amount(amount);
-            b2Vec2 pos = this->get_position();
-            pos += relative_pos;
-            r->set_position(pos);
-            r->set_layer(this->get_layer());
-            G->lock();
-            b2Vec2 v = relative_pos;
-            v.Normalize();
-            G->emit(r, 0, this->get_body(0)->GetLinearVelocity() + vel*v);
-            G->unlock();
-        }
+    if (!amount)
+        return false;
 
-        return true;
+    this->inventory[resource_type] -= amount;
+    if (adventure::player == this && adventure::current_factory) {
+        adventure::current_factory->add_resources(resource_type, amount);
+    } else {
+        resource *r = static_cast<resource*>(of::create(O_RESOURCE));
+        r->set_resource_type(resource_type);
+        r->set_amount(amount);
+        b2Vec2 pos = this->get_position();
+        pos += relative_pos;
+        r->set_position(pos);
+        r->set_layer(this->get_layer());
+        G->lock();
+        b2Vec2 v = relative_pos;
+        v.Normalize();
+        G->emit(r, 0, this->get_body(0)->GetLinearVelocity() + vel*v);
+        G->unlock();
     }
 
-    return false;
+    return true;
 }
 
-void
-creature::add_resource(uint8_t resource_type, int amount)
-{
-    if (resource_type < NUM_RESOURCES) {
-        if (amount != 0) {
-            this->inventory[resource_type] += amount;
+void creature::add_resource(uint8_t resource_type, int amount) {
+    if (resource_type >= NUM_RESOURCES || amount == 0) return;
 
-            if (this == adventure::player) {
-                adventure::highlight_inventory[resource_type] = 1.0f;
-                adventure::last_picked_up_resource = resource_type;
-                G->refresh_inventory_widgets();
-            }
+    this->inventory[resource_type] += amount;
 
-            if (amount > 0) {
-                G->add_loot(this, resource_type, amount);
-            }
-        }
+    if (this == adventure::player) {
+        adventure::highlight_inventory[resource_type] = 1.0f;
+        adventure::last_picked_up_resource = resource_type;
+        G->refresh_inventory_widgets();
     }
+
+    if (amount > 0)
+        G->add_loot(this, resource_type, amount);
 }
 
-void
-creature::activate_activator(activator *act)
-{
+void creature::activate_activator(activator *act) {
     if (!act) return;
 
     switch (act->attachment_type) {
-        case ATTACHMENT_JOINT:
-            {
-                entity *actent = act->get_activator_entity();
+        case ATTACHMENT_JOINT: {
+            entity *actent = act->get_activator_entity();
 
-                if (actent->is_creature()) {
-                    creature *cactent = static_cast<creature*>(actent);
+            if (actent->is_creature()) {
+                creature *cactent = static_cast<creature*>(actent);
 
-                    if (cactent->is_dead()) {
-                        return;
-                    }
-                }
-                this->attach_to(act->get_activator_entity());
-                this->cur_activator = act;
+                if (cactent->is_dead())
+                    return;
             }
+            this->attach_to(act->get_activator_entity());
+            this->cur_activator = act;
             break;
-
+        }
         default:
             /* Do nothing */
             break;
@@ -2679,12 +2400,9 @@ creature::activate_activator(activator *act)
     act->activate(this);
 }
 
-void
-creature::activate_closest_activator(int offset/*=0*/)
-{
-    if (this->activators.empty()) {
+void creature::activate_closest_activator(int offset/*=0*/) {
+    if (this->activators.empty())
         return;
-    }
 
     activator *closest_activator = 0;
 
@@ -2694,20 +2412,16 @@ creature::activate_closest_activator(int offset/*=0*/)
 
     std::sort(acts.begin(), acts.end(), game_sorter::distance_to_creature(this));
 
-    if (offset < acts.size()) {
+    if (offset < acts.size())
         closest_activator = acts.at(offset);
-    } else {
+    else
         closest_activator = acts.front();
-    }
 
-    if (closest_activator) {
+    if (closest_activator)
         this->activate_activator(closest_activator);
-    }
 }
 
-void
-creature::respawn()
-{
+void creature::respawn() {
     this->detach();
 
     b2Vec2 p;
@@ -2725,9 +2439,8 @@ creature::respawn()
         l = this->default_layer;
 
         tms_infof("Respawning at initial position (%.2f/%.2f)", p.x, p.y);
-    } else {
+    } else
         return;
-    }
 
     this->reset_damping();
     this->reset_friction();
@@ -2739,9 +2452,8 @@ creature::respawn()
 
     this->finished = false;
 
-    if (this->is_action_active()) {
+    if (this->is_action_active())
         this->action_off();
-    }
 
     this->activate_feet();
     this->recalculate_effects();
@@ -2766,9 +2478,7 @@ creature::respawn()
     G->add_highlight(this, false, 1.f);
 }
 
-void
-creature::on_death()
-{
+void creature::on_death() {
     this->signal(ENTITY_EVENT_DEATH);
 
     if (this->has_circuit(CREATURE_CIRCUIT_ZOMBIE)) {
@@ -2776,13 +2486,10 @@ creature::on_death()
             this->set_creature_flag(CREATURE_IS_ZOMBIE, true);
             this->hp = this->max_hp / 2.f;
 
-            this->creature_flags &= ~(
-                      CREATURE_PANICKED
-                    );
+            this->creature_flags &= ~(CREATURE_PANICKED);
 
-            if (this != adventure::player) {
+            if (this != adventure::player)
                 G->add_hp(this, this->hp/this->max_hp);
-            }
 
             this->recalculate_effects();
 
@@ -2816,118 +2523,108 @@ creature::on_death()
         this->set_flag(ENTITY_IS_INTERACTIVE, true);
         this->initialize_interactive();
 
-        if (W->level.flag_active(LVL_ABSORB_DEAD_ENEMIES)) {
+        if (W->level.flag_active(LVL_ABSORB_DEAD_ENEMIES))
             G->timed_absorb(this, W->level.dead_enemy_absorb_time);
-        }
     }
 
-    if (this->is_player()) {
+    if (this->is_player())
         return;
-    }
 
     if (this->has_feature(CREATURE_FEATURE_WEAPONS)) {
         robot_parts::weapon *w = this->get_weapon();
-        if (w && w->dropped_on_death()) {
+        if (w && w->dropped_on_death())
             this->set_creature_flag(CREATURE_LOST_WEAPON, true);
-        }
     }
 
     if (this->has_feature(CREATURE_FEATURE_TOOLS)) {
         robot_parts::tool *t = this->get_tool();
-        if (t && t->dropped_on_death()) {
+        if (t && t->dropped_on_death())
             this->set_creature_flag(CREATURE_LOST_TOOL, true);
-        }
     }
 }
 
-void
-creature::on_touch(b2Fixture *my, b2Fixture *other)
-{
+void creature::on_touch(b2Fixture *my, b2Fixture *other) {
     entity *e = (entity*)other->GetUserData();
 
-    if (e) {
-        if (my == this->f_lback && (!other->IsSensor() || (e->g_id == O_SPIKES && this->is_roaming()))) {
-            if ((this->g_id != O_SPIKEBOT && this->g_id != O_MINIBOT) || e != this->roam_target) {
-                this->real_lback_count ++;
-                this->lback_count = this->real_lback_count;
-            }
-        } else if (my == this->f_lfront && (!other->IsSensor() || (e->g_id == O_SPIKES && this->is_roaming()))) {
-            if (world::fixture_get_lower_layer(my) == world::fixture_get_layer(other)) {
-                if ((this->g_id != O_SPIKEBOT && this->g_id != O_MINIBOT) || e != this->roam_target) {
-                    this->real_lfront_count ++;
-                    this->lfront_count = this->real_lfront_count;
+    if (!e) return;
 
-                    /*
-                    tms_debugf("LL ++ real_lfront_count.");
-                    tms_debugf("LL New value: %d", this->real_lfront_count);
-                    tms_debugf("LL Fixture: %p", other);
-                    */
-                }
-                if ((e->g_id == O_TPIXEL || e->g_id == O_CHUNK)) {
-                    this->real_lfront_tpixel_count ++;
-                    if (this->real_lfront_tpixel_count > 1) {
-                        this->lfront_tpixel_count = this->real_lfront_tpixel_count;
-                    }
-                    this->lfront_tpixel_tick = 0;
-                }
-            } else {
-                if ((e->g_id == O_TPIXEL || e->g_id == O_CHUNK)) {
-                    this->real_lfront_tpixel_count ++;
-                    if (this->real_lfront_tpixel_count > 1) {
-                        this->lfront_tpixel_count = this->real_lfront_tpixel_count;
-                    }
-                    this->lfront_tpixel_tick = 0;
-                }
+    if (my == this->f_lback && (!other->IsSensor() || (e->g_id == O_SPIKES && this->is_roaming()))) {
+        if ((this->g_id != O_SPIKEBOT && this->g_id != O_MINIBOT) || e != this->roam_target) {
+            this->real_lback_count ++;
+            this->lback_count = this->real_lback_count;
+        }
+    } else if (my == this->f_lfront && (!other->IsSensor() || (e->g_id == O_SPIKES && this->is_roaming()))) {
+        if (world::fixture_get_lower_layer(my) == world::fixture_get_layer(other)) {
+            if ((this->g_id != O_SPIKEBOT && this->g_id != O_MINIBOT) || e != this->roam_target) {
+                this->real_lfront_count ++;
+                this->lfront_count = this->real_lfront_count;
+
+                /*
+                tms_debugf("LL ++ real_lfront_count.");
+                tms_debugf("LL New value: %d", this->real_lfront_count);
+                tms_debugf("LL Fixture: %p", other);
+                */
+            }
+            if ((e->g_id == O_TPIXEL || e->g_id == O_CHUNK)) {
+                this->real_lfront_tpixel_count ++;
+                if (this->real_lfront_tpixel_count > 1)
+                    this->lfront_tpixel_count = this->real_lfront_tpixel_count;
+
+                this->lfront_tpixel_tick = 0;
+            }
+        } else {
+            if ((e->g_id == O_TPIXEL || e->g_id == O_CHUNK)) {
+                this->real_lfront_tpixel_count ++;
+                if (this->real_lfront_tpixel_count > 1)
+                    this->lfront_tpixel_count = this->real_lfront_tpixel_count;
+
+                this->lfront_tpixel_tick = 0;
             }
         }
     }
 }
 
-void
-creature::on_untouch(b2Fixture *my, b2Fixture *other)
-{
+void creature::on_untouch(b2Fixture *my, b2Fixture *other) {
     entity *e = (entity*)other->GetUserData();
 
-    if (e) {
-        if (my == this->f_lback && (!other->IsSensor() || (e->g_id == O_SPIKES && this->is_roaming()))) {
-            if ((this->g_id != O_SPIKEBOT && this->g_id != O_MINIBOT) || e != this->roam_target) {
-                this->real_lback_count --;
-                this->lback_tick = 0;
-            }
-        }
-        else if (my == this->f_lfront && (!other->IsSensor() || (e->g_id == O_SPIKES && this->is_roaming()))) {
-            if (world::fixture_get_lower_layer(my) == world::fixture_get_layer(other)) {
-                if ((this->g_id != O_SPIKEBOT && this->g_id != O_MINIBOT) || e != this->roam_target) {
-                    this->real_lfront_count --;
-                    this->lfront_tick = 0;
+    if (!e) return;
 
-                    /*
-                    tms_debugf("LL -- real_lfront_count.");
-                    tms_debugf("LL New value: %d", this->real_lfront_count);
-                    tms_debugf("LL Fixture: %p", other);
-                    */
-                }
-                if ((e->g_id == O_TPIXEL || e->g_id == O_CHUNK)) {
-                    this->real_lfront_tpixel_count --;
-                    this->lfront_tpixel_tick = 0;
-                }
-            } else {
-                if ((e->g_id == O_TPIXEL || e->g_id == O_CHUNK)) {
-                    this->real_lfront_tpixel_count --;
-                    this->lfront_tpixel_tick = 0;
-                }
-            }
+    if (my == this->f_lback && (!other->IsSensor() || (e->g_id == O_SPIKES && this->is_roaming()))) {
+        if ((this->g_id != O_SPIKEBOT && this->g_id != O_MINIBOT) || e != this->roam_target) {
+            this->real_lback_count --;
+            this->lback_tick = 0;
         }
-
-        if (this->real_lback_count < 0) this->real_lback_count = 0;
-        if (this->real_lfront_count < 0) this->real_lfront_count = 0;
-        if (this->real_lfront_tpixel_count < 0) this->real_lfront_tpixel_count = 0;
     }
+    else if (my == this->f_lfront && (!other->IsSensor() || (e->g_id == O_SPIKES && this->is_roaming()))) {
+        if (world::fixture_get_lower_layer(my) == world::fixture_get_layer(other)) {
+            if ((this->g_id != O_SPIKEBOT && this->g_id != O_MINIBOT) || e != this->roam_target) {
+                this->real_lfront_count --;
+                this->lfront_tick = 0;
+
+                /*
+                tms_debugf("LL -- real_lfront_count.");
+                tms_debugf("LL New value: %d", this->real_lfront_count);
+                tms_debugf("LL Fixture: %p", other);
+                */
+            }
+            if ((e->g_id == O_TPIXEL || e->g_id == O_CHUNK)) {
+                this->real_lfront_tpixel_count --;
+                this->lfront_tpixel_tick = 0;
+            }
+        } else {
+            if ((e->g_id == O_TPIXEL || e->g_id == O_CHUNK)) {
+                this->real_lfront_tpixel_count --;
+                this->lfront_tpixel_tick = 0;
+            }
+        }
+    }
+
+    if (this->real_lback_count < 0) this->real_lback_count = 0;
+    if (this->real_lfront_count < 0) this->real_lfront_count = 0;
+    if (this->real_lfront_tpixel_count < 0) this->real_lfront_tpixel_count = 0;
 }
 
-b2Body*
-creature::get_body(uint8_t fr)
-{
+b2Body *creature::get_body(uint8_t fr) {
     switch (fr) {
         case 0:
             return this->body;
@@ -2936,24 +2633,20 @@ creature::get_body(uint8_t fr)
         case 2:
         case 3:
         case 4:
-            if (this->feet) {
+            if (this->feet)
                 return this->feet->get_body(fr - 1);
-            }
             break;
 
         case 5:
-            if (this->head) {
+            if (this->head)
                 return this->head->get_body(0);
-            }
             break;
     }
 
     return 0;
 }
 
-void
-creature::destroy_layermove_sensors()
-{
+void creature::destroy_layermove_sensors() {
     if (this->f_lback) {
         this->body->DestroyFixture(this->f_lback);
         this->f_lback = 0;
@@ -2970,9 +2663,7 @@ creature::destroy_layermove_sensors()
     this->lfront_tpixel_tick = 0;
 }
 
-void
-creature::create_layermove_sensors()
-{
+void creature::create_layermove_sensors() {
     this->destroy_layermove_sensors();
 
     b2FixtureDef fd;
@@ -3039,18 +2730,16 @@ creature::create_layermove_sensors()
     delete r;
 }
 
-void
-creature::set_state(int new_state)
-{
+void creature::set_state(int new_state) {
     int cur_state = this->get_state();
 
-    /* Any 'exit state code' can be placed here */
+    // Any 'exit state code' can be placed here
     switch (cur_state) {
 
     }
 
     if (cur_state != new_state) {
-        /* Any 'init new state' code can be placed here */
+        // Any 'init new state' code can be placed here
         switch (new_state) {
 
         }
@@ -3059,28 +2748,21 @@ creature::set_state(int new_state)
     this->_state = new_state;
 }
 
-void
-creature::set_friction(float v)
-{
-    return;
-    if (this->get_body_fixture()) {
+void creature::set_friction(float v) {
+    return; // XXX
+    if (this->get_body_fixture())
         this->get_body_fixture()->SetFriction(v);
-    }
 
     for (int x=0; x<NUM_EQUIPMENT_TYPES; x++) {
-        if (x == EQUIPMENT_FEET) {
+        if (x == EQUIPMENT_FEET)
             continue;
-        }
 
-        if (this->equipments[x] && this->equipments[x]->fx) {
+        if (this->equipments[x] && this->equipments[x]->fx)
             this->equipments[x]->fx->SetFriction(v);
-        }
     }
 }
 
-void
-creature::set_damping(float v)
-{
+void creature::set_damping(float v) {
     this->angular_damping = v;
 
     for (uint32_t x=0; x<this->get_num_bodies(); ++x) {
@@ -3093,17 +2775,14 @@ creature::set_damping(float v)
     }
 }
 
-/* TODO: store "default damping" as a variable in creature, which we can always reset to
- * in case damping for animals need to be different */
-void
-creature::reset_damping()
-{
+
+void creature::reset_damping() {
+    /* TODO: store "default damping" as a variable in creature, which we can always reset to
+     * in case damping for animals need to be different */
     this->set_damping(ROBOT_DAMPING);
 }
 
-void
-creature::destroy_head_joint()
-{
+void creature::destroy_head_joint() {
     if (this->j_head) {
         tms_debugf("Destroying head joint %p", this->j_head);
         this->body->GetWorld()->DestroyJoint(this->j_head);
@@ -3111,8 +2790,7 @@ creature::destroy_head_joint()
     }
 }
 
-stabilizer::stabilizer(b2Body *b)
-{
+stabilizer::stabilizer(b2Body *b) {
     this->body = b;
     this->max_force = .8f;
     this->limit = .4f;
@@ -3121,9 +2799,7 @@ stabilizer::stabilizer(b2Body *b)
     this->target = 0.f;
 }
 
-float
-stabilizer::get_offset()
-{
+float stabilizer::get_offset() {
     //return this->target-this->body->GetAngle();
     //
     if (!this->body) return 0;
@@ -3131,9 +2807,7 @@ stabilizer::get_offset()
     return -tmath_adist(this->target, this->body->GetAngle());
 }
 
-void
-stabilizer::apply_forces()
-{
+void stabilizer::apply_forces() {
     float i = this->get_offset();
 
     i*=this->multiplier;
@@ -3151,15 +2825,11 @@ stabilizer::apply_forces()
     }
 }
 
-b2Vec2
-creature::get_smooth_velocity()
-{
+b2Vec2 creature::get_smooth_velocity() {
     return this->last_ground_speed;
 }
 
-float
-creature::real_arm_angle(creature *c, float a)
-{
+float creature::real_arm_angle(creature *c, float a) {
     if (a < M_PI/2.f && a > -M_PI/2.f) {
         if (c->look_dir == DIR_RIGHT) {
             a = (a + M_PI/2.f)/M_PI;
@@ -3181,9 +2851,7 @@ creature::real_arm_angle(creature *c, float a)
     return a;
 }
 
-bool
-creature::apply_effect(uint8_t item_type, const creature_effect &e)
-{
+bool creature::apply_effect(uint8_t item_type, const creature_effect &e) {
     if (e.time == 0) {
         bool refresh_hp = false;
         /* Apply immediately, only additive effects. this is for permanent effects such as armor */
@@ -3206,33 +2874,29 @@ creature::apply_effect(uint8_t item_type, const creature_effect &e)
             default: return false;
         }
 
-        if (*current == max) {
+        if (*current == max)
             return false;
-        } else if (*current+e.modifier > max) {
+        else if (*current+e.modifier > max)
             *current = max;
-        } else {
+        else
             *current += e.modifier;
-        }
 
         if (refresh_hp) {
             G->add_hp(this, this->get_hp()/this->get_max_hp());
         }
     } else {
         std::pair<std::map<uint8_t, creature_effect>::iterator, bool> result = this->effects.insert(std::pair<uint8_t, creature_effect>(item_type, e));
-        if (!result.second) {
+        if (!result.second)
             result.first->second.time = e.time;
-        } else {
+        else
             this->recalculate_effects();
-        }
     }
 
     return true;
 
 }
 
-void
-creature::recalculate_effects()
-{
+void creature::recalculate_effects() {
     if (this->creature_flag_active(CREATURE_IS_ZOMBIE)) {
         this->speed = this->base_speed * .5f;
         this->jump_strength = this->base_jump_strength * .5f;
@@ -3240,7 +2904,7 @@ creature::recalculate_effects()
         return;
     }
 
-    /* RESET NON-BASE VALUES */
+    // RESET NON-BASE VALUES
     this->speed = this->base_speed;
     this->jump_strength = this->base_jump_strength;
     this->cooldown_multiplier = this->base_cooldown_multiplier;
@@ -3254,27 +2918,24 @@ creature::recalculate_effects()
 
         switch (e.type) {
             case EFFECT_TYPE_SPEED:
-                if (e.method == EFFECT_METHOD_ADDITIVE) {
+                if (e.method == EFFECT_METHOD_ADDITIVE)
                     this->speed += e.modifier;
-                } else if (e.method == EFFECT_METHOD_MULTIPLICATIVE) {
+                else if (e.method == EFFECT_METHOD_MULTIPLICATIVE)
                     speed_mod = (speed_mod + e.modifier) / (++num_speed_mod);
-                }
                 break;
 
             case EFFECT_TYPE_JUMP_STRENGTH:
-                if (e.method == EFFECT_METHOD_ADDITIVE) {
+                if (e.method == EFFECT_METHOD_ADDITIVE)
                     this->jump_strength += e.modifier;
-                } else if (e.method == EFFECT_METHOD_MULTIPLICATIVE) {
+                else if (e.method == EFFECT_METHOD_MULTIPLICATIVE)
                     jump_strength_mod = (jump_strength_mod + e.modifier) / (++num_jump_strength_mod);
-                }
                 break;
 
             case EFFECT_TYPE_CD_REDUCTION:
-                if (e.method == EFFECT_METHOD_ADDITIVE) {
+                if (e.method == EFFECT_METHOD_ADDITIVE)
                     this->cooldown_multiplier += e.modifier;
-                } else if (e.method == EFFECT_METHOD_MULTIPLICATIVE) {
+                else if (e.method == EFFECT_METHOD_MULTIPLICATIVE)
                     cooldown_multiplier_mod = (cooldown_multiplier_mod + e.modifier) / (++num_cooldown_multiplier_mod);
-                }
                 break;
         }
     }
@@ -3290,54 +2951,42 @@ creature::recalculate_effects()
     */
 }
 
-void
-creature::set_checkpoint(checkpoint *c)
-{
-    if (this->current_checkpoint) {
+void creature::set_checkpoint(checkpoint *c) {
+    if (this->current_checkpoint)
         this->current_checkpoint->set_uniform("~color", CHECKPOINT_COLOR_INACTIVE);
-    }
 
     checkpoint *last = this->current_checkpoint;
     this->current_checkpoint = c;
 
-    if (!W->is_paused()) {
-        if (this->current_checkpoint) {
-            this->current_checkpoint->set_uniform("~color", CHECKPOINT_COLOR_ACTIVE);
-            if (this->current_checkpoint != last) {
-                G->add_highlight(this->current_checkpoint, false, 1.f);
-                this->current_checkpoint->activated = true;
-            }
-        }
+    if (W->is_paused())
+        return;
+
+    if (!this->current_checkpoint)
+        return;
+
+    this->current_checkpoint->set_uniform("~color", CHECKPOINT_COLOR_ACTIVE);
+    if (this->current_checkpoint != last) {
+        G->add_highlight(this->current_checkpoint, false, 1.f);
+        this->current_checkpoint->activated = true;
     }
 }
 
-/**
- * Set this creature's tool to the given tool by id,
- * if a pointer to a tool is passed, that pointer is used instead.
- * This allows the robot to keep an inventory of many tools
- * and keep their states persistant.
- **/
-bool
-creature::set_tool(int tool_id, robot_parts::tool *t/*=0*/)
-{
+bool creature::set_tool(int tool_id, robot_parts::tool *t/*=0*/) {
     if (!this->has_feature(CREATURE_FEATURE_TOOLS)) {
         tms_debugf("entity %u with gid %u does not support tools", this->id, this->g_id);
         return false;
     }
 
     if (this->tool) {
-        if (this->tool->get_tool_type() == tool_id) {
+        if (this->tool->get_tool_type() == tool_id)
             return true;
-        }
 
         this->tool->stop();
 
-        if (this->tool->parent) {
+        if (this->tool->parent)
             tms_entity_remove_child(this, this->tool);
-        }
-        if (this->tool->scene) {
+        if (this->tool->scene)
             tms_scene_remove_entity(this->tool->scene, this->tool);
-        }
 
         if (!t) {
             /* XXX NOTE if we received a pointer to a new tool, we always
@@ -3348,67 +2997,54 @@ creature::set_tool(int tool_id, robot_parts::tool *t/*=0*/)
         this->tool = 0;
     }
 
-    if (t) {
+    if (t)
         this->tool = t;
-    } else {
+    else
         this->tool = robot_parts::tool::make(tool_id, this);
-    }
 
-    if (!this->tool) {
+    if (!this->tool)
         return false;
-    }
 
     tms_entity_set_prio_all(static_cast<tms_entity*>(this->tool), this->get_layer());
 
     tms_entity_add_child(this, this->tool);
-    if (this->scene) {
+    if (this->scene)
         tms_scene_add_entity(this->scene, this->tool);
-    }
 
     return true;
 }
 
-/**
- * See the comment on ::set_tool() about the optional pointer argument
- **/
-bool
-creature::set_weapon(int weapon_id, robot_parts::weapon *w/*=0*/)
-{
+bool creature::set_weapon(int weapon_id, robot_parts::weapon *w/*=0*/) {
     if (!this->has_feature(CREATURE_FEATURE_WEAPONS)) {
         tms_debugf("entity %u with gid %u does not support weapons", this->id, this->g_id);
         return false;
     }
 
     if (this->weapon) {
-        if (this->weapon->get_weapon_type() == weapon_id) {
+        if (this->weapon->get_weapon_type() == weapon_id)
             return true;
-        }
 
         this->weapon->attack_stop();
 
-        if (this->weapon->parent) {
+        if (this->weapon->parent)
             tms_entity_remove_child(this, this->weapon);
-        }
-        if (this->weapon->scene) {
-            tms_scene_remove_entity(this->weapon->scene, this->weapon);
-        }
 
-        if (!w) {
+        if (this->weapon->scene)
+            tms_scene_remove_entity(this->weapon->scene, this->weapon);
+
+        if (!w)
             delete this->weapon;
-        }
 
         this->weapon = 0;
     }
 
-    if (w) {
+    if (w)
         this->weapon = w;
-    } else {
+    else
         this->weapon = robot_parts::weapon::make(weapon_id, this);
-    }
 
-    if (!this->weapon) {
+    if (!this->weapon)
         return false;
-    }
 
     tms_entity_set_prio_all(static_cast<tms_entity*>(this->weapon), this->get_layer());
 
@@ -3420,24 +3056,18 @@ creature::set_weapon(int weapon_id, robot_parts::weapon *w/*=0*/)
 }
 
 /* Remove the given weapon */
-void
-creature::remove_weapon(robot_parts::weapon *w)
-{
-    if (!w) {
+void creature::remove_weapon(robot_parts::weapon *w) {
+    if (!w)
         return;
-    }
 
-    if (w->parent) {
+    if (w->parent)
         tms_entity_remove_child(this, w);
-    }
 
-    if (w->scene) {
+    if (w->scene)
         tms_scene_remove_entity(w->scene, w);
-    }
 
-    if (this->weapon == w) {
+    if (this->weapon == w)
         this->weapon = 0;
-    }
 
     for (int x=0; x<NUM_WEAPONS; ++x) {
         if (this->weapons[x] == w) {
@@ -3452,24 +3082,18 @@ creature::remove_weapon(robot_parts::weapon *w)
 }
 
 /* Remove the given tool */
-void
-creature::remove_tool(robot_parts::tool *t)
-{
-    if (!t) {
+void creature::remove_tool(robot_parts::tool *t) {
+    if (!t)
         return;
-    }
 
-    if (t->parent) {
+    if (t->parent)
         tms_entity_remove_child(this, t);
-    }
 
-    if (t->scene) {
+    if (t->scene)
         tms_scene_remove_entity(t->scene, t);
-    }
 
-    if (this->tool == t) {
+    if (this->tool == t)
         this->tool = 0;
-    }
 
     for (int x=0; x<this->num_tools; ++x) {
         if (this->tools[x] == t) {
@@ -3483,21 +3107,16 @@ creature::remove_tool(robot_parts::tool *t)
     }
 }
 
-void
-on_cur_riding_death(entity *self, void *userdata)
-{
+void on_cur_riding_death(entity *self, void *userdata) {
     creature *c = static_cast<creature*>(self);
     entity *e = static_cast<entity*>(userdata);
 
-    if (e == c->cur_riding) {
+    if (e == c->cur_riding)
         c->detach();
-    }
     c->unsubscribe(e);
 }
 
-void
-creature::attach_to(entity *e)
-{
+void creature::attach_to(entity *e) {
     tms_infof("creature attach to %s", e->get_name());
     this->detach();
 
@@ -3590,9 +3209,7 @@ creature::attach_to(entity *e)
     G->refresh_widgets();
 }
 
-void
-creature::detach()
-{
+void creature::detach() {
     if (this->activator_joint) {
         W->b2->DestroyJoint(this->activator_joint);
     }
@@ -3608,9 +3225,8 @@ creature::detach()
         this->cur_riding->stop_moving(DIR_RIGHT);
     }
 
-    if (this->is_player()) {
+    if (this->is_player())
         G->set_control_panel(adventure::player);
-    }
 
     this->cur_activator = 0;
     this->cur_riding = 0;
@@ -3621,18 +3237,7 @@ creature::detach()
     G->refresh_widgets();
 }
 
-/**
- * Apply accumulated damages since the last step
- *
- * Because we need to differentiate between the separate damage types
- * to know how we should apply the damages, we will need to store damage_accum
- * as an array with size NUM_DAMAGE_TYPES.
- * In apply_damages, we loop through the damage accum for each damage type and
- * apply it as the damage type commands.
- **/
-void
-creature::apply_damages()
-{
+void creature::apply_damages() {
     for (int dt=0; dt<NUM_DAMAGE_TYPES; ++dt) {
         if (this->is_dead()) {
             if (dt == DAMAGE_TYPE_ELECTRICITY && this->damage_accum[dt] > 0.f) {
@@ -3677,27 +3282,23 @@ creature::apply_damages()
 
                 //tms_infof("dmg %f, new hp: %f", amount, this->hp);
 
-                if (this != adventure::player) {
+                if (this != adventure::player)
                     G->add_hp(this, this->hp/this->max_hp);
-                }
 
-                if (this->hp <= 0.f) {
+                if (this->hp <= 0.f)
                     this->on_death();
-                }
             } else if (this->damage_accum[dt] < 0.f) {
                 float amount = -this->damage_accum[dt];
                 float cur_hp = this->hp;
                 float new_hp = this->hp + amount;
 
-                if (new_hp > this->max_hp) {
+                if (new_hp > this->max_hp)
                     new_hp = this->max_hp;
-                }
 
                 this->hp = new_hp;
 
-                if (this != adventure::player && new_hp != cur_hp) {
+                if (this != adventure::player && new_hp != cur_hp)
                     G->add_hp(this, this->hp/this->max_hp);
-                }
             }
         }
 
@@ -3706,9 +3307,7 @@ creature::apply_damages()
 }
 
 /* plz */
-bool
-creature::has_attachment()
-{
+bool creature::has_attachment() {
     b2Body *b, *o, *jba, *jbb;
     b2Joint *j;
 
@@ -3720,13 +3319,12 @@ creature::has_attachment()
 
                 jba = j->GetBodyA();
                 jbb = j->GetBodyB();
-                if (jba == b) {
+                if (jba == b)
                     o = jbb;
-                } else if (jbb == b) {
+                else if (jbb == b)
                     o = jba;
-                } else {
+                else
                     return true;
-                }
 
                 bool is_self = false;
                 for (int n=0; n<this->get_num_bodies(); ++n) {
@@ -3736,9 +3334,8 @@ creature::has_attachment()
                     }
                 }
 
-                if (!is_self) {
+                if (!is_self)
                     return true;
-                }
             }
         }
     }
@@ -3746,14 +3343,11 @@ creature::has_attachment()
     return false;
 }
 
-bool
-creature::last_attacker_was_player() const
-{
+bool creature::last_attacker_was_player() const {
     entity *e = W->get_entity_by_id(this->last_attacker_id);
 
-    if (e && e->is_creature()) {
+    if (e && e->is_creature())
         return ((creature*)e)->is_player();
-    }
 
     return false;
 }

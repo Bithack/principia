@@ -1,10 +1,9 @@
 #include "emitter.hh"
+#include "game.hh"
 #include "material.hh"
 #include "model.hh"
-#include "game.hh"
-#include "ui.hh"
-
 #include "object_factory.hh"
+#include "ui.hh"
 
 #define VELOCITY_MAX 40.f
 
@@ -14,8 +13,7 @@ enum {
     TYPE_MULTI = 2
 };
 
-emitter::emitter(int size)
-{
+emitter::emitter(int size) {
     this->set_flag(ENTITY_HAS_CONFIG, true);
 
     this->size = size;
@@ -149,9 +147,7 @@ emitter::emitter(int size)
     }
 }
 
-void
-emitter::on_touch(b2Fixture *my, b2Fixture *other)
-{
+void emitter::on_touch(b2Fixture *my, b2Fixture *other) {
     /*
     entity *o = other->GetUserData();
     if (o && )
@@ -161,9 +157,7 @@ emitter::on_touch(b2Fixture *my, b2Fixture *other)
     }
 }
 
-void
-emitter::on_untouch(b2Fixture *my, b2Fixture *other)
-{
+void emitter::on_untouch(b2Fixture *my, b2Fixture *other) {
     /*
     entity *o = other->GetUserData();
     if (o && )
@@ -174,9 +168,7 @@ emitter::on_untouch(b2Fixture *my, b2Fixture *other)
     }
 }
 
-void
-emitter::add_to_world()
-{
+void emitter::add_to_world() {
     b2BodyDef bd;
     bd.type = (this->size == TYPE_MINI ? this->get_dynamic_type() : b2_staticBody);
     bd.position = _pos;
@@ -243,9 +235,7 @@ emitter::add_to_world()
 }
 
 /* only used by multiemitter */
-void
-emitter::update()
-{
+void emitter::update() {
     if (this->body) {
         b2Transform t;
         t = this->body->GetTransform();
@@ -276,9 +266,7 @@ emitter::update()
     }
 }
 
-void
-emitter::recreate_multiemitter_shape()
-{
+void emitter::recreate_multiemitter_shape() {
     if (this->properties[6].v.f < 2.0f) this->properties[6].v.f = 2.0f;
     if (this->properties[7].v.f < 2.0f) this->properties[7].v.f = 2.0f;
 
@@ -320,9 +308,7 @@ emitter::recreate_multiemitter_shape()
 
 }
 
-void
-emitter::update_effects()
-{
+void emitter::update_effects() {
     b2Vec2 p = this->get_position();
     tmat4_load_identity(field->M);
     tmat4_translate(field->M, p.x, p.y, this->get_layer());
@@ -343,32 +329,24 @@ emitter::update_effects()
     }
 }
 
-void
-emitter::on_load(bool created, bool has_state)
-{
+void emitter::on_load(bool created, bool has_state) {
     if (this->size != 2)
         this->load_properties();
 }
 
-void
-emitter::setup()
-{
+void emitter::setup() {
     this->did_emit = false;
     this->do_accumulate = false;
     this->time = this->emit_interval;
     this->state = 0;
 }
 
-void
-emitter::init()
-{
+void emitter::init() {
     this->emit_interval = this->properties[0].v.i * 1000;
     this->num_in_field = 0;
 }
 
-void
-emitter::step()
-{
+void emitter::step() {
     int g_id = this->properties[1].v.i;
     if (g_id == O_PLANK && this->size != 2) return;
 
@@ -471,21 +449,16 @@ emitter::step()
     }
 }
 
-float
-emitter::get_slider_snap(int s)
-{
-    if (s == 0) {
+float emitter::get_slider_snap(int s) {
+    if (s == 0)
         return 1.f / 19.f;
-    }
 
     /* s == 1 */
 
     return .05f;
 }
 
-float
-emitter::get_slider_value(int s)
-{
+float emitter::get_slider_value(int s) {
     if (s == 0) {
         float v = (((float)this->properties[0].v.i) / 100.f) - 1.f;
         return v / 19.f;
@@ -495,9 +468,7 @@ emitter::get_slider_value(int s)
     return tclampf(this->properties[3].v.f / VELOCITY_MAX, 0.f, 1.f);
 }
 
-void
-emitter::on_slider_change(int s, float value)
-{
+void emitter::on_slider_change(int s, float value) {
     if (s == 0) {
         uint32_t ei = (uint32_t)((1.f + (value * 19.f)) * 100.f);
         this->set_property(0, ei);
@@ -512,9 +483,7 @@ emitter::on_slider_change(int s, float value)
     G->show_numfeed(value*VELOCITY_MAX);
 }
 
-edevice*
-emitter::solve_electronics()
-{
+edevice* emitter::solve_electronics() {
     if (!this->s_in[0].is_ready()) {
         return this->s_in[0].get_connected_edevice();
     }
@@ -542,9 +511,7 @@ emitter::solve_electronics()
     return 0;
 }
 
-bool
-emitter::can_handle(entity *e) const
-{
+bool emitter::can_handle(entity *e) const {
     if (this->size == TYPE_MINI) { /* mini emitter */
         switch (e->g_id) {
             case O_BALL:
@@ -604,9 +571,7 @@ emitter::can_handle(entity *e) const
     return false;
 }
 
-void
-emitter::set_partial(uint32_t id)
-{
+void emitter::set_partial(uint32_t id) {
     lvledit lvl;
     if (lvl.open(LEVEL_PARTIAL, id)) {
         if (lvl.lvl.type != LCAT_PARTIAL) {
@@ -626,9 +591,7 @@ emitter::set_partial(uint32_t id)
     }
 }
 
-void
-emitter::copy_properties(entity *e)
-{
+void emitter::copy_properties(entity *e) {
     static char properties_str[4096] = {0};
 
     properties_str[0] = '\0';
@@ -660,9 +623,7 @@ emitter::copy_properties(entity *e)
     this->load_properties();
 }
 
-void
-emitter::load_properties()
-{
+void emitter::load_properties() {
     if (this->properties[4].v.i > 0 && this->properties[5].v.s.len > 0 && this->properties[5].v.s.buf) {
         if (this->emit_properties)
             delete [] this->emit_properties;

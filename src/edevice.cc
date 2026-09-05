@@ -1,29 +1,23 @@
 #include "edevice.hh"
-#include "world.hh"
 #include "game.hh"
 #include "mini_transmitter.hh"
+#include "world.hh"
 
 uint64_t edev_step_count = 0;
 
-bool
-socket_out::written_mt()
-{
+bool socket_out::written_mt() {
     mini_transmitter *mt = static_cast<mini_transmitter*>(this->p);
 
     return (mt->edev_step == edev_step_count);
 }
 
-void
-socket_out::write_mt(float v)
-{
+void socket_out::write_mt(float v) {
     mini_transmitter *mt = static_cast<mini_transmitter*>(this->p);
     mt->edev_step = edev_step_count;
     mt->set_value(v);
 }
 
-uint8_t
-edevice::get_socket_index(isocket *s)
-{
+uint8_t edevice::get_socket_index(isocket *s) {
     if (s >= &s_in[0] && s < &s_in[this->num_s_in])
         return (uint8_t)(((uintptr_t)s - (uintptr_t)&s_in[0])/sizeof(socket_in));
     if (s >= &s_out[0] && s < &s_out[this->num_s_out])
@@ -32,9 +26,7 @@ edevice::get_socket_index(isocket *s)
     return 0;
 }
 
-void
-socket_out::write(float v)
-{
+void socket_out::write(float v) {
     //tms_infof("Writing %.2f to %p", v, this->p);
     if (p) {
         plug_base *o;
@@ -52,9 +44,7 @@ socket_out::write(float v)
     }
 }
 
-void
-edevice::recreate_all_cable_joints()
-{
+void edevice::recreate_all_cable_joints() {
     for (int x=0; x<num_s_in; x++) {
         if (this->s_in[x].p && this->s_in[x].p->c)
             this->s_in[x].p->c->create_joint();
@@ -65,54 +55,40 @@ edevice::recreate_all_cable_joints()
     }
 }
 
-void
-brcomp::set_layer(int z)
-{
-    for (int x=0; x<num_s_in; x++) {
-        if (s_in[x].p) {
+void brcomp::set_layer(int z) {
+    for (int x=0; x<num_s_in; x++)
+        if (s_in[x].p)
             s_in[x].p->set_layer(z);
-        }
-    }
-    for (int x=0; x<num_s_out; x++) {
-        if (s_out[x].p) {
+
+    for (int x=0; x<num_s_out; x++)
+        if (s_out[x].p)
             s_out[x].p->set_layer(z);
-        }
-    }
+
     entity::set_layer(z);
 }
 
-void
-ecomp::set_layer(int z)
-{
-    for (int x=0; x<num_s_in; x++) {
-        if (s_in[x].p) {
+void ecomp::set_layer(int z) {
+    for (int x=0; x<num_s_in; x++)
+        if (s_in[x].p)
             s_in[x].p->set_layer(z);
-        }
-    }
-    for (int x=0; x<num_s_out; x++) {
-        if (s_out[x].p) {
+
+    for (int x=0; x<num_s_out; x++)
+        if (s_out[x].p)
             s_out[x].p->set_layer(z);
-        }
-    }
+
     entity::set_layer(z);
 }
 
-connection *
-ecomp_multiconnect::load_connection(connection &conn)
-{
+connection *ecomp_multiconnect::load_connection(connection &conn) {
     this->c_side[conn.o_index] = conn;
     return &this->c_side[conn.o_index];
 }
 
-void
-ecomp_multiconnect::find_pairs()
-{
+void ecomp_multiconnect::find_pairs() {
     this->sidecheck4(this->c_side);
 }
 
-void
-ecomp_multiconnect::set_as_rect(float width, float height)
-{
+void ecomp_multiconnect::set_as_rect(float width, float height) {
     composable::set_as_rect(width, height);
 
     const float qw = width/2.f+0.15f;
@@ -123,22 +99,16 @@ ecomp_multiconnect::set_as_rect(float width, float height)
     this->query_sides[3].Set( qw, 0.f); /* right */
 }
 
-connection *
-edev_multiconnect::load_connection(connection &conn)
-{
+connection *edev_multiconnect::load_connection(connection &conn) {
     this->c_side[conn.o_index] = conn;
     return &this->c_side[conn.o_index];
 }
 
-void
-edev_multiconnect::find_pairs()
-{
+void edev_multiconnect::find_pairs() {
     this->sidecheck4(this->c_side);
 }
 
-void
-edev::set_layer(int z)
-{
+void edev::set_layer(int z) {
     for (int x=0; x<num_s_in; x++) {
         if (s_in[x].p) {
             s_in[x].p->set_layer(z);
@@ -152,22 +122,16 @@ edev::set_layer(int z)
     entity::set_layer(z);
 }
 
-connection *
-brcomp_multiconnect::load_connection(connection &conn)
-{
+connection *brcomp_multiconnect::load_connection(connection &conn) {
     this->c_side[conn.o_index] = conn;
     return &this->c_side[conn.o_index];
 }
 
-void
-brcomp_multiconnect::find_pairs()
-{
+void brcomp_multiconnect::find_pairs() {
     this->sidecheck4(this->c_side);
 }
 
-void
-brcomp_multiconnect::set_as_rect(float width, float height)
-{
+void brcomp_multiconnect::set_as_rect(float width, float height) {
     composable::set_as_rect(width, height);
 
     const float qw = width/2.f+0.15f;
@@ -178,9 +142,7 @@ brcomp_multiconnect::set_as_rect(float width, float height)
     this->query_sides[3].Set( qw, 0.f); /* right */
 }
 
-void
-ecomp_simpleconnect::find_pairs()
-{
+void ecomp_simpleconnect::find_pairs() {
     if (this->query_vec.Length() > 0.f && this->c.pending) {
         this->query_result = 0;
 
@@ -200,12 +162,9 @@ ecomp_simpleconnect::find_pairs()
     }
 }
 
-float32
-ecomp_simpleconnect::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
-    if (f->IsSensor()) {
+float32 ecomp_simpleconnect::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
+    if (f->IsSensor())
         return -1.f;
-    }
 
     b2Body *b = f->GetBody();
     entity *e = (entity*)f->GetUserData();
@@ -219,9 +178,7 @@ ecomp_simpleconnect::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 
     return -1;
 }
 
-void
-edev_simpleconnect::find_pairs()
-{
+void edev_simpleconnect::find_pairs() {
     if (this->query_vec.Length() > 0.f && this->c.pending) {
         this->query_result = 0;
 
@@ -241,12 +198,9 @@ edev_simpleconnect::find_pairs()
     }
 }
 
-float32
-edev_simpleconnect::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
-    if (f->IsSensor()) {
+float32 edev_simpleconnect::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
+    if (f->IsSensor())
         return -1.f;
-    }
 
     b2Body *b = f->GetBody();
     entity *e = (entity*)f->GetUserData();

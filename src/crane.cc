@@ -4,8 +4,7 @@
 #include "linebuffer.hh"
 #include "ledbuffer.hh"
 
-crane::crane()
-{
+crane::crane() {
     this->dragging = false;
     this->pc.init_owned(0, this); this->pc.type = CONN_CUSTOM;
     this->rc.init_owned(1, this); this->rc.type = CONN_CUSTOM;
@@ -49,9 +48,7 @@ crane::crane()
     this->rev = 0;
 }
 
-void
-crane::add_to_world()
-{
+void crane::add_to_world() {
     b2PolygonShape shape_base;
     b2CircleShape shape_rev;
     shape_base.SetAsBox(.475f, .175f);
@@ -91,29 +88,23 @@ crane::add_to_world()
     }
 }
 
-void
-crane::remove_from_world()
-{
+void crane::remove_from_world() {
     tms_infof("removing from world");
-    if (this->body) {
+    if (this->body)
         W->b2->DestroyBody(this->body);
-    }
 
-    if (this->rev) {
+    if (this->rev)
         W->b2->DestroyBody(this->rev);
-    }
-    if (W->is_playing() && this->pulley) {
+
+    //if (W->is_playing() && this->pulley)
         //this->pulley->remove_from_world();
-    }
 
     this->body = 0;
     this->rev = 0;
     this->fx = 0;
 }
 
-bool
-crane::ReportFixture(b2Fixture *f)
-{
+bool crane::ReportFixture(b2Fixture *f) {
     entity *e = static_cast<entity*>(f->GetUserData());
 
     if (e && e != this && e->get_layer() == this->get_layer()
@@ -125,18 +116,13 @@ crane::ReportFixture(b2Fixture *f)
     return true;
 }
 
-void
-crane::find_pairs()
-{
+void crane::find_pairs() {
     this->sidecheck4(this->c_side);
 }
 
-void
-crane::setup()
-{
-    if (!W->is_adventure()) {
+void crane::setup() {
+    if (!W->is_adventure())
         return;
-    }
 
     this->hit = false;
     this->dragging = false;
@@ -162,12 +148,9 @@ crane::setup()
     this->rev->SetTransform(b2Vec2(this->_pos.x, this->_pos.y), this->rev->GetAngle());
 }
 
-void
-crane::on_pause()
-{
-    if (!W->is_adventure()) {
+void crane::on_pause() {
+    if (!W->is_adventure())
         return;
-    }
 
     if (this->pulley) {
         W->remove(this->pulley);
@@ -178,9 +161,7 @@ crane::on_pause()
     this->rev = 0;
 }
 
-connection *
-crane::load_connection(connection &conn)
-{
+connection *crane::load_connection(connection &conn) {
     if (conn.o_index == 0) {
         this->pc = conn;
         return &this->pc;
@@ -193,8 +174,7 @@ crane::load_connection(connection &conn)
     }
 }
 
-crane_pulley::crane_pulley(crane *parent)
-{
+crane_pulley::crane_pulley(crane *parent) {
     this->set_flag(ENTITY_DISABLE_LAYERS,   true);
     this->set_flag(ENTITY_ALLOW_ROTATION,   false);
     this->set_flag(ENTITY_IS_CRANE_PULLEY,  true);
@@ -222,17 +202,13 @@ crane_pulley::crane_pulley(crane *parent)
     this->c_side[3].init_owned(3, this); this->c_side[3].type = CONN_CUSTOM;
 }
 
-void
-crane_pulley::add_to_world()
-{
+void crane_pulley::add_to_world() {
     this->create_circle(b2_dynamicBody, .1, this->material);
     this->body->SetLinearDamping(5.f);
     this->body->SetAngularDamping(5.f);
 }
 
-void
-crane::connection_create_joint(connection *c)
-{
+void crane::connection_create_joint(connection *c) {
     if (c == &this->pc) {
         b2PrismaticJointDef pjd;
         pjd.collideConnected = true;
@@ -264,35 +240,27 @@ crane::connection_create_joint(connection *c)
     }
 }
 
-void
-crane::set_position(float x, float y, uint8_t frame/*=0*/)
-{
-    if (!this->flag_active(ENTITY_CAN_MOVE)) {
+void crane::set_position(float x, float y, uint8_t frame/*=0*/) {
+    if (!this->flag_active(ENTITY_CAN_MOVE))
         return;
-    }
 
     if (this->body) {
         this->body->SetTransform(b2Vec2(x,y), this->body->GetAngle());
 
-        for (b2Fixture *f = this->body->GetFixtureList(); f; f=f->GetNext()) {
+        for (b2Fixture *f = this->body->GetFixtureList(); f; f=f->GetNext())
             f->Refilter();
-        }
-    } else {
+    } else
         this->_pos = b2Vec2(x,y);
-    }
 
     if (this->rev) {
         this->rev->SetTransform(b2Vec2(x,y), this->rev->GetAngle());
 
-        for (b2Fixture *f = this->rev->GetFixtureList(); f; f=f->GetNext()) {
+        for (b2Fixture *f = this->rev->GetFixtureList(); f; f=f->GetNext())
             f->Refilter();
-        }
     }
 }
 
-edevice*
-crane::solve_electronics()
-{
+edevice *crane::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 
@@ -308,25 +276,18 @@ crane::solve_electronics()
     return 0;
 }
 
-connection*
-crane_pulley::load_connection(connection &conn)
-{
+connection *crane_pulley::load_connection(connection &conn) {
     this->c_side[conn.o_index] = conn;
     return &this->c_side[conn.o_index];
 }
 
-void
-crane_pulley::find_pairs()
-{
+void crane_pulley::find_pairs() {
     this->sidecheck4(this->c_side);
 }
 
-void
-crane::step()
-{
-    if (!W->is_adventure()) {
+void crane::step() {
+    if (!W->is_adventure())
         return;
-    }
 
     bool lifting = false;
 
@@ -337,85 +298,74 @@ crane::step()
         }
     }
 
-    if (lifting) {
+    if (lifting)
         ((b2RevoluteJoint*)this->rc.j)->EnableMotor(true);
-    } else  {
+    else
         ((b2RevoluteJoint*)this->rc.j)->EnableMotor(false);
-    }
 
     if (!dragging) {
         if (this->go_up) {
-            if (this->pjoint->GetJointTranslation()>-1.2f) {
+            if (this->pjoint->GetJointTranslation()>-1.2f)
                 this->go_up = false;
-            } else {
+            else
                 this->desired_pos = -CRANE_MIN_LENGTH;
-            }
         }
         float target = this->desired_pos;
         float dd = target - this->pjoint->GetJointTranslation() - CRANE_MIN_LENGTH;
         float speed = (dd * CRANE_MAX_SPEED) * 1.f/1.5f;
 
         float f = 1.f;
-        if (speed < 0.f) {
+        if (speed < 0.f)
             f = .1f;
-        }
 
-        if (!lifting && speed < 0.f) {
+        if (!lifting && speed < 0.f)
             f = 0.01f;
-        }
 
         this->pjoint->SetMotorSpeed(speed);
         this->pjoint->SetMaxMotorForce(CRANE_MAX_FORCE*f);
         this->pjoint->EnableMotor(true);
-    } else {
+    } else
         this->pjoint->EnableMotor(false);
-    }
 
     if (this->hit) {
         this->go_up = !this->go_up;
-        if (this->go_up) {
-        } else {
+        if (!this->go_up)
             this->desired_pos = -tclampf(b2Distance(this->pulley->get_position(), this->get_position())-0.5f, CRANE_MIN_LENGTH, CRANE_MAX_LENGTH);
-        }
         this->hit = false;
     }
 }
 
-void
-crane::on_absorb()
-{
-    if (this->pulley) {
-        this->pulley->disconnect_all();
-        this->pulley->remove_from_world();
-        G->remove_entity(this->pulley);
-        W->remove(this->pulley);
+void crane::on_absorb() {
+    if (!this->pulley)
+        return;
 
-        connection *c = this->pulley->conn_ll;
-        while (c) {
-            connection *next = c->get_next(this->pulley);
+    this->pulley->disconnect_all();
+    this->pulley->remove_from_world();
+    G->remove_entity(this->pulley);
+    W->remove(this->pulley);
 
-            if (c->owned && c->e == this->pulley) {
-                W->erase_connection(c);
-                c->o->remove_connection(c);
-            } else if (c->owned) {
-                /* owned but not by us */
-                W->erase_connection(c);
-                c->e->remove_connection(c);
-            }
-            c = next;
+    connection *c = this->pulley->conn_ll;
+    while (c) {
+        connection *next = c->get_next(this->pulley);
+
+        if (c->owned && c->e == this->pulley) {
+            W->erase_connection(c);
+            c->o->remove_connection(c);
+        } else if (c->owned) {
+            /* owned but not by us */
+            W->erase_connection(c);
+            c->e->remove_connection(c);
         }
-
-        delete this->pulley;
-        this->pulley = 0;
+        c = next;
     }
+
+    delete this->pulley;
+    this->pulley = 0;
 }
 
-void
-crane::update_effects()
-{
-    if (!W->is_adventure()) {
+void crane::update_effects() {
+    if (!W->is_adventure())
         return;
-    }
 
     if (this->get_body(0) && !W->is_paused()) {
         entity *o = this->pc.o;
@@ -442,32 +392,23 @@ crane::update_effects()
     }
 }
 
-void
-crane::set_layer(int z)
-{
+void crane::set_layer(int z) {
     entity::set_layer(z);
-    if (this->pulley) {
+    if (this->pulley)
         this->pulley->set_layer(z);
-    }
 }
 
-void
-crane_pulley::on_grab_playing()
-{
-    if (!W->is_adventure()) {
+void crane_pulley::on_grab_playing() {
+    if (!W->is_adventure())
         return;
-    }
 
     crane *c = (crane*)this->parent;
     c->dragging = true;
 }
 
-void
-crane_pulley::on_release_playing()
-{
-    if (!W->is_adventure()) {
+void crane_pulley::on_release_playing() {
+    if (!W->is_adventure())
         return;
-    }
 
     crane *c = (crane*)this->parent;
     c->dragging = false;
@@ -475,9 +416,7 @@ crane_pulley::on_release_playing()
     c->desired_pos = -length;
 }
 
-void
-crane_pulley::set_layer(int z)
-{
+void crane_pulley::set_layer(int z) {
     tms_entity_set_prio_all((struct tms_entity*)this, z);
 
     if (this->body) {
@@ -497,9 +436,7 @@ crane_pulley::set_layer(int z)
     }
 }
 
-void
-crane_pulley::connection_create_joint(connection *c)
-{
+void crane_pulley::connection_create_joint(connection *c) {
     for (int x=0; x<4; ++x) {
         if (c == &this->c_side[x]) {
             b2RevoluteJointDef rjd;

@@ -65,8 +65,7 @@ enum {
 
 extern uint64_t edev_step_count;
 
-class isocket
-{
+class isocket {
   public:
     int ctype;
     plug_base *p;
@@ -75,8 +74,7 @@ class isocket
     float angle;
     int tag;
 
-    isocket()
-    {
+    isocket() {
         tag = SOCK_TAG_NONE;
         ctype = CABLE_RED;
         p = 0;
@@ -84,18 +82,15 @@ class isocket
         abias = 0.f;
     }
 
-    inline void unplug(void)
-    {
-        if (this->p) {
+    inline void unplug() {
+        if (this->p)
             this->p->disconnect();
-        } else {
+        else
             tms_infof("No plug to disconnect.");
-        }
     }
 };
 
-class socket_in : public isocket
-{
+class socket_in : public isocket {
   public:
     float value;
     uint64_t step_count;
@@ -105,8 +100,7 @@ class socket_in : public isocket
     bool processed;
 #endif
 
-    socket_in()
-    {
+    socket_in() {
         value = 0.f;
 #if 0
         pending = false;
@@ -118,45 +112,35 @@ class socket_in : public isocket
         reset();
     }
 
-
-    inline bool
-    is_ready()
-    {
+    inline bool is_ready() {
         if (this->p != 0) {
             if (this->p->get_other()) {
-                if (this->p->get_other()->s) {
+                if (this->p->get_other()->s)
                     return (this->step_count == edev_step_count);
-                } else {
+                else
                     return true;
-                }
-            } else {
+            } else
                 return (this->step_count == edev_step_count);
-            }
-        } else {
+        } else
             return true;
-        }
     }
 
-    inline void
-    reset()
-    {
+    inline void reset() {
         this->step_count = edev_step_count;
         this->value = 0.f;
     }
 
-    inline edevice *get_connected_edevice()
-    {
+    inline edevice *get_connected_edevice() {
         if (this->p != 0) {
-            if (this->p->get_other()) {
+            if (this->p->get_other())
                 return this->p->get_other()->plugged_edev;
-            } else
+            else
                 return this->p->get_edevice();
         } else
             return 0;
     }
 
-    inline float get_value() const
-    {
+    inline float get_value() const {
 #if 0
         this->processed = true;
 
@@ -166,51 +150,42 @@ class socket_in : public isocket
         }
 #endif
 
-        if (this->p == 0) {
+        if (this->p == 0)
             return 0.f;
-        } else {
+        else
             return this->value;
-        }
     }
 };
 
-class socket_out : public isocket
-{
+class socket_out : public isocket {
   public:
-    socket_out()
-    {
+    socket_out() {
         this->p = 0;
     }
 
     bool written_mt();
 
-    bool written()
-    {
+    bool written() {
         plug_base *o;
 
-        if (p) {
-            if ((o = p->get_other()) && o->s) {
-                if (((socket_in*)o->s)->step_count == edev_step_count)
-                    return true;
-            } else if (this->p->plug_type == PLUG_MINI_TRANSMITTER) {
-                return written_mt();
-            } else
-                return false;
-        }
+        if (!p)
+            return false;
+
+        if ((o = p->get_other()) && o->s) {
+            if (((socket_in*)o->s)->step_count == edev_step_count)
+                return true;
+        } else if (this->p->plug_type == PLUG_MINI_TRANSMITTER)
+            return written_mt();
 
         return false;
     }
 
     void write_mt(float v);
     void write(float v);
-
 };
 
-/** 
- * Source of electricity or red wire signal
- **/
-class edevice
-{
+/// Source of electricity or red wire signal
+class edevice {
   public:
     socket_in *s_in;
     socket_out *s_out;
@@ -221,8 +196,7 @@ class edevice
     float scalemodifier;
     bool do_solve_electronics;
 
-    edevice()
-    {
+    edevice() {
         this->do_solve_electronics = true;
         this->s_in = new socket_in[8];
         this->s_out = new socket_out[8];
@@ -232,34 +206,35 @@ class edevice
         this->scalemodifier = 2.5f;
     }
 
-    ~edevice()
-    {
+    ~edevice() {
         delete[] s_in;
         delete[] s_out;
     }
 
-    inline bool any_socket_used()
-    {
-        for (int x=0; x<num_s_in; x++) if (s_in[x].p) return true;
-        for (int x=0; x<num_s_out; x++) if (s_out[x].p) return true;
+    inline bool any_socket_used() {
+        for (int x=0; x<num_s_in; x++)
+            if (s_in[x].p)
+                return true;
+
+        for (int x=0; x<num_s_out; x++)
+            if (s_out[x].p)
+                return true;
+
         return false;
     }
 
-    virtual void begin()
-    {
+    virtual void begin() {
         this->step_count = edev_step_count;
-        for (int x=0; x<this->num_s_in; x++){
+        for (int x=0; x<this->num_s_in; x++)
             this->s_in[x].reset();
-        }
-    };
-    virtual edevice* solve_electronics(){return 0;};
+    }
+    virtual edevice* solve_electronics() { return 0; }
 
     uint8_t get_socket_index(isocket *s);
 
-    /* get the direction of a socket, if its an input our
-     * output socket, return -1 if this is not our socket */
-    inline int get_socket_dir(isocket *s)
-    {
+    /// get the direction of a socket, if its an input our
+    /// output socket, return -1 if this is not our socket
+    inline int get_socket_dir(isocket *s) {
         if (s >= &s_in[0] && s < &s_in[this->num_s_in])
             return CABLE_IN;
         if (s >= &s_out[0] && s < &s_out[this->num_s_out])
@@ -268,8 +243,7 @@ class edevice
         return -1;
     }
 
-    inline int get_outin_mask(int type)
-    {
+    inline int get_outin_mask(int type) {
         int mask = 0;
 
         if (!this->num_s_in && !this->num_s_out)
@@ -292,8 +266,7 @@ class edevice
         return mask;
     }
 
-    inline int get_inout_mask(int type)
-    {
+    inline int get_inout_mask(int type) {
         int mask = 0;
 
         if (!this->num_s_in && !this->num_s_out)
@@ -318,19 +291,17 @@ class edevice
 
     void recreate_all_cable_joints();
 
-    virtual entity *get_entity(void)=0;
-    virtual ifdevice *get_ifdevice(void){return 0;};
+    virtual entity *get_entity() = 0;
+    virtual ifdevice *get_ifdevice() { return 0; }
 
     friend class plug;
     friend class brcomp;
     friend class ecomp;
 };
 
-class ecomp : public composable, public edevice
-{
+class ecomp : public composable, public edevice {
   public:
-    ecomp()
-    {
+    ecomp() {
         this->set_flag(ENTITY_IS_EDEVICE, true);
         this->type = ENTITY_EDEVICE;
         this->num_s_in = 0;
@@ -343,13 +314,11 @@ class ecomp : public composable, public edevice
     entity *get_entity(){return (entity*)this;};
 };
 
-class ecomp_multiconnect: public ecomp
-{
+class ecomp_multiconnect: public ecomp {
   public:
     connection c_side[4];
 
-    ecomp_multiconnect()
-    {
+    ecomp_multiconnect() {
         this->c_side[0].init_owned(0, this); this->c_side[0].type = CONN_GROUP;
         this->c_side[1].init_owned(1, this); this->c_side[1].type = CONN_GROUP;
         this->c_side[2].init_owned(2, this); this->c_side[2].type = CONN_GROUP;
@@ -361,25 +330,22 @@ class ecomp_multiconnect: public ecomp
     void set_as_rect(float width, float height);
 };
 
-class edev : public entity, public edevice
-{
+class edev : public entity, public edevice {
   public:
-    edev()
-    {
+    edev() {
         this->set_flag(ENTITY_IS_EDEVICE, true);
         this->type = ENTITY_EDEVICE;
         this->num_s_in = 0;
         this->num_s_out = 0;
     }
 
-    edevice *get_edevice(){return (edevice*)this;};
-    entity *get_entity(){return (entity*)this;};
+    edevice *get_edevice() { return (edevice*)this; }
+    entity *get_entity() { return (entity*)this; }
 
     virtual void set_layer(int z);
 };
 
-class brcomp : public composable, public edevice
-{
+class brcomp : public composable, public edevice {
   public:
     brcomp() {
         this->layer_mask = 2+4+8;
@@ -396,13 +362,11 @@ class brcomp : public composable, public edevice
     entity *get_entity(){return (entity*)this;};
 };
 
-class brcomp_multiconnect: public brcomp
-{
+class brcomp_multiconnect: public brcomp {
   public:
     connection c_side[4];
 
-    brcomp_multiconnect()
-    {
+    brcomp_multiconnect() {
         this->c_side[0].init_owned(0, this); this->c_side[0].type = CONN_GROUP;
         this->c_side[1].init_owned(1, this); this->c_side[1].type = CONN_GROUP;
         this->c_side[2].init_owned(2, this); this->c_side[2].type = CONN_GROUP;
@@ -414,8 +378,7 @@ class brcomp_multiconnect: public brcomp
     void set_as_rect(float width, float height);
 };
 
-class edev_simpleconnect : public edev, public b2RayCastCallback
-{
+class edev_simpleconnect : public edev, public b2RayCastCallback {
   public:
     connection c;
     entity *query_result;
@@ -423,11 +386,39 @@ class edev_simpleconnect : public edev, public b2RayCastCallback
     uint8_t query_frame;
 
     b2Vec2 query_pt;
-    b2Vec2 query_vec; /* Set in the constructor of the
-                         object, direction of raycast */
+    /// Set in the constructor of the object, direction of raycast
+    b2Vec2 query_vec;
 
-    edev_simpleconnect()
-    {
+    edev_simpleconnect() {
+        this->c.init_owned(0, this);
+        this->c.type = CONN_PLATE;
+        this->query_vec = b2Vec2(0.f, -.5f);
+        this->query_pt = b2Vec2(0.f, 0.f);
+        this->query_result = 0;
+        this->query_frame = 0;
+    }
+
+    connection *load_connection(connection &conn) {
+        this->c = conn;
+        return &this->c;
+    }
+
+    void find_pairs();
+    float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction);
+};
+
+class ecomp_simpleconnect : public ecomp, public b2RayCastCallback {
+  public:
+    connection c;
+    entity *query_result;
+    b2Fixture *query_result_fx;
+    uint8_t query_frame;
+
+    b2Vec2 query_pt;
+    /// Set in the constructor of the object, direction of raycast
+    b2Vec2 query_vec;
+
+    ecomp_simpleconnect() {
         this->c.init_owned(0, this);
         this->c.type = CONN_PLATE;
         this->query_vec = b2Vec2(0.f, -.5f);
@@ -445,44 +436,11 @@ class edev_simpleconnect : public edev, public b2RayCastCallback
     float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction);
 };
 
-class ecomp_simpleconnect : public ecomp, public b2RayCastCallback
-{
-  public:
-    connection c;
-    entity *query_result;
-    b2Fixture *query_result_fx;
-    uint8_t query_frame;
-
-    b2Vec2 query_pt;
-    b2Vec2 query_vec; /* Set in the constructor of the
-                         object, direction of raycast */
-
-    ecomp_simpleconnect()
-    {
-        this->c.init_owned(0, this);
-        this->c.type = CONN_PLATE;
-        this->query_vec = b2Vec2(0.f, -.5f);
-        this->query_pt = b2Vec2(0.f, 0.f);
-        this->query_result = 0;
-        this->query_frame = 0;
-    }
-
-    connection *load_connection(connection &conn) {
-        this->c = conn;
-        return &this->c;
-    };
-
-    void find_pairs();
-    float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction);
-};
-
-class edev_multiconnect: public edev
-{
+class edev_multiconnect: public edev {
   public:
     connection c_side[4];
 
-    edev_multiconnect()
-    {
+    edev_multiconnect() {
         this->c_side[0].init_owned(0, this); this->c_side[0].type = CONN_GROUP;
         this->c_side[1].init_owned(1, this); this->c_side[1].type = CONN_GROUP;
         this->c_side[2].init_owned(2, this); this->c_side[2].type = CONN_GROUP;

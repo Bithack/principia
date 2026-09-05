@@ -1,14 +1,10 @@
 #include "eatan2.hh"
 #include "game.hh"
 
-edevice*
-eatan2::solve_electronics()
-{
-    for (int x=0; x<4; x++) {
-        if (!this->s_in[x].is_ready()) {
+edevice *eatan2::solve_electronics() {
+    for (int x=0; x<4; x++)
+        if (!this->s_in[x].is_ready())
             return this->s_in[x].get_connected_edevice();
-        }
-    }
 
     float py = this->s_in[0].get_value();
     float px = this->s_in[1].get_value();
@@ -26,4 +22,3 @@ eatan2::solve_electronics()
 
     return 0;
 }
-

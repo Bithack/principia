@@ -2,21 +2,27 @@
 
 #include "composable.hh"
 
-class cylinder : public composable
-{
+/**
+ * Class representing the Cylinder and Interactive Cylinder objects.
+ *
+ * Player Wiki ref:
+ * - https://principia-web.se/wiki/Cylinder
+ * - https://principia-web.se/wiki/Interactive_Cylinder
+ */
+class cylinder : public composable {
   public:
     connection c_back;
     connection c_front;
 
-    /**
-     * 0 = regular cylinder
-     * 1 = interactive cylinder
-     **/
+    /// 0 = regular cylinder
+    /// 1 = interactive cylinder
     int obj_type;
 
     cylinder(int type);
 
-    const char* get_name(){return obj_type==0?"Cylinder":"Interactive Cylinder";}
+    const char* get_name() {
+        return obj_type == 0 ? "Cylinder" : "Interactive Cylinder";
+    }
     void find_pairs();
 
     connection* load_connection(connection &conn);
@@ -25,7 +31,7 @@ class cylinder : public composable
 
     float get_slider_snap(int s);
     float get_slider_value(int s);
-    const char *get_slider_label(int s){return "Size";};
+    const char *get_slider_label(int s) { return "Size"; }
     void on_slider_change(int s, float value);
     void on_load(bool created, bool has_state);
 };

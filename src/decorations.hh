@@ -42,8 +42,12 @@ extern struct decoration_info {
     bool             can_rotate;
 } decorations[NUM_DECORATIONS];
 
-class decoration : public entity
-{
+/**
+ * Class representing the Decoration object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Decoration
+ */
+class decoration : public entity {
   private:
     void recreate_shape();
 
@@ -59,15 +63,14 @@ class decoration : public entity
 
     void update();
 
-    inline uint32_t get_decoration_type()
-    {
+    inline uint32_t get_decoration_type() {
         uint32_t t = this->properties[0].v.i;
         return t >= NUM_DECORATIONS ? NUM_DECORATIONS-1 : t;
     }
 
-    float get_slider_snap(int s){return .1f;};
-    float get_slider_value(int s){return this->properties[1].v.f;};
-    const char *get_slider_label(int s){return "Rotation";};
-    void on_slider_change(int s, float value){ this->properties[1].v.f = value;};
+    float get_slider_snap(int s) { return .1f; }
+    float get_slider_value(int s) { return this->properties[1].v.f; }
+    const char *get_slider_label(int s) { return "Rotation"; }
+    void on_slider_change(int s, float value) { this->properties[1].v.f = value; }
     bool do_recreate_shape;
 };

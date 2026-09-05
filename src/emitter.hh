@@ -2,8 +2,15 @@
 
 #include "edevice.hh"
 
-class emitter : public edev_multiconnect
-{
+/**
+ * Class representing Emitter objects (Emitter, Mini Emitter, Multi-emitter).
+ *
+ * Player Wiki ref:
+ * - https://principia-web.se/wiki/Emitter
+ * - https://principia-web.se/wiki/Mini_Emitter
+ * - https://principia-web.se/wiki/Multi-emitter
+ */
+class emitter : public edev_multiconnect {
   private:
     int size;
     int num_in_field;
@@ -22,7 +29,8 @@ class emitter : public edev_multiconnect
 
     b2Fixture *f, *f_frame;
 
-    tms_entity *frame_entity; /* for multiemitter */
+    /// for multiemitter
+    tms_entity *frame_entity;
     tms_entity *field;
     float field_life;
     property *emit_properties;
@@ -50,26 +58,26 @@ class emitter : public edev_multiconnect
     float get_slider_snap(int s);
     float get_slider_value(int s);
     void on_slider_change(int s, float value);
-    const char *get_slider_label(int s){
+    const char *get_slider_label(int s) {
         if (s == 0)
             return "Emit Interval";
         else
             return "Emit Velocity";
-    };
+    }
 
     edevice* solve_electronics();
-    void update(void);
+    void update();
 
     bool can_handle(entity *e) const __attribute__((nonnull(2)));
     void update_effects();
 
     void recreate_multiemitter_shape();
-    void set_partial(uint32_t id); /* for multi-emitter */
+    /// For multi-emitter
+    void set_partial(uint32_t id);
     void copy_properties(entity *e);
     void load_properties();
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::write_state(lvl, lb);
 
         lb->w_s_uint8(this->did_emit ? 1 : 0);
@@ -78,8 +86,7 @@ class emitter : public edev_multiconnect
         lb->w_s_uint64(this->time);
     }
 
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::read_state(lvl, lb);
 
         this->did_emit = (lb->r_uint8() != 0);

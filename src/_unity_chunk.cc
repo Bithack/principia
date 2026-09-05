@@ -36,7 +36,7 @@
 #include "crane.cc"
 #include "crc.cc"
 #include "creature.cc"
-#include "ctrlfplus.cc"
+#include "ctrlfeedback.cc"
 #include "ctrlmini.cc"
 #include "ctrlpass.cc"
 #include "ctrlservo.cc"

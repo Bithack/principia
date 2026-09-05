@@ -5,8 +5,10 @@
 
 class world;
 
-class debugdraw : public b2Draw
-{
+/**
+ * Debug draw class for Box2D physics debugging
+ */
+class debugdraw : public b2Draw {
   private:
     struct tms_ddraw *ddraw;
 

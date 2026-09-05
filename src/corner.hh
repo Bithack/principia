@@ -4,8 +4,12 @@
 
 class corner_ray_cb;
 
-class corner : public composable
-{
+/**
+ * Class representing the Corner object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Corner
+ */
+class corner : public composable {
   private:
     connection c[3];
     void create();
@@ -13,9 +17,7 @@ class corner : public composable
   public:
     corner();
 
-    virtual const char* get_name(){
-        return "Corner";
-    }
+    const char* get_name() { return "Corner"; }
     virtual void find_pairs();
     connection* load_connection(connection &conn);
 

@@ -11,9 +11,10 @@
 
 #define DISPLAY_MAX_SYMBOLS 40
 
-class display : public brcomp_multiconnect
-{
-
+/**
+ * Generic class for digital display objects.
+ */
+class display : public brcomp_multiconnect {
   public:
     display();
     void construct();
@@ -25,38 +26,31 @@ class display : public brcomp_multiconnect
     void on_pause();
     void on_load(bool created, bool has_state);
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::write_state(lvl,lb);
         lb->w_s_uint8(this->active_symbol);
     }
 
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::read_state(lvl,lb);
         this->active_symbol = lb->r_uint8();
     }
 
-    void init()
-    {
+    void init() {
         this->active = (this->s_in[0].p == 0);
     }
 
-    inline int get_num_symbols()
-    {
+    inline int get_num_symbols() {
         return this->num_symbols;
     }
 
-    void set_active_symbol(int pos)
-    {
+    void set_active_symbol(int pos) {
         this->active_symbol = pos;
     }
 
-    inline uint64_t get_symbol(int index)
-    {
-        if (index < 0 || index > this->num_symbols) {
+    inline uint64_t get_symbol(int index) {
+        if (index < 0 || index > this->num_symbols)
             return 0;
-        }
 
         return this->symbols[index];
     }
@@ -81,18 +75,26 @@ class display : public brcomp_multiconnect
     static tms::varray *_va;
 };
 
-class passive_display : public display
-{
+/**
+ * Class representing the Passive Display object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Passive_Display
+ */
+class passive_display : public display {
   public:
     passive_display();
-    const char *get_name() { return "Passive Display"; };
+    const char *get_name() { return "Passive Display"; }
     edevice* solve_electronics();
 };
 
-class active_display : public display
-{
+/**
+ * Class representing the Active Display object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Active_Display
+ */
+class active_display : public display {
   public:
     active_display();
-    const char *get_name() { return "Active Display"; };
+    const char *get_name() { return "Active Display"; }
     edevice* solve_electronics();
 };

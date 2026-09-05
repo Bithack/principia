@@ -384,8 +384,7 @@ struct decoration_info decorations[NUM_DECORATIONS] = {
 
 };
 
-decoration::decoration()
-{
+decoration::decoration() {
     this->dialog_id = DIALOG_DECORATION;
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
     this->set_flag(ENTITY_HAS_CONFIG,           true);
@@ -404,46 +403,35 @@ decoration::decoration()
     this->do_recreate_shape = false;
 }
 
-void
-decoration::tick()
-{
+void decoration::tick() {
     if (this->do_recreate_shape) {
         this->recreate_shape();
         this->do_recreate_shape = false;
     }
 }
 
-void
-decoration::init()
-{
+void decoration::init() {
     this->set_decoration_type(this->properties[0].v.i);
 }
 
-void
-decoration::on_load(bool created, bool has_state)
-{
+void decoration::on_load(bool created, bool has_state) {
     this->set_decoration_type(this->properties[0].v.i);
 }
 
-void
-decoration::set_decoration_type(uint32_t t)
-{
+void decoration::set_decoration_type(uint32_t t) {
     if (t >= NUM_DECORATIONS) t = NUM_DECORATIONS-1;
 
     this->properties[0].v.i = t;
 
     const struct decoration_info &di = decorations[t];
 
-    if (di.can_rotate) {
+    if (di.can_rotate)
         this->num_sliders = 1;
-    } else {
+    else
         this->num_sliders = 0;
-    }
 }
 
-void
-decoration::update()
-{
+void decoration::update() {
     struct decoration_info &di = decorations[this->properties[0].v.i];
 
     if (di.can_rotate) {
@@ -454,14 +442,11 @@ decoration::update()
         tmat4_rotate(this->M, (this->properties[1].v.f-.5f) * 180.f, 0, -1, 0);
         tmat3_copy_mat4_sub3x3(this->N, this->M);
         tmat4_scale(this->M, this->get_scale(), this->get_scale(), this->get_scale());
-    } else {
+    } else
         entity_fast_update(this);
-    }
 }
 
-void
-decoration::recreate_shape()
-{
+void decoration::recreate_shape() {
     b2Vec2 p = this->get_position();
 
     if (this->body) {
@@ -477,11 +462,10 @@ decoration::recreate_shape()
 
     b2PolygonShape shape;
 
-    if (i->is_rect) {
+    if (i->is_rect)
         shape.SetAsBox(i->size.x, i->size.y);
-    } else {
+    else
         shape.Set(i->vertices, i->num_vertices);
-    }
 
     b2FixtureDef fd;
     fd.shape = &shape;
@@ -500,14 +484,10 @@ decoration::recreate_shape()
 
 }
 
-void
-decoration::add_to_world()
-{
+void decoration::add_to_world() {
     this->recreate_shape();
 }
 
-void
-decoration::write_quickinfo(char *out)
-{
+void decoration::write_quickinfo(char *out) {
     sprintf(out, "%s", decorations[this->get_decoration_type()].name);
 }

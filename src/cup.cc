@@ -1,11 +1,9 @@
 #include "cup.hh"
-
 #include "material.hh"
 #include "model.hh"
 #include "world.hh"
 
-cup::cup()
-{
+cup::cup() {
     this->width = 1.25f;
     this->set_flag(ENTITY_ALLOW_CONNECTIONS, false);
 
@@ -19,9 +17,7 @@ cup::cup()
     tmat3_load_identity(this->N);
 }
 
-void
-cup::create_fixtures()
-{
+void cup::create_fixtures() {
     tms_assertf(this->body, "Plastic Cup create fixtures called with no body.");
 
     b2PolygonShape s_left, s_right, s_bottom;
@@ -46,9 +42,7 @@ cup::create_fixtures()
     (this->body->CreateFixture(&fd))->SetUserData(this);
 }
 
-void
-cup::add_to_world()
-{
+void cup::add_to_world() {
     b2BodyDef bd;
     bd.type = this->get_dynamic_type();
     bd.position = this->_pos;

@@ -2,10 +2,10 @@
 
 #include "composable.hh"
 
-class damper : public composable,
-               public b2RayCastCallback,
-               public b2QueryCallback
-{
+/**
+ * Generic base class for damper parts
+ */
+class damper : public composable, public b2RayCastCallback, public b2QueryCallback {
   public:
     connection c;
     float dir;
@@ -26,9 +26,12 @@ class damper : public composable,
     void on_release(game *g);
 };
 
-/* the "main" part of the damper */
-class damper_1 : public damper
-{
+/**
+ * Class representing the Damper object (main partial).
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Damper
+ */
+class damper_1 : public damper {
   public:
     b2PrismaticJoint *joint;
     connection dconn;
@@ -36,34 +39,40 @@ class damper_1 : public damper
     damper_1();
     ~damper_1();
     void construct();
-    void step(void);
+    void step();
 
     void set_layer(int z);
     connection *load_connection(connection &conn);
     void connection_create_joint(connection *c);
     void update_frame(bool hard);
     void set_moveable(bool moveable);
-    const char *get_name(void){return "Damper";};
-    float get_slider_snap(int s){ return .05f; };
-    float get_slider_value(int s){
+    const char *get_name() { return "Damper"; }
+    float get_slider_snap(int s) { return .05f; }
+    float get_slider_value(int s) {
         return this->properties[1+s].v.f / 20.f;
-    };
+    }
 
     const char *get_slider_label(int s) {
-        if (s == 0) return "Pressure";
-        else return "Max speed";
+        if (s == 0)
+            return "Pressure";
+        else
+            return "Max speed";
     }
     void on_slider_change(int s, float value);
 };
 
-class damper_2 : public damper
-{
+/**
+ * Class representing the Damper object (secondary partial).
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Damper
+ */
+class damper_2 : public damper {
   public:
     damper_1 *d1;
     damper_2();
 
     void set_layer(int z);
-    entity *get_property_entity(){return d1?(entity*)d1:(entity*)this;};
-    const char* get_name(){return "Damper (part)";}
+    entity *get_property_entity() { return d1 ? (entity*)d1 : (entity*)this; }
+    const char* get_name() { return "Damper (part)"; }
     void update_frame(bool hard);
 };

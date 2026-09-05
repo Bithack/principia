@@ -12,8 +12,12 @@
 
 class crane_pulley;
 
-class crane : public edev, public b2QueryCallback
-{
+/**
+ * Class representing the Crane object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Crane
+ */
+class crane : public edev, public b2QueryCallback {
   public:
     connection pc;
     connection rc;
@@ -31,7 +35,7 @@ class crane : public edev, public b2QueryCallback
 
   public:
     crane();
-    const char *get_name(void){return "Crane";};
+    const char *get_name() { return "Crane"; }
 
     void add_to_world();
     void remove_from_world();
@@ -61,14 +65,16 @@ class crane : public edev, public b2QueryCallback
     bool hit;
 };
 
-class crane_pulley : public entity
-{
+/**
+ * The pulley rope used for the crane entity
+ */
+class crane_pulley : public entity {
   private:
     connection c_side[4];
 
   public:
     crane_pulley(crane *parent);
-    const char *get_name(){ return "Crane"; }
+    const char *get_name() { return "Crane"; }
 
     connection* load_connection(connection &conn);
     void find_pairs();

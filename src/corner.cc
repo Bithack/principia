@@ -3,8 +3,7 @@
 #include "model.hh"
 #include "game.hh"
 
-class corner_ray_cb : public b2RayCastCallback
-{
+class corner_ray_cb : public b2RayCastCallback {
   public:
     entity *result;
     int which;
@@ -12,17 +11,14 @@ class corner_ray_cb : public b2RayCastCallback
     b2Vec2 result_point;
     b2Vec2 vec;
 
-    corner_ray_cb(corner *ignore)
-    {
+    corner_ray_cb(corner *ignore) {
         this->ignore = ignore;
         result = 0;
     }
 
-    float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-    {
-        if (f->IsSensor()) {
+    float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
+        if (f->IsSensor())
             return -1.f;
-        }
 
         entity *r = static_cast<entity*>(f->GetUserData());
         if (r && r != this->ignore) {
@@ -30,8 +26,7 @@ class corner_ray_cb : public b2RayCastCallback
 
             connection *c = 0;
 
-            if (r->get_layer() == ignore->get_layer()
-                    && (r->g_id != 4)) {
+            if (r->get_layer() == ignore->get_layer() && (r->g_id != 4)) {
                 c = &ignore->c[this->which];
 
                 if (c->pending) {
@@ -64,8 +59,7 @@ class corner_ray_cb : public b2RayCastCallback
     }
 };
 
-corner::corner()
-{
+corner::corner() {
     this->set_flag(ENTITY_ALLOW_CONNECTIONS, false);
     this->set_flag(ENTITY_IS_MOVEABLE, true);
     this->set_material(&m_wood);
@@ -85,22 +79,14 @@ corner::corner()
     this->set_as_tri(.35f, .35f);
 }
 
-connection*
-corner::load_connection(connection &conn)
-{
+connection *corner::load_connection(connection &conn) {
     this->c[conn.o_index] = conn;
     return &this->c[conn.o_index];
 }
 
-void
-corner::on_load(bool created, bool has_state)
-{
+void corner::on_load(bool created, bool has_state) { }
 
-}
-
-void
-corner::find_pairs()
-{
+void corner::find_pairs() {
     corner_ray_cb handler(this);
     b2Vec2 vec[3] = {
         b2Vec2(1.f, 0.f),
@@ -114,7 +100,6 @@ corner::find_pairs()
     };
 
     for (int x=0; x<3; x++) {
-
         handler.vec = vec[x];
         handler.vec*=.1f;
         handler.which = x;
