@@ -6,20 +6,20 @@
 #include <vector>
 #include <set>
 
-/* escript flags */
+/* luascript flags */
 // INCLUDE_{STRING,TABLE} and LISTEN_ON_INPUT are unused now but need to be kept for backwards compatibility
-#define ESCRIPT_INCLUDE_STRING          (1ULL << 0)
-#define ESCRIPT_INCLUDE_TABLE           (1ULL << 1)
-#define ESCRIPT_LISTEN_ON_INPUT         (1ULL << 2)
-#define ESCRIPT_USE_EXTERNAL_EDITOR     (1ULL << 3)
+#define LUASCRIPT_INCLUDE_STRING          (1ULL << 0)
+#define LUASCRIPT_INCLUDE_TABLE           (1ULL << 1)
+#define LUASCRIPT_LISTEN_ON_INPUT         (1ULL << 2)
+#define LUASCRIPT_USE_EXTERNAL_EDITOR     (1ULL << 3)
 
-#define ESCRIPT_WORLD   0
-#define ESCRIPT_SCREEN  1
-#define ESCRIPT_LOCAL   2
+#define LUASCRIPT_WORLD   0
+#define LUASCRIPT_SCREEN  1
+#define LUASCRIPT_LOCAL   2
 
-#define ESCRIPT_EXTERNAL_PATH_LEN 1024
+#define LUASCRIPT_EXTERNAL_PATH_LEN 1024
 
-extern escript *current_escript;
+extern luascript *current_luascript;
 
 struct lua_State;
 class receiver_base;
@@ -29,7 +29,7 @@ struct function_info {
     int timelimit;
 };
 
-struct escript_line {
+struct luascript_line {
     float x1, y1, z1;
     float x2, y2, z2;
     float r1, g1, b1, a1;
@@ -37,7 +37,7 @@ struct escript_line {
     float w1, w2;
 };
 
-struct escript_sprite {
+struct luascript_sprite {
     float x, y;
     float r;
     float w, h;
@@ -50,10 +50,10 @@ struct escript_sprite {
 
 class draw_data {
   private:
-    escript *parent;
+    luascript *parent;
 
   public:
-    draw_data(escript *parent, int width=DEFAULT_DRAW_WIDTH, int height=DEFAULT_DRAW_HEIGHT, uint8_t num_channels=4);
+    draw_data(luascript *parent, int width=DEFAULT_DRAW_WIDTH, int height=DEFAULT_DRAW_HEIGHT, uint8_t num_channels=4);
     ~draw_data();
 
     void update_effects();
@@ -80,11 +80,10 @@ struct DataStruct {
     size_t size;
 };
 
-class escript : public brcomp_multiconnect, public base_prompt
-{
+class luascript : public brcomp_multiconnect, public base_prompt {
   protected:
-    std::vector<struct escript_line> lines;
-    std::vector<struct escript_line> pending_lines;
+    std::vector<struct luascript_line> lines;
+    std::vector<struct luascript_line> pending_lines;
 
   public:
     struct DataStruct data;
@@ -98,9 +97,9 @@ class escript : public brcomp_multiconnect, public base_prompt
     char *p_btn3;
     uint32_t p_btn3_len;
 
-    escript();
-    ~escript();
-    const char *get_name(){return "LuaScript";};
+    luascript();
+    ~luascript();
+    const char *get_name() { return "LuaScript"; }
     void remove_from_world();
 
     int first_run;
@@ -116,8 +115,9 @@ class escript : public brcomp_multiconnect, public base_prompt
     bool listen_on_input;
     std::set<tms::event*> input_events;
 
-    std::vector<struct escript_sprite> static_sprites;
-    uint32_t local_id; /* entity to follow in local screen mode */
+    std::vector<struct luascript_sprite> static_sprites;
+    /// entity to follow in local screen mode
+    uint32_t local_id;
     int blending_mode;
     int filtering;
     int coordinate_mode;
@@ -139,7 +139,7 @@ class escript : public brcomp_multiconnect, public base_prompt
 
     lua_State *L;
 
-    void add_line(const struct escript_line &line);
+    void add_line(const struct luascript_line &line);
     void add_static_sprite(float x, float y, float r, float w, float h, int bx, int by, int tx, int ty, bool add=true);
 
     void on_load(bool created, bool has_state);
@@ -152,6 +152,8 @@ class escript : public brcomp_multiconnect, public base_prompt
 
     bool requires_delete_confirmation() { return true; }
 
+    /// Buffers inserted to this function will be assumed to have
+    /// a length of LUASCRIPT_EXTERNAL_PATH_LEN
     void generate_external_path(char *buf);
 
     base_prompt *get_base_prompt() { return this; }

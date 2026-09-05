@@ -40,7 +40,7 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_CURSORFIELD:
             UiCursorField::open();
             break;
-        case DIALOG_ESCRIPT:
+        case DIALOG_LUASCRIPT:
             UiLuaEditor::open();
             break;
         case DIALOG_JUMPER:

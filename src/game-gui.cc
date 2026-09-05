@@ -3782,7 +3782,7 @@ game::begin_tracker(entity *e)
 {
     if (e) {
         switch (e->g_id) {
-            case O_ESCRIPT:
+            case O_LUASCRIPT:
                 ui::message("Click an object to get some information about it.");
                 break;
 

@@ -1,4 +1,4 @@
-#include "escript.hh"
+#include "luascript.hh"
 #include "model.hh"
 #include "game.hh"
 #include "receiver.hh"
@@ -6,15 +6,9 @@
 #include "receiver.hh"
 #include "ui.hh"
 
-typedef std::vector<struct escript_sprite>::iterator sprite_iterator;
+typedef std::vector<struct luascript_sprite>::iterator sprite_iterator;
 
 #include "luascript/lua.hh"
-
-#include "luascript/lua_cam.hh"
-#include "luascript/lua_entity.hh"
-#include "luascript/lua_game.hh"
-#include "luascript/lua_this.hh"
-#include "luascript/lua_world.hh"
 
 // Blacklist of global namespace functions that are not allowed to be called for security reasons.
 static const char* blacklist[] = {"load", "loadfile", "dofile", NULL};
@@ -46,47 +40,11 @@ struct function_info function_info[] = {
 static const int LUA_FOREACH_MAX_DEPTH = 35;
 
 /*
- * plua_foreach(...)
- * [-0, +0, -]
- *
- * iterate the given table at `index'.
- * recursively iterate any other tables we find.
- * ignore any keys for the first iteration in in the "ignore"-list.
- * any value found that is not a table will be called with the given `cb'
- */
-static void plua_foreach(lua_State *L, const int index, void (*cb)(lua_State*, int, void*), void *userdata, bool can_ignore=true);
-
-/*
- * invalidate_entity(...)
- * [-0, +0, -]
- *
- * Check if the value at the given index is an entity pointer.
- * If that entity pointer matches `userdata', we invalidate the entity pointer.
- *
- * `index' must be the index of a value in a table.
- */
-static void invalidate_entity(lua_State *L, const int index, void *userdata);
-
-/*
- * subscribe_to_entity(...)
- * [-0, +0, -]
- *
- * Check if the value at the given index is an entity pointer.
- * Userdata is a pointer to the LuaScript object caller.
- * The LuaScript object will subscribe to the given entity pointer.
- *
- * `index' must be the index of a value in a table.
- */
-static void subscribe_to_entity(lua_State *L, const int index, void *userdata);
-
-/*
  * Add one object to the table of objects that should not
  * be touched. Returns true if the object was non nil and
  * therefore stored, false otherwise.
  */
-static bool m_add_object_to_not_persist
-(lua_State * L, std::string name, uint32_t nidx)
-{
+static bool m_add_object_to_not_persist(lua_State * L, std::string name, uint32_t nidx) {
     // Search for a dot. If one is found, we first have
     // to get the global module.
     std::string::size_type pos = name.find('.');
@@ -122,9 +80,7 @@ static bool m_add_object_to_not_persist
 // Special handling for the upvalues of pairs and ipairs which are iterator
 // functions, but always the same and therefor need not be persisted (in fact
 // they are c functions, so they can't be persisted all the same)
-static void m_add_iterator_function_to_not_persist
-(lua_State * L, std::string global, uint32_t idx)
-{
+static void m_add_iterator_function_to_not_persist(lua_State * L, std::string global, uint32_t idx) {
     lua_getglobal(L, global.c_str());
     lua_newtable(L);
     lua_call(L, 1, 1); // pairs{}, stack now contains iterator function
@@ -132,8 +88,7 @@ static void m_add_iterator_function_to_not_persist
     lua_settable(L, 1); //  table[function] = integer
 }
 
-static bool m_add_object_to_not_unpersist
-(lua_State * L, std::string name, uint32_t idx) {
+static bool m_add_object_to_not_unpersist(lua_State * L, std::string name, uint32_t idx) {
     // S: ... globals
 
     // Search for a dot. If one is found, we first have
@@ -162,9 +117,7 @@ static bool m_add_object_to_not_unpersist
     return true;
 }
 
-static void m_add_iterator_function_to_not_unpersist
-(lua_State * L, std::string global, uint32_t idx)
-{
+static void m_add_iterator_function_to_not_unpersist(lua_State * L, std::string global, uint32_t idx) {
     lua_pushuint32(L, idx); // S: ... globals idx
     lua_getglobal(L, global.c_str());  // S: ... globals idx "pairs"
     lua_newtable(L);  // S: ... globals idx "pairs" table
@@ -176,7 +129,7 @@ static Uint32 start_tick = 0; /* set in solve electronics before the script is s
 static Uint32 func_start_tick = 0; /* set in solve electronics before a function is called */
 static bool is_first_run = false;
 static int cur_func_id = FUNC_IGNORE;
-escript *current_escript = 0; /* only used in poll_event, which is deprecated in 1.5 */
+luascript *current_luascript = 0; /* only used in poll_event, which is deprecated in 1.5 */
 static int timelimit = 3000;
 static bool do_call_on_halt = false;
 
@@ -236,27 +189,24 @@ const char *before_code =
 "local KEY_RIGHT = 79;"
 "local KEY_LEFT = 80;"
 "local KEY_DOWN = 81;"
-"local KEY_UP = 82;"
-;
+"local KEY_UP = 82;";
+
 const char *after_code = "";
 const char *default_code_old =
 "-- This is a new LuaScript object created in a level version below 1.5.\n"
 "-- It will not support modern LuaScript functionality such as the init()\n"
 "-- and step() callbacks. To use modern LuaScript please upgrade the level\n"
-"-- to the latest version.\n"
-;
+"-- to the latest version.\n";
+
 const char *default_code =
 "function init(is_sandbox)\n"
 "\t\n"
 "end\n"
 "function step(count)\n"
 "\t\n"
-"end\n"
-;
+"end\n";
 
-static void
-lua_dump_stack(lua_State *L)
-{
+static void lua_dump_stack(lua_State *L) {
     int top = lua_gettop(L);
     tms_printf("Total in stack: %d\n", top);
 
@@ -280,25 +230,10 @@ lua_dump_stack(lua_State *L)
                 tms_printf("%s\n", lua_typename(L, t));
                 break;
         }
-        if (i+1 <= top) {
+
+        if (i+1 <= top)
             tms_printf("  ");
-        }
     }
-}
-
-static void
-on_entity_remove(entity *self, void *userdata)
-{
-    entity *e = static_cast<entity*>(userdata);
-    escript *es = static_cast<escript*>(self);
-
-    tms_assertf(lua_gettop(es->L) == 0, "on_entity_removed with a dirty stack");
-
-    lua_pushglobaltable(es->L); // S: tbl
-    plua_foreach(es->L, 1, invalidate_entity, e); // S: tbl
-    lua_pop(es->L, 1); // S:
-
-    es->unsubscribe(e);
 }
 
 static const char* ignore[] = {
@@ -313,9 +248,16 @@ static const char* ignore[] = {
     "init", "include", "world.___persist_entity", "bit32", 0
 };
 
-static void
-invalidate_entity(lua_State *L, const int index, void *userdata)
-{
+/**
+ * invalidate_entity(...)
+ * [-0, +0, -]
+ *
+ * Check if the value at the given index is an entity pointer.
+ * If that entity pointer matches `userdata', we invalidate the entity pointer.
+ *
+ * `index' must be the index of a value in a table.
+ */
+static void invalidate_entity(lua_State *L, const int index, void *userdata) {
     void *p = luaL_testudata(L, index, "EntityMT");
 
     if (p) {
@@ -330,28 +272,16 @@ invalidate_entity(lua_State *L, const int index, void *userdata)
     }
 }
 
-static void
-subscribe_to_entity(lua_State *L, const int index, void *userdata)
-{
-    void *p = luaL_testudata(L, index, "EntityMT");
-
-    if (p) {
-        escript *es = static_cast<escript*>(userdata);
-        entity *e = *(static_cast<entity**>(p));
-        std::set<entity*>::iterator it = es->subscriptions.find(e);
-        if (it == es->subscriptions.end()) {
-            tms_debugf("Luascript with id %u subscribing to entity with id %u %s",
-                    es->id,
-                    e->id,
-                    e->get_name());
-            es->subscribe(e, ENTITY_EVENT_REMOVE, &on_entity_remove, e);
-        }
-    }
-}
-
-static void
-plua_foreach(lua_State *L, const int index, void (*cb)(lua_State*, int, void*), void *userdata, bool can_ignore/*=true*/)
-{
+/*
+ * plua_foreach(...)
+ * [-0, +0, -]
+ *
+ * iterate the given table at `index'.
+ * recursively iterate any other tables we find.
+ * ignore any keys for the first iteration in in the "ignore"-list.
+ * any value found that is not a table will be called with the given `cb'
+ */
+static void plua_foreach(lua_State *L, const int index, void (*cb)(lua_State*, int, void*), void *userdata, bool can_ignore = true) {
     if (index >= LUA_FOREACH_MAX_DEPTH) {
         // prevent stack overflows from occuring due to nested tables
         return;
@@ -389,9 +319,47 @@ plua_foreach(lua_State *L, const int index, void (*cb)(lua_State*, int, void*), 
     }
 }
 
-static int
-my_writer(lua_State *L, const void *contents, size_t size, void *ud)
-{
+static void on_entity_remove(entity *self, void *userdata) {
+    entity *e = static_cast<entity*>(userdata);
+    luascript *es = static_cast<luascript*>(self);
+
+    tms_assertf(lua_gettop(es->L) == 0, "on_entity_removed with a dirty stack");
+
+    lua_pushglobaltable(es->L); // S: tbl
+    plua_foreach(es->L, 1, invalidate_entity, e); // S: tbl
+    lua_pop(es->L, 1); // S:
+
+    es->unsubscribe(e);
+}
+
+/**
+ * subscribe_to_entity(...)
+ * [-0, +0, -]
+ *
+ * Check if the value at the given index is an entity pointer.
+ * Userdata is a pointer to the LuaScript object caller.
+ * The LuaScript object will subscribe to the given entity pointer.
+ *
+ * `index' must be the index of a value in a table.
+ */
+static void subscribe_to_entity(lua_State *L, const int index, void *userdata) {
+    void *p = luaL_testudata(L, index, "EntityMT");
+
+    if (p) {
+        luascript *es = static_cast<luascript*>(userdata);
+        entity *e = *(static_cast<entity**>(p));
+        std::set<entity*>::iterator it = es->subscriptions.find(e);
+        if (it == es->subscriptions.end()) {
+            tms_debugf("Luascript with id %u subscribing to entity with id %u %s",
+                    es->id,
+                    e->id,
+                    e->get_name());
+            es->subscribe(e, ENTITY_EVENT_REMOVE, &on_entity_remove, e);
+        }
+    }
+}
+
+static int my_writer(lua_State *L, const void *contents, size_t size, void *ud) {
     struct DataStruct *d = (struct DataStruct *)ud;
 
     d->buf = (char*)realloc(d->buf, d->size + size + 1);
@@ -407,18 +375,14 @@ my_writer(lua_State *L, const void *contents, size_t size, void *ud)
     return 0;
 }
 
-static const char*
-my_reader(lua_State *L, void *ud, size_t *size)
-{
+static const char *my_reader(lua_State *L, void *ud, size_t *size) {
     struct DataStruct *d = (struct DataStruct*)ud;
     *size = d->size;
 
     return d->buf;
 }
 
-static void
-persist_all(lua_State *L, escript *e)
-{
+static void persist_all(lua_State *L, luascript *e) {
     assert(lua_gettop(L) == 0); // S:
 
     //lua_gc(L, LUA_GCCOLLECT, 0);
@@ -478,9 +442,7 @@ persist_all(lua_State *L, escript *e)
     lua_pop(L, 2); // S:
 }
 
-static void
-unpersist_all(lua_State *L, escript *e)
-{
+static void unpersist_all(lua_State *L, luascript *e) {
     assert(lua_gettop(L) == 0); // S:
 
     lua_newtable(L); // S: perms
@@ -522,10 +484,7 @@ unpersist_all(lua_State *L, escript *e)
     lua_pop(L, 1); // S: table
 }
 
-escript::escript()
-    : prompt_id(0)
-    , solving(false)
-{
+luascript::luascript() : prompt_id(0), solving(false) {
     this->set_flag(ENTITY_HAS_CONFIG,        true);
     this->set_flag(ENTITY_HAS_TRACKER,       true);
     this->set_flag(ENTITY_DO_UPDATE_EFFECTS, true);
@@ -539,7 +498,7 @@ escript::escript()
     this->static_draw = 0;
     this->L = 0;
 
-    this->dialog_id = DIALOG_ESCRIPT;
+    this->dialog_id = DIALOG_LUASCRIPT;
 
     this->set_material(&m_iomisc);
     this->set_mesh(mesh_factory::get_mesh(MODEL_SCRIPT));
@@ -597,31 +556,24 @@ escript::escript()
     this->buttons[2].len = &this->p_btn3_len;
 }
 
-escript::~escript()
-{
-    if (this->normal_draw) {
+luascript::~luascript() {
+    if (this->normal_draw)
         delete this->normal_draw;
-    }
 
-    if (this->static_draw) {
+    if (this->static_draw)
         delete this->static_draw;
-    }
 
-    if (this->L) {
+    if (this->L)
         lua_close(this->L);
-    }
 
     std::map<uint32_t, receiver_base*>::iterator i;
-    for (i = this->receivers.begin(); i != this->receivers.end(); ++i) {
+    for (i = this->receivers.begin(); i != this->receivers.end(); ++i)
         delete i->second;
-    }
 
     this->receivers.clear();
 }
 
-void
-escript::remove_from_world()
-{
+void luascript::remove_from_world() {
     entity::remove_from_world();
     std::map<uint32_t, receiver_base*>::iterator i;
     for (i = this->receivers.begin(); i != this->receivers.end(); ++i) {
@@ -632,9 +584,7 @@ escript::remove_from_world()
     this->receivers.clear();
 }
 
-void
-timelimit_cb(lua_State *L, lua_Debug *d)
-{
+void timelimit_cb(lua_State *L, lua_Debug *d) {
     const uint32_t cur_time = SDL_GetTicks() - start_tick;
 
     tms_debugf("Cur time: %u", cur_time);
@@ -653,9 +603,7 @@ timelimit_cb(lua_State *L, lua_Debug *d)
 }
 
 /* Timelimit callback used in 1.5 and above */
-void
-timelimit_cb_1_5(lua_State *L, lua_Debug *d)
-{
+void timelimit_cb_1_5(lua_State *L, lua_Debug *d) {
     Uint32 ct = SDL_GetTicks();
 
     if (ct - start_tick > FULL_SCRIPT_TIMELIMIT) {
@@ -677,14 +625,11 @@ timelimit_cb_1_5(lua_State *L, lua_Debug *d)
     }
 }
 
-void
-escript::init()
-{
+void luascript::init() {
     this->input_events.clear();
 
-    for (int x=0; x<WORLD_EVENT__NUM; x++) {
+    for (int x=0; x<WORLD_EVENT__NUM; x++)
         this->events[x] = 0;
-    }
 
     this->listen_on_input = true;
     this->lines.clear();
@@ -727,11 +672,10 @@ escript::init()
     func_start_tick = SDL_GetTicks();
     cur_func_id = FUNC_GLOBAL_INIT;
 
-    if (W->level.version >= LEVEL_VERSION_1_5) {
+    if (W->level.version >= LEVEL_VERSION_1_5)
         lua_sethook(this->L, timelimit_cb_1_5, LUA_MASKCOUNT, 20);
-    } else {
+    else
         lua_sethook(this->L, timelimit_cb, LUA_MASKCOUNT, 20);
-    }
 
     if (W->level.version >= LEVEL_VERSION_1_5) {
         char *code = (char*)malloc(strlen(before_code) + strlen(this->properties[0].v.s.buf) + strlen(after_code) + 1);
@@ -771,27 +715,22 @@ escript::init()
                 }
                 lua_pop(this->L, 1);
             }
-        } else {
+        } else
             G->add_error(this, ERROR_SCRIPT_COMPILE, lua_pop_error(this->L, "Error loading Lua string: "));
-        }
     }
 }
 
-void
-escript::setup()
-{
+void luascript::setup() {
     this->draw_tint = (tvec4){1.f,1.f,1.f,1.f};
     this->local_id = 0;
     this->blending_mode = 1;
     this->filtering = 1;
-    this->coordinate_mode = ESCRIPT_WORLD;
+    this->coordinate_mode = LUASCRIPT_WORLD;
     this->draw_z = .0f;
     this->first_run = 1;
 }
 
-void
-escript::on_pause()
-{
+void luascript::on_pause() {
     std::map<uint32_t, receiver_base*>::iterator i;
     for (i = this->receivers.begin(); i != this->receivers.end(); ++i) {
         delete i->second;
@@ -800,10 +739,10 @@ escript::on_pause()
     this->receivers.clear();
 
     if (W->level.version >= LEVEL_VERSION_1_5
-     && this->properties[1].v.i & ESCRIPT_USE_EXTERNAL_EDITOR
+     && this->properties[1].v.i & LUASCRIPT_USE_EXTERNAL_EDITOR
      && G->state.sandbox) {
 
-        char path[ESCRIPT_EXTERNAL_PATH_LEN];
+        char path[LUASCRIPT_EXTERNAL_PATH_LEN];
         this->generate_external_path(path);
 
         FILE *fh;
@@ -843,29 +782,22 @@ escript::on_pause()
     }
 }
 
-
-void
-escript::update_effects()
-{
-    if (this->normal_draw) {
+void luascript::update_effects() {
+    if (this->normal_draw)
         this->normal_draw->update_effects();
-    }
 
-    if (this->static_draw) {
+    if (this->static_draw)
         this->static_draw->update_effects();
-    }
 
-    for (std::vector<escript_line>::const_iterator it = this->lines.begin();
+    for (std::vector<luascript_line>::const_iterator it = this->lines.begin();
             it != this->lines.end(); ++it) {
-        const struct escript_line &l = *it;
+        const struct luascript_line &l = *it;
 
         linebuffer::add(l.x1, l.y1, l.z1, l.x2, l.y2, l.z2, l.r1, l.g1, l.b1, l.a1, l.r2, l.g2, l.b2, l.a2, l.w1, l.w2);
     }
 }
 
-edevice*
-escript::solve_electronics()
-{
+edevice *luascript::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -880,7 +812,7 @@ escript::solve_electronics()
     do_call_on_halt = false;
     start_tick = SDL_GetTicks();
     is_first_run = this->first_run;
-    current_escript = this;
+    current_luascript = this;
 
     this->val[0] = this->s_in[0].get_value();
     this->val[1] = this->s_in[1].get_value();
@@ -921,12 +853,10 @@ escript::solve_electronics()
             if (!lua_isnil(this->L, -1)) {
                 lua_pushboolean(this->L, G->state.sandbox || G->state.test_playing);
 
-                if (lua_pcall(this->L, 1, 0, 0) != 0) {
+                if (lua_pcall(this->L, 1, 0, 0) != 0)
                     G->add_error(this, ERROR_SCRIPT_COMPILE, lua_pop_error(this->L, "Error calling init: "));
-                }
-            } else {
+            } else
                 lua_pop(this->L, 1);
-            }
         }
 
         if (this->has_on_event) {
@@ -939,9 +869,8 @@ escript::solve_electronics()
 
                     lua_pushnumber(this->L, x); // x = event_id
 
-                    if (lua_pcall(this->L, 1, 0, 0) != 0) {
+                    if (lua_pcall(this->L, 1, 0, 0) != 0)
                         G->add_error(this, ERROR_SCRIPT_COMPILE, lua_pop_error(this->L, "Error calling on_event: "));
-                    }
 
                     -- this->events[x];
                 }
@@ -958,9 +887,8 @@ escript::solve_electronics()
                 lua_pushnumber(this->L, this->get_response()); // response
                 lua_pushnumber(this->L, this->prompt_id); // prompt id
 
-                if (lua_pcall(this->L, 2, 0, 0) != 0) {
+                if (lua_pcall(this->L, 2, 0, 0) != 0)
                     G->add_error(this, ERROR_SCRIPT_COMPILE, lua_pop_error(this->L, "Error calling on_event: "));
-                }
             }
 
             this->set_response(PROMPT_RESPONSE_NONE);
@@ -1001,9 +929,8 @@ escript::solve_electronics()
                 lua_settable(this->L, -3);
             }
 
-            if (lua_pcall(this->L, params, 0, 0) != 0) {
+            if (lua_pcall(this->L, params, 0, 0) != 0)
                 G->add_error(this, ERROR_SCRIPT_COMPILE, lua_pop_error(this->L, "Error calling on_input: "));
-            }
         }
 
         func_start_tick = SDL_GetTicks();
@@ -1015,9 +942,8 @@ escript::solve_electronics()
 
             int n = lua_pcall(this->L, 1, 0, 0);
 
-            if (n != 0) {
+            if (n != 0)
                 G->add_error(this, ERROR_SCRIPT_COMPILE, lua_pop_error(this->L, "Error calling step: "));
-            }
         }
 
         if (do_call_on_halt) {
@@ -1026,12 +952,10 @@ escript::solve_electronics()
             lua_getglobal(L, "on_halt");
 
             if (!lua_isnil(L, -1)) {
-                if (lua_pcall(L, 0, 0, 0) != 0) {
+                if (lua_pcall(L, 0, 0, 0) != 0)
                     G->add_error(this, ERROR_SCRIPT_COMPILE, lua_pop_error(this->L, "Error calling on_halt: "));
-                }
-            } else {
+            } else
                 lua_pop(L, 1);
-            }
         }
     }
 
@@ -1039,13 +963,11 @@ escript::solve_electronics()
     plua_foreach(this->L, 1, subscribe_to_entity, this); // S: tbl
     lua_pop(this->L, 1); // S:
 
-    if (this->normal_draw) {
+    if (this->normal_draw)
         this->draw_post_solve(this->normal_draw);
-    }
 
-    if (this->static_draw) {
+    if (this->static_draw)
         this->draw_post_solve(this->static_draw);
-    }
 
     if (!this->s_out[0].written()) this->s_out[0].write(0.f);
     if (!this->s_out[1].written()) this->s_out[1].write(0.f);
@@ -1056,13 +978,11 @@ escript::solve_electronics()
     this->input_events.clear();
 
     std::map<uint32_t, receiver_base*>::iterator i;
-    for (i = this->receivers.begin(); i != this->receivers.end(); ++i) {
+    for (i = this->receivers.begin(); i != this->receivers.end(); ++i)
         i->second->reset_recv_value();
-    }
 
-    for (int x=0; x<WORLD_EVENT__NUM; x++) {
+    for (int x=0; x<WORLD_EVENT__NUM; x++)
         this->events[x] = 0;
-    }
 
     this->solving = false;
 
@@ -1075,14 +995,12 @@ static unsigned char encryption_keys[5] = {0x41, 0xf3, 0x1a, 0x44, 0x14};
         ver >= LEVEL_VERSION_1_5 \
      && ver <  LEVEL_VERSION_2023_06_05
 
-void
-escript::on_load(bool created, bool has_state)
-{
+void luascript::on_load(bool created, bool has_state) {
     entity::on_load(created, has_state);
 
     /* XXX: needs to be tested with community levels */
-    if (!created && this->properties[1].v.i & ESCRIPT_USE_EXTERNAL_EDITOR && W->level_id_type == LEVEL_LOCAL) {
-        char path[ESCRIPT_EXTERNAL_PATH_LEN];
+    if (!created && this->properties[1].v.i & LUASCRIPT_USE_EXTERNAL_EDITOR && W->level_id_type == LEVEL_LOCAL) {
+        char path[LUASCRIPT_EXTERNAL_PATH_LEN];
         this->generate_external_path(path);
 
         FILE *fh = fopen(path, "rb");
@@ -1111,44 +1029,33 @@ escript::on_load(bool created, bool has_state)
         } else {
             tms_errorf("External editing enabled, yet no file at %s was readable.", path);
             /* If this happens, we will fall back to using non-external editing. */
-            this->properties[1].v.i &= ~ESCRIPT_USE_EXTERNAL_EDITOR;
+            this->properties[1].v.i &= ~LUASCRIPT_USE_EXTERNAL_EDITOR;
         }
     }
 
-    if (!created) {
+    if (!created)
         // For old level versions above 1.5+, LuaScript code is encrypted
-        if (IS_ENCRYPTED(W->level.version)) {
-            for (uint32_t x=0; x<this->properties[0].v.s.len; ++x) {
+        if (IS_ENCRYPTED(W->level.version))
+            for (uint32_t x=0; x<this->properties[0].v.s.len; ++x)
                 this->properties[0].v.s.buf[x] ^= encryption_keys[x%5];
-            }
-        }
-    }
 }
 
-void
-escript::pre_write()
-{
+void luascript::pre_write() {
     entity::pre_write();
 
     // For old level versions above 1.5+, LuaScript code is encrypted
-    if (IS_ENCRYPTED(W->level.version)) {
-        for (uint32_t x=0; x<this->properties[0].v.s.len; ++x) {
+    if (IS_ENCRYPTED(W->level.version))
+        for (uint32_t x=0; x<this->properties[0].v.s.len; ++x)
             this->properties[0].v.s.buf[x] ^= encryption_keys[x%5];
-        }
-    }
 }
 
-void
-escript::post_write()
-{
+void luascript::post_write() {
     entity::post_write();
 
     // For old level versions above 1.5+, LuaScript code is encrypted
-    if (IS_ENCRYPTED(W->level.version)) {
-        for (uint32_t x=0; x<this->properties[0].v.s.len; ++x) {
+    if (IS_ENCRYPTED(W->level.version))
+        for (uint32_t x=0; x<this->properties[0].v.s.len; ++x)
             this->properties[0].v.s.buf[x] ^= encryption_keys[x%5];
-        }
-    }
 }
 
 /*
@@ -1186,9 +1093,7 @@ escript::post_write()
  *          #1      uint32  tx
  *          #1      uint32  ty
  */
-void
-escript::write_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void luascript::write_state(lvlinfo *lvl, lvlbuf *lb) {
     entity::write_state(lvl, lb);
 
     tms_infof("gettop: %d", lua_gettop(this->L));
@@ -1253,7 +1158,7 @@ escript::write_state(lvlinfo *lvl, lvlbuf *lb)
         lb->w_s_uint32(this->static_sprites.size());
         for (sprite_iterator i = this->static_sprites.begin();
                 i != this->static_sprites.end(); ++i) {
-            struct escript_sprite *s = &(*i);
+            struct luascript_sprite *s = &(*i);
             lb->w_s_float(s->x);
             lb->w_s_float(s->y);
             lb->w_s_float(s->r);
@@ -1269,9 +1174,7 @@ escript::write_state(lvlinfo *lvl, lvlbuf *lb)
     }
 }
 
-void
-escript::read_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void luascript::read_state(lvlinfo *lvl, lvlbuf *lb) {
     entity::read_state(lvl, lb);
 
     free(this->data.buf);
@@ -1327,7 +1230,7 @@ escript::read_state(lvlinfo *lvl, lvlbuf *lb)
         uint32_t num_static_sprites = lb->r_uint32();
         tms_debugf("num static sprites: %u", num_static_sprites);
         for (uint32_t i=0; i<num_static_sprites; ++i) {
-            struct escript_sprite s;
+            struct luascript_sprite s;
             s.x = lb->r_float();
             s.y = lb->r_float();
             s.r = lb->r_float();
@@ -1343,9 +1246,7 @@ escript::read_state(lvlinfo *lvl, lvlbuf *lb)
     }
 }
 
-void
-escript::restore()
-{
+void luascript::restore() {
     if (this->data.size > 0) {
         this->first_run = false;
 
@@ -1355,21 +1256,17 @@ escript::restore()
     tms_debugf("static_sprites count: %d", (int)this->static_sprites.size());
     for (sprite_iterator i = this->static_sprites.begin();
             i != this->static_sprites.end(); ++i) {
-        struct escript_sprite s = *i;
+        struct luascript_sprite s = *i;
 
         this->add_static_sprite(s.x, s.y, s.r, s.w, s.h, s.bx, s.by, s.tx, s.ty, false);
     }
 }
 
-void
-escript::draw_pre_solve(draw_data *draw)
-{
+void luascript::draw_pre_solve(draw_data *draw) {
 
 }
 
-void
-escript::draw_post_solve(draw_data *draw)
-{
+void luascript::draw_post_solve(draw_data *draw) {
     /* Re-upload texture if buffer has been modified */
     if (draw->texture_modified) {
         tms_texture_upload(draw->texture);
@@ -1383,7 +1280,7 @@ escript::draw_post_solve(draw_data *draw)
         draw->verts_modified = 0;
     }
 
-    if (this->coordinate_mode == ESCRIPT_WORLD || this->coordinate_mode == ESCRIPT_LOCAL) {
+    if (this->coordinate_mode == LUASCRIPT_WORLD || this->coordinate_mode == LUASCRIPT_LOCAL) {
         if (!draw->sprite_ent->scene) {
             tms_debugf("add entity to scene");
             this->add_child(draw->sprite_ent);
@@ -1396,7 +1293,7 @@ escript::draw_post_solve(draw_data *draw)
             draw->mat.pipeline[0].blend_mode = this->blending_mode;
             tms_scene_add_entity(sc, draw->sprite_ent);
         }
-    } else if (this->coordinate_mode == ESCRIPT_SCREEN) {
+    } else if (this->coordinate_mode == LUASCRIPT_SCREEN) {
         if (draw->sprite_ent->scene) {
             tms_debugf("remove entity from scene");
             this->remove_child(draw->sprite_ent);
@@ -1421,8 +1318,7 @@ escript::draw_post_solve(draw_data *draw)
     }
 }
 
-draw_data::draw_data(escript *parent, int width, int height, uint8_t num_channels)
-{
+draw_data::draw_data(luascript *parent, int width, int height, uint8_t num_channels) {
     this->parent = parent;
 
     this->texture = tms_texture_alloc();
@@ -1482,14 +1378,11 @@ draw_data::draw_data(escript *parent, int width, int height, uint8_t num_channel
     this->verts_modified = true;
 }
 
-draw_data::~draw_data()
-{
+draw_data::~draw_data() {
     tms_texture_free(this->texture);
 }
 
-void
-draw_data::update_effects()
-{
+void draw_data::update_effects() {
     if (this->sprite_ent->scene) {
         tms_scene_uncull_entity(G->get_scene(), (struct tms_entity*)this->sprite_ent);
         tms_graph_uncull_entity(G->graph, (struct tms_entity*)this->sprite_ent);
@@ -1498,28 +1391,19 @@ draw_data::update_effects()
     tmat3_load_identity(this->sprite_ent->N);
 }
 
-void
-draw_data::resize_texture_buffer(int width, int height, uint8_t num_channels/*=4*/)
-{
-    if (this->texture->is_buffered) {
+void draw_data::resize_texture_buffer(int width, int height, uint8_t num_channels/*=4*/) {
+    if (this->texture->is_buffered)
         tms_texture_free_buffer(this->texture);
-    }
-
 }
 
-void
-escript::add_line(const struct escript_line &line)
-{
-    if (this->solving) {
+void luascript::add_line(const struct luascript_line &line) {
+    if (this->solving)
         this->lines.push_back(line);
-    } else {
+    else
         this->pending_lines.push_back(line);
-    }
 }
 
-void
-escript::add_static_sprite(float x, float y, float r, float w, float h, int bx, int by, int tx, int ty, bool add/*=true*/)
-{
+void luascript::add_static_sprite(float x, float y, float r, float w, float h, int bx, int by, int tx, int ty, bool add/*=true*/) {
     draw_data *draw = this->static_draw;
 
     tvec2 uvb = {(float)bx / draw->texture_width, (float)by / draw->texture_height};
@@ -1581,7 +1465,7 @@ escript::add_static_sprite(float x, float y, float r, float w, float h, int bx, 
         draw->sprite_count ++;
 
         if (add) {
-            struct escript_sprite sprite = {
+            struct luascript_sprite sprite = {
                 x, y,
                 r,
                 w, h,
@@ -1593,12 +1477,8 @@ escript::add_static_sprite(float x, float y, float r, float w, float h, int bx, 
     }
 }
 
-/* Buffers inserted to this function will be assumed to have
- * a length of ESCRIPT_EXTERNAL_PATH_LEN */
-void
-escript::generate_external_path(char *buf)
-{
-    snprintf(buf, ESCRIPT_EXTERNAL_PATH_LEN-1, "%s/%d-%d.lua",
+void luascript::generate_external_path(char *buf) {
+    snprintf(buf, LUASCRIPT_EXTERNAL_PATH_LEN-1, "%s/%d-%d.lua",
             pkgman::get_cache_path(W->level_id_type),
             W->level.local_id, this->id);
 }

@@ -1,5 +1,5 @@
 #include "world.hh"
-#include "escript.hh"
+#include "luascript.hh"
 #include "eventlistener.hh"
 #include "solver.hh"
 #include "solver_ingame.hh"
@@ -131,7 +131,7 @@ world::insert(entity *e)
 
     switch (e->g_id) {
         case O_EVENT_LISTENER: this->eventlisteners.insert((eventlistener*)e); break;
-        case O_ESCRIPT:        this->escripts.insert((escript*)e); break;
+        case O_LUASCRIPT:      this->escripts.insert((luascript*)e); break;
         case O_KEY_LISTENER:   this->key_listeners.insert((key_listener*)e); break;
         case O_ARTIFICIAL_GRAVITY:   this->localgravities.insert((localgravity*)e); break;
         case O_REPAIR_STATION: this->repair_stations.insert(e); break;
@@ -196,7 +196,7 @@ world::erase(entity *e)
     switch (e->g_id) {
         case O_CAM_MARKER:     this->cam_markers.erase(e->id); break;
         case O_EVENT_LISTENER: this->eventlisteners.erase((eventlistener*)e); break;
-        case O_ESCRIPT:        this->escripts.erase((escript*)e); break;
+        case O_LUASCRIPT:      this->escripts.erase((luascript*)e); break;
         case O_KEY_LISTENER:   this->key_listeners.erase((key_listener*)e); break;
         case O_ARTIFICIAL_GRAVITY:   this->localgravities.erase((localgravity*)e); break;
         case O_REPAIR_STATION: this->repair_stations.erase(e); break;
@@ -418,7 +418,7 @@ world::step()
                 }
             }
 
-            for (std::set<escript*>::iterator i = this->escripts.begin();
+            for (std::set<luascript*>::iterator i = this->escripts.begin();
                     i != this->escripts.end(); i++) {
                 for (int x=0; x<WORLD_EVENT__NUM; x++) {
                     if (this->events[x]) {

@@ -1,5 +1,5 @@
 #include "entity.hh"
-#include "escript.hh"
+#include "luascript.hh"
 #include "game.hh"
 #include "imgui.hh"
 #include "ui.hh"
@@ -14,7 +14,7 @@ namespace UiLuaEditor {
 
     static std::string saved_text;
     static std::string codeText;
-    static char external_path[ESCRIPT_EXTERNAL_PATH_LEN];
+    static char external_path[LUASCRIPT_EXTERNAL_PATH_LEN];
 
     static void reload_code() {
         uint32_t len = e->properties[0].v.s.len;
@@ -93,8 +93,8 @@ namespace UiLuaEditor {
         do_open = true;
         e = G->selection.e;
 
-        use_external_editor = e->properties[1].v.i & ESCRIPT_USE_EXTERNAL_EDITOR;
-        ((escript*)e)->generate_external_path(external_path);
+        use_external_editor = e->properties[1].v.i & LUASCRIPT_USE_EXTERNAL_EDITOR;
+        ((luascript*)e)->generate_external_path(external_path);
         reload_code();
     }
 
@@ -119,8 +119,8 @@ namespace UiLuaEditor {
 
                 prev_external_editor_state = use_external_editor;
 
-                e->properties[1].v.i = ESCRIPT_INCLUDE_STRING | ESCRIPT_INCLUDE_TABLE | ESCRIPT_LISTEN_ON_INPUT
-                        | ((int)use_external_editor * ESCRIPT_USE_EXTERNAL_EDITOR);
+                e->properties[1].v.i = LUASCRIPT_INCLUDE_STRING | LUASCRIPT_INCLUDE_TABLE | LUASCRIPT_LISTEN_ON_INPUT
+                        | ((int)use_external_editor * LUASCRIPT_USE_EXTERNAL_EDITOR);
             }
 
             ImGui::BeginChild("left_panel", UI(550., 350.25), false);
@@ -140,8 +140,8 @@ namespace UiLuaEditor {
             if (use_external_editor) {
                 ImGui::Spacing();
 
-                char file_path[ESCRIPT_EXTERNAL_PATH_LEN];
-                ((escript*)e)->generate_external_path(file_path);
+                char file_path[LUASCRIPT_EXTERNAL_PATH_LEN];
+                ((luascript*)e)->generate_external_path(file_path);
 
                 ImGui::TextWrapped("External path: %s", file_path);
 

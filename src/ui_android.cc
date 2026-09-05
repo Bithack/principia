@@ -6,7 +6,7 @@
 #include "command.hh"
 #include "decorations.hh"
 #include "display.hh"
-#include "escript.hh"
+#include "luascript.hh"
 #include "faction.hh"
 #include "factory.hh"
 #include "fxemitter.hh"

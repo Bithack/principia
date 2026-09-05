@@ -47,7 +47,7 @@
 #define DIALOG_PUBLISHED        138
 
 #define DIALOG_CURSORFIELD      140
-#define DIALOG_ESCRIPT          141
+#define DIALOG_LUASCRIPT        141
 #define DIALOG_ITEM             142
 
 #define DIALOG_SANDBOX_MODE     143

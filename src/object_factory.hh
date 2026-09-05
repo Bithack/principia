@@ -192,7 +192,7 @@ enum {
     O_LINEAR_DECAY          = 181,
     O_LIMIT                 = 182,
     O_CURSOR_FIELD          = 183,
-    O_ESCRIPT               = 184,
+    O_LUASCRIPT             = 184,
     O_TPIXEL                = 185,
     O_ITEM                  = 186,
     O_OILRIG                = 187,

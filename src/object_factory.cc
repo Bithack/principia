@@ -40,7 +40,7 @@
 #include "emitter.hh"
 #include "epsilon.hh"
 #include "erandom.hh"
-#include "escript.hh"
+#include "luascript.hh"
 #include "esub.hh"
 #include "eventlistener.hh"
 #include "explosive.hh"
@@ -357,7 +357,7 @@ static entity* new_var_setter() { return new var_setter(); }
 static entity* new_sequencer() { return new sequencer(); }
 static entity* new_shape_extruder() { return new shape_extruder(); }
 static entity* new_cursorfield() { return new cursorfield(); }
-static entity* new_escript() { return new escript(); }
+static entity* new_escript() { return new luascript(); }
 static entity* new_ldecay() { return new ldecay(); }
 static entity* new_elimit() { return new elimit(); }
 static entity* new_item() { return new item(); }
@@ -849,7 +849,7 @@ static int c7_ids[] = {
     O_GRAVITY_SETTER,
     O_ARTIFICIAL_GRAVITY,
     O_STABILIZER,
-    O_ESCRIPT,
+    O_LUASCRIPT,
     O_SHAPE_EXTRUDER,
     O_EMITTER,
     O_MINI_EMITTER,

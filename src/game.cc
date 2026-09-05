@@ -10,7 +10,7 @@
 #include "display.hh"
 #include "dragfield.hh"
 #include "emitter.hh"
-#include "escript.hh"
+#include "luascript.hh"
 #include "fan.hh"
 #include "fluid.hh"
 #include "fluidbuffer.hh"
@@ -682,14 +682,14 @@ void post_fn(struct tms_rstate *state) {
     if (!settings["postprocess"]->v.b)
         render_caveview(state);
 
-    /* TODO: copy blending stuff from material/escript */
+    /* TODO: copy blending stuff from material/luascript */
     bool base_initialized = false;
     struct tms_program *prog = m_spritebuf.pipeline[0].program;
 
-    for (std::set<escript*>::iterator it = W->escripts.begin(); it != W->escripts.end(); ++it) {
-        escript *es = static_cast<escript*>(*it);
+    for (std::set<luascript*>::iterator it = W->escripts.begin(); it != W->escripts.end(); ++it) {
+        luascript *es = static_cast<luascript*>(*it);
         draw_data *draw = es->normal_draw;
-        if (!draw || es->coordinate_mode != ESCRIPT_SCREEN) continue;
+        if (!draw || es->coordinate_mode != LUASCRIPT_SCREEN) continue;
 
         if (!base_initialized) {
             tmat4_load_identity(state->view);
@@ -8568,7 +8568,7 @@ void game::check_select_object(int x, int y, int pid) {
         entity *e = this->sel_p_ent;
 
         switch (this->selection.e_saved->g_id) {
-            case O_ESCRIPT:
+            case O_LUASCRIPT:
                 {
                     down[pid] = false;
                     char msg[2048];
@@ -10557,9 +10557,9 @@ void game::passthru_input(tms::event *ev) {
         }
     }
 
-    for (std::set<escript*>::iterator it = W->escripts.begin();
+    for (std::set<luascript*>::iterator it = W->escripts.begin();
             it != W->escripts.end(); ++it) {
-        escript *e = static_cast<escript*>(*it);
+        luascript *e = static_cast<luascript*>(*it);
 
         if (e->listen_on_input) {
             tms::event *new_ev = (tms::event*)malloc(sizeof(tms::event));

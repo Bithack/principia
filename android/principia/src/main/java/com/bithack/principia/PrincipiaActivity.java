@@ -228,7 +228,7 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
     public static final int DIALOG_PUBLISHED        = 138;
 
     public static final int DIALOG_TOUCHFIELD       = 140;
-    public static final int DIALOG_ESCRIPT          = 141;
+    public static final int DIALOG_LUASCRIPT        = 141;
     public static final int DIALOG_ITEM             = 142;
 
     public static final int DIALOG_SANDBOX_MODE     = 143;
@@ -636,7 +636,7 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_SEQUENCER:          d = SequencerDialog.get_dialog(); break;
         case DIALOG_JUMPER:             d = JumperDialog.get_dialog(); break;
         case DIALOG_TOUCHFIELD:         d = TouchFieldDialog.get_dialog(); break;
-        case DIALOG_ESCRIPT:            d = ScriptDialog.get_dialog(); break;
+        case DIALOG_LUASCRIPT:          d = ScriptDialog.get_dialog(); break;
         case DIALOG_ITEM:               d = ConsumableDialog.get_dialog(); break;
         case DIALOG_SANDBOX_MODE:       d = (new ToolDialog()).get_dialog(); break;
         case DIALOG_RUBBER:             d = RubberDialog.get_dialog(); break;
@@ -810,7 +810,7 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_SEQUENCER:          SequencerDialog.prepare(dialog); break;
             case DIALOG_JUMPER:             JumperDialog.prepare(dialog); break;
             case DIALOG_TOUCHFIELD:         TouchFieldDialog.prepare(dialog); break;
-            case DIALOG_ESCRIPT:            ScriptDialog.prepare(dialog); break;
+            case DIALOG_LUASCRIPT:          ScriptDialog.prepare(dialog); break;
             case DIALOG_ITEM:               ConsumableDialog.prepare(dialog); break;
             case DIALOG_RUBBER:             RubberDialog.prepare(dialog); break;
             case DIALOG_SHAPEEXTRUDER:      ShapeExtruderDialog.prepare(dialog); break;

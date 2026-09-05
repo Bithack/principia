@@ -47,7 +47,7 @@ class solver;
 class eventlistener;
 class key_listener;
 class localgravity;
-class escript;
+class luascript;
 class soundman;
 
 enum {
@@ -178,7 +178,7 @@ class world : public b2QueryCallback
     std::set<eventlistener*>    eventlisteners;
     std::set<key_listener*>     key_listeners;
     std::set<localgravity*>     localgravities;
-    std::set<escript*>          escripts;
+    std::set<luascript*>          escripts;
     std::set<entity*>           repair_stations;
 
     std::map<uint32_t, entity*> all_entities; /* all entities except groups and cables */
