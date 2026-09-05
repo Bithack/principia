@@ -24,9 +24,14 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     container:
-      image: debian:bullseye
+      image: debian/eol:bullseye
       env: { LANG: "C.UTF-8" }
     steps:
+      - run: |
+          echo "deb http://archive.debian.org/debian bullseye main" > /etc/apt/sources.list
+          echo "deb http://snapshot.debian.org/archive/debian-security/20260831T211327Z/ bullseye-security main" >> /etc/apt/sources.list
+          echo "deb http://archive.debian.org/debian bullseye-updates main" >> /etc/apt/sources.list
+
       - uses: actions/checkout@v6
 
       - name: Install deps
