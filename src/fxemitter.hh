@@ -32,23 +32,28 @@
 
 #define NUM_FLAMES 30
 
-class base_effect : public entity
-{
+/**
+ * Base class for all effects
+ */
+class base_effect : public entity {
   public:
     const char *get_name() { return "Base effect"; }
-    base_effect() : entity()
-    {
+    base_effect() : entity() {
         this->set_flag(ENTITY_IS_OWNED,             true);
         this->set_flag(ENTITY_DO_MSTEP,             true);
         this->set_flag(ENTITY_DO_UPDATE_EFFECTS,    true);
         this->set_flag(ENTITY_FADE_ON_ABSORB,       false);
     }
 
-    void add_to_world(){};
+    void add_to_world() {}
 };
 
-class fxemitter : public i1o1gate_fifo
-{
+/**
+ * Class representing the FX Emitter object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/FX_Emitter
+ */
+class fxemitter : public i1o1gate_fifo {
     bool     activated;
     bool     completed;
     uint64_t time;
@@ -58,19 +63,17 @@ class fxemitter : public i1o1gate_fifo
 
     std::set<connection *> *conns;
 
-    uint64_t get_next_time()
-    {
-        if (this->properties[2].v.f > 0.f) {
+    uint64_t get_next_time() {
+        if (this->properties[2].v.f > 0.f)
             return ((uint64_t)rand())%(uint64_t)(this->properties[2].v.f * 1000000.f);
-        }
 
         return 0llu;
-    };
+    }
 
   public:
     edevice* solve_electronics();
-    const char* get_name(){return "FX Emitter";}
-    void update_effects(void);
+    const char* get_name() { return "FX Emitter"; }
+    void update_effects();
 
     void step();
     void setup();
@@ -78,8 +81,7 @@ class fxemitter : public i1o1gate_fifo
 
     fxemitter();
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::write_state(lvl, lb);
 
         lb->w_s_uint8(this->activated ? 1 : 0);
@@ -92,8 +94,7 @@ class fxemitter : public i1o1gate_fifo
         }
     }
 
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::read_state(lvl, lb);
 
         this->activated = (lb->r_uint8() != 0);
@@ -106,10 +107,8 @@ class fxemitter : public i1o1gate_fifo
         }
     }
 
-    void restore()
-    {
+    void restore() {
         entity::restore();
-
         this->conns = 0;
     }
 };
@@ -139,8 +138,10 @@ struct flame {
     float a;
 };
 
-class debris : public entity
-{
+/**
+ * Debris effect
+ */
+class debris : public entity {
   private:
     b2Vec2 initial_force;
     float life;
@@ -148,11 +149,13 @@ class debris : public entity
     debris(b2Vec2 force, b2Vec2 pos);
     const char *get_name() { return "Debris"; }
     void add_to_world();
-    void step(void);
+    void step();
 };
 
-class explosion_effect : public base_effect
-{
+/**
+ * Explosion effect
+ */
+class explosion_effect : public base_effect {
   private:
     float scale;
     float       life;
@@ -167,8 +170,10 @@ class explosion_effect : public base_effect
     void update_effects();
 };
 
-class spark_effect : public base_effect
-{
+/**
+ * Spark effect, for electrical sparks
+ */
+class spark_effect : public base_effect {
   private:
     float life;
     struct piece pieces[NUM_SPARKS];
@@ -181,8 +186,10 @@ class spark_effect : public base_effect
     void update_effects();
 };
 
-class smoke_effect : public base_effect
-{
+/**
+ * Smoke effect
+ */
+class smoke_effect : public base_effect {
   private:
     struct particle particles[3];
     b2Vec2      trigger_point;
@@ -195,8 +202,10 @@ class smoke_effect : public base_effect
     void update_effects();
 };
 
-class magic_effect : public base_effect
-{
+/**
+ * Magic star effect
+ */
+class magic_effect : public base_effect {
   private:
     struct particle *particles;
     int num_particles;
@@ -214,8 +223,10 @@ class magic_effect : public base_effect
     float speed_mod;
 };
 
-class break_effect : public base_effect
-{
+/**
+ * Break effect, breaking surrounding connections
+ */
+class break_effect : public base_effect {
   private:
     struct piece pieces[3];
     b2Vec2 trigger_point;
@@ -226,8 +237,10 @@ class break_effect : public base_effect
     void update_effects();
 };
 
-class discharge_effect : public base_effect
-{
+/**
+ * Discharge effect, for electrical discharge
+ */
+class discharge_effect : public base_effect {
   private:
     b2Vec2 p[2];
     float  life;
@@ -249,31 +262,33 @@ class discharge_effect : public base_effect
 class flame_effect : public base_effect
 {
   private:
-      struct flame flames[NUM_FLAMES];
-      b2Vec2 v;
-      int flame_n;
-      int f_type; //0 = thruster, 1 = rocket
-      float sep;
-      float thrustmul;
-      float z_offset;
-      bool disable_sound;
+    struct flame flames[NUM_FLAMES];
+    b2Vec2 v;
+    int flame_n;
+    int f_type; //0 = thruster, 1 = rocket
+    float sep;
+    float thrustmul;
+    float z_offset;
+    bool disable_sound;
 
   public:
-      bool done;
+    bool done;
 
-      flame_effect(b2Vec2 pos, int layer, int f_type, bool disable_sound=false);
-      void update_pos(b2Vec2 pos, b2Vec2 v);
-      void step();
-      void update_effects();
-      void set_thrustmul(float thrustmul);
-      void set_z_offset(float z_offset);
+    flame_effect(b2Vec2 pos, int layer, int f_type, bool disable_sound=false);
+    void update_pos(b2Vec2 pos, b2Vec2 v);
+    void step();
+    void update_effects();
+    void set_thrustmul(float thrustmul);
+    void set_z_offset(float z_offset);
 };
 
 #define TESLA_NUM_RAYS 16
 #define TESLA_MAX_PATHS 10
 
-class tesla_effect : public base_effect, public b2RayCastCallback
-{
+/**
+ * Tesla charge effect
+ */
+class tesla_effect : public base_effect, public b2RayCastCallback {
     int               rnd[TESLA_NUM_RAYS];
     discharge_effect *paths[TESLA_MAX_PATHS];
     int               num_paths;
@@ -299,13 +314,15 @@ class tesla_effect : public base_effect, public b2RayCastCallback
     ~tesla_effect();
 
     int get_num_paths(){return this->num_paths;};
-    void    update_effects(void);
+    void    update_effects();
     void    step();
     float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction);
 };
 
-class plasma_explosion_effect : public base_effect
-{
+/**
+ * Plasma explosion effect
+ */
+class plasma_explosion_effect : public base_effect {
   private:
     struct particle particle;
     b2Vec2          trigger_point;
@@ -317,4 +334,3 @@ class plasma_explosion_effect : public base_effect
     void mstep();
     void update_effects();
 };
-

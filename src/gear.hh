@@ -6,8 +6,12 @@ class game;
 
 /* TODO: gear damping */
 
-class gear : public entity, public b2QueryCallback
-{
+/**
+ * Class representing the Gear object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Gear
+ */
+class gear : public entity, public b2QueryCallback {
   private:
     connection c_back;
     connection c_front;
@@ -26,7 +30,7 @@ class gear : public entity, public b2QueryCallback
     void set_position(float x, float y, uint8_t frame=0);
     void set_angle(float a);
     void add_to_world();
-    const char* get_name(){return "Gear";}
+    const char* get_name() { return "Gear"; }
     void on_touch(b2Fixture *a, b2Fixture *b);
     void set_anchor_pos(float x, float y);
     void find_pairs();
@@ -40,8 +44,8 @@ class gear : public entity, public b2QueryCallback
     bool connection_destroy_joint(connection *c);
     void on_load(bool created, bool has_state);
 
-    void step(void);
-    void tick(void);
+    void step();
+    void tick();
 
     connection * load_connection(connection &conn);
     void remove_connection(connection *c);

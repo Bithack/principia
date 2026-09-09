@@ -11,9 +11,7 @@ static tvec2 gb_tdown[MAX_P];
 
 #define PADDING (.1f*menu_xdim)
 
-void
-game::init_gearbox_edit()
-{
+void game::init_gearbox_edit() {
     for (int x=0; x<MAX_P; x++) {
         gb_dragging[x] = -1;
     }
@@ -49,9 +47,7 @@ game::init_gearbox_edit()
 #endif
 }
 
-void
-game::gearbox_edit_handle_event(tms::event *ev)
-{
+void game::gearbox_edit_handle_event(tms::event *ev) {
     int pid = ev->data.motion.pointer_id;
     tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
     gb_tdown[pid] = sp;
@@ -339,8 +335,7 @@ game::gearbox_edit_handle_event(tms::event *ev)
     }
 }
 
-int game::get_gb_pos()
-{
+int game::get_gb_pos() {
     gearbox *gb = (gearbox*)this->selection.e;
 
     if (gb->num_configs) {
@@ -354,9 +349,7 @@ int game::get_gb_pos()
         return 0;
 }
 
-void
-game::render_gearbox_edit(void)
-{
+void game::render_gearbox_edit() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_DEPTH_TEST);

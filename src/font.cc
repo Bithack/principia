@@ -12,28 +12,21 @@ FT_UInt *p_font::glyph_indices = 0;
 #define FT_FLOOR(X) ((X & -64) / 64)
 #define FT_CEIL(X)  (((X + 63) & -64) / 64)
 
-glyph::~glyph()
-{
-    if (this->m_sprite_buf) {
+glyph::~glyph() {
+    if (this->m_sprite_buf)
         free(this->m_sprite_buf);
-    }
 
-    if (this->m_outline_buf) {
+    if (this->m_outline_buf)
         free(this->m_outline_buf);
-    }
 
-    if (this->sprite) {
+    if (this->sprite)
         free(this->sprite);
-    }
 
-    if (this->outline) {
+    if (this->outline)
         free(this->outline);
-    }
 }
 
-unsigned char*
-glyph::get_sprite_buf()
-{
+unsigned char *glyph::get_sprite_buf() {
     if (this->m_sprite_buf == 0) {
         if (this->bw == 0 || this->bh == 0) {
             return 0;
@@ -59,26 +52,18 @@ glyph::get_sprite_buf()
     return this->m_sprite_buf;
 }
 
-static unsigned long RWread(
-    FT_Stream stream,
-    unsigned long offset,
-    unsigned char* buffer,
-    unsigned long count
-)
-{
+static unsigned long RWread(FT_Stream stream, unsigned long offset, unsigned char* buffer, unsigned long count) {
     SDL_IOStream *src;
 
     src = (SDL_IOStream *)stream->descriptor.pointer;
     SDL_SeekIO(src, (int)offset, SDL_IO_SEEK_SET);
-    if (count == 0) {
+    if (count == 0)
         return 0;
-    }
+
     return SDL_ReadIO( src, buffer, 1 * (int)count);
 }
 
-void
-init_p_font(p_font *font, const char *font_path)
-{
+void init_p_font(p_font *font, const char *font_path) {
     memset(font->glyphs, 0, sizeof(font->glyphs));
 
     FT_Error error;
@@ -129,9 +114,7 @@ init_p_font(p_font *font, const char *font_path)
     font->glyph_indices_local = nullptr;
 }
 
-p_font::p_font(const char *font_path, int height)
-    : orig_height(height)
-{
+p_font::p_font(const char *font_path, int height) : orig_height(height) {
     init_p_font(this, font_path);
 }
 
@@ -270,12 +253,9 @@ p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height, bool 
 }
 
 p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height)
-    : p_font(atlas, font_path, height, false)
-{
-}
+    : p_font(atlas, font_path, height, false) { }
 
-p_font::~p_font()
-{
+p_font::~p_font() {
     if (this->rw)
         SDL_CloseIO(this->rw);
 
@@ -287,12 +267,9 @@ p_font::~p_font()
 
 static struct glyph* nl_glyph = 0;
 
-struct glyph*
-p_font::get_glyph(int c)
-{
-    if (c >= CHAR_OFFSET && c <= (extended ? 256 : 128)) {
+struct glyph *p_font::get_glyph(int c) {
+    if (c >= CHAR_OFFSET && c <= (extended ? 256 : 128))
         return &this->glyphs[c-CHAR_OFFSET];
-    }
 
     switch (c) {
         case '\n': {
@@ -308,9 +285,7 @@ p_font::get_glyph(int c)
     return 0;
 }
 
-void
-render_glyph(struct tms_ddraw *dd, struct glyph *g, float x, float y, tvec4 c, tvec4 oc, float scale/*=1.f*/, bool outline/*=false*/, bool call_opengl_stuff/*=true*/)
-{
+void render_glyph(struct tms_ddraw *dd, struct glyph *g, float x, float y, tvec4 c, tvec4 oc, float scale/*=1.f*/, bool outline/*=false*/, bool call_opengl_stuff/*=true*/) {
     if (call_opengl_stuff) {
         glEnable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);

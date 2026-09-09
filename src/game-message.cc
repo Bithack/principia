@@ -1,7 +1,6 @@
 #include "game-message.hh"
 #include "text.hh"
 #include "pscreen.hh"
-
 #include <tms/cpp.hh>
 
 static double DEFAULT_ALPHA_MULTIPLIER = 4.0;
@@ -13,8 +12,7 @@ enum {
     STATE_OUT
 };
 
-game_message::game_message()
-{
+game_message::game_message() {
     this->text = new p_text(font::medium, ALIGN_CENTER, ALIGN_CENTER);
     this->alpha = &this->text->color.a;
     this->oalpha = &this->text->outline_color.a;
@@ -23,15 +21,11 @@ game_message::game_message()
     this->state = STATE_IDLE;
 }
 
-void
-game_message::set_position(float x, float y)
-{
+void game_message::set_position(float x, float y) {
     this->text->set_position(x, y);
 }
 
-void
-game_message::render(pscreen *ps)
-{
+void game_message::render(pscreen *ps) {
     switch (this->state) {
         case STATE_IDLE:
             this->set_alpha(0.f);
@@ -49,11 +43,10 @@ game_message::render(pscreen *ps)
             break;
 
         case STATE_WAIT:
-            if (this->duration <= 0) {
+            if (this->duration <= 0)
                 this->state = STATE_OUT;
-            } else {
+            else
                 this->duration -= _tms.dt;
-            }
             break;
 
         case STATE_OUT:
@@ -79,9 +72,7 @@ game_message::render(pscreen *ps)
     ps->add_text(this->text);
 }
 
-void
-game_message::show(const char *text, double duration/*=2.5*/, double in_speed/*=1.0*/, double out_speed/*=1.0*/)
-{
+void game_message::show(const char *text, double duration/*=2.5*/, double in_speed/*=1.0*/, double out_speed/*=1.0*/) {
     this->text->set_text(text);
 
     this->duration = duration;

@@ -3,9 +3,7 @@
 #include "game.hh"
 #include "model.hh"
 
-generator::generator()
-    : voltage(3.f)
-{
+generator::generator() : voltage(3.f) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_GENERATOR));
     this->set_material(&m_gen);
 
@@ -45,66 +43,51 @@ generator::generator()
     /* previously 1.6f*.5f, 1.f*.5f */
 }
 
-float
-generator::get_slider_value(int s)
-{
+float generator::get_slider_value(int s) {
     if (W->level.version >= LEVEL_VERSION_1_3_0_3)
         return tclampf((this->properties[0].v.f - 1.f) / 23.f, 0.f, 1.f);
     else
         return tclampf((this->properties[0].v.f - 1.f) / 47.f, 0.f, 1.f);
 }
 
-void
-generator::on_load(bool created, bool has_state)
-{
-    if (W->level.version >= LEVEL_VERSION_1_3_0_3) {
-        if (this->properties[0].v.f > 24.f) this->properties[0].v.f = 24.f;
-    }
+void generator::on_load(bool created, bool has_state) {
+    if (W->level.version >= LEVEL_VERSION_1_3_0_3)
+        if (this->properties[0].v.f > 24.f)
+            this->properties[0].v.f = 24.f;
 }
 
-float
-generator::get_slider_snap(int s)
-{
+float generator::get_slider_snap(int s) {
     if (W->level.version >= LEVEL_VERSION_1_3_0_3)
         return 1.f / 23.f;
     else
         return 1.f / 47.f;
 }
 
-void
-generator::on_slider_change(int s, float value)
-{
-    if (W->level.version >= LEVEL_VERSION_1_3_0_3) {
+void generator::on_slider_change(int s, float value) {
+    if (W->level.version >= LEVEL_VERSION_1_3_0_3)
         this->properties[0].v.f = (value * 23.f) + 1.f;
-    } else
+    else
         this->properties[0].v.f = (value * 47.f) + 1.f;
     G->show_numfeed(this->properties[0].v.f);
 }
 
-edevice*
-generator::solve_electronics()
-{
+edevice *generator::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 
     float mul = 1.f;
-    if (this->s_in[0].p) {
+    if (this->s_in[0].p)
         mul = this->s_in[0].get_value();
-    }
 
-    if (W->level.version >= LEVEL_VERSION_1_3_0_3) {
+    if (W->level.version >= LEVEL_VERSION_1_3_0_3)
         mul *= 3.f;
-    }
 
-    for (int x=0; x<9; x++) {
-        this->s_out[x].write(this->properties[0].v.f*mul);// * v);
-    }
+    for (int x=0; x<9; x++)
+        this->s_out[x].write(this->properties[0].v.f*mul);
 
     return 0;
 }
 
-void
-generator::write_quickinfo(char *out)
-{
+void generator::write_quickinfo(char *out) {
     sprintf(out, "%s (%.0fv)", this->get_name(), this->properties[0].v.f);
 }

@@ -1,12 +1,11 @@
 #include "gear.hh"
-#include "model.hh"
-#include "material.hh"
-#include "world.hh"
 #include "game.hh"
+#include "material.hh"
+#include "model.hh"
 #include "rack.hh"
+#include "world.hh"
 
-gear::gear()
-{
+gear::gear() {
     this->width = 1.f;
     this->type = ENTITY_GEAR;
     this->set_flag(ENTITY_IS_DEV, true);
@@ -36,18 +35,14 @@ gear::gear()
     this->properties[0].v.i = 2;
 }
 
-void
-gear::tick()
-{
+void gear::tick() {
     if (!(this->joint = (b2RevoluteJoint*)this->find_pivot(0,true)))
         this->joint = (b2RevoluteJoint*)this->find_pivot(1,true);
 
     step();
 }
 
-void
-gear::step()
-{
+void gear::step() {
     connection *c = this->conn_ll;
     if (c) {
         do {
@@ -97,21 +92,15 @@ gear::step()
     }
 }
 
-float
-gear::get_slider_value(int s)
-{
+float gear::get_slider_value(int s) {
     return this->properties[0].v.i / 3.f;
 }
 
-float
-gear::get_slider_snap(int s)
-{
+float gear::get_slider_snap(int s) {
     return 1.f/3.f;
 }
 
-int
-gear::get_num_gear_conns()
-{
+int gear::get_num_gear_conns() {
     int num_gear_conns = 0;
     connection *c = this->conn_ll;
     if (c) {
@@ -127,9 +116,7 @@ gear::get_num_gear_conns()
     return num_gear_conns;
 }
 
-void
-gear::on_load(bool created, bool has_state)
-{
+void gear::on_load(bool created, bool has_state) {
     uint32_t size = this->properties[0].v.i;
     if (size > 3) size = 3;
 
@@ -139,17 +126,15 @@ gear::on_load(bool created, bool has_state)
     this->width = this->get_ratio();
 }
 
-void
-gear::connection_create_joint(connection *c)
-{
+void gear::connection_create_joint(connection *c) {
     if (c->option == 1) {
         b2RevoluteJointDef rjd;
         rjd.bodyA = c->o->get_body(c->f[1]);
         rjd.bodyB = this->body;
 
-        if (c->o->is_wheel()) {
+        if (c->o->is_wheel())
             rjd.localAnchorA = c->o->local_to_body(b2Vec2(0.f, 0.f), c->f[1]);
-        } else 
+        else
             rjd.localAnchorA = c->o->get_body(c->f[1])->GetLocalPoint(this->get_position());
 
         rjd.localAnchorB = b2Vec2(0,0);
@@ -158,9 +143,9 @@ gear::connection_create_joint(connection *c)
         b2WeldJointDef wjd;
         wjd.localAnchorA = this->local_to_body(c->p, c->f[0]);
         wjd.bodyA = this->get_body(c->f[0]);
-        if (c->o->is_wheel()) {
+        if (c->o->is_wheel())
             wjd.localAnchorB = c->o->local_to_body(b2Vec2(0.f, 0.f), c->f[1]);
-        } else 
+        else
             wjd.localAnchorB = c->o->get_body(c->f[1])->GetLocalPoint(this->get_position());
         wjd.bodyB = c->o->get_body(c->f[1]);
         wjd.referenceAngle = c->o->get_body(c->f[1])->GetAngle() - this->get_body(c->f[0])->GetAngle();
@@ -170,17 +155,13 @@ gear::connection_create_joint(connection *c)
     }
 }
 
-bool
-gear::connection_destroy_joint(connection *c)
-{
+bool gear::connection_destroy_joint(connection *c) {
     if (c->j == this->joint) this->joint = 0;
     W->b2->DestroyJoint(c->j);
     return true;
 }
 
-void
-gear::on_slider_change(int s, float value)
-{
+void gear::on_slider_change(int s, float value) {
     uint32_t size = (uint32_t)roundf(value*3.f);
     this->set_property(0, size);
     this->disconnect_all();
@@ -196,9 +177,7 @@ gear::on_slider_change(int s, float value)
     //tms_infof("resize to value %f, size %u", value, size);
 }
 
-void
-gear::set_angle(float a)
-{
+void gear::set_angle(float a) {
     entity::set_angle(a);
     connection *c = this->conn_ll;
     if (c) {
@@ -209,9 +188,7 @@ gear::set_angle(float a)
     }
 }
 
-void
-gear::disconnect_gears()
-{
+void gear::disconnect_gears() {
     connection *c = this->conn_ll;
     connection **cc = &this->conn_ll;
 
@@ -235,27 +212,21 @@ gear::disconnect_gears()
     }
 }
 
-void
-gear::remove_connection(connection *c)
-{
+void gear::remove_connection(connection *c) {
     if (c->type != CONN_GEAR)
         this->disconnect_gears();
 
     entity::remove_connection(c);
 }
 
-void
-gear::destroy_connection(connection *c)
-{
+void gear::destroy_connection(connection *c) {
     if (c->type != CONN_GEAR)
         this->disconnect_gears();
 
     entity::destroy_connection(c);
 }
 
-void
-gear::set_position(float x, float y, uint8_t frame/*=0*/)
-{
+void gear::set_position(float x, float y, uint8_t frame/*=0*/) {
     if (this->conn_ll) {
 
         int num_gear_conns = 0;
@@ -314,17 +285,13 @@ gear::set_position(float x, float y, uint8_t frame/*=0*/)
     //}
 }
 
-void
-gear::set_anchor_pos(float x, float y)
-{
+void gear::set_anchor_pos(float x, float y) {
     entity::set_position(x,y);
     //if (this->joint)
         //this->joint->m_localAnchorA = b2Vec2(x,y);
 }
 
-float
-gear::get_ratio()
-{
+float gear::get_ratio() {
     switch (this->properties[0].v.i) {
         case 0: return .25f;
         case 1: return .5f;
@@ -333,9 +300,7 @@ gear::get_ratio()
     }
 }
 
-void
-gear::fix_position(gear *other)
-{
+void gear::fix_position(gear *other) {
     b2Vec2 d = this->body->GetPosition() - other->body->GetPosition();
     float dist = d.Length();
 
@@ -413,9 +378,7 @@ gear::find_pairs()
 }
 */
 
-void
-gear::on_touch(b2Fixture *a, b2Fixture *b)
-{
+void gear::on_touch(b2Fixture *a, b2Fixture *b) {
     entity *e = (entity*)b->GetUserData();
     if (e) {
         if (e->type == ENTITY_GEAR) {
@@ -433,9 +396,7 @@ gear::on_touch(b2Fixture *a, b2Fixture *b)
     }
 }
 
-void
-gear::create_shape()
-{
+void gear::create_shape() {
     if (this->body) {
         for (b2Fixture *f = this->body->GetFixtureList(), *next = 0;
                 f; f=next) {
@@ -468,7 +429,7 @@ gear::create_shape()
         fd_inner.friction = FLT_EPSILON;
         fd_inner.restitution = .0f;
         fd_inner.filter.groupIndex = 0;
-        
+
         b2FixtureDef fd_sensor;
         fd_sensor.shape = &sensor;
         fd_sensor.density = .1f; /* XXX */
@@ -487,9 +448,7 @@ gear::create_shape()
     }
 }
 
-connection *
-gear::load_connection(connection &conn)
-{
+connection *gear::load_connection(connection &conn) {
     if (conn.o_index == 0) {
         this->c_back = conn;
         return &this->c_back;
@@ -499,9 +458,7 @@ gear::load_connection(connection &conn)
     }
 }
 
-bool
-gear::ReportFixture(b2Fixture *f)
-{
+bool gear::ReportFixture(b2Fixture *f) {
     entity *e = (entity*)f->GetUserData();
     uint8_t fr = (uint8_t)(uintptr_t)f->GetBody()->GetUserData();
 
@@ -527,9 +484,7 @@ gear::ReportFixture(b2Fixture *f)
     return true;
 }
 
-void
-gear::find_pairs()
-{
+void gear::find_pairs() {
     if (this->c_back.pending|| this->c_front.pending) {
         b2Vec2 p = this->get_position();
         b2AABB aabb;
@@ -560,9 +515,7 @@ gear::find_pairs()
     }
 }
 
-void
-gear::setup()
-{
+void gear::setup() {
     /* find a revolute joint for this->joint */
     if (!(this->joint = (b2RevoluteJoint*)this->find_pivot(0,true)))
         this->joint = (b2RevoluteJoint*)this->find_pivot(1,true);
@@ -570,16 +523,12 @@ gear::setup()
     this->pending = 0;
 }
 
-void
-gear::on_pause()
-{
+void gear::on_pause() {
     this->joint = 0;
     this->pending = 0;
 }
 
-void
-gear::add_to_world()
-{
+void gear::add_to_world() {
     b2BodyDef bd;
     bd.type = this->get_dynamic_type();
     bd.position = this->_pos;

@@ -7,8 +7,7 @@
 
 #define BOOM_FORCE 300.f
 
-explosive::explosive(int explosive_type)
-{
+explosive::explosive(int explosive_type) {
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
     this->set_flag(ENTITY_FADE_ON_ABSORB,       false);
     this->set_flag(ENTITY_DO_PRE_STEP,          true);
@@ -57,46 +56,36 @@ explosive::explosive(int explosive_type)
     this->hl_time = 0.f;
 }
 
-void
-explosive::init()
-{
+void explosive::init() {
     this->trigger_time = ((uint64_t)this->properties[0].v.i)*1000llu;
 }
 
-void
-explosive::setup()
-{
+void explosive::setup() {
     this->time = 0;
     this->hp = EXPLOSIVE_MAX_HP;
 }
 
-void
-explosive::pre_step()
-{
-    switch (this->explosive_type) {
-        case EXPLOSIVE_BOMB:
-            this->time += G->timemul(WORLD_STEP);
-            this->hl_time += G->get_time_mul() * WORLD_STEP * .00001f * ((double)this->time/(double)this->trigger_time);
+void explosive::pre_step() {
+    if (this->explosive_type == EXPLOSIVE_BOMB) {
+        this->time += G->timemul(WORLD_STEP);
+        this->hl_time += G->get_time_mul() * WORLD_STEP * .00001f * ((double)this->time/(double)this->trigger_time);
 
-            float hl = 1.f-powf(fmodf(this->hl_time, 1.f), 1.f/4.f);
-            hl *= .5f;
+        float hl = 1.f-powf(fmodf(this->hl_time, 1.f), 1.f/4.f);
+        hl *= .5f;
 
-            this->set_uniform("~color", .2f+hl, .2f+hl, .2f+hl, 1.f);
+        this->set_uniform("~color", .2f+hl, .2f+hl, .2f+hl, 1.f);
 
-            if (this->time >= this->trigger_time) {
-                tms_debugf("Triggering explosive. %" PRIu64, this->time);
-                this->trigger();
-            }
-            break;
+        if (this->time >= this->trigger_time) {
+            tms_debugf("Triggering explosive. %" PRIu64, this->time);
+            this->trigger();
+        }
     }
 
     if (this->triggered || this->hp <= 0.f) /* external triggering (other bombs, rockets, hp reduced below 0) */
         this->trigger();
 }
 
-void
-explosive::add_to_world()
-{
+void explosive::add_to_world() {
     if (this->explosive_type == EXPLOSIVE_BOMB) {
         this->create_circle(this->get_dynamic_type(), .25f, this->material);
     } else if (this->explosive_type == EXPLOSIVE_TRIGGER) {
@@ -133,9 +122,7 @@ explosive::add_to_world()
     }
 }
 
-bool
-explosive::ReportFixture(b2Fixture *f)
-{
+bool explosive::ReportFixture(b2Fixture *f) {
     if (f->IsSensor()) {
         return true;
     }
@@ -150,9 +137,7 @@ explosive::ReportFixture(b2Fixture *f)
     return true;
 }
 
-void
-explosive::trigger()
-{
+void explosive::trigger() {
     /* trigger nearby bombs */
     b2AABB aabb;
     b2Vec2 origo = this->get_position();
@@ -175,23 +160,17 @@ explosive::trigger()
     G->emit(new explosion_effect(p, this->get_layer(), with_debris), 0);
 }
 
-float
-explosive::get_slider_snap(int s)
-{
+float explosive::get_slider_snap(int s) {
     if (s == 0) {
-        if (this->explosive_type == EXPLOSIVE_BOMB) {
+        if (this->explosive_type == EXPLOSIVE_BOMB)
             return 1.f / 49.f;
-        } else {
+        else
             return 0.025f;
-        }
-    } else {
+    } else
         return 1.f / 59.f;
-    }
 }
 
-float
-explosive::get_slider_value(int s)
-{
+float explosive::get_slider_value(int s) {
     if (s == 0) {
         if (this->explosive_type == EXPLOSIVE_BOMB) {
             float v = ((float)this->properties[0].v.i / 1000.f) - 1.f;
@@ -199,14 +178,11 @@ explosive::get_slider_value(int s)
             return v / 49.f;
         } else
             return this->properties[0].v.f / 10.f;
-    } else {
+    } else
         return this->properties[1].v.f / 3.f;
-    }
 }
 
-void
-explosive::on_slider_change(int s, float value)
-{
+void explosive::on_slider_change(int s, float value) {
     if (s == 0) {
         if (this->explosive_type == EXPLOSIVE_BOMB) {
             uint32_t fuse_timer = (uint32_t)((1.f + (value * 49.f)) * 1000.f);

@@ -91,25 +91,17 @@ enum {
     GW_IGNORE
 };
 
-struct game_debug_line
-{
+struct game_debug_line {
     float x1, y1, x2, y2;
     float r, g, b;
     int64_t life;
 };
 
-namespace game_sorter
-{
-
 struct distance_to_creature {
     creature *c;
 
-    distance_to_creature(creature *c)
-        : c(c)
-    { }
+    distance_to_creature(creature *c) : c(c) { }
     bool operator()(activator *a, activator *b);
-};
-
 };
 
 // dt required before normalizing camera movement
@@ -231,8 +223,7 @@ extern std::vector<struct menu_obj> menu_objects;
 
 /// used to test the placement of a simple object, so the user does not
 /// place objects inside other objects, or between two objects
-class overlap_query : public b2QueryCallback
-{
+class overlap_query : public b2QueryCallback {
   public:
     int desired_layerdist;
     b2Shape *test_sh;
@@ -242,11 +233,11 @@ class overlap_query : public b2QueryCallback
     bool overlap;
     bool ReportFixture(b2Fixture *fx);
 
-    overlap_query(){overlap=false;};
+    overlap_query() { overlap=false; }
 };
 
-class selection_handler
-{
+/// Selection handler for the game
+class selection_handler {
   public:
     entity            *e;
     connection        *c;
@@ -263,8 +254,7 @@ class selection_handler
 
     int menu_width;
 
-    selection_handler()
-    {
+    selection_handler() {
         m = 0;
         e = 0;
         c = 0;
@@ -275,7 +265,7 @@ class selection_handler
         offs_saved = (tvec2){0.f, 0.f};
     }
 
-    inline void save(){
+    inline void save() {
         e_saved = e;
         c_saved = c;
         m_saved = m;
@@ -283,12 +273,12 @@ class selection_handler
         offs_saved = offs;
     }
 
-    inline void load(){
-        if (m_saved) {
+    inline void load() {
+        if (m_saved)
             this->select(m);
-        } else if (c_saved) {
+        else if (c_saved)
             this->select(c_saved);
-        } else
+        else
             this->select(e_saved, e_saved ? e_saved->get_body(frame_saved) : 0, offs_saved, frame_saved, true);
 
         this->reset();
@@ -311,8 +301,8 @@ class selection_handler
     void select(entity_set *new_m);
 };
 
-class gamestate
-{
+/// Global game state
+class gamestate {
   public:
     gamestate() {
         this->modified = false; // if the level has been modified in sandbox since open/create
@@ -391,6 +381,7 @@ struct fadeout_event {
 
 #define GAME_TIME_MUL(x) (1.f - ((x)*.99))
 
+/// Game errors associated with an object in the world
 struct er {
     entity *e;
     float alpha;
@@ -405,8 +396,8 @@ struct er {
     }
 };
 
-class game : public pscreen
-{
+/// Main game class
+class game : public pscreen {
   private:
     void say_goodbye(b2Joint *j);
 
@@ -772,6 +763,7 @@ class game : public pscreen
     void begin_tracker(entity *e);
 
     int delete_entity(entity *e);
+    /// This function should only be called due to user input.
     int delete_selected_entity(bool multi=false);
     void refresh_inventory_widgets();
     void post_play_cleanup();

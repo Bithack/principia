@@ -5,8 +5,7 @@
 #define FLUIDBUFFER_MAX_1_5_1  4096  // Used in <= 1.5.1
 #define FLUIDBUFFER_MAX        16384 // Used in >= 1.5.2
 
-class fluidbuffer
-{
+class fluidbuffer {
   public:
     static void _init();
     static void reset();

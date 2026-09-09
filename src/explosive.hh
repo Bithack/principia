@@ -9,8 +9,14 @@
 #define EXPLOSIVE_LANDMINE 1
 #define EXPLOSIVE_TRIGGER  2
 
-class explosive : public entity, public b2QueryCallback
-{
+/**
+ * Class representing the Bomb and Landmine objects.
+ *
+ * Player Wiki ref:
+ * - https://principia-web.se/wiki/Bomb
+ * - https://principia-web.se/wiki/Landmine
+ */
+class explosive : public entity, public b2QueryCallback {
   private:
     int    explosive_type;
     float hl_time;
@@ -21,7 +27,7 @@ class explosive : public entity, public b2QueryCallback
     b2Fixture *found;
     b2Vec2     found_pt;
 
-    void trigger(void);
+    void trigger();
 
   public:
     explosive(int explosive_type);
@@ -29,23 +35,21 @@ class explosive : public entity, public b2QueryCallback
     void init();
     void setup();
 
-    void pre_step(void);
+    void pre_step();
 
     void add_to_world();
 
-    const char* get_name(){
+    const char* get_name() {
         switch (this->explosive_type) {
             case 0: return "Bomb";
             case 1: return "Landmine";
+            default: return "";
         }
-        return "";
     }
 
-    void damage(float amount)
-    {
-        if (this->hp > 0.f) {
+    void damage(float amount) {
+        if (this->hp > 0.f)
             this->hp -= amount;
-        }
     }
 
     bool ReportFixture(b2Fixture *f);
@@ -53,37 +57,30 @@ class explosive : public entity, public b2QueryCallback
     float get_slider_snap(int s);
     float get_slider_value(int s);
     void on_slider_change(int s, float value);
-    const char *get_slider_label(int s)
-    {
+    const char *get_slider_label(int s) {
         if (s == 0) {
-            if (this->explosive_type == EXPLOSIVE_BOMB) {
+            if (this->explosive_type == EXPLOSIVE_BOMB)
                 return "Fuse Timer";
-            } else {
+            else
                 return "Threshold";
-            }
-        } else {
+        } else
             return "Damage";
-        }
-    };
+    }
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::write_state(lvl, lb);
 
         lb->w_s_float(this->hp);
-        if (this->explosive_type == EXPLOSIVE_BOMB) {
+        if (this->explosive_type == EXPLOSIVE_BOMB)
             lb->w_s_uint64(this->time);
-        }
     }
 
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::read_state(lvl, lb);
 
         this->hp = lb->r_float();
-        if (this->explosive_type == EXPLOSIVE_BOMB) {
+        if (this->explosive_type == EXPLOSIVE_BOMB)
             this->time = lb->r_uint64();
-        }
     }
 
     bool triggered;

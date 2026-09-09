@@ -10,7 +10,6 @@
 #include "display.hh"
 #include "dragfield.hh"
 #include "emitter.hh"
-#include "luascript.hh"
 #include "fan.hh"
 #include "fluid.hh"
 #include "fluidbuffer.hh"
@@ -30,6 +29,7 @@
 #include "ledbuffer.hh"
 #include "linebuffer.hh"
 #include "loading_screen.hh"
+#include "luascript.hh"
 #include "main.hh"
 #include "material.hh"
 #include "menu_main.hh"
@@ -215,7 +215,7 @@ const char *tutorial_text_4th_mobile =
     "touch and swipe from your character to where you\n"
     "want to create the ladder step.";
 
-bool game_sorter::distance_to_creature::operator()(activator *a, activator *b) {
+bool distance_to_creature::operator()(activator *a, activator *b) {
     const b2Vec2 &player_pos = this->c->get_position();
     const float dist_a = b2Distance(a->get_activator_pos(), player_pos);
     const float dist_b = b2Distance(b->get_activator_pos(), player_pos);
@@ -2939,7 +2939,7 @@ int game::render() {
                 }
             }
 
-            std::sort(this->pending_activators.begin(), this->pending_activators.end(), game_sorter::distance_to_creature(adventure::player));
+            std::sort(this->pending_activators.begin(), this->pending_activators.end(), distance_to_creature(adventure::player));
         }
 
         this->render_activators();

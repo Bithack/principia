@@ -30,8 +30,7 @@ enum text_align {
     ALIGN_TOP
 };
 
-struct glyph
-{
+struct glyph {
     ~glyph();
     unsigned char *get_sprite_buf();
 
@@ -64,12 +63,12 @@ struct glyph
 
 };
 
-class p_font
-{
+class p_font {
   public:
     int orig_height;
 
     glyph glyphs[256-CHAR_OFFSET];
+    /// Whether 
     bool extended;
     FT_Face face;
     FT_UInt *glyph_indices_local;
@@ -86,18 +85,15 @@ class p_font
     int lineskip;
 
     struct glyph *get_glyph(int c);
-    inline FT_Face get_face()
-    {
+    inline FT_Face get_face() {
         return this->face;
-    };
+    }
 
-    inline int get_height()
-    {
+    inline int get_height() {
         return this->height;
     }
 
-    inline int get_orig_height()
-    {
+    inline int get_orig_height() {
         return this->orig_height;
     }
 

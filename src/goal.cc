@@ -6,8 +6,7 @@
 #include "game.hh"
 #include "adventure.hh"
 
-goal::goal()
-{
+goal::goal() {
     this->set_flag(ENTITY_ALLOW_CONNECTIONS, false);
     this->set_mesh(mesh_factory::get_mesh(MODEL_CPAD+14));
     this->set_material(&m_cpad);
@@ -15,23 +14,18 @@ goal::goal()
     this->update_method = ENTITY_UPDATE_STATIC;
 }
 
-void
-goal::on_touch(b2Fixture *my, b2Fixture *other)
-{
+void goal::on_touch(b2Fixture *my, b2Fixture *other) {
     entity *o = (entity*)other->GetUserData();
 
     if (o && o->is_creature()) {
         creature *c = static_cast<creature*>(o);
 
-        if (c->get_sensor_fixture() == other && (!W->is_adventure() || c == adventure::player)) {
+        if (c->get_sensor_fixture() == other && (!W->is_adventure() || c == adventure::player))
             G->finish(true);
-        }
     }
 }
 
-void
-goal::add_to_world()
-{
+void goal::add_to_world() {
     b2BodyDef bd;
     bd.type = b2_staticBody;
     bd.position = _pos;

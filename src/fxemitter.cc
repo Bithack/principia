@@ -10,8 +10,7 @@
 
 #define DEBRIS_FORCE 300.f
 
-fxemitter::fxemitter()
-{
+fxemitter::fxemitter() {
     this->set_flag(ENTITY_DO_UPDATE_EFFECTS,    true);
     this->set_flag(ENTITY_DO_STEP,              true);
     this->set_flag(ENTITY_HAS_CONFIG,           true);
@@ -26,7 +25,7 @@ fxemitter::fxemitter()
 
     this->conns = 0;
 
-    /** 
+    /**
      * radius
      * count
      * interval
@@ -63,113 +62,104 @@ fxemitter::fxemitter()
     }
 }
 
-void
-fxemitter::step()
-{
-    if (this->activated) {
-        this->time += G->timemul(WORLD_STEP);
+void fxemitter::step() {
+    if (!this->activated)
+        return;
 
-        uint32_t mask = 0; /* mask to prevent the same effect from being run twice */
+    this->time += G->timemul(WORLD_STEP);
 
-        int done = 0;
+    uint32_t mask = 0; /* mask to prevent the same effect from being run twice */
 
-        for (int n=0; n<4; n++) {
-            if (this->properties[3+n].v.i == FX_INVALID) { done++; continue; }
-            int m = (1u << this->properties[3+n].v.i);
-            if (mask & m) {done++;continue;}
-            mask |= m;
+    int done = 0;
 
-            switch (this->properties[3+n].v.i) {
-                case FX_EXPLOSION: 
-                case FX_SMOKE:
-                case FX_MAGIC:
-                case FX_BREAK:
-                    {
-                        if (num_emitted[n] < this->properties[1].v.i) {
-                            if (this->time >= this->next[n]) {
-                                float a = (rand()%100)/100.f * M_PI*2.f;
-                                float r = (rand()%100)/100.f * this->properties[0].v.f;
-                                b2Vec2 p = this->get_position();
+    for (int n=0; n<4; n++) {
+        if (this->properties[3+n].v.i == FX_INVALID) { done++; continue; }
+        int m = (1u << this->properties[3+n].v.i);
+        if (mask & m) {done++;continue;}
+        mask |= m;
 
-                                float cs, sn;
-                                tmath_sincos(a, &sn, &cs);
-                                p.x += cs*r;
-                                p.y += sn*r;
+        switch (this->properties[3+n].v.i) {
+            case FX_EXPLOSION:
+            case FX_SMOKE:
+            case FX_MAGIC:
+            case FX_BREAK: {
+                if (num_emitted[n] < this->properties[1].v.i) {
+                    if (this->time >= this->next[n]) {
+                        float a = (rand()%100)/100.f * M_PI*2.f;
+                        float r = (rand()%100)/100.f * this->properties[0].v.f;
+                        b2Vec2 p = this->get_position();
 
-                                entity *e = 0;
-                                if (this->properties[3+n].v.i == FX_EXPLOSION) e = new explosion_effect(p, this->get_layer(), false);
-                                else if (this->properties[3+n].v.i == FX_SMOKE) e = new smoke_effect(p, this->get_layer());
-                                else if (this->properties[3+n].v.i == FX_MAGIC) e = new magic_effect(p, this->get_layer());
-                                else if (this->properties[3+n].v.i == FX_BREAK) e = new break_effect(p, this->get_layer());
+                        float cs, sn;
+                        tmath_sincos(a, &sn, &cs);
+                        p.x += cs*r;
+                        p.y += sn*r;
 
-                                G->emit(e, this, b2Vec2(0,0));
+                        entity *e = 0;
+                        if (this->properties[3+n].v.i == FX_EXPLOSION) e = new explosion_effect(p, this->get_layer(), false);
+                        else if (this->properties[3+n].v.i == FX_SMOKE) e = new smoke_effect(p, this->get_layer());
+                        else if (this->properties[3+n].v.i == FX_MAGIC) e = new magic_effect(p, this->get_layer());
+                        else if (this->properties[3+n].v.i == FX_BREAK) e = new break_effect(p, this->get_layer());
 
-                                this->next[n] = this->get_next_time();
+                        G->emit(e, this, b2Vec2(0,0));
 
-                                num_emitted[n] ++ ;
-                            }
-                        } else {
-                            done ++;
-                        }
+                        this->next[n] = this->get_next_time();
+
+                        num_emitted[n] ++ ;
                     }
-                    break;
+                } else {
+                    done ++;
+                }
+                break;
+            }
 
-                case FX_HIGHLIGHT: /* highlight */
-                    {
-                        if (this->time >= 100000)
-                            done ++;
+            case FX_HIGHLIGHT: // highlight
+                if (this->time >= 100000)
+                    done ++;
+                break;
+
+            case FX_DESTROYCONN: { // connection destroy
+                size_t sz;
+                if (this->conns && num_emitted[n] < this->properties[1].v.i && (sz = this->conns->size())) {
+                    if (this->time >= this->next[n]) {
+                        std::set<connection *>::iterator i = this->conns->begin();
+
+                        size_t adv;
+                        if (sz > 1) adv = rand()%(sz-1);
+                        else adv = 0;
+                        std::advance(i, adv);
+
+                        W->destroy_connection_joint(*i);
+                        this->conns->erase(i);
+
+                        this->next[n] = this->get_next_time();
+                        this->num_emitted[n] ++;
                     }
-                    break;
-
-                case FX_DESTROYCONN: /* connection destroy */
-                    {
-                        size_t sz;
-                        if (this->conns && num_emitted[n] < this->properties[1].v.i && (sz = this->conns->size())) {
-                            if (this->time >= this->next[n]) {
-                                std::set<connection *>::iterator i = this->conns->begin();
-
-                                size_t adv;
-                                if (sz > 1) adv = rand()%(sz-1);
-                                else adv = 0;
-                                std::advance(i, adv);
-
-                                W->destroy_connection_joint(*i);
-                                this->conns->erase(i);
-
-                                this->next[n] = this->get_next_time();
-                                this->num_emitted[n] ++;
-                            }
-                        } else {
-                            if (this->conns) {
-                                delete this->conns;
-                                this->conns = 0;
-                            }
-                            done ++;
-                        }
+                } else {
+                    if (this->conns) {
+                        delete this->conns;
+                        this->conns = 0;
                     }
-                    break;
+                    done ++;
+                }
+                break;
             }
         }
+    }
 
-        if (done == 4) {
-            /* all effects done */
-            this->activated = false;
-            this->completed = true;
-        }
+    if (done == 4) {
+        /* all effects done */
+        this->activated = false;
+        this->completed = true;
     }
 }
 
-void
-fxemitter::update_effects()
-{
+void fxemitter::update_effects() {
     float z = this->get_layer() * LAYER_DEPTH + LED_Z_OFFSET;
     b2Vec2 p = this->get_position();
     ledbuffer::add(p.x, p.y, z, this->activated?1.f:0.f);
 }
 
-edevice*
-fxemitter::solve_electronics()
-{
+edevice *fxemitter::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 
@@ -237,26 +227,22 @@ fxemitter::solve_electronics()
     return 0;
 }
 
-void
-fxemitter::setup()
-{
+void fxemitter::setup() {
     this->completed = false;
     this->conns = 0;
     this->activated = false;
 }
 
-void
-fxemitter::on_pause()
-{
+void fxemitter::on_pause() {
     if (this->conns)
         delete this->conns;
+
     this->conns = 0;
     this->completed = false;
     this->activated = false;
 }
 
-debris::debris(b2Vec2 force, b2Vec2 pos)
-{
+debris::debris(b2Vec2 force, b2Vec2 pos) {
     this->set_flag(ENTITY_FADE_ON_ABSORB,   false);
     this->set_flag(ENTITY_DO_STEP,          true);
 
@@ -269,23 +255,18 @@ debris::debris(b2Vec2 force, b2Vec2 pos)
     this->initial_force = force;
 }
 
-void
-debris::step(void)
-{
+void debris::step() {
     this->life -= G->timemul(WORLD_STEP);
     if (this->life <= 0)
         G->absorb(this);
 }
 
-void
-debris::add_to_world()
-{
+void debris::add_to_world() {
     this->create_circle(this->get_dynamic_type(), .05f, this->material);
     this->body->ApplyForce(this->initial_force, this->_pos);
 }
 
-spark_effect::spark_effect(b2Vec2 pos, int layer)
-{
+spark_effect::spark_effect(b2Vec2 pos, int layer) {
     this->_pos = pos;
     this->life = 1;
     this->trigger_point = pos;
@@ -307,9 +288,7 @@ spark_effect::spark_effect(b2Vec2 pos, int layer)
     this->played_sound = false;
 }
 
-void
-spark_effect::mstep()
-{
+void spark_effect::mstep() {
     int num_active = 0;
     float dt = G->timemul(WORLD_STEP) * 0.000001f;
 
@@ -335,9 +314,7 @@ spark_effect::mstep()
     }
 }
 
-void
-spark_effect::update_effects()
-{
+void spark_effect::update_effects() {
     if (!played_sound) {
         //sm::play(&sm::explosion, this->trigger_point.x, this->trigger_point.y, rand(), 1.f);
         played_sound = true;
@@ -360,8 +337,7 @@ spark_effect::update_effects()
     }
 }
 
-explosion_effect::explosion_effect(b2Vec2 pos, int layer, bool with_debris, float scale) : base_effect()
-{
+explosion_effect::explosion_effect(b2Vec2 pos, int layer, bool with_debris, float scale) : base_effect() {
     this->_pos = pos;
     this->trigger_point = pos;
     this->set_layer(layer);
@@ -415,9 +391,7 @@ explosion_effect::explosion_effect(b2Vec2 pos, int layer, bool with_debris, floa
     this->played_sound = false;
 }
 
-void
-explosion_effect::mstep()
-{
+void explosion_effect::mstep() {
     int num_active = 0;
     for (int x=0; x<NUM_FIRES; x++) {
         struct particle *f = &this->particles[x];
@@ -440,15 +414,13 @@ explosion_effect::mstep()
     }
 }
 
-void
-explosion_effect::update_effects()
-{
+void explosion_effect::update_effects() {
     if (!played_sound) {
-        if (scale < .75f) {
+        if (scale < .75f)
             G->play_sound(SND_EXPLOSION_LIGHT, this->trigger_point.x, this->trigger_point.y, rand(), 1.f);
-        } else {
+        else
             G->play_sound(SND_EXPLOSION, this->trigger_point.x, this->trigger_point.y, rand(), 1.f);
-        }
+
         played_sound = true;
     }
 
@@ -491,8 +463,7 @@ explosion_effect::update_effects()
     }
 }
 
-smoke_effect::smoke_effect(b2Vec2 pos, int layer, float col, float scale)
-{
+smoke_effect::smoke_effect(b2Vec2 pos, int layer, float col, float scale) {
     this->_pos = pos;
     this->scale = scale;
     this->col = col;
@@ -512,9 +483,7 @@ smoke_effect::smoke_effect(b2Vec2 pos, int layer, float col, float scale)
     }
 }
 
-void
-smoke_effect::mstep()
-{
+void smoke_effect::mstep() {
     int num_active = 0;
     for (int x=0; x<NUM_SMOKE_PARTICLES; ++x) {
         struct particle *f = &this->particles[x];
@@ -535,9 +504,7 @@ smoke_effect::mstep()
     }
 }
 
-void
-smoke_effect::update_effects()
-{
+void smoke_effect::update_effects() {
     for (int x=0; x<NUM_SMOKE_PARTICLES; ++x) {
         struct particle *f = &this->particles[x];
         if (f->life > 0.f) {
@@ -555,8 +522,7 @@ smoke_effect::update_effects()
     }
 }
 
-magic_effect::magic_effect(b2Vec2 pos, int layer, int num_particles/*=3*/)
-{
+magic_effect::magic_effect(b2Vec2 pos, int layer, int num_particles/*=3*/) {
     this->num_particles = num_particles;
     this->particles = (struct particle*)calloc(num_particles, sizeof(struct particle));
     this->_pos = pos;
@@ -570,19 +536,16 @@ magic_effect::magic_effect(b2Vec2 pos, int layer, int num_particles/*=3*/)
 
     this->update_pos(pos, layer);
 
-    for (int x=0; x<this->num_particles; x++) {
+    for (int x=0; x<this->num_particles; x++)
         this->create_particle(x);
-    }
 }
 
-magic_effect::~magic_effect()
-{
+magic_effect::~magic_effect() {
     free(this->particles);
 }
 
 void
-magic_effect::create_particle(int slot)
-{
+magic_effect::create_particle(int slot) {
     struct particle *f = &this->particles[slot];
     f->life = 1.f + trandf(0.f, 0.5f);
     f->x = this->_pos.x + trandf(-0.5f, 0.5f);
@@ -592,16 +555,12 @@ magic_effect::create_particle(int slot)
     f->s = .08f + trandf(0.f, 0.1f);
 }
 
-void
-magic_effect::update_pos(b2Vec2 pos, int layer)
-{
+void magic_effect::update_pos(b2Vec2 pos, int layer) {
     this->_pos = pos;
     this->set_layer(layer);
 }
 
-void
-magic_effect::mstep()
-{
+void magic_effect::mstep() {
     int num_active = 0;
     for (int x=0; x<this->num_particles; x++) {
         struct particle *f = &this->particles[x];
@@ -626,9 +585,7 @@ magic_effect::mstep()
     }
 }
 
-void
-magic_effect::update_effects()
-{
+void magic_effect::update_effects() {
     for (int x=0; x<this->num_particles; x++) {
         struct particle *f = &this->particles[x];
         if (f->life > 0.f) {
@@ -640,8 +597,7 @@ magic_effect::update_effects()
     }
 }
 
-break_effect::break_effect(b2Vec2 pos, int layer)
-{
+break_effect::break_effect(b2Vec2 pos, int layer) {
     this->_pos = pos;
     this->trigger_point = pos;
     this->cull_effects_method = CULL_EFFECTS_BY_POSITION;
@@ -662,9 +618,7 @@ break_effect::break_effect(b2Vec2 pos, int layer)
     }
 }
 
-void
-break_effect::mstep()
-{
+void break_effect::mstep() {
     int num_active = 0;
     for (int x=0; x<NUM_BREAK_PARTICLES; x++) {
         struct piece *f = &this->pieces[x];
@@ -685,9 +639,7 @@ break_effect::mstep()
     }
 }
 
-void
-break_effect::update_effects()
-{
+void break_effect::update_effects() {
     for (int x=0; x<NUM_BREAK_PARTICLES; x++) {
         struct piece *f = &this->pieces[x];
         if (f->life > 0.f) {
@@ -698,14 +650,7 @@ break_effect::update_effects()
     }
 }
 
-discharge_effect::discharge_effect(
-        b2Vec2 start,
-        b2Vec2 end,
-        float start_z,
-        float end_z,
-        int num_points,
-        float life)
-{
+discharge_effect::discharge_effect(b2Vec2 start, b2Vec2 end, float start_z, float end_z, int num_points, float life) {
     this->_pos = start;
 
     if (num_points > DISCHARGE_MAX_POINTS)
@@ -727,23 +672,18 @@ discharge_effect::discharge_effect(
     this->update_method = ENTITY_UPDATE_NULL;
     this->prio = 0;
 
-    for (int x=0; x<this->num_points; x++) {
+    for (int x=0; x<this->num_points; x++)
         this->displ[x] = 0.f;
-    }
 }
 
-void
-discharge_effect::set_points(b2Vec2 start, b2Vec2 end, float start_z, float end_z)
-{
+void discharge_effect::set_points(b2Vec2 start, b2Vec2 end, float start_z, float end_z) {
     this->p[0] = start;
     this->p[1] = end;
     this->start_z = start_z;
     this->end_z = end_z;
 }
 
-void
-discharge_effect::mstep()
-{
+void discharge_effect::mstep() {
     if (this->life > 0.f) {
         this->life -= G->timemul(WORLD_STEP) *  0.000001f;
     } else {
@@ -753,47 +693,42 @@ discharge_effect::mstep()
     }
 }
 
-void
-discharge_effect::update_effects()
-{
-    if (this->life > 0.f) {
-        b2Vec2 tangent = this->p[1]-this->p[0];
-        float dist = tangent.Length();
-        tangent *= 1. / dist;
+void discharge_effect::update_effects() {
+    if (this->life <= 0.f)
+        return;
 
-        b2Vec2 normal = b2Vec2(-tangent.y, tangent.x);
+    b2Vec2 tangent = this->p[1]-this->p[0];
+    float dist = tangent.Length();
+    tangent *= 1. / dist;
 
-        b2Vec2 last = this->p[0];
-        b2Vec2 p;
-        float dd = dist / this->num_points;
+    b2Vec2 normal = b2Vec2(-tangent.y, tangent.x);
 
-        float z = this->start_z;
-        float shift = cosf(this->life / 2.f) * .25f * this->shift_dir;
+    b2Vec2 last = this->p[0];
+    b2Vec2 p;
+    float dd = dist / this->num_points;
 
-        for (int x=0; x<this->num_points+1; x++) {
+    float z = this->start_z;
+    float shift = cosf(this->life / 2.f) * .25f * this->shift_dir;
 
-            if (x == this->num_points) {
-                p = this->p[1];
-            } else {
-                float offs = cosf(((float)(x - this->num_points/2.f) / ((float)this->num_points/2.f)) * M_PI/2.f) * shift;
-                float displ = (-.1f + (rand()%100) / 100.f * .2f);
-                p = this->p[0] + (float)x * dd * tangent + (displ+offs) * normal;
-            }
-
-            linebuffer::add2(last.x, last.y, z, p.x, p.y, z,
-                    0.95f, 0.95f, 4.0f, 1.f,
-                    0.95f, 0.95f, 4.0f, 1.f,
-                    this->line_width, this->line_width);
-
-            last = p;
+    for (int x=0; x<this->num_points+1; x++) {
+        if (x == this->num_points) {
+            p = this->p[1];
+        } else {
+            float offs = cosf(((float)(x - this->num_points/2.f) / ((float)this->num_points/2.f)) * M_PI/2.f) * shift;
+            float displ = (-.1f + (rand()%100) / 100.f * .2f);
+            p = this->p[0] + (float)x * dd * tangent + (displ+offs) * normal;
         }
+
+        linebuffer::add2(last.x, last.y, z, p.x, p.y, z,
+                0.95f, 0.95f, 4.0f, 1.f,
+                0.95f, 0.95f, 4.0f, 1.f,
+                this->line_width, this->line_width);
+
+        last = p;
     }
 }
 
-flame_effect::flame_effect(b2Vec2 pos, int layer, int f_type, bool _disable_sound/*=false*/)
-    : base_effect()
-    , disable_sound(_disable_sound)
-{
+flame_effect::flame_effect(b2Vec2 pos, int layer, int f_type, bool _disable_sound/*=false*/) : base_effect(), disable_sound(_disable_sound) {
     this->_pos = pos;
     this->set_layer(layer);
     this->thrustmul = 0.f;
@@ -813,9 +748,7 @@ flame_effect::flame_effect(b2Vec2 pos, int layer, int f_type, bool _disable_soun
     memset(this->flames, 0, NUM_FLAMES*sizeof(struct flame));
 }
 
-void
-flame_effect::update_pos(b2Vec2 pos, b2Vec2 v)
-{
+void flame_effect::update_pos(b2Vec2 pos, b2Vec2 v) {
     this->sep = b2Distance(this->_pos, pos);
 
     this->_pos.x = pos.x;
@@ -824,9 +757,7 @@ flame_effect::update_pos(b2Vec2 pos, b2Vec2 v)
     this->v.y = v.y;
 }
 
-void
-flame_effect::step()
-{
+void flame_effect::step() {
     bool dead = true;
     for (int x=0; x<NUM_FLAMES; ++x) {
         if (this->flames[x].life > 0.f) {
@@ -887,9 +818,7 @@ flame_effect::step()
     }
 }
 
-void
-flame_effect::update_effects()
-{
+void flame_effect::update_effects() {
     for (int x=0; x<NUM_FLAMES; x++) {
         struct flame *f = &this->flames[x];
         if (f->life > 0.f) {
@@ -916,34 +845,27 @@ flame_effect::update_effects()
     }
 }
 
-void
-flame_effect::set_thrustmul(float thrustmul)
-{
+void flame_effect::set_thrustmul(float thrustmul) {
     this->thrustmul = thrustmul;
 }
 
-void
-flame_effect::set_z_offset(float z_offset)
-{
+void flame_effect::set_z_offset(float z_offset) {
     this->z_offset = z_offset;
 }
 
-/** 
+/**
  * TESLA
  **/
 
-tesla_effect::tesla_effect(entity *source, b2Vec2 pos, int layer)
-    : base_effect()
-{
+tesla_effect::tesla_effect(entity *source, b2Vec2 pos, int layer) : base_effect() {
     this->min_angle = 0.f;
     this->max_angle = M_PI*2.f;
     this->_pos = pos;
     this->ignore = source;
-    if (source) {
+    if (source)
         this->ignore_id = source->id;
-    } else {
+    else
         this->ignore_id = 0;
-    }
     this->prio = layer;
     this->range = 3.f;
     this->cull_effects_method = CULL_EFFECTS_DISABLE;
@@ -951,9 +873,9 @@ tesla_effect::tesla_effect(entity *source, b2Vec2 pos, int layer)
     this->set_flag(ENTITY_DO_STEP, true);
     this->set_flag(ENTITY_DO_MSTEP, false);
 
-    for (int x=0; x<TESLA_NUM_RAYS; x++) {
+    for (int x=0; x<TESLA_NUM_RAYS; x++)
         this->rnd[x] = x;
-    }
+
     for (int x=0; x<TESLA_MAX_PATHS; x++) {
         this->paths[x] = new discharge_effect(b2Vec2(0.f,0.f), b2Vec2(0.f, 0.f), 0, 0, 5, 1.f);
         this->paths[x]->line_width = .075f;
@@ -962,9 +884,7 @@ tesla_effect::tesla_effect(entity *source, b2Vec2 pos, int layer)
     this->num_paths = 0;
 }
 
-float32
-tesla_effect::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
+float32 tesla_effect::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
     entity *e = static_cast<entity*>(f->GetUserData());
 
     if (f->IsSensor()) return -1;
@@ -972,9 +892,8 @@ tesla_effect::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, f
     if (e) {
         if (e->get_layer() != this->get_layer()) return -1;
 
-        if (e->flag_active(ENTITY_IS_CREATURE) && static_cast<creature*>(e)->is_foot_fixture(f)) {
+        if (e->flag_active(ENTITY_IS_CREATURE) && static_cast<creature*>(e)->is_foot_fixture(f))
             return -1;
-        }
 
         if (e->flag_active(ENTITY_IS_MAGNETIC)) {
 
@@ -991,9 +910,7 @@ tesla_effect::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, f
     return fraction;
 }
 
-void
-tesla_effect::search(b2Vec2 pos)
-{
+void tesla_effect::search(b2Vec2 pos) {
     int num_found = 0;
 
     if (this->num_paths >= TESLA_MAX_PATHS)
@@ -1038,7 +955,7 @@ tesla_effect::search(b2Vec2 pos)
             }
 
             this->search(this->res_pt);
-            
+
             num_found ++;
 
             if (num_found >= 3 || this->num_paths >= TESLA_MAX_PATHS)
@@ -1047,10 +964,7 @@ tesla_effect::search(b2Vec2 pos)
     }
 }
 
-
-void
-tesla_effect::step()
-{
+void tesla_effect::step() {
     this->num_paths = 0;
 
     if (rand()%20 == 0) {
@@ -1081,9 +995,8 @@ tesla_effect::step()
 
         if (e->g_id == O_ITEM) {
             item *i = static_cast<item*>(e);
-            if (i->get_item_type() == ITEM_BULLET) {
+            if (i->get_item_type() == ITEM_BULLET)
                 G->timed_absorb(i, .05f);
-            }
         }
     }
 
@@ -1092,25 +1005,19 @@ tesla_effect::step()
     this->charged_entities.insert(this->ignore);
 }
 
-tesla_effect::~tesla_effect()
-{
-    for (int x=0; x<TESLA_MAX_PATHS; x++) {
+tesla_effect::~tesla_effect() {
+    for (int x=0; x<TESLA_MAX_PATHS; x++)
         delete this->paths[x];
-    }
 }
 
-void
-tesla_effect::update_effects()
-{
-    for (int x=0; x<this->num_paths; x++) {
+void tesla_effect::update_effects() {
+    for (int x=0; x<this->num_paths; x++)
         this->paths[x]->update_effects();
-    }
 }
 
 /* PLASMA EXPLOSION EFFECT */
 
-plasma_explosion_effect::plasma_explosion_effect(b2Vec2 pos, int layer, float col, float scale) : base_effect()
-{
+plasma_explosion_effect::plasma_explosion_effect(b2Vec2 pos, int layer, float col, float scale) : base_effect() {
     this->_pos = pos;
     this->scale = scale;
     this->col = col;
@@ -1127,9 +1034,7 @@ plasma_explosion_effect::plasma_explosion_effect(b2Vec2 pos, int layer, float co
     f->s = .5f;
 }
 
-void
-plasma_explosion_effect::mstep()
-{
+void plasma_explosion_effect::mstep() {
     int num_active = 0;
 
     struct particle *f = &this->particle;
@@ -1145,9 +1050,7 @@ plasma_explosion_effect::mstep()
     }
 }
 
-void
-plasma_explosion_effect::update_effects()
-{
+void plasma_explosion_effect::update_effects() {
     struct particle *f = &this->particle;
 
     float b = f->life;

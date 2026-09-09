@@ -2,19 +2,21 @@
 
 #include "edevice.hh"
 
-class fan : public ecomp_multiconnect
-{
+/**
+ * Class representing the Fan object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Fan
+ */
+class fan : public ecomp_multiconnect {
   private:
-    class cb_handler : public b2RayCastCallback
-    {
+    class cb_handler : public b2RayCastCallback {
       private:
         fan *f;
 
       public:
-        cb_handler(fan *f)
-        {
+        cb_handler(fan *f) {
             this->f = f;
-        };
+        }
 
         float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction);
     };
@@ -31,22 +33,20 @@ class fan : public ecomp_multiconnect
 
   public:
     fan();
-    const char* get_name(){ return "Fan"; }
+    const char* get_name() { return "Fan"; }
 
-    void setup(){this->force = 0.f;};
+    void setup() { this->force = 0.f; }
     void step();
     void update();
 
     edevice* solve_electronics();
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::write_state(lvl, lb);
         lb->w_s_float(this->force);
     }
 
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::read_state(lvl, lb);
         this->force = lb->r_float();
     }

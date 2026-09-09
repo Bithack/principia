@@ -3,8 +3,7 @@
 #include "material.hh"
 #include "game.hh"
 
-gameman::gameman()
-{
+gameman::gameman() {
     this->menu_scale = .75f;
 
     this->set_mesh(mesh_factory::get_mesh(MODEL_GAMEMAN));
@@ -53,53 +52,40 @@ gameman::gameman()
     this->set_as_rect(1.6f/2.f, .950f/2.f);
 }
 
-edevice*
-gameman::solve_electronics(void)
-{
+edevice *gameman::solve_electronics() {
     if (!this->s_out[0].written()) {
-        if (W->level.final_score == 0) {
+        if (W->level.final_score == 0)
             this->s_out[0].write(0.f);
-        } else {
+        else
             this->s_out[0].write(fminf((float)G->get_real_score() / (float)W->level.final_score, 1.f));
-        }
     }
 
-    for (int x=0; x<12; x++) {
-        if (!this->s_in[x].is_ready()) {
+    for (int x=0; x<12; x++)
+        if (!this->s_in[x].is_ready())
             return this->s_in[x].get_connected_edevice();
-        }
-    }
 
     bool win = (bool)roundf(this->s_in[0].get_value());
     bool lose = (bool)roundf(this->s_in[1].get_value());
     bool restart = (bool)roundf(this->s_in[12].get_value());
 
-    if (lose) {
+    if (lose)
         G->finish(false);
-    }
-    if (win) {
+    if (win)
         G->finish(true);
-    }
-    if (restart) {
+    if (restart)
         G->restart_level();
-    }
 
     static const int points[] = {
         1, 50, 100, 250, 500
     };
 
-    for (int x=0; x<5; x++) {
-        if ((bool)roundf(this->s_in[2+x].get_value())) {
+    for (int x=0; x<5; x++)
+        if ((bool)roundf(this->s_in[2+x].get_value()))
             G->add_score(points[x]);
-        }
-    }
 
-    for (int x=0; x<5; x++) {
-        if ((bool)roundf(this->s_in[7+x].get_value())) {
+    for (int x=0; x<5; x++)
+        if ((bool)roundf(this->s_in[7+x].get_value()))
             G->add_score(-points[x]);
-        }
-    }
 
     return 0;
 }
-

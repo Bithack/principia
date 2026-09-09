@@ -2,8 +2,7 @@
 #include "ui.hh"
 #include "world.hh"
 
-eventlistener::eventlistener()
-{
+eventlistener::eventlistener() {
     this->set_flag(ENTITY_HAS_CONFIG, true);
 
     this->dialog_id = DIALOG_EVENTLISTENER;
@@ -15,18 +14,14 @@ eventlistener::eventlistener()
     this->properties[0].v.i = 0;
 }
 
-void
-eventlistener::setup()
-{
+void eventlistener::setup() {
     this->triggered = 0;
     this->event_id = this->properties[0].v.i;
     if (this->event_id < 0) this->event_id = 0;
     else if (this->event_id >= WORLD_EVENT__NUM) this->event_id = WORLD_EVENT__NUM-1;
 }
 
-void
-eventlistener::restore()
-{
+void eventlistener::restore() {
     entity::restore();
 
     this->event_id = this->properties[0].v.i;
@@ -34,9 +29,7 @@ eventlistener::restore()
     else if (this->event_id >= WORLD_EVENT__NUM) this->event_id = WORLD_EVENT__NUM-1;
 }
 
-edevice*
-eventlistener::solve_electronics(void)
-{
+edevice *eventlistener::solve_electronics() {
     this->s_out[0].write(this->triggered > 0 ? 1.f : 0.f);
     this->triggered --;
 

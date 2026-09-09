@@ -11,13 +11,11 @@ static std::set<entity*> elist;
 static connection tmp[256];
 static int num_tmp = 0;
 
-class query_cb : public b2QueryCallback
-{
+class query_cb : public b2QueryCallback {
   public:
     query_cb() {};
 
-    bool ReportFixture(b2Fixture *f)
-    {
+    bool ReportFixture(b2Fixture *f) {
         entity *e = (entity*)f->GetUserData();
 
         if (e) {
@@ -28,16 +26,12 @@ class query_cb : public b2QueryCallback
     }
 };
 
-void
-game::return_tmp_conn(connection *c)
-{
+void game::return_tmp_conn(connection *c) {
     if (num_tmp > 0 && &tmp[num_tmp-1] == c)
         num_tmp --;
 }
 
-connection*
-game::get_tmp_conn(void)
-{
+connection *game::get_tmp_conn() {
     if (num_tmp >= 256)
         return 0;
 
@@ -49,36 +43,26 @@ game::get_tmp_conn(void)
     return r;
 }
 
-bool
-game::add_pair(entity *e1, entity *e2, connection *c)
-{
-    if (!c) {
+bool game::add_pair(entity *e1, entity *e2, connection *c) {
+    if (!c)
         return false;
-    }
 
-    if (!e2->allow_connections() && !e2->enjoys_connection(e1->g_id)) {
+    if (!e2->allow_connections() && !e2->enjoys_connection(e1->g_id))
         return false;
-    }
 
-    if (!e2->allow_connection(e1, c->f[1], c->p)) {
+    if (!e2->allow_connection(e1, c->f[1], c->p))
         return false;
-    }
 
-    if ((e1->flag_active(ENTITY_IS_BRDEVICE) && e1->flag_active(ENTITY_CONNECTED_TO_BREADBOARD)) || (e2->flag_active(ENTITY_IS_BRDEVICE) && e2->flag_active(ENTITY_CONNECTED_TO_BREADBOARD))) {
+    if ((e1->flag_active(ENTITY_IS_BRDEVICE) && e1->flag_active(ENTITY_CONNECTED_TO_BREADBOARD)) || (e2->flag_active(ENTITY_IS_BRDEVICE) && e2->flag_active(ENTITY_CONNECTED_TO_BREADBOARD)))
         return false;
-    }
 
-    if (e1->flag_active(ENTITY_IS_STATIC) || e2->flag_active(ENTITY_IS_STATIC)) {
-        if (!this->state.sandbox && W->is_puzzle() && W->level.flag_active(LVL_DISABLE_STATIC_CONNS)) {
+    if (e1->flag_active(ENTITY_IS_STATIC) || e2->flag_active(ENTITY_IS_STATIC))
+        if (!this->state.sandbox && W->is_puzzle() && W->level.flag_active(LVL_DISABLE_STATIC_CONNS))
             return false;
-        }
-    }
 
-    for (int x=0; x<NUM_HL; ++x) {
-        if ((this->hls[x].type & HL_TYPE_ERROR) && (this->hls[x].e == e1 || this->hls[x].e == e2)) {
+    for (int x=0; x<NUM_HL; ++x)
+        if ((this->hls[x].type & HL_TYPE_ERROR) && (this->hls[x].e == e1 || this->hls[x].e == e2))
             return false;
-        }
-    }
 
     if (e1 > e2) {
         entity *tmp = e1;
@@ -86,16 +70,13 @@ game::add_pair(entity *e1, entity *e2, connection *c)
         e2 = tmp;
     }
 
-    if (e1->connected_to(e2)) {
+    if (e1->connected_to(e2))
         return false;
-    }
 
-    if (!((1 << e1->get_layer()) & this->layer_vis)) {
+    if (!((1 << e1->get_layer()) & this->layer_vis))
         return false;
-    }
-    if (!((1 << e2->get_layer()) & this->layer_vis)) {
+    if (!((1 << e2->get_layer()) & this->layer_vis))
         return false;
-    }
 
     /* only add the pair if any of the entities is the currently selected entity */
 
@@ -104,9 +85,9 @@ game::add_pair(entity *e1, entity *e2, connection *c)
     /* nevermind above nevermind */
 
     //if (W->is_paused()) {
-        if (e1 != this->selection.e && e2 != this->selection.e) {
-            return false;
-        }
+    if (e1 != this->selection.e && e2 != this->selection.e) {
+        return false;
+    }
     //}
 
     c->update();
@@ -115,9 +96,8 @@ game::add_pair(entity *e1, entity *e2, connection *c)
      * each frame that the connection is still valid, if this never passes
      * then the game mode is reset to default to prevent it from blah blah blah
      * this isnt so complicated */
-    if (c == this->cs_conn) {
+    if (c == this->cs_conn)
         this->cs_found = true;
-    }
 
     if (c->type == CONN_GEAR || c->type == CONN_RACK) {
         c = this->apply_connection(c, 0);
@@ -128,9 +108,7 @@ game::add_pair(entity *e1, entity *e2, connection *c)
     return (this->pairs.insert(std::make_pair(k, c)).second);
 }
 
-connection *
-game::apply_connection(connection *c, int option)
-{
+connection *game::apply_connection(connection *c, int option) {
     if (W->level.type == LCAT_ADVENTURE && !W->is_paused() && option != -1) {
         /* if we're in game, do not allow player to connect anything to an auto protector loop,
          * otherwise the player can just connect things to bosses to move their centre of mass and
@@ -304,4 +282,3 @@ game::update_pairs()
         this->cs_conn = 0;
     }
 }
-

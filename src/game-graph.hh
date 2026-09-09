@@ -5,8 +5,10 @@
 
 class pscreen;
 
-class game_graph
-{
+/**
+ * Rendering a framerate graph or a simple FPS counter on the screen.
+ */
+class game_graph {
   private:
     std::deque<double> data;
     const char *name;

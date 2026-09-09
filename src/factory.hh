@@ -38,47 +38,41 @@ struct factory_object {
         , set_prop_0(-1)
     { }
 
-    struct factory_object& g_id(uint32_t g_id)
-    {
+    struct factory_object& g_id(uint32_t g_id) {
         this->gid = g_id;
 
         return *this;
     }
 
-    struct factory_object& item(uint32_t item_id)
-    {
+    struct factory_object& item(uint32_t item_id) {
         this->gid = item_id;
         this->worth = item_options[item_id].worth;
 
         return *this;
     }
 
-    struct factory_object& prop0(int prop0)
-    {
+    struct factory_object& prop0(int prop0) {
         this->set_prop_0 = prop0;
 
         return *this;
     }
 
-    struct factory_object& scale(float x, float y=1.f)
-    {
+    struct factory_object& scale(float x, float y=1.f) {
         this->scale_x = x;
         this->scale_y = y;
 
         return *this;
     }
 
-    /* Add num resources */
-    struct factory_object& add(uint8_t resource_type, uint32_t num)
-    {
+    /// Add num resources
+    struct factory_object& add(uint8_t resource_type, uint32_t num) {
         this->worth.add(resource_type, num);
 
         return *this;
     }
 
-    /* Add oil */
-    struct factory_object& add_oil(float val)
-    {
+    /// Add oil
+    struct factory_object& add_oil(float val) {
         this->worth.add_oil(val);
 
         return *this;
@@ -100,8 +94,16 @@ struct factory_queue_item {
     float build_speed;
 };
 
-class factory : public edev_simpleconnect
-{
+/**
+ * Class representing the factory objects (Factory, Robot Factory, Armory, Oil Mixer).
+ *
+ * Player Wiki ref:
+ * - https://principia-web.se/wiki/Factory
+ * - https://principia-web.se/wiki/Robot_Factory
+ * - https://principia-web.se/wiki/Armory
+ * - https://principia-web.se/wiki/Oil_Mixer
+ */
+class factory : public edev_simpleconnect {
   private:
     tvec2 sz_top;
     tvec2 sz_bottom;
@@ -125,25 +127,24 @@ class factory : public edev_simpleconnect
     uint64_t   down_pid;
     uint32_t   down_step;
 
-    float get_oil() const
-    {
+    float get_oil() const {
         return this->properties[1].v.f;
     }
-    uint32_t get_num_resources(int resource) const
-    {
+
+    uint32_t get_num_resources(int resource) const {
         return this->properties[FACTORY_NUM_EXTRA_PROPERTIES+resource].v.i;
     }
 
-    void add_oil(float v){this->properties[1].v.f += v;};
-    void set_num_resources(int resource, uint32_t i)
-    {
+    void add_oil(float v) {
+        this->properties[1].v.f += v;
+    }
+    void set_num_resources(int resource, uint32_t i) {
         this->properties[FACTORY_NUM_EXTRA_PROPERTIES+resource].v.i = i;
-    };
+    }
 
-    void add_resources(int resource, uint32_t i)
-    {
+    void add_resources(int resource, uint32_t i) {
         this->properties[FACTORY_NUM_EXTRA_PROPERTIES+resource].v.i += i;
-    };
+    }
 
     factory(int factory_type);
     void step();
@@ -154,20 +155,13 @@ class factory : public edev_simpleconnect
     bool can_afford(const struct factory_object& fo) const;
     const char *get_name() {
         switch (this->factory_type) {
-            case FACTORY_ROBOT:
-                return "Robot Factory";
-
-            case FACTORY_ARMORY:
-                return "Armory";
-
-            case FACTORY_OIL_MIXER:
-                return "Oil Mixer";
-
-            case FACTORY_GENERIC:
-            default:
-                return "Factory";
+            case FACTORY_ROBOT:     return "Robot Factory";
+            case FACTORY_ARMORY:    return "Armory";
+            case FACTORY_OIL_MIXER: return "Oil Mixer";
+            case FACTORY_GENERIC:   return "Factory";
+            default:                return "";
         }
-    };
+    }
     void read_state(lvlinfo *lvl, lvlbuf *lb);
     void write_state(lvlinfo *lvl, lvlbuf *lb);
     void add_to_world();

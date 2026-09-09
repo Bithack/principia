@@ -1,27 +1,27 @@
-#include <vector>
-#include <algorithm>
-
-#include "game.hh"
-#include "game-message.hh"
-#include "settings.hh"
-#include "robot.hh"
-#include "object_factory.hh"
-#include "i1o1gate.hh"
-#include "ui.hh"
 #include "adventure.hh"
-#include "motor.hh"
-#include "rubberband.hh"
-#include "damper.hh"
-#include "pivot.hh"
-#include "screenshot_marker.hh"
 #include "cable.hh"
-#include "prompt.hh"
+#include "damper.hh"
 #include "factory.hh"
-#include "item.hh"
-#include "widget_manager.hh"
 #include "font.hh"
-#include "text.hh"
+#include "game-message.hh"
+#include "game.hh"
 #include "gui.hh"
+#include "i1o1gate.hh"
+#include "item.hh"
+#include "motor.hh"
+#include "object_factory.hh"
+#include "pivot.hh"
+#include "prompt.hh"
+#include "robot.hh"
+#include "rubberband.hh"
+#include "screenshot_marker.hh"
+#include "settings.hh"
+#include "text.hh"
+#include "ui.hh"
+#include "widget_manager.hh"
+#include <algorithm>
+#include <vector>
+
 #if defined(SDL_PLATFORM_LINUX) && defined(DEBUG)
 #define CREATE_SANDBOX_TEXTURES
 #include "SDL_image.h"
@@ -41,15 +41,12 @@
 #define SIZE_PER_OBJECT_ITEM 64
 #define SIZE_PER_MENU_ITEM   100
 
-static void
-forward_slider_on_change(struct tms_wdg *w, float values[2])
-{
+static void forward_slider_on_change(struct tms_wdg *w, float values[2]) {
     entity *e = G->selection.e;
     int slider_id = VOID_TO_INT(w->data3);
 
-    if (e) {
+    if (e)
         e->get_property_entity()->on_slider_change(slider_id, values[0]);
-    }
 }
 
 static float cooldown_time = 0.f;
@@ -107,27 +104,19 @@ std::vector<int> menu_objects_cat[of::num_categories];
 
 int gid_to_menu_pos[256];
 
-float
-game::get_bmenu_x()
-{
+float game::get_bmenu_x() {
     return b_w_pad / 2.f + b_margin_x;
 }
 
-float
-game::get_bmenu_y()
-{
+float game::get_bmenu_y() {
     return b_y + b_margin_y;
 }
 
-float
-game::get_bmenu_pad()
-{
+float game::get_bmenu_pad() {
     return b_w_pad;
 }
 
-void
-game::reset_touch_gui()
-{
+void game::reset_touch_gui() {
     for (int x=0; x<MAX_P; x++) {
         tdown[x] = 0;
         resizing_menu[x] = 0;
@@ -136,9 +125,7 @@ game::reset_touch_gui()
     }
 }
 
-void
-game::add_menu_item(int cat, entity *e)
-{
+void game::add_menu_item(int cat, entity *e) {
     struct menu_obj o = {
         .e = e,
         .pos = static_cast<int>(menu_objects.size()),
@@ -156,9 +143,7 @@ game::add_menu_item(int cat, entity *e)
     menu_objects_cat[cat].push_back(o.pos);
 }
 
-static void
-conndamping_on_change(struct tms_wdg *w, float values[2])
-{
+static void conndamping_on_change(struct tms_wdg *w, float values[2]) {
     float value = values[0];
     connection *c = static_cast<connection*>(w->data3);
     c->damping = value * CONN_DAMPING_MAX;
@@ -166,9 +151,7 @@ conndamping_on_change(struct tms_wdg *w, float values[2])
     G->show_numfeed(c->damping);
 }
 
-static void
-connstrength_on_change(struct tms_wdg *w, float values[2])
-{
+static void connstrength_on_change(struct tms_wdg *w, float values[2]) {
     float value = values[0];
     connection *c = static_cast<connection*>(w->data3);
 
@@ -183,9 +166,7 @@ connstrength_on_change(struct tms_wdg *w, float values[2])
     }
 }
 
-int
-game::delete_entity(entity *e)
-{
+int game::delete_entity(entity *e) {
     do {
         if (e == adventure::player) {
             adventure::player = 0;
@@ -320,19 +301,16 @@ game::delete_entity(entity *e)
     tms_infof("Disconnect all called on %s", e->get_name());
     e->disconnect_all();
 
-    if (e->flag_active(ENTITY_IS_PLUG)) {
+    if (e->flag_active(ENTITY_IS_PLUG))
         ((plug_base*)e)->disconnect();
-    }
 
     if (e->flag_active(ENTITY_IS_EDEVICE)) {
         edevice *ed = e->get_edevice();
 
-        for (int x=0; x<ed->num_s_in; x++) {
+        for (int x=0; x<ed->num_s_in; x++)
             ed->s_in[x].unplug();
-        }
-        for (int x=0; x<ed->num_s_out; x++) {
+        for (int x=0; x<ed->num_s_out; x++)
             ed->s_out[x].unplug();
-        }
 
         if (e->get_edevice() == G->ss_edev) {
             /* XXX: Does anything else need to be disabled/reset? */
@@ -363,12 +341,7 @@ game::delete_entity(entity *e)
     return 1;
 }
 
-/**
- * This function should only be called due to user input.
- **/
-int
-game::delete_selected_entity(bool multi/*=false*/)
-{
+int game::delete_selected_entity(bool multi/*=false*/) {
     if (this->get_mode() == GAME_MODE_EDIT_PANEL) return 0;
 
     if (this->selection.e && this->selection.e->get_property_entity()) {
@@ -392,9 +365,7 @@ game::delete_selected_entity(bool multi/*=false*/)
     return 1;
 }
 
-void
-game::config_btn_pressed(entity *e)
-{
+void game::config_btn_pressed(entity *e) {
     if (!e) return;
 
     if (e->flag_active(ENTITY_IS_CONTROL_PANEL)) {
@@ -406,30 +377,28 @@ game::config_btn_pressed(entity *e)
             case TOOL_PAINTER: ui::open_dialog(DIALOG_BEAM_COLOR); break;
             default: tms_debugf("Unhandled entity config button."); break;
         }
-    }*/ else {
+    }*/
+    else {
         switch (e->g_id) {
             case O_PROMPT:
                 G->current_prompt = static_cast<prompt*>(e);
                 break;
 
-            case O_CAM_MARKER:
-                {
-                    /* snap to camera view */
-                    screenshot_marker *sm = static_cast<screenshot_marker*>(e);
-                    this->snap_to_camera(sm);
-                    return;
-                }
-                break;
+            case O_CAM_MARKER: {
+                /* snap to camera view */
+                screenshot_marker *sm = static_cast<screenshot_marker*>(e);
+                this->snap_to_camera(sm);
+                return;
+            }
 
             case O_FACTORY:
             case O_ROBOT_FACTORY:
             case O_ARMORY:
             case O_OIL_MIXER:
-                if (W->is_paused()) {
+                if (W->is_paused())
                     ui::open_dialog(DIALOG_FACTORY);
-                } else {
+                else
                     tms_warnf("Unhandled play-config button for factory.");
-                }
                 break;
         }
 
@@ -445,15 +414,12 @@ game::config_btn_pressed(entity *e)
             }
 
             ui::open_dialog(e->dialog_id);
-        } else {
+        } else
             tms_warnf("Unhandled config button for '%s'[%d]", e->get_name(), e->g_id);
-        }
     }
 }
 
-void
-game::info_btn_pressed(entity *e)
-{
+void game::info_btn_pressed(entity *e) {
     if (!e) return;
 
     e = e->get_property_entity();
@@ -471,18 +437,15 @@ game::info_btn_pressed(entity *e)
     ui::open_url(wikiurl);
 }
 
-void
-game::toggle_entity_lock(entity *e)
-{
+void game::toggle_entity_lock(entity *e) {
     if (!e) return;
 
     e->set_locked(!e->is_locked());
 
-    if (e->is_locked()) {
+    if (e->is_locked())
         this->locked.insert(e);
-    } else {
+    else
         this->locked.erase(e);
-    }
 }
 
 /**
@@ -491,9 +454,7 @@ game::toggle_entity_lock(entity *e)
  *   1 = event was handled
  *   2 = event something ??
  **/
-int
-game::menu_handle_event(tms::event *ev)
-{
+int game::menu_handle_event(tms::event *ev) {
     switch (this->get_mode()) {
         case GAME_MODE_EDIT_PANEL:
             this->state.modified = true;
@@ -872,8 +833,7 @@ game::menu_handle_event(tms::event *ev)
     return EVENT_CONT;
 }
 
-entity *game::get_pending_ent()
-{
+entity *game::get_pending_ent() {
     //for (int x=0; x<MAX_P; x++) {
     int x=0;
         if (pending_ent[x] && pending_a_scene[x]) return pending_ent[x];
@@ -882,179 +842,167 @@ entity *game::get_pending_ent()
     return 0;
 }
 
-static void
-my_long_press(principia_wdg *w)
-{
+static void my_long_press(principia_wdg *w) {
     tms_debugf("LONG PRESS, YEAH");
 }
 
-bool
-game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
-{
+bool game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid) {
     bool left = (pid == 0);
     bool right = (pid == 1);
 
     /* Do not accept widget clicks if the widget mouse controls are active. */
 
-    if (settings["rc_lock_cursor"]->v.b) {
+    if (settings["rc_lock_cursor"]->v.b)
         if ((this->active_hori_wdg && !this->active_hori_wdg->is_radial())
-                || (this->active_vert_wdg && !this->active_vert_wdg->is_radial())) {
+                || (this->active_vert_wdg && !this->active_vert_wdg->is_radial()))
             return false;
-        }
-    }
 
     /* GW_ALL */
     switch (button_id) {
-        case GW_PLAYPAUSE:
-            {
-                if (W->is_paused()) {
-                    /* PLAY */
-                    if (W->is_puzzle() && G->state.sandbox) {
-                        G->puzzle_play(PUZZLE_TEST_PLAY);
-                    } else {
-                        if (W->is_puzzle()) {
-                            this->save(false, true);
-                            G->state.puzzle_state = 2;
-                        }
-                        G->do_play();
-                    }
+        case GW_PLAYPAUSE: {
+            if (W->is_paused()) {
+                /* PLAY */
+                if (W->is_puzzle() && G->state.sandbox) {
+                    G->puzzle_play(PUZZLE_TEST_PLAY);
                 } else {
-                    /* PAUSE */
-                    if (W->is_adventure()) {
-                        ui::confirm("Are you sure you want to quit this level?",
-                                "Yes",  ACTION_WORLD_PAUSE,
-                                "No",   ACTION_IGNORE);
-                    } else {
-                        if (W->is_puzzle())
-                            G->state.puzzle_state = 1;
-
-                        G->do_pause();
-                    }
-                }
-            }
-            return true;
-
-        case GW_ORTHOGRAPHIC:
-            {
-                G->set_architect_mode(!G->state.abo_architect_mode);
-
-                if (G->state.abo_architect_mode) {
-                    w->faded = 0;
-                } else {
-                    w->faded = 1;
-                }
-            }
-            return true;
-
-        case GW_LAYERVIS:
-            {
-                if (left) {
-                    switch (G->layer_vis) {
-                        case 0b001: G->layer_vis = 0b111; break;
-                        case 0b011: G->layer_vis = 0b001; break;
-                        default: case 0b111: G->layer_vis = 0b011; break;
-                    }
-                } else if (right) {
-                    switch (G->layer_vis) {
-                        case 0b001: G->layer_vis = 0b011; break;
-                        case 0b011: G->layer_vis = 0b111; break;
-                        default: case 0b111: G->layer_vis = 0b001; break;
-                    }
-                }
-
-                switch (G->layer_vis) {
-                    case 0b001: G->wdg_layervis->s[0] = gui_spritesheet::get_sprite(S_LAYERVIS_1); break;
-                    case 0b011: G->wdg_layervis->s[0] = gui_spritesheet::get_sprite(S_LAYERVIS_2); break;
-                    default: case 0b111: G->wdg_layervis->s[0] = gui_spritesheet::get_sprite(S_LAYERVIS_3); break;
-                }
-            }
-            return true;
-
-        case GW_MODE:
-            {
-                switch (G->get_mode()) {
-                    default:
-                        ui::open_dialog(DIALOG_SANDBOX_MODE);
-                        break;
-
-                    case GAME_MODE_DRAW:
-                    case GAME_MODE_CONN_EDIT:
-                    case GAME_MODE_MULTISEL:
-                        G->set_mode(GAME_MODE_DEFAULT);
-                        break;
-                }
-            }
-            return true;
-
-        case GW_ADVANCED:
-            {
-                G->state.advanced_mode = !G->state.advanced_mode;
-                G->refresh_widgets();
-            }
-            return true;
-
-        case GW_HELP:
-            {
-                if (!W->level.descr_len) {
                     if (W->is_puzzle()) {
-                        ui::message("No help available for this level.");
-                    } else {
-                        ui::message("No description available for this level.");
+                        this->save(false, true);
+                        G->state.puzzle_state = 2;
                     }
+                    G->do_play();
+                }
+            } else {
+                /* PAUSE */
+                if (W->is_adventure()) {
+                    ui::confirm("Are you sure you want to quit this level?",
+                            "Yes",  ACTION_WORLD_PAUSE,
+                            "No",   ACTION_IGNORE);
                 } else {
-                    ui::open_dialog(DIALOG_LEVEL_INFO, W->level.descr);
+                    if (W->is_puzzle())
+                        G->state.puzzle_state = 1;
+
+                    G->do_pause();
                 }
             }
             return true;
+        }
+        case GW_ORTHOGRAPHIC: {
+            G->set_architect_mode(!G->state.abo_architect_mode);
 
-        case GW_ERROR:
-            {
-                uint8_t error_count[ERROR_COUNT];
+            if (G->state.abo_architect_mode)
+                w->faded = 0;
+            else
+                w->faded = 1;
 
-                for (int x=0; x<ERROR_COUNT; ++x) error_count[x] = 0;
+            return true;
+        }
+        case GW_LAYERVIS: {
+            if (left) {
+                switch (G->layer_vis) {
+                    case 0b001: G->layer_vis = 0b111; break;
+                    case 0b011: G->layer_vis = 0b001; break;
+                    default: case 0b111: G->layer_vis = 0b011; break;
+                }
+            } else if (right) {
+                switch (G->layer_vis) {
+                    case 0b001: G->layer_vis = 0b011; break;
+                    case 0b011: G->layer_vis = 0b111; break;
+                    default: case 0b111: G->layer_vis = 0b001; break;
+                }
+            }
+
+            switch (G->layer_vis) {
+                case 0b001: G->wdg_layervis->s[0] = gui_spritesheet::get_sprite(S_LAYERVIS_1); break;
+                case 0b011: G->wdg_layervis->s[0] = gui_spritesheet::get_sprite(S_LAYERVIS_2); break;
+                default: case 0b111: G->wdg_layervis->s[0] = gui_spritesheet::get_sprite(S_LAYERVIS_3); break;
+            }
+
+            return true;
+        }
+        case GW_MODE: {
+            switch (G->get_mode()) {
+                default:
+                    ui::open_dialog(DIALOG_SANDBOX_MODE);
+                    break;
+
+                case GAME_MODE_DRAW:
+                case GAME_MODE_CONN_EDIT:
+                case GAME_MODE_MULTISEL:
+                    G->set_mode(GAME_MODE_DEFAULT);
+                    break;
+            }
+            return true;
+        }
+        case GW_ADVANCED: {
+            G->state.advanced_mode = !G->state.advanced_mode;
+            G->refresh_widgets();
+
+            return true;
+        }
+        case GW_HELP: {
+            if (!W->level.descr_len) {
+                if (W->is_puzzle())
+                    ui::message("No help available for this level.");
+                else
+                    ui::message("No description available for this level.");
+            } else
+                ui::open_dialog(DIALOG_LEVEL_INFO, W->level.descr);
+
+            return true;
+        }
+        case GW_ERROR: {
+            uint8_t error_count[ERROR_COUNT];
+
+            for (int x=0; x<ERROR_COUNT; ++x) error_count[x] = 0;
 
 #define MAX_ERROR_LENGTH 4096
 
-                char error_str[MAX_ERROR_LENGTH] = { 0 };
-                int len = 0;
+            char error_str[MAX_ERROR_LENGTH] = { 0 };
+            int len = 0;
 
-                std::set<er*>::iterator it = G->errors.begin();
-                for (; it != G->errors.end(); ++it) {
-                    er *error = static_cast<er*>(*it);
+            std::set<er*>::iterator it = G->errors.begin();
+            for (; it != G->errors.end(); ++it) {
+                er *error = static_cast<er*>(*it);
 
-                    if (error->type == ERROR_SCRIPT_COMPILE) {
-                        // For ERROR_SCRIPT_COMPILE, we will list all LuaScript-objects that fail to compile.
-                        if (len > MAX_ERROR_LENGTH-1) break;
-                        len += snprintf(error_str + len, MAX_ERROR_LENGTH - len - 1, "LuaScript with id %d compile error:\n%s\n", error->e->id, error->message);
-                    } else {
-                        error_count[error->type] ++;
-                    }
-                }
-
-                for (int error_type=0; error_type<ERROR_COUNT; ++error_type) {
+                if (error->type == ERROR_SCRIPT_COMPILE) {
+                    // For ERROR_SCRIPT_COMPILE, we will list all LuaScript-objects that fail to compile.
                     if (len > MAX_ERROR_LENGTH-1) break;
-                    if (!error_count[error_type]) continue;
-                    const char *plural = error_count[error_type] > 1 ? "s" : "";
-                    switch (error_type) {
-                        case ERROR_NONE: break;
-                        case ERROR_SOLVE:
-                                         len += snprintf(error_str + len, MAX_ERROR_LENGTH - len - 1, "%d Electronic device%s unable to complete their programming. This can be caused by unsolvable loops, or a chain of electronic devices that aren't fully connected.\n\n", error_count[error_type], plural);
-                                         break;
-                        case ERROR_RC_NO_WIDGETS:
-                                         len += snprintf(error_str + len, MAX_ERROR_LENGTH - len - 1, "%d RC object%s missing widgets. You can solve this by sleecting the erroneous RC while paused, clicking the cogwheel-button in the bottom-left and dragging widgets to the desired location.\n\n", error_count[error_type], plural);
-                                         break;
-                        case ERROR_RC_ACTIVATOR_INVALID:
-                                         len += snprintf(error_str + len, MAX_ERROR_LENGTH - len - 1, "%d RC Activator%s don't point to a valid RC object. While paused, select the erroneous RC Activator, click the crosshair-button in the bottom-left and select the RC you wish the RC activator to be linked to.\n\n", error_count[error_type], plural);
-                                         break;
-                    }
-                }
-
-                tms_debugf("Error str: '%s'[%d]", error_str, len);
-
-                ui::open_error_dialog(error_str);
+                    len += snprintf(error_str + len, MAX_ERROR_LENGTH - len - 1, "LuaScript with id %d compile error:\n%s\n", error->e->id, error->message);
+                } else
+                    error_count[error->type] ++;
             }
-            return true;
 
+            for (int error_type=0; error_type<ERROR_COUNT; ++error_type) {
+                if (len > MAX_ERROR_LENGTH-1) break;
+                if (!error_count[error_type]) continue;
+
+                const char *plural = error_count[error_type] > 1 ? "s" : "";
+
+                switch (error_type) {
+                    case ERROR_NONE: break;
+                    case ERROR_SOLVE:
+                        len += snprintf(error_str + len, MAX_ERROR_LENGTH - len - 1,
+                            "%d Electronic device%s unable to complete their programming. This can be caused by unsolvable loops, or a chain of electronic devices that aren't fully connected.\n\n",
+                            error_count[error_type], plural);
+                        break;
+                    case ERROR_RC_NO_WIDGETS:
+                        len += snprintf(error_str + len, MAX_ERROR_LENGTH - len - 1,
+                            "%d RC object%s missing widgets. You can solve this by selecting the erroneous RC while paused, clicking the cogwheel-button in the bottom-left and dragging widgets to the desired location.\n\n",
+                            error_count[error_type], plural);
+                        break;
+                    case ERROR_RC_ACTIVATOR_INVALID:
+                        len += snprintf(error_str + len, MAX_ERROR_LENGTH - len - 1,
+                            "%d RC Activator%s don't point to a valid RC object. While paused, select the erroneous RC Activator, click the crosshair-button in the bottom-left and select the RC you wish the RC activator to be linked to.\n\n",
+                            error_count[error_type], plural);
+                        break;
+                }
+            }
+
+            tms_debugf("Error str: '%s'[%d]", error_str, len);
+
+            ui::open_error_dialog(error_str);
+            return true;
+        }
         case GW_DEFAULT_LAYER:
             if (left) {
                 G->state.edit_layer = (G->state.edit_layer + 1) % 3;
@@ -1074,9 +1022,8 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                     delete G->multi.import;
                     G->multi.import = 0;
                     G->refresh_widgets();
-                } else {
+                } else
                     ui::open_dialog(DIALOG_OPEN_OBJECT);
-                }
             }
             return true;
 
@@ -1099,7 +1046,6 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             G->brush_layer_inclusion = !G->brush_layer_inclusion;
 
             G->refresh_widgets();
-
             return true;
 
         case GW_TOGGLE_LOCK:
@@ -1118,9 +1064,8 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                 G->wdg_detach->faded = (e->conn_ll == 0);
                 G->state.modified = true;
 
-                if (W->is_adventure() && W->is_playing()) {
+                if (W->is_adventure() && W->is_playing())
                     G->post_interact_select(e);
-                }
 
                 return true;
             }
@@ -1187,20 +1132,19 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             /* FIXME: Damper, Open pivot and Rubberband can't be moveable right now. fix sometime */
         case GW_TOGGLE_MOVEABLE:
             if (G->selection.e) {
-                if (G->selection.e->g_id == O_OPEN_PIVOT || G->selection.e->g_id == O_OPEN_PIVOT_2) {
+                if (G->selection.e->g_id == O_OPEN_PIVOT || G->selection.e->g_id == O_OPEN_PIVOT_2)
                     ui::message("Can't set the Pivot to moveable.");
-                } else if (G->selection.e->g_id == O_DAMPER || G->selection.e->g_id == O_DAMPER_2) {
+                else if (G->selection.e->g_id == O_DAMPER || G->selection.e->g_id == O_DAMPER_2)
                     ui::message("Can't set the Damper to moveable.");
-                } else if (G->selection.e->g_id == O_RUBBERBAND || G->selection.e->g_id == O_RUBBERBAND_2) {
+                else if (G->selection.e->g_id == O_RUBBERBAND || G->selection.e->g_id == O_RUBBERBAND_2)
                     ui::message("Can't set the Rubberband to moveable.");
-                } else {
+                else {
                     G->selection.e->get_property_entity()->set_moveable(!G->selection.e->get_property_entity()->is_moveable());
 
-                    if (G->selection.e->get_property_entity()->is_moveable()) {
+                    if (G->selection.e->get_property_entity()->is_moveable())
                         ui::message("Object is now moveable when playing.");
-                    } else {
+                    else
                         ui::message("Object can no longer be moved when playing.");
-                    }
                 }
                 G->state.modified = true;
 
@@ -1212,14 +1156,12 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
 
         case GW_CONFIG:
             if (W->is_paused()) {
-                if (G->get_mode() == GAME_MODE_MULTISEL) {
+                if (G->get_mode() == GAME_MODE_MULTISEL)
                     ui::open_dialog(DIALOG_MULTI_CONFIG);
-                } else {
+                else
                     G->config_btn_pressed(G->selection.e);
-                }
-            } else if (W->is_adventure()) {
+            } else if (W->is_adventure())
                 G->handle_ingame_object_button(button_id);
-            }
             return true;
 
         case GW_TOGGLE_CLOCKWISE:
@@ -1238,11 +1180,10 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
         case GW_FREQ_UP:
             if (G->selection.e && G->selection.e->is_wireless()) {
                 int mod = 0;
-                if (left) {
+                if (left)
                     mod = 1;
-                } else if (right) {
+                else if (right)
                     mod = 5;
-                }
 
                 if (mod) {
                     if (G->selection.e->properties[0].v.i > UINT32_MAX - mod) {
@@ -1263,11 +1204,10 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
         case GW_FREQ_DOWN:
             if (G->selection.e && G->selection.e->is_wireless()) {
                 int mod = 0;
-                if (left) {
+                if (left)
                     mod = 1;
-                } else if (right) {
+                else if (right)
                     mod = 5;
-                }
 
                 if (mod) {
                     if (G->selection.e->properties[0].v.i < mod) {
@@ -1293,17 +1233,15 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             return true;
 
         case GW_MENU:
-            if (W->is_paused() && G->state.sandbox) {
+            if (W->is_paused() && G->state.sandbox)
                 ui::open_dialog(DIALOG_SANDBOX_MENU);
-            } else {
+            else
                 ui::open_dialog(DIALOG_PLAY_MENU);
-            }
             return true;
 
         case GW_QUICKADD:
-            if (W->is_paused() && G->state.sandbox) {
+            if (W->is_paused() && G->state.sandbox)
                 ui::open_dialog(DIALOG_QUICKADD);
-            }
             return true;
 
         case GW_FOLLOW_CONNECTIONS:
@@ -1339,9 +1277,8 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
             return true;
 
         case GW_DISCONNECT_FROM_RC:
-            if (adventure::is_player_alive()) {
+            if (adventure::is_player_alive())
                 adventure::player->detach();
-            }
             return true;
 
         case GW_CLOSE_PANEL_EDIT:
@@ -1359,9 +1296,9 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
                 snprintf(username, 255, "%s", P.username);
 
                 w->set_label(username);
-            } else {
+            } else
                 ui::open_dialog(DIALOG_LOGIN);
-            }
+
             return true;
 
         case GW_SUBMIT_SCORE:
@@ -1382,30 +1319,27 @@ game::widget_clicked(principia_wdg *w, uint8_t button_id, int pid)
 
         case GW_IGNORE:
             break;
-        default:
-            {
-                /* We handle the brush materials separately, since their numbers are dynamic */
-                if (button_id >= GW_BRUSH_MAT_0 && button_id <= GW_BRUSH_MAT_END) {
-                    G->brush_material = button_id - GW_BRUSH_MAT_0;
+        default: {
+            /* We handle the brush materials separately, since their numbers are dynamic */
+            if (button_id >= GW_BRUSH_MAT_0 && button_id <= GW_BRUSH_MAT_END) {
+                G->brush_material = button_id - GW_BRUSH_MAT_0;
 
-                    for (int x=0; x<4; ++x) {
-                        G->wdg_brush_material[x]->faded = (this->brush_material != x);
-                    }
-
-                    return true;
+                for (int x=0; x<4; ++x) {
+                    G->wdg_brush_material[x]->faded = (this->brush_material != x);
                 }
 
-                tms_errorf("Unhandled GW: %u", button_id);
+                return true;
             }
+
+            tms_errorf("Unhandled GW: %u", button_id);
             break;
+        }
     }
 
     return false;
 }
 
-void
-game::init_gui(void)
-{
+void game::init_gui() {
     if (gui_init)
         return;
 
@@ -1615,9 +1549,8 @@ game::init_gui(void)
     };
 
 #ifdef DEBUG
-    for (int x=0; x<NUM_TERRAIN_MATERIALS; ++x) {
+    for (int x=0; x<NUM_TERRAIN_MATERIALS; ++x)
         tms_assertf(materials[x] != 0, "Material string missing in game-gui!");
-    }
 #endif
 
     this->wdg_brush_material[0] = this->wm->create_widget(
@@ -1893,14 +1826,11 @@ game::init_gui(void)
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 10", ierr);
 }
 
-void
-game::refresh_info_label()
-{
+void game::refresh_info_label() {
     this->info_label->active = false;
 
-    if (this->get_mode() == GAME_MODE_EDIT_PANEL) {
+    if (this->get_mode() == GAME_MODE_EDIT_PANEL)
         return;
-    }
 
     bool ui = W->is_paused() || W->is_adventure();
     bool adventure_playing = W->is_adventure() && !W->is_paused();
@@ -1953,9 +1883,7 @@ game::refresh_info_label()
     }
 }
 
-void
-game::refresh_axis_rot()
-{
+void game::refresh_axis_rot() {
     bool ui = W->is_paused() || W->is_adventure();
     bool adventure_playing = W->is_adventure() && !W->is_paused();
 
@@ -1964,30 +1892,25 @@ game::refresh_axis_rot()
         this->wdg_axis->faded = !e->get_axis_rot();
 
         struct tms_sprite *spr = 0;
-        if ((spr = e->get_axis_rot_sprite())) {
+        if ((spr = e->get_axis_rot_sprite()))
             this->wdg_axis->s[0] = spr;
-        } else {
+        else
             this->wdg_axis->s[0] = gui_spritesheet::get_sprite(S_AXIS);
-        }
 
         const char *new_tooltip = e->get_axis_rot_tooltip();
-        if (new_tooltip) {
+        if (new_tooltip)
             this->wdg_axis->set_tooltip(new_tooltip);
-        } else {
+        else
             this->wdg_axis->set_tooltip("Toggle axis rotation");
-        }
     }
 }
 
 /* REFRESH WIDGETS */
-void
-game::refresh_widgets()
-{
+void game::refresh_widgets() {
     this->wm->remove_all();
 
-    if (settings["render_gui"]->is_false()) {
+    if (settings["render_gui"]->is_false())
         return;
-    }
 
 #ifdef SCREENSHOT_BUILD
     return;
@@ -1997,19 +1920,18 @@ game::refresh_widgets()
 
     if (!this->state.submitted_score && this->state.finished && W->level.flag_active(LVL_ALLOW_HIGH_SCORE_SUBMISSIONS)
             && !W->level.flag_active(LVL_DISABLE_ENDSCREENS)) {
-        if (W->level_id_type == LEVEL_DB) {
+
+        if (W->level_id_type == LEVEL_DB)
             this->wdg_submit_score->add();
-        } else {
+        else
             this->wdg_unable_to_submit_score->add();
-        }
     }
 
     if (this->get_mode() == GAME_MODE_EDIT_PANEL) {
         this->wdg_close_panel_edit->add();
 
-        if (this->panel_edit_need_scroll) {
+        if (this->panel_edit_need_scroll)
             this->wdg_panel_slider_knob->add();
-        }
 
         this->wm->rearrange();
         return;
@@ -2019,38 +1941,30 @@ game::refresh_widgets()
     if (!W->is_puzzle() || G->state.sandbox)
         this->wdg_menu->add();
 
-    if (settings["touch_controls"]->v.b && this->state.sandbox) {
+    if (settings["touch_controls"]->v.b && this->state.sandbox)
         this->wdg_quickadd->add();
-    }
 
-    if (this->get_mode() == GAME_MODE_DRAW && G->brush_layer_inclusion) {
+    if (this->get_mode() == GAME_MODE_DRAW && G->brush_layer_inclusion)
         G->wdg_default_layer->s[0] = gui_spritesheet::get_sprite(S_ILAYER0+tclampi(G->state.edit_layer, 0, 2));
-    } else {
+    else
         G->wdg_default_layer->s[0] = gui_spritesheet::get_sprite(S_LAYER0+tclampi(G->state.edit_layer, 0, 2));
-    }
 
     if (W->is_paused()) {
         this->wdg_playpause->s[0] = gui_spritesheet::get_sprite(S_PLAY);
     } else {
         this->wdg_playpause->s[0] = gui_spritesheet::get_sprite(S_PAUSE);
-        if (this->errors.size()) {
+        if (this->errors.size())
             this->wdg_error->add();
-        }
     }
 
     /* Bottom-left */
     bool ui = W->is_paused() || W->is_adventure();
     bool adventure_playing = W->is_adventure() && !W->is_paused();
 
-    if (W->is_adventure()) {
-        if (adventure::is_player_alive()) {
-            if (adventure::player->is_attached_to_activator() || (this->current_panel && this->current_panel != adventure::player)) {
-                if (settings["touch_controls"]->v.b) {
-                    this->wdg_disconnect_from_rc->add();
-                }
-            }
-        }
-    }
+    if (W->is_adventure() && adventure::is_player_alive()
+            && (adventure::player->is_attached_to_activator() || (this->current_panel && this->current_panel != adventure::player))
+            && settings["touch_controls"]->v.b)
+        this->wdg_disconnect_from_rc->add();
 
     if (this->selection.enabled() && this->selection.e && this->selection.e->get_property_entity() && ui) {
         entity *e = this->selection.e->get_property_entity();
@@ -2064,11 +1978,10 @@ game::refresh_widgets()
         {
             this->wdg_info->add();
 
-            if (adventure_playing) {
+            if (adventure_playing)
                 this->wdg_info->area = &this->wm->areas[AREA_TOP_CENTER];
-            } else {
+            else
                 this->wdg_info->area = &this->wm->areas[AREA_BOTTOM_LEFT];
-            }
         }
 
         if (W->is_paused()) {
@@ -2089,11 +2002,10 @@ game::refresh_widgets()
         if (W->is_paused() && this->state.sandbox && !e->flag_active(ENTITY_IS_STATIC)) {
             this->wdg_lock->add();
 
-            if (e->is_locked()) {
+            if (e->is_locked())
                 this->wdg_lock->s[0] = gui_spritesheet::get_sprite(S_BTN_LOCK);
-            } else {
+            else
                 this->wdg_lock->s[0] = gui_spritesheet::get_sprite(S_BTN_UNLOCK);
-            }
         }
 
         /* Detach */
@@ -2106,11 +2018,10 @@ game::refresh_widgets()
 
             this->wdg_detach->faded = (e->conn_ll == 0);
 
-            if (adventure_playing) {
+            if (adventure_playing)
                 this->wdg_detach->area = &this->wm->areas[AREA_TOP_CENTER];
-            } else {
+            else
                 this->wdg_detach->area = &this->wm->areas[AREA_BOTTOM_LEFT];
-            }
         }
 
         /* Unplug */
@@ -2118,11 +2029,10 @@ game::refresh_widgets()
             if (e->is_edevice()) {
                 this->wdg_unplug->add();
 
-                if (adventure_playing) {
+                if (adventure_playing)
                     this->wdg_unplug->area = &this->wm->areas[AREA_TOP_CENTER];
-                } else {
+                else
                     this->wdg_unplug->area = &this->wm->areas[AREA_BOTTOM_LEFT];
-                }
 
                 this->wdg_unplug->faded = !((e->get_edevice())->any_socket_used());
                 {
@@ -2278,9 +2188,8 @@ game::refresh_widgets()
                 break;
         }
     } else {
-        if (adventure_playing) {
+        if (adventure_playing)
             this->wdg_current_tool->add();
-        }
     }
 
     if (((G->state.sandbox && G->state.advanced_mode) || (G->state.test_playing && W->level.type != LCAT_ADVENTURE)) || W->is_paused()) {
@@ -2297,11 +2206,10 @@ game::refresh_widgets()
         this->wdg_playpause->add();
     }
 
-    if (G->state.abo_architect_mode) {
+    if (G->state.abo_architect_mode)
         this->wdg_orthographic->faded = 0;
-    } else {
+    else
         this->wdg_orthographic->faded = 1;
-    }
 
     if (W->is_paused() && this->state.sandbox && this->state.advanced_mode) {
         this->wdg_orthographic->add();
@@ -2309,27 +2217,23 @@ game::refresh_widgets()
     }
 
     if (!this->state.sandbox && !this->state.test_playing && this->get_mode() != GAME_MODE_INVENTORY
-        && W->level.type != LCAT_ADVENTURE) {
-        if (W->level.descr_len) {
+            && W->level.type != LCAT_ADVENTURE) {
+        if (W->level.descr_len)
             this->wdg_help->add();
-        }
     }
 
     if (W->is_paused()) {
         this->wdg_advanced->add();
-        if (this->state.advanced_mode) {
+        if (this->state.advanced_mode)
             this->wdg_advanced->s[0] = gui_spritesheet::get_sprite(S_ADVUP);
-        } else {
+        else
             this->wdg_advanced->s[0] = gui_spritesheet::get_sprite(S_ADVDOWN);
-        }
     }
 
     this->wm->rearrange();
 }
 
-void
-game::resize_gui()
-{
+void game::resize_gui() {
     menu_height = _tms.opengl_height;
 
     menu_xdim = 1.f * _tms.xppcm;
@@ -2357,9 +2261,7 @@ game::resize_gui()
     b_margin_x = .14f * menu_xdim;
 }
 
-void
-game::refresh_gui(void)
-{
+void game::refresh_gui() {
     this->resize_gui();
 
     this->wm->init_areas();
@@ -2368,9 +2270,7 @@ game::refresh_gui(void)
     this->panel_refresh_widgets();
 }
 
-void
-game::init_sandbox_menu()
-{
+void game::init_sandbox_menu() {
     int n = 0;
 
     for (int y=0; y<of::num_categories; y++){
@@ -2419,9 +2319,7 @@ game::init_sandbox_menu()
  * Should only be called when we are generating new sandbox menu textures
  * to be bundled in the release version.
  **/
-void
-game::create_sandbox_menu()
-{
+void game::create_sandbox_menu() {
 #ifdef CREATE_SANDBOX_TEXTURES
     glDisable(GL_BLEND);
 
@@ -2723,12 +2621,9 @@ game::create_sandbox_menu()
     tms_infof("Creating sandbox menu only supported on Linux in DEBUG mode");
 }
 
-void
-game::render_gui(void)
-{
-    if (settings["render_gui"]->is_false()) {
+void game::render_gui() {
+    if (settings["render_gui"]->is_false())
         return;
-    }
 
     int ierr;
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render_gui begin", ierr);
@@ -2834,24 +2729,21 @@ game::render_gui(void)
     if (W->is_paused()) {
         if (this->selection.enabled())
             this->render_selection_gui();
-        else {
+        else
             this->render_noselection_gui();
-        }
     } else {
         if (W->is_adventure() && this->get_mode() != GAME_MODE_INVENTORY) {
-            if (this->selection.enabled()) {
+            if (this->selection.enabled())
                 this->render_selection_gui();
-            } else {
+            else
                 this->render_noselection_gui();
-            }
         }
     }
 
     tms_ddraw_set_color(this->get_surface()->ddraw, 1.f, 1.f, 1.f, 1.f);
 
-    if (this->state.test_playing && W->is_paused()) {
+    if (this->state.test_playing && W->is_paused())
         this->add_text(gui_spritesheet::t_test_playing_back, _tms.window_width/2.f, 20.f);
-    }
 
     if (!W->is_paused() && !W->is_puzzle()) {
         if (W->is_adventure() && adventure::player != 0 && this->selection.e == 0) {
@@ -2912,11 +2804,11 @@ game::render_gui(void)
                 base_y -= height/2.f;
 
                 float cd_left = w->get_cooldown_fraction();
-                if (cd_left < 0.05f) {
+                if (cd_left < 0.05f)
                     cooldown_time -= _tms.dt*3.f;
-                } else {
+                else
                     cooldown_time = 3.f;
-                }
+
                 float a = tclampf(cooldown_time, 0.f, 1.f) * .75f;
                 if (a > 0.01f) {
                     float w = _tms.xppcm*2.f;
@@ -3009,11 +2901,11 @@ game::render_gui(void)
 
         const float dist = tvec2_dist(tvec2f(this->wdg_base_x, this->wdg_base_y), move_pos);
         float circle_dia = dist;
-        if (circle_dia < MIN_CIRCLE_DIA) {
+        if (circle_dia < MIN_CIRCLE_DIA)
             circle_dia = MIN_CIRCLE_DIA;
-        } else if (circle_dia > MAX_CIRCLE_DIA) {
+        else if (circle_dia > MAX_CIRCLE_DIA)
             circle_dia = MAX_CIRCLE_DIA;
-        }
+
         const float a = this->active_hori_wdg->value[0] * 2.f * M_PI + (_tms.emulating_portrait ? M_PI/2.f : 0.f);
 
         tms_ddraw_set_color(this->get_surface()->ddraw, 0.2f, 0.2f, 0.2f, 0.4f);
@@ -3051,25 +2943,18 @@ game::render_gui(void)
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render_gui end", ierr);
 }
 
-int
-game::get_menu_width()
-{
+int game::get_menu_width() {
     return _menu_width;
 }
 
-void
-game::set_menu_width(int new_menu_width)
-{
+void game::set_menu_width(int new_menu_width) {
     _menu_width = new_menu_width;
 
-    if (this->wm) {
+    if (this->wm)
         this->wm->rearrange();
-    }
 }
 
-void
-game::render_edev_labels()
-{
+void game::render_edev_labels() {
     if (this->get_mode() == GAME_MODE_SELECT_SOCKET)
         return;
     if (this->get_mode() == GAME_MODE_EDIT_PANEL)
@@ -3081,13 +2966,11 @@ game::render_edev_labels()
 
     float alpha = 1.f;
 
-    if (this->cam->_position.z > 13.f) {
+    if (this->cam->_position.z > 13.f)
         alpha = 1.f - (this->cam->_position.z - 13.f) / 2.f;
-    }
 
-    if (this->cam->_position.z > 15.f) {
+    if (this->cam->_position.z > 15.f)
         return;
-    }
 
     glBindTexture(GL_TEXTURE_2D, this->texts->texture.gl_texture);
     float mv[16];
@@ -3136,9 +3019,7 @@ game::render_edev_labels()
     tms_ddraw_set_matrices(this->dd, mv, this->cam->projection);
 }
 
-struct tms_texture*
-game::get_item_texture()
-{
+struct tms_texture* game::get_item_texture() {
     static struct tms_texture *item_texture;
 
     if (!item_texture) {
@@ -3154,9 +3035,7 @@ game::get_item_texture()
     return item_texture;
 }
 
-struct tms_texture*
-game::get_sandbox_texture(int n)
-{
+struct tms_texture* game::get_sandbox_texture(int n) {
     static struct tms_texture *sandbox_texture[10]; /* XXX keep in sync with of::num_categories */
 
     /* make sure the current category's texture is loaded */
@@ -3176,9 +3055,7 @@ game::get_sandbox_texture(int n)
     return sandbox_texture[n];
 }
 
-void
-game::render_sandbox_menu()
-{
+void game::render_sandbox_menu() {
     int ierr;
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render_sandbox_menu begin", ierr);
 
@@ -3537,9 +3414,7 @@ game::render_sandbox_menu()
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render_sandbox_menu end", ierr);
 }
 
-void
-game::render_noselection_gui(void)
-{
+void game::render_noselection_gui() {
     float sx = get_bmenu_x();
     float px = 0*b_w_pad;
 
@@ -3562,10 +3437,7 @@ game::render_noselection_gui(void)
     */
 }
 
-void
-game::handle_ingame_object_button(int button_id)
-{
-
+void game::handle_ingame_object_button(int button_id) {
     if (!this->selection.e) return;
     /* we might receive the button from somewhere else other than the widget (like a key press),
      * so we have to validate that the button is actually usable.
@@ -3574,36 +3446,30 @@ game::handle_ingame_object_button(int button_id)
     switch (button_id) {
         case GW_LAYER_UP:
             if (this->wdg_layer_up->surface) {
-                if (this->selection.e->get_layer()<2 && this->ingame_layerswitch_test(this->selection.e, 1)) {
+                if (this->selection.e->get_layer()<2 && this->ingame_layerswitch_test(this->selection.e, 1))
                     this->selection.e->set_layer((this->selection.e->get_layer()+1));
-                } else {
+                else
                     tms_infof("layerswitch not allowed");
-                }
             }
             break;
 
         case GW_LAYER_DOWN:
             if (this->wdg_layer_down->surface) {
-                if (this->selection.e->get_layer()>0 && this->ingame_layerswitch_test(this->selection.e, -1)) {
+                if (this->selection.e->get_layer()>0 && this->ingame_layerswitch_test(this->selection.e, -1))
                     this->selection.e->set_layer((this->selection.e->get_layer()-1));
-                } else {
+                else
                     tms_infof("layerswitch not allowed");
-                }
             }
             break;
 
         case GW_CONFIG:
             if (this->wdg_config->surface) {
                 if (this->selection.e->flag_active(ENTITY_HAS_INGAME_CONFIG)) {
-                    if (this->selection.e->flag_active(ENTITY_IS_CONTROL_PANEL)) {
+                    if (this->selection.e->flag_active(ENTITY_IS_CONTROL_PANEL))
                         this->set_mode(GAME_MODE_EDIT_PANEL);
-                    } else {
-                        switch (this->selection.e->g_id) {
-                            case O_FACTORY:
-                                this->set_mode(GAME_MODE_FACTORY);
-                                tms_infof("clicked factory config");
-                                break;
-                        }
+                    else if (this->selection.e->g_id == O_FACTORY) {
+                        this->set_mode(GAME_MODE_FACTORY);
+                        tms_infof("clicked factory config");
                     }
                 }
             }
@@ -3613,14 +3479,9 @@ game::handle_ingame_object_button(int button_id)
     G->refresh_widgets();
 }
 
-void
-game::render_selection_gui(void)
-{
-}
+void game::render_selection_gui() {}
 
-void
-game::render_inventory(void)
-{
+void game::render_inventory() {
     if (!W->is_adventure()) {
         this->set_mode(GAME_MODE_DEFAULT);
         return;
@@ -3642,11 +3503,11 @@ game::render_inventory(void)
     int j = 0;
     for (int n=0; n<NUM_RESOURCES; ++n) {
         if (adventure::player->get_num_resources(n)) {
-            if (j++%2==0) {
+            if (j++ % 2 == 0)
                 tms_ddraw_set_color(this->get_surface()->ddraw, .3f, .3f, .3f, 0.3f);
-            } else {
+            else
                 tms_ddraw_set_color(this->get_surface()->ddraw, .4f, .4f, .4f, 0.3f);
-            }
+
             tms_ddraw_square(this->get_surface()->ddraw, iw*2.f, y,
                     iw*3.f, ih*1.5f);
 
@@ -3671,9 +3532,7 @@ game::render_inventory(void)
     }
 }
 
-int
-game::inventory_handle_event(tms::event *ev)
-{
+int game::inventory_handle_event(tms::event *ev) {
     int iw = _tms.xppcm*.375f;
     int ih = _tms.yppcm*.375f;
 
@@ -3697,71 +3556,63 @@ game::inventory_handle_event(tms::event *ev)
             break;
 
         case TMS_EV_POINTER_SCROLL:
-            {
-                if (sp.x < iw*6.f) {
-                    float diff = ev->data.scroll.y * 15.f;
-                    if (this->inventory_highest_y > 0.f && diff < 0.f) {
-                        return EVENT_DONE;
-                    }
-                    this->inventory_scroll_offset += diff;
-
-                    if (this->inventory_scroll_offset > 0.f) {
-                        this->inventory_scroll_offset = 0.f;
-                    }
-
-                    this->refresh_inventory_widgets();
-
+            if (sp.x < iw*6.f) {
+                float diff = ev->data.scroll.y * 15.f;
+                if (this->inventory_highest_y > 0.f && diff < 0.f) {
                     return EVENT_DONE;
                 }
+                this->inventory_scroll_offset += diff;
+
+                if (this->inventory_scroll_offset > 0.f) {
+                    this->inventory_scroll_offset = 0.f;
+                }
+
+                this->refresh_inventory_widgets();
+
+                return EVENT_DONE;
             }
             break;
 
         case TMS_EV_POINTER_DOWN:
-            {
-                if (sp.x < iw*6.f) {
-                    tdown_p[pid] = (tvec2){sp.x, sp.y};
+            if (sp.x < iw*6.f) {
+                tdown_p[pid] = (tvec2){sp.x, sp.y};
 
-                    return EVENT_DONE;
-                } else {
-                    this->set_mode(GAME_MODE_DEFAULT);
-                    return EVENT_DONE;
-                }
+                return EVENT_DONE;
+            } else {
+                this->set_mode(GAME_MODE_DEFAULT);
+                return EVENT_DONE;
             }
             break;
 
         case TMS_EV_POINTER_UP:
-            {
-                tdown_p[pid] = (tvec2){0,0};
-                if (sp.x < iw*6.f) {
-                    return EVENT_DONE;
-                }
+            tdown_p[pid] = (tvec2){0,0};
+            if (sp.x < iw*6.f) {
+                return EVENT_DONE;
             }
             break;
 
         case TMS_EV_POINTER_DRAG:
-            {
-                if (sliding_menu[pid]) {
-                    float diff = tdown_p[pid].y - sp.y;
-                    if (this->inventory_highest_y > -this->get_bmenu_y()/2.f && diff < 0.f) {
-                        return EVENT_DONE;
-                    }
-                    this->inventory_scroll_offset += diff;
-
-                    if (this->inventory_scroll_offset > 0.f) {
-                        this->inventory_scroll_offset = 0.f;
-                    }
-
-                    this->refresh_inventory_widgets();
-                    tdown_p[pid].y = sp.y;
-
+            if (sliding_menu[pid]) {
+                float diff = tdown_p[pid].y - sp.y;
+                if (this->inventory_highest_y > -this->get_bmenu_y()/2.f && diff < 0.f) {
                     return EVENT_DONE;
-                } else {
-                    if (sp.x < iw*6.f) {
-                        //if (std::abs(tdown_p[pid].y - sp.y) > _tms.xppcm*.4f) {
-                            sliding_menu[pid] = true;
-                        //}
-                        return EVENT_DONE;
-                    }
+                }
+                this->inventory_scroll_offset += diff;
+
+                if (this->inventory_scroll_offset > 0.f) {
+                    this->inventory_scroll_offset = 0.f;
+                }
+
+                this->refresh_inventory_widgets();
+                tdown_p[pid].y = sp.y;
+
+                return EVENT_DONE;
+            } else {
+                if (sp.x < iw*6.f) {
+                    //if (std::abs(tdown_p[pid].y - sp.y) > _tms.xppcm*.4f) {
+                        sliding_menu[pid] = true;
+                    //}
+                    return EVENT_DONE;
                 }
             }
             break;
@@ -3770,16 +3621,12 @@ game::inventory_handle_event(tms::event *ev)
     return EVENT_CONT;
 }
 
-void
-game::render_num(float x, float y, int iw, int ih, float num, int precision/*=2*/, float extra_scale/*=0.f*/, bool render_background/*=true*/)
-{
+void game::render_num(float x, float y, int iw, int ih, float num, int precision/*=2*/, float extra_scale/*=0.f*/, bool render_background/*=true*/) {
     /* FIXME: add a scale argument to add_text */
     this->add_text(num, font::small, x+iw, y, TV_WHITE, precision);
 }
 
-void
-game::begin_tracker(entity *e)
-{
+void game::begin_tracker(entity *e) {
     if (e) {
         switch (e->g_id) {
             case O_LUASCRIPT:

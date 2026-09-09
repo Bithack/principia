@@ -2410,7 +2410,7 @@ void creature::activate_closest_activator(int offset/*=0*/) {
 
     std::copy(this->activators.begin(), this->activators.end(), std::back_inserter(acts));
 
-    std::sort(acts.begin(), acts.end(), game_sorter::distance_to_creature(this));
+    std::sort(acts.begin(), acts.end(), distance_to_creature(this));
 
     if (offset < acts.size())
         closest_activator = acts.at(offset);

@@ -1,8 +1,10 @@
 #include "floorgate.hh"
 
-edevice*
-integergate::solve_electronics()
-{
+integergate::integergate() {
+    this->set_mesh(mesh_factory::get_mesh(MODEL_I1O1_INTEGER));
+}
+
+edevice *integergate::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 

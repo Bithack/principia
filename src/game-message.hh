@@ -5,8 +5,7 @@
 class p_text;
 class pscreen;
 
-class game_message
-{
+class game_message {
   private:
     p_text *text;
     float *alpha; /* alpha of text */
@@ -19,14 +18,12 @@ class game_message
     double max_in_duration;
     double max_out_duration;
 
-    inline void set_alpha(float v)
-    {
+    inline void set_alpha(float v) {
         *this->alpha = v;
         *this->oalpha = v;
     }
 
-    inline float get_alpha()
-    {
+    inline float get_alpha() {
         return *this->alpha;
     }
 

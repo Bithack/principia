@@ -1,8 +1,7 @@
 #include "grid.hh"
 #include "material.hh"
 
-grid::grid()
-{
+grid::grid() {
     this->set_mesh(static_cast<tms::mesh*>(const_cast<tms_mesh*>(tms_meshfactory_get_square())));
     this->set_material(&m_grid);
 

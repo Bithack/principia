@@ -3,8 +3,7 @@
 #include "world.hh"
 #include "fluidbuffer.hh"
 
-fluid::fluid()
-{
+fluid::fluid() {
     this->set_flag(ENTITY_IS_BETA, true);
     this->set_flag(ENTITY_ALLOW_CONNECTIONS, false);
     this->set_flag(ENTITY_IS_LOW_PRIO, true);
@@ -26,9 +25,7 @@ fluid::fluid()
     this->height = 1.f;
 }
 
-void
-fluid::update()
-{
+void fluid::update() {
     /* only used in sandbox */
     if (this->body) {
         //tms_infof("rendering with body");
@@ -58,21 +55,15 @@ fluid::update()
     }
 }
 
-float
-fluid::get_slider_snap(int s)
-{
+float fluid::get_slider_snap(int s) {
     return .1f;
 }
 
-float
-fluid::get_slider_value(int s)
-{
+float fluid::get_slider_value(int s) {
     return this->properties[s].v.f / FLUID_MAX_SIZE;
 }
 
-void
-fluid::on_slider_change(int s, float value)
-{
+void fluid::on_slider_change(int s, float value) {
     this->properties[s].v.f = value*FLUID_MAX_SIZE;
 
     if (this->body) {
@@ -82,9 +73,7 @@ fluid::on_slider_change(int s, float value)
     }
 }
 
-void
-fluid::add_to_world()
-{
+void fluid::add_to_world() {
     if (!W->is_paused()) {
         b2ParticleGroupDef pd;
         W->b2->SetParticleRadius(.2f);

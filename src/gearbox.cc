@@ -29,8 +29,7 @@ struct gb_vert2 {
     tvec3 nor;
 } __attribute__ ((packed));
 
-void gearbox::_init()
-{
+void gearbox::_init() {
     num_mslots = 0;
 
     vbuf = tms_gbuffer_alloc(4096*sizeof(struct gb_vert2));
@@ -43,9 +42,7 @@ void gearbox::_init()
     initialized = true;
 }
 
-void
-gearbox::addmesh(struct tms_mesh *from, float dx, float dy, int *num_v, int *num_i)
-{
+void gearbox::addmesh(struct tms_mesh *from, float dx, float dy, int *num_v, int *num_i) {
     gb_vert *v = (gb_vert *)(from->vertex_array->gbufs[0].gbuf->buf+from->v_start);
     uint16_t *i = (uint16_t*)(from->indices->buf+from->i_start*sizeof(uint16_t));
 
@@ -72,9 +69,7 @@ gearbox::addmesh(struct tms_mesh *from, float dx, float dy, int *num_v, int *num
     (*num_i) += from->i_count;
 }
 
-void
-gearbox::recreate_meshes()
-{
+void gearbox::recreate_meshes() {
     //tms_infof("recreate meshes- ------------------------------------------------------");
     vp = 0;
     ip = 0;
@@ -124,21 +119,16 @@ gearbox::recreate_meshes()
     tms_gbuffer_upload_partial(ibuf, ip*sizeof(uint16_t));
 }
 
-uint32_t
-gearbox::get_num_bodies()
-{
+uint32_t gearbox::get_num_bodies() {
     return 2;
 }
 
-b2Body*
-gearbox::get_body(uint8_t n)
-{
+b2Body *gearbox::get_body(uint8_t n) {
     if (n == 0) return this->body;
     else return this->body2;
 }
 
-gearbox::gearbox()
-{
+gearbox::gearbox() {
     if (!initialized)
         _init();
 
@@ -203,9 +193,7 @@ gearbox::gearbox()
     this->update_configurations();
 }
 
-void
-gearbox::find_pairs()
-{
+void gearbox::find_pairs() {
     if (this->c_out.pending) {
         b2Vec2 p = this->body->GetWorldPoint(b2Vec2(0.f, 0.f));
         this->q_result = 0;
@@ -226,9 +214,7 @@ gearbox::find_pairs()
     }
 }
 
-bool
-gearbox::ReportFixture(b2Fixture *f)
-{
+bool gearbox::ReportFixture(b2Fixture *f) {
     entity *e = (entity*)f->GetUserData();
 
     if (!f->IsSensor() && e && f->TestPoint(this->q_point)
@@ -241,9 +227,7 @@ gearbox::ReportFixture(b2Fixture *f)
     return true;
 }
 
-void
-gearbox::connection_create_joint(connection *c)
-{
+void gearbox::connection_create_joint(connection *c) {
     b2World *w = this->body->GetWorld();
 
     b2RevoluteJointDef rjd;
@@ -263,9 +247,7 @@ gearbox::connection_create_joint(connection *c)
     c->j = w->CreateJoint(&rjd);
 }
 
-connection *
-gearbox::load_connection(connection &conn)
-{
+connection *gearbox::load_connection(connection &conn) {
     if (conn.o_index == 0) {
         this->c_out = conn;
         return &this->c_out;
@@ -273,9 +255,7 @@ gearbox::load_connection(connection &conn)
     return 0;
 }
 
-void
-gearbox::set_layer(int n)
-{
+void gearbox::set_layer(int n) {
     entity::set_layer(n);
 
     if (this->body2) {
@@ -284,18 +264,14 @@ gearbox::set_layer(int n)
     }
 }
 
-bool
-gearbox::allow_connection(entity *asker, uint8_t frame, b2Vec2 p)
-{
-    if (frame == 1) {
+bool gearbox::allow_connection(entity *asker, uint8_t frame, b2Vec2 p) {
+    if (frame == 1)
         return (asker->type != ENTITY_PLANK);
-    }
-    return (asker->type == ENTITY_PLANK);
+    else
+        return (asker->type == ENTITY_PLANK);
 }
 
-void
-gearbox::remove_from_world()
-{
+void gearbox::remove_from_world() {
     if (this->body)
         W->b2->DestroyBody(this->body);
     if (this->body2)
@@ -305,9 +281,7 @@ gearbox::remove_from_world()
     this->body2 = 0;
 }
 
-void
-gearbox::add_to_world()
-{
+void gearbox::add_to_world() {
     float sx=.950f*2.f,sy=1.25f;
     //this->create_rect(w, this->get_dynamic_type(), .950f, 1.25f*.5f, this->material);
     {
@@ -383,9 +357,7 @@ gearbox::add_to_world()
     this->gearj = 0;
 }
 
-void
-gearbox::step()
-{
+void gearbox::step() {
     if (!this->checked_b2conn) {
         this->checked_b2conn = true;
         bool have_b2conn = false;
@@ -414,9 +386,7 @@ gearbox::step()
     }
 }
 
-float
-gearbox::get_ratio()
-{
+float gearbox::get_ratio() {
     //tms_infof("active conf: %d, num:%d", this->active_conf, this->num_configs);
     if (this->active_conf < this->num_configs && this->active_conf >= 0) {
         return this->configs[this->active_conf].ratio - this->configs[this->active_conf].ratio2;
@@ -425,8 +395,7 @@ gearbox::get_ratio()
     return 0;
 }
 
-void gearbox::update()
-{
+void gearbox::update() {
     entity_fast_update(this);
 
     float ratio = this->get_ratio();
@@ -452,8 +421,7 @@ void gearbox::update()
     tmat3_copy_mat4_sub3x3(this->aent[2]->N, this->aent[2]->M);
 }
 
-void gearbox::on_load(bool created, bool has_state)
-{
+void gearbox::on_load(bool created, bool has_state) {
     for (int x=0; x<48; x++) {
         if (this->properties[x].v.i8 > 5)
             this->properties[x].v.i8 = 5;
@@ -462,8 +430,7 @@ void gearbox::on_load(bool created, bool has_state)
     this->update_configurations();
 }
 
-gearbox::~gearbox()
-{
+gearbox::~gearbox() {
     /* TODO: free child entities */
     if (this->mslot != -1) {
         if (num_mslots > 1) {
@@ -476,9 +443,7 @@ gearbox::~gearbox()
     }
 }
 
-void
-gearbox::set_position(float x, float y, uint8_t frame)
-{
+void gearbox::set_position(float x, float y, uint8_t frame) {
     if (frame == 0) {
         if (this->body)
             this->body->SetTransform(b2Vec2(x,y), this->body->GetAngle());
@@ -487,9 +452,7 @@ gearbox::set_position(float x, float y, uint8_t frame)
     }
 }
 
-void
-gearbox::update_configurations()
-{
+void gearbox::update_configurations() {
     bool block = false;
     bool save = false;
 
@@ -580,9 +543,7 @@ gearbox::update_configurations()
     recreate_meshes();
 }
 
-edevice*
-gearbox::solve_electronics()
-{
+edevice *gearbox::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -614,9 +575,7 @@ gearbox::solve_electronics()
 
 }
 
-void
-gearbox::create_gearjoint()
-{
+void gearbox::create_gearjoint() {
     b2GearJointDef gjd;
     gjd.bodyB = this->body2;
     gjd.bodyA = this->c_out.o->get_body(this->c_out.f[1]);
@@ -626,4 +585,3 @@ gearbox::create_gearjoint()
     tms_infof("ratio: %f", gjd.ratio);
     this->gearj = (b2GearJoint*)this->body->GetWorld()->CreateJoint(&gjd);
 }
-

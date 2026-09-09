@@ -17,14 +17,11 @@ struct fluidbuf_vert {
 
 fluidbuf_vert fluidbuffer::base[4];
 
-void fluidbuffer::reset()
-{
+void fluidbuffer::reset() {
     n = 0;
 }
 
-tms::entity *
-fluidbuffer::get_entity()
-{
+tms::entity *fluidbuffer::get_entity() {
     if (e) return e;
 
     mesh = new tms::mesh(va, indices);
@@ -41,8 +38,7 @@ fluidbuffer::get_entity()
     return e;
 }
 
-void fluidbuffer::_init()
-{
+void fluidbuffer::_init() {
     tms_infof("Initializing fluidbuffer...");
 
     verts = new tms::gbuffer(4*(FLUIDBUFFER_MAX)*sizeof(struct fluidbuf_vert));
@@ -91,12 +87,7 @@ void fluidbuffer::_init()
     reset();
 }
 
-void fluidbuffer::add(
-    float x, float y, float z,
-    //float r, float g, float b, float a,
-    float pressure,
-    float w, float h
-) {
+void fluidbuffer::add(float x, float y, float z, /*rgb,*/ float pressure, float w, float h) {
     uint32_t particle_limit = ((W->level.version <= LEVEL_VERSION_1_5_1) ? FLUIDBUFFER_MAX_1_5_1 : FLUIDBUFFER_MAX);
     if (n >= particle_limit) return;
 
@@ -118,11 +109,11 @@ void fluidbuffer::add(
     n++;
 }
 
-void fluidbuffer::upload()
-{
+void fluidbuffer::upload() {
     if (mesh) {
         mesh->i_start = 0;
         mesh->i_count = n*6;
     }
-    if (n) verts->upload_partial(n*4*sizeof(struct fluidbuf_vert));
+    if (n)
+        verts->upload_partial(n*4*sizeof(struct fluidbuf_vert));
 }

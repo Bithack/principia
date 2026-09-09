@@ -8,11 +8,7 @@
 #define FAN_WIDTH   1.f
 #define FAN_FORCE 2.f
 
-fan::fan()
-    : blade_rot(0.f)
-    , blade_rot_speed(0.f)
-    , force(0.f)
-{
+fan::fan() : blade_rot(0.f), blade_rot_speed(0.f), force(0.f) {
     this->set_flag(ENTITY_DO_STEP, true);
     this->set_flag(ENTITY_IS_MAGNETIC, true);
 
@@ -43,9 +39,7 @@ fan::fan()
     tms_entity_add_child(this, &this->blades);
 }
 
-void
-fan::step()
-{
+void fan::step() {
     if (this->force == 0.f) return;
 
     b2Vec2 fan_position = this->get_position();
@@ -108,9 +102,7 @@ fan::step()
     /* apply inverted force to self */
 }
 
-void
-fan::update()
-{
+void fan::update() {
     this->easy_update();
 
     tmat4_copy(this->blades.M, this->M);
@@ -129,24 +121,18 @@ fan::update()
     this->blade_rot += this->blade_rot_speed;
 }
 
-edevice*
-fan::solve_electronics()
-{
-    if (!this->s_in[0].is_ready()) {
+edevice *fan::solve_electronics() {
+    if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
-    }
 
     this->force = (this->s_in[0].get_value() * FAN_FORCE) / (float)NUM_RAYS;
 
     return 0;
 }
 
-float32
-fan::cb_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
-    if (f->IsSensor()) {
+float32 fan::cb_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
+    if (f->IsSensor())
         return -1.f;
-    }
 
     if (f != this->f->fx
             && (f->GetFilterData().categoryBits & (15 << (this->f->get_layer()*4)))) {

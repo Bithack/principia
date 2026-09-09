@@ -5,8 +5,7 @@
 #include "material.hh"
 #include "model.hh"
 
-gravityman::gravityman(int _type)
-{
+gravityman::gravityman(int _type) {
     this->_type = _type;
 
     this->num_sliders = 2;
@@ -59,9 +58,7 @@ gravityman::gravityman(int _type)
     }
 }
 
-float
-gravityman::get_slider_snap(int s)
-{
+float gravityman::get_slider_snap(int s) {
     switch (this->_type) {
         case GRAVITY_MANAGER:
             switch (s) {
@@ -81,9 +78,7 @@ gravityman::get_slider_snap(int s)
     return 0.f;
 }
 
-float
-gravityman::get_slider_value(int s)
-{
+float gravityman::get_slider_value(int s) {
     switch (this->_type) {
         case GRAVITY_MANAGER:
             switch (s) {
@@ -103,9 +98,7 @@ gravityman::get_slider_value(int s)
     return 0.f;
 }
 
-void
-gravityman::on_slider_change(int s, float value)
-{
+void gravityman::on_slider_change(int s, float value) {
     if (this->_type == GRAVITY_MANAGER) {
         if (s == 0) {
             this->set_property(0, (float)(value * (2.f*M_PI)));
@@ -122,56 +115,50 @@ gravityman::on_slider_change(int s, float value)
     }
 }
 
-edevice*
-gravityman::solve_electronics()
-{
+edevice *gravityman::solve_electronics() {
     switch (this->_type) {
-        case GRAVITY_MANAGER:
-            {
-                if (!this->s_in[0].is_ready())
-                    return this->s_in[0].get_connected_edevice();
+        case GRAVITY_MANAGER: {
+            if (!this->s_in[0].is_ready())
+                return this->s_in[0].get_connected_edevice();
 
-                if (!this->s_in[1].is_ready())
-                    return this->s_in[1].get_connected_edevice();
+            if (!this->s_in[1].is_ready())
+                return this->s_in[1].get_connected_edevice();
 
-                if (!this->s_in[2].is_ready())
-                    return this->s_in[2].get_connected_edevice();
+            if (!this->s_in[2].is_ready())
+                return this->s_in[2].get_connected_edevice();
 
-                float angle = 0.f;
-                int force = 0;
-                float mul = 0.f;
+            float angle = 0.f;
+            int force = 0;
+            float mul = 0.f;
 
-                if (this->s_in[0].p == 0) {
-                    /* angle input is unplugged, set to fallback value */
-                    angle = this->properties[0].v.f;
-                } else {
-                    angle = this->s_in[0].get_value() * (2.f * M_PI);
-                }
+            if (this->s_in[0].p == 0) {
+                /* angle input is unplugged, set to fallback value */
+                angle = this->properties[0].v.f;
+            } else
+                angle = this->s_in[0].get_value() * (2.f * M_PI);
 
-                if (this->s_in[1].p == 0) {
-                    /* force input is unplugged, set to fallback value */
-                    force = this->properties[1].v.i;
-                } else {
-                    force = (this->s_in[1].get_value() * 5) * 20;
-                }
+            if (this->s_in[1].p == 0) {
+                /* force input is unplugged, set to fallback value */
+                force = this->properties[1].v.i;
+            } else
+                force = (this->s_in[1].get_value() * 5) * 20;
 
-                if (this->s_in[2].p == 0) {
-                    /* multiplier input is unplugged, set to fallback value */
-                    mul = 1.f;
-                } else {
-                    mul = this->s_in[2].get_value();
-                }
+            if (this->s_in[2].p == 0) {
+                /* multiplier input is unplugged, set to fallback value */
+                mul = 1.f;
+            } else
+                mul = this->s_in[2].get_value();
 
-                if (mul > 0.f) {
-                    float ax = cos(angle);
-                    float ay = sin(angle);
+            if (mul > 0.f) {
+                float ax = cos(angle);
+                float ay = sin(angle);
 
-                    W->add_gravity_force(this->id, b2Vec2((force * ax) * mul, (force * ay) * mul));
-                } else {
-                    W->remove_gravity_force(this->id);
-                }
+                W->add_gravity_force(this->id, b2Vec2((force * ax) * mul, (force * ay) * mul));
+            } else {
+                W->remove_gravity_force(this->id);
             }
             break;
+        }
 
         case GRAVITY_SETTER:
             if (!this->s_in[0].is_ready())
@@ -188,14 +175,11 @@ gravityman::solve_electronics()
     return 0;
 }
 
-localgravity::localgravity()
-    : mul(0.f)
-{
+localgravity::localgravity() : mul(0.f) {
     this->set_flag(ENTITY_DO_STEP, false); /* XXX do NOT add ourselves to stepable, world handles gravity objects separately, step is still called though */
     this->set_flag(ENTITY_IS_BETA, true);
-    if (W->level.version >= LEVEL_VERSION_1_5) {
+    if (W->level.version >= LEVEL_VERSION_1_5)
         this->set_flag(ENTITY_ALLOW_AXIS_ROT, true);
-    }
 
     this->set_material(&m_pv_colored);
     this->set_uniform("~color", .7f, .35f, .35f, 1.f);
@@ -207,27 +191,19 @@ localgravity::localgravity()
 
     this->num_sliders = 1;
 
-    if (W->level.version < LEVEL_VERSION_1_5) {
+    if (W->level.version < LEVEL_VERSION_1_5)
         this->set_as_rect(.25f, .25f);
-    }
-
 }
 
-float
-localgravity::get_slider_snap(int s)
-{
+float localgravity::get_slider_snap(int s) {
     return .05f;
 }
 
-float
-localgravity::get_slider_value(int s)
-{
+float localgravity::get_slider_value(int s) {
     return this->properties[0].v.f / LOCALGRAVITY_MAX_MASS;
 }
 
-void
-localgravity::step()
-{
+void localgravity::step() {
     b2Body *b = 0, *next;
     b2Vec2 p = this->get_position();
     float m1, m2;
@@ -268,63 +244,46 @@ localgravity::step()
     }
 }
 
-void
-localgravity::on_slider_change(int s, float value)
-{
+void localgravity::on_slider_change(int s, float value) {
     this->properties[0].v.f = value*LOCALGRAVITY_MAX_MASS;
     G->show_numfeed(this->properties[0].v.f);
 }
 
-edevice*
-localgravity::solve_electronics()
-{
-    if (!this->s_in[0].is_ready()) {
+edevice *localgravity::solve_electronics() {
+    if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
-    }
 
-    if (this->s_in[0].p) {
+    if (this->s_in[0].p)
         this->mul = this->s_in[0].get_value();
-    } else {
+    else
         this->mul = 1.f;
-    }
 
     return 0;
 }
 
-struct tms_sprite*
-localgravity::get_axis_rot_sprite()
-{
-    if (this->flag_active(ENTITY_AXIS_ROT)) {
+struct tms_sprite *localgravity::get_axis_rot_sprite() {
+    if (this->flag_active(ENTITY_AXIS_ROT))
         return gui_spritesheet::get_sprite(S_WIP);
-    } else {
+    else
         return gui_spritesheet::get_sprite(S_WIP_2);
-    }
 }
 
-const char*
-localgravity::get_axis_rot_tooltip()
-{
-    if (this->flag_active(ENTITY_AXIS_ROT)) {
+const char *localgravity::get_axis_rot_tooltip() {
+    if (this->flag_active(ENTITY_AXIS_ROT))
         return "Make dynamic";
-    } else {
+    else
         return "Make static";
-    }
 }
 
-void
-localgravity::toggle_axis_rot()
-{
+void localgravity::toggle_axis_rot() {
     this->set_flag(ENTITY_AXIS_ROT, !this->flag_active(ENTITY_AXIS_ROT));
 
     this->body->SetType(this->get_dynamic_type());
 }
 
-b2BodyType
-localgravity::get_dynamic_type()
-{
-    if (this->flag_active(ENTITY_AXIS_ROT)) {
+b2BodyType localgravity::get_dynamic_type() {
+    if (this->flag_active(ENTITY_AXIS_ROT))
         return b2_staticBody;
-    }
 
     return b2_dynamicBody;
 }

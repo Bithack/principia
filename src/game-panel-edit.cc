@@ -1,9 +1,9 @@
 #include "game.hh"
 #include "gui.hh"
 #include "panel.hh"
+#include "text.hh"
 #include "ui.hh"
 #include "widget_manager.hh"
-#include "text.hh"
 
 struct edit_widget_decl : public widget_decl {
     int ex; int ey;
@@ -26,15 +26,11 @@ static const int MAX_Y = 3;
 static const float WIDGET_SCALE = 1.0f;
 static const float WIDGET_PADDING = 1.05f;
 
-static void
-on_drag_scroll(principia_wdg *w, float value_x, float value_y)
-{
+static void on_drag_scroll(principia_wdg *w, float value_x, float value_y) {
     scroll_x = 0.f + (-max_x+_tms.window_width) * value_x;
 }
 
-void
-game::panel_refresh_widgets()
-{
+void game::panel_refresh_widgets() {
     base_y = _tms.window_height;// - PANEL_WDG_OUTER_Y / 2.f;
     base_y = _tms.window_height - (MAX_Y * b_h * (1.f - WIDGET_SCALE))/2.f;
 
@@ -86,9 +82,7 @@ game::panel_refresh_widgets()
     this->help_dragpanel->set_position(_tms.window_width/2.f, _tms.window_height - 1.5f*menu_ydim / 2.f - (menu_ydim*0.95f));
 }
 
-void
-game::init_panel_edit()
-{
+void game::init_panel_edit() {
     btns[0].s = gui_spritesheet::get_sprite(S_SLIDER_2);
     btns[0].type = PANEL_SLIDER;
     btns[0].ex = 0; btns[0].ey = 1;
@@ -176,15 +170,12 @@ game::init_panel_edit()
     this->panel_refresh_widgets();
 }
 
-int
-game::panel_edit_handle_event(tms::event *ev)
-{
+int game::panel_edit_handle_event(tms::event *ev) {
     int pid = ev->data.motion.pointer_id;
     tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
 
-    if (ev->type == TMS_EV_POINTER_MOVE || ev->type == TMS_EV_POINTER_DRAG) {
+    if (ev->type == TMS_EV_POINTER_MOVE || ev->type == TMS_EV_POINTER_DRAG)
         move_pos = (tvec2){ev->data.motion.x, ev->data.motion.y};
-    }
 
     switch (ev->type) {
         case TMS_EV_KEY_PRESS:
@@ -206,11 +197,10 @@ game::panel_edit_handle_event(tms::event *ev)
                     float z = ev->data.scroll.y < 0 ? _tms.xppcm * -0.2f : _tms.xppcm * 0.2f;
                     scroll_x += z;
 
-                    if (scroll_x > 0.f) {
+                    if (scroll_x > 0.f)
                         scroll_x = 0.f;
-                    } else if (scroll_x < -max_x+_tms.window_width) {
+                    else if (scroll_x < -max_x+_tms.window_width)
                         scroll_x = -max_x+_tms.window_width;
-                    }
                 }
             }
             break;
@@ -280,49 +270,43 @@ game::panel_edit_handle_event(tms::event *ev)
 
                     switch (w->wtype) {
                         case PANEL_SLIDER:
-                        case PANEL_BIGSLIDER:
-                            {
-                                value = (rx + 1.f) / 2.f;
-                                G->show_numfeed(value);
-                            }
+                        case PANEL_BIGSLIDER: {
+                            value = (rx + 1.f) / 2.f;
+                            G->show_numfeed(value);
                             break;
-
+                        }
                         case PANEL_VSLIDER:
-                        case PANEL_VBIGSLIDER:
-                            {
-                                value = (ry + 1.f) / 2.f;
-                                G->show_numfeed(value);
-                            }
+                        case PANEL_VBIGSLIDER: {
+                            value = (ry + 1.f) / 2.f;
+                            G->show_numfeed(value);
                             break;
-
+                        }
                         case PANEL_FIELD:
-                        case PANEL_BIGFIELD:
-                            {
-                                value = (rx + 1.f) / 2.f;
-                                value2 = (ry + 1.f) / 2.f;
-                            }
+                        case PANEL_BIGFIELD: {
+                            value = (rx + 1.f) / 2.f;
+                            value2 = (ry + 1.f) / 2.f;
                             break;
-
+                        }
                         case PANEL_RADIAL:
-                        case PANEL_BIGRADIAL:
-                            {
-                                tvec2 d = (tvec2){rx, ry};
-                                tvec2_normalize(&d);
+                        case PANEL_BIGRADIAL: {
+                            tvec2 d = (tvec2){rx, ry};
+                            tvec2_normalize(&d);
 
-                                value = atan2f(d.y, d.x);
+                            value = atan2f(d.y, d.x);
 
-                                if (value < 0.f)
-                                    value += 2.f*M_PI;
+                            if (value < 0.f)
+                                value += 2.f*M_PI;
 
-                                value /= M_PI/90.f;
-                                value = roundf(value);
-                                value *= M_PI/90.f;
+                            value /= M_PI/90.f;
+                            value = roundf(value);
+                            value *= M_PI/90.f;
 
-                                G->show_numfeed(value * (180.f/M_PI));
+                            G->show_numfeed(value * (180.f/M_PI));
 
-                                value /= 2.f*M_PI;
-                            }
+                            value /= 2.f*M_PI;
+
                             break;
+                        }
                     }
 
                     w->default_value[0] = value;
@@ -337,9 +321,9 @@ game::panel_edit_handle_event(tms::event *ev)
             break;
 
         case TMS_EV_POINTER_UP:
-            if (modifying[pid] != -1) {
+            if (modifying[pid] != -1)
                 modifying[pid] = -1;
-            }
+
             if (panel_dragging[pid] != -1) {
 
                 /* see if we placed the button over available slots */
@@ -412,9 +396,8 @@ game::panel_edit_handle_event(tms::event *ev)
 
                             int r = p->add_widget(btns[id], sx,sy,z);
 
-                            if (r == PANEL_NO_ROOM) {
+                            if (r == PANEL_NO_ROOM)
                                 ui::messagef("This RC has reached its maximum number of widgets (%d).", p->num_widgets);
-                            }
 
                             this->panel_edit_refresh();
                         }
@@ -430,9 +413,7 @@ game::panel_edit_handle_event(tms::event *ev)
     return EVENT_DONE;
 }
 
-void
-game::render_panel_edit(void)
-{
+void game::render_panel_edit() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_DEPTH_TEST);
@@ -564,9 +545,7 @@ game::render_panel_edit(void)
     glDisable(GL_BLEND);
 }
 
-void
-game::panel_edit_refresh()
-{
+void game::panel_edit_refresh() {
     char tmp[256];
     int wdg_in_use = -1;
     int num_wdg = -1;

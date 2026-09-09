@@ -24,8 +24,7 @@ static bool cat_hide[NUM_FACTORIES][of::num_categories];
 static int list_cats[] = {0,1,2,3,4,5,6};
 static const int num_list_cats = sizeof(list_cats)/sizeof(int);
 
-factory::factory(int factory_type)
-{
+factory::factory(int factory_type) {
     this->factory_type = factory_type;
 
     this->menu_scale = .66f;
@@ -176,9 +175,7 @@ factory::factory(int factory_type)
  * 4 = Binary, if something is building
  **/
 
-int
-factory::handle_event(uint32_t type, uint64_t pointer_id, tvec2 pos)
-{
+int factory::handle_event(uint32_t type, uint64_t pointer_id, tvec2 pos) {
     switch (type) {
         case TMS_EV_POINTER_DOWN:
             this->down_pid = pointer_id;
@@ -203,9 +200,7 @@ factory::handle_event(uint32_t type, uint64_t pointer_id, tvec2 pos)
     return EVENT_CONT;
 }
 
-void
-factory::generate_recipes(std::vector<uint32_t> *vec, const char *real_buf)
-{
+void factory::generate_recipes(std::vector<uint32_t> *vec, const char *real_buf) {
     std::vector<char*> strings = p_split(real_buf, strlen(real_buf), ";");
 
     for (std::vector<char*>::iterator it = strings.begin();
@@ -214,9 +209,7 @@ factory::generate_recipes(std::vector<uint32_t> *vec, const char *real_buf)
     }
 }
 
-void
-factory::init()
-{
+void factory::init() {
     num_filtered = 0;
 
     this->autorecipe_list.clear();
@@ -224,9 +217,7 @@ factory::init()
     factory::generate_recipes(&this->autorecipe_list, this->properties[0].v.s.buf);
 }
 
-void
-factory::setup()
-{
+void factory::setup() {
     this->build_accum = 0;
     memset(this->queue, 0, sizeof(this->queue));
     this->queue_size = 0;
@@ -241,15 +232,12 @@ factory::setup()
     //this->set_flag(ENTITY_IS_STATIC, true);
 }
 
-void factory::restore()
-{
+void factory::restore() {
     edev_simpleconnect::restore();
     //this->set_flag(ENTITY_IS_STATIC, true);
 }
 
-void
-factory::write_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void factory::write_state(lvlinfo *lvl, lvlbuf *lb) {
     edev_simpleconnect::write_state(lvl, lb);
 
     lb->w_s_uint64(this->build_accum);
@@ -272,9 +260,7 @@ factory::write_state(lvlinfo *lvl, lvlbuf *lb)
     lb->w_s_int32(this->queue_size);
 }
 
-void
-factory::read_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void factory::read_state(lvlinfo *lvl, lvlbuf *lb) {
     edev_simpleconnect::read_state(lvl, lb);
 
     this->build_accum = lb->r_uint64();
@@ -297,9 +283,7 @@ factory::read_state(lvlinfo *lvl, lvlbuf *lb)
     this->queue_size = lb->r_int32();
 }
 
-void
-factory::add_to_world()
-{
+void factory::add_to_world() {
     this->bottom = 0;
 
     b2PolygonShape box;
@@ -318,20 +302,16 @@ factory::add_to_world()
     fd.restitution = .3f;
     fd.filter = world::get_filter_for_layer(this->get_layer(), 15);
 
-    switch (this->factory_type) {
-        case FACTORY_ROBOT:
-            {
-                b2Vec2 verts[4] = {
-                    b2Vec2( (this->get_width()+.75f), -this->height),
-                    b2Vec2(-(this->get_width()+.75f), -this->height),
-                    b2Vec2( (this->get_width()),      -this->height+(this->sz_bottom.h*2.f)),
-                    b2Vec2(-(this->get_width()),      -this->height+(this->sz_bottom.h*2.f)),
-                };
+    if (this->factory_type == FACTORY_ROBOT) {
+        b2Vec2 verts[4] = {
+            b2Vec2( (this->get_width()+.75f), -this->height),
+            b2Vec2(-(this->get_width()+.75f), -this->height),
+            b2Vec2( (this->get_width()),      -this->height+(this->sz_bottom.h*2.f)),
+            b2Vec2(-(this->get_width()),      -this->height+(this->sz_bottom.h*2.f)),
+        };
 
-                box.Set(verts, 4);
-                (this->bottom = (this->body->CreateFixture(&fd)))->SetUserData(this);
-            }
-            break;
+        box.Set(verts, 4);
+        (this->bottom = (this->body->CreateFixture(&fd)))->SetUserData(this);
     }
 
     /* top */
@@ -357,9 +337,7 @@ factory::add_to_world()
     this->body->SetSleepingAllowed(false);
 }
 
-void
-factory::on_touch(b2Fixture *my, b2Fixture *other)
-{
+void factory::on_touch(b2Fixture *my, b2Fixture *other) {
     entity *e;
 
     if (my == this->emit_sensor) {
@@ -459,9 +437,7 @@ factory::on_touch(b2Fixture *my, b2Fixture *other)
     }
 }
 
-void
-factory::on_untouch(b2Fixture *my, b2Fixture *other)
-{
+void factory::on_untouch(b2Fixture *my, b2Fixture *other) {
     if (my == this->emit_sensor) {
         if (W->is_adventure() && adventure::player && other == adventure::player->get_sensor_fixture()) {
             adventure::current_factory = 0;
@@ -492,9 +468,7 @@ static int top_height;
 static int slot_x;
 static int slot_y;
 
-void
-game::render_factory(void)
-{
+void game::render_factory() {
     if (!this->sel_p_ent || !IS_FACTORY(this->sel_p_ent->g_id)) {
         this->set_mode(GAME_MODE_DEFAULT);
         return;
@@ -874,9 +848,7 @@ game::render_factory(void)
     glDisable(GL_BLEND);
 }
 
-int
-game::factory_handle_event(tms::event *ev)
-{
+int game::factory_handle_event(tms::event *ev) {
     if (!this->sel_p_ent || !IS_FACTORY(this->sel_p_ent->g_id)) {
         this->set_mode(GAME_MODE_DEFAULT);
         return EVENT_DONE;
@@ -1023,9 +995,7 @@ game::factory_handle_event(tms::event *ev)
     return EVENT_DONE;
 }
 
-void
-factory::step()
-{
+void factory::step() {
     if (this->queue_size > 0) {
         if (this->queue[0].count > 0) {
             switch (this->factory_type) {
@@ -1095,9 +1065,7 @@ factory::step()
     }
 }
 
-void
-factory::cleanup_completed()
-{
+void factory::cleanup_completed() {
     bool done = false;
 
     while (!done && queue_size>0) {
@@ -1115,9 +1083,7 @@ factory::cleanup_completed()
     }
 }
 
-bool
-factory::can_afford(const struct factory_object& fo) const
-{
+bool factory::can_afford(const struct factory_object& fo) const {
     if (fo.worth.oil > this->get_oil()) {
         return false;
     }
@@ -1131,9 +1097,7 @@ factory::can_afford(const struct factory_object& fo) const
     return true;
 }
 
-int
-factory::add_to_queue(int sel)
-{
+int factory::add_to_queue(int sel) {
     std::vector<struct factory_object> &objs = this->objects();
     const struct factory_object &fo = objs.at(sel);
 
@@ -1185,15 +1149,11 @@ factory::add_to_queue(int sel)
     return 0;
 }
 
-float
-factory::get_tangent_speed()
-{
+float factory::get_tangent_speed() {
     return this->conveyor_invert ? -this->conveyor_speed : this->conveyor_speed;
 }
 
-edevice*
-factory::solve_electronics()
-{
+edevice *factory::solve_electronics() {
     if (!this->s_out[0].written()) {
         this->s_out[0].write(this->item_completed ? 1.f : 0.f);
         this->item_completed = false;
@@ -1217,16 +1177,14 @@ factory::solve_electronics()
     }
 
     if (!this->s_out[3].written()) {
-        if (this->queue_size) {
+        if (this->queue_size)
             this->s_out[3].write(tclampf((float)this->queue[0].completed/1000000, 0.f, 1.f));
-        } else {
+        else
             this->s_out[3].write(0.f);
-        }
     }
 
-    if (!this->s_out[4].written()) {
+    if (!this->s_out[4].written())
         this->s_out[4].write(this->queue_size > 0 ? 1.f : 0.f);
-    }
 
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
@@ -1241,11 +1199,10 @@ factory::solve_electronics()
 
     float build_fraction;
 
-    if (this->s_in[1].p) {
+    if (this->s_in[1].p)
         build_fraction = this->s_in[1].get_value();
-    } else {
+    else
         build_fraction = 0.f;
-    }
 
     if ((bool)((int)roundf(this->s_in[0].get_value())) && this->autorecipe_list.size() > 0) {
         int index = floorf(std::abs((this->autorecipe_list.size()) * build_fraction-0.00001f));
@@ -1259,9 +1216,7 @@ factory::solve_electronics()
     return 0;
 }
 
-std::vector<struct factory_object>&
-factory::objects()
-{
+std::vector<struct factory_object> &factory::objects() {
     switch (this->factory_type) {
         case FACTORY_ROBOT:
             return robot_objects;
@@ -1278,9 +1233,7 @@ factory::objects()
     }
 }
 
-void
-factory::init_recipes()
-{
+void factory::init_recipes() {
     /* Factory */
     {
         generic_objects.push_back(
