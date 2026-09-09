@@ -13,8 +13,7 @@ varying lowp vec3 FS_normal;
 varying lowp vec3 FS_eye;
 VARYINGS
 
-void main(void)
-{
+void main() {
     vec3 nor = N*normal;
 
     vec4 difftex;

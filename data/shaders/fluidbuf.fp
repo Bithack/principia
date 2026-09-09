@@ -5,8 +5,7 @@ UNIFORMS
 varying lowp vec3 FS_uv;
 VARYINGS
 
-void main(void)
-{
+void main() {
     float ambient = _AMBIENT;
     float shadow = SHADOW;
 

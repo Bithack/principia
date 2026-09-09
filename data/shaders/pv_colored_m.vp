@@ -5,8 +5,7 @@ varying mediump float FS_diffuse;
 
 uniform mat4 MVP;
 
-void main(void)
-{
+void main() {
     FS_diffuse = max(dot(vec3(0,0,1), normal), 0.);
     gl_Position = MVP*vec4(position, 1.);
 }

@@ -9,8 +9,7 @@ varying lowp float FS_diffuse;
 varying lowp vec4 FS_color;
 VARYINGS
 
-void main(void)
-{
+void main() {
     vec3 nor = normal;
 
     FS_color = vec4(color, 1.);

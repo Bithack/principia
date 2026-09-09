@@ -3,8 +3,7 @@ UNIFORMS
 varying lowp float FS_diffuse;
 VARYINGS
 
-void main(void)
-{
+void main() {
     float ambient = .15;
     float shadow = SHADOW;
 

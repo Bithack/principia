@@ -8,8 +8,7 @@ varying lowp vec2 FS_texcoord;
 varying lowp vec2 FS_diffuse;
 VARYINGS
 
-void main(void)
-{
+void main() {
     vec4 pos = MVP*vec4(position.xyz, 1.);
 
     SET_SHADOW

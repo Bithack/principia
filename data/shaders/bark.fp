@@ -9,8 +9,7 @@ varying lowp vec3 FS_t;
 varying lowp vec3 FS_b;
 VARYINGS
 
-void main(void)
-{
+void main() {
     lowp vec4 sample = texture2D(tex_0, FS_texcoord);
     vec3 normal = normalize(2.*sample.xyz-1.);
     lowp vec4 albedo = mix(color1, color2, sample.w*sample.w);

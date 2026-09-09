@@ -10,8 +10,7 @@ varying mediump vec3 FS_normal;
 varying mediump vec3 FS_eye;
 VARYINGS
 
-void main(void)
-{
+void main() {
     lowp vec4 pos = MVP*vec4(position, 1.);
 
     SET_SHADOW

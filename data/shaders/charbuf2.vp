@@ -9,8 +9,7 @@ varying lowp vec2 FS_texcoord;
 varying lowp vec4 FS_color;
 VARYINGS
 
-void main(void)
-{
+void main() {
     FS_texcoord = uv;
     FS_color = vcolor;
     gl_Position = vec4(position, 1.);

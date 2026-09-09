@@ -44,14 +44,12 @@ struct tms_mesh *tms_ddraw_circle_mesh;
 static const char *shader_src[] = {
 "uniform mat4 MVP;"
 "attribute vec3 position;"
-"void main(void)"
-"{"
+"void main() {"
     "gl_Position = MVP*vec4(position.xyz, 1.0);"
 "}",
 
 "uniform vec4 color;"
-"void main(void)"
-"{"
+"void main() {"
     "gl_FragColor=color;"
 "}"
 };
@@ -62,8 +60,7 @@ static const char *shader_sprite_src[] = {
 "attribute vec3 position;"
 "attribute vec2 texcoord;"
 "varying highp vec2 FS_texcoord;"
-"void main(void)"
-"{"
+"void main() {"
     "FS_texcoord = mix(coords.xy, coords.zw, texcoord.xy);"
     "gl_Position = MVP*vec4(position.xyz, 1.0);"
 "}",
@@ -71,8 +68,7 @@ static const char *shader_sprite_src[] = {
 "uniform vec4 color;"
 "uniform sampler2D sprite_0;"
 "varying highp vec2 FS_texcoord;"
-"void main(void)"
-"{"
+"void main() {"
     "gl_FragColor=color * texture2D(sprite_0, FS_texcoord);"
 "}"
 };
@@ -83,8 +79,7 @@ static const char *shader_sprite1c_src[] = {
 "attribute vec3 position;"
 "attribute vec2 texcoord;"
 "varying highp vec2 FS_texcoord;"
-"void main(void)"
-"{"
+"void main() {"
     "FS_texcoord = mix(coords.xy, coords.zw, texcoord.xy);"
     "gl_Position = MVP*vec4(position.xyz, 1.0);"
 "}",
@@ -92,8 +87,7 @@ static const char *shader_sprite1c_src[] = {
 "uniform vec4 color;"
 "uniform sampler2D sprite_0;"
 "varying highp vec2 FS_texcoord;"
-"void main(void)"
-"{"
+"void main() {"
     "gl_FragColor=vec4(color.rgb, texture2D(sprite_0, FS_texcoord).r*color.a);"
 "}"
 };
@@ -103,8 +97,7 @@ static const char *shader_rsprite_src[] = {
 "attribute vec3 position;"
 "attribute vec2 texcoord;"
 "varying highp vec2 FS_texcoord;"
-"void main(void)"
-"{"
+"void main() {"
     "FS_texcoord = texcoord;"
     "gl_Position = MVP*vec4(position.xyz, 1.0);"
 "}",
@@ -112,8 +105,7 @@ static const char *shader_rsprite_src[] = {
 "uniform vec4 color;"
 "uniform sampler2D sprite_0;"
 "varying highp vec2 FS_texcoord;"
-"void main(void)"
-"{"
+"void main() {"
     "gl_FragColor=color * texture2D(sprite_0, FS_texcoord);"
 "}"
 };

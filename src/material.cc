@@ -303,8 +303,7 @@ GLSL(
 
     uniform mat4 MVP;
 
-    void main(void)
-    {
+    void main() {
         FS_diffuse = clamp(dot(vec3(0,0,1), normal), 0., .8)
             /*+ min(position.z-1., 0.)*.5*/;
         gl_Position = MVP*vec4(position, 1.);
@@ -313,8 +312,7 @@ GLSL(
 GLSL(
     varying mediump float FS_diffuse;
 
-    void main(void)
-    {
+    void main() {
         float ambient =  AMBIENT_M;
         vec4 color = COLOR;
         gl_FragColor = vec4(color.rgb * FS_diffuse + color.rgb * ambient, color.a);
@@ -334,8 +332,7 @@ GLSL(
     varying lowp vec2 FS_diffuse;
     VARYINGS
 
-    void main(void)
-    {
+    void main() {
         vec3 nor = N*normal;
 
         vec4 pos = MVP*vec4(position, 1.);
@@ -351,8 +348,7 @@ GLSL(
     varying lowp vec2 FS_diffuse;
     VARYINGS
 
-    void main(void)
-    {
+    void main() {
         gl_FragColor = SHADOW * COLOR * FS_diffuse.x
         + COLOR * (_AMBIENT + FS_diffuse.y) * AMBIENT_OCCL;
     }

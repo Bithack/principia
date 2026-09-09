@@ -7,8 +7,7 @@ UNIFORMS
 varying lowp vec3 FS_uv;
 VARYINGS
 
-void main(void)
-{
+void main() {
     vec4 pos = MVP*vec4(position.xyz, 1.);
     SET_SHADOW
     SET_AMBIENT_OCCL

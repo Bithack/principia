@@ -6,8 +6,7 @@ varying lowp vec2 FS_texcoord;
 varying lowp vec4 FS_color;
 VARYINGS
 
-void main(void)
-{
+void main() {
     float ambient = _AMBIENT;
     float shadow = SHADOW;
 

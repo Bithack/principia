@@ -11,8 +11,7 @@ VARYINGS
 #define AO 1.0
 #endif
 
-void main(void)
-{
+void main() {
     lowp vec4 tmpvar_1;
     tmpvar_1 = texture2D (tex_0, FS_texcoord);
     gl_FragColor = (((tmpvar_1 * FS_diffuse) * SHADOW)

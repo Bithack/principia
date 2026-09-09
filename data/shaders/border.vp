@@ -12,8 +12,7 @@ VARYINGS
 
 uniform vec4 scale;
 
-void main(void)
-{
+void main() {
     vec4 _pos = M*vec4(position, 1.);
     vec4 pos = MVP*vec4(position, 1.);
 

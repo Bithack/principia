@@ -8,8 +8,7 @@ UNIFORMS
 varying lowp float FS_diffuse;
 VARYINGS
 
-void main(void)
-{
+void main() {
     vec3 nor = N*normal;
 
     vec4 pos = MVP*vec4(position, 1.);

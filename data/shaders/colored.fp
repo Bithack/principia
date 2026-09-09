@@ -5,8 +5,7 @@ varying mediump vec3 FS_eye;
 varying mediump vec3 FS_normal;
 VARYINGS
 
-void main(void)
-{
+void main() {
     vec3 n = normalize(FS_normal);
     float diffuse = clamp(dot(LIGHT, n)*_DIFFUSE, 0., 1.);
     float ambient = _AMBIENT + .25*n.z;

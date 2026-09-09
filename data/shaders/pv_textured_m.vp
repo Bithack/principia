@@ -7,8 +7,7 @@ varying mediump vec2 FS_texcoord;
 
 uniform mat4 MVP;
 
-void main(void)
-{
+void main() {
     FS_texcoord = texcoord;
     FS_diffuse = max(dot(vec3(0,0,1), normal), 0.);
         /*+ min(position.z-1., 0.)*.5*/;

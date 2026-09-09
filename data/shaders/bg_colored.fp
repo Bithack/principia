@@ -12,8 +12,7 @@ VARYINGS
 #define AO 1.0
 #endif
 
-void main(void)
-{
+void main() {
     gl_FragColor = (((color * FS_diffuse) * SHADOW)
             + (color * (_AMBIENT * AO)));
 }

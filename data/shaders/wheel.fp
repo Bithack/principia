@@ -6,8 +6,7 @@ varying mediump vec3 FS_normal;
 varying mediump vec3 FS_eye;
 VARYINGS
 
-void main(void)
-{
+void main() {
     float ambient = _AMBIENT;
 
     float shadow = SHADOW;

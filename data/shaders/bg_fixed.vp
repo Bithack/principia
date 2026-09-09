@@ -9,8 +9,7 @@ UNIFORMS
 varying mediump vec2 FS_texcoord;
 VARYINGS
 
-void main(void)
-{
+void main() {
     FS_texcoord = texcoord;
     gl_Position = MVP*vec4(position, 1.);
 }

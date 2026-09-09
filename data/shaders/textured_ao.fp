@@ -7,8 +7,7 @@ varying mediump vec3 FS_normal;
 varying mediump vec3 FS_eye;
 VARYINGS
 
-void main(void)
-{
+void main() {
     vec4 color = texture2D(tex_0, FS_texcoord);
     vec3 n = normalize(FS_normal);
     vec3 e = normalize(FS_eye);

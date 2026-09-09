@@ -13,8 +13,7 @@ varying lowp vec3 FS_t;
 varying lowp vec3 FS_b;
 VARYINGS
 
-void main(void)
-{
+void main() {
     FS_n = normalize(N*normal);
     FS_t = normalize(N*tangent);
     FS_b = cross(FS_n, FS_t);
