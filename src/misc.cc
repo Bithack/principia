@@ -25,9 +25,9 @@ std::vector<char*> p_split(const char *str, size_t len, const char *delim) {
         ret.push_back(strdup(tmp));
     } else {
         while (pch != NULL) {
-            if (strlen(pch)) {
+            if (strlen(pch))
                 ret.push_back(strdup(pch));
-            }
+
             pch = strtok(NULL, ";");
         }
     }

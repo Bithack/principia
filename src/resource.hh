@@ -24,18 +24,21 @@ struct resource_data {
 
 extern struct resource_data resource_data[NUM_RESOURCES];
 
-class resource : public entity
-{
+/**
+ * Class representing the Resource object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Resource
+ */
+class resource : public entity {
   public:
     resource();
     const char *get_name() { return "Resource"; }
-    const char *get_real_name()
-    {
+    const char *get_real_name() {
         return resource_data[this->resource_type].name;
     }
     void write_tooltip(char *out) {
         strcpy(out, resource_data[this->resource_type].name);
-    };
+    }
     void write_quickinfo(char *out);
 
     void add_to_world();

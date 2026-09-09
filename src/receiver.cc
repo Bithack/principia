@@ -5,9 +5,7 @@
 #include "receiver.hh"
 #include "ui.hh"
 
-receiver::receiver()
-    : wireless_plug(CABLE_IN)
-{
+receiver::receiver() : wireless_plug(CABLE_IN) {
     this->set_flag(ENTITY_IS_HIGH_PRIO,         true);
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
     this->set_flag(ENTITY_ALLOW_ROTATION,       false);
@@ -39,17 +37,13 @@ receiver::receiver()
     this->pending_value = 0.f;
 }
 
-void
-receiver::remove_from_world()
-{
+void receiver::remove_from_world() {
     entity::remove_from_world();
 
     W->remove_receiver(this->properties[0].v.i, this);
 }
 
-void
-receiver::setup()
-{
+void receiver::setup() {
     wplug::setup();
 
     W->add_receiver(this->properties[0].v.i, this);
@@ -58,18 +52,14 @@ receiver::setup()
     this->reconnect();
 }
 
-void
-receiver::restore()
-{
+void receiver::restore() {
     entity::restore();
 
     W->add_receiver(this->properties[0].v.i, this);
     this->reconnect();
 }
 
-void
-receiver::on_pause()
-{
+void receiver::on_pause() {
     wplug::on_pause();
 
     this->reset_recv_value();
@@ -77,9 +67,7 @@ receiver::on_pause()
     this->reconnect();
 }
 
-edevice*
-receiver::solve_electronics()
-{
+edevice* receiver::solve_electronics() {
     if (this->s) {
         socket_in *si = static_cast<socket_in*>(s);
         si->step_count = edev_step_count;

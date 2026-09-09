@@ -3,8 +3,7 @@
 #include "game.hh"
 #include "world.hh"
 
-player_activator::player_activator()
-{
+player_activator::player_activator() {
     this->set_flag(ENTITY_HAS_TRACKER, true);
 
     this->set_num_properties(1);
@@ -12,20 +11,16 @@ player_activator::player_activator()
     this->properties[0].v.i = 0;
 }
 
-edevice*
-player_activator::solve_electronics()
-{
+edevice *player_activator::solve_electronics() {
     entity *e = W->get_entity_by_id(this->properties[0].v.i);
 
     float v = 0.f;
 
-    if (!this->s_out[0].written()) {
+    if (!this->s_out[0].written())
         this->s_out[0].write((G->state.adventure_id == this->properties[0].v.i ? 1.f : 0.f));
-    }
 
-    if (!this->s_in[0].is_ready()) {
+    if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
-    }
 
     if (!this->s_in[0].p || (bool)roundf(this->s_in[0].get_value())) {
         if (W->level.type == LCAT_ADVENTURE) {

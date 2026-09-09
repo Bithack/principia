@@ -8,8 +8,14 @@ typedef std::multimap<entity*, b2Fixture*> object_map;
 typedef object_map::iterator object_map_iter;
 
 /* XXX: simpleconnect? */
-class magnet : public edev
-{
+/**
+ * Class representing the Magnet and Electromagnet object.
+ *
+ * Player Wiki ref:
+ * - https://principia-web.se/wiki/Magnet
+ * - https://principia-web.se/wiki/Electromagnet
+ */
+class magnet : public edev {
   private:
     object_map objects;
     b2Fixture *sensor;
@@ -21,17 +27,17 @@ class magnet : public edev
 
   public:
     magnet(int type);
-    const char* get_name(){
+    const char* get_name() {
         switch (this->type) {
             case 0: return "Magnet";
             case 1: return "Electromagnet";
+            default: return "";
         }
-        return "";
-    };
+    }
 
     void recreate_shape();
     void add_to_world();
-    void step(void);
+    void step();
 
     void on_touch(b2Fixture *my, b2Fixture *other);
     void on_untouch(b2Fixture *my, b2Fixture *other);

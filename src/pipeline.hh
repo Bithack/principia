@@ -4,8 +4,12 @@
 
 class ball;
 
-class pipeline : public entity_simpleconnect
-{
+/**
+ * Class representing the Ball Pipeline object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Ball_Pipeline
+ */
+class pipeline : public entity_simpleconnect {
   private:
     struct tms_entity *house;
     struct tms_entity *piston;
@@ -19,10 +23,10 @@ class pipeline : public entity_simpleconnect
     int s;
     pipeline();
 
-    void update(void);
-    void step(void);
+    void update();
+    void step();
     void add_to_world();
-    const char *get_name(){return "Ball Pipeline";};
+    const char *get_name() { return "Ball Pipeline"; }
     void take(ball *b);
     void toggle_axis_rot();
 };

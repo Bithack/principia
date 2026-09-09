@@ -4,10 +4,7 @@
 #include "game.hh"
 #include "world.hh"
 
-ladder::ladder()
-    : ladder_ud2(UD2_CLIMBABLE)
-    , ladder_step_ud2(UD2_LADDER_STEP)
-{
+ladder::ladder() : ladder_ud2(UD2_CLIMBABLE), ladder_step_ud2(UD2_LADDER_STEP) {
     this->set_flag(ENTITY_ALLOW_CONNECTIONS, false);
     this->set_flag(ENTITY_DYNAMIC_UNLOADING, true);
 
@@ -39,9 +36,7 @@ ladder::ladder()
     this->c_hori[1].typeselect = false;
 }
 
-void
-ladder::add_to_world()
-{
+void ladder::add_to_world() {
     this->create_rect(this->get_dynamic_type(), .35f, 1.45f, this->material);
     this->fx->SetUserData2(&this->ladder_ud2);
 
@@ -62,9 +57,7 @@ ladder::add_to_world()
     this->ladder_step->SetUserData2(&this->ladder_step_ud2);
 }
 
-connection *
-ladder::load_connection(connection &conn)
-{
+connection * ladder::load_connection(connection &conn) {
     if (conn.o_index == 0) {
         this->c_back = conn;
         return &this->c_back;
@@ -79,12 +72,9 @@ ladder::load_connection(connection &conn)
     return 0;
 }
 
-bool
-ladder::ReportFixture(b2Fixture *f)
-{
-    if (f->IsSensor()) {
+bool ladder::ReportFixture(b2Fixture *f) {
+    if (f->IsSensor())
         return true;
-    }
 
     entity *e = (entity*)f->GetUserData();
     uint8_t fr = VOID_TO_UINT8(f->GetBody()->GetUserData());
@@ -104,9 +94,7 @@ ladder::ReportFixture(b2Fixture *f)
     return true;
 }
 
-void
-ladder::find_pairs()
-{
+void ladder::find_pairs() {
     connection *c;
 
     if (this->c_back.pending) {
@@ -215,31 +203,24 @@ ladder::find_pairs()
 #undef QUERY_LEN
 }
 
-float32
-ladder::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
-    if (f->IsSensor()) {
+float32 ladder::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
+    if (f->IsSensor())
         return -1.f;
-    }
 
     entity *e = static_cast<entity*>(f->GetUserData());
     b2Body *b = f->GetBody();
 
-    if (!e) {
+    if (!e)
         return -1.f;
-    }
 
-    if (e->get_layer() != this->get_layer()) {
+    if (e->get_layer() != this->get_layer())
         return -1.f;
-    }
 
-    if (this->q_ask_for_permission && !e->allow_connections()) {
+    if (this->q_ask_for_permission && !e->allow_connections())
         return -1.f;
-    }
 
-    if (!this->q_ask_for_permission && e->g_id != O_LADDER) {
+    if (!this->q_ask_for_permission && e->g_id != O_LADDER)
         return -1.f;
-    }
 
     this->q_result = e;
     this->q_result_fx = f;
@@ -249,15 +230,11 @@ ladder::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32
     return fraction;
 }
 
-bool
-ladder::enjoys_connection(uint32_t g_id)
-{
+bool ladder::enjoys_connection(uint32_t g_id) {
     return (g_id == O_LADDER);
 }
 
-ladder_step::ladder_step()
-    : ladder_step_ud2(UD2_LADDER_STEP)
-{
+ladder_step::ladder_step() : ladder_step_ud2(UD2_LADDER_STEP) {
     this->has_pair = false;
     this->set_flag(ENTITY_ALLOW_CONNECTIONS, false);
     this->set_flag(ENTITY_DYNAMIC_UNLOADING, true);
@@ -277,16 +254,12 @@ ladder_step::ladder_step()
     this->c_back.typeselect = false;
 }
 
-void
-ladder_step::add_to_world()
-{
+void ladder_step::add_to_world() {
     this->create_rect(this->get_dynamic_type(), .35f, .1f, this->material);
     this->fx->SetUserData2(&this->ladder_step_ud2);
 }
 
-connection *
-ladder_step::load_connection(connection &conn)
-{
+connection * ladder_step::load_connection(connection &conn) {
     if (conn.o_index == 0) {
         this->c_back = conn;
         return &this->c_back;
@@ -295,12 +268,9 @@ ladder_step::load_connection(connection &conn)
     return 0;
 }
 
-bool
-ladder_step::ReportFixture(b2Fixture *f)
-{
-    if (f->IsSensor()) {
+bool ladder_step::ReportFixture(b2Fixture *f) {
+    if (f->IsSensor())
         return true;
-    }
 
     entity *e = (entity*)f->GetUserData();
     uint8_t fr = VOID_TO_UINT8(f->GetBody()->GetUserData());
@@ -315,9 +285,7 @@ ladder_step::ReportFixture(b2Fixture *f)
     return true;
 }
 
-void
-ladder_step::find_pairs()
-{
+void ladder_step::find_pairs() {
     connection *c;
 
     this->has_pair = false;

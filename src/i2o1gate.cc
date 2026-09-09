@@ -1,10 +1,9 @@
 #include "i2o1gate.hh"
 #include "game.hh"
 #include "material.hh"
-#include "robot_base.hh"
+#include "model.hh"
 
-i2o1gate::i2o1gate()
-{
+i2o1gate::i2o1gate() {
     this->set_material(&m_i2o1);
 
     tmat4_load_identity(this->M);
@@ -22,9 +21,18 @@ i2o1gate::i2o1gate()
     this->set_as_rect(.25f, .375f);
 }
 
-edevice*
-xorgate::solve_electronics()
-{
+i2o1gate_empty::i2o1gate_empty() {
+    this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_EMPTY));
+}
+
+xorgate::xorgate() {
+    this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_XOR));
+    this->s_in[0].tag = SOCK_TAG_GENERIC_BOOL;
+    this->s_in[1].tag = SOCK_TAG_GENERIC_BOOL;
+    this->s_out[0].tag = SOCK_TAG_GENERIC_BOOL;
+}
+
+edevice *xorgate::solve_electronics() {
     bool v1 = false;
     bool v2 = false;
 
@@ -41,9 +49,14 @@ xorgate::solve_electronics()
     return 0;
 }
 
-edevice*
-orgate::solve_electronics()
-{
+orgate::orgate() {
+    this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_OR));
+    this->s_in[0].tag = SOCK_TAG_GENERIC_BOOL;
+    this->s_in[1].tag = SOCK_TAG_GENERIC_BOOL;
+    this->s_out[0].tag = SOCK_TAG_GENERIC_BOOL;
+}
+
+edevice *orgate::solve_electronics() {
     bool v1 = false;
     bool v2 = false;
 
@@ -60,9 +73,14 @@ orgate::solve_electronics()
     return 0;
 }
 
-edevice*
-andgate::solve_electronics()
-{
+andgate::andgate() {
+    this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_AND));
+    this->s_in[0].tag = SOCK_TAG_GENERIC_BOOL;
+    this->s_in[1].tag = SOCK_TAG_GENERIC_BOOL;
+    this->s_out[0].tag = SOCK_TAG_GENERIC_BOOL;
+}
+
+edevice *andgate::solve_electronics() {
     bool v1 = false;
     bool v2 = false;
 
@@ -79,9 +97,14 @@ andgate::solve_electronics()
     return 0;
 }
 
-edevice*
-nandgate::solve_electronics()
-{
+nandgate::nandgate() {
+    this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_NAND));
+    this->s_in[0].tag = SOCK_TAG_GENERIC_BOOL;
+    this->s_in[1].tag = SOCK_TAG_GENERIC_BOOL;
+    this->s_out[0].tag = SOCK_TAG_GENERIC_BOOL;
+}
+
+edevice *nandgate::solve_electronics() {
     bool v1 = false;
     bool v2 = false;
 
@@ -98,9 +121,13 @@ nandgate::solve_electronics()
     return 0;
 }
 
-edevice*
-ifgate::solve_electronics()
-{
+ifgate::ifgate() {
+    this->s_in[0].tag = SOCK_TAG_VALUE;
+    this->s_in[1].tag = SOCK_TAG_GENERIC_BOOL;
+    this->s_out[0].tag = SOCK_TAG_VALUE;
+}
+
+edevice *ifgate::solve_electronics() {
     float v1;
     bool v2 = false;
 
@@ -117,9 +144,13 @@ ifgate::solve_electronics()
     return 0;
 }
 
-edevice*
-memory::solve_electronics()
-{
+memory::memory() : store(0.f) {
+    this->s_in[0].tag = SOCK_TAG_SET_ENABLE;
+    this->s_in[1].tag = SOCK_TAG_VALUE;
+    this->s_out[0].tag = SOCK_TAG_VALUE;
+}
+
+edevice *memory::solve_electronics() {
     bool set = false;
 
     if (!this->s_out[0].written())
@@ -141,9 +172,7 @@ memory::solve_electronics()
     return 0;
 }
 
-edevice*
-halfpack::solve_electronics()
-{
+edevice *halfpack::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -163,9 +192,7 @@ halfpack::solve_electronics()
     return 0;
 }
 
-edevice*
-emul::solve_electronics()
-{
+edevice *emul::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -181,9 +208,11 @@ emul::solve_electronics()
     return 0;
 }
 
-edevice*
-sum::solve_electronics()
-{
+sum::sum() {
+    this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_SUM));
+}
+
+edevice *sum::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -198,9 +227,7 @@ sum::solve_electronics()
     return 0;
 }
 
-edevice*
-avg::solve_electronics()
-{
+edevice *avg::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -215,9 +242,7 @@ avg::solve_electronics()
     return 0;
 }
 
-edevice*
-emin::solve_electronics()
-{
+edevice *emin::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -231,9 +256,7 @@ emin::solve_electronics()
     return 0;
 }
 
-edevice*
-emax::solve_electronics()
-{
+edevice *emax::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -247,170 +270,11 @@ emax::solve_electronics()
     return 0;
 }
 
-static void
-on_target_absorbed(entity *self, void *userdata)
-{
-    hp_control *hc = static_cast<hp_control*>(self);
-    hc->unsubscribe(hc->target);
-    hc->target = 0;
+wrapadd::wrapadd() {
+    this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_WRAP_ADD));
 }
 
-void
-hp_control::setup()
-{
-    this->target = 0;
-
-    if (this->properties[0].v.i != 0) {
-        entity *e = W->get_entity_by_id(this->properties[0].v.i);
-        if (e && e->flag_active(ENTITY_IS_ROBOT)) {
-            this->target = static_cast<robot_base*>(e);
-            this->subscribe(this->target, ENTITY_EVENT_REMOVE, &on_target_absorbed);
-        }
-    }
-}
-
-void
-hp_control::restore()
-{
-    entity::restore();
-
-    this->target = 0;
-
-    if (this->properties[0].v.i != 0) {
-        entity *e = W->get_entity_by_id(this->properties[0].v.i);
-        if (e && e->flag_active(ENTITY_IS_ROBOT)) {
-            this->target = static_cast<robot_base*>(e);
-            this->subscribe(this->target, ENTITY_EVENT_REMOVE, &on_target_absorbed);
-        }
-    }
-}
-
-edevice*
-hp_control::solve_electronics()
-{
-    bool set = false;
-
-    if (!this->s_in[0].is_ready())
-        return this->s_in[0].get_connected_edevice();
-    if (!this->s_in[1].is_ready())
-        return this->s_in[1].get_connected_edevice();
-
-    if (this->target) {
-        set = (bool)((int)roundf(this->s_in[0].get_value()));
-        float hp = this->target->get_hp();
-
-        if (set) {
-            float new_hp = this->target->get_max_hp() * this->s_in[1].get_value();
-            this->target->set_hp(new_hp);
-
-            if (new_hp != hp) {
-                G->add_hp(this->target, new_hp / this->target->get_max_hp());
-            }
-        }
-
-        this->s_out[0].write(tclampf(hp / this->target->get_max_hp(), 0.f, 1.f));
-    } else {
-        this->s_out[0].write(0.f);
-    }
-
-    return 0;
-}
-
-condenser::condenser()
-    : value(0.f)
-{
-    this->s_in[0].tag = SOCK_TAG_INCREASE;
-    this->s_in[1].tag = SOCK_TAG_DECREASE;
-    this->s_out[0].tag = SOCK_TAG_FRACTION;
-
-    this->set_num_properties(2);
-
-    this->num_sliders = 2;
-
-    this->properties[0].type = P_FLT;
-    this->properties[0].v.f = 5.f; /* max value */
-
-    this->properties[1].type = P_FLT;
-    this->properties[1].v.f = 0.f; /* initial value */
-}
-
-void
-condenser::setup()
-{
-    this->value = this->properties[1].v.f * this->properties[0].v.f;
-}
-
-float
-condenser::get_slider_value(int s)
-{
-    if (s == 0)
-        return (this->properties[0].v.f - 1.f) / 31.f;
-    else // s == 1
-        return this->properties[1].v.f;
-}
-
-void
-condenser::on_slider_change(int s, float value)
-{
-    if (s == 0) {
-        float v = 1.f + (value * 31.f);
-        this->properties[0].v.f = v;
-        G->show_numfeed(v);
-    } else { // s == 1
-        this->properties[1].v.f = value;
-        G->show_numfeed(value);
-    }
-}
-
-edevice*
-condenser::solve_electronics()
-{
-    if (!this->s_out[0].written()) {
-        float v = this->value / this->properties[0].v.f;
-        this->s_out[0].write(v);
-    }
-
-    if (!this->s_in[0].is_ready())
-        return this->s_in[0].get_connected_edevice();
-    if (!this->s_in[1].is_ready())
-        return this->s_in[1].get_connected_edevice();
-
-    float a = this->s_in[0].get_value();
-    float b = this->s_in[1].get_value();
-
-    this->value = tclampf(this->value + a - b, 0.f, this->properties[0].v.f);
-
-    return 0;
-}
-
-edevice*
-wrapcondenser::solve_electronics()
-{
-    if (!this->s_out[0].written()) {
-        float v = this->value / this->properties[0].v.f;
-        if (v > 0.999999) {
-            v = 0.f;
-            this->value = 0.f;
-        }
-        this->s_out[0].write(v);
-    }
-
-    if (!this->s_in[0].is_ready())
-        return this->s_in[0].get_connected_edevice();
-    if (!this->s_in[1].is_ready())
-        return this->s_in[1].get_connected_edevice();
-
-    float a = this->s_in[0].get_value();
-    float b = this->s_in[1].get_value();
-
-    this->value = fmodf(this->value + a + (this->properties[0].v.f - b), this->properties[0].v.f);
-
-    return 0;
-}
-
-edevice*
-wrapadd::solve_electronics()
-{
+edevice *wrapadd::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -424,9 +288,11 @@ wrapadd::solve_electronics()
     return 0;
 }
 
-edevice*
-wrapsub::solve_electronics()
-{
+wrapsub::wrapsub() {
+    this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_WRAP_SUB));
+}
+
+edevice *wrapsub::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -440,9 +306,7 @@ wrapsub::solve_electronics()
     return 0;
 }
 
-edevice*
-ewrapdist::solve_electronics()
-{
+edevice *ewrapdist::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -465,9 +329,11 @@ ewrapdist::solve_electronics()
 }
 
 /* Equal, == */
-edevice*
-cmpe::solve_electronics()
-{
+cmpe::cmpe() {
+    this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_EQUAL));
+}
+
+edevice *cmpe::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -488,9 +354,11 @@ cmpe::solve_electronics()
 }
 
 /* Lesser than, < */
-edevice*
-cmpl::solve_electronics()
-{
+cmpl::cmpl() {
+    this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_LESS));
+}
+
+edevice *cmpl::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -505,9 +373,11 @@ cmpl::solve_electronics()
 }
 
 /* Lesser than or equal, <= */
-edevice*
-cmple::solve_electronics()
-{
+cmple::cmple() {
+    this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_LESS_EQUAL));
+}
+
+edevice *cmple::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())

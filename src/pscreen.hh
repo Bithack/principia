@@ -29,8 +29,7 @@ enum text_subtypes {
 #define EVENT_DONE                 1
 #define EVENT_SPECIAL              2
 
-class pending_render
-{
+class pending_render {
   public:
     uint8_t type;
     uint8_t subtype;
@@ -47,8 +46,7 @@ class pending_render
     virtual ~pending_render() = default;
 };
 
-class rounded_square : public pending_render
-{
+class rounded_square : public pending_render {
   public:
     float width;
     float height;
@@ -60,8 +58,7 @@ class rounded_square : public pending_render
     { }
 };
 
-class pending_tog : public pending_render
-{
+class pending_tog : public pending_render {
   public:
     bool set_color;
     float r;
@@ -84,8 +81,7 @@ class pending_tog : public pending_render
     }
 };
 
-class pending_text : public pending_tog
-{
+class pending_text : public pending_tog {
   public:
     p_text *text;
 
@@ -98,8 +94,7 @@ class pending_text : public pending_tog
     pending_text(uint8_t index, p_text *t);
 };
 
-class pending_glyph : public pending_tog
-{
+class pending_glyph : public pending_tog {
   public:
     struct glyph *glyph;
     float scale;
@@ -111,8 +106,10 @@ class pending_glyph : public pending_tog
     }
 };
 
-class pscreen : public tms::screen
-{
+/**
+ * Screen overlay for HUD and other UI elements on the screen.
+ */
+class pscreen : public tms::screen {
   protected:
     widget_manager *wm;
 
@@ -174,8 +171,7 @@ class pscreen : public tms::screen
 
     virtual bool widget_clicked(principia_wdg *w, uint8_t button_id, int pid) = 0;
 
-    inline widget_manager *get_wm()
-    {
+    inline widget_manager *get_wm() {
         return this->wm;
     }
 };

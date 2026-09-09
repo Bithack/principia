@@ -7,17 +7,28 @@
 
 class composable;
 
-class group : public entity
-{
+/**
+ * Optimised handling of groups of objects that are allowed to be composable.
+ * (See ENTITY_IS_COMPOSABLE)
+ */
+class group : public entity {
   private:
     std::vector<composable*> entities;
     std::vector<connection*> connections;
 
     void recreate_all_entity_joints(bool hard);
+    /// Recreate all of the given entity's joints
     void recreate_entity_joints(composable *e, bool hard);
+    /// Called in the editor when a group is expanded to contain one more composable.
     void add_entity(composable *e);
     void merge(group *g, connection *c);
     void make_group(composable *e, std::set<composable *> *pending, std::set<composable *> *found, std::set<connection *> *found_conn);
+
+    /**
+     * Set the world center to the mass centre,
+     * and save the offset between the real origo
+     * and the mass centre
+     */
     void reset_origo(bool hard_recreate);
 
     /* for grouping the nails and shit */
@@ -48,9 +59,9 @@ class group : public entity
     group();
     ~group();
 
-    void update(void);
-    void create_mesh(void);
-    void finalize(void);
+    void update();
+    void create_mesh();
+    void finalize();
     void add(connection *c);
     void remove_entity(composable *e);
     virtual void add_to_world();

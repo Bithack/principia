@@ -13,14 +13,11 @@ int ledbuffer::n = 0;
 
 tvec4 ledbuffer::base[9];
 
-void ledbuffer::reset()
-{
+void ledbuffer::reset() {
     n = 0;
 }
 
-tms::entity *
-ledbuffer::get_entity()
-{
+tms::entity *ledbuffer::get_entity() {
     if (e) return e;
 
     e = new tms::entity();
@@ -36,8 +33,7 @@ ledbuffer::get_entity()
     return e;
 }
 
-void ledbuffer::_init()
-{
+void ledbuffer::_init() {
     verts = new tms::gbuffer(9*LEDBUFFER_MAX*sizeof(tvec4));
     verts->usage = TMS_GBUFFER_STREAM_DRAW;
 
@@ -74,9 +70,7 @@ void ledbuffer::_init()
     reset();
 }
 
-void
-ledbuffer::add(float x, float y, float z, float col)
-{
+void ledbuffer::add(float x, float y, float z, float col) {
     if (n < LEDBUFFER_MAX) {
         col*=.8f;
         tvec4 *b = (tvec4*)verts->get_buffer();
@@ -92,8 +86,7 @@ ledbuffer::add(float x, float y, float z, float col)
     }
 }
 
-void ledbuffer::upload()
-{
+void ledbuffer::upload() {
     if (mesh) {
         mesh->i_start = 0;
         mesh->i_count = n*7*3;

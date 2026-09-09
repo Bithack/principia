@@ -10,8 +10,7 @@ static b2Vec2 r_offs[] = {
     b2Vec2(0.f, 0.5f),
 };
 
-rail::rail(int type)
-{
+rail::rail(int type) {
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
     this->set_flag(ENTITY_IS_MAGNETIC,          true);
     this->set_flag(ENTITY_IS_STATIC,            true);
@@ -25,7 +24,8 @@ rail::rail(int type)
     this->update_method = ENTITY_UPDATE_STATIC;
 
     switch (this->railtype) {
-        default:case RAIL_STRAIGHT:
+        default:
+        case RAIL_STRAIGHT:
             this->set_mesh(mesh_factory::get_mesh(MODEL_RAILSTRAIGHT));
             break;
         case RAIL_SKEWED:
@@ -45,9 +45,7 @@ rail::rail(int type)
     tmat3_load_identity(this->N);
 }
 
-void
-rail::set_angle(float a)
-{
+void rail::set_angle(float a) {
     a /= M_PI/2.f;
     a = roundf(a);
     a *= M_PI/2.f;
@@ -58,9 +56,7 @@ rail::set_angle(float a)
     this->set_position(p.x, p.y);
 }
 
-void
-rail::set_position(float x, float y, uint8_t frame/*=0*/)
-{
+void rail::set_position(float x, float y, uint8_t frame/*=0*/) {
     b2Vec2 v = b2Vec2(x,y);
 
     b2Vec2 d = r_offs[this->railtype];
@@ -77,9 +73,7 @@ rail::set_position(float x, float y, uint8_t frame/*=0*/)
     entity::set_position(v.x, v.y);
 }
 
-void
-rail::add_to_world()
-{
+void rail::add_to_world() {
     if (!this->body) {
         b2BodyDef bd;
         bd.type = b2_staticBody;
@@ -100,8 +94,9 @@ rail::add_to_world()
     b2Vec2 verts[4];
 
     switch (this->railtype) {
-        default:case RAIL_STRAIGHT:
-            box.SetAsBox(2.f, .125f); 
+        default:
+        case RAIL_STRAIGHT:
+            box.SetAsBox(2.f, .125f);
             (this->body->CreateFixture(&fd))->SetUserData(this);
             break;
         case RAIL_SKEWED:
@@ -130,31 +125,30 @@ rail::add_to_world()
             (this->body->CreateFixture(&fd))->SetUserData(this);
             break;
 
-        case RAIL_45DEG:
-            {
-                float step = (M_PI/2.f) / 6;
-                float offs = - M_PI/2.f;
-                for (int x=0; x<6; x++) {
-                    float p = offs+step*x;
-                    float pn = offs+step*(x+1);
+        case RAIL_45DEG: {
+            float step = (M_PI/2.f) / 6;
+            float offs = - M_PI/2.f;
+            for (int x=0; x<6; x++) {
+                float p = offs+step*x;
+                float pn = offs+step*(x+1);
 
-                    b2Vec2 rp = b2Vec2(cosf(p), sinf(p));
-                    b2Vec2 rpn = b2Vec2(cosf(pn), sinf(pn));
+                b2Vec2 rp = b2Vec2(cosf(p), sinf(p));
+                b2Vec2 rpn = b2Vec2(cosf(pn), sinf(pn));
 
-                    verts[0] = b2Vec2(rp.x * 2.f + rp.x*.125f - 2.f, rp.y*2.f + rp.y*.125f + 2.f);
-                    verts[1] = b2Vec2(rp.x * 2.f - rp.x*.125f - 2.f, rp.y*2.f - rp.y*.125f + 2.f);
-                    verts[2] = b2Vec2(rpn.x * 2.f + rpn.x*.125f -2.f, rpn.y*2.f + rpn.y*.125f+2.f);
-                    verts[3] = b2Vec2(rpn.x * 2.f - rpn.x*.125f -2.f, rpn.y*2.f - rpn.y*.125f+2.f);
+                verts[0] = b2Vec2(rp.x * 2.f + rp.x*.125f - 2.f, rp.y*2.f + rp.y*.125f + 2.f);
+                verts[1] = b2Vec2(rp.x * 2.f - rp.x*.125f - 2.f, rp.y*2.f - rp.y*.125f + 2.f);
+                verts[2] = b2Vec2(rpn.x * 2.f + rpn.x*.125f -2.f, rpn.y*2.f + rpn.y*.125f+2.f);
+                verts[3] = b2Vec2(rpn.x * 2.f - rpn.x*.125f -2.f, rpn.y*2.f - rpn.y*.125f+2.f);
 
-                    verts[0] -= r_offs[RAIL_45DEG];
-                    verts[1] -= r_offs[RAIL_45DEG];
-                    verts[2] -= r_offs[RAIL_45DEG];
-                    verts[3] -= r_offs[RAIL_45DEG];
-                    box.Set(verts, 4);
-                    (this->body->CreateFixture(&fd))->SetUserData(this);
-                }
+                verts[0] -= r_offs[RAIL_45DEG];
+                verts[1] -= r_offs[RAIL_45DEG];
+                verts[2] -= r_offs[RAIL_45DEG];
+                verts[3] -= r_offs[RAIL_45DEG];
+                box.Set(verts, 4);
+                (this->body->CreateFixture(&fd))->SetUserData(this);
             }
             break;
+        }
     }
     this->set_layer(this->prio);
 }

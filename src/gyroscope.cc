@@ -2,8 +2,7 @@
 #include "model.hh"
 #include "material.hh"
 
-gyroscope::gyroscope()
-{
+gyroscope::gyroscope() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_GYROSCOPE));
     this->set_material(&m_metal);
 
@@ -16,9 +15,7 @@ gyroscope::gyroscope()
     this->set_as_rect(.75f/2.f, .5f);
 }
 
-edevice*
-gyroscope::solve_electronics()
-{
+edevice *gyroscope::solve_electronics() {
     double b = (double)this->get_angle() + M_PI/2.;
     b = fmod(b, M_PI*2.);
     if (b < 0.) b += M_PI*2.;

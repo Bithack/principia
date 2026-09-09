@@ -23,14 +23,13 @@ struct linebuf_vert {
     tvec4 color;
 };
 
-void linebuffer::reset()
-{
+void linebuffer::reset() {
     n = 0;
     n2 = 0;
 
     if (G) {
-      cam_x = G->cam->_position.x;
-      cam_y = G->cam->_position.y;
+        cam_x = G->cam->_position.x;
+        cam_y = G->cam->_position.y;
     }
 
     if (e) {
@@ -44,9 +43,7 @@ void linebuffer::reset()
     }
 }
 
-tms::entity *
-linebuffer::get_entity()
-{
+tms::entity *linebuffer::get_entity() {
     if (e) return e;
 
     e = new tms::entity();
@@ -62,9 +59,7 @@ linebuffer::get_entity()
     return e;
 }
 
-tms::entity *
-linebuffer::get_entity2()
-{
+tms::entity * linebuffer::get_entity2() {
     if (e2) return e2;
 
     e2 = new tms::entity();
@@ -80,8 +75,7 @@ linebuffer::get_entity2()
     return e2;
 }
 
-void linebuffer::_init()
-{
+void linebuffer::_init() {
     tms_infof("Initializing linebuffer");
 
     verts = new tms::gbuffer(4*LINEBUFFER_MAX*sizeof(struct linebuf_vert));
@@ -186,8 +180,7 @@ void linebuffer::add2(
             float x2, float y2, float z2,
             float r1, float g1, float b1, float a1,
             float r2, float g2, float b2, float a2,
-            float w1, float w2
-            )
+            float w1, float w2)
 {
     if (n2 < LINEBUFFER_MAX) {
         linebuf_vert *_b = (linebuf_vert *)verts2->get_buffer();
@@ -240,8 +233,7 @@ void linebuffer::add2(
     }
 }
 
-void linebuffer::upload()
-{
+void linebuffer::upload() {
     if (mesh) {
         mesh->i_start = 0;
         mesh->i_count = n*6;
@@ -250,11 +242,9 @@ void linebuffer::upload()
         mesh2->i_start = 0;
         mesh2->i_count = n2*6;
     }
-    if (n) {
+    if (n)
         verts->upload_partial(n*4*sizeof(struct linebuf_vert));
-    }
-    if (n2) {
+    if (n2)
         verts2->upload_partial(n2*4*sizeof(struct linebuf_vert));
-    }
 }
 

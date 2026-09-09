@@ -1,5 +1,6 @@
 #include "elimit.hh"
 #include "game.hh"
+#include "model.hh"
 
 elimit::elimit() {
     this->counter = 0;

@@ -4,8 +4,7 @@
 #include "model.hh"
 #include "game.hh"
 
-proximitysensor::proximitysensor()
-{
+proximitysensor::proximitysensor() {
     this->set_flag(ENTITY_IS_MAGNETIC, true);
     this->set_mesh(mesh_factory::get_mesh(MODEL_PROXIMITY));
     this->set_material(&m_metal);
@@ -33,34 +32,25 @@ proximitysensor::proximitysensor()
     this->query_sides[2].Set(0.f, 0.f); /* down */
     this->query_sides[3].Set( qw, 0.f); /* right */
 
-    for (int x=0; x<4; x++) {
+    for (int x=0; x<4; x++)
         this->c_side[x].render_type = CONN_RENDER_SMALL;
-    }
 }
 
-float
-proximitysensor::get_slider_snap(int s)
-{
-    if (s == 0) {
+float proximitysensor::get_slider_snap(int s) {
+    if (s == 0)
         return 1.f / 17.f;
-    } else {
+    else
         return 1.f / 12.f;
-    }
 }
 
-float
-proximitysensor::get_slider_value(int s)
-{
-    if (s == 0) {
+float proximitysensor::get_slider_value(int s) {
+    if (s == 0)
         return (this->properties[0].v.f - 1.f) / 17.f;
-    } else {
+    else
         return this->properties[1].v.f / 1.2f;
-    }
 }
 
-void
-proximitysensor::on_slider_change(int s, float value)
-{
+void proximitysensor::on_slider_change(int s, float value) {
     if (s == 0) {
         float v = (value * 17.f) + 1.f;
         this->properties[0].v.f = v;
@@ -73,15 +63,11 @@ proximitysensor::on_slider_change(int s, float value)
     this->calculate_sensor();
 }
 
-void
-proximitysensor::on_load(bool created, bool has_state)
-{
+void proximitysensor::on_load(bool created, bool has_state) {
     this->calculate_sensor();
 }
 
-void
-proximitysensor::add_to_world()
-{
+void proximitysensor::add_to_world() {
     b2BodyDef bd;
     bd.type = this->get_dynamic_type();
     bd.position = _pos;
@@ -115,9 +101,7 @@ proximitysensor::add_to_world()
     this->body = b;
 }
 
-void
-proximitysensor::on_touch(b2Fixture *my, b2Fixture *other)
-{
+void proximitysensor::on_touch(b2Fixture *my, b2Fixture *other) {
     if (!other->IsSensor()) {
         tms_infof("prox %p touched %p", this, other);
         objects_detected.push_back(other);
@@ -126,9 +110,7 @@ proximitysensor::on_touch(b2Fixture *my, b2Fixture *other)
     }
 }
 
-void
-proximitysensor::on_untouch(b2Fixture *my, b2Fixture *other)
-{
+void proximitysensor::on_untouch(b2Fixture *my, b2Fixture *other) {
     if (!other->IsSensor()) {
         tms_infof("prox %p untouched %p", this, other);
         objects_detected.remove(other);
@@ -136,9 +118,7 @@ proximitysensor::on_untouch(b2Fixture *my, b2Fixture *other)
     }
 }
 
-edevice*
-proximitysensor::solve_electronics()
-{
+edevice *proximitysensor::solve_electronics() {
     float closest = .0f;
 
     float max = (this->properties[0].v.f);
@@ -182,9 +162,8 @@ proximitysensor::solve_electronics()
 
         norm = 1.f-(tclampf(std::abs(dist)/max, 0.f, 1.f));
 
-        if (norm > closest) {
+        if (norm > closest)
             closest = norm;
-        }
     }
 
     this->s_out[0].write(closest);
@@ -192,9 +171,7 @@ proximitysensor::solve_electronics()
     return 0;
 }
 
-void
-proximitysensor::calculate_sensor()
-{
+void proximitysensor::calculate_sensor() {
     static float eps = .05f;
     tvec2 a1, a2, b1, b2, point;
     tvec2 vec = tvec2f(

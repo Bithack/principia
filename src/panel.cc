@@ -5,20 +5,16 @@
 #include "material.hh"
 #include "model.hh"
 
-static void
-update_widget_pos(panel::widget *w)
-{
+static void update_widget_pos(panel::widget *w) {
     int sx = widget_data[w->wtype].sx;
     int sy = widget_data[w->wtype].sy;
 
     int base_sock = w->sock[0];
     w->num_socks = 0;
 
-    for (int y=0; y<sy; y++) {
-        for (int x=0; x<sx; x++) {
+    for (int y=0; y<sy; y++)
+        for (int x=0; x<sx; x++)
             w->sock[w->num_socks++] = base_sock + y*3 + x;
-        }
-    }
 
     int x = base_sock%3;
     int y = (base_sock%9)/3;
@@ -29,18 +25,16 @@ update_widget_pos(panel::widget *w)
     };
 }
 
-static void
-panel_post_render(struct tms_wdg *w, struct tms_surface *s)
-{
+static void panel_post_render(struct tms_wdg *w, struct tms_surface *s) {
     panel::widget *wdg = static_cast<panel::widget*>(w->data3);
 
     update_widget_pos(wdg);
 
     if (wdg->glyph) {
         int xx = (int)wdg->pos.x, yy = (int)wdg->pos.y;
-        if (_tms.emulating_portrait) {
+        if (_tms.emulating_portrait)
             tms_convert_to_portrait(&xx, &yy);
-        }
+
         // TODO: Rotate the glyphs too
         G->add_glyph(wdg->glyph, xx, yy);
     }
@@ -51,9 +45,7 @@ panel_post_render(struct tms_wdg *w, struct tms_surface *s)
  * of half-precision floating points
  **/
 
-static void
-halfp2singles(void *dest, void *source)
-{
+static void halfp2singles(void *dest, void *source) {
     uint16_t *hp = (uint16_t *) source; // Type pun input as an unsigned 16-bit int
     uint32_t *xp = (uint32_t *) dest; // Type pun output as an unsigned 32-bit int
     uint16_t h, hs, he, hm;
@@ -97,9 +89,7 @@ halfp2singles(void *dest, void *source)
     }
 }
 
-static void
-singles2halfp(void *dest, void *source)
-{
+static void singles2halfp(void *dest, void *source) {
     uint16_t *hp = (uint16_t *) dest; // Type pun output as an unsigned 16-bit int
     uint32_t *xp = (uint32_t *) source; // Type pun input as an unsigned 32-bit int
     uint16_t    hs, he, hm;
@@ -150,9 +140,7 @@ singles2halfp(void *dest, void *source)
     }
 }
 
-static void
-packfloats(void *dest, void *source1, void *source2)
-{
+static void packfloats(void *dest, void *source1, void *source2) {
     uint16_t val1, val2;
 
     // convert source1 and source2 single-precision floating points into half-precision floating points
@@ -164,9 +152,7 @@ packfloats(void *dest, void *source1, void *source2)
     memcpy(dest, &cool, 4);
 }
 
-static void
-unpackfloats(void *source, void *dest1, void *dest2)
-{
+static void unpackfloats(void *source, void *dest1, void *dest2) {
     uint32_t v = *((uint32_t*)source);
     uint16_t val1 = v >> 16;
     uint16_t val2 = v;
@@ -304,9 +290,7 @@ struct widget_info widget_data[NUM_PANEL_WIDGET_TYPES] = {
     },
 };
 
-panel::panel(int type)
-    : activator(ATTACHMENT_JOINT)
-{
+panel::panel(int type) : activator(ATTACHMENT_JOINT) {
     this->set_flag(ENTITY_IS_CONTROL_PANEL,     true);
     this->set_flag(ENTITY_HAS_CONFIG,           true);
     this->set_flag(ENTITY_HAS_INGAME_CONFIG,    true);
@@ -377,9 +361,7 @@ panel::panel(int type)
     this->set_as_rect(ww, h);
 }
 
-void
-panel::init_mpanel()
-{
+void panel::init_mpanel() {
     this->num_widgets = 3;
     this->set_mesh(mesh_factory::get_mesh(MODEL_PANEL_MEDIUM));
     this->set_material(&m_mpanel);
@@ -420,9 +402,7 @@ panel::init_mpanel()
     }
 }
 
-void
-panel::init_xsmallpanel()
-{
+void panel::init_xsmallpanel() {
     this->num_widgets = 1;
     this->set_mesh(mesh_factory::get_mesh(MODEL_I0O1));
     this->set_material(&m_iomisc);
@@ -440,9 +420,7 @@ panel::init_xsmallpanel()
     this->s_out[0].tag = SOCK_TAG_VALUE;
 }
 
-void
-panel::init_smallpanel()
-{
+void panel::init_smallpanel() {
     this->num_widgets = 4;
     this->set_mesh(mesh_factory::get_mesh(MODEL_PANEL_SMALL));
     this->set_material(&m_smallpanel);
@@ -462,9 +440,7 @@ panel::init_smallpanel()
     }
 }
 
-void
-panel::init_bigpanel()
-{
+void panel::init_bigpanel() {
     this->num_widgets = 8;
     this->set_mesh(mesh_factory::get_mesh(MODEL_PANEL_BIG));
     this->set_material(&m_bigpanel);
@@ -507,9 +483,7 @@ panel::init_bigpanel()
     }
 }
 
-void
-panel::on_load(bool created, bool has_state)
-{
+void panel::on_load(bool created, bool has_state) {
     tms_debugf("panel on load");
     if (W->level.version >= LEVEL_VERSION_1_5) {
         for (int x=0; x<this->num_widgets; x++) {
@@ -566,9 +540,7 @@ panel::on_load(bool created, bool has_state)
     entity::on_load(created, has_state);
 }
 
-void
-panel::pre_write(void)
-{
+void panel::pre_write() {
     if (W->level.version >= LEVEL_VERSION_1_5) {
         for (int x=0; x<this->num_widgets; x++) {
             this->properties[x*4+0].v.i = (int)this->widgets[x].sock[0];
@@ -612,24 +584,18 @@ panel::pre_write(void)
     entity::pre_write();
 }
 
-void
-panel::remove_widget(int index)
-{
+void panel::remove_widget(int index) {
     this->widgets[index].used = false;
 
-    for (int n=0; n<this->num_widgets; ++n) {
-        if (this->widgets[index].outputs & (1ULL << (n+1))) {
+    for (int n=0; n<this->num_widgets; ++n)
+        if (this->widgets[index].outputs & (1ULL << (n+1)))
             this->widgets[n].owned = false;
-        }
-    }
 
     this->update_panel_key_labels();
     this->widgets_in_use --;
 }
 
-int
-panel::add_widget(struct widget_decl decl, int x, int y, int z)
-{
+int panel::add_widget(struct widget_decl decl, int x, int y, int z) {
     tms_debugf("Adding widget with type %d", decl.type);
     widget *w = 0;
     widget *w2 = 0;
@@ -684,9 +650,7 @@ panel::add_widget(struct widget_decl decl, int x, int y, int z)
     return PANEL_OK;
 }
 
-void
-panel::init_widget(panel::widget *w)
-{
+void panel::init_widget(panel::widget *w) {
     struct tms_sprite *s1 = 0;
     struct tms_sprite *s2 = 0;
 
@@ -722,9 +686,7 @@ static const char slider_chars[MAX_SLIDERS] = {
     'Z', 'X', 'C', 'V'
 };
 
-void
-panel::update_panel_key_labels()
-{
+void panel::update_panel_key_labels() {
     uint8_t wdg_up_i = 0;
     uint8_t wdg_down_i = 0;
     uint8_t wdg_left_i = 0;
@@ -800,9 +762,7 @@ panel::update_panel_key_labels()
     }
 }
 
-bool
-panel::slot_owned_by_radial(int x, int y, int z)
-{
+bool panel::slot_owned_by_radial(int x, int y, int z) {
     int v = z*9+y*3+x;
 
     for (int i=0; i<this->num_widgets; i++) {
@@ -821,9 +781,7 @@ panel::slot_owned_by_radial(int x, int y, int z)
     return false;
 }
 
-bool
-panel::slot_used(int x, int y, int z)
-{
+bool panel::slot_used(int x, int y, int z) {
     int v = z*9+y*3+x;
 
     for (int i=0; i<this->num_widgets; i++) {
@@ -838,9 +796,7 @@ panel::slot_used(int x, int y, int z)
     return false;
 }
 
-edevice*
-panel::solve_electronics()
-{
+edevice* panel::solve_electronics() {
     for (int x=0; x<this->num_widgets; x++) {
         panel::widget *w = &this->widgets[x];
 
@@ -944,9 +900,7 @@ panel::solve_electronics()
     return 0;
 }
 
-void
-panel::setup()
-{
+void panel::setup() {
     for (int x=0; x<this->num_widgets; x++) {
         panel::widget *w = &this->widgets[x];
         if (w->used) {
@@ -956,9 +910,7 @@ panel::setup()
     }
 }
 
-void
-panel::panel_disconnected()
-{
+void panel::panel_disconnected() {
     tms_debugf("Disconnected from panel %p, clearing widgets", this);
 
     for (int x=0; x<this->num_widgets; x++) {
@@ -973,8 +925,6 @@ panel::panel_disconnected()
     }
 }
 
-void
-panel::activate(creature *by)
-{
+void panel::activate(creature *by) {
     tms_infof("the panel has been activated!");
 }

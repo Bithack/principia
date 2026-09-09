@@ -5,8 +5,7 @@
 
 #define SHOOT_VELOCITY 10.f
 
-lobber::lobber()
-{
+lobber::lobber() {
     this->robot_type = ROBOT_TYPE_BOMBER;
     this->damage_multiplier = 0.5f;
 
@@ -18,9 +17,7 @@ lobber::lobber()
     this->properties[3].v.i = 1500;
 }
 
-void
-lobber::roam_aim()
-{
+void lobber::roam_aim() {
     b2Vec2 r = this->get_position();
     b2Vec2 o = this->roam_target->get_position();
     o -= r;
@@ -32,11 +29,11 @@ lobber::roam_aim()
     float d = this->target_dist;
     if (d < 3.f) d = 3.f;
     if (d > 6.f) d = 6.f;
-    if (this->look_dir == 1) {
+
+    if (this->look_dir == 1)
         a += d * 0.225f;
-    } else {
+    else
         a -= d * 0.225f;
-    }
 
     this->roam_target_aim = a;
 
@@ -62,12 +59,15 @@ lobber::roam_aim()
     */
 }
 
-void
-lobber::attack(int add_cooldown)
-{
-    if (this->finished) return;
-    if (roundf(this->i_dir) == 0.f) return;
-    if (this->attack_timer > 0) return;
+void lobber::attack(int add_cooldown) {
+    if (this->finished)
+        return;
+
+    if (roundf(this->i_dir) == 0.f)
+        return;
+
+    if (this->attack_timer > 0)
+        return;
 
     float dir = tclampf(roundf(this->i_dir), -1.f, 1.f);
 

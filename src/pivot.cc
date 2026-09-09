@@ -5,8 +5,7 @@
 #include "game.hh"
 #include "object_factory.hh"
 
-pivot::pivot()
-{
+pivot::pivot() {
     this->width = 4.f;
 
     this->set_flag(ENTITY_IS_MAGNETIC, true);
@@ -15,11 +14,10 @@ pivot::pivot()
     tmat3_load_identity(this->N);
 }
 
-void pivot::on_grab(game *g){};
-void pivot::on_release(game *g){};
+void pivot::on_grab(game *g){}
+void pivot::on_release(game *g){}
 
-pivot_1::pivot_1()
-{
+pivot_1::pivot_1() {
     this->query_vec = b2Vec2(0.f, -1.f);
     this->menu_scale = 1.f;
 
@@ -33,8 +31,7 @@ pivot_1::pivot_1()
     this->set_as_rect(.25f, .25f);
 }
 
-pivot_2::pivot_2()
-{
+pivot_2::pivot_2() {
     this->p1 = 0;
     this->query_vec = b2Vec2(0.f, 1.f);
     /* TODO: use proper matierla */
@@ -45,42 +42,31 @@ pivot_2::pivot_2()
     this->set_as_rect(.25f, .25f);
 }
 
-void
-pivot_1::update_frame(bool hard)
-{
+void pivot_1::update_frame(bool hard) {
     if (hard) this->dconn.j = 0;
     if (this->dconn.o) this->dconn.create_joint(0);
 }
 
-void
-pivot_2::update_frame(bool hard)
-{
-    if (this->p1) {
+void pivot_2::update_frame(bool hard) {
+    if (this->p1)
         this->p1->update_frame(hard);
-    }
 }
 
-void
-pivot_1::set_layer(int z)
-{
+void pivot_1::set_layer(int z) {
     if (this->body) {
         if (this->dconn.o) this->dconn.o->entity::set_layer(z);
     }
     entity::set_layer(z);
 }
 
-void
-pivot_2::set_layer(int z)
-{
+void pivot_2::set_layer(int z) {
     if (this->body) {
         if (this->p1) this->p1->set_layer(z);
     } else
         entity::set_layer(z);
 }
 
-connection *
-pivot_1::load_connection(connection &conn)
-{
+connection *pivot_1::load_connection(connection &conn) {
     if (conn.o_index == 1) {
         tms_infof("loaded dconn");
         this->dconn = conn;
@@ -91,9 +77,7 @@ pivot_1::load_connection(connection &conn)
     return composable_simpleconnect::load_connection(conn);
 }
 
-void
-pivot_1::connection_create_joint(connection *c)
-{
+void pivot_1::connection_create_joint(connection *c) {
     if (c == &this->dconn) {
         ((pivot_2*)c->o)->p1 = this;
 
@@ -116,9 +100,7 @@ pivot_1::connection_create_joint(connection *c)
     }
 }
 
-void
-pivot_1::construct()
-{
+void pivot_1::construct() {
     pivot_2 *p2 = (pivot_2*)of::create(69);
 
     p2->_pos = this->_pos;

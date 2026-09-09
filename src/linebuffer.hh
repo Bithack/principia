@@ -4,8 +4,10 @@
 
 #define LINEBUFFER_MAX 512
 
-class linebuffer
-{
+/**
+ * Graphics buffer for in-world lines
+ */
+class linebuffer {
   public:
     static void _init();
     static void reset();

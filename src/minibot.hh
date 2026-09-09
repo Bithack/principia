@@ -4,12 +4,17 @@
 
 class miniwheel;
 
+/**
+ * Class representing the Cleaner Bot object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Cleaner_Bot
+ */
 class minibot : public robot_base
 {
   public:
     minibot();
     ~minibot();
-    const char *get_name() { return "Cleaner Bot"; };
+    const char *get_name() { return "Cleaner Bot"; }
 
     void roam_set_target_type();
     void roam_attack();
@@ -18,7 +23,7 @@ class minibot : public robot_base
     bool roam_can_target(entity *e, bool must_see=true);
     void look_for_target();
 
-    bool can_jump(){return false;};
+    bool can_jump() { return false; }
 
     void on_load(bool created, bool has_state);
     void eat(entity *e);

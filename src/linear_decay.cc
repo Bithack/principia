@@ -1,17 +1,13 @@
 #include "linear_decay.hh"
 #include "game.hh"
 
-ldecay::ldecay()
-{
+ldecay::ldecay() {
     this->properties[0].v.f = 0.1f; /* decay rate */
 }
 
-edevice*
-ldecay::solve_electronics()
-{
-    if (!this->s_in[0].is_ready()) {
+edevice *ldecay::solve_electronics() {
+    if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
-    }
 
     float v = this->s_in->get_value();
 
@@ -27,15 +23,11 @@ ldecay::solve_electronics()
     return 0;
 }
 
-float
-ldecay::get_slider_value(int s)
-{
+float ldecay::get_slider_value(int s) {
     return this->properties[0].v.f * 10.f;
 }
 
-void
-ldecay::on_slider_change(int s, float value)
-{
+void ldecay::on_slider_change(int s, float value) {
     float v = value / 10.f;
     this->properties[0].v.f = v;
     G->show_numfeed(v, 3);

@@ -2,8 +2,7 @@
 #include "model.hh"
 #include "material.hh"
 
-i2o0gate::i2o0gate()
-{
+i2o0gate::i2o0gate() {
     this->set_material(&m_iomisc);
     this->set_mesh(mesh_factory::get_mesh(MODEL_I2O0));
 

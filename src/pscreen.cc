@@ -1,14 +1,13 @@
 #include "pscreen.hh"
-#include "gui.hh"
-#include "widget_manager.hh"
-#include "game-message.hh"
 #include "game-graph.hh"
-#include "text.hh"
-#include "settings.hh"
-#include "ui.hh"
-#include "soundmanager.hh"
+#include "game-message.hh"
 #include "game.hh"
-
+#include "gui.hh"
+#include "settings.hh"
+#include "soundmanager.hh"
+#include "text.hh"
+#include "ui.hh"
+#include "widget_manager.hh"
 #include <SDL3/SDL.h>
 
 p_text *pscreen::text_username;
@@ -16,9 +15,7 @@ game_message *pscreen::message;
 game_graph pscreen::fps_graph("FPS");
 int ping_cooldown = 0;
 
-pending_text::pending_text(uint8_t index, p_text *t)
-    : pending_tog(index, ST_TEXT)
-{
+pending_text::pending_text(uint8_t index, p_text *t) : pending_tog(index, ST_TEXT) {
     this->text = t;
     this->x = t->get_x();
     this->y = t->get_y();
@@ -31,13 +28,9 @@ pending_text::pending_text(uint8_t index, p_text *t)
     this->o_b = t->outline_color.b;
 }
 
-pscreen::pscreen()
-    : wm(0)
-{ }
+pscreen::pscreen() : wm(0) { }
 
-void
-pscreen::add_rounded_square(float x, float y, float width, float height, tvec4 color, float outline_width, uint8_t index/*=50*/)
-{
+void pscreen::add_rounded_square(float x, float y, float width, float height, tvec4 color, float outline_width, uint8_t index/*=50*/) {
     rounded_square *rs = new rounded_square(index);
     rs->x = x;
     rs->y = y;
@@ -49,15 +42,11 @@ pscreen::add_rounded_square(float x, float y, float width, float height, tvec4 c
     this->pending_renders.push_back(rs);
 }
 
-void
-pscreen::add_pending_text(pending_text *pt)
-{
+void pscreen::add_pending_text(pending_text *pt) {
     this->pending_renders.push_back(pt);
 }
 
-void
-pscreen::add_text(p_text *text, bool render_outline/*=true*/, bool do_free/*=false*/, uint8_t index/*=60*/)
-{
+void pscreen::add_text(p_text *text, bool render_outline/*=true*/, bool do_free/*=false*/, uint8_t index/*=60*/) {
     pending_text *pt = new pending_text(index);
     pt->text = text;
     pt->render_outline = render_outline;
@@ -70,15 +59,13 @@ pscreen::add_text(p_text *text, bool render_outline/*=true*/, bool do_free/*=fal
     this->pending_renders.push_back(pt);
 }
 
-void
-pscreen::add_text(p_text *text, float x, float y,
+void pscreen::add_text(p_text *text, float x, float y,
         bool render_outline/*=true*/,
         bool do_free/*=false*/,
         float r/*=1.f*/, float g/*=1.f*/, float b/*=1.f*/, float a/*=1.f*/,
         float o_r/*=0.f*/, float o_g/*=0.f*/, float o_b/*=0.f*/,
         uint8_t index/*=60*/
-        )
-{
+        ) {
     pending_text *pt = new pending_text(index);
     pt->text = text;
     pt->x = x;
@@ -97,8 +84,7 @@ pscreen::add_text(p_text *text, float x, float y,
     this->pending_renders.push_back(pt);
 }
 
-void
-pscreen::add_glyph(struct glyph *glyph, float x, float y, float scale/*=1.f*/,
+void pscreen::add_glyph(struct glyph *glyph, float x, float y, float scale/*=1.f*/,
         bool render_outline/*=true*/,
         bool do_free/*=false*/,
         float r/*=1.f*/, float g/*=1.f*/, float b/*=1.f*/, float a/*=1.f*/,
@@ -125,8 +111,7 @@ pscreen::add_glyph(struct glyph *glyph, float x, float y, float scale/*=1.f*/,
     this->pending_renders.push_back(pg);
 }
 
-void
-pscreen::add_text(float num, p_font *font,
+void pscreen::add_text(float num, p_font *font,
         float x, float y,
         tvec4 color,
         int precision/*=0*/,
@@ -145,15 +130,13 @@ pscreen::add_text(float num, p_font *font,
     this->add_text(tmp_text, x, y, render_outline, true, index);
 }
 
-void
-pscreen::add_text(const char *str, p_font *font,
+void pscreen::add_text(const char *str, p_font *font,
         float x, float y,
         tvec4 color,
         bool render_outline/*=true*/,
         enum text_align halign/*=ALIGN_LEFT*/, enum text_align valign/*=ALIGN_CENTER*/,
         uint8_t index/*=60*/
-        )
-{
+        ) {
     p_text *tmp_text = new p_text(font, halign, valign);
     tmp_text->set_text(str);
     tmp_text->color = color;
@@ -161,15 +144,12 @@ pscreen::add_text(const char *str, p_font *font,
     this->add_text(tmp_text, x, y, render_outline, true, index);
 }
 
-struct render_sorter
-{
-    static bool asc(const pending_render* a, const pending_render* b)
-    {
+struct render_sorter {
+    static bool asc(const pending_render* a, const pending_render* b) {
         return a->index < b->index;
     }
 
-    static bool desc(const pending_render* a, const pending_render* b)
-    {
+    static bool desc(const pending_render* a, const pending_render* b) {
         return a->index > b->index;
     }
 };
@@ -180,9 +160,7 @@ struct render_sorter
 //#define NUM_FPS_MODES 3
 //#endif
 
-int
-pscreen::handle_input(tms::event *ev, int action)
-{
+int pscreen::handle_input(tms::event *ev, int action) {
     if (ev->type == TMS_EV_KEY_PRESS) {
         switch (ev->data.key.keycode) {
 #ifdef DEBUG
@@ -274,19 +252,15 @@ pscreen::handle_input(tms::event *ev, int action)
     return EVENT_CONT;
 }
 
-int
-pscreen::render()
-{
-    if (this->wm) {
+int pscreen::render() {
+    if (this->wm)
         this->wm->render();
-    }
 
     if (settings["display_fps"]->v.u8) {
-        if (settings["display_fps"]->v.u8 == 3) {
+        if (settings["display_fps"]->v.u8 == 3)
             pscreen::fps_graph.push(_tms.dt, _tms.fps);
-        } else {
+        else
             pscreen::fps_graph.push(_tms.dt, _tms.fps_mean);
-        }
 
         pscreen::fps_graph.render(this);
     }
@@ -294,12 +268,9 @@ pscreen::render()
     return T_OK;
 }
 
-int
-pscreen::post_render()
-{
-    if (_tms.state == TMS_STATE_QUITTING) {
+int pscreen::post_render() {
+    if (_tms.state == TMS_STATE_QUITTING)
         return T_OK;
-    }
 
     glDisable(GL_DEPTH_TEST);
 
@@ -328,9 +299,8 @@ pscreen::post_render()
 
                             pt->text->render_at_pos(this->get_surface()->ddraw, pt->x, pt->y, pt->render_outline, call_opengl_stuff);
 
-                            if (pt->do_free) {
+                            if (pt->do_free)
                                 delete pt->text;
-                            }
                         } break;
 
                         case ST_GLYPH: {
@@ -350,9 +320,8 @@ pscreen::post_render()
                 case RT_ROUNDED_SQUARE: {
                     const rounded_square *rs = static_cast<const rounded_square*>(pr);
 
-                    if (last_type != pr->type) {
+                    if (last_type != pr->type)
                         glBindTexture(GL_TEXTURE_2D, gui_spritesheet::atlas->texture.gl_texture);
-                    }
 
                     tms_ddraw_set_rsprite_color(this->get_surface()->ddraw, TVEC4_INLINE(rs->color));
                     tms_ddraw_rsprite(this->get_surface()->ddraw, gui_spritesheet::get_sprite(S_ROUNDED_SQUARE),
@@ -378,9 +347,7 @@ pscreen::post_render()
     return T_OK;
 }
 
-void
-pscreen::init()
-{
+void pscreen::init() {
     pscreen::text_username = new p_text(font::medium);
     pscreen::text_username->set_text(" ");
 
@@ -408,20 +375,16 @@ pscreen::init()
     }
 }
 
-void
-pscreen::refresh_username()
-{
+void pscreen::refresh_username() {
     char tmp[256];
 
     if (P.username) {
-        if (P.num_unread_messages) {
+        if (P.num_unread_messages)
             snprintf(tmp, 255, "%s [%d]", P.username, P.num_unread_messages);
-        } else {
+        else
             snprintf(tmp, 255, "%s", P.username);
-        }
-    } else {
+    } else
         snprintf(tmp, 255, "Not logged in");
-    }
 
     pscreen::text_username->set_text(tmp);
 

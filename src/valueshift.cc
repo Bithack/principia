@@ -1,5 +1,6 @@
 #include "valueshift.hh"
 #include "game.hh"
+#include "model.hh"
 
 valueshift::valueshift()
 {

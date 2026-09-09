@@ -2,8 +2,12 @@
 
 #include "entity.hh"
 
-class oilrig : public entity_simpleconnect
-{
+/**
+ * Class representing the Oil Rig object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Oil_Rig
+ */
+class oilrig : public entity_simpleconnect {
   private:
     float oil_accum;
 
@@ -32,5 +36,5 @@ class oilrig : public entity_simpleconnect
     void step();
     void setup();
     void add_to_world();
-    const char *get_name(){return "Oil Rig";};
+    const char *get_name() { return "Oil Rig"; }
 };

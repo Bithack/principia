@@ -1,7 +1,6 @@
 #pragma once
 
 #include "entity.hh"
-
 #include <set>
 
 struct limb {
@@ -16,8 +15,12 @@ struct limb {
     char name[32];
 };
 
-class ragdoll : public entity
-{
+/**
+ * Class representing the Dummy object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Dummy
+ */
+class ragdoll : public entity {
   private:
     /* head is this->body */
     b2Body *torso;
@@ -43,10 +46,10 @@ class ragdoll : public entity
 
     b2Joint *joints[9];
 
-    void update(void);
+    void update();
     void add_to_world();
     void remove_from_world();
-    const char *get_name(void){return "Dummy";};
+    const char *get_name(){ return "Dummy"; }
 
     void on_pause();
     void setup();

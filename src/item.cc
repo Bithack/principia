@@ -25,8 +25,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_mesh_offset(-.0125f, 0.f)
         .set_magnetic(true)
         .add_worth(RESOURCE_IRON, 18)
-        .add_worth(RESOURCE_RUBY, 4)
-        ,
+        .add_worth(RESOURCE_RUBY, 4),
 
     item_option("Builder")
         .set_layer_mask(2+4)
@@ -40,8 +39,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_mesh_offset(-.0125f, 0.f)
         .set_magnetic(true)
         .add_worth(RESOURCE_IRON, 12)
-        .add_worth(RESOURCE_TOPAZ, 2)
-        ,
+        .add_worth(RESOURCE_TOPAZ, 2),
 
     item_option("Shotgun")
         .set_layer_mask(2+4)
@@ -56,8 +54,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_magnetic(true)
         .add_worth(RESOURCE_IRON, 22)
         .add_worth(RESOURCE_RUBY, 8)
-        .add_worth(RESOURCE_EMERALD, 2)
-        ,
+        .add_worth(RESOURCE_EMERALD, 2),
 
     item_option("Railgun")
         .set_layer_mask(2+4)
@@ -71,8 +68,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_magnetic(true)
         .add_worth(RESOURCE_IRON, 7)
         .add_worth(RESOURCE_ALUMINIUM, 7)
-        .add_worth(RESOURCE_EMERALD, 10)
-        ,
+        .add_worth(RESOURCE_EMERALD, 10),
 
     item_option("Oil Barrel")
         .set_effect(new creature_effect(EFFECT_TYPE_HEALTH, EFFECT_METHOD_ADDITIVE, 20.f, 0))
@@ -82,8 +78,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_category(ITEM_CATEGORY_POWERUP)
         .set_uniform(.25f, .25f, .25f, 1.f)
         .set_size(.745f/2.f, 1.167f/2.f)
-        .set_activator_radius(1.f)
-        ,
+        .set_activator_radius(1.f),
 
     item_option("Speed oil")
         .set_effect(new creature_effect(EFFECT_TYPE_SPEED, EFFECT_METHOD_MULTIPLICATIVE, 1.5f, 20*1000*1000))
@@ -96,8 +91,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(1.25f)
         .set_activator_radius(1.f)
         .add_worth(RESOURCE_EMERALD, 2)
-        .add_oil(10.f)
-        ,
+        .add_oil(10.f),
 
     item_option("Jump oil")
         .set_effect(new creature_effect(EFFECT_TYPE_JUMP_STRENGTH, EFFECT_METHOD_MULTIPLICATIVE, 1.3f, 10*1000*1000))
@@ -111,8 +105,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_activator_radius(1.f)
         .add_worth(RESOURCE_EMERALD, 1)
         .add_worth(RESOURCE_TOPAZ, 1)
-        .add_oil(10.f)
-        ,
+        .add_oil(10.f),
 
     item_option("Armour oil")
         .set_effect(new creature_effect(EFFECT_TYPE_ARMOUR, EFFECT_METHOD_ADDITIVE, 20.f, 0))
@@ -125,8 +118,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(1.25f)
         .set_activator_radius(1.f)
         .add_worth(RESOURCE_RUBY, 2)
-        .add_oil(10.f)
-        ,
+        .add_oil(10.f),
 
     item_option("Zapper")
         .set_layer_mask(2+4)
@@ -141,8 +133,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_magnetic(true)
         .add_worth(RESOURCE_IRON, 7)
         .add_worth(RESOURCE_ALUMINIUM, 7)
-        .add_worth(RESOURCE_EMERALD, 10)
-        ,
+        .add_worth(RESOURCE_EMERALD, 10),
 
     item_option("Miner upgrade")
         .set_layer_mask(2+4)
@@ -152,8 +143,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_uniform(.4f, .4f, .8f, 1.f)
         .set_size(.28f, .33f)
         .set_menu_scale(1.25f)
-        .add_oil(10.f)
-        ,
+        .add_oil(10.f),
 
     item_option("Rocket Launcher")
         .set_layer_mask(2+4)
@@ -168,8 +158,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_magnetic(true)
         .add_worth(RESOURCE_IRON, 25)
         .add_worth(RESOURCE_COPPER, 10)
-        .add_worth(RESOURCE_RUBY, 10)
-        ,
+        .add_worth(RESOURCE_RUBY, 10),
 
     item_option("Somersault Circuit")
         .set_layer_mask(2)
@@ -184,8 +173,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .add_worth(RESOURCE_COPPER, 15)
         .add_worth(RESOURCE_RUBY, 5)
         .add_worth(RESOURCE_EMERALD, 5)
-        .add_worth(RESOURCE_DIAMOND, 3)
-        ,
+        .add_worth(RESOURCE_DIAMOND, 3),
 
     item_option("Jetpack")
         .set_layer_mask(2+4)
@@ -201,8 +189,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(1.125f)
         .add_worth(RESOURCE_IRON, 15)
         .add_worth(RESOURCE_COPPER, 15)
-        .add_worth(RESOURCE_EMERALD, 5)
-        ,
+        .add_worth(RESOURCE_EMERALD, 5),
 
     item_option("Upgraded Jetpack")
         .set_layer_mask(2+4)
@@ -220,8 +207,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .add_worth(RESOURCE_ALUMINIUM, 15)
         .add_worth(RESOURCE_COPPER, 15)
         .add_worth(RESOURCE_EMERALD, 15)
-        .add_worth(RESOURCE_TOPAZ, 5)
-        ,
+        .add_worth(RESOURCE_TOPAZ, 5),
 
     item_option("Advanced Jetpack")
         .set_layer_mask(2+4)
@@ -239,8 +225,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .add_worth(RESOURCE_COPPER, 15)
         .add_worth(RESOURCE_EMERALD, 20)
         .add_worth(RESOURCE_TOPAZ, 15)
-        .add_worth(RESOURCE_DIAMOND, 15)
-        ,
+        .add_worth(RESOURCE_DIAMOND, 15),
 
     item_option("Bomb Launcher")
         .set_layer_mask(2+4)
@@ -254,8 +239,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_mesh_offset(-.18f, 0.f)
         .set_magnetic(true)
         .add_worth(RESOURCE_IRON, 18)
-        .add_worth(RESOURCE_RUBY, 4)
-        ,
+        .add_worth(RESOURCE_RUBY, 4),
 
     item_option("Robot head")
         .set_layer_mask(15)
@@ -271,8 +255,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(1.35f)
         .add_worth(RESOURCE_ALUMINIUM, 7)
         .add_worth(RESOURCE_IRON, 14)
-        .add_worth(RESOURCE_DIAMOND, 1)
-        ,
+        .add_worth(RESOURCE_DIAMOND, 1),
 
     item_option("Cow head")
         .set_layer_mask(15)
@@ -287,8 +270,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(1.25f)
         .add_worth(RESOURCE_ALUMINIUM, 2)
         .add_worth(RESOURCE_IRON, 19)
-        .add_worth(RESOURCE_TOPAZ, 1)
-        ,
+        .add_worth(RESOURCE_TOPAZ, 1),
 
     item_option("Pig head")
         .set_layer_mask(15)
@@ -303,8 +285,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_magnetic(true)
         .add_worth(RESOURCE_ALUMINIUM, 2)
         .add_worth(RESOURCE_IRON, 24)
-        .add_worth(RESOURCE_TOPAZ, 1)
-        ,
+        .add_worth(RESOURCE_TOPAZ, 1),
 
     item_option("Robot front")
         .set_layer_mask(15)
@@ -321,8 +302,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_rot_offs(.175f)
         .set_menu_scale(1.5f)
         .add_worth(RESOURCE_ALUMINIUM, 10)
-        .add_worth(RESOURCE_IRON, 20)
-        ,
+        .add_worth(RESOURCE_IRON, 20),
 
     item_option("Teslagun")
         .set_layer_mask(2+4)
@@ -339,8 +319,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .add_worth(RESOURCE_COPPER, 10)
         .add_worth(RESOURCE_ALUMINIUM, 15)
         .add_worth(RESOURCE_EMERALD, 10)
-        .add_worth(RESOURCE_DIAMOND, 1)
-        ,
+        .add_worth(RESOURCE_DIAMOND, 1),
 
     item_option("Plasma Gun")
         .set_layer_mask(2+4)
@@ -357,8 +336,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .add_worth(RESOURCE_COPPER, 10)
         .add_worth(RESOURCE_ALUMINIUM, 5)
         .add_worth(RESOURCE_EMERALD, 15)
-        .add_worth(RESOURCE_DIAMOND, 5)
-        ,
+        .add_worth(RESOURCE_DIAMOND, 5),
 
     item_option("Arm Cannon bullet")
         .set_layer_mask(2+4)
@@ -370,8 +348,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_magnetic(true)
         .set_do_step(true)
-        .set_zappable(false)
-        ,
+        .set_zappable(false),
 
     item_option("Shotgun pellet")
         .set_layer_mask(2+4)
@@ -383,8 +360,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_magnetic(true)
         .set_do_step(true)
-        .set_zappable(false)
-        ,
+        .set_zappable(false),
 
     item_option("Plasma Gun plasma")
         .set_layer_mask(2+4)
@@ -395,8 +371,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_do_step(true)
         .set_do_update_effects(true)
-        .set_zappable(false)
-        ,
+        .set_zappable(false),
 
     item_option("Rocket Launcher rocket")
         .set_layer_mask(2+4)
@@ -408,8 +383,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_magnetic(true)
         .set_do_step(true)
-        .set_zappable(false)
-        ,
+        .set_zappable(false),
 
     item_option("Heisenberg's Hat")
         .set_layer_mask(15)
@@ -420,8 +394,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_size(.27f, .1f)
         .set_data_id(HEAD_EQUIPMENT_HEISENBERG)
         .set_menu_scale(2.5f)
-        .set_can_rotate(true)
-        ,
+        .set_can_rotate(true),
 
     item_option("Mega Buster")
         .set_layer_mask(2+4)
@@ -433,8 +406,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(WEAPON_MEGABUSTER)
         .set_menu_scale(1.5f)
         .set_mesh_offset(.0f, -0.025f)
-        .set_magnetic(true)
-        ,
+        .set_magnetic(true),
 
     item_option("Mega Buster Solar Bullet")
         .set_layer_mask(2+4)
@@ -445,8 +417,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_do_step(true)
         .set_do_update_effects(true)
-        .set_zappable(false)
-        ,
+        .set_zappable(false),
 
     item_option("Feet")
         .set_layer_mask(15)
@@ -458,8 +429,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(FEET_BIPED)
         .set_menu_scale(2.5f)
         .set_mesh_offset(-.125f, -0.025f)
-        .set_magnetic(true)
-        ,
+        .set_magnetic(true),
 
     item_option("Miniwheels")
         .set_layer_mask(15)
@@ -471,8 +441,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(FEET_MINIWHEELS)
         .set_menu_scale(2.5f)
         .set_mesh_offset(-.125f, -0.025f)
-        .set_magnetic(true)
-        ,
+        .set_magnetic(true),
 
     item_option("Monowheel")
         .set_layer_mask(15)
@@ -484,8 +453,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(FEET_MONOWHEEL)
         .set_menu_scale(2.5f)
         .set_mesh_offset(-.125f, -0.025f)
-        .set_magnetic(true)
-        ,
+        .set_magnetic(true),
 
     item_option("Quadruped")
         .set_layer_mask(15)
@@ -497,8 +465,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(FEET_QUADRUPED)
         .set_menu_scale(2.5f)
         .set_mesh_offset(-.125f, -0.025f)
-        .set_magnetic(true)
-        ,
+        .set_magnetic(true),
 
     item_option("Ninja Helmet")
         .set_layer_mask(15)
@@ -510,8 +477,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(HEAD_EQUIPMENT_NINJAHELMET)
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
-        .set_magnetic(true)
-        ,
+        .set_magnetic(true),
 
     item_option("Black robot front")
         .set_layer_mask(15)
@@ -523,8 +489,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(FRONT_EQUIPMENT_BLACK_ROBOT_FRONT)
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
-        .set_magnetic(true)
-        ,
+        .set_magnetic(true),
 
     item_option("Riding Circuit")
         .set_layer_mask(2)
@@ -540,8 +505,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .add_worth(RESOURCE_COPPER, 15)
         .add_worth(RESOURCE_RUBY, 5)
         .add_worth(RESOURCE_EMERALD, 5)
-        .add_worth(RESOURCE_DIAMOND, 3)
-        ,
+        .add_worth(RESOURCE_DIAMOND, 3),
 
     item_option("Faction Wand")
         .set_layer_mask(2+4)
@@ -553,8 +517,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(TOOL_FACTION_WAND)
         .set_menu_scale(1.5f)
         .set_can_rotate(true)
-        .set_magnetic(true)
-        ,
+        .set_magnetic(true),
 
     item_option("Wizard Hat")
         .set_layer_mask(15)
@@ -566,8 +529,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(HEAD_EQUIPMENT_WIZARDHAT)
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
-        .set_mesh_offset(0,-.4)
-        ,
+        .set_mesh_offset(0,-.4),
 
     item_option("Robot back")
         .set_layer_mask(15)
@@ -583,8 +545,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_rot_offs(-.175f)
         .set_menu_scale(1.5f)
         .add_worth(RESOURCE_ALUMINIUM, 10)
-        .add_worth(RESOURCE_IRON, 20)
-        ,
+        .add_worth(RESOURCE_IRON, 20),
 
     item_option("Uncovered robot head")
         .set_layer_mask(15)
@@ -600,8 +561,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(1.5f)
         .add_worth(RESOURCE_ALUMINIUM, 3)
         .add_worth(RESOURCE_IRON, 3)
-        .add_worth(RESOURCE_DIAMOND, 1)
-        ,
+        .add_worth(RESOURCE_DIAMOND, 1),
 
     item_option("Wood Bolt Set")
         .set_layer_mask(2+4)
@@ -613,8 +573,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(BOLT_SET_WOOD)
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
-        .add_worth(RESOURCE_WOOD, 15)
-        ,
+        .add_worth(RESOURCE_WOOD, 15),
 
     item_option("Steel Bolt Set")
         .set_layer_mask(2+4)
@@ -627,8 +586,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
         .add_worth(RESOURCE_IRON, 5)
-        .add_worth(RESOURCE_RUBY, 1)
-        ,
+        .add_worth(RESOURCE_RUBY, 1),
 
     item_option("Sapphire Bolt Set")
         .set_layer_mask(2+4)
@@ -641,8 +599,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
         .add_worth(RESOURCE_IRON, 35)
-        .add_worth(RESOURCE_SAPPHIRE, 15)
-        ,
+        .add_worth(RESOURCE_SAPPHIRE, 15),
 
     item_option("Diamond Bolt Set")
         .set_layer_mask(2+4)
@@ -655,8 +612,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
         .add_worth(RESOURCE_ALUMINIUM, 35)
-        .add_worth(RESOURCE_DIAMOND, 10)
-        ,
+        .add_worth(RESOURCE_DIAMOND, 10),
 
     item_option("Conical Hat")
         .set_layer_mask(15)
@@ -669,8 +625,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
         .set_mesh_offset(0,-.14)
-        .add_worth(RESOURCE_WOOD, 15)
-        ,
+        .add_worth(RESOURCE_WOOD, 15),
 
     item_option("Ostrich Head")
         .set_layer_mask(15)
@@ -681,8 +636,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_size(.30f, .125f)
         .set_data_id(HEAD_OSTRICH)
         .set_can_rotate(true)
-        .set_magnetic(true)
-        ,
+        .set_magnetic(true),
 
     item_option("Circuit of Regeneration")
         .set_layer_mask(2)
@@ -697,8 +651,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .add_worth(RESOURCE_COPPER, 15)
         .add_worth(RESOURCE_RUBY, 5)
         .add_worth(RESOURCE_EMERALD, 5)
-        .add_worth(RESOURCE_DIAMOND, 3)
-        ,
+        .add_worth(RESOURCE_DIAMOND, 3),
 
     item_option("Zombie Circuit")
         .set_layer_mask(2)
@@ -713,8 +666,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .add_worth(RESOURCE_COPPER, 15)
         .add_worth(RESOURCE_RUBY, 5)
         .add_worth(RESOURCE_EMERALD, 5)
-        .add_worth(RESOURCE_DIAMOND, 3)
-        ,
+        .add_worth(RESOURCE_DIAMOND, 3),
 
     item_option("Police Hat")
         .set_layer_mask(15)
@@ -726,8 +678,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(HEAD_EQUIPMENT_POLICEHAT)
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
-        .set_mesh_offset(0,-.1)
-        ,
+        .set_mesh_offset(0,-.1),
 
     item_option("Black robot back")
         .set_layer_mask(15)
@@ -743,8 +694,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_rot_offs(-.175f)
         .set_menu_scale(1.5f)
         .add_worth(RESOURCE_ALUMINIUM, 10)
-        .add_worth(RESOURCE_IRON, 20)
-        ,
+        .add_worth(RESOURCE_IRON, 20),
 
     item_option("Top Hat")
         .set_layer_mask(15)
@@ -756,8 +706,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(HEAD_EQUIPMENT_TOPHAT)
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
-        .set_mesh_offset(0,-.25)
-        ,
+        .set_mesh_offset(0,-.25),
 
     item_option("Compressor")
         .set_layer_mask(2+4)
@@ -773,8 +722,8 @@ struct item_option item_options[NUM_ITEMS] = {
         .add_worth(RESOURCE_IRON, 7)
         .add_worth(RESOURCE_ALUMINIUM, 7)
         .add_worth(RESOURCE_TOPAZ, 1)
-        .add_worth(RESOURCE_EMERALD, 1)
-        ,
+        .add_worth(RESOURCE_EMERALD, 1),
+
     item_option("King's Crown")
         .set_layer_mask(15)
         .set_material(&m_item_shiny)
@@ -785,8 +734,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(HEAD_EQUIPMENT_KINGSCROWN)
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
-        .set_mesh_offset(0.f,-.1f)
-        ,
+        .set_mesh_offset(0.f,-.1f),
 
     item_option("Dummy head")
         .set_layer_mask(15)
@@ -799,8 +747,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_can_rotate(true)
         .set_mesh_offset(0.f,.06f)
         .set_magnetic(true)
-        .set_menu_scale(1.25f)
-        ,
+        .set_menu_scale(1.25f),
 
     item_option("Jester hat")
         .set_layer_mask(15)
@@ -812,8 +759,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(HEAD_EQUIPMENT_JESTERHAT)
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
-        .set_mesh_offset(.1f,-.1f)
-        ,
+        .set_mesh_offset(.1f,-.1f),
 
     item_option("Training sword")
         .set_layer_mask(2+4)
@@ -824,8 +770,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_size(.3f, .65f)
         .set_data_id(WEAPON_TRAINING_SWORD)
         .set_menu_scale(0.75f)
-        .set_mesh_offset(-.0125f, -.5f)
-        ,
+        .set_mesh_offset(-.0125f, -.5f),
 
     item_option("Witch Hat")
         .set_layer_mask(15)
@@ -837,8 +782,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(HEAD_EQUIPMENT_WITCH_HAT)
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
-        .set_mesh_offset(0,-.4)
-        ,
+        .set_mesh_offset(0,-.4),
 
     item_option("War hammer")
         .set_layer_mask(2+4)
@@ -849,8 +793,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_size(.3f, .6f)
         .set_data_id(WEAPON_WAR_HAMMER)
         .set_menu_scale(0.75f)
-        .set_mesh_offset(-.0125f, -.5f)
-        ,
+        .set_mesh_offset(-.0125f, -.5f),
 
     item_option("Simple axe")
         .set_layer_mask(2+4)
@@ -861,8 +804,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_size(.3f, .45f)
         .set_data_id(WEAPON_SIMPLE_AXE)
         .set_menu_scale(0.75f)
-        .set_mesh_offset(-.0125f, -.3f)
-        ,
+        .set_mesh_offset(-.0125f, -.3f),
 
     item_option("Chainsaw")
         .set_layer_mask(2+4)
@@ -873,8 +815,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_size(.53f, .25f)
         .set_data_id(WEAPON_CHAINSAW)
         .set_menu_scale(0.75f)
-        .set_mesh_offset(.2f, .1f)
-        ,
+        .set_mesh_offset(.2f, .1f),
 
     item_option("Spiked Club")
         .set_layer_mask(2+4)
@@ -885,8 +826,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_size(.3f, .65f)
         .set_data_id(WEAPON_SPIKED_CLUB)
         .set_menu_scale(0.75f)
-        .set_mesh_offset(-.0125f, -.5f)
-        ,
+        .set_mesh_offset(-.0125f, -.5f),
 
     item_option("Steel Sword")
         .set_layer_mask(2+4)
@@ -897,8 +837,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_size(.3f, .7f)
         .set_data_id(WEAPON_STEEL_SWORD)
         .set_menu_scale(0.75f)
-        .set_mesh_offset(-.0125f, -.5f)
-        ,
+        .set_mesh_offset(-.0125f, -.5f),
 
     item_option("Baseball bat")
         .set_layer_mask(2+4)
@@ -909,8 +848,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_size(.3f, .6f)
         .set_data_id(WEAPON_BASEBALLBAT)
         .set_menu_scale(0.75f)
-        .set_mesh_offset(-.0125f, -.45f)
-        ,
+        .set_mesh_offset(-.0125f, -.45f),
 
     item_option("Spear")
         .set_layer_mask(2+4)
@@ -921,8 +859,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_size(.3f, .6f)
         .set_data_id(WEAPON_SPEAR)
         .set_menu_scale(0.75f)
-        .set_mesh_offset(0.f, -.45f)
-        ,
+        .set_mesh_offset(0.f, -.45f),
 
     item_option("War axe")
         .set_layer_mask(2+4)
@@ -933,8 +870,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_size(.35f, .7f)
         .set_data_id(WEAPON_WAR_AXE)
         .set_menu_scale(0.75f)
-        .set_mesh_offset(.0125f, -.5f)
-        ,
+        .set_mesh_offset(.0125f, -.5f),
 
     item_option("Pixel sword")
         .set_layer_mask(2+4)
@@ -945,8 +881,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_size(.3f, .65f)
         .set_data_id(WEAPON_PIXEL_SWORD)
         .set_menu_scale(0.75f)
-        .set_mesh_offset(-.0125f, -.5f)
-        ,
+        .set_mesh_offset(-.0125f, -.5f),
 
     item_option("Hard hat")
         .set_layer_mask(15)
@@ -958,8 +893,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(HEAD_EQUIPMENT_HARD_HAT)
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
-        .set_mesh_offset(0.f,-.1f)
-        ,
+        .set_mesh_offset(0.f,-.1f),
 
     item_option("Serpent Sword")
         .set_layer_mask(2+4)
@@ -970,8 +904,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_size(.3f, .7f)
         .set_data_id(WEAPON_SERPENT_SWORD)
         .set_menu_scale(0.75f)
-        .set_mesh_offset(-.0125f, -.5f)
-        ,
+        .set_mesh_offset(-.0125f, -.5f),
 
     item_option("Pioneer front")
         .set_layer_mask(15)
@@ -983,8 +916,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(FRONT_EQUIPMENT_PIONEER_FRONT)
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
-        .set_magnetic(true)
-        ,
+        .set_magnetic(true),
 
     item_option("Pioneer back")
         .set_layer_mask(15)
@@ -1000,8 +932,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_rot_offs(-.175f)
         .set_menu_scale(1.5f)
         .add_worth(RESOURCE_ALUMINIUM, 10)
-        .add_worth(RESOURCE_IRON, 20)
-        ,
+        .add_worth(RESOURCE_IRON, 20),
 
     item_option("Viking Helmet")
         .set_layer_mask(15)
@@ -1013,8 +944,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_data_id(HEAD_EQUIPMENT_VIKING_HELMET)
         .set_menu_scale(2.5f)
         .set_can_rotate(true)
-        .set_mesh_offset(0.f,-.1f)
-        ,
+        .set_mesh_offset(0.f,-.1f),
 
     item_option("Pickaxe")
         .set_layer_mask(2+4)
@@ -1025,8 +955,7 @@ struct item_option item_options[NUM_ITEMS] = {
         .set_size(.3f, .52f)
         .set_data_id(WEAPON_PICKAXE)
         .set_menu_scale(0.75f)
-        .set_mesh_offset(-.0125f, -.38f)
-        ,
+        .set_mesh_offset(-.0125f, -.38f),
 };
 
 int _head_to_item[NUM_HEAD_TYPES] = {
@@ -1120,8 +1049,7 @@ int _weapon_to_item[NUM_WEAPONS] = {
     ITEM_PICKAXE,
 };
 
-uint32_t _circuit_flag_to_item(uint32_t circuit_id)
-{
+uint32_t _circuit_flag_to_item(uint32_t circuit_id) {
     switch (circuit_id) {
         case CREATURE_CIRCUIT_SOMERSAULT: return ITEM_SOMERSAULT_CIRCUIT;
         case CREATURE_CIRCUIT_RIDING: return ITEM_RIDING_CIRCUIT;
@@ -1132,10 +1060,7 @@ uint32_t _circuit_flag_to_item(uint32_t circuit_id)
     }
 }
 
-item::item(int32_t initial_item_id/*=-1*/)
-    : activator(ATTACHMENT_NONE)
-    , has_hit_enemy(false)
-{
+item::item(int32_t initial_item_id/*=-1*/) : activator(ATTACHMENT_NONE), has_hit_enemy(false) {
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
     this->set_flag(ENTITY_HAS_CONFIG,           true);
     this->set_flag(ENTITY_DO_TICK,              true);
@@ -1166,23 +1091,16 @@ item::item(int32_t initial_item_id/*=-1*/)
     this->properties[1].v.f = .5f;
 }
 
-item::~item()
-{
+item::~item() { }
 
-}
-
-void
-item::tick()
-{
+void item::tick() {
     if (this->do_recreate_shape) {
         this->recreate_shape();
         this->do_recreate_shape = false;
     }
 }
 
-void
-item::init()
-{
+void item::init() {
     switch (this->properties[0].v.i) {
         case ITEM_ROCKET:
             {
@@ -1191,50 +1109,40 @@ item::init()
     }
 }
 
-void
-item::setup()
-{
+void item::setup() {
     this->set_item_type(this->properties[0].v.i);
 }
 
-void
-item::on_load(bool created, bool has_state)
-{
+void item::on_load(bool created, bool has_state) {
     this->set_item_type(this->properties[0].v.i);
 }
 
-void
-item::on_pause()
-{
+void item::on_pause() {
     this->setup();
 }
 
-void
-item::recreate_shape()
-{
+void item::recreate_shape() {
     uint32_t ct = this->get_item_type();
     if (ct >= NUM_ITEMS) this->set_item_type(ct = (NUM_ITEMS - 1));
 
-    if (this->body) {
-        while (this->body->GetFixtureList()) {
+    if (this->body)
+        while (this->body->GetFixtureList())
             this->body->DestroyFixture(this->body->GetFixtureList());
-        }
-    }
+
 
     const item_option &co = item_options[ct];
     if (co.mesh) {
         this->set_mesh(*co.mesh);
         this->set_uniform("~color", co.uniform.r, co.uniform.g, co.uniform.b, co.uniform.a);
-    } else {
+    } else
         this->set_mesh((tms::mesh*)0);
-    }
+
     this->set_material(co.material);
 
-    if (co.size.y <= 0.f) {
+    if (co.size.y <= 0.f)
         this->create_circle(this->get_dynamic_type(), co.size.x, this->material);
-    } else {
+    else
         this->create_rect(this->get_dynamic_type(), co.size.x, co.size.y, this->material);
-    }
 
     if (ct == ITEM_PLASMA || ct == ITEM_SOLAR) {
         /* plasma bullets are not effected by gravity */
@@ -1262,140 +1170,121 @@ item::recreate_shape()
     }
 }
 
-void
-item::add_to_world()
-{
+void item::add_to_world() {
     this->recreate_shape();
 }
 
-void
-item::update()
-{
+void item::update() {
     item_option co = item_options[this->properties[0].v.i];
 
     switch (this->item_category) {
-        case ITEM_CATEGORY_TOOL:
-            {
-                tmat4_load_identity(this->M);
-                b2Vec2 p = this->get_position();
-                float a = this->get_angle();
+        case ITEM_CATEGORY_TOOL: {
+            tmat4_load_identity(this->M);
+            b2Vec2 p = this->get_position();
+            float a = this->get_angle();
 
-                tmat4_translate(this->M, p.x, p.y, this->get_layer()*LAYER_DEPTH);
-                tmat4_rotate(this->M, a * (180.f/M_PI) + 180, 0.f, 0.f, -1.f);
+            tmat4_translate(this->M, p.x, p.y, this->get_layer()*LAYER_DEPTH);
+            tmat4_rotate(this->M, a * (180.f/M_PI) + 180, 0.f, 0.f, -1.f);
 
-                /* the mesh is rotated weirdly to fit the robot better, so we have to rotate it back */
-                tmat4_rotate(this->M, -90, 0, 0, 1.);
-                tmat4_rotate(this->M, -90, 0,1,0);
-                tmat4_rotate(this->M, 180, 1,0,0);
-                tmat4_translate(this->M, -.35f, co.mesh_offset.x, co.mesh_offset.y);
-                //tmat4_rotate(this->M, 90, 0,1,0);
+            /* the mesh is rotated weirdly to fit the robot better, so we have to rotate it back */
+            tmat4_rotate(this->M, -90, 0, 0, 1.);
+            tmat4_rotate(this->M, -90, 0,1,0);
+            tmat4_rotate(this->M, 180, 1,0,0);
+            tmat4_translate(this->M, -.35f, co.mesh_offset.x, co.mesh_offset.y);
+            //tmat4_rotate(this->M, 90, 0,1,0);
 
-                tmat3_copy_mat4_sub3x3(this->N, this->M);
-                this->wep = true;
-            }
+            tmat3_copy_mat4_sub3x3(this->N, this->M);
+            this->wep = true;
             break;
+        }
+        case ITEM_CATEGORY_WEAPON: {
+            tmat4_load_identity(this->M);
+            b2Vec2 p = this->get_position();
+            float a = this->get_angle();
 
-        case ITEM_CATEGORY_WEAPON:
-            {
-                tmat4_load_identity(this->M);
-                b2Vec2 p = this->get_position();
-                float a = this->get_angle();
+            tmat4_translate(this->M, p.x, p.y, this->get_layer()*LAYER_DEPTH);
+            tmat4_rotate(this->M, a * (180.f/M_PI) + 180, 0.f, 0.f, -1.f);
 
-                tmat4_translate(this->M, p.x, p.y, this->get_layer()*LAYER_DEPTH);
-                tmat4_rotate(this->M, a * (180.f/M_PI) + 180, 0.f, 0.f, -1.f);
+            /* the mesh is rotated weirdly to fit the robot better, so we have to rotate it back */
+            tmat4_rotate(this->M, -90, 0, 0, 1.);
+            tmat4_rotate(this->M, -90, 0,1,0);
+            tmat4_rotate(this->M, 180, 1,0,0);
+            tmat4_translate(this->M, .35f, co.mesh_offset.x, co.mesh_offset.y);
+            //tmat4_rotate(this->M, 90, 0,1,0);
 
-                /* the mesh is rotated weirdly to fit the robot better, so we have to rotate it back */
-                tmat4_rotate(this->M, -90, 0, 0, 1.);
-                tmat4_rotate(this->M, -90, 0,1,0);
-                tmat4_rotate(this->M, 180, 1,0,0);
-                tmat4_translate(this->M, .35f, co.mesh_offset.x, co.mesh_offset.y);
-                //tmat4_rotate(this->M, 90, 0,1,0);
-
-                tmat3_copy_mat4_sub3x3(this->N, this->M);
-                this->wep = true;
-            }
+            tmat3_copy_mat4_sub3x3(this->N, this->M);
+            this->wep = true;
             break;
-
+        }
         case ITEM_CATEGORY_LOOSE_HEAD:
         case ITEM_CATEGORY_HEAD:
         case ITEM_CATEGORY_BACK:
-        case ITEM_CATEGORY_FRONT:
-            {
+        case ITEM_CATEGORY_FRONT: {
+            tmat4_load_identity(this->M);
+            b2Vec2 p = this->get_position();
+            tmat4_translate(this->M, p.x, p.y, this->get_layer() * LAYER_DEPTH);
+            tmat4_rotate(this->M, this->get_angle() * (180.f/M_PI), 0, 0, -1);
+            tmat4_translate(this->M, co.mesh_offset.x, co.mesh_offset.y, 0.f);
+            tmat4_translate(this->M, 0.f, 0.f, co.rot_offs);
+            tmat4_rotate(this->M, (this->properties[1].v.f-.5f) * 180.f, 0, -1, 0);
+            tmat4_translate(this->M, 0.f, 0.f, -co.rot_offs);
+            tmat3_copy_mat4_sub3x3(this->N, this->M);
+            tmat4_scale(this->M, this->get_scale(), this->get_scale(), this->get_scale());
+            this->wep = true;
+            break;
+        }
+        default: {
+            if (this->wep) {
+                // reset matrices from being rendered as a weapon/tool
                 tmat4_load_identity(this->M);
-                b2Vec2 p = this->get_position();
-                tmat4_translate(this->M, p.x, p.y, this->get_layer() * LAYER_DEPTH);
-                tmat4_rotate(this->M, this->get_angle() * (180.f/M_PI), 0, 0, -1);
-                tmat4_translate(this->M, co.mesh_offset.x, co.mesh_offset.y, 0.f);
-                tmat4_translate(this->M, 0.f, 0.f, co.rot_offs);
-                tmat4_rotate(this->M, (this->properties[1].v.f-.5f) * 180.f, 0, -1, 0);
-                tmat4_translate(this->M, 0.f, 0.f, -co.rot_offs);
-                tmat3_copy_mat4_sub3x3(this->N, this->M);
-                tmat4_scale(this->M, this->get_scale(), this->get_scale(), this->get_scale());
-                this->wep = true;
+                this->wep = false;
             }
-            break;
 
-        default:
-            {
-                if (this->wep) {
-                    // reset matrices from being rendered as a weapon/tool
-                    tmat4_load_identity(this->M);
-                    this->wep = false;
-                }
-
-                entity_fast_update(this);
-            }
+            entity_fast_update(this);
             break;
+        }
     }
 }
 
 #define INTERACTIVE_DAMAGE_MODIFIER 0.05f
 
-void
-item::read_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void item::read_state(lvlinfo *lvl, lvlbuf *lb) {
     entity::read_state(lvl, lb);
 
     this->set_scale(lb->r_float());
 
-    switch (this->properties[0].v.i) {
-        case ITEM_SOLAR:
-            this->data = (void*)(uintptr_t)lb->r_uint32();
-            break;
-    }
+    if (this->properties[0].v.i == ITEM_SOLAR)
+        this->data = (void*)(uintptr_t)lb->r_uint32();
 }
 
-void
-item::write_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void item::write_state(lvlinfo *lvl, lvlbuf *lb) {
     entity::write_state(lvl, lb);
 
     lb->w_s_float(this->get_scale());
 
-    switch (this->properties[0].v.i) {
-        case ITEM_SOLAR:
-            lb->w_s_uint32((uint32_t)(uintptr_t)(this->data));
-            break;
-    }
+    if (this->properties[0].v.i == ITEM_SOLAR)
+        lb->w_s_uint32((uint32_t)(uintptr_t)(this->data));
 }
 
-float
-item::get_damage()
-{
+float item::get_damage() {
     float damage = 0.f;
 
     switch (this->properties[0].v.i) {
-        case ITEM_BULLET: damage = 5.f; break;
+        case ITEM_BULLET:
+            damage = 5.f;
+            break;
         case ITEM_SHOTGUN_PELLET:
             damage = 7.f;
             damage += this->get_body(0) ? this->get_body(0)->GetLinearVelocity().LengthSquared() / 30.f : 0.f;
             break;
-        case ITEM_PLASMA: damage = 8.f; break;
-        case ITEM_ROCKET: damage = 80.f; break;
+        case ITEM_PLASMA:
+            damage = 8.f;
+            break;
+        case ITEM_ROCKET:
+            damage = 80.f; break;
         case ITEM_SOLAR:
             damage = 15.f;
             damage += ((int)(uintptr_t)this->data)/MEGABUSTER_CHARGE_MAX * MEGABUSTER_CHARGE_DAMAGE;
-
             break;
     }
 
@@ -1407,59 +1296,52 @@ item::get_damage()
     return damage;
 }
 
-damage_type
-item::get_damage_type()
-{
-    switch (this->properties[0].v.i) {
-        case ITEM_PLASMA:
-        case ITEM_SOLAR:
-            return DAMAGE_TYPE_PLASMA;
-        default:
-            return DAMAGE_TYPE_FORCE;
-    }
+damage_type item::get_damage_type() {
+    if (this->properties[0].v.i == ITEM_PLASMA || this->properties[0].v.i == ITEM_SOLAR)
+        return DAMAGE_TYPE_PLASMA;
+    else
+        return DAMAGE_TYPE_FORCE;
 }
 
-bool
-item::on_collide(b2Fixture *f, b2Vec2 v, float imp)
-{
-    if (this->flag_active(ENTITY_IS_ABSORBED)) {
+bool item::on_collide(b2Fixture *f, b2Vec2 v, float imp) {
+    if (this->flag_active(ENTITY_IS_ABSORBED))
         return false;
-    }
 
     entity *e = static_cast<entity*>(f->GetUserData());
     b2Vec2 p = this->get_position();
     item *i = 0;
-    if (e && e->g_id == O_ITEM) {
+    if (e && e->g_id == O_ITEM)
         i = static_cast<item*>(e);
-    }
 
     switch (this->get_item_type()) {
         default: return true;
         case ITEM_SHOTGUN_PELLET:
-            if (e) {
-                if (i && e->flag_active(ENTITY_IS_BULLET)) {
-                    tms_debugf("shotgun bullet colliding with other bullet");
-                    if (i->get_item_type() == ITEM_SHOTGUN_PELLET &&
-                        this->emitted_by == i->emitted_by) {
-                        tms_debugf("ours!");
-                        return false;
-                    } else {
-                        tms_debugf("NOT ours!");
-                    }
-                }
-                tms_debugf("proceed");
-                if (e->flag_active(ENTITY_IS_MAGNETIC)
-                        || (e->g_id == O_CHUNK && f->GetUserData2() && ((tpixel_desc*)f->GetUserData2())->material > 1)) {
-                    if (imp > 10.f && rand()%3 == 0) {
-                        G->lock();
-                        G->emit(new spark_effect(
-                                    this->get_position(),
-                                    this->get_layer()
-                                    ), 0);
-                        G->unlock();
-                    }
+            if (!e)
+                break;
+
+            if (i && e->flag_active(ENTITY_IS_BULLET)) {
+                tms_debugf("shotgun bullet colliding with other bullet");
+                if (i->get_item_type() == ITEM_SHOTGUN_PELLET &&
+                    this->emitted_by == i->emitted_by) {
+                    tms_debugf("ours!");
+                    return false;
+                } else {
+                    tms_debugf("NOT ours!");
                 }
             }
+            tms_debugf("proceed");
+            if (e->flag_active(ENTITY_IS_MAGNETIC)
+                    || (e->g_id == O_CHUNK && f->GetUserData2() && ((tpixel_desc*)f->GetUserData2())->material > 1)) {
+                if (imp > 10.f && rand()%3 == 0) {
+                    G->lock();
+                    G->emit(new spark_effect(
+                                this->get_position(),
+                                this->get_layer()
+                                ), 0);
+                    G->unlock();
+                }
+            }
+            break;
         case ITEM_BULLET:
             if (i && (i->get_item_type() == ITEM_PLASMA || i->get_item_type() == ITEM_SOLAR)) {
                 /*G->lock();
@@ -1485,35 +1367,30 @@ item::on_collide(b2Fixture *f, b2Vec2 v, float imp)
             switch (this->get_item_type()) {
                 case ITEM_BULLET:
                 case ITEM_SHOTGUN_PELLET:
-                    if (c->is_dead()) {
+                    if (c->is_dead())
                         return false;
-                    }
+
                     break;
             }
 
-            if (c->is_foot_fixture(f)) {
+            if (c->is_foot_fixture(f))
                 return false;
-            }
 
-            if (this->has_hit_enemy) {
+            if (this->has_hit_enemy)
                 return false;
-            }
 
             this->has_hit_enemy = true;
 
             G->lock();
 
-            if (c->is_alive()) {
-                if (!W->level.flag_active(LVL_DISABLE_ROBOT_HIT_SCORE)) {
-                    if (!c->is_player() && c->gives_score && this->emitted_by == G->state.adventure_id) {
+            if (c->is_alive())
+                if (!W->level.flag_active(LVL_DISABLE_ROBOT_HIT_SCORE))
+                    if (!c->is_player() && c->gives_score && this->emitted_by == G->state.adventure_id)
                         G->add_score(10);
-                    }
-                }
-            }
 
             if (c->id != this->emitted_by || (this->get_item_type() != ITEM_SHOTGUN_PELLET
                                               && this->get_item_type() != ITEM_BULLET))
-            c->damage(damage, f, dt, DAMAGE_SOURCE_BULLET, this->emitted_by);
+                c->damage(damage, f, dt, DAMAGE_SOURCE_BULLET, this->emitted_by);
 
             switch (this->properties[0].v.i) {
                 case ITEM_BULLET:
@@ -1538,58 +1415,47 @@ item::on_collide(b2Fixture *f, b2Vec2 v, float imp)
             G->unlock();
         } else if (e->g_id == O_RESOURCE) {
             //contact->SetEnabled(false);
-        } else if (e->g_id == O_CRANE) {
+        } else if (e->g_id == O_CRANE)
             ((crane*)e)->hit = true;
-        }
     }
 
     switch (this->properties[0].v.i) {
         case ITEM_SOLAR:
-        case ITEM_PLASMA:
-            if (i && i->item_category == ITEM_CATEGORY_BULLET) {
+        case ITEM_PLASMA: {
+            if (i && i->item_category == ITEM_CATEGORY_BULLET)
                 return false;
-            }
-
-            {
-                entity *effect = new plasma_explosion_effect(p, this->get_layer(), false, (this->get_scale() * this->get_scale()));
-                G->lock();
-                G->emit(effect, this, b2Vec2(0,0));
-                G->absorb(this);
-                G->unlock();
-                return false;
-            }
+            entity *effect = new plasma_explosion_effect(p, this->get_layer(), false, (this->get_scale() * this->get_scale()));
+            G->lock();
+            G->emit(effect, this, b2Vec2(0,0));
+            G->absorb(this);
+            G->unlock();
+            return false;
             break;
+        }
+        case ITEM_ROCKET: {
+            entity *effect = new explosion_effect(p, this->get_layer(), false, .75f);
+            W->explode(this, p, this->get_layer(), 10, 100.f, .5f, .5f);
 
-        case ITEM_ROCKET:
-            {
-                entity *effect = new explosion_effect(p, this->get_layer(), false, .75f);
-                W->explode(this, p, this->get_layer(), 10, 100.f, .5f, .5f);
-
-                G->lock();
-                G->emit(effect, this, b2Vec2(0,0));
-                G->absorb(this);
-                G->unlock();
-            }
+            G->lock();
+            G->emit(effect, this, b2Vec2(0,0));
+            G->absorb(this);
+            G->unlock();
             break;
+        }
     }
 
     return true;
 }
 
-void
-item::remove_from_world()
-{
-    if (this->get_item_type() == ITEM_ROCKET) {
+void item::remove_from_world() {
+    if (this->get_item_type() == ITEM_ROCKET)
         if (((flame_effect*)this->data))
             ((flame_effect*)this->data)->done = true;
-    }
 
     entity::remove_from_world();
 }
 
-void
-item::set_item_type(uint32_t item_type)
-{
+void item::set_item_type(uint32_t item_type) {
     if (item_type >= NUM_ITEMS) item_type = NUM_ITEMS-1;
 
     this->properties[0].v.i = item_type;
@@ -1598,11 +1464,10 @@ item::set_item_type(uint32_t item_type)
 
     const struct item_option &co = item_options[item_type];
 
-    if (co.can_rotate) {
+    if (co.can_rotate)
         this->num_sliders = 1;
-    } else {
+    else
         this->num_sliders = 0;
-    }
 
     this->set_flag(ENTITY_MUST_BE_DYNAMIC,      true);
     this->set_flag(ENTITY_IS_MAGNETIC,          co.magnetic);
@@ -1615,15 +1480,7 @@ item::set_item_type(uint32_t item_type)
     this->set_flag(ENTITY_IS_BULLET,            false);
     this->set_flag(ENTITY_FADE_ON_ABSORB,       true);
 
-    switch (co.category) {
-        case ITEM_CATEGORY_BULLET:
-            this->set_flag(ENTITY_CAN_BE_COMPRESSED, false);
-            break;
-
-        default:
-            this->set_flag(ENTITY_CAN_BE_COMPRESSED, true);
-            break;
-    }
+    this->set_flag(ENTITY_CAN_BE_COMPRESSED, co.category != ITEM_CATEGORY_BULLET);
 
     this->layer_mask = co.layer_mask;
 
@@ -1637,7 +1494,6 @@ item::set_item_type(uint32_t item_type)
         case ITEM_BULLET:
             this->set_flag(ENTITY_TRIGGER_EXPLOSIVES,   true);
             this->set_flag(ENTITY_IS_BULLET,            true);
-            //this->layer_mask = 2+4;
             break;
     }
 
@@ -1646,17 +1502,14 @@ item::set_item_type(uint32_t item_type)
         W->stepable.erase(this);
         W->mstepable.erase(this);
 
-        if (co.update_effects) {
+        if (co.update_effects)
             G->u_effects.insert(this);
-        }
 
-        if (co.step) {
+        if (co.step)
             W->stepable.insert(this);
-        }
 
-        if (co.category != ITEM_CATEGORY_BULLET) {
+        if (co.category != ITEM_CATEGORY_BULLET)
             W->mstepable.insert(this);
-        }
     }
 
     this->item_category = co.category;
@@ -1664,9 +1517,7 @@ item::set_item_type(uint32_t item_type)
     this->ef = co.ef;
 }
 
-void
-item::step()
-{
+void item::step() {
     switch (this->properties[0].v.i) {
         case ITEM_BULLET:
         case ITEM_SHOTGUN_PELLET:
@@ -1683,59 +1534,54 @@ item::step()
             }*/
             break;
 
-        case ITEM_ROCKET:
-            {
-                if (this->data == 0) {
-                    flame_effect *f = (new flame_effect(this->get_position(), this->get_layer(), 0));
-                    this->data = (void*)f;
-                    G->emit(f, this, b2Vec2(0.f, 0.f), false);
-                }
-                //if (this->collided) {
-                    //return;
-                //}
-                /* apply force on the rocket */
-                b2Body *b = this->get_body(0);
-                b2Vec2 force;
-
-                float angle = this->get_angle();
-
-                tmath_sincos(angle, &force.y, &force.x);
-
-                force.x *= ROCKET_FORCE_MULT * b->GetMass();
-                force.y *= ROCKET_FORCE_MULT * b->GetMass();
-
-                force.x -= W->get_gravity().x * b->GetMass() * ROCKET_FALLOFF;
-                force.y -= W->get_gravity().y * b->GetMass() * ROCKET_FALLOFF;
-
-                b->ApplyForceToCenter(force);
-
-                /* handle flames */
-                b2Vec2 p;
-
-                p = this->local_to_world(b2Vec2(-.3f, 0.f), 0);
-                p.x += -.01f + ((rand()%100) / 100.f) * .02f;
-                p.y += -.01f + ((rand()%100) / 100.f) * .02f;
-                b2Vec2 v = b2Vec2(0.f, 0.f);
-
-                flame_effect *flames = (flame_effect*)this->data;
-
-                if (flames) {
-                    flames->update_pos(p, v);
-                }
-
-                //sm::play(&sm::thruster, this->get_position().x, this->get_position().y, 0, tclampf(1.3f, 0.f, 1.f), true, this);
+        case ITEM_ROCKET: {
+            if (this->data == 0) {
+                flame_effect *f = (new flame_effect(this->get_position(), this->get_layer(), 0));
+                this->data = (void*)f;
+                G->emit(f, this, b2Vec2(0.f, 0.f), false);
             }
-            break;
+            //if (this->collided) {
+                //return;
+            //}
+            /* apply force on the rocket */
+            b2Body *b = this->get_body(0);
+            b2Vec2 force;
 
+            float angle = this->get_angle();
+
+            tmath_sincos(angle, &force.y, &force.x);
+
+            force.x *= ROCKET_FORCE_MULT * b->GetMass();
+            force.y *= ROCKET_FORCE_MULT * b->GetMass();
+
+            force.x -= W->get_gravity().x * b->GetMass() * ROCKET_FALLOFF;
+            force.y -= W->get_gravity().y * b->GetMass() * ROCKET_FALLOFF;
+
+            b->ApplyForceToCenter(force);
+
+            /* handle flames */
+            b2Vec2 p;
+
+            p = this->local_to_world(b2Vec2(-.3f, 0.f), 0);
+            p.x += -.01f + ((rand()%100) / 100.f) * .02f;
+            p.y += -.01f + ((rand()%100) / 100.f) * .02f;
+            b2Vec2 v = b2Vec2(0.f, 0.f);
+
+            flame_effect *flames = (flame_effect*)this->data;
+
+            if (flames)
+                flames->update_pos(p, v);
+
+            //sm::play(&sm::thruster, this->get_position().x, this->get_position().y, 0, tclampf(1.3f, 0.f, 1.f), true, this);
+            break;
+        }
         default:
             tms_warnf("unhandled step(), item %u with type %u", this->id, this->properties[0].v.i);
             break;
     }
 }
 
-void
-item::mstep()
-{
+void item::mstep() {
     uint64_t timediff = _tms.last_time - this->last_damage_tick;
 
     if (this->health < ITEM_MAX_HEALTH && timediff > 1000000) {
@@ -1744,15 +1590,12 @@ item::mstep()
 
         G->add_hp(this, this->health / ITEM_MAX_HEALTH, TV_HP_GRAY);
 
-        if (this->health > ITEM_MAX_HEALTH) {
+        if (this->health > ITEM_MAX_HEALTH)
             this->health = ITEM_MAX_HEALTH;
-        }
     }
 }
 
-void
-item::update_effects()
-{
+void item::update_effects() {
     b2Vec2 p = this->get_position();
 
     switch (this->properties[0].v.i) {
@@ -1784,15 +1627,11 @@ item::update_effects()
     }
 }
 
-void
-item::write_quickinfo(char *out)
-{
+void item::write_quickinfo(char *out) {
     sprintf(out, "%s", item_options[this->get_item_type()].name);
 }
 
-void
-item::_init()
-{
+void item::_init() {
     for (int x=0; x<NUM_ITEMS; ++x) {
         struct item_option *io = &item_options[x];
 
@@ -1803,16 +1642,12 @@ item::_init()
     }
 }
 
-const char*
-item::get_ui_name(uint32_t item_type)
-{
+const char* item::get_ui_name(uint32_t item_type) {
     const struct item_option &io = item_options[item_type];
     return io.name;
 }
 
-void
-item::damage(float dmg)
-{
+void item::damage(float dmg) {
     this->health -= dmg;
 
     G->add_hp(this, this->health / ITEM_MAX_HEALTH, TV_HP_GRAY);
@@ -1830,9 +1665,7 @@ item::damage(float dmg)
 #define RECOVER_RATE_MIN 0.45
 #define RECOVER_RATE_MAX 1.0
 
-void
-item::drop_worth()
-{
+void item::drop_worth() {
     const struct worth &w = item_options[this->get_sub_id()].worth;
 
     for (int x=0; x<NUM_RESOURCES; ++x) {
@@ -1841,9 +1674,8 @@ item::drop_worth()
         if (num) {
             uint32_t split = 1;
 
-            if (num > 5) {
+            if (num > 5)
                 split = 15;
-            }
 
             while (num > 0) {
                 uint32_t out = std::min(split, num);
@@ -1864,9 +1696,7 @@ item::drop_worth()
     }
 }
 
-void
-item::activate(creature *by)
-{
+void item::activate(creature *by) {
     G->lock();
     if (this->item_category == ITEM_CATEGORY_POWERUP) {
         by->consume(this, true);
@@ -1875,18 +1705,12 @@ item::activate(creature *by)
     G->unlock();
 }
 
-void
-item::on_touch(b2Fixture *my, b2Fixture *other)
-{
-    if (my == this->fx_sensor) {
+void item::on_touch(b2Fixture *my, b2Fixture *other) {
+    if (my == this->fx_sensor)
         this->activator_touched(other);
-    }
 }
 
-void
-item::on_untouch(b2Fixture *my, b2Fixture *other)
-{
-    if (my == this->fx_sensor) {
+void item::on_untouch(b2Fixture *my, b2Fixture *other) {
+    if (my == this->fx_sensor)
         this->activator_untouched(other);
-    }
 }

@@ -4,8 +4,7 @@
 #include "progress.hh"
 #include "ui.hh"
 
-pkgwarp::pkgwarp()
-{
+pkgwarp::pkgwarp() {
     this->set_flag(ENTITY_HAS_CONFIG, true);
 
     this->dialog_id = DIALOG_SET_PKG_LEVEL;
@@ -15,9 +14,7 @@ pkgwarp::pkgwarp()
     this->properties[0].v.i8 = 1;
 }
 
-edevice*
-pkgwarp::solve_electronics()
-{
+edevice *pkgwarp::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 
@@ -41,8 +38,7 @@ pkgwarp::solve_electronics()
     return 0;
 }
 
-pkgstatus::pkgstatus()
-{
+pkgstatus::pkgstatus() {
     this->set_flag(ENTITY_HAS_CONFIG, true);
 
     this->dialog_id = DIALOG_SET_PKG_LEVEL;
@@ -57,29 +53,23 @@ pkgstatus::pkgstatus()
     this->properties[0].v.i8 = 1;
 }
 
-void
-pkgstatus::init()
-{
+void pkgstatus::init() {
     if (G->state.pkg) {
         lvl_progress *p = progress::get_level_progress(G->state.pkg->type, G->state.pkg->get_level_by_index(this->properties[0].v.i8));
         if (p->completed)
             this->cached_percent = 1.f;
         else
             this->cached_percent = 0.f;
-    } else {
+    } else
         this->cached_percent = 0.f;
-    }
 
-    if (G->state.pkg) {
+    if (G->state.pkg)
         this->cached_lock = (float)G->state.pkg->is_level_locked(this->properties[0].v.i8);
-    } else {
+    else
         this->cached_lock = 1.f;
-    }
 }
 
-edevice*
-pkgstatus::solve_electronics()
-{
+edevice *pkgstatus::solve_electronics() {
     this->s_out[0].write(this->cached_percent);
     this->s_out[1].write(this->cached_lock);
     this->s_out[2].write((this->properties[0].v.i8 == G->previous_level)?1.f:0.f);

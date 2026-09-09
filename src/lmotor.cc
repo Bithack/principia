@@ -11,8 +11,7 @@
 static void jent_update_ml(struct tms_entity *e);
 static void jent_update_sl(struct tms_entity *e);
 
-bool lmotor::ReportFixture(b2Fixture *f)
-{
+bool lmotor::ReportFixture(b2Fixture *f) {
     if (f->IsSensor()) return true;
 
     entity *e = static_cast<entity*>(f->GetUserData());
@@ -42,9 +41,7 @@ bool lmotor::ReportFixture(b2Fixture *f)
     return true;
 }
 
-void
-lmotor::construct()
-{
+void lmotor::construct() {
     if (this->properties[1].v.i > 2) {
         this->properties[1].v.i = 2;
     }
@@ -62,27 +59,21 @@ lmotor::construct()
     }
 }
 
-bool
-lmotor::allow_connection(entity *asker, uint8_t frame, b2Vec2 p)
-{
+bool lmotor::allow_connection(entity *asker, uint8_t frame, b2Vec2 p) {
     /* do not allow connections if we are axis toggled and
      * something is attempting to connect along the joint path */
 
     b2Vec2 l = this->world_to_local(p, 0);
 
-    if (l.y > 0.1f) {
+    if (l.y > 0.1f)
         return false;
-    }
 
     return true;
 }
 
-void
-lmotor::on_load(bool created, bool has_state)
-{
-    if (this->properties[1].v.i > 3) {
+void lmotor::on_load(bool created, bool has_state) {
+    if (this->properties[1].v.i > 3)
         this->properties[1].v.i = 3;
-    }
 
     this->recreate_shape();
 
@@ -100,24 +91,18 @@ lmotor::on_load(bool created, bool has_state)
 
 }
 
-float
-lmotor::get_slider_snap(int s)
-{
+float lmotor::get_slider_snap(int s) {
     return s==1 ? (1.f/3.f) : .1f;
 }
 
-float
-lmotor::get_slider_value(int s)
-{
-    if (s == 0) {
+float lmotor::get_slider_value(int s) {
+    if (s == 0)
         return this->properties[0].v.f;
-    } else
+    else
         return ((float)this->properties[1].v.i)/3.f;
 }
 
-void
-lmotor::on_slider_change(int s, float value)
-{
+void lmotor::on_slider_change(int s, float value) {
     if (s == 0) {
         this->properties[0].v.f = value;
         G->show_numfeed(value - 0.5f);
@@ -128,9 +113,7 @@ lmotor::on_slider_change(int s, float value)
     }
 }
 
-static void
-jent_update_ml(struct tms_entity *e)
-{
+static void jent_update_ml(struct tms_entity *e) {
     lmotor *lm = (lmotor*)e->parent;
 
     tmat4_load_identity(e->M);
@@ -140,9 +123,7 @@ jent_update_ml(struct tms_entity *e)
     tmat4_scale(e->M, .10f, .10f, 1.0f);
 }
 
-static void
-jent_update_sl(struct tms_entity *e)
-{
+static void jent_update_sl(struct tms_entity *e) {
     lmotor *lm = (lmotor*)e->parent;
 
     tmat4_load_identity(e->M);
@@ -155,8 +136,7 @@ jent_update_sl(struct tms_entity *e)
     tmat4_scale(e->M, .10f, .10f, .5f);
 }
 
-lmotor::lmotor(bool is_servo)
-{
+lmotor::lmotor(bool is_servo) {
     this->jent = 0;
     this->is_servo = is_servo;
     this->set_mesh(mesh_factory::get_mesh(MODEL_LMOTOR0));
@@ -199,9 +179,7 @@ lmotor::lmotor(bool is_servo)
     //
 }
 
-void
-lmotor::init_socks()
-{
+void lmotor::init_socks() {
     if (this->flag_active(ENTITY_AXIS_ROT)) {
         this->s_in[0].lpos = b2Vec2(0.f,-.085f);
         this->s_in[0].ctype = CABLE_BLUE;
@@ -233,36 +211,28 @@ lmotor::init_socks()
     }
 
     if (this->jent) {
-        if (!this->flag_active(ENTITY_AXIS_ROT)) {
+        if (!this->flag_active(ENTITY_AXIS_ROT))
             tms_entity_set_update_fn(this->jent, (void*)jent_update_ml);
-        } else {
+        else
             tms_entity_set_update_fn(this->jent, (void*)jent_update_sl);
-        }
     }
 
 }
 
-b2Vec2
-lmotor::get_joint_pos()
-{
+b2Vec2 lmotor::get_joint_pos() {
     if (!this->c.pending && this->c.j) {
         /* this->c.j can be 0 in cases where the linear motor has been
          * captured into a composable group */
         return this->local_to_world(b2Vec2(((b2PrismaticJoint*)this->c.j)->GetJointTranslation(), 0.f), 0);
-    } else {
+    } else
         return this->get_position();
-    }
 }
 
-void
-lmotor::ghost_update()
-{
+void lmotor::ghost_update() {
     update();
 }
 
-void
-lmotor::update()
-{
+void lmotor::update() {
     b2Vec2 p = this->get_position();
 
     tmat4_load_identity(this->M);
@@ -275,18 +245,14 @@ lmotor::update()
         tms_entity_update(this->jent);
 }
 
-void
-lmotor::toggle_axis_rot()
-{
+void lmotor::toggle_axis_rot() {
     this->set_flag(ENTITY_AXIS_ROT, !this->flag_active(ENTITY_AXIS_ROT));
     this->disconnect_all();
     this->init_socks();
     this->recreate_shape();
 }
 
-void
-lmotor::recreate_shape()
-{
+void lmotor::recreate_shape() {
     if (this->properties[1].v.i > 3) this->properties[1].v.i = 3;
 
     uint32_t size = this->properties[1].v.i;
@@ -314,23 +280,19 @@ lmotor::recreate_shape()
 }
 
 /*
-void
-lmotor::set_position(float x, float y)
-{
+void lmotor::set_position(float x, float y) {
     entity::set_position(x,y);
     this->update();
 }
 */
 
-void
-lmotor::find_pairs()
-{
+void lmotor::find_pairs() {
     if (this->c.pending) {
         b2Vec2 p;
 
-        if (this->flag_active(ENTITY_AXIS_ROT)) {
+        if (this->flag_active(ENTITY_AXIS_ROT))
             p = this->local_to_world(b2Vec2(0.f, .5f), 0);
-        } else
+        else
             p = this->local_to_world(b2Vec2(0.f, 0.f), 0);
 
         b2AABB aabb;
@@ -357,9 +319,7 @@ lmotor::find_pairs()
     this->sidecheck4(this->c_side);
 }
 
-void
-lmotor::connection_create_joint(connection *c)
-{
+void lmotor::connection_create_joint(connection *c) {
     b2World *w = this->get_body(0)->GetWorld();
 
     b2PrismaticJointDef rjd;
@@ -400,9 +360,7 @@ lmotor::connection_create_joint(connection *c)
         tms_entity_set_update_fn(this->jent, (void*)jent_update_sl);
 }
 
-connection *
-lmotor::load_connection(connection &conn)
-{
+connection *lmotor::load_connection(connection &conn) {
     if (conn.o_index == 0) {
         this->c = conn;
         return &this->c;
@@ -412,9 +370,7 @@ lmotor::load_connection(connection &conn)
     }
 }
 
-void
-lmotor::ifstep(float v, float ctl_speed, float ctl_angle,float ctl_tradeoff, bool enable_angle, bool enable_tradeoff)
-{
+void lmotor::ifstep(float v, float ctl_speed, float ctl_angle,float ctl_tradeoff, bool enable_angle, bool enable_tradeoff) {
     b2PrismaticJoint *j = (b2PrismaticJoint*)this->c.j;
 
     if (j) {
@@ -448,13 +404,11 @@ lmotor::ifstep(float v, float ctl_speed, float ctl_angle,float ctl_tradeoff, boo
             force = tr * v * FORCE;
 
             if (W->level.version >= LEVEL_VERSION_1_3_0_3) {
-                if (std::abs(speed) <= 0.f) {
+                if (std::abs(speed) <= 0.f)
                     force = 0.f;
-                }
             } else {
-                if (speed <= 0.f) {
+                if (speed <= 0.f)
                     force = 0.f;
-                }
             }
         }
 
@@ -467,55 +421,47 @@ lmotor::ifstep(float v, float ctl_speed, float ctl_angle,float ctl_tradeoff, boo
     }
 }
 
-void
-lmotor::ifget(iffeed *feed)
-{
+void lmotor::ifget(iffeed *feed) {
     b2PrismaticJoint *j = (b2PrismaticJoint*)this->c.j;
 
-    if (j) {
-        float js = j->GetJointSpeed(), ms = j->GetMotorSpeed();
-        float s;
-        if (fabsf(ms) < 0.00001f) s = 1.f;
-        else s = js/ms;
-        feed->speed = tclampf(s, 0.f, 1.f);
-        if (W->level.version >= LEVEL_VERSION_1_3_0_3) {
-            float inv_dt = 1. / ((double)((WORLD_STEP+WORLD_STEP_SPEEDUP)/1000000.) * G->get_time_mul());
-            float abs_motor_force = std::abs(j->GetMotorForce(inv_dt));
-            float max_motor_force = j->GetMaxMotorForce();
+    if (!j)
+        return;
 
-            if (max_motor_force < 0.0000001f) {
-                feed->torque = 0.f;
-            } else {
-                feed->torque = tclampf(abs_motor_force / max_motor_force, 0.f, 1.f);
-            }
-        } else {
-            float mt = j->GetMaxMotorForce();
-            if (mt < .0000001f)
-                feed->torque = 0.f;
-            else
-                feed->torque = tclampf(j->GetMotorForce(1. / .012) / mt, 0.f, 1.f);
-        }
-        feed->error = ((js >= 0.f) == (ms >= 0.f));
-        feed->angle = j->GetJointTranslation() + (this->get_size()-.25f);
-        feed->angle /= (this->get_size()-.25f) * 2.f;
-        feed->angle = tclampf(feed->angle, 0.f, 1.f);
+    float js = j->GetJointSpeed(), ms = j->GetMotorSpeed();
+    float s;
+    if (fabsf(ms) < 0.00001f) s = 1.f;
+    else s = js/ms;
+    feed->speed = tclampf(s, 0.f, 1.f);
+    if (W->level.version >= LEVEL_VERSION_1_3_0_3) {
+        float inv_dt = 1. / ((double)((WORLD_STEP+WORLD_STEP_SPEEDUP)/1000000.) * G->get_time_mul());
+        float abs_motor_force = std::abs(j->GetMotorForce(inv_dt));
+        float max_motor_force = j->GetMaxMotorForce();
+
+        if (max_motor_force < 0.0000001f)
+            feed->torque = 0.f;
+        else
+            feed->torque = tclampf(abs_motor_force / max_motor_force, 0.f, 1.f);
+    } else {
+        float mt = j->GetMaxMotorForce();
+        if (mt < .0000001f)
+            feed->torque = 0.f;
+        else
+            feed->torque = tclampf(j->GetMotorForce(1. / .012) / mt, 0.f, 1.f);
     }
+    feed->error = ((js >= 0.f) == (ms >= 0.f));
+    feed->angle = j->GetJointTranslation() + (this->get_size()-.25f);
+    feed->angle /= (this->get_size()-.25f) * 2.f;
+    feed->angle = tclampf(feed->angle, 0.f, 1.f);
 }
 
-
-void
-lmotor::read_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void lmotor::read_state(lvlinfo *lvl, lvlbuf *lb) {
     entity::read_state(lvl, lb);
 
     this->_speed = lb->r_float();
     this->_force = lb->r_float();
-
 }
 
-void
-lmotor::restore()
-{
+void lmotor::restore() {
     entity::restore();
 
     b2PrismaticJoint *j = (b2PrismaticJoint*)this->c.j;

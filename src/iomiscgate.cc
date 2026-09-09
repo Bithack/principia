@@ -2,8 +2,7 @@
 #include "model.hh"
 #include "material.hh"
 
-i0o2gate::i0o2gate()
-{
+i0o2gate::i0o2gate() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_I0O2));
     this->set_material(&m_iomisc);
 
@@ -18,8 +17,7 @@ i0o2gate::i0o2gate()
     this->set_as_rect(.525f, .175f);
 }
 
-i0o3gate::i0o3gate()
-{
+i0o3gate::i0o3gate() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_I0O3));
     this->set_material(&m_iomisc);
 
@@ -36,8 +34,7 @@ i0o3gate::i0o3gate()
     this->set_as_rect(.525f, .175f);
 }
 
-i1o2gate::i1o2gate()
-{
+i1o2gate::i1o2gate() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_I1O2));
     this->set_material(&m_iomisc);
 
@@ -201,18 +198,13 @@ i4o1gate::i4o1gate()
     this->set_as_rect(.375f, .375f);
 }
 
-edevice*
-ifselect::solve_electronics()
-{
-    if (!this->s_in[0].is_ready()) {
+edevice *ifselect::solve_electronics() {
+    if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
-    }
-    if (!this->s_in[1].is_ready()) {
+    if (!this->s_in[1].is_ready())
         return this->s_in[1].get_connected_edevice();
-    }
-    if (!this->s_in[2].is_ready()) {
+    if (!this->s_in[2].is_ready())
         return this->s_in[2].get_connected_edevice();
-    }
 
     float v1 = this->s_in[0].get_value();
     float v2 = this->s_in[1].get_value();

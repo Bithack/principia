@@ -4,9 +4,7 @@
 #include "ui.hh"
 #include "const.hh"
 
-prompt::prompt()
-    : last(false)
-{
+prompt::prompt() : last(false) {
     this->set_flag(ENTITY_HAS_CONFIG, true);
     this->set_flag(ENTITY_IS_PROMPT,  true);
 
@@ -39,9 +37,7 @@ prompt::prompt()
     this->buttons[2].len = &this->properties[2].v.s.len;
 }
 
-edevice*
-prompt::solve_electronics()
-{
+edevice *prompt::solve_electronics() {
     if (!this->s_out[0].written())
         this->s_out[0].write(this->get_response() == PROMPT_RESPONSE_A ? 1.f : 0.f);
 
@@ -52,9 +48,8 @@ prompt::solve_electronics()
         this->s_out[2].write(this->get_response() == PROMPT_RESPONSE_C ? 1.f : 0.f);
 
     if (this->s_in[0].p) {
-        if (!this->s_in[0].is_ready()) {
+        if (!this->s_in[0].is_ready())
             return this->s_in[0].get_connected_edevice();
-        }
 
         bool v = (bool)((int)roundf(this->s_in[0].get_value()));
 

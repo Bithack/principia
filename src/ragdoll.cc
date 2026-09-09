@@ -1,11 +1,9 @@
 #include "ragdoll.hh"
-#include "world.hh"
+#include "game.hh"
 #include "material.hh"
 #include "model.hh"
-#include "game.hh"
-
+#include "world.hh"
 #include <cstdio>
-#include <cstdlib>
 
 #define LEGLEN 1.3f
 #define ARMLEN 1.f
@@ -54,9 +52,7 @@ static float iangle[9] =
 
 //static float iangle[9] =
 
-void
-update_limb(struct tms_entity *e)
-{
+void update_limb(struct tms_entity *e) {
     struct limb *l = (struct limb*)e;
     ragdoll *r = (ragdoll*)e->parent;
 
@@ -91,15 +87,11 @@ update_limb(struct tms_entity *e)
     }
 }
 
-uint32_t
-ragdoll::get_num_bodies()
-{
+uint32_t ragdoll::get_num_bodies() {
     return 10;
 }
 
-b2Body*
-ragdoll::get_body(uint8_t frame)
-{
+b2Body *ragdoll::get_body(uint8_t frame) {
     switch (frame) {
         case 0: return this->body;
         case 1: return this->torso;
@@ -110,9 +102,7 @@ ragdoll::get_body(uint8_t frame)
     return 0;
 }
 
-void
-ragdoll::update(void)
-{
+void ragdoll::update() {
     for (int x=0; x<9; x++) {
         update_limb(&this->limbs[x].super);
     }
@@ -120,20 +110,11 @@ ragdoll::update(void)
     entity_fast_update(this);
 }
 
-void
-ragdoll::on_grab(game *g)
-{
+void ragdoll::on_grab(game *g) {}
 
-}
+void ragdoll::on_release(game *g) {}
 
-void
-ragdoll::on_release(game *g)
-{
-
-}
-
-ragdoll::ragdoll()
-{
+ragdoll::ragdoll() {
     this->width = .5f;
     this->menu_pos = b2Vec2(0.f, 1.f);
     this->menu_scale = .5f;
@@ -241,9 +222,7 @@ ragdoll::~ragdoll()
     }
 }
 
-void
-ragdoll::set_layer(int z)
-{
+void ragdoll::set_layer(int z) {
     struct tms_scene *scene = this->scene;
     int head_layer = 6;
 
@@ -259,9 +238,8 @@ ragdoll::set_layer(int z)
 
     this->prio = z;
 
-    for (int x=0; x<9; x++) {
+    for (int x=0; x<9; x++)
         this->limbs[x].super.prio = z;
-    }
 
     if (this->body) {
         this->body->GetFixtureList()->SetFilterData(world::get_filter_for_layer(this->prio, head_layer));
@@ -281,21 +259,15 @@ ragdoll::set_layer(int z)
         tms_scene_add_entity(scene, this);
 }
 
-b2Vec2
-ragdoll::get_limb_pos(int n)
-{
+b2Vec2 ragdoll::get_limb_pos(int n) {
     return b2Vec2(this->properties[n*3].v.f, this->properties[n*3+1].v.f) + this->get_position();
 }
 
-float
-ragdoll::get_limb_angle(int n)
-{
+float ragdoll::get_limb_angle(int n) {
     return this->properties[n*3+2].v.f + this->get_angle();
 }
 
-void
-ragdoll::pre_write(void)
-{
+void ragdoll::pre_write() {
     for (int x=0; x<9; x++) {
         b2Vec2 p = (*this->limbs[x].body)->GetPosition() - this->get_position();
         float a = (*this->limbs[x].body)->GetAngle() - this->get_angle();
@@ -307,9 +279,7 @@ ragdoll::pre_write(void)
     entity::pre_write();
 }
 
-void
-ragdoll::add_to_world()
-{
+void ragdoll::add_to_world() {
     {
         /* create torso */
         b2BodyDef bd;
@@ -472,9 +442,7 @@ ragdoll::add_to_world()
     this->set_layer(this->prio);
 }
 
-void
-ragdoll::remove_from_world()
-{
+void ragdoll::remove_from_world() {
     for (int x=0; x<9; x++) {
         /* unset joint userdata so the destruction listener wont act as if the joint is destroyed dynamically */
         if (this->joints[x]) {
@@ -510,15 +478,11 @@ ragdoll::remove_from_world()
     this->destructable_joints.clear();
 }
 
-void
-ragdoll::on_pause()
-{
+void ragdoll::on_pause() {
     this->destructable_joints.clear();
 }
 
-void
-ragdoll::setup()
-{
+void ragdoll::setup() {
     /* XXX: These variables require tweaking */
     float base_max_force = 5500.f;
     float durability_multiplier = 0.02f;
@@ -532,9 +496,7 @@ ragdoll::setup()
     }
 }
 
-void
-ragdoll::write_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void ragdoll::write_state(lvlinfo *lvl, lvlbuf *lb) {
     lb->ensure(3*9*sizeof(float) + 9*sizeof(uint8_t));
 
     tms_debugf("ragdoll write state");
@@ -552,9 +514,7 @@ ragdoll::write_state(lvlinfo *lvl, lvlbuf *lb)
     }
 }
 
-void
-ragdoll::read_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void ragdoll::read_state(lvlinfo *lvl, lvlbuf *lb) {
     for (int x=0; x<9; x++) {
         b2Body *b = this->get_body(x);
         b2Vec2 velocity = b ? b->GetLinearVelocity() : b2Vec2(0.f, 0.f);
@@ -565,9 +525,7 @@ ragdoll::read_state(lvlinfo *lvl, lvlbuf *lb)
     }
 }
 
-void
-ragdoll::restore()
-{
+void ragdoll::restore() {
     this->setup();
 
     for (int x=0; x<9; x++) {
@@ -580,26 +538,19 @@ ragdoll::restore()
     }
 }
 
-void
-ragdoll::set_position(float x, float y, uint8_t frame)
-{
+void ragdoll::set_position(float x, float y, uint8_t frame) {
     b2Body *b = this->get_body(frame);
-    if (b) {
+    if (b)
         b->SetTransform(b2Vec2(x,y), b->GetAngle());
-    } else {
+    else
         this->_pos = b2Vec2(x, y);
-    }
 }
 
-b2Vec2
-ragdoll::local_to_world(b2Vec2 p, uint8_t frame)
-{
+b2Vec2 ragdoll::local_to_world(b2Vec2 p, uint8_t frame) {
     return this->get_body(frame)->GetWorldPoint(p);
 }
 
-void
-ragdoll::recreate_head()
-{
+void ragdoll::recreate_head() {
     uint32_t head_size = this->properties[9*3+1].v.i;
     if (head_size > 1) head_size = 1;
     b2FixtureDef fd;
@@ -608,11 +559,10 @@ ragdoll::recreate_head()
     fd.filter = world::get_filter_for_layer(this->prio, 2+4);
     this->set_mesh(mesh_factory::get_mesh(MODEL_SPHERE+head_size));
 
-    if (head_size == 0) {
+    if (head_size == 0)
         this->layer_mask = 1;
-    } else {
+    else
         this->layer_mask = 15;
-    }
 
     /* XXX: a more appropriate head size might be .125f + (head_size * 0.125f)? */
     this->head_shape.m_radius = .25f * (1.f+head_size);
@@ -637,9 +587,7 @@ ragdoll::recreate_head()
     this->body->CreateFixture(&fd)->SetUserData(this);
 }
 
-void
-ragdoll::recreate_head_joint(bool destroy)
-{
+void ragdoll::recreate_head_joint(bool destroy) {
     if (!this->torso) return;
 
     if (destroy && this->joints[0]) {
@@ -668,40 +616,29 @@ ragdoll::recreate_head_joint(bool destroy)
         this->joints[0] = 0;
 }
 
-float
-ragdoll::get_slider_snap(int s)
-{
+float ragdoll::get_slider_snap(int s) {
     switch (s) {
         case 0: return 1.f / 99.f;
         case 1: return 1.f;
+        default: return 0.f;
     }
-    return 0.f;
 }
 
-float
-ragdoll::get_slider_value(int s)
-{
-    switch (s) {
-        case 0:
-            {
-                float v = this->properties[9*3].v.f - 1.f;
-                return v / 99.f;
-            }
-        case 1:
-            {
-                float v = this->properties[9*3+1].v.i;
-                if (v < 0.f) v = 0.f;
-                if (v > 1.f) v = 1.f;
-                return v;
-            }
+float ragdoll::get_slider_value(int s) {
+    if (s == 0) {
+        float v = this->properties[9*3].v.f - 1.f;
+        return v / 99.f;
+    } else if (s == 1) {
+        float v = this->properties[9*3+1].v.i;
+        if (v < 0.f) v = 0.f;
+        if (v > 1.f) v = 1.f;
+        return v;
     }
 
     return 0.f;
 }
 
-void
-ragdoll::on_slider_change(int s, float value)
-{
+void ragdoll::on_slider_change(int s, float value) {
     if (s == 0) {
         float durability = (value * 99.f) + 1.f;
         this->properties[9*3].v.f = durability;

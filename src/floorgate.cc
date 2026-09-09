@@ -1,4 +1,5 @@
 #include "floorgate.hh"
+#include "model.hh"
 
 integergate::integergate() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_I1O1_INTEGER));

@@ -1,9 +1,7 @@
 #include "mavg.hh"
 #include "ledbuffer.hh"
 
-mavg::mavg()
-    : value(0.f)
-{
+mavg::mavg() : value(0.f) {
     this->num_sliders = 1;
     this->menu_scale = 1.0f;
     this->set_flag(ENTITY_DO_UPDATE_EFFECTS, true);
@@ -13,9 +11,7 @@ mavg::mavg()
     this->properties[0].v.f = 1.f - (.5f / 8.f);
 }
 
-edevice*
-mavg::solve_electronics()
-{
+edevice *mavg::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 
@@ -28,9 +24,7 @@ mavg::solve_electronics()
     return 0;
 }
 
-void
-mavg::update_effects(void)
-{
+void mavg::update_effects() {
     float z = this->get_layer() * LAYER_DEPTH + LED_Z_OFFSET;
     b2Vec2 p = this->get_position();
     ledbuffer::add(p.x, p.y, z, this->value);

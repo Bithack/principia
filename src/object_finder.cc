@@ -2,8 +2,7 @@
 #include "model.hh"
 #include "game.hh"
 
-object_finder::object_finder()
-{
+object_finder::object_finder() {
     this->set_flag(ENTITY_HAS_TRACKER, true);
 
     this->set_material(&m_edev_dark);
@@ -21,29 +20,21 @@ object_finder::object_finder()
     this->s_out[1].tag = SOCK_TAG_DISTANCE;
 }
 
-float
-object_finder::get_slider_snap(int s)
-{
+float object_finder::get_slider_snap(int s) {
     return .05f;
 }
 
-float
-object_finder::get_slider_value(int s)
-{
+float object_finder::get_slider_value(int s) {
     return this->properties[1].v.f;
 }
 
-void
-object_finder::on_slider_change(int s, float value)
-{
+void object_finder::on_slider_change(int s, float value) {
     this->set_property(1, value);
 
     G->show_numfeed(value);
 }
 
-edevice*
-object_finder::solve_electronics()
-{
+edevice *object_finder::solve_electronics() {
     entity *e;
     if ((e = W->get_entity_by_id(this->properties[0].v.i))) {
         b2Vec2 dist = e->get_position() - this->get_position();
@@ -75,8 +66,7 @@ object_finder::solve_electronics()
 
 /** CURSOR FINDER **/
 
-cursor_finder::cursor_finder()
-{
+cursor_finder::cursor_finder() {
     this->num_sliders = 1;
 
     this->set_num_properties(1);
@@ -87,29 +77,21 @@ cursor_finder::cursor_finder()
     this->s_out[1].tag = SOCK_TAG_DISTANCE;
 }
 
-float
-cursor_finder::get_slider_snap(int s)
-{
+float cursor_finder::get_slider_snap(int s) {
     return .05f;
 }
 
-float
-cursor_finder::get_slider_value(int s)
-{
+float cursor_finder::get_slider_value(int s) {
     return this->properties[0].v.f / 20.f;
 }
 
-void
-cursor_finder::on_slider_change(int s, float value)
-{
+void cursor_finder::on_slider_change(int s, float value) {
     this->set_property(0, value*20.f);
 
     G->show_numfeed(value*20.f);
 }
 
-edevice*
-cursor_finder::solve_electronics()
-{
+edevice *cursor_finder::solve_electronics() {
     b2Vec2 cp = G->get_last_cursor_pos(this->get_layer());
 
     b2Vec2 dist = cp - this->get_position();
@@ -130,4 +112,3 @@ cursor_finder::solve_electronics()
 
     return 0;
 }
-

@@ -143,6 +143,11 @@ extern struct plant_predef {
     int   leaf_type;
 } plant_predefs[NUM_PLANT_PREDEFS];
 
+/**
+ * Class representing the Plant object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Plant
+ */
 class plant : public entity_simpleconnect
 {
   public:
@@ -159,28 +164,24 @@ class plant : public entity_simpleconnect
 
     static void _init();
 
-    inline float rand_range(tvec2 v)
-    {
+    inline float rand_range(tvec2 v) {
         float r = (float)rand()/(float)RAND_MAX;
         return r*v.x + (1.f-r)*v.y;
     }
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         lb->w_s_float(this->pending_timer);
         /* XXX velocities are packed in the serialization */
     }
 
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         this->pending_timer = lb->r_float();
     }
 
-    inline void set_from_predef(int p)
-    {
-        if (p >= NUM_PLANT_PREDEFS) {
+    inline void set_from_predef(int p) {
+        if (p >= NUM_PLANT_PREDEFS)
             p = 0;
-        }
+
         this->properties[1].v.f = rand_range(plant_predefs[p].angle_jitter);
         this->properties[2].v.f = rand_range(plant_predefs[p].section_width);
         this->properties[3].v.f = rand_range(plant_predefs[p].gravity_influence);
@@ -210,13 +211,13 @@ class plant : public entity_simpleconnect
     void add_to_world();
     void remove_from_world();
     void clear_branch_slots(plant_branch *br);
-    const char *get_name(){return "Plant";};
-    void step(void);
-    void tick(void);
+    const char *get_name() { return "Plant"; }
+    void step();
+    void tick();
     void init();
     void setup();
     void restore();
-    void update(void);
+    void update();
     void update_effects();
     void render_damage(plant_branch *br);
     void pre_write();
@@ -225,13 +226,11 @@ class plant : public entity_simpleconnect
     void damage_section(plant_section *s, float damage, damage_type dmg_type);
     void break_branch(plant_branch *br, plant_section *s, bool create_resources);
 
-    uint32_t get_num_bodies()
-    {
+    uint32_t get_num_bodies() {
         return this->num_bodies+1;
     }
 
-    b2Body *get_body(uint8_t frame)
-    {
+    b2Body *get_body(uint8_t frame) {
         if (frame == 0) {
             return this->body;
         }
@@ -275,60 +274,49 @@ class plant : public entity_simpleconnect
 
     void settle();
 
-    float get_grow_strength(plant_branch *br)
-    {
+    float get_grow_strength(plant_branch *br) {
         return 100.f;
     }
 
-    float get_angle_jitter(plant_branch *br)
-    {
+    float get_angle_jitter(plant_branch *br) {
         return this->properties[1].v.f/(1.f+br->depth);
     }
 
-    float get_leaf_size()
-    {
+    float get_leaf_size() {
         return this->properties[8].v.f;//*.25f;
     }
 
-    float get_section_length(plant_branch *br)
-    {
+    float get_section_length(plant_branch *br) {
         return (this->properties[6].v.f/16.f) * std::max(this->get_num_sections(), 8);
     }
 
-    float get_strength()
-    {
+    float get_strength() {
         return 10*this->get_num_sections();
     }
 
     float get_section_width(plant_branch *br);
 
-    float get_section_width_multiplier(plant_branch *br)
-    {
+    float get_section_width_multiplier(plant_branch *br) {
         return this->properties[7].v.f;
     }
 
-    float get_gravity_influence(plant_branch *br)
-    {
+    float get_gravity_influence(plant_branch *br) {
         return this->properties[3].v.f;
     }
 
-    float get_sun_influence(plant_branch *br)
-    {
+    float get_sun_influence(plant_branch *br) {
         return this->properties[4].v.f;
     }
 
-    int get_num_sections()
-    {
+    int get_num_sections() {
         return this->properties[5].v.i;
     }
 
-    int get_max_depth()
-    {
+    int get_max_depth() {
         return 2;
     }
 
-    bool should_create_branch(plant_section *s)
-    {
+    bool should_create_branch(plant_section *s) {
         return !s->branch->dead && s->branch->extension_probability >= (rand()%3)
             && s->branch->depth < this->get_max_depth()
             && (s->branch->sections_done > 2 || s->branch->sections_left < 6)

@@ -2,9 +2,7 @@
 #include "model.hh"
 #include "material.hh"
 
-pointer::pointer()
-    : arrow_angle(0.f)
-{
+pointer::pointer() : arrow_angle(0.f) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_POINTER_BODY));
     this->set_material(&m_pv_colored);
 
@@ -27,9 +25,7 @@ pointer::pointer()
     this->set_as_rect(.5f, .5f);
 }
 
-void
-pointer::update()
-{
+void pointer::update() {
     b2Vec2 p = this->get_position();
     float a = this->get_angle();
 
@@ -45,9 +41,7 @@ pointer::update()
     tmat3_copy_mat4_sub3x3(this->arrow->N, this->arrow->M);
 }
 
-edevice*
-pointer::solve_electronics()
-{
+edevice *pointer::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 

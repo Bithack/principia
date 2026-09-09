@@ -8,8 +8,7 @@
 #include "menu_ss.hh"
 #endif
 
-loading_screen::loading_screen()
-{
+loading_screen::loading_screen() {
     float projection[16];
     tmat4_set_ortho(projection, 0, _tms.window_width, 0, _tms.window_height, -1, 1);
     this->dd = tms_ddraw_alloc();
@@ -18,23 +17,18 @@ loading_screen::loading_screen()
     this->text = 0;
 }
 
-int
-loading_screen::pause(void)
-{
+int loading_screen::pause() {
     if (settings["vsync"]->v.b) {
         if (!SDL_GL_SetSwapInterval(-1))
             SDL_GL_SetSwapInterval(1);
-    } else {
+    } else
         SDL_GL_SetSwapInterval(0);
-    }
 
     tms_infof("pause loading");
     return T_OK;
 }
 
-int
-loading_screen::resume(void)
-{
+int loading_screen::resume() {
     // Disable vsync for loading screen to not bottleneck loading speed
     SDL_GL_SetSwapInterval(0);
 
@@ -43,9 +37,7 @@ loading_screen::resume(void)
     return T_OK;
 }
 
-int
-loading_screen::render()
-{
+int loading_screen::render() {
 #ifdef SDL_PLATFORM_IOS
     glBindFramebuffer(GL_FRAMEBUFFER, viewFramebuffer);
 #endif
@@ -78,29 +70,25 @@ loading_screen::render()
     return T_OK;
 }
 
-int
-loading_screen::step_loading()
-{
-    if (!this->loader) return LOAD_ERROR;
+int loading_screen::step_loading() {
+    if (!this->loader)
+        return LOAD_ERROR;
+
     return this->loader(this->step++);
 }
 
-tms::screen *loading_screen::get_next_screen()
-{
+tms::screen *loading_screen::get_next_screen() {
     if (next == 0) {
 #ifdef SCREENSHOT_BUILD
         return P.s_menu_ss;
 #else
         return P.s_menu_main;
 #endif
-    } else {
+    } else
         return next;
-    }
 }
 
-void
-loading_screen::window_size_changed()
-{
+void loading_screen::window_size_changed() {
     if (this->dd) {
         float projection[16];
         tmat4_set_ortho(projection, 0, _tms.window_width, 0, _tms.window_height, -1, 1);
@@ -108,27 +96,25 @@ loading_screen::window_size_changed()
     }
 }
 
-void
-loading_screen::set_text(const char *text)
-{
-    if (font::medium) {
-        if (!this->text) {
-            this->text = new p_text(font::medium, ALIGN_LEFT, ALIGN_BOTTOM);
-        }
+void loading_screen::set_text(const char *text) {
+    if (!font::medium)
+        return;
 
-        float bar_width  = _tms.xppcm * 3.f;
-        float bar_height = _tms.yppcm / 3.f;
+    if (!this->text)
+        this->text = new p_text(font::medium, ALIGN_LEFT, ALIGN_BOTTOM);
 
-        float x = _tms.window_width/2.f - bar_width/2.f;
-        float y = _tms.window_height/2.f + bar_height/1.5f;
+    float bar_width  = _tms.xppcm * 3.f;
+    float bar_height = _tms.yppcm / 3.f;
 
-        this->text->set_position(x, y);
+    float x = _tms.window_width/2.f - bar_width/2.f;
+    float y = _tms.window_height/2.f + bar_height/1.5f;
 
-        this->text->active = false;
+    this->text->set_position(x, y);
 
-        if (text) {
-            this->text->active = true;
-            this->text->set_text(text);
-        }
+    this->text->active = false;
+
+    if (text) {
+        this->text->active = true;
+        this->text->set_text(text);
     }
 }

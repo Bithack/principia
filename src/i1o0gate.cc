@@ -1,11 +1,8 @@
 #include "i1o0gate.hh"
 #include "model.hh"
 #include "material.hh"
-#include "world.hh"
-#include "game.hh"
 
-i1o0gate::i1o0gate()
-{
+i1o0gate::i1o0gate() {
     this->menu_scale = 1.5f;
 
     this->set_mesh(mesh_factory::get_mesh(MODEL_I1O0));

@@ -6,8 +6,10 @@
 
 #define LED_Z_OFFSET .05f
 
-class ledbuffer
-{
+/**
+ * Graphics buffer for LED lights.
+ */
+class ledbuffer {
   public:
     static void _init();
     static void reset();

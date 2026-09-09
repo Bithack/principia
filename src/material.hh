@@ -74,10 +74,9 @@ struct shader_load_data {
 
 class material_factory {
   public:
-    material_factory()
-    {
+    material_factory() {
         material_factory::background_id = 0;
-    };
+    }
 
     static void upload_all();
     static void free_shaders();
@@ -89,8 +88,7 @@ class material_factory {
     static int background_id;
 };
 
-class m : public tms::material
-{
+class m : public tms::material {
   public:
     float friction;
     float restitution;
@@ -100,8 +98,7 @@ class m : public tms::material
 
     /* TODO: add bitfield here */
 
-    m()
-    {
+    m() {
         friction = .5f;
         restitution = .5f;
         density = 1.f * M_DENSITY;

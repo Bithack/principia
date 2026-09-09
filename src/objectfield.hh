@@ -8,8 +8,15 @@ enum {
     OBJECT_FIELD_TARGET_SETTER,
 };
 
-class objectfield : public edev_multiconnect
-{
+/**
+ * Class representing the Object Field, ID Field and Target Setter object.
+ *
+ * Player Wiki ref:
+ * - https://principia-web.se/wiki/Object_Field
+ * - https://principia-web.se/wiki/ID_Field
+ * - https://principia-web.se/wiki/Target_Setter
+ */
+class objectfield : public edev_multiconnect {
   private:
     void set_size(int length, int height, bool add_to_world);
     int counter;
@@ -18,14 +25,14 @@ class objectfield : public edev_multiconnect
   public:
     objectfield(int _object_type);
 
-    const char* get_name(){
+    const char* get_name() {
         switch (this->object_type) {
             case OBJECT_FIELD_ID: return "ID Field";
             case OBJECT_FIELD_OBJECT: return "Object Field";
             case OBJECT_FIELD_TARGET_SETTER: return "Target Setter";
+            default: return "";
         }
-        return "";
-    };
+    }
 
     float get_slider_snap(int s);
     float get_slider_value(int s);

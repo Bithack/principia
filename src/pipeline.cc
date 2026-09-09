@@ -7,8 +7,7 @@
 
 #define PIPELINE_SPEED .1f
 
-pipeline::pipeline()
-{
+pipeline::pipeline() {
     this->set_flag(ENTITY_ALLOW_AXIS_ROT,       true);
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
     this->set_flag(ENTITY_DO_STEP,              true);
@@ -42,15 +41,11 @@ pipeline::pipeline()
     this->query_vec = b2Vec2(0, -.5f);
 }
 
-void
-pipeline::toggle_axis_rot()
-{
+void pipeline::toggle_axis_rot() {
     this->set_flag(ENTITY_AXIS_ROT, !this->flag_active(ENTITY_AXIS_ROT));
 }
 
-void
-pipeline::update()
-{
+void pipeline::update() {
     tmat4_load_identity(this->M);
     entity_fast_update(static_cast<struct tms_entity*>(this));
 
@@ -76,18 +71,14 @@ pipeline::update()
     }
 }
 
-void
-pipeline::add_to_world()
-{
+void pipeline::add_to_world() {
     this->create_rect(this->get_dynamic_type(), .375f, .375f, this->material);
     this->used = false;
     this->b = 0;
     this->s = 0;
 }
 
-void
-pipeline::step(void)
-{
+void pipeline::step() {
     if (this->b) {
         //tms_infof("step %d", this->s);
 
@@ -181,7 +172,7 @@ pipeline::step(void)
                     bool self = false;
 
                     for (c = b->GetContactList(); c; c=c->next) {
-                        if (this->get_body(0) == c->other) 
+                        if (this->get_body(0) == c->other)
                             self = true;
                         else {
                             b2Fixture *fa = c->contact->GetFixtureA();
@@ -263,12 +254,10 @@ pipeline::step(void)
     }
 }
 
-void
-pipeline::take(ball *b)
-{
+void pipeline::take(ball *b) {
     //tms_infof("taking ball %p", b);
     this->used = true;
-    this->s = 0; 
+    this->s = 0;
     this->b = b;
     this->b->target_z = this->b->z = (float)this->b->get_layer();
 }

@@ -4,8 +4,7 @@
 
 class socket;
 
-class receiver_base
-{
+class receiver_base {
   public:
     float pending_value;
     bool  no_broadcast;
@@ -15,22 +14,25 @@ class receiver_base
         , no_broadcast(false)
     { }
 
-    void reset_recv_value()
-    {
+    void reset_recv_value() {
         this->pending_value = 0.f;
         this->no_broadcast = false;
     }
 };
 
-class receiver : public wireless_plug, public receiver_base
-{
+/**
+ * Class representing the Receiver object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Receiver
+ */
+class receiver : public wireless_plug, public receiver_base {
   public:
     receiver();
-    edevice *get_edevice(){return (edevice*)this;};
-    entity *get_entity(){return (entity*)this;};
-    const char *get_name(){return "Receiver";};
+    edevice *get_edevice() { return (edevice*)this; }
+    entity *get_entity() { return (entity*)this; }
+    const char *get_name() { return "Receiver"; }
 
-    int get_dir(){return CABLE_IN;}
+    int get_dir() { return CABLE_IN; }
 
     void setup();
     void on_pause();
@@ -39,26 +41,22 @@ class receiver : public wireless_plug, public receiver_base
 
     void remove_from_world();
 
-    inline float get_value()
-    {
+    inline float get_value() {
         return this->pending_value;
-    };
+    }
 
-    inline void update_color()
-    {
+    inline void update_color() {
         float v = .5f+(this->pending_value/8.f);
         this->set_uniform("~color", v, v-.1f, v, 1.f);
     }
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::write_state(lvl, lb);
 
         lb->w_s_float(this->pending_value);
     }
 
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::read_state(lvl, lb);
 
         this->pending_value = lb->r_float();

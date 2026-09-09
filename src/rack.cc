@@ -4,8 +4,7 @@
 #include "world.hh"
 #include "gear.hh"
 
-rack::rack()
-{
+rack::rack() {
     this->width = 2.f;
 
     this->rackbody = 0;
@@ -37,9 +36,7 @@ rack::rack()
     this->properties[1].v.f = 0.f;
 }
 
-void
-rack::update(void)
-{
+void rack::update() {
     entity::update();
     tmat4_copy(this->rackent->M, this->M);
 
@@ -55,9 +52,7 @@ rack::update(void)
     }
 }
 
-void
-rack::update_limits(void)
-{
+void rack::update_limits() {
     connection *c = this->conn_ll;
 
     float min = INFINITY;
@@ -85,9 +80,7 @@ rack::update_limits(void)
     this->joint->SetLimits(this->limits[0], this->limits[1]);
 }
 
-float
-rack::get_projection(b2Vec2 p)
-{
+float rack::get_projection(b2Vec2 p) {
     p -= this->get_position();
 
     float angle = this->body->GetAngle();
@@ -96,16 +89,12 @@ rack::get_projection(b2Vec2 p)
     return axis.x*p.x + axis.y*p.y;
 }
 
-bool
-rack::point_in_range(b2Vec2 p)
-{
+bool rack::point_in_range(b2Vec2 p) {
     float projection = this->get_projection(p);
     return projection > this->limits[0]-4.f && projection < this->limits[1]+4.f;
 }
 
-void
-rack::create_shape()
-{
+void rack::create_shape() {
     if (this->rackbody) {
         for (b2Fixture *f = this->rackbody->GetFixtureList(), *next = 0;
                 f; f=next) {
@@ -128,9 +117,7 @@ rack::create_shape()
     }
 }
 
-void
-rack::remove_from_world()
-{
+void rack::remove_from_world() {
     W->b2->DestroyBody(this->rackbody);
     W->b2->DestroyBody(this->body);
     this->body = 0;
@@ -138,28 +125,21 @@ rack::remove_from_world()
     this->joint = 0; /* automatically freed when the bodies are destroyed */
 }
 
-void
-rack::set_angle(float a)
-{
+void rack::set_angle(float a) {
     if (this->rackbody)
         this->rackbody->SetAwake(true);
 
     entity::set_angle(a);
 }
 
-void
-rack::set_position(float x, float y, uint8_t frame/*=0*/)
-{
-    if (this->rackbody) {
+void rack::set_position(float x, float y, uint8_t frame/*=0*/) {
+    if (this->rackbody)
         this->rackbody->SetAwake(true);
-    }
 
     entity::set_position(x, y, frame);
 }
 
-void
-rack::pre_write(void)
-{
+void rack::pre_write() {
     if (this->rackbody) {
         b2Vec2 rp = this->rackbody->GetPosition();
         rp -= this->get_position();
@@ -169,9 +149,7 @@ rack::pre_write(void)
     entity::pre_write();
 }
 
-void
-rack::add_to_world()
-{
+void rack::add_to_world() {
     b2BodyDef bd;
     bd.type = b2_staticBody;
     bd.position = this->_pos;

@@ -149,8 +149,7 @@ struct sprite_load_data gui_spritesheet::sprites[NUM_SPRITES] = {
     { "data/icons/aluminium.png", &atlas },
 };
 
-struct atlas_layout
-{
+struct atlas_layout {
     struct tms_atlas **atlas;
     uint32_t width;
     uint32_t height;
@@ -192,43 +191,37 @@ static struct atlas_layout cache_atlases[NUM_ATLASES] = {
     },
 };
 
-static bool
-open_cache(lvlbuf *lb, const char *path)
-{
+static bool open_cache(lvlbuf *lb, const char *path) {
     FILE *fp = fopen(path, "rb");
-    if (fp) {
-        fseek(fp, 0, SEEK_END);
-        long size = ftell(fp);
-        fseek(fp, 0, SEEK_SET);
+    if (!fp)
+        return false;
 
-        lb->reset();
-        lb->size = 0;
-        lb->ensure((int)size);
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
 
-        fread(lb->buf, 1, size, fp);
+    lb->reset();
+    lb->size = 0;
+    lb->ensure((int)size);
 
-        fclose(fp);
+    fread(lb->buf, 1, size, fp);
 
-        lb->size = size;
+    fclose(fp);
 
-        return true;
-    }
+    lb->size = size;
 
-    return false;
+    return true;
 }
 
-static p_font*
-read_p_font(lvlbuf *lb)
-{
+static p_font *read_p_font(lvlbuf *lb) {
     int orig_height = lb->r_int32();
     uint32_t num_chars = lb->r_uint32();
 
     p_font *font = new p_font(FONT_PATH, orig_height);
 
     /* In case we've changed the amount of chars that are stored in the font. */
-    if (num_chars != 128-CHAR_OFFSET) {
+    if (num_chars != 128-CHAR_OFFSET)
         return 0;
-    }
 
     for (int x=CHAR_OFFSET; x<CHAR_OFFSET+num_chars; ++x) {
         struct glyph *g = font->get_glyph(x);
@@ -279,9 +272,7 @@ read_p_font(lvlbuf *lb)
     return font;
 }
 
-static bool
-read_font_cache(lvlbuf *lb)
-{
+static bool read_font_cache(lvlbuf *lb) {
     uint8_t version = lb->r_uint8();
     float read_text_factor = lb->r_float();
 
@@ -374,9 +365,7 @@ read_font_cache(lvlbuf *lb)
     return true;
 }
 
-static bool
-read_cache(lvlbuf *lb)
-{
+static bool read_cache(lvlbuf *lb) {
     uint8_t version = lb->r_uint8();
     float read_text_factor = lb->r_float();
     uint32_t num_atlases = lb->r_uint32();
@@ -439,9 +428,7 @@ read_cache(lvlbuf *lb)
     return true;
 }
 
-static void
-write_sprite(lvlbuf *lb, struct tms_sprite *s)
-{
+static void write_sprite(lvlbuf *lb, struct tms_sprite *s) {
     lb->w_s_float(s->bl.x);
     lb->w_s_float(s->bl.y);
     lb->w_s_float(s->tr.x);
@@ -450,9 +437,7 @@ write_sprite(lvlbuf *lb, struct tms_sprite *s)
     lb->w_s_float(s->height);
 }
 
-static bool
-write_cache(lvlbuf *lb)
-{
+static bool write_cache(lvlbuf *lb) {
     lb->w_s_uint8(FONT_CACHE_VERSION);
     lb->w_s_float(gui_spritesheet::text_factor);
     lb->w_s_uint32(NUM_ATLASES);
@@ -486,9 +471,7 @@ write_cache(lvlbuf *lb)
     return true;
 }
 
-static void
-write_p_font(lvlbuf *lb, p_font *font)
-{
+static void write_p_font(lvlbuf *lb, p_font *font) {
     lb->w_s_int32(font->get_orig_height()); /* font height */
 
     lb->w_s_uint32(128-CHAR_OFFSET); /* num chars */
@@ -565,9 +548,7 @@ write_p_font(lvlbuf *lb, p_font *font)
     }
 }
 
-static bool
-write_font_cache(lvlbuf *lb)
-{
+static bool write_font_cache(lvlbuf *lb) {
     Uint32 begin, a1, a2, a3, end;
 
     begin = SDL_GetTicks();
@@ -614,25 +595,20 @@ write_font_cache(lvlbuf *lb)
 
 }
 
-static bool
-save_cache(lvlbuf *lb, const char *path)
-{
+static bool save_cache(lvlbuf *lb, const char *path) {
     FILE *fp = fopen(path, "wb");
-    if (fp) {
-        fwrite(lb->buf, 1, lb->size, fp);
-        fclose(fp);
+    if (!fp)
+        return false;
 
-        return true;
-    }
+    fwrite(lb->buf, 1, lb->size, fp);
+    fclose(fp);
 
-    return false;
+    return true;
 }
 
 static bool base_font_init = false;
 
-void
-gui_spritesheet::init_atlas()
-{
+void gui_spritesheet::init_atlas() {
     for (int x=0; x<NUM_ATLASES; ++x) {
         struct atlas_layout *al = &cache_atlases[x];
         struct tms_atlas *a = tms_atlas_alloc(al->width, al->height, al->num_channels);
@@ -645,9 +621,8 @@ gui_spritesheet::init_atlas()
     }
 
     text_xppcm = _tms.xppcm;
-    if (text_xppcm > 120) {
+    if (text_xppcm > 120) // XXX: Need to fix this! Glyphs become too big to fit in the atlas.
         text_xppcm = 120;
-    }
 
     text_factor = (float)_tms.xppcm / (float)text_xppcm;
 
@@ -662,12 +637,9 @@ static char font_cache_path[512];
 
 static const bool disable_font_cache = false;
 
-void
-gui_spritesheet::init_loading_font()
-{
-    if (base_font_init) {
+void gui_spritesheet::init_loading_font() {
+    if (base_font_init)
         return;
-    }
 
     snprintf(font_cache_path, 511, "%s/fonts.cache", tms_storage_cache_path());
 
@@ -685,9 +657,8 @@ gui_spritesheet::init_loading_font()
         }
     }
 
-    if (lb.buf) {
+    if (lb.buf)
         free(lb.buf);
-    }
 
     if (use_font_cache) {
         tms_infof("Successfully read font info from cache at '%s'", font_cache_path);
@@ -710,13 +681,11 @@ gui_spritesheet::init_loading_font()
     atlas_text->current_x = BG_RESERVE;
     atlas_text->current_y = 0;
     atlas_text->current_height = BG_RESERVE;
-    for (int y=0; y<BG_RESERVE; y++) {
-        for (int x=0; x<BG_RESERVE; x++) {
-            for (int z=0; z<ATLAS_TEXT_NUM_CHANS; z++) {
+    for (int y=0; y<BG_RESERVE; y++)
+        for (int x=0; x<BG_RESERVE; x++)
+            for (int z=0; z<ATLAS_TEXT_NUM_CHANS; z++)
                 tx[ATLAS_TEXT_NUM_CHANS*(ATLAS_TEXT_WIDTH*(ATLAS_TEXT_HEIGHT-1-y)) + ATLAS_TEXT_NUM_CHANS*x + z] = 255;
-            }
-        }
-    }
+
 #undef BG_RESERVE
 
     tms_debugf("Initializing medium sized font...");
@@ -726,9 +695,7 @@ gui_spritesheet::init_loading_font()
     gui_spritesheet::upload_text_atlas();
 }
 
-void
-gui_spritesheet::init_fonts()
-{
+void gui_spritesheet::init_fonts() {
     if (font_init)
         return;
 
@@ -760,18 +727,14 @@ gui_spritesheet::init_fonts()
     gui_spritesheet::upload_text_atlas();
 }
 
-void
-gui_spritesheet::upload_text_atlas()
-{
+void gui_spritesheet::upload_text_atlas() {
     tms_debugf("Uploading text atlas...");
     tms_texture_upload(&atlas_text->texture);
 
     gui_spritesheet::text_atlas_modified = false;
 }
 
-void
-gui_spritesheet::init()
-{
+void gui_spritesheet::init() {
     if (initialized)
         return;
 
@@ -896,9 +859,7 @@ gui_spritesheet::init()
     tmp_atlas->padding_y = 1;
 }
 
-void
-gui_spritesheet::deinit()
-{
+void gui_spritesheet::deinit() {
     delete font::small;
     delete font::medium;
     delete font::xmedium;
@@ -908,15 +869,12 @@ gui_spritesheet::deinit()
     for (int x=0; x< NUM_SPRITES; ++x) {
         struct sprite_load_data *sld = &gui_spritesheet::sprites[x];
 
-        if (sld->sprite) {
+        if (sld->sprite)
             free(sld->sprite);
-        }
     }
 }
 
-void
-gui_spritesheet::add(struct tms_atlas *atlas, struct tms_sprite **s, const char *path)
-{
+void gui_spritesheet::add(struct tms_atlas *atlas, struct tms_sprite **s, const char *path) {
     *s = tms_atlas_add_file(atlas, path, 1);
 
     if (!*s) {
@@ -924,9 +882,7 @@ gui_spritesheet::add(struct tms_atlas *atlas, struct tms_sprite **s, const char 
     }
 }
 
-void
-gui_spritesheet::cleanup()
-{
+void gui_spritesheet::cleanup() {
     tms_atlas_free(gui_spritesheet::tmp_atlas);
     tms_atlas_free(gui_spritesheet::atlas);
     tms_atlas_free(gui_spritesheet::atlas_text);

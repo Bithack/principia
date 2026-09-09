@@ -127,16 +127,16 @@ struct sprite_load_data {
     struct tms_sprite *sprite;
 };
 
-class gui_spritesheet
-{
+/**
+ * Manages initialisation of common GUI sprites and fonts.
+ */
+class gui_spritesheet {
   public:
     static struct sprite_load_data sprites[NUM_SPRITES];
-    static inline struct tms_sprite *get_sprite(int sprite_id)
-    {
+    static inline struct tms_sprite *get_sprite(int sprite_id) {
         return gui_spritesheet::sprites[sprite_id].sprite;
     }
-    static inline struct tms_sprite **get_rsprite(int sprite_id)
-    {
+    static inline struct tms_sprite **get_rsprite(int sprite_id) {
         return &gui_spritesheet::sprites[sprite_id].sprite;
     }
 
@@ -168,11 +168,11 @@ class gui_spritesheet
     static float text_factor;
 
     static bool initialized;
-    static void init_atlas(void);
-    static void init_loading_font(void);
-    static void init_fonts(void);
-    static void upload_text_atlas(void);
-    static void init(void);
+    static void init_atlas();
+    static void init_loading_font();
+    static void init_fonts();
+    static void upload_text_atlas();
+    static void init();
     static void deinit();
     static void add(struct tms_atlas *atlas, struct tms_sprite **sprite, const char *path);
     static void cleanup();

@@ -1,8 +1,11 @@
 #include "squaregate.hh"
+#include "model.hh"
 
-edevice*
-squaregate::solve_electronics()
-{
+squaregate::squaregate() {
+    this->set_mesh(mesh_factory::get_mesh(MODEL_I1O1_SQUARE));
+}
+
+edevice *squaregate::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 

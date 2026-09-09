@@ -4,9 +4,7 @@
 #include "model.hh"
 #include "game.hh"
 
-objectfield::objectfield(int _object_type)
-    : object_type(_object_type)
-{
+objectfield::objectfield(int _object_type) : object_type(_object_type) {
     this->set_flag(ENTITY_HAS_TRACKER, true);
 
     this->num_sliders = 2;
@@ -52,9 +50,7 @@ objectfield::objectfield(int _object_type)
     this->counter = 0;
 }
 
-float
-objectfield::get_slider_value(int s)
-{
+float objectfield::get_slider_value(int s) {
     if (s == 0) /* length */
         return this->properties[0].v.i / 3.f;
     else if (s == 1) /* sensor height */
@@ -64,18 +60,14 @@ objectfield::get_slider_value(int s)
     return .0f;
 }
 
-float
-objectfield::get_slider_snap(int s)
-{
+float objectfield::get_slider_snap(int s) {
     if (s == 0) /* length */
         return 1.f / 3.f;
     else /* sensor height */
         return 1.f / 9.f;
 }
 
-const char*
-objectfield::get_slider_label(int s)
-{
+const char* objectfield::get_slider_label(int s) {
     if (s == 0) /* length */
         return "Length";
     else if (s == 1) /* sensor height */
@@ -85,9 +77,7 @@ objectfield::get_slider_label(int s)
     return 0;
 }
 
-void
-objectfield::add_to_world()
-{
+void objectfield::add_to_world() {
     uint32_t length = (uint32_t)roundf(this->properties[0].v.i);
     uint32_t sensor_height = (uint32_t)roundf(this->properties[1].v.i);
     this->set_size(length, sensor_height, false);
@@ -100,9 +90,8 @@ objectfield::add_to_world()
         b2Body *b = W->b2->CreateBody(&bd);
         this->body = b;
     } else {
-        while (this->body->GetFixtureList()) {
+        while (this->body->GetFixtureList())
             this->body->DestroyFixture(this->body->GetFixtureList());
-        }
     }
 
     b2FixtureDef fd;
@@ -125,37 +114,27 @@ objectfield::add_to_world()
     }
 }
 
-void
-objectfield::remove_from_world()
-{
+void objectfield::remove_from_world() {
     if (this->body) {
         W->b2->DestroyBody(this->body);
         this->body = 0;
     }
 }
 
-void
-objectfield::on_load(bool created, bool has_state)
-{
+void objectfield::on_load(bool created, bool has_state) {
     this->counter = 0;
     this->set_size(this->properties[0].v.i, this->properties[1].v.i, false);
 }
 
-void
-objectfield::setup()
-{
+void objectfield::setup() {
     this->counter = 0;
 }
 
-void
-objectfield::on_pause()
-{
+void objectfield::on_pause() {
     this->counter = 0;
 }
 
-void
-objectfield::on_touch(b2Fixture *my, b2Fixture *other)
-{
+void objectfield::on_touch(b2Fixture *my, b2Fixture *other) {
     entity *e;
     if ((e = static_cast<entity*>(other->GetUserData())) && (!other->IsSensor() || e->g_id == O_INTERACTIVE_BALL || e->g_id == O_BALL || e->g_id == O_METAL_BALL)) {
         switch (this->object_type) {
@@ -189,9 +168,7 @@ objectfield::on_touch(b2Fixture *my, b2Fixture *other)
     }
 }
 
-void
-objectfield::on_untouch(b2Fixture *my, b2Fixture *other)
-{
+void objectfield::on_untouch(b2Fixture *my, b2Fixture *other) {
     if (this->object_type == OBJECT_FIELD_TARGET_SETTER) return;
 
     entity *e;
@@ -223,9 +200,7 @@ objectfield::on_untouch(b2Fixture *my, b2Fixture *other)
     }
 }
 
-void
-objectfield::set_size(int length, int sensor_height, bool add_to_world)
-{
+void objectfield::set_size(int length, int sensor_height, bool add_to_world) {
     if (length>3) length = 3;
     if (length<0) length = 0;
 
@@ -260,9 +235,7 @@ objectfield::set_size(int length, int sensor_height, bool add_to_world)
     }
 }
 
-void
-objectfield::on_slider_change(int s, float value)
-{
+void objectfield::on_slider_change(int s, float value) {
     if (s == 0) { /* length */
         uint32_t length = (uint32_t)roundf(value * 3.f);
         uint32_t sensor_height = (uint32_t)roundf(this->properties[1].v.i);
@@ -282,14 +255,11 @@ objectfield::on_slider_change(int s, float value)
     }
 }
 
-edevice*
-objectfield::solve_electronics()
-{
+edevice* objectfield::solve_electronics() {
     this->s_out[0].write((this->counter > 0) ? 1.f : 0.f);
 
-    if (this->object_type == OBJECT_FIELD_TARGET_SETTER) {
+    if (this->object_type == OBJECT_FIELD_TARGET_SETTER)
         this->counter = 0;
-    }
 
     /* always done immediately */
     return 0;

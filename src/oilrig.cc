@@ -11,22 +11,19 @@
 #define OIL_AMOUNT .0005f
 #define RANGE 3.5f
 
-class oil_handler  : public b2RayCastCallback
-{
+class oil_handler : public b2RayCastCallback {
   public:
     tpixel_desc *result;
 
-    oil_handler(){
+    oil_handler() {
         this->result = 0;
-    };
+    }
 
-    float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-    {
+    float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
         entity *e;
 
-        if (f->IsSensor()) {
+        if (f->IsSensor())
             return -1;
-        }
 
         if ((e = static_cast<entity*>(f->GetUserData()))) {
             if (e->g_id == O_TPIXEL || e->g_id == O_CHUNK)  {
@@ -37,9 +34,8 @@ class oil_handler  : public b2RayCastCallback
                     return -1;
                 }
 
-                if (desc->oil <= 0.f) {
+                if (desc->oil <= 0.f)
                     return -1;
-                }
 
                 this->result = desc;
                 return 0;
@@ -50,8 +46,7 @@ class oil_handler  : public b2RayCastCallback
     }
 };
 
-oilrig::oilrig()
-{
+oilrig::oilrig() {
     this->menu_scale = .25f;
     this->set_flag(ENTITY_IS_BETA,           true);
     this->set_flag(ENTITY_ALLOW_CONNECTIONS, false);
@@ -68,8 +63,7 @@ oilrig::oilrig()
     this->set_flag(ENTITY_DO_STEP, true);
 }
 
-void oilrig::update_effects()
-{
+void oilrig::update_effects() {
     if (this->get_body(0) && G && W && !W->is_paused()) {
         b2Vec2 pt = this->local_to_world(b2Vec2(-.5f, -1.25f), 0);
         b2Vec2 pt2 = this->local_to_world(b2Vec2(.5f, -1.25f), 0);
@@ -107,16 +101,12 @@ void oilrig::update_effects()
     }
 }
 
-void
-oilrig::setup()
-{
+void oilrig::setup() {
     this->oil_accum = 0.f;
     this->active = false;
 }
 
-void
-oilrig::step()
-{
+void oilrig::step() {
     this->active = false;
 
     if (!this->c.pending) {
@@ -158,9 +148,7 @@ oilrig::step()
     }
 }
 
-void
-oilrig::add_to_world()
-{
+void oilrig::add_to_world() {
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.position = _pos;
@@ -179,7 +167,7 @@ oilrig::add_to_world()
     fd.filter = world::get_filter_for_layer(this->get_layer(), 15);
 
     (this->body->CreateFixture(&fd))->SetUserData(this);
-    
+
     /* bottom */
     box.SetAsBox(1.5f*this->size, .25f*this->size, b2Vec2(0.f, -2.5f*this->size), 0);
     (this->body->CreateFixture(&fd))->SetUserData(this);

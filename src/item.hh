@@ -7,6 +7,9 @@
 
 #define UNLOCKED_ITEM_LEVEL_ID 1275
 
+/**
+ * A structure representing the information for an item type
+ */
 struct item_option {
     const char *name;
     creature_effect *ef;
@@ -31,9 +34,7 @@ struct item_option {
     struct tms_sprite image;
     struct tms_sprite *name_spr;
 
-    item_option(const char *_name)
-        : name(_name)
-    {
+    item_option(const char *_name) : name(_name) {
         this->zappable = true;
         this->can_rotate = false;
         this->magnetic = false;
@@ -53,165 +54,109 @@ struct item_option {
         this->activator_radius = -1.f;
     }
 
-    struct item_option&
-    set_effect(creature_effect *ef)
-    {
+    struct item_option &set_effect(creature_effect *ef) {
         this->ef = ef;
-
         return *this;
     }
 
-    struct item_option&
-    set_zappable(bool val)
-    {
+    struct item_option &set_zappable(bool val) {
         this->zappable = val;
-
         return *this;
     }
 
-    struct item_option&
-    set_layer_mask(int v)
-    {
+    struct item_option &set_layer_mask(int v) {
         this->layer_mask = v;
-
         return *this;
     }
 
-    struct item_option&
-    set_material(tms::material *material)
-    {
+    struct item_option &set_material(tms::material *material) {
         this->material = material;
-
         return *this;
     }
 
-    struct item_option&
-    set_mesh(struct tms_mesh **mesh)
-    {
+    struct item_option &set_mesh(struct tms_mesh **mesh) {
         this->mesh = mesh;
-
         return *this;
     }
 
-    struct item_option&
-    set_category(uint32_t category)
+    struct item_option &set_category(uint32_t category)
     {
         this->category = category;
-
         return *this;
     }
 
-    struct item_option&
-    set_uniform(float r, float g, float b, float a=1.f)
-    {
+    struct item_option &set_uniform(float r, float g, float b, float a=1.f) {
         this->uniform = tvec4f(r, g, b, a);
-
         return *this;
     }
 
-    struct item_option&
-    set_size(float w, float h)
-    {
+    struct item_option &set_size(float w, float h) {
         this->size.w = w;
         this->size.h = h;
-
         return *this;
     }
 
-    struct item_option&
-    set_data_id(uint32_t data_id)
-    {
+    struct item_option &set_data_id(uint32_t data_id) {
         this->data_id = data_id;
-
         return *this;
     }
 
-    struct item_option&
-    set_menu_scale(float scale)
-    {
+    struct item_option &set_menu_scale(float scale) {
         this->menu_scale = scale;
-
         return *this;
     }
 
-    struct item_option&
-    set_mesh_offset(float x, float y)
-    {
+    struct item_option &set_mesh_offset(float x, float y) {
         this->mesh_offset.x = x;
         this->mesh_offset.y = y;
-
         return *this;
     }
 
-    struct item_option&
-    set_magnetic(bool val)
-    {
+    struct item_option &set_magnetic(bool val) {
         this->magnetic = val;
-
         return *this;
     }
 
-    struct item_option&
-    set_do_step(bool val)
-    {
+    struct item_option &set_do_step(bool val) {
         this->step = val;
-
         return *this;
     }
 
-    struct item_option&
-    set_activator_radius(float val)
-    {
+    struct item_option &set_activator_radius(float val) {
         this->activator_radius = val;
-
         return *this;
     }
 
-    struct item_option&
-    set_do_update_effects(bool val)
-    {
+    struct item_option &set_do_update_effects(bool val) {
         this->update_effects = val;
-
         return *this;
     }
 
-    struct item_option&
-    set_can_rotate(bool val)
-    {
+    struct item_option &set_can_rotate(bool val) {
         this->can_rotate = val;
-
         return *this;
     }
 
-    struct item_option&
-    set_rot_offs(float val)
-    {
+    struct item_option &set_rot_offs(float val) {
         this->rot_offs = val;
-
         return *this;
     }
 
-    /* Add num resources */
-    struct item_option& add_worth(uint8_t resource_type, uint32_t num)
-    {
+    /// Add num resources
+    struct item_option &add_worth(uint8_t resource_type, uint32_t num) {
         this->worth.add(resource_type, num);
-
         return *this;
     }
 
-    /* Add oil */
-    struct item_option& add_oil(float val)
-    {
+    /// Add oil
+    struct item_option& add_oil(float val) {
         this->worth.add_oil(val);
-
         return *this;
     }
 
-    /* Add resources and oil from another worth object */
-    struct item_option& add_worth(const struct worth& _worth)
-    {
+    /// Add resources and oil from another worth object
+    struct item_option& add_worth(const struct worth& _worth) {
         this->worth.add(_worth);
-
         return *this;
     }
 };
@@ -289,7 +234,7 @@ enum {
     ITEM_PIONEER_BACK           = 69,
     ITEM_VIKING_HELMET          = 70,
     ITEM_PICKAXE                = 71,
-    
+
     //ITEM_TIMECTRL,
     //ITEM_PAINTER,
     //ITEM_KEVLAR,
@@ -319,13 +264,17 @@ enum {
     NUM_ITEM_CATEGORIES,
 };
 
-class item : public entity, public activator
-{
+/**
+ * Class representing the Item object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Item
+ */
+class item : public entity, public activator {
   private:
     float health;
     uint64_t last_damage_tick;
 
-    /* Extra data for bullets. This is used to make sure a bullet does not hit things twice. */
+    /// Extra data for bullets. This is used to make sure a bullet does not hit things twice.
     bool has_hit_enemy;
 
   public:
@@ -335,29 +284,27 @@ class item : public entity, public activator
     uint32_t         item_category;
     uint32_t         data_id;
     creature_effect *ef;
-    float            z; /* some items such as bullet have dynamic sublayer z */
+    /// some items such as bullet have dynamic sublayer 2
+    float            z;
 
     bool             do_recreate_shape;
     bool             wep;
 
-    void            *data; /* extra data per item type, for a rocket this is the flame effect, etc
-                              mega buster solar bullet uses it for the charge
-                           */
+    /// extra data per item type, for a rocket this is the flame effect, etc
+    /// mega buster solar bullet uses it for the charge
+    void            *data;
 
     void damage(float dmg);
-    inline float get_health()
-    {
+    inline float get_health() {
         return this->health;
     }
 
-    bool is_zappable()
-    {
+    bool is_zappable() {
         return item_options[this->properties[0].v.i].zappable;
     }
 
     const char* get_name() { return "Item"; }
-    const char *get_real_name()
-    {
+    const char *get_real_name() {
         return item_options[this->properties[0].v.i].name;
     }
     void write_quickinfo(char *out);
@@ -379,8 +326,7 @@ class item : public entity, public activator
     void read_state(lvlinfo *lvl, lvlbuf *lb);
     void write_state(lvlinfo *lvl, lvlbuf *lb);
 
-    void write_tooltip(char *out)
-    {
+    void write_tooltip(char *out) {
         strcpy(out, item_options[this->get_item_type()].name);
     }
 
@@ -388,14 +334,12 @@ class item : public entity, public activator
 
     void update();
 
-    inline uint32_t get_item_type()
-    {
+    inline uint32_t get_item_type() {
         uint32_t t = this->properties[0].v.i;
         return t >= NUM_ITEMS ? NUM_ITEMS-1 : t;
     }
 
-    uint32_t get_sub_id()
-    {
+    uint32_t get_sub_id() {
         return this->get_item_type();
     }
 
@@ -406,10 +350,10 @@ class item : public entity, public activator
     static const char *get_ui_name(uint32_t item_type);
 
     /* for heads, bodies, etc, that can rotate */
-    float get_slider_snap(int s){return .1f;};
-    float get_slider_value(int s){return this->properties[1].v.f;};
-    const char *get_slider_label(int s){return "Rotation";};
-    void on_slider_change(int s, float value){this->properties[1].v.f = value;};
+    float get_slider_snap(int s) { return .1f; }
+    float get_slider_value(int s) { return this->properties[1].v.f; }
+    const char *get_slider_label(int s) { return "Rotation"; }
+    void on_slider_change(int s, float value) { this->properties[1].v.f = value; }
 
     void drop_worth();
 
@@ -417,11 +361,12 @@ class item : public entity, public activator
     b2Fixture *fx_sensor;
     activator *get_activator() { return this; }
     entity *get_activator_entity() { return this; }
-    float get_activator_radius()
-    {
+    float get_activator_radius() {
         return item_options[this->get_item_type()].activator_radius;
     }
-    b2Vec2 get_activator_pos() { return this->get_position(); }
+    b2Vec2 get_activator_pos() {
+        return this->get_position();
+    }
     void activate(creature *by);
     void on_touch(b2Fixture *my, b2Fixture *other);
     void on_untouch(b2Fixture *my, b2Fixture *other);

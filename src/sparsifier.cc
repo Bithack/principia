@@ -1,4 +1,9 @@
 #include "sparsifier.hh"
+#include "model.hh"
+
+sparsifier::sparsifier() : last(false) {
+    this->set_mesh(mesh_factory::get_mesh(MODEL_I1O1_SPARSIFY));
+}
 
 edevice*
 sparsifier::solve_electronics()

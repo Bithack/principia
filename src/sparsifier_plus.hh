@@ -14,11 +14,7 @@ class besserwisser : public i1o1gate
     void read_state(lvlinfo *lvl, lvlbuf *lb);
     void write_state(lvlinfo *lvl, lvlbuf *lb);
 
-    besserwisser()
-        : last(false)
-    {
-        this->set_mesh(mesh_factory::get_mesh(MODEL_I1O1_BESSERWISSER));
-    }
+    besserwisser();
 
   private:
     bool last;

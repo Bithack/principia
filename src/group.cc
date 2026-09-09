@@ -18,9 +18,7 @@ struct plastic_vert {
     tvec3 color;
 } __attribute__ ((packed));
 
-void
-group::update()
-{
+void group::update() {
     b2Transform t;
     t = this->body->GetTransform();
     //tmat4_load_identity(this->M);
@@ -42,8 +40,7 @@ group::update()
     }
 }
 
-group::group()
-{
+group::group() {
     this->set_flag(ENTITY_IS_MOVEABLE, true);
     this->body = 0;
     this->type = ENTITY_GROUP;
@@ -109,14 +106,11 @@ group::group()
     tmat3_load_identity(this->N);
 }
 
-group::~group()
-{
+group::~group() {
     this->remove_from_world();
 }
 
-void
-group::create_mesh(void)
-{
+void group::create_mesh() {
     float rm[16];
 
     struct vert {
@@ -166,13 +160,11 @@ group::create_mesh(void)
         connection *c = this->connections[x];
 
         /* dont render connection for brdevices on breadboard */
-        if (c->e->g_id == O_BREADBOARD && c->o->flag_active(ENTITY_IS_BRDEVICE)) {
+        if (c->e->g_id == O_BREADBOARD && c->o->flag_active(ENTITY_IS_BRDEVICE))
             continue;
-        }
 
-        if (c->render_type == CONN_RENDER_HIDE) {
+        if (c->render_type == CONN_RENDER_HIDE)
             continue;
-        }
 
         struct cvert *cv;
         uint16_t *ci;
@@ -199,11 +191,10 @@ group::create_mesh(void)
         float zs = 1.f;
 
         if (c->render_type == CONN_RENDER_SMALL) {
-            if (c->multilayer) {
+            if (c->multilayer)
                 zs = .75f;
-            } else {
+            else
                 scale = .375f;
-            }
         }
 
         //tms_infof("cp %f %f", c->p.x, c->p.y);
@@ -238,32 +229,29 @@ group::create_mesh(void)
                 z_scale *= (float)(c->sublayer_dist+1) / 4.f;
                 //z_scale += .25f;
 
-                if (ldiff > 0) {
+                if (ldiff > 0)
                     z_offset = -(z_scale/1.8f * LAYER_DEPTH);
-                } else {
+                else
                     z_offset =  (z_scale/1.8f * LAYER_DEPTH);
-                }
 
                 int l0 = 1;
 
                 /* initial layer mask */
                 if (c->layer_mask & 1) {
-                } else if (c->layer_mask & 2) {
+                } else if (c->layer_mask & 2)
                     l0 += 1;
-                } else if (c->layer_mask & 3) {
+                else if (c->layer_mask & 3)
                     l0 += 2;
-                } else if (c->layer_mask & 4) {
+                else if (c->layer_mask & 4)
                     l0 += 3;
-                }
 
                 if (c->o->layer_mask & 4) {
-                } else if (c->o->layer_mask & 3) {
+                } else if (c->o->layer_mask & 3)
                     l0 += 1;
-                } else if (c->o->layer_mask & 2) {
+                else if (c->o->layer_mask & 2)
                     l0 += 2;
-                } else if (c->o->layer_mask & 1) {
+                else if (c->o->layer_mask & 1)
                     l0 += 3;
-                }
 
                 z_offset = l0 * (LAYER_DEPTH/4.f);
 
@@ -327,31 +315,24 @@ group::create_mesh(void)
     tms_gbuffer_upload_partial(this->ibuf, vi*sizeof(uint16_t));
 }
 
-void
-group::add_to_world()
-{
+void group::add_to_world() {
     /* do nothing */
 }
 
-void
-group::remove_from_world()
-{
+void group::remove_from_world() {
     if (this->body) {
         W->b2->DestroyBody(this->body);
         this->body = 0;
     }
 }
 
-void
-group::merge(group *g, connection *c)
-{
+void group::merge(group *g, connection *c) {
     //tms_infof("MERGE %d, num_entities: %lu", this->id, this->entities.size());
     for (int x=0; x<g->connections.size(); x++)
         this->connections.push_back(g->connections[x]);
 
-    for (int x=0; x<g->entities.size(); x++) {
+    for (int x=0; x<g->entities.size(); x++)
         this->add_entity(g->entities[x]);
-    }
 
     W->remove(g);
 
@@ -365,9 +346,7 @@ group::merge(group *g, connection *c)
     delete g;
 }
 
-void
-group::on_load(bool created, bool has_state)
-{
+void group::on_load(bool created, bool has_state) {
     b2BodyDef bd;
     bd.position = this->_pos;
     bd.angle = this->_angle;
@@ -386,15 +365,11 @@ group::on_load(bool created, bool has_state)
     this->entities.clear();
 }
 
-void
-group::push_connection(connection *c)
-{
+void group::push_connection(connection *c) {
     this->connections.push_back(c);
 }
 
-void
-group::dangle()
-{
+void group::dangle() {
     if (this->body) {
         this->_pos = this->body->GetPosition();
         this->_angle = this->body->GetAngle();
@@ -402,9 +377,7 @@ group::dangle()
     this->body = 0;
 }
 
-void
-group::push_entity(composable *e, b2Vec2 p, float angle)
-{
+void group::push_entity(composable *e, b2Vec2 p, float angle) {
     //tms_infof("push entity %p(%s), %f %f, %f", e, e->get_name(), p.x, p.y, angle);
 
     if (!this->body) {
@@ -437,18 +410,15 @@ group::push_entity(composable *e, b2Vec2 p, float angle)
         bool select = (G->selection.e == e);
 
         G->remove_entity(e);
-        if (e->update_method != ENTITY_UPDATE_CUSTOM) {
+        if (e->update_method != ENTITY_UPDATE_CUSTOM)
             e->curr_update_method = e->update_method = ENTITY_UPDATE_GROUPED;
-        }
         G->add_entity(e);
 
-        if (select) {
+        if (select)
             G->selection.select(e, 0, (tvec2){0,0}, 0, true);
-        }
     } else {
-        if (e->update_method != ENTITY_UPDATE_CUSTOM) {
+        if (e->update_method != ENTITY_UPDATE_CUSTOM)
             e->curr_update_method = e->update_method = ENTITY_UPDATE_GROUPED;
-        }
     }
 
     /* TODO: resort */
@@ -469,20 +439,13 @@ group::push_entity(composable *e, b2Vec2 p, float angle)
     this->entities.push_back(e);
 }
 
-void
-group::recreate_all_entity_joints(bool hard)
-{
+void group::recreate_all_entity_joints(bool hard) {
     for (std::vector<composable*>::iterator i = this->entities.begin();
             i != this->entities.end(); i++)
         this->recreate_entity_joints(*i, hard);
 }
 
-/**
- * Recreate all of the given entity's joints
- **/
-void
-group::recreate_entity_joints(composable *e, bool hard)
-{
+void group::recreate_entity_joints(composable *e, bool hard) {
     connection *cc = e->conn_ll;
     if (cc) {
         do {
@@ -495,20 +458,12 @@ group::recreate_entity_joints(composable *e, bool hard)
 
     if (W->level.type == LCAT_ADVENTURE && !W->is_paused()) {
         edevice *ed = e->get_edevice();
-        if (ed) {
+        if (ed)
             ed->recreate_all_cable_joints();
-        }
     }
 }
 
-/**
- * Set the world center to the mass centre,
- * and save the offset between the real origo
- * and the mass centre
- **/
-void
-group::reset_origo(bool hard_recreate)
-{
+void group::reset_origo(bool hard_recreate) {
     this->body->ResetMassData();
 
     b2Vec2 mp = this->body->GetLocalCenter();
@@ -583,9 +538,7 @@ group::reset_origo(bool hard_recreate)
  * Called in the editor when a group is expanded to contain
  * one more composable.
  **/
-void
-group::add_entity(composable *e)
-{
+void group::add_entity(composable *e) {
     //tms_infof("adding entity: %p", e);
     if (this->entities.size() == 0) {
         //tms_infof("%p stealing body pointer %p", this, e->body);
@@ -626,31 +579,25 @@ group::add_entity(composable *e)
     }
 }
 
-void
-group::add(connection *c)
-{
+void group::add(connection *c) {
     if (c->e->gr != this) {
-        if (c->e->gr != 0) {
+        if (c->e->gr != 0)
             this->merge(c->e->gr, c);
-        } else {
+        else
             this->add_entity((composable*)c->e);
-        }
     }
     if (c->o->gr != this) {
-        if (c->o->gr != 0) {
+        if (c->o->gr != 0)
             this->merge(c->o->gr, c);
-        } else {
+        else
             this->add_entity((composable*)c->o);
-        }
     }
 
     this->connections.push_back(c);
     this->create_mesh();
 }
 
-void
-group::make_group(composable *e, std::set<composable *> *pending, std::set<composable *> *found, std::set<connection *> *found_conn)
-{
+void group::make_group(composable *e, std::set<composable *> *pending, std::set<composable *> *found, std::set<connection *> *found_conn) {
     pending->erase(e);
     found->insert(e);
 
@@ -666,15 +613,13 @@ group::make_group(composable *e, std::set<composable *> *pending, std::set<compo
                 if (found->find(other) == found->end() && pending->find(other) != pending->end())
                     this->make_group(other, pending, found, found_conn);
             } else {
-                tms_debugf("ignoreing connection %p, not group", c);
+                tms_debugf("ignoring connection %p, not group", c);
             }
         } while ((c = c->next[(c->e == e ? 0 : 1)]));
     }
 }
 
-void
-group::rebuild()
-{
+void group::rebuild() {
     tms_infof("rebuilding group");
     this->connections.clear();
 
@@ -826,9 +771,7 @@ group::rebuild()
 
 static bool sort_by_id(composable *a, composable *b){return a->id < b->id;};
 
-void
-group::finalize()
-{
+void group::finalize() {
     bool found_static = false;
 
     std::vector<connection *> to_be_removed;
@@ -884,9 +827,8 @@ group::finalize()
                     c->j = 0;
                 }
             }
-        } else {
+        } else
             this->body->SetType(b2_dynamicBody);
-        }
     }
 
     /* TODO: readd the entity to the scene */
@@ -897,11 +839,10 @@ group::finalize()
         G->remove_entity(this);
     }
 
-    if (!found_static) {
+    if (!found_static)
         this->curr_update_method = this->update_method = ENTITY_UPDATE_CUSTOM;
-    } else {
+    else
         this->curr_update_method = this->update_method = ENTITY_UPDATE_STATIC_CUSTOM;
-    }
 
     if (was_added)
         G->add_entity(this);
@@ -1100,16 +1041,13 @@ group::finalize()
     }
 }
 
-bool
-group::is_locked()
-{
+bool group::is_locked() {
     for (std::vector<composable*>::iterator it = this->entities.begin();
             it != this->entities.end(); ++it) {
         entity *e = *it;
 
-        if (e->flag_active(ENTITY_IS_LOCKED)) {
+        if (e->flag_active(ENTITY_IS_LOCKED))
             return true;
-        }
     }
 
     return false;

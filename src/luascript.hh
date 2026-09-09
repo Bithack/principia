@@ -80,6 +80,11 @@ struct DataStruct {
     size_t size;
 };
 
+/**
+ * Class representing the LuaScript object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/LuaScript
+ */
 class luascript : public brcomp_multiconnect, public base_prompt {
   protected:
     std::vector<struct luascript_line> lines;

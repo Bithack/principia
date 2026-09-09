@@ -9,8 +9,7 @@
 #define LOAD_RETRY 3
 #define LOAD_RETURN_NUM_STEPS -1
 
-class loading_screen : public tms::screen
-{
+class loading_screen : public tms::screen {
   private:
     int step;
     int num_steps;
@@ -22,8 +21,7 @@ class loading_screen : public tms::screen
   public:
     loading_screen();
 
-    inline void load(int (*loader)(int), tms::screen *s)
-    {
+    inline void load(int (*loader)(int), tms::screen *s) {
         this->num_steps = loader(LOAD_RETURN_NUM_STEPS);
         this->loader = loader;
         this->next = s;
@@ -35,21 +33,19 @@ class loading_screen : public tms::screen
 
     void set_text(const char *text);
 
-    inline void retry()
-    {
+    inline void retry() {
         this->step--;
     }
 
-    inline void advance_to(int step)
-    {
+    inline void advance_to(int step) {
         if (step > this->num_steps) this->step = this->num_steps;
 
         this->step = step;
     }
     int step_loading();
-    int render(void);
-    int pause(void);
-    int resume(void);
+    int render();
+    int pause();
+    int resume();
 
     void window_size_changed();
 };

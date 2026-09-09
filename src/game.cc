@@ -20,6 +20,7 @@
 #include "grid.hh"
 #include "group.hh"
 #include "gui.hh"
+#include "hp_control.hh"
 #include "i0o1gate.hh"
 #include "i1o1gate.hh"
 #include "i2o1gate.hh"

@@ -3,8 +3,12 @@
 #include "entity.hh"
 #include "ud2.hh"
 
-class ladder : public entity, b2QueryCallback, b2RayCastCallback
-{
+/**
+ * Class representing the Ladder object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Ladder
+ */
+class ladder : public entity, b2QueryCallback, b2RayCastCallback {
   private:
     connection c_back;
 
@@ -25,7 +29,7 @@ class ladder : public entity, b2QueryCallback, b2RayCastCallback
 
   public:
     ladder();
-    const char *get_name(){return "Ladder";};
+    const char *get_name() { return "Ladder"; }
     void add_to_world();
 
     connection* load_connection(connection &conn);
@@ -36,8 +40,12 @@ class ladder : public entity, b2QueryCallback, b2RayCastCallback
     bool enjoys_connection(uint32_t g_id);
 };
 
-class ladder_step : public entity, b2QueryCallback
-{
+/**
+ * Class representing the Ladder Step object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Ladder_Step
+ */
+class ladder_step : public entity, b2QueryCallback {
   private:
 
     entity *q_result;
@@ -52,7 +60,7 @@ class ladder_step : public entity, b2QueryCallback
     connection c_back;
 
     ladder_step();
-    const char *get_name(){return "Ladder Step";};
+    const char *get_name() { return "Ladder Step"; }
     void add_to_world();
     connection* load_connection(connection &conn);
     bool ReportFixture(b2Fixture *f);

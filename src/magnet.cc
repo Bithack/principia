@@ -3,8 +3,7 @@
 #include "material.hh"
 #include "world.hh"
 
-magnet::magnet(int type)
-{
+magnet::magnet(int type) {
     this->type = type;
     this->set_mesh(mesh_factory::get_mesh(MODEL_MAGNET));
     this->set_material(&m_magnet);
@@ -33,9 +32,7 @@ magnet::magnet(int type)
     }
 }
 
-void
-magnet::recreate_shape()
-{
+void magnet::recreate_shape() {
     if (!this->body) {
         b2BodyDef bd;
         bd.type = this->get_dynamic_type();
@@ -45,9 +42,8 @@ magnet::recreate_shape()
         b2Body *b = W->b2->CreateBody(&bd);
         this->body = b;
     } else {
-        while (this->body->GetFixtureList()) {
+        while (this->body->GetFixtureList())
             this->body->DestroyFixture(this->body->GetFixtureList());
-        }
     }
 
     b2PolygonShape bd_shape;
@@ -77,72 +73,66 @@ magnet::recreate_shape()
     }
 }
 
-void
-magnet::add_to_world()
-{
+void magnet::add_to_world() {
     this->active = true;
     this->objects.clear();
     this->recreate_shape();
 }
 
-void
-magnet::step()
-{
-    if (this->active) {
-        object_map_iter m_it;
-        object_map_iter s_it;
+void magnet::step() {
+    if (!this->active)
+        return;
 
-        float mult = 1.f / objects.size();
+    object_map_iter m_it;
+    object_map_iter s_it;
 
-        for (m_it = objects.begin(); m_it != objects.end();) {
-            entity *e = static_cast<entity*>((*m_it).first);
-            b2Fixture *f = static_cast<b2Fixture*>((*m_it).second);
+    float mult = 1.f / objects.size();
 
-            int num_fixtures = objects.count(e);
-            if (num_fixtures > 1) {
-                /* special handling for objects that have multiple fixtures */
-                std::pair<object_map_iter, object_map_iter> key_range = objects.equal_range(e);
-                b2Fixture *k_f;
-                float closest = INFINITY;
-                b2Fixture *closest_fixture = 0;
+    for (m_it = objects.begin(); m_it != objects.end();) {
+        entity *e = static_cast<entity*>((*m_it).first);
+        b2Fixture *f = static_cast<b2Fixture*>((*m_it).second);
 
-                for (s_it = key_range.first; s_it != key_range.second; ++s_it) {
-                    b2Fixture *k_f = static_cast<b2Fixture*>((*s_it).second);
+        int num_fixtures = objects.count(e);
+        if (num_fixtures > 1) {
+            /* special handling for objects that have multiple fixtures */
+            std::pair<object_map_iter, object_map_iter> key_range = objects.equal_range(e);
+            b2Fixture *k_f;
+            float closest = INFINITY;
+            b2Fixture *closest_fixture = 0;
 
-                    float dist = entity::distance_to_fixture(this->get_position(), k_f);
-                    this->apply_magnetism(k_f, dist, mult);
+            for (s_it = key_range.first; s_it != key_range.second; ++s_it) {
+                b2Fixture *k_f = static_cast<b2Fixture*>((*s_it).second);
 
-                    if (!closest_fixture || dist < closest) {
-                        closest = dist;
-                        closest_fixture = k_f;
-                    }
+                float dist = entity::distance_to_fixture(this->get_position(), k_f);
+                this->apply_magnetism(k_f, dist, mult);
+
+                if (!closest_fixture || dist < closest) {
+                    closest = dist;
+                    closest_fixture = k_f;
                 }
-
-                //this->apply_magnetism(closest_fixture, closest);
-                m_it = s_it;
-            } else {
-                this->apply_magnetism(f, entity::distance_to_fixture(this->get_position(), f), mult);
-                ++m_it;
             }
+
+            //this->apply_magnetism(closest_fixture, closest);
+            m_it = s_it;
+        } else {
+            this->apply_magnetism(f, entity::distance_to_fixture(this->get_position(), f), mult);
+            ++m_it;
         }
     }
 }
 
-void
-magnet::on_touch(b2Fixture *my, b2Fixture *other)
-{
+void magnet::on_touch(b2Fixture *my, b2Fixture *other) {
     entity *e = (entity*)other->GetUserData();
     if (other->IsSensor())
         return;
+
     if (e && e != this && e->flag_active(ENTITY_IS_MAGNETIC)) {
         objects.insert(std::pair<entity*, b2Fixture*>(e, other));
         other->m_isHighlighted = true;
     }
 }
 
-void
-magnet::on_untouch(b2Fixture *my, b2Fixture *other)
-{
+void magnet::on_untouch(b2Fixture *my, b2Fixture *other) {
     entity *e = (entity*)other->GetUserData();
     if (other->IsSensor()) return;
     if (e && e != this && e->flag_active(ENTITY_IS_MAGNETIC)) {
@@ -159,31 +149,25 @@ magnet::on_untouch(b2Fixture *my, b2Fixture *other)
     }
 }
 
-edevice*
-magnet::solve_electronics()
-{
-    switch (this->type) {
-        case 1:
-            if (!this->s_in[0].is_ready())
-                return this->s_in[0].get_connected_edevice();
+edevice* magnet::solve_electronics() {
+    if (this->type == 1) {
+        if (!this->s_in[0].is_ready())
+            return this->s_in[0].get_connected_edevice();
 
-            float v = this->s_in[0].get_value();
-            if (v <= .0f) {
-                this->active = false;
-            } else {
-                this->strength_mul = v/2.f;
-                tms_infof("strenght mul: %.2f", this->strength_mul);
-                this->active = true;
-            }
-            break;
+        float v = this->s_in[0].get_value();
+        if (v <= .0f) {
+            this->active = false;
+        } else {
+            this->strength_mul = v/2.f;
+            tms_infof("strenght mul: %.2f", this->strength_mul);
+            this->active = true;
+        }
     }
 
     return 0;
 }
 
-void
-magnet::apply_magnetism(b2Fixture *f, float dist, float multiplier)
-{
+void magnet::apply_magnetism(b2Fixture *f, float dist, float multiplier) {
     entity *e = (entity*)f->GetUserData();
     if (!e) return;
 

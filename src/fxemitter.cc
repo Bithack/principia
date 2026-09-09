@@ -1,5 +1,6 @@
 #include "fxemitter.hh"
 #include "game.hh"
+#include "model.hh"
 #include "world.hh"
 #include "spritebuffer.hh"
 #include "linebuffer.hh"

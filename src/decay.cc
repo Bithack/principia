@@ -1,5 +1,6 @@
 #include "decay.hh"
 #include "game.hh"
+#include "model.hh"
 
 decay::decay() : value(0.f) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_I1O1_EMPTY));

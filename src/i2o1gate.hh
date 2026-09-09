@@ -1,269 +1,215 @@
 #pragma once
 
 #include "edevice.hh"
-#include "model.hh"
 
-class robot_base;
-
-class i2o1gate : public brcomp_multiconnect
-{
+/**
+ * Generic class for a 2-input, 1-output gate.
+ */
+class i2o1gate : public brcomp_multiconnect {
   public:
     i2o1gate();
 };
 
-class i2o1gate_empty : public i2o1gate
-{
+/**
+ * Generic class for a 2-input, 1-output gate with no symbol associated.
+ */
+class i2o1gate_empty : public i2o1gate {
   public:
-    i2o1gate_empty()
-    {
-        this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_EMPTY));
-    }
+    i2o1gate_empty();
 };
 
-class xorgate : public i2o1gate
-{
+/**
+ * Class representing the XOR gate object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/XOR_gate
+ */
+class xorgate : public i2o1gate {
   public:
-    xorgate()
-    {
-        this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_XOR));
-        this->s_in[0].tag = SOCK_TAG_GENERIC_BOOL;
-        this->s_in[1].tag = SOCK_TAG_GENERIC_BOOL;
-        this->s_out[0].tag = SOCK_TAG_GENERIC_BOOL;
-    }
+    xorgate();
     edevice* solve_electronics();
-    const char* get_name(){return "XOR gate";}
+    const char* get_name() { return "XOR gate"; }
 };
 
-class orgate : public i2o1gate
-{
+/**
+ * Class representing the OR gate object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/OR_gate
+ */
+class orgate : public i2o1gate {
   public:
-    orgate()
-    {
-        this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_OR));
-        this->s_in[0].tag = SOCK_TAG_GENERIC_BOOL;
-        this->s_in[1].tag = SOCK_TAG_GENERIC_BOOL;
-        this->s_out[0].tag = SOCK_TAG_GENERIC_BOOL;
-    }
+    orgate();
     edevice* solve_electronics();
-    const char* get_name(){return "OR gate";}
+    const char* get_name() { return "OR gate"; }
 };
 
-class andgate : public i2o1gate
-{
+/**
+ * Class representing the AND gate object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/AND_gate
+ */
+class andgate : public i2o1gate {
   public:
-    andgate()
-    {
-        this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_AND));
-        this->s_in[0].tag = SOCK_TAG_GENERIC_BOOL;
-        this->s_in[1].tag = SOCK_TAG_GENERIC_BOOL;
-        this->s_out[0].tag = SOCK_TAG_GENERIC_BOOL;
-    }
+    andgate();
     edevice* solve_electronics();
-    const char* get_name(){return "AND gate";}
+    const char* get_name() { return "AND gate"; }
 };
 
-class nandgate : public i2o1gate
-{
+/**
+ * Class representing the NAND gate object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/NAND_gate
+ */
+class nandgate : public i2o1gate {
   public:
-    nandgate()
-    {
-        this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_NAND));
-        this->s_in[0].tag = SOCK_TAG_GENERIC_BOOL;
-        this->s_in[1].tag = SOCK_TAG_GENERIC_BOOL;
-        this->s_out[0].tag = SOCK_TAG_GENERIC_BOOL;
-    }
+    nandgate();
     edevice* solve_electronics();
-    const char* get_name(){return "NAND gate";}
+    const char* get_name() { return "NAND gate"; }
 };
 
-class ifgate : public i2o1gate_empty
-{
+/**
+ * Class representing the IF gate object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/IF_gate
+ */
+class ifgate : public i2o1gate_empty {
   public:
-    ifgate()
-    {
-        this->s_in[0].tag = SOCK_TAG_VALUE;
-        this->s_in[1].tag = SOCK_TAG_GENERIC_BOOL;
-        this->s_out[0].tag = SOCK_TAG_VALUE;
-    }
+    ifgate();
     edevice* solve_electronics();
-    const char* get_name(){return "IF gate";}
+    const char* get_name() { return "IF gate"; }
 };
 
-class memory : public i2o1gate_empty
-{
+/**
+ * Class representing the Memory module object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Memory_module
+ */
+class memory : public i2o1gate_empty {
   private:
     float store;
   public:
-    memory()
-        : store(0.f)
-    {
-        this->s_in[0].tag = SOCK_TAG_SET_ENABLE;
-        this->s_in[1].tag = SOCK_TAG_VALUE;
-        this->s_out[0].tag = SOCK_TAG_VALUE;
-    }
+    memory();
     edevice* solve_electronics();
-    const char* get_name(){return "Memory module";}
+    const char* get_name() { return "Memory module"; }
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::write_state(lvl,lb);
         lb->w_s_float(this->store);
     }
 
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::read_state(lvl,lb);
         this->store = lb->r_float();
     }
 };
 
-class halfpack : public i2o1gate_empty
-{
+/**
+ * Class representing the Half pack object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Half_pack
+ */
+class halfpack : public i2o1gate_empty {
   public:
     edevice* solve_electronics();
-    const char* get_name(){return "Half pack";}
+    const char* get_name() { return "Half pack"; }
 };
 
-class sum : public i2o1gate
-{
+/**
+ * Class representing the Sum object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Sum
+ */
+class sum : public i2o1gate {
   public:
-    sum()
-    {
-        this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_SUM));
-    }
+    sum();
     edevice* solve_electronics();
-    const char* get_name(){return "Sum";}
+    const char* get_name() { return "Sum"; }
 };
 
-class emul : public i2o1gate_empty
-{
-  public:
-    edevice* solve_electronics();
-    const char* get_name(){return "Mul";}
-};
-
-class avg : public i2o1gate_empty
-{
+/**
+ * Class representing the Mul object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Mul
+ */
+class emul : public i2o1gate_empty {
   public:
     edevice* solve_electronics();
-    const char* get_name(){return "Avg";}
+    const char* get_name() { return "Mul"; }
 };
 
-class emin : public i2o1gate_empty
-{
+/**
+ * Class representing the Avg object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Avg
+ */
+class avg : public i2o1gate_empty {
   public:
     edevice* solve_electronics();
-    const char* get_name(){return "Min";}
+    const char* get_name() { return "Avg"; }
 };
 
-class emax : public i2o1gate_empty
-{
+/**
+ * Class representing the Min object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Min
+ */
+class emin : public i2o1gate_empty {
   public:
     edevice* solve_electronics();
-    const char* get_name(){return "Max";}
+    const char* get_name() { return "Min"; }
 };
 
-class hp_control : public i2o1gate_empty
-{
-  public:
-    hp_control()
-        : target(0)
-    {
-        this->set_num_properties(1);
-        this->properties[0].type = P_INT;
-        this->set_flag(ENTITY_HAS_TRACKER, true);
-        this->properties[0].v.i = 0;
-    }
-
-    void setup();
-    void restore();
-    edevice* solve_electronics();
-    const char* get_name(){return "HP Control";}
-
-    robot_base *target;
-};
-
-class condenser : public i2o1gate_empty
-{
-  protected:
-    float value;
-
-  public:
-    condenser();
-    edevice* solve_electronics();
-    const char* get_name(){return "Condenser";}
-
-    void setup();
-    const char *get_slider_label(int s) {
-        if (s == 0)
-            return "Max value";
-        else // s == 1
-            return "Initial fraction";
-    }
-    float get_slider_snap(int s) {
-        if (s == 0)
-            return 1/31.f;
-        else // s == 1
-            return 1/20.f;
-    }
-    float get_slider_value(int s);
-    void on_slider_change(int s, float value);
-
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
-        entity::write_state(lvl,lb);
-        lb->w_s_float(this->value);
-    }
-
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
-        entity::read_state(lvl,lb);
-        this->value = lb->r_float();
-    }
-};
-
-class wrapcondenser : public condenser
-{
+/**
+ * Class representing the Max object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Max
+ */
+class emax : public i2o1gate_empty {
   public:
     edevice* solve_electronics();
-    const char* get_name(){return "Wrap condenser";}
+    const char* get_name() { return "Max"; }
 };
 
-class wrapadd : public i2o1gate
-{
+/**
+ * Class representing the Wrap add object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Wrap_add
+ */
+class wrapadd : public i2o1gate {
   public:
-    wrapadd()
-    {
-        this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_WRAP_ADD));
-    }
+    wrapadd();
     edevice* solve_electronics();
-    const char* get_name(){return "Wrap add";}
+    const char* get_name() { return "Wrap add"; }
 };
 
-class wrapsub : public i2o1gate
-{
+/**
+ * Class representing the Wrap sub object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Wrap_sub
+ */
+class wrapsub : public i2o1gate {
   public:
-    wrapsub()
-    {
-        this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_WRAP_SUB));
-    }
+    wrapsub();
     edevice* solve_electronics();
-    const char* get_name(){return "Wrap sub";}
+    const char* get_name() { return "Wrap sub"; }
 };
 
-class ewrapdist : public i2o1gate_empty
-{
+/**
+ * Class representing the Wrap distance object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Wrap_distance
+ */
+class ewrapdist : public i2o1gate_empty {
   public:
     edevice* solve_electronics();
-    const char* get_name(){return "Wrap distance";}
+    const char* get_name() { return "Wrap distance"; }
 };
 
-/* master cmp interface */
-class cmp : public i2o1gate
-{
+/**
+ * Generic class for cmp objects
+ */
+class cmp : public i2o1gate {
   public:
-    cmp()
-    {
+    cmp() {
         this->s_in[0].tag = SOCK_TAG_VALUE;
         this->s_in[1].tag = SOCK_TAG_VALUE;
         this->s_out[0].tag = SOCK_TAG_GENERIC_BOOL;
@@ -271,35 +217,38 @@ class cmp : public i2o1gate
     virtual edevice* solve_electronics() = 0;
 };
 
-class cmpe : public cmp
-{
+/**
+ * Class representing the cmp-e object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/cmp-e
+ */
+class cmpe : public cmp {
   public:
-    cmpe()
-    {
-        this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_EQUAL));
-    }
-    const char* get_name(){return "cmp-e";} /* == */
+    cmpe();
+    const char* get_name() { return "cmp-e"; } /* == */
     edevice* solve_electronics();
 };
 
-class cmpl : public cmp
-{
+/**
+ * Class representing the cmp-l object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/cmp-l
+ */
+class cmpl : public cmp {
   public:
-    cmpl()
-    {
-        this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_LESS));
-    }
-    const char* get_name(){return "cmp-l";} /* < */
+    cmpl();
+    const char* get_name() { return "cmp-l"; } /* < */
     edevice* solve_electronics();
 };
 
-class cmple : public cmp
-{
+/**
+ * Class representing the cmp-le object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/cmp-le
+ */
+class cmple : public cmp {
   public:
-    cmple()
-    {
-        this->set_mesh(mesh_factory::get_mesh(MODEL_I2O1_LESS_EQUAL));
-    }
-    const char* get_name(){return "cmp-le";} /* <= */
+    cmple();
+    const char* get_name() { return "cmp-le"; } /* <= */
     edevice* solve_electronics();
 };

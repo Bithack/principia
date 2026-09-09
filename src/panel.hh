@@ -69,14 +69,21 @@ extern struct widget_info widget_data[NUM_PANEL_WIDGET_TYPES];
 #define PANEL_WDG_OUTER_X (b_w_pad*1.2f)
 #define PANEL_WDG_OUTER_Y (b_h_pad*1.2f)
 
-class panel : public brcomp_multiconnect, public activator
-{
+/**
+ * Class representing the RC objects (like RC Basic).
+ *
+ * Player Wiki ref:
+ * - https://principia-web.se/wiki/RC_Micro
+ * - https://principia-web.se/wiki/RC_Basic
+ * - https://principia-web.se/wiki/RC_IO-3
+ * - https://principia-web.se/wiki/RC_MONSTRO
+ */
+class panel : public brcomp_multiconnect, public activator {
   public:
     float light[6];
     int ptype;
 
-    float get_sensor_radius()
-    {
+    float get_sensor_radius() {
         switch (this->ptype) {
             case PANEL_XSMALL: return 0.75f;
             case PANEL_SMALL:  return 1.25f;
@@ -86,8 +93,7 @@ class panel : public brcomp_multiconnect, public activator
         }
     }
 
-    b2Vec2 get_sensor_offset()
-    {
+    b2Vec2 get_sensor_offset() {
         return b2Vec2(0.f, 0.f);
     }
 
@@ -96,26 +102,21 @@ class panel : public brcomp_multiconnect, public activator
     b2Vec2 get_activator_pos() { return this->get_position() + this->get_sensor_offset(); }
     void activate(creature *by);
 
-    void on_touch(b2Fixture *my, b2Fixture *other)
-    {
-        if (my == this->fx_sensor) {
+    void on_touch(b2Fixture *my, b2Fixture *other) {
+        if (my == this->fx_sensor)
             this->activator_touched(other);
-        }
     }
 
-    void on_untouch(b2Fixture *my, b2Fixture *other)
-    {
-        if (my == this->fx_sensor) {
+    void on_untouch(b2Fixture *my, b2Fixture *other) {
+        if (my == this->fx_sensor)
             this->activator_untouched(other);
-        }
     }
 
     int num_feed;
     int num_set;
     int has_focus;
 
-    class widget : public tms_wdg
-    {
+    class widget : public tms_wdg {
       public:
         panel *p;
         int index;
@@ -145,14 +146,14 @@ class panel : public brcomp_multiconnect, public activator
     void init_xsmallpanel();
     void init_mpanel();
 
-    void pre_write(void);
+    void pre_write();
     void on_load(bool created, bool has_state);
     void remove_widget(int index);
     void init_widget(panel::widget *w);
     int add_widget(struct widget_decl decl, int x, int y, int z);
     bool slot_used(int x, int y, int z);
     bool slot_owned_by_radial(int x, int y, int z);
-    edevice* solve_electronics(void);
+    edevice* solve_electronics();
     void setup();
     void update_panel_key_labels();
     void panel_disconnected();
@@ -163,13 +164,13 @@ class panel : public brcomp_multiconnect, public activator
             case PANEL_SMALL: return "RC Basic";
             case PANEL_MEDIUM: return "RC IO-3";
             case PANEL_XSMALL: return "RC Micro";
+            default: return "Panel";
         }
-        return "Panel";
+
     }
     activator *get_activator() { return this; }
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::write_state(lvl, lb);
 
         for (int x=0; x<this->num_widgets; ++x) {
@@ -178,8 +179,7 @@ class panel : public brcomp_multiconnect, public activator
         }
     }
 
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         tms_debugf("panel read state");
         entity::read_state(lvl, lb);
 

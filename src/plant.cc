@@ -173,9 +173,7 @@ void plant::_init() {
  *
  *
  **/
-plant::plant()
-    : root_section(), root_branch()
-{
+plant::plant() : root_section(), root_branch() {
     if (!initialized) _init();
 
     this->num_bodies = 0;
@@ -225,15 +223,9 @@ plant::plant()
 
 lvlbuf *lb;
 
-void
-plant::serialize_leaf(lvlbuf *lb, plant_leaf *l)
-{
+void plant::serialize_leaf(lvlbuf *lb, plant_leaf *l) {}
 
-}
-
-void
-plant::serialize_section(lvlbuf *lb, plant_section *s)
-{
+void plant::serialize_section(lvlbuf *lb, plant_section *s) {
     lb->w_s_uint8(SERIALIZE_SECTION_BEGIN);
     lb->w_s_float(s->pos.x);
     lb->w_s_float(s->pos.y);
@@ -243,14 +235,11 @@ plant::serialize_section(lvlbuf *lb, plant_section *s)
     lb->w_s_float(s->shift);
     lb->w_s_int32(s->stage);
 
-    if (s->extension) {
+    if (s->extension)
         this->serialize_branch(lb, s->extension);
-    }
 }
 
-void
-plant::serialize_branch(lvlbuf *lb, plant_branch *br)
-{
+void plant::serialize_branch(lvlbuf *lb, plant_branch *br) {
     lb->w_s_uint8(SERIALIZE_BRANCH_BEGIN);
     lb->w_s_int32(br->dir);
     lb->w_s_uint8(br->dead);
@@ -317,9 +306,7 @@ plant::serialize_branch(lvlbuf *lb, plant_branch *br)
     lb->w_s_uint8(SERIALIZE_BRANCH_END);
 }
 
-void
-plant::unserialize_section(lvlbuf *lb, plant_section *s)
-{
+void plant::unserialize_section(lvlbuf *lb, plant_section *s) {
     s->pos.x = lb->r_float();
     s->pos.y = lb->r_float();
     s->angle = lb->r_float();
@@ -329,9 +316,7 @@ plant::unserialize_section(lvlbuf *lb, plant_section *s)
     s->stage = lb->r_int32();
 }
 
-void
-plant::unserialize_branch(lvlbuf *lb, plant_section *parent_section, plant_branch *br)
-{
+void plant::unserialize_branch(lvlbuf *lb, plant_section *parent_section, plant_branch *br) {
     br->dir = lb->r_int32();
     br->dead = lb->r_uint8();
     br->derived_body = lb->r_uint8();
@@ -478,9 +463,7 @@ plant::unserialize_branch(lvlbuf *lb, plant_section *parent_section, plant_branc
     }
 }
 
-void
-plant::unserialize(lvlbuf *lb)
-{
+void plant::unserialize(lvlbuf *lb) {
     uint8_t a = lb->r_uint8();
 
     this->root_branch.first = 0;
@@ -494,17 +477,12 @@ plant::unserialize(lvlbuf *lb)
     }
 }
 
-void
-plant::on_load(bool created, bool has_state)
-{
-    if (created) {
+void plant::on_load(bool created, bool has_state) {
+    if (created)
         this->properties[12].v.f = 10.f + (rand()%100) / 100.f * 20.f;
-    }
 }
 
-void
-plant::pre_write()
-{
+void plant::pre_write() {
     /* XXX use static buffer */
     lvlbuf lb;
     lb.cap = 20480;
@@ -543,9 +521,7 @@ plant_branch::plant_branch()
     tms_entity_init(this);
 }
 
-void
-plant::update(void)
-{
+void plant::update() {
     tmat4_load_identity(this->M);
     entity_fast_update(this);
 
@@ -558,9 +534,7 @@ plant::update(void)
     this->update_meshes(&this->root_branch);
 }
 
-void
-plant::clear_branch_slots(plant_branch *br)
-{
+void plant::clear_branch_slots(plant_branch *br) {
     if (br->slot != -1) {
         branch_slots[br->slot] = 0;
         br->slot = -1;
@@ -575,9 +549,7 @@ plant::clear_branch_slots(plant_branch *br)
     }
 }
 
-void
-plant::remove_from_world()
-{
+void plant::remove_from_world() {
     for (int x=0; x<this->num_bodies; x++) {
         if (this->bodies[x]) {
             W->b2->DestroyBody(this->bodies[x]);
@@ -599,12 +571,9 @@ plant::~plant()
     /* TODO delete all branches, sections, leafs */
 }
 
-void
-plant::add_to_world()
-{
-    if (this->body) {
+void plant::add_to_world() {
+    if (this->body)
         return;
-    }
 
     this->create_circle(b2_dynamicBody, .125f, this->material);
 
@@ -628,9 +597,7 @@ plant::add_to_world()
     //this->begin_section_fixture(this->root_branch.first);
 }
 
-plant_section::plant_section(plant_section *s)
-    : ud2_info(UD2_PLANT_SECTION)
-{
+plant_section::plant_section(plant_section *s) : ud2_info(UD2_PLANT_SECTION) {
     this->clear();
     this->branch = s->branch;
     this->pos = s->get_end_point();
@@ -639,12 +606,9 @@ plant_section::plant_section(plant_section *s)
     this->angle = s->angle;
 }
 
-void
-plant::update_leaf(plant_branch *br)
-{
-    if (!br->last) {
+void plant::update_leaf(plant_branch *br) {
+    if (!br->last)
         return;
-    }
 
     if (br->leaf || br->sections_left == 0 || (br->depth != 0)) {
         if (br->leaf == 0) {
@@ -680,8 +644,7 @@ plant::update_leaf(plant_branch *br)
     }
 }
 
-plant_leaf::plant_leaf(int leaf_type) : entity()
-{
+plant_leaf::plant_leaf(int leaf_type) : entity() {
     f = 0;
     growth = 0.1f;
     switch(leaf_type) {
@@ -705,9 +668,7 @@ plant_leaf::plant_leaf(int leaf_type) : entity()
     }
 }
 
-plant_leaf *
-plant::create_leaf(plant_branch *br)
-{
+plant_leaf *plant::create_leaf(plant_branch *br) {
     plant_leaf *l = new plant_leaf(this->properties[13].v.i8);
     l->set_uniform("~color",
             this->properties[9].v.f,
@@ -722,9 +683,7 @@ plant::create_leaf(plant_branch *br)
     return l;
 }
 
-void
-plant::init_section(plant_section *n)
-{
+void plant::init_section(plant_section *n) {
     n->angle += (((rand()%10000)/10000.f) - .5f) * this->get_angle_jitter(n->branch);
 
     b2Vec2 g = W->get_gravity();
@@ -737,9 +696,7 @@ plant::init_section(plant_section *n)
     n->angle -= tmath_adist(s_angle, n->angle) * this->get_sun_influence(n->branch);
 }
 
-plant_section *
-plant::create_section(plant_section *s)
-{
+plant_section *plant::create_section(plant_section *s) {
     if (!s->branch->dead && s->branch->sections_left > 0) {
         plant_section *n = new plant_section(s);
 
@@ -753,9 +710,7 @@ plant::create_section(plant_section *s)
     return 0;
 }
 
-void
-plant_branch::create_joint(b2Body *other, b2Vec2 point, bool collide)
-{
+void plant_branch::create_joint(b2Body *other, b2Vec2 point, bool collide) {
     if (!this->j && !this->derived_body) {
 #if 0
         b2WeldJointDef rjd;
@@ -790,9 +745,7 @@ plant_branch::create_joint(b2Body *other, b2Vec2 point, bool collide)
 }
 
 /* promote a branch to have its own body */
-void
-plant::promote_branch(plant_branch *n, bool mesh_only)
-{
+void plant::promote_branch(plant_branch *n, bool mesh_only) {
     plant_section *parent_section = n->parent;
     b2Body *parent_body = n->parent ? n->parent->branch->b : 0;
 
@@ -816,9 +769,7 @@ plant::promote_branch(plant_branch *n, bool mesh_only)
     }
 }
 
-float
-plant::get_section_width(plant_branch *br)
-{
+float plant::get_section_width(plant_branch *br) {
     if (W->level.version >= LEVEL_VERSION_1_5_1) {
         return tclampf(this->properties[2].v.f/powf((br->depth+1), 0.7f)/16.f * std::max(this->get_num_sections(), 8), 0.05f, 1.f);
     } else {
@@ -826,9 +777,7 @@ plant::get_section_width(plant_branch *br)
     }
 }
 
-void
-plant::init_branch(plant_branch *n, plant_section *parent_section)
-{
+void plant::init_branch(plant_branch *n, plant_section *parent_section) {
     n->section_length = this->get_section_length(n);
     n->section_width = this->get_section_width(n);
     n->section_width_multiplier = this->get_section_width_multiplier(n);
@@ -845,9 +794,7 @@ plant::init_branch(plant_branch *n, plant_section *parent_section)
 /**
  * create a new branch that extends from s in br
  **/
-plant_branch *
-plant::create_branch(plant_section *s)
-{
+plant_branch * plant::create_branch(plant_section *s) {
     plant_branch *br = s->branch;
     plant_branch *n = new plant_branch();
 
@@ -871,33 +818,25 @@ plant::create_branch(plant_section *s)
     return n;
 }
 
-b2Vec2
-plant_section::get_mid_point()
-{
+b2Vec2 plant_section::get_mid_point() {
     float s, c;
     tmath_sincos(this->angle, &s, &c);
 
     return this->pos + this->branch->section_length*tclampf(this->growth, 0.f, 1.f)*.5f*b2Vec2(c,s);
 }
 
-float
-plant_section::get_width()
-{
+float plant_section::get_width() {
     return tclampf(this->width_growth * this->branch->section_width_multiplier, 0.1f, 1.f)*.5f*this->branch->section_width;
 }
 
-float
-plant_section::get_shift()
-{
+float plant_section::get_shift() {
     return tclampf(this->shift * this->branch->section_width_multiplier, 0.1f, 1.f)*.5f*this->branch->section_width;
 }
 
 /**
  * Get the displacement due to external obstacles
  **/
-float
-plant_section::get_angle_displacement()
-{
+float plant_section::get_angle_displacement() {
     /* if this is the last section of the branch, it will be on a temp body
      * that can be rotated we need to adjust the axis */
     if (this == this->branch->last && this->branch->b_tmp && this->branch->b) {
@@ -907,9 +846,7 @@ plant_section::get_angle_displacement()
     return 0.f;
 }
 
-b2Vec2
-plant_section::get_vector()
-{
+b2Vec2 plant_section::get_vector() {
     float s, c;
     float a = this->angle;
 
@@ -920,15 +857,11 @@ plant_section::get_vector()
     return b2Vec2(c,s);
 }
 
-b2Vec2
-plant_section::get_end_point()
-{
+b2Vec2 plant_section::get_end_point() {
     return this->pos + this->branch->section_length*tclampf(this->growth, 0.f, 1.f)*this->get_vector();
 }
 
-void
-plant::begin_section_fixture(plant_section *s, b2Vec2 b_tmp_vel, float b_tmp_avel)
-{
+void plant::begin_section_fixture(plant_section *s, b2Vec2 b_tmp_vel, float b_tmp_avel) {
     b2Body *b = s->branch->b_tmp;
 
     if (!b) {
@@ -990,9 +923,7 @@ plant::begin_section_fixture(plant_section *s, b2Vec2 b_tmp_vel, float b_tmp_ave
     s->branch->j_tmp = (b2RevoluteJoint*)b->GetWorld()->CreateJoint(&rjd);
 }
 
-void
-plant::end_section_fixture(plant_section *s)
-{
+void plant::end_section_fixture(plant_section *s) {
     if (s->f && s->f->GetBody() == s->branch->b_tmp) {
         /* we're no longer the last section, move the growing fixture to the real body,
          * and save the physically adjusted angle */
@@ -1015,9 +946,7 @@ plant::end_section_fixture(plant_section *s)
     s->branch->sections_done ++;
 }
 
-void
-plant::update_section_fixture(plant_section *s, float time)
-{
+void plant::update_section_fixture(plant_section *s, float time) {
     b2PolygonShape _box;
     b2PolygonShape *sh;
 
@@ -1153,9 +1082,7 @@ plant::update_section_fixture(plant_section *s, float time)
     s->f->GetBody()->ResetMassData(); /* XXX */
 }
 
-static void
-count_sections(plant_section *s, int *count)
-{
+static void count_sections(plant_section *s, int *count) {
     while (s) {
         (*count) ++;
         if (s->extension && s->extension->first) {
@@ -1167,9 +1094,7 @@ count_sections(plant_section *s, int *count)
 
 #define TEXT_SCALE .005
 
-void
-plant::render_damage(plant_branch *br)
-{
+void plant::render_damage(plant_branch *br) {
     plant_section *s = br->first;
 
     while (s) {
@@ -1228,18 +1153,13 @@ plant::render_damage(plant_branch *br)
     }
 }
 
-void
-plant::update_effects()
-{
+void plant::update_effects() {
     this->render_damage(&this->root_branch);
 }
 
-void
-plant::damage_section(plant_section *s, float damage, damage_type dmg_type)
-{
-    if (!s) {
+void plant::damage_section(plant_section *s, float damage, damage_type dmg_type) {
+    if (!s)
         return; /* probably was the seed fixture */
-    }
 
     switch (dmg_type) {
         case DAMAGE_TYPE_FORCE:
@@ -1269,9 +1189,7 @@ plant::damage_section(plant_section *s, float damage, damage_type dmg_type)
     s->damage_timer = 1.f;
 }
 
-void
-plant::break_branch(plant_branch *br, plant_section *s, bool create_resources)
-{
+void plant::break_branch(plant_branch *br, plant_section *s, bool create_resources) {
     bool remove = (s == br->first);
     br->dead = true;
     br->needs_update = true;
@@ -1379,9 +1297,7 @@ plant::break_branch(plant_branch *br, plant_section *s, bool create_resources)
     }
 }
 
-int
-plant::update_mesh(plant_section *s, struct plant_vert *v, int y, bool search_only)
-{
+int plant::update_mesh(plant_section *s, struct plant_vert *v, int y, bool search_only) {
     plant_branch *extensions[64]; /* XXX */
     int num_extensions = 0;
 
@@ -1451,9 +1367,7 @@ plant::update_mesh(plant_section *s, struct plant_vert *v, int y, bool search_on
     return y;
 }
 
-int
-plant::mesh_add_section(struct plant_vert *v, int y, b2Vec2 bp, b2Vec2 axis, float width)
-{
+int plant::mesh_add_section(struct plant_vert *v, int y, b2Vec2 bp, b2Vec2 axis, float width) {
     static const float step = (M_PI*2.f) / (float)QUALITY;
 
     for (int x=0; x<QUALITY; x++) {
@@ -1487,30 +1401,22 @@ plant::mesh_add_section(struct plant_vert *v, int y, b2Vec2 bp, b2Vec2 axis, flo
  * we also need another extra section at the start point of the first section,
  * since each section renders at the end point
  **/
-int
-plant::mesh_add_pre_branch_sections(plant_branch *br, struct plant_vert *v, int y)
-{
+int plant::mesh_add_pre_branch_sections(plant_branch *br, struct plant_vert *v, int y) {
     y = this->mesh_add_section(v, y, br->first->get_start_point(), br->first->get_vector(), 0.f);
     y = this->mesh_add_section(v, y, br->first->get_start_point(), br->first->get_vector(), br->first->get_width()*1.5f);
 
     return y;
 }
 
-int
-plant::mesh_add_post_branch_sections(plant_branch *br, struct plant_vert *v, int y)
-{
+int plant::mesh_add_post_branch_sections(plant_branch *br, struct plant_vert *v, int y) {
     return this->mesh_add_section(v, y, br->last->get_end_point(), br->last->get_vector(), 0.f);
 }
 
-void
-plant::reset_counter()
-{
+void plant::reset_counter() {
     counter = 0;
 }
 
-void
-plant::upload_buffers()
-{
+void plant::upload_buffers() {
     if (buffer_modified) {
         tms_gbuffer_upload_partial(vbuf, (top_slot+1)*sizeof(struct plant_vert)*QUALITY*MAX_SECTIONS);
         buffer_modified = false;
@@ -1519,42 +1425,31 @@ plant::upload_buffers()
     }
 }
 
-int
-plant::get_branch_mesh_slot()
-{
+int plant::get_branch_mesh_slot() {
     int x;
 
-    for (x=0; x<MAX_BRANCHES-1; x++) {
-        if (branch_slots[x] == 0) {
-            if (__sync_fetch_and_add(&branch_slots[x], 1) == 0) {
+    for (x=0; x<MAX_BRANCHES-1; x++)
+        if (branch_slots[x] == 0)
+            if (__sync_fetch_and_add(&branch_slots[x], 1) == 0)
                 break;
-            }
-        }
-    }
 
-    if (x > top_slot) {
+    if (x > top_slot)
         top_slot = x;
-    }
 
     //tms_debugf("received slot %d", x);
 
     return x;
 }
 
-void
-plant::update_meshes(plant_branch *br)
-{
-    if (br->derived_body) {
+void plant::update_meshes(plant_branch *br) {
+    if (br->derived_body)
         return;
-    }
 
-    if (!br->b) {
+    if (!br->b)
         return;
-    }
 
-    if (!br->first) {
+    if (!br->first)
         return;
-    }
 
     bool do_update = br->needs_update;
 
@@ -1569,9 +1464,9 @@ plant::update_meshes(plant_branch *br)
     }
 
     if (br->slot == -1 || br->slot == MAX_BRANCHES-1) {
-        if (br->slot == -1) {
+        if (br->slot == -1)
             do_update = true;
-        }
+
         br->slot = this->get_branch_mesh_slot();
         br->mesh->i_start = br->slot*(MAX_SECTIONS*QUALITY*6);
     }
@@ -1615,9 +1510,7 @@ plant::update_meshes(plant_branch *br)
     br->needs_update = false;
 }
 
-void
-plant::kill_branch(plant_branch *br)
-{
+void plant::kill_branch(plant_branch *br) {
     if (!br->dead) {
         br->dead = true;
         this->end_section_fixture(br->last);
@@ -1626,9 +1519,7 @@ plant::kill_branch(plant_branch *br)
     }
 }
 
-void
-plant::grow_branch(plant_branch *br, float time)
-{
+void plant::grow_branch(plant_branch *br, float time) {
     plant_section *s = br->first;
 
 #if 0
@@ -1644,9 +1535,8 @@ plant::grow_branch(plant_branch *br, float time)
             return;
         }
 
-        if (s->extension) {
+        if (s->extension)
             this->grow_branch(s->extension, time);
-        }
 
         if (br->sections_left == 0 && br->last->growth > 1.f) {
             /* if this branch can not grow any more, don't bother increasing growth of all sections individually */
@@ -1711,16 +1601,13 @@ plant::grow_branch(plant_branch *br, float time)
 
     this->adjust_branch_joint(br, false);
 
-    if (br->leaf) {
+    if (br->leaf)
         br->leaf->growth += time * .125f * (rand()%100)/100.f;
-    }
 
     this->update_leaf(br);
 }
 
-void
-plant::adjust_branch_joint(plant_branch *br, bool recursive)
-{
+void plant::adjust_branch_joint(plant_branch *br, bool recursive) {
     if (br->j) {
         /* slowly adjust joints to surrounding forces */
         float blend = .995f;
@@ -1729,11 +1616,11 @@ plant::adjust_branch_joint(plant_branch *br, bool recursive)
         br->reference_angle = blend*br->reference_angle + (1.f-blend)*curr;
 
         offs = offs*2.f*(br->depth+1);
-        if (br->j->GetBodyA()->IsAwake() && br->j->GetBodyB()->IsAwake()) {
+        if (br->j->GetBodyA()->IsAwake() && br->j->GetBodyB()->IsAwake())
             br->j->SetMotorSpeed(offs);
-        } else {
+        else
             br->j->SetMotorSpeed(0);
-        }
+
         br->j->SetMaxMotorTorque(this->get_strength() / (br->depth*1.5f+1.f) * br->b->GetMass());
     }
 
@@ -1745,30 +1632,24 @@ plant::adjust_branch_joint(plant_branch *br, bool recursive)
                 this->break_branch(br, s, true);
                 break;
             }
-            if (s->extension) {
+            if (s->extension)
                 this->adjust_branch_joint(s->extension, true);
-            }
+
             s = s->next;
         }
     }
 }
 
-void
-plant::init()
-{
+void plant::init() {
     this->pending_fixture = 0;
     this->pending_timer = 0.f;
     this->pending_normal = b2Vec2(0.f, 0.f);
 }
 
-void
-plant::setup()
-{
+void plant::setup() {
 }
 
-void
-plant::tick()
-{
+void plant::tick() {
     const float step = .5f;
 
     if (this->properties[12].v.f > 0.f) {
@@ -1788,14 +1669,10 @@ plant::tick()
 #endif
 }
 
-void
-plant::restore()
-{
+void plant::restore() {
 }
 
-void
-plant::step()
-{
+void plant::step() {
     if (!this->c.pending) {
         const float step = .5f;
 
@@ -1805,9 +1682,8 @@ plant::step()
             this->grow_branch(&this->root_branch, tstep);
 
             this->properties[12].v.f -= tstep;
-        } else {
+        } else
             this->grow_branch(&this->root_branch, G->get_time_mul() * (WORLD_DT) * .01f);
-        }
     } else {
         this->adjust_branch_joint(&this->root_branch, true);
 
@@ -1849,21 +1725,17 @@ plant::step()
             }
         }
 
-        if (!found) {
+        if (!found)
             this->pending_timer = 0.f;
-        } else {
+        else
             this->pending_timer += (G->timemul(WORLD_STEP) * .000001);
-        }
 
-        if (this->pending_timer > PLANT_SEED_TIME && this->pending_fixture) {
+        if (this->pending_timer > PLANT_SEED_TIME && this->pending_fixture)
             this->settle();
-        }
     }
 }
 
-connection *
-plant::load_connection(connection &conn)
-{
+connection * plant::load_connection(connection &conn) {
     if (conn.o_index == 0) {
         this->c = conn;
         return &this->c;
@@ -1872,16 +1744,12 @@ plant::load_connection(connection &conn)
     return 0;
 }
 
-bool
-plant::connection_destroy_joint(connection *c)
-{
+bool plant::connection_destroy_joint(connection *c) {
     this->root_branch.j = 0;
     return false;
 }
 
-void
-plant::connection_create_joint(connection *c)
-{
+void plant::connection_create_joint(connection *c) {
     b2RevoluteJointDef rjd;
     rjd.localAnchorA = c->p;
     //rjd.localAnchorB = c->p_s;
@@ -1907,12 +1775,9 @@ plant::connection_create_joint(connection *c)
 }
 
 /* called when the seed has been planted and we can start growing */
-void
-plant::settle()
-{
-    if (!this->c.pending) {
+void plant::settle() {
+    if (!this->c.pending)
         return;
-    }
 
     tms_debugf("planted on fixture %p", this->pending_fixture);
 
@@ -1931,9 +1796,7 @@ plant::settle()
 }
 
 
-b2Body *
-plant::create_body(b2BodyDef *bd)
-{
+b2Body * plant::create_body(b2BodyDef *bd) {
     b2Body *b = W->b2->CreateBody(bd);
     b->SetAngularDamping(3.f);
 
@@ -1959,9 +1822,7 @@ plant::create_body(b2BodyDef *bd)
     return b;
 }
 
-void
-plant::destroy_body(b2Body *b)
-{
+void plant::destroy_body(b2Body *b) {
     uint8_t index = (uint8_t)(uintptr_t)b->GetUserData()-1;
 
     if (this->bodies[index] == b) {
@@ -1971,9 +1832,7 @@ plant::destroy_body(b2Body *b)
     W->b2->DestroyBody(b);
 }
 
-void
-plant::set_position(float x, float y, uint8_t frame)
-{
+void plant::set_position(float x, float y, uint8_t frame) {
     b2Body *b = this->get_body(frame);
 
     if (frame == 0 && !b) {

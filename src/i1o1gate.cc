@@ -2,8 +2,7 @@
 #include "model.hh"
 #include "material.hh"
 
-i1o1gate::i1o1gate()
-{
+i1o1gate::i1o1gate() {
     this->set_material(&m_i1o1);
 
     this->num_s_in = 1;
@@ -21,8 +20,7 @@ i1o1gate::i1o1gate()
     this->set_as_rect(.15f, .375f);
 }
 
-i1o1gate_mini::i1o1gate_mini()
-{
+i1o1gate_mini::i1o1gate_mini() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_CCLIP));
     this->set_material(&m_iomisc);
 
@@ -37,8 +35,7 @@ i1o1gate_mini::i1o1gate_mini()
     this->set_as_rect( .25f/2.f, .5f/2.f);
 }
 
-i1o1gate_fifo::i1o1gate_fifo()
-{
+i1o1gate_fifo::i1o1gate_fifo() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_FIFO));
     this->set_material(&m_iomisc);
 
@@ -50,21 +47,3 @@ i1o1gate_fifo::i1o1gate_fifo()
 
     this->set_as_rect(.25f, .5f);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

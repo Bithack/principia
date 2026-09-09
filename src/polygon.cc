@@ -15,9 +15,7 @@ struct poly_vert {
     tvec3 col;
 };
 
-void
-polygon::_init()
-{
+void polygon::_init() {
     vbuf = tms_gbuffer_alloc(20 * MAX_POLYGONS * sizeof(struct poly_vert));
     vbuf->usage = GL_STATIC_DRAW;
 
@@ -77,16 +75,12 @@ polygon::_init()
     tms_gbuffer_upload(ibuf);
 }
 
-void
-polygon::upload_buffers()
-{
-    if (modified) {
+void polygon::upload_buffers() {
+    if (modified)
         tms_gbuffer_upload(vbuf); /* XXX TODO upload partial size */
-    }
 }
 
-polygon::polygon(int material_type)
-{
+polygon::polygon(int material_type) {
     this->next = 0;
     this->slot = -1;
 
@@ -167,22 +161,17 @@ polygon::polygon(int material_type)
     this->query_sides[3].Set( qw, 0.f); /* right */
 }
 
-polygon::~polygon()
-{
+polygon::~polygon() {
     this->remove_from_slot();
 }
 
-void
-polygon::on_load(bool created, bool has_state)
-{
+void polygon::on_load(bool created, bool has_state) {
     this->set_shape();
     this->reassign_slot(false);
     this->update_mesh();
 }
 
-void
-polygon::remove_from_slot()
-{
+void polygon::remove_from_slot() {
     if (this->slot != -1) {
         polygon *c = slots[this->slot];
 
@@ -202,9 +191,7 @@ polygon::remove_from_slot()
     this->slot = -1;
 }
 
-void
-polygon::add_to_slot(int n)
-{
+void polygon::add_to_slot(int n) {
     if (!slots[n]){
         slots[n] = this;
     } else {
@@ -221,9 +208,7 @@ polygon::add_to_slot(int n)
     this->slot = n;
 }
 
-void
-polygon::reassign_slot(bool changed)
-{
+void polygon::reassign_slot(bool changed) {
     if (this->slot != -1) {
         if (slots[this->slot] == this && this->next == 0) {
             /* we're the only on in this slot, don't need to do anything */
@@ -279,22 +264,16 @@ polygon::reassign_slot(bool changed)
     tms_debugf("assigned slot %d", this->slot);
 }
 
-void
-polygon::setup()
-{
+void polygon::setup() {
     this->do_recreate_shape = false;
 }
 
-void
-polygon::on_slider_change(int s, float value)
-{
+void polygon::on_slider_change(int s, float value) {
     this->help_set_density_scale(value);
     G->show_numfeed(this->properties[2].v.f);
 }
 
-void
-polygon::tick()
-{
+void polygon::tick() {
     if (this->do_recreate_shape) {
         this->set_shape();
         this->reassign_slot(true);
@@ -303,15 +282,11 @@ polygon::tick()
     }
 }
 
-void
-polygon::on_pause()
-{
+void polygon::on_pause() {
     this->setup();
 }
 
-void
-polygon::set_shape()
-{
+void polygon::set_shape() {
     b2Vec2 verts[4];
 
     for (int x=0; x<4; x++) {
@@ -333,18 +308,14 @@ polygon::set_shape()
     if (this->body) this->recreate_shape();
 }
 
-const b2Vec2
-get_midpoint(const b2Vec2& p1, const b2Vec2& p2)
-{
+const b2Vec2 get_midpoint(const b2Vec2& p1, const b2Vec2& p2) {
     return b2Vec2((p1.x+p2.x)/2.f, (p1.y+p2.y)/2.f);
 }
 
 #pragma GCC push_options
 #pragma GCC optimize ("no-strict-aliasing")
 
-void
-polygon::update_mesh()
-{
+void polygon::update_mesh() {
     if (this->slot == -1) {
         this->mesh->i_count = 0;
         this->mesh->i_start = 0;
@@ -423,9 +394,37 @@ polygon::update_mesh()
 
 #pragma GCC pop_options
 
-void
-polygon::set_color(tvec4 c)
-{
+bool polygon::on_resize_vertex(int n, b2Vec2 new_pos) {
+    b2PolygonShape *sh = this->get_resizable_shape();
+
+    if (!sh) return false;
+
+    this->properties[3+n*5].v.f = new_pos.x;
+    this->properties[3+n*5+1].v.f = new_pos.y;
+
+#if 1
+    b2Vec2 c = sh->m_centroid;
+    for (int x=0; x<sh->m_count; x++) {
+        sh->m_vertices[x] -= c;
+        this->properties[3+x*5+0].v.f = sh->m_vertices[x].x;
+        this->properties[3+x*5+1].v.f = sh->m_vertices[x].y;
+    }
+    b2Vec2 p = this->get_position()+this->get_body(0)->GetWorldVector(c);
+    this->set_position(p.x, p.y);
+#endif
+
+    this->get_body(0)->ResetMassData();
+    this->reassign_slot(true);
+    this->update_mesh();
+
+    this->orig.poly.shape.Set(sh->m_vertices, sh->GetVertexCount());
+
+    if (this->fx) this->fx->Refilter();
+
+    return true;
+};
+
+void polygon::set_color(tvec4 c) {
     int corner = G->get_selected_shape_corner();
 
     if (corner != -1) {
@@ -437,9 +436,7 @@ polygon::set_color(tvec4 c)
     this->do_recreate_shape = true;
 }
 
-tvec4
-polygon::get_color()
-{
+tvec4 polygon::get_color() {
     int corner = G->get_selected_shape_corner();
 
     if (corner != -1) {
@@ -453,9 +450,7 @@ polygon::get_color()
     }
 }
 
-void
-polygon::find_pairs()
-{
+void polygon::find_pairs() {
     connection *c;
 
     b2PolygonShape *sh = this->get_resizable_shape();
@@ -500,9 +495,7 @@ polygon::find_pairs()
 
 }
 
-float32
-polygon::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
+float32 polygon::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
     if (f->IsSensor()) {
         return -1.f;
     }
@@ -522,9 +515,7 @@ polygon::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float3
     return -1;
 }
 
-connection *
-polygon::load_connection(connection &conn)
-{
+connection *polygon::load_connection(connection &conn) {
     if (conn.o_index >= 0 && conn.o_index <= 3) {
         this->c_side[conn.o_index] = conn;
         return &this->c_side[conn.o_index];

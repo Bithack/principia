@@ -9,8 +9,7 @@
 #define SPEED 1.25f
 #define TORQUE 40.f
 
-motor::motor(int mtype)
-{
+motor::motor(int mtype) {
     this->mtype = mtype;
 
     this->layer_mask = 7;
@@ -60,9 +59,8 @@ motor::motor(int mtype)
 
     this->num_sliders = 1;
 
-    if (mtype == MOTOR_TYPE_SERVO) {
+    if (mtype == MOTOR_TYPE_SERVO)
         this->num_sliders = 2;
-    }
 
     this->c.init_owned(0, this);
 
@@ -84,25 +82,18 @@ motor::motor(int mtype)
     this->query_sides[3].Set( qw, 0.f); /* right */
 }
 
-struct tms_sprite*
-motor::get_axis_rot_sprite()
-{
+struct tms_sprite *motor::get_axis_rot_sprite() {
     return gui_spritesheet::get_sprite(S_MOTOR_AXISROT);
 }
 
-const char*
-motor::get_axis_rot_tooltip()
-{
-    if (this->flag_active(ENTITY_AXIS_ROT)) {
+const char *motor::get_axis_rot_tooltip() {
+    if (this->flag_active(ENTITY_AXIS_ROT))
         return "Unflatten";
-    } else {
+    else
         return "Flatten";
-    }
 }
 
-void
-motor::on_load(bool created, bool has_state)
-{
+void motor::on_load(bool created, bool has_state) {
     if (this->mtype != MOTOR_TYPE_SIMPLE) {
         this->set_mesh(mesh_factory::get_mesh(this->flag_active(ENTITY_AXIS_ROT) ? MODEL_FLATMOTOR : MODEL_DMOTOR));
         this->layer_mask = this->flag_active(ENTITY_AXIS_ROT) ? 8 : 7;
@@ -110,16 +101,12 @@ motor::on_load(bool created, bool has_state)
     }
 }
 
-void
-motor::toggle_axis_rot()
-{
+void motor::toggle_axis_rot() {
     this->set_flag(ENTITY_AXIS_ROT, !this->flag_active(ENTITY_AXIS_ROT));
     this->on_load(false, false);
 }
 
-bool
-motor::ReportFixture(b2Fixture *f)
-{
+bool motor::ReportFixture(b2Fixture *f) {
     entity *e = static_cast<entity*>(f->GetUserData());
 
     if (!f->IsSensor() && e && e != this && f->TestPoint(this->q_point)
@@ -139,17 +126,13 @@ motor::ReportFixture(b2Fixture *f)
     return true;
 }
 
-bool
-motor::allow_connection(entity *asker, uint8_t fr, b2Vec2 pt)
-{
+bool motor::allow_connection(entity *asker, uint8_t fr, b2Vec2 pt) {
     /* dont allow cylinders to connect to us, WE connect to THEM */
     if (asker->type == ENTITY_WHEEL) return false;
     return true;
 }
 
-void
-motor::find_pairs()
-{
+void motor::find_pairs() {
     if (this->c.pending) {
         b2Vec2 p = this->get_position();
         this->q_result = 0;
@@ -172,9 +155,7 @@ motor::find_pairs()
     this->sidecheck4(this->c_side);
 }
 
-void
-motor::connection_create_joint(connection *c)
-{
+void motor::connection_create_joint(connection *c) {
     b2RevoluteJointDef rjd;
     rjd.collideConnected = true;
     rjd.maxMotorTorque = 0.f;
@@ -206,9 +187,7 @@ motor::connection_create_joint(connection *c)
     }
 }
 
-connection *
-motor::load_connection(connection &conn)
-{
+connection *motor::load_connection(connection &conn) {
     if (conn.o_index == 0) {
         this->c = conn;
         return &this->c;
@@ -220,12 +199,8 @@ motor::load_connection(connection &conn)
     return 0;
 }
 
-void
-motor::ifstep(float voltage, float ctl_speed,
-              float ctl_angle, float ctl_tradeoff,
-              bool enable_angle,
-              bool enable_tradeoff)
-{
+void motor::ifstep(float voltage, float ctl_speed, float ctl_angle, float ctl_tradeoff,
+            bool enable_angle, bool enable_tradeoff) {
     float v = voltage;
 
     float speed = v * ctl_speed;
@@ -257,119 +232,117 @@ motor::ifstep(float voltage, float ctl_speed,
 
     b2RevoluteJoint *j = static_cast<b2RevoluteJoint*>(this->c.j);
 
-    if (j) {
-        if (enable_angle) {
-            float a = ctl_angle * M_PI * 2.f;
-            float c_angle = j->GetJointAngle();
-            float dist = tmath_adist(c_angle, a);
+    if (!j)
+        return;
 
-            dist = tclampf(dist, -.5f, .5f);
+    if (enable_angle) {
+        float a = ctl_angle * M_PI * 2.f;
+        float c_angle = j->GetJointAngle();
+        float dist = tmath_adist(c_angle, a);
 
-            if (this->mtype != MOTOR_TYPE_SERVO) {
-                /* add some overshoot */
-                /*if (dist >=0.f) dist += .125f;
-                else if (dist <0.f) dist -= .125f;*/
+        dist = tclampf(dist, -.5f, .5f);
 
-                torque = torque*fabsf(dist);
+        if (this->mtype != MOTOR_TYPE_SERVO) {
+            /* add some overshoot */
+            /*if (dist >=0.f) dist += .125f;
+            else if (dist <0.f) dist -= .125f;*/
+
+            torque = torque*fabsf(dist);
+        }
+
+        float os = j->GetJointSpeed();
+        float ns = dist*speed;
+
+        if (this->mtype == MOTOR_TYPE_SERVO) {
+
+            if ((((os >= 0.f && ns >= 0.f) || (os < 0.f && ns < 0.f))
+                && fabsf(os) > fabsf(ns))) {
+                ns = 0.f;
+                //tms_infof("breaking");
             }
-
-            float os = j->GetJointSpeed();
-            float ns = dist*speed;
-
-            if (this->mtype == MOTOR_TYPE_SERVO) {
-
-                if ((((os >= 0.f && ns >= 0.f) || (os < 0.f && ns < 0.f))
-                    && fabsf(os) > fabsf(ns))) {
-                    ns = 0.f;
-                    //tms_infof("breaking");
-                }
-                /*
-                if (copysignf(1.f, os) != copysignf(1.f, ns)) {
-                    ns = 0.f;
-                    tms_infof("breaking 2");
-                }
-                */
+            /*
+            if (copysignf(1.f, os) != copysignf(1.f, ns)) {
+                ns = 0.f;
+                tms_infof("breaking 2");
             }
+            */
+        }
 
-            speed = ns;
-        } else {
-            speed *= (this->properties[2].v.i ? 1.f : -1.f);
+        speed = ns;
+    } else {
+        speed *= (this->properties[2].v.i ? 1.f : -1.f);
 
-            float s = j->GetJointSpeed();
+        float s = j->GetJointSpeed();
 
-            if (this->mtype != MOTOR_TYPE_SERVO) { /* prevent motor braking */
-                if (W->level.version >= LEVEL_VERSION_1_5) {
-                    if (speed == 0.f || s/speed > 1.f) {
-                        torque = W->level.joint_friction;
-                    }
+        if (this->mtype != MOTOR_TYPE_SERVO) { /* prevent motor braking */
+            if (W->level.version >= LEVEL_VERSION_1_5) {
+                if (speed == 0.f || s/speed > 1.f) {
+                    torque = W->level.joint_friction;
+                }
+            } else {
+                if (speed == 0.f) {
+                    torque = 0.f;
                 } else {
-                    if (speed == 0.f) {
-                        torque = 0.f;
-                    } else {
-                        if (s/speed > 1.f) {
-                            //torque = .02f; /* friction */
-                            torque = .02f; /* friction */
-                        }
+                    if (s/speed > 1.f) {
+                        //torque = .02f; /* friction */
+                        torque = .02f; /* friction */
                     }
                 }
             }
         }
-
-        j->SetMotorSpeed(speed);
-        j->SetMaxMotorTorque(torque);
     }
+
+    j->SetMotorSpeed(speed);
+    j->SetMaxMotorTorque(torque);
 }
 
-void
-motor::ifget(iffeed *feed)
-{
+void motor::ifget(iffeed *feed) {
     b2RevoluteJoint *j = static_cast<b2RevoluteJoint*>(this->c.j);
 
-    if (j) {
-        float c_angle = j->GetJointAngle();
-        float js = std::abs(j->GetJointSpeed()), ms = std::abs(j->GetMotorSpeed());
-        float s;
-        if (ms == 0.f || js < 0.00000001f)
-            s = 0.f;
-        else
-            s = js/ms;
-        float cur_torque;
-        float max_torque = j->GetMaxMotorTorque();
-        if (W->level.version < LEVEL_VERSION_1_1_6)
-            cur_torque = j->GetMotorTorque(1. / .012);
-        else {
-            cur_torque = j->GetMotorTorque(1. / ((double)((WORLD_STEP+WORLD_STEP_SPEEDUP)/1000000.) * G->get_time_mul()));
-        }
+    if (!j)
+        return;
 
-        feed->speed = tclampf(s, 0.f, 1.f);
-
-        float b = c_angle;
-        b = fmod(b, M_PI*2.f);
-        if (b < 0.f) b += M_PI*2.f;
-        b /= M_PI * 2.f;
-        feed->angle = b;
-
-        //tms_debugf("writing angle %f", feed->angle);
-
-        if (max_torque == 0.f) {
-            feed->torque = 0.f;
-        } else {
-            if (this->mtype == MOTOR_TYPE_SERVO) {
-                feed->torque = tclampf(std::abs(cur_torque/max_torque), 0.f, 1.f);
-            } else {
-                feed->torque = ((s > 1.f) ? .01f : tclampf(std::abs(cur_torque) / max_torque, 0.f, 1.f));
-            }
-        }
-
-        /* XXX ?? */
-        feed->error = ((js >= 0.f) == (ms >= 0.f));
+    float c_angle = j->GetJointAngle();
+    float js = std::abs(j->GetJointSpeed()), ms = std::abs(j->GetMotorSpeed());
+    float s;
+    if (ms == 0.f || js < 0.00000001f)
+        s = 0.f;
+    else
+        s = js/ms;
+    float cur_torque;
+    float max_torque = j->GetMaxMotorTorque();
+    if (W->level.version < LEVEL_VERSION_1_1_6)
+        cur_torque = j->GetMotorTorque(1. / .012);
+    else {
+        cur_torque = j->GetMotorTorque(1. / ((double)((WORLD_STEP+WORLD_STEP_SPEEDUP)/1000000.) * G->get_time_mul()));
     }
+
+    feed->speed = tclampf(s, 0.f, 1.f);
+
+    float b = c_angle;
+    b = fmod(b, M_PI*2.f);
+    if (b < 0.f) b += M_PI*2.f;
+    b /= M_PI * 2.f;
+    feed->angle = b;
+
+    //tms_debugf("writing angle %f", feed->angle);
+
+    if (max_torque == 0.f)
+        feed->torque = 0.f;
+    else {
+        if (this->mtype == MOTOR_TYPE_SERVO)
+            feed->torque = tclampf(std::abs(cur_torque/max_torque), 0.f, 1.f);
+        else
+            feed->torque = ((s > 1.f) ? .01f :
+                tclampf(std::abs(cur_torque) / max_torque, 0.f, 1.f));
+    }
+
+    /* XXX ?? */
+    feed->error = ((js >= 0.f) == (ms >= 0.f));
 }
 
 /* only for simple motor */
-edevice*
-motor::solve_electronics()
-{
+edevice *motor::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -392,16 +365,14 @@ motor::solve_electronics()
         float s = j->GetJointSpeed();
 
         if (W->level.version >= LEVEL_VERSION_1_5) {
-            if (s/speed > 1.f) {
+            if (s/speed > 1.f)
                 torque = W->level.joint_friction;
-            }
         } else {
             if (speed == 0.f) {
                 torque = 0.f;
             } else {
-                if (s/speed > 1.f) {
+                if (s/speed > 1.f)
                     torque = .02f; /* friction */
-                }
             }
         }
 
@@ -411,9 +382,7 @@ motor::solve_electronics()
     return 0;
 }
 
-void
-motor::on_slider_change(int s, float value)
-{
+void motor::on_slider_change(int s, float value) {
     if (s == 0) {
         this->properties[0].v.f = value;
         G->show_numfeed(value - 0.5f);

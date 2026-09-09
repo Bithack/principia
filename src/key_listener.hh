@@ -206,18 +206,20 @@ static const char *key_names[TMS_KEY__NUM] = {
     "Right Meta"
 };
 
-class key_listener : public i0o1gate
-{
+/**
+ * Class representing the Key Listener object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Key_Listener
+ */
+class key_listener : public i0o1gate {
   public:
     key_listener();
     void setup();
-    edevice* solve_electronics(void);
-    const char *get_name(){return "Key Listener";};
+    edevice* solve_electronics();
+    const char *get_name() { return "Key Listener"; }
 
-    void restore()
-    {
+    void restore() {
         entity::restore();
-
         this->active = false;
     }
 

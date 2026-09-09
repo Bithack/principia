@@ -5,9 +5,7 @@
 #include "game.hh"
 #include "ui.hh"
 
-jumper::jumper()
-    : wplug(CABLE_IN)
-{
+jumper::jumper() : wplug(CABLE_IN) {
     this->set_flag(ENTITY_IS_HIGH_PRIO,         true);
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
     this->set_flag(ENTITY_ALLOW_ROTATION,       false);
@@ -37,25 +35,19 @@ jumper::jumper()
     tmat3_load_identity(this->N);
 }
 
-void
-jumper::setup()
-{
+void jumper::setup() {
     wplug::setup();
 
     this->reconnect();
 }
 
-void
-jumper::on_pause()
-{
+void jumper::on_pause() {
     wplug::on_pause();
 
     this->reconnect();
 }
 
-edevice*
-jumper::solve_electronics()
-{
+edevice* jumper::solve_electronics() {
     if (this->s) {
         socket_in *si = static_cast<socket_in*>(s);
         si->step_count = edev_step_count;
@@ -65,28 +57,20 @@ jumper::solve_electronics()
     return 0;
 }
 
-float
-jumper::get_slider_snap(int s)
-{
+float jumper::get_slider_snap(int s) {
     return 0.05f;
 }
 
-float
-jumper::get_slider_value(int s)
-{
+float jumper::get_slider_value(int s) {
     return this->properties[0].v.f;
 }
 
-void
-jumper::on_slider_change(int s, float value)
-{
+void jumper::on_slider_change(int s, float value) {
     this->set_property(0, value);
     G->show_numfeed(value);
     this->update_color();
 }
 
-void
-jumper::write_quickinfo(char *out)
-{
+void jumper::write_quickinfo(char *out) {
     sprintf(out, "%s (%.5f)", this->get_name(), this->properties[0].v.f);
 }

@@ -1,4 +1,5 @@
 #include "epsilon.hh"
+#include "model.hh"
 
 epsilon::epsilon() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_I1O1_EPSILON));
