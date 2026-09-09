@@ -4,6 +4,7 @@
 #include "angulardamper.hh"
 #include "angularvelmeter.hh"
 #include "animal.hh"
+#include "artificial_gravity.hh"
 #include "backpack.hh"
 #include "ball.hh"
 #include "battery.hh"
@@ -365,7 +366,7 @@ static entity* new_oilrig() { return new oilrig(); }
 static entity* new_factory() { return new factory(FACTORY_GENERIC); }
 static entity* new_crane() { return new crane(); }
 static entity* new_fluid() { return new fluid(); }
-static entity* new_localgravity() { return new localgravity(); }
+static entity* new_localgravity() { return new artificialgravity(); }
 static entity* new_autoprotector() { return new autoprotector(); }
 static entity* new_active_display() { return new active_display(); }
 static entity* new_boundary() { return new boundary(); }

@@ -1,4 +1,5 @@
 #include "world.hh"
+#include "artificial_gravity.hh"
 #include "luascript.hh"
 #include "eventlistener.hh"
 #include "solver.hh"
@@ -133,7 +134,7 @@ world::insert(entity *e)
         case O_EVENT_LISTENER: this->eventlisteners.insert((eventlistener*)e); break;
         case O_LUASCRIPT:      this->escripts.insert((luascript*)e); break;
         case O_KEY_LISTENER:   this->key_listeners.insert((key_listener*)e); break;
-        case O_ARTIFICIAL_GRAVITY:   this->localgravities.insert((localgravity*)e); break;
+        case O_ARTIFICIAL_GRAVITY:   this->localgravities.insert((artificialgravity*)e); break;
         case O_REPAIR_STATION: this->repair_stations.insert(e); break;
     }
 
@@ -198,7 +199,7 @@ world::erase(entity *e)
         case O_EVENT_LISTENER: this->eventlisteners.erase((eventlistener*)e); break;
         case O_LUASCRIPT:      this->escripts.erase((luascript*)e); break;
         case O_KEY_LISTENER:   this->key_listeners.erase((key_listener*)e); break;
-        case O_ARTIFICIAL_GRAVITY:   this->localgravities.erase((localgravity*)e); break;
+        case O_ARTIFICIAL_GRAVITY:   this->localgravities.erase((artificialgravity*)e); break;
         case O_REPAIR_STATION: this->repair_stations.erase(e); break;
     }
 
@@ -622,7 +623,7 @@ void
 world::apply_local_gravities()
 {
     /* step local gravities separately */
-    for (std::set<localgravity*>::iterator i = this->localgravities.begin();
+    for (std::set<artificialgravity*>::iterator i = this->localgravities.begin();
             i != this->localgravities.end(); i++) {
         (*i)->step();
     }

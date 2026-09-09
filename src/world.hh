@@ -46,7 +46,7 @@ class solver_ingame;
 class solver;
 class eventlistener;
 class key_listener;
-class localgravity;
+class artificialgravity;
 class luascript;
 class soundman;
 
@@ -177,7 +177,7 @@ class world : public b2QueryCallback
     /* special types of entities that we need to keep track of */
     std::set<eventlistener*>    eventlisteners;
     std::set<key_listener*>     key_listeners;
-    std::set<localgravity*>     localgravities;
+    std::set<artificialgravity*>     localgravities;
     std::set<luascript*>          escripts;
     std::set<entity*>           repair_stations;
 

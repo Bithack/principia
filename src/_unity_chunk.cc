@@ -7,6 +7,7 @@
 #include "angulardamper.cc"
 #include "angularvelmeter.cc"
 #include "animal.cc"
+#include "artificial_gravity.cc"
 #include "backpack.cc"
 #include "ball.cc"
 #include "basepixel.cc"
