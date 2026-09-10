@@ -26,8 +26,7 @@ struct terrain_edit {
     uint32_t flags;
     int      data;
 
-    terrain_edit(uint32_t flags, int data)
-    {
+    terrain_edit(uint32_t flags, int data) {
         this->flags = flags;
         this->data = data;
     }
@@ -40,42 +39,35 @@ struct terrain_coord {
     int chunk_y;
     uint8_t _xy;
 
-    terrain_coord(){};
+    terrain_coord() {}
 
-    terrain_coord(float world_x, float world_y)
-    {
+    terrain_coord(float world_x, float world_y) {
         this->set_from_world(world_x, world_y);
     }
 
-    inline int get_global_x()
-    {
+    inline int get_global_x() {
         return chunk_x*16+this->get_local_x();
     }
 
-    inline int get_global_y()
-    {
+    inline int get_global_y() {
         return chunk_y*16+this->get_local_y();
     }
 
-    inline float get_world_x()
-    {
+    inline float get_world_x() {
         return this->chunk_x * 8.f + this->get_local_x()*.5f;
     }
 
-    inline float get_world_y()
-    {
+    inline float get_world_y() {
         return this->chunk_y * 8.f + this->get_local_y()*.5f;
     }
 
-    inline void set_from_world(float x, float y)
-    {
+    inline void set_from_world(float x, float y) {
         int gx = (int)roundf(x * 2.f);
         int gy = (int)roundf(y * 2.f);
         this->set_from_global(gx, gy);
     }
 
-    inline void set_from_global(int gx, int gy)
-    {
+    inline void set_from_global(int gx, int gy) {
         this->chunk_x = (int)floor(gx/16.f);
         this->chunk_y = (int)floor(gy/16.f);
 
@@ -85,8 +77,7 @@ struct terrain_coord {
         this->_xy = (local_y << 4) | local_x;
     }
 
-    void step(int x, int y)
-    {
+    void step(int x, int y) {
         int gx = this->chunk_x * 16 + this->get_local_x();
         int gy = this->chunk_y * 16 + this->get_local_y();
 
@@ -96,18 +87,15 @@ struct terrain_coord {
         this->set_from_global(gx, gy);
     }
 
-    chunk_pos get_chunk_pos()
-    {
+    chunk_pos get_chunk_pos() {
         return chunk_pos(chunk_x, chunk_y);
     }
 
-    int get_local_x()
-    {
+    int get_local_x() {
         return (_xy) & 0xf;
     }
 
-    int get_local_y()
-    {
+    int get_local_y() {
         return (_xy >> 4) & 0xf;
     }
 };
@@ -131,16 +119,14 @@ struct terrain_transaction
     int                                        start_y;
     bool                                       reached_limit;
 
-    terrain_transaction()
-    {
+    terrain_transaction() {
         this->state = TERRAIN_TRANSACTION_EMPTY;
         this->start_x = 0;
         this->start_y = 0;
         this->reached_limit = false;
     }
 
-    void add(terrain_coord coord, terrain_edit edit)
-    {
+    void add(terrain_coord coord, terrain_edit edit) {
         if (std::abs(coord.chunk_x - start_x) > GENTYPE_MAX_REACH_X) {
             this->reached_limit = true;
             return;

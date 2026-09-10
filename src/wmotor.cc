@@ -4,22 +4,19 @@
 #include "model.hh"
 #include "material.hh"
 
-class wmotor_query_cb : public b2QueryCallback
-{
+class wmotor_query_cb : public b2QueryCallback {
   public:
     entity *result;
     b2Fixture *result_fx;
     uint8_t result_frame;
     b2Vec2 point;
 
-    wmotor_query_cb(b2Vec2 point)
-    {
+    wmotor_query_cb(b2Vec2 point) {
         this->result = 0;
         this->point = point;
     }
 
-    bool ReportFixture(b2Fixture *f)
-    {
+    bool ReportFixture(b2Fixture *f) {
         entity *e = static_cast<entity*>(f->GetUserData());
 
         if (!f->IsSensor() && e && f->TestPoint(this->point)
@@ -36,8 +33,7 @@ class wmotor_query_cb : public b2QueryCallback
     }
 };
 
-wmotor::wmotor()
-{
+wmotor::wmotor() {
     this->set_flag(ENTITY_IS_STATIC,            true);
     this->set_flag(ENTITY_ALLOW_ROTATION,       false);
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
@@ -58,32 +54,25 @@ wmotor::wmotor()
     this->set_uniform("~color", .1f, 0.1f, 0.1f, 1.f);
 }
 
-void
-wmotor::update()
-{
+void wmotor::update() {
     b2Vec2 p;
 
-    if (this->body) {
+    if (this->body)
         p = this->body->GetPosition();
-    } else {
+    else
         p = this->_pos;
-    }
 
     tmat4_load_identity(this->M);
     tmat4_translate(this->M, p.x, p.y, -.5f);
 }
 
-void
-wmotor::add_to_world()
-{
+void wmotor::add_to_world() {
     this->set_flag(ENTITY_IS_STATIC, !(W->level.type == LCAT_PUZZLE));
     this->create_circle(b2_staticBody, .375f, this->material);
     this->body->GetFixtureList()[0].SetSensor(true);
 }
 
-void
-wmotor::find_pairs()
-{
+void wmotor::find_pairs() {
     if (this->c.pending) {
         b2Vec2 p = this->local_to_world(b2Vec2(0,0), 0);
         b2AABB aabb;
@@ -103,9 +92,7 @@ wmotor::find_pairs()
     }
 }
 
-void
-wmotor::connection_create_joint(connection *c)
-{
+void wmotor::connection_create_joint(connection *c) {
     b2World *w = this->body->GetWorld();
 
     b2RevoluteJointDef rjd;
@@ -137,9 +124,7 @@ wmotor::connection_create_joint(connection *c)
     c->j = w->CreateJoint(&rjd);
 }
 
-connection *
-wmotor::load_connection(connection &conn)
-{
+connection * wmotor::load_connection(connection &conn) {
     this->c = conn;
     return &this->c;
 }

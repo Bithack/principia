@@ -35,8 +35,7 @@ struct genslot
     uint8_t sorting;
 
     genslot(){};
-    genslot(int a, int b, int c, int d, int e)
-    {
+    genslot(int a, int b, int c, int d, int e) {
         chunk_x = a; chunk_y = b;
         slot_x = (uint8_t)c; slot_y = (uint8_t)d;
         sorting = (uint8_t)e;

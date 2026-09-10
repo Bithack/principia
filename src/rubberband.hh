@@ -2,8 +2,10 @@
 
 #include "composable.hh"
 
-class rubberband : public composable, public b2QueryCallback
-{
+/**
+ * Generic rubberband object class
+ */
+class rubberband : public composable, public b2QueryCallback {
   private:
     //connection c_back;
     connection c_front;
@@ -28,45 +30,52 @@ class rubberband : public composable, public b2QueryCallback
     void find_pairs();
 };
 
-class rubberband_1: public rubberband
-{
+/**
+ * Class representing the Rubberband object (main partial).
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Rubberband
+ */
+class rubberband_1 : public rubberband {
   public:
     connection dconn;
 
     rubberband_1();
     void construct();
-    void step(void);
+    void step();
     void update_effects();
 
     connection* load_connection(connection &conn);
     void set_layer(int z);
     void connection_create_joint(connection *c);
     void update_frame(bool hard);
-    const char *get_name(void){return "Rubberband";};
-    float get_slider_snap(int s){ return .05f; };
-    float get_slider_value(int s){
-        if (s == 0) {
+    const char *get_name() { return "Rubberband"; }
+    float get_slider_snap(int s){ return .05f; }
+    float get_slider_value(int s) {
+        if (s == 0)
             return (this->properties[0].v.f - 1.f)/5.f;
-        }
-        return (this->properties[1].v.f-.5f)/400.f;
-    };
-
+        else
+            return (this->properties[1].v.f-.5f)/400.f;
+    }
     const char *get_slider_label(int s) {
-        if (s == 0) return "Reaction length";
-        else return "Coefficient";
+        if (s == 0)
+            return "Reaction length";
+        else
+            return "Coefficient";
     }
     void on_slider_change(int s, float value);
 };
 
-class rubberband_2 : public rubberband
-{
+/**
+ * Class representing the Rubberband object (secondary partial).
+ */
+class rubberband_2 : public rubberband {
   public:
     rubberband_1 *d1;
 
     rubberband_2();
 
     void set_layer(int z);
-    entity *get_property_entity(){return d1?(entity*)d1:(entity*)this;};
-    const char* get_name(){return "Rubberband (part)";}
+    entity *get_property_entity() { return d1 ? (entity*)d1 : (entity*)this; }
+    const char* get_name() { return "Rubberband (part)"; }
     void update_frame(bool hard);
 };

@@ -3,8 +3,7 @@
 #include "ui.hh"
 #include "world.hh"
 
-sequencer::sequencer()
-{
+sequencer::sequencer() {
     this->set_flag(ENTITY_DO_STEP,      true);
     this->set_flag(ENTITY_HAS_CONFIG,   true);
 
@@ -23,9 +22,7 @@ sequencer::sequencer()
     this->refresh_sequence();
 }
 
-void
-sequencer::refresh_sequence()
-{
+void sequencer::refresh_sequence() {
     char *c = this->properties[0].v.s.buf;
     this->num_steps = 0;
 
@@ -35,11 +32,10 @@ sequencer::refresh_sequence()
     }
 
     while (*c && this->num_steps < SEQUENCER_MAX_LENGTH) {
-        if (*c == '1') {
+        if (*c == '1')
             this->sequence[this->num_steps++] = 1;
-        } else if (*c == '0') {
+        else if (*c == '0')
             this->sequence[this->num_steps++] = 0;
-        }
         ++c;
     }
 
@@ -51,15 +47,11 @@ sequencer::refresh_sequence()
     }
 }
 
-void
-sequencer::on_load(bool created, bool has_state)
-{
+void sequencer::on_load(bool created, bool has_state) {
     this->refresh_sequence();
 }
 
-void
-sequencer::step()
-{
+void sequencer::step() {
     if (this->started) {
         if (this->cur_step < this->num_steps-1 || this->properties[2].v.i8 == 1) {
             this->time += G->timemul(WORLD_STEP);
@@ -75,13 +67,9 @@ sequencer::step()
     }
 }
 
-edevice*
-sequencer::solve_electronics()
-{
-    if (!this->s_out[0].written()) {
+edevice* sequencer::solve_electronics() {
+    if (!this->s_out[0].written())
         this->s_out[0].write(this->started ? this->sequence[this->cur_step] : 0.f);
-    }
-
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 

@@ -11,26 +11,20 @@ edevice *besserwisser::solve_electronics() {
 
     bool v = (bool)((int)roundf(this->s_in[0].get_value()));
 
-    this->s_out[0].write(
-            (v != last) ? 1.f : 0.f
-        );
+    this->s_out[0].write((v != last) ? 1.f : 0.f);
 
     last = v;
 
     return 0;
 }
 
-void
-besserwisser::write_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void besserwisser::write_state(lvlinfo *lvl, lvlbuf *lb) {
     entity::write_state(lvl,lb);
     lb->ensure(sizeof(uint8_t));
     lb->w_uint8(this->last);
 }
 
-void
-besserwisser::read_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void besserwisser::read_state(lvlinfo *lvl, lvlbuf *lb) {
     entity::read_state(lvl,lb);
     this->last = lb->r_uint8();
 }

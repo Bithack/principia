@@ -2,8 +2,14 @@
 
 #include "edevice.hh"
 
-class transmitter : public brcomp_multiconnect
-{
+/**
+ * Class representing the Transmitter and Broadcaster objects.
+ *
+ * Player Wiki ref:
+ * - https://principia-web.se/wiki/Transmitter
+ * - https://principia-web.se/wiki/Broadcaster
+ */
+class transmitter : public brcomp_multiconnect {
   private:
     float    pending_value;
 
@@ -15,7 +21,9 @@ class transmitter : public brcomp_multiconnect
 
   public:
     transmitter(int _is_broadcaster);
-    const char *get_name(void){return this->is_broadcaster?"Broadcaster":"Transmitter";};
+    const char *get_name() {
+        return this->is_broadcaster ? "Broadcaster" : "Transmitter";
+    }
     void write_quickinfo(char *out);
 
     void construct();
@@ -24,22 +32,17 @@ class transmitter : public brcomp_multiconnect
 
     edevice* solve_electronics();
 
-    inline float get_value()
-    {
+    inline float get_value() {
         return this->pending_value;
     }
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::write_state(lvl, lb);
-
         lb->w_s_float(this->pending_value);
     }
 
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::read_state(lvl, lb);
-
         this->pending_value = lb->r_float();
     }
 };

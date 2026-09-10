@@ -9,8 +9,7 @@
  * Properties:
  * 0 = float, Sensitivity
  **/
-velmeter::velmeter()
-{
+velmeter::velmeter() {
     this->num_sliders = 1;
 
     this->s_out[0].tag = SOCK_TAG_ANGLE;
@@ -21,15 +20,12 @@ velmeter::velmeter()
     this->properties[0].v.f = 5.f;
 }
 
-edevice*
-velmeter::solve_electronics()
-{
+edevice* velmeter::solve_electronics() {
     float force;
     b2Vec2 vel(0,0);
 
-    if (this->get_body(0)) {
+    if (this->get_body(0))
         vel = this->get_body(0)->GetLinearVelocityFromLocalPoint(this->local_to_body(b2Vec2(0.f,0.f), 0));
-    }
 
     if (vel.x == 0.f) vel.x = .00000001f;
 
@@ -54,9 +50,7 @@ velmeter::solve_electronics()
     return 0;
 }
 
-void
-velmeter::on_slider_change(int s, float value)
-{
+void velmeter::on_slider_change(int s, float value) {
     this->properties[0].v.f = roundf(value * 89.f) + 1.f;
     G->show_numfeed(this->properties[0].v.f);
 }

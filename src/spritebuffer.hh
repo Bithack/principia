@@ -4,8 +4,10 @@
 
 #define SPRITEBUFFER_MAX 512
 
-class spritebuffer
-{
+/**
+ * Graphics buffer for simple 2D sprites
+ */
+class spritebuffer {
   public:
     static void _init();
     static void reset();

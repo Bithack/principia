@@ -3,13 +3,11 @@
 #include "font.hh"
 #include <tms/cpp.hh>
 
-namespace tms
-{
+namespace tms {
 class texture;
 }
 
-class p_text
-{
+class p_text {
   private:
     int width;
     int height;
@@ -29,8 +27,7 @@ class p_text
     char *text;
     bool active;
 
-    class text_glyph
-    {
+    class text_glyph {
       public:
         struct glyph *parent;
         char c;
@@ -72,62 +69,51 @@ class p_text
     tvec4 outline_color;
     tvec2 scale;
 
-    inline float get_x() const
-    {
+    inline float get_x() const {
         return this->x;
     }
 
-    inline float get_y() const
-    {
+    inline float get_y() const {
         return this->y;
     }
 
-    inline int get_width() const
-    {
+    inline int get_width() const {
         return this->width * this->get_scale();
     }
 
-    inline int get_height() const
-    {
+    inline int get_height() const {
         //return this->height * this->scale.y;
         return this->height * this->get_scale();
     }
 
-    inline int get_max_height() const
-    {
+    inline int get_max_height() const {
         return this->max_height;
     }
 
-    inline int get_num_lines() const
-    {
+    inline int get_num_lines() const {
         return this->num_lines;
     }
 
-    void set_alignment(uint8_t horizontal_align, uint8_t vertical_align)
-    {
+    void set_alignment(uint8_t horizontal_align, uint8_t vertical_align) {
         this->horizontal_align = horizontal_align;
         this->vertical_align = vertical_align;
     }
 
-    void set_vertical_align(uint8_t vertical_align)
-    {
+    void set_vertical_align(uint8_t vertical_align) {
         this->vertical_align = vertical_align;
     }
 
-    /* set position must be called for a text before it can be rendered properly */
+    /// set position must be called for a text before it can be rendered properly
     void set_position(float x, float y);
-    void set_scale(float scale)
-    {
+    void set_scale(float scale) {
         this->real_scale = scale;
     }
 
-    inline float get_scale() const
-    {
+    inline float get_scale() const {
         return this->real_scale;
     }
 
-    void calculate(int nl_dir=NL_DIR_DOWN)
-    {
+    void calculate(int nl_dir=NL_DIR_DOWN) {
         this->calculate(this->horizontal_align, this->vertical_align, nl_dir);
     }
     void calculate(uint8_t horizontal_align, uint8_t vertical_align, int nl_dir=NL_DIR_DOWN);

@@ -11,8 +11,7 @@
 
 #define RUBBER_Z_OFFSET .5f
 
-rubberband::rubberband()
-{
+rubberband::rubberband() {
     this->width = .5f;
     this->height = .5f;
 
@@ -46,9 +45,7 @@ rubberband::rubberband()
 void rubberband::on_grab(game *g){};
 void rubberband::on_release(game *g){};
 
-connection *
-rubberband::load_connection(connection &conn)
-{
+connection *rubberband::load_connection(connection &conn) {
         /*
     if (conn.o_index == 0) {
         this->c_back = conn;
@@ -64,9 +61,7 @@ rubberband::load_connection(connection &conn)
     return 0;
 }
 
-bool
-rubberband::ReportFixture(b2Fixture *f)
-{
+bool rubberband::ReportFixture(b2Fixture *f) {
     entity *e = (entity*)f->GetUserData();
     uint8_t fr = (uint8_t)(uintptr_t)f->GetBody()->GetUserData();
 
@@ -107,9 +102,7 @@ rubberband::ReportFixture(b2Fixture *f)
     return true;
 }
 
-void
-rubberband::find_pairs()
-{
+void rubberband::find_pairs() {
     if (/*this->c_back.pending || */this->c_front.pending) {
         b2Vec2 p = this->get_position();
         b2AABB aabb;
@@ -142,8 +135,7 @@ rubberband::find_pairs()
     this->sidecheck4(this->c_side);
 }
 
-rubberband_1::rubberband_1()
-{
+rubberband_1::rubberband_1() {
     this->set_flag(ENTITY_DO_STEP, true);
     this->set_flag(ENTITY_DO_UPDATE_EFFECTS, true);
 
@@ -182,9 +174,7 @@ rubberband_1::rubberband_1()
     this->set_as_rect(.25f, .25f);
 }
 
-void
-rubberband_1::update_effects()
-{
+void rubberband_1::update_effects() {
     if (this->get_body(0)) {
         entity *o = this->dconn.o;
 
@@ -207,8 +197,7 @@ rubberband_1::update_effects()
     }
 }
 
-rubberband_2::rubberband_2()
-{
+rubberband_2::rubberband_2() {
     this->d1 = 0;
     this->set_mesh(mesh_factory::get_mesh(MODEL_RUBBEREND));
     this->set_material(&m_rocket);
@@ -217,24 +206,17 @@ rubberband_2::rubberband_2()
     this->set_as_rect(.25f, .25f);
 }
 
-void
-rubberband_1::update_frame(bool hard)
-{
+void rubberband_1::update_frame(bool hard) {
     if (hard) this->dconn.j = 0;
     if (this->dconn.o) this->dconn.create_joint(0);
 }
 
-void
-rubberband_2::update_frame(bool hard)
-{
-    if (this->d1) {
+void rubberband_2::update_frame(bool hard) {
+    if (this->d1)
         this->d1->update_frame(hard);
-    }
 }
 
-connection*
-rubberband_1::load_connection(connection &conn)
-{
+connection *rubberband_1::load_connection(connection &conn) {
     if (conn.o_index == 5) {
         this->dconn = conn;
         this->dconn.fixed = true;
@@ -245,9 +227,7 @@ rubberband_1::load_connection(connection &conn)
 }
 
 /* create the prismatic connection */
-void
-rubberband_1::connection_create_joint(connection *c)
-{
+void rubberband_1::connection_create_joint(connection *c) {
     if (c == &this->dconn) {
         ((rubberband_2*)c->o)->d1 = this;
 
@@ -264,16 +244,12 @@ rubberband_1::connection_create_joint(connection *c)
     }
 }
 
-void
-rubberband::setup()
-{
+void rubberband::setup() {
     this->get_body(0)->SetLinearDamping(.25f);
     this->get_body(0)->SetAngularDamping(.25f);
 }
 
-void
-rubberband_1::construct()
-{
+void rubberband_1::construct() {
     rubberband_2 *d2 = static_cast<rubberband_2*>(of::create(96));
 
     d2->_pos = this->_pos;
@@ -287,40 +263,33 @@ rubberband_1::construct()
     G->apply_connection(&this->dconn, -1);
 }
 
-void
-rubberband_1::set_layer(int z)
-{
+void rubberband_1::set_layer(int z) {
     if (this->body) {
         if (this->dconn.o) this->dconn.o->entity::set_layer(z);
     }
     entity::set_layer(z);
 }
 
-void
-rubberband_2::set_layer(int z)
-{
+void rubberband_2::set_layer(int z) {
     if (this->body) {
-        if (this->d1) this->d1->set_layer(z);
+        if (this->d1)
+            this->d1->set_layer(z);
     } else
         entity::set_layer(z);
 }
 
-void
-rubberband_1::on_slider_change(int s, float value)
-{
+void rubberband_1::on_slider_change(int s, float value) {
     float v;
-    if (s == 0) { /* length */
+    if (s == 0) /* length */
         v = 1.f + value * 5.f;
-    } else { /* Coefficient */
+    else /* Coefficient */
         v = .5f + value * 400.f;
-    }
+
     this->properties[s].v.f = v;
     G->show_numfeed(v);
 }
 
-void
-rubberband_1::step(void)
-{
+void rubberband_1::step() {
     if (this->dconn.j) {
         b2Vec2 v = this->get_position() - dconn.o->get_position();
         float dist = v.Length();

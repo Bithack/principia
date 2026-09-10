@@ -2,8 +2,7 @@
 #include "material.hh"
 #include "model.hh"
 
-shelf::shelf()
-{
+shelf::shelf() {
     this->set_flag(ENTITY_IS_MAGNETIC, true);
     this->set_flag(ENTITY_IS_STATIC, true);
 
@@ -27,9 +26,7 @@ shelf::shelf()
     tmat3_load_identity(this->N);
 }
 
-float
-shelf::get_slider_value(int s)
-{
+float shelf::get_slider_value(int s) {
     uint32_t v = this->properties[0].v.i;
     float vv;
 
@@ -39,25 +36,18 @@ shelf::get_slider_value(int s)
     return vv;
 }
 
-float
-shelf::get_slider_snap(int s)
-{
+float shelf::get_slider_snap(int s) {
     return .333333333f;
 }
 
-void
-shelf::on_load(bool created, bool has_state)
-{
-    if (this->properties[0].v.i > 3) {
+void shelf::on_load(bool created, bool has_state) {
+    if (this->properties[0].v.i > 3)
         this->properties[0].v.i = 3;
-    }
 
     this->update_mesh();
 }
 
-void
-shelf::on_slider_change(int s, float value)
-{
+void shelf::on_slider_change(int s, float value) {
     uint32_t size = (uint32_t)roundf(value * 3.f);
 
     if (size == 0) size = 3;
@@ -69,9 +59,7 @@ shelf::on_slider_change(int s, float value)
     this->recreate_shape();
 }
 
-float
-shelf::update_mesh()
-{
+float shelf::update_mesh() {
     float ww = 1.f;
 
     switch (this->properties[0].v.i) {
@@ -98,21 +86,16 @@ shelf::update_mesh()
     return ww;
 }
 
-void
-shelf::recreate_shape()
-{
+void shelf::recreate_shape() {
     float ww = this->update_mesh();
 
-    if (this->body && this->fx) {
+    if (this->body && this->fx)
         this->body->DestroyFixture(this->fx);
-    }
 
     this->create_rect(b2_staticBody, ww, .25f, this->material);
 }
 
-void
-shelf::add_to_world()
-{
+void shelf::add_to_world() {
     this->recreate_shape();
 }
 

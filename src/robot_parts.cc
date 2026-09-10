@@ -23,8 +23,7 @@
 
 #define MONOWHEEL_SIZE .5
 
-int _equipment_required_features[NUM_EQUIPMENT_TYPES] =
-{
+int _equipment_required_features[NUM_EQUIPMENT_TYPES] = {
     CREATURE_FEATURE_HEAD,
     0,
     CREATURE_FEATURE_BACK_EQUIPMENT,
@@ -32,8 +31,7 @@ int _equipment_required_features[NUM_EQUIPMENT_TYPES] =
     CREATURE_FEATURE_HEAD,
 };
 
-uint64_t _equipment_destruction_flags[NUM_EQUIPMENT_TYPES] =
-{
+uint64_t _equipment_destruction_flags[NUM_EQUIPMENT_TYPES] = {
     CREATURE_LOST_HEAD,
     CREATURE_LOST_FEET,
     CREATURE_LOST_BACK,
@@ -41,74 +39,61 @@ uint64_t _equipment_destruction_flags[NUM_EQUIPMENT_TYPES] =
     CREATURE_LOST_HEAD,
 };
 
-robot_parts::head_base::head_base(creature *c) :
-    equipment(c)
-{
+robot_parts::head_base::head_base(creature *c) : equipment(c) {
     this->model_offset.x = 0.f;
     this->model_offset.y = 0.f;
 
     this->dangle();
 }
 
-void
-robot_parts::head_base::dangle()
-{
+void robot_parts::head_base::dangle() {
     this->body = 0;
     this->fx = 0;
 }
 
-void
-robot_parts::head_base::set_layer(int layer)
-{
+void robot_parts::head_base::set_layer(int layer) {
     tms_entity_set_prio_all(static_cast<struct tms_entity*>(this), layer);
 
-    if (this->fx) {
+    if (this->fx)
         this->fx->SetFilterData(world::get_filter_for_layer(layer, 15));
-    }
 }
 
-void
-robot_parts::head_base::update()
-{
+void robot_parts::head_base::update() {
     tmat4_copy(this->M, this->r->M);
     tmat3_copy(this->N, this->r->N);
 
     if (this->r->j_head) {
         switch (this->r->j_head->GetType()) {
-            case e_prismaticJoint:
-                {
-                    tms_assertf(this->r->get_scale() > 0.f, "scale 0 or less!");
+            case e_prismaticJoint: {
+                tms_assertf(this->r->get_scale() > 0.f, "scale 0 or less!");
 
-                    float y_offset = this->model_offset.y;
-                    y_offset += ((b2PrismaticJoint*)this->r->j_head)->GetJointTranslation();
-                    y_offset /= this->r->get_scale() + FLT_EPSILON;
-                    tmat4_translate(this->M, 0.f, y_offset, 0);
-                }
+                float y_offset = this->model_offset.y;
+                y_offset += ((b2PrismaticJoint*)this->r->j_head)->GetJointTranslation();
+                y_offset /= this->r->get_scale() + FLT_EPSILON;
+                tmat4_translate(this->M, 0.f, y_offset, 0);
                 return;
+            }
+            case e_revoluteJoint: {
+                float cs, sn;
+                b2Vec2 offset = this->r->get_position() - this->body->GetPosition();
 
-            case e_revoluteJoint:
-                {
-                    float cs, sn;
-                    b2Vec2 offset = this->r->get_position() - this->body->GetPosition();
+                float x = this->r->look_dir * (-offset.x);
+                float y = -offset.y;
 
-                    float x = this->r->look_dir * (-offset.x);
-                    float y = -offset.y;
+                b2RevoluteJoint *j = ((b2RevoluteJoint*)this->r->j_head);
+                float a = this->r->look_dir * j->GetJointAngle();
 
-                    b2RevoluteJoint *j = ((b2RevoluteJoint*)this->r->j_head);
-                    float a = this->r->look_dir * j->GetJointAngle();
+                float ca = -this->r->look_dir * this->r->get_angle();
+                tmath_sincos(ca, &sn, &cs);
 
-                    float ca = -this->r->look_dir * this->r->get_angle();
-                    tmath_sincos(ca, &sn, &cs);
+                float _x = x * cs - y * sn;
+                float _y = x * sn + y * cs;
 
-                    float _x = x * cs - y * sn;
-                    float _y = x * sn + y * cs;
-
-                    tmat4_translate(this->M, 0, _y, _x);
-                    tmat4_rotate(this->M, a * RADTODEG, 1, 0, 0);
-                    tmat4_scale(this->M, this->r->get_scale(), this->r->get_scale(), this->r->get_scale());
-                }
+                tmat4_translate(this->M, 0, _y, _x);
+                tmat4_rotate(this->M, a * RADTODEG, 1, 0, 0);
+                tmat4_scale(this->M, this->r->get_scale(), this->r->get_scale(), this->r->get_scale());
                 return;
-
+            }
             default:
                 // nothing
                 break;
@@ -118,9 +103,7 @@ robot_parts::head_base::update()
     tmat4_translate(this->M, 0.f, 0, 0);
 }
 
-robot_parts::robot_head::robot_head(creature *c) :
-    head_base(c)
-{
+robot_parts::robot_head::robot_head(creature *c) : head_base(c) {
     tmat4_load_identity(this->M);
     tmat3_load_identity(this->N);
     this->set_material(&m_robot);
@@ -129,16 +112,12 @@ robot_parts::robot_head::robot_head(creature *c) :
     this->model_offset.y = 0.f;
 }
 
-robot_parts::robot_head_inside::robot_head_inside(creature *c)
-    : robot_head(c)
-{
+robot_parts::robot_head_inside::robot_head_inside(creature *c) : robot_head(c) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_ROBOT_HEAD_INSIDE));
     this->set_material(&m_robot2);
 }
 
-void
-robot_parts::robot_head::create_fixtures()
-{
+void robot_parts::robot_head::create_fixtures() {
     int layer = this->r->get_layer();
     float w = .281f;
     float h = (.880f-.430f)/2.f;
@@ -161,9 +140,7 @@ robot_parts::robot_head::create_fixtures()
     (this->fx = this->body->CreateFixture(&fd_head))->SetUserData(this->r);
 }
 
-robot_parts::pig_head::pig_head(creature *c) :
-    head_base(c)
-{
+robot_parts::pig_head::pig_head(creature *c) :     head_base(c) {
     tmat4_load_identity(this->M);
     tmat3_load_identity(this->N);
     this->set_material(&m_animal);
@@ -173,9 +150,7 @@ robot_parts::pig_head::pig_head(creature *c) :
     this->model_offset.y = 0.f;
 }
 
-void
-robot_parts::pig_head::create_fixtures()
-{
+void robot_parts::pig_head::create_fixtures() {
     int layer = this->r->get_layer();
 
     float w = .281f;
@@ -195,9 +170,7 @@ robot_parts::pig_head::create_fixtures()
     (this->fx = this->body->CreateFixture(&fd_head))->SetUserData(this->r);
 }
 
-robot_parts::ostrich_head::ostrich_head(creature *c) :
-    head_base(c)
-{
+robot_parts::ostrich_head::ostrich_head(creature *c) :     head_base(c) {
     tmat4_load_identity(this->M);
     tmat3_load_identity(this->N);
     this->set_material(&m_animal);
@@ -206,9 +179,7 @@ robot_parts::ostrich_head::ostrich_head(creature *c) :
     this->model_offset.y = -.26f;
 }
 
-void
-robot_parts::ostrich_head::create_fixtures()
-{
+void robot_parts::ostrich_head::create_fixtures() {
     int layer = this->r->get_layer();
     int new_dir = (int)roundf(this->r->i_dir);
 
@@ -229,9 +200,7 @@ robot_parts::ostrich_head::create_fixtures()
     (this->fx = this->body->CreateFixture(&fd_head))->SetUserData(this->r);
 }
 
-robot_parts::dummy_head::dummy_head(creature *c) :
-    head_base(c)
-{
+robot_parts::dummy_head::dummy_head(creature *c) : head_base(c) {
     tmat4_load_identity(this->M);
     tmat3_load_identity(this->N);
     this->set_mesh(mesh_factory::get_mesh(MODEL_DUMMY_HEAD));
@@ -241,9 +210,7 @@ robot_parts::dummy_head::dummy_head(creature *c) :
     this->model_offset.y = 0.f;
 }
 
-void
-robot_parts::dummy_head::create_fixtures()
-{
+void robot_parts::dummy_head::create_fixtures() {
     int layer = this->r->get_layer();
 
     float w = .281f;
@@ -263,9 +230,7 @@ robot_parts::dummy_head::create_fixtures()
     (this->fx = this->body->CreateFixture(&fd_head))->SetUserData(this->r);
 }
 
-robot_parts::cow_head::cow_head(creature *c) :
-    head_base(c)
-{
+robot_parts::cow_head::cow_head(creature *c) : head_base(c) {
     tmat4_load_identity(this->M);
     tmat3_load_identity(this->N);
     this->set_material(&m_animal);
@@ -275,9 +240,7 @@ robot_parts::cow_head::cow_head(creature *c) :
     this->model_offset.y = 0.f;
 }
 
-void
-robot_parts::cow_head::create_fixtures()
-{
+void robot_parts::cow_head::create_fixtures() {
     int layer = this->r->get_layer();
 
     float w = .281f;
@@ -297,9 +260,8 @@ robot_parts::cow_head::create_fixtures()
     (this->fx = this->body->CreateFixture(&fd_head))->SetUserData(this->r);
 }
 
-robot_parts::leg::leg(int d, creature *c, feet *f)
-{
-    entity();
+robot_parts::leg::leg(int d, creature *c, feet *f) {
+    entity(); // XXX: what?
     tmat4_load_identity(this->M);
     tmat3_load_identity(this->N);
     this->set_material(&m_robot_leg);
@@ -314,9 +276,8 @@ robot_parts::leg::leg(int d, creature *c, feet *f)
     this->cc = 0.f;
 }
 
-robot_parts::leg::foot::foot(int d, leg *l)
-{
-    entity();
+robot_parts::leg::foot::foot(int d, leg *l) {
+    entity(); // XXX: what?
     tmat4_load_identity(this->M);
     tmat3_load_identity(this->N);
     this->set_material(&m_robot_foot);
@@ -326,9 +287,7 @@ robot_parts::leg::foot::foot(int d, leg *l)
     this->l = l;
 }
 
-void
-robot_parts::leg::update()
-{
+void robot_parts::leg::update() {
     tmat4_copy(this->M, this->c->M);
     tmat3_copy(this->N, this->c->N);
 
@@ -410,9 +369,7 @@ robot_parts::leg::update()
     this->myfoot->update();
 }
 
-void
-robot_parts::leg::foot::update()
-{
+void robot_parts::leg::foot::update() {
     tmat4_copy(this->M, this->l->transform);
     float y_offset = (-.4f + .20f) * this->l->c->get_scale();
     tmat4_translate(this->M, 0, y_offset, 0);
@@ -446,12 +403,9 @@ robot_parts::leg::foot::update()
     tmat4_scale(this->M, sx, sy, sz);
 }
 
-void
-robot_parts::arm::step()
-{
-    if (this->cooldown_timer > 0) {
+void robot_parts::arm::step() {
+    if (this->cooldown_timer > 0)
         this->cooldown_timer -= G->timemul(WORLD_STEP) * this->c->cooldown_multiplier;
-    }
 
     this->fired = false;
 
@@ -461,15 +415,11 @@ robot_parts::arm::step()
     }
 }
 
-void
-robot_parts::arm::on_attack()
-{
+void robot_parts::arm::on_attack() {
     this->used = true;
 }
 
-robot_parts::arm_cannon::arm_cannon(creature *c)
-    : weapon(c)
-{
+robot_parts::arm_cannon::arm_cannon(creature *c) : weapon(c) {
     this->terror = 0.f;
     this->max_range = 9.f;
     this->cooldown = 100000;
@@ -480,9 +430,7 @@ robot_parts::arm_cannon::arm_cannon(creature *c)
     this->set_uniform("~color", ARM_CANNON_COLOR, 1.f);
 }
 
-void
-robot_parts::arm_cannon::attack(int add_cooldown/*=0*/)
-{
+void robot_parts::arm_cannon::attack(int add_cooldown/*=0*/) {
     if (this->cooldown_timer <= 0) {
         float angle = this->c->get_angle() + M_PI*1.5f + this->c->look_dir*this->get_arm_angle() * M_PI;
         b2Vec2 p = this->c->local_to_world(ROBOT_ARM_POS, 0);
@@ -517,9 +465,7 @@ robot_parts::arm_cannon::attack(int add_cooldown/*=0*/)
     }
 }
 
-void
-robot_parts::arm::update()
-{
+void robot_parts::arm::update() {
     tmat4_copy(this->M, this->c->M);
     tmat3_copy(this->N, this->c->N);
 
@@ -535,9 +481,7 @@ robot_parts::arm::update()
     tmat3_copy_mat4_sub3x3(this->N, this->M);
 }
 
-robot_parts::shotgun::shotgun(creature *c)
-    : weapon(c)
-{
+robot_parts::shotgun::shotgun(creature *c) : weapon(c) {
     this->terror = 0.1f;
     this->max_range = 6.5f;
     this->cooldown = 750 * 1000;
@@ -548,9 +492,7 @@ robot_parts::shotgun::shotgun(creature *c)
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);
 }
 
-void
-robot_parts::shotgun::attack(int add_cooldown/*=0*/)
-{
+void robot_parts::shotgun::attack(int add_cooldown/*=0*/) {
     if (this->cooldown_timer <= 0) {
         for (int n=0; n<8; ++n) {
             float angle = this->c->get_angle() + M_PI*1.5f + this->c->look_dir*this->get_arm_angle() * M_PI + (0.15f-((rand()%100)/100.f) * 0.3f);
@@ -587,9 +529,7 @@ robot_parts::shotgun::attack(int add_cooldown/*=0*/)
     }
 }
 
-void
-robot_parts::shotgun::step()
-{
+void robot_parts::shotgun::step() {
     weapon::step();
 
     if (!this->played_reload_sound) {
@@ -602,9 +542,7 @@ robot_parts::shotgun::step()
     }
 }
 
-robot_parts::rocket_launcher::rocket_launcher(creature *c)
-    : weapon(c)
-{
+robot_parts::rocket_launcher::rocket_launcher(creature *c) : weapon(c) {
     this->terror = 0.2f;
     //this->max_range = 6.5f;
     this->max_range = 17.5f;
@@ -627,9 +565,7 @@ robot_parts::rocket_launcher::rocket_launcher(creature *c)
     }
 }
 
-void
-robot_parts::rocket_launcher::attack(int add_cooldown/*=0*/)
-{
+void robot_parts::rocket_launcher::attack(int add_cooldown/*=0*/) {
     if (this->cooldown_timer <= 0) {
         //float angle = this->c->get_angle() + M_PI*1.5f + this->c->look_dir*this->get_arm_angle() * M_PI + (0.15f-((rand()%100)/100.f) * 0.3f);
         float angle = this->c->get_angle() + M_PI*1.5f + this->c->look_dir*this->get_arm_angle() * M_PI;
@@ -668,9 +604,7 @@ robot_parts::rocket_launcher::attack(int add_cooldown/*=0*/)
     }
 }
 
-void
-robot_parts::rocket_launcher::step()
-{
+void robot_parts::rocket_launcher::step() {
     weapon::step();
 
     if (!this->played_reload_sound) {
@@ -682,8 +616,7 @@ robot_parts::rocket_launcher::step()
     }
 }
 
-void robot_parts::rocket_launcher::update()
-{
+void robot_parts::rocket_launcher::update() {
     weapon::update();
     int a = this->missile_switch ? 0 : 1;
     int b = this->missile_switch ? 1 : 0;
@@ -720,9 +653,7 @@ void robot_parts::rocket_launcher::update()
     //tmat4_translate(this->inner[0].M, -.425f, .5f, -.1f); // behind lower chamber (in ammo box)
 }
 
-robot_parts::railgun::railgun(creature *c)
-    : weapon(c)
-{
+robot_parts::railgun::railgun(creature *c) : weapon(c) {
     this->terror = 0.05f;
     this->do_update_effects = true;
 
@@ -738,86 +669,81 @@ robot_parts::railgun::railgun(creature *c)
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);
 }
 
-void
-robot_parts::railgun::step()
-{
+void robot_parts::railgun::step() {
     weapon::step();
 
     if (!this->c) return;
 
-    if (this->num_points > 0) {
+    if (this->num_points > 0)
         this->active -= .04f * G->get_time_mul();
-    }
 
-    if (this->fired) {
-        float _x = RAILGUN_REACH;
-        float _y = 0;
+    if (!this->fired)
+        return;
 
-        float a = this->c->get_angle() + M_PI*1.5f + this->c->look_dir*this->get_arm_angle() * M_PI;
-        float sn,cs;
+    float _x = RAILGUN_REACH;
+    float _y = 0;
 
-        tmath_sincos(a, &sn, &cs);
-        b2Vec2 pt1 = this->c->local_to_world(ROBOT_ARM_POS, 0)/* + this->c->look_dir * b2Vec2(-.01f * sn, .5f * cs)*/;
-        b2Vec2 pt2;
+    float a = this->c->get_angle() + M_PI*1.5f + this->c->look_dir*this->get_arm_angle() * M_PI;
+    float sn,cs;
 
-        pt2.x = _x*cs - _y*sn;
-        pt2.y = _x*sn + _y*cs;
-        pt2 += pt1;
+    tmath_sincos(a, &sn, &cs);
+    b2Vec2 pt1 = this->c->local_to_world(ROBOT_ARM_POS, 0)/* + this->c->look_dir * b2Vec2(-.01f * sn, .5f * cs)*/;
+    b2Vec2 pt2;
 
-        b2Vec2 dir = pt2-pt1;
-        dir *= 1.f/(dir.Length());
-        this->from = pt1;
-        this->num_points = 0;
-        this->reflected = false;
+    pt2.x = _x*cs - _y*sn;
+    pt2.y = _x*sn + _y*cs;
+    pt2 += pt1;
 
-        while (this->num_points < RAILGUN_MAX_POINTS) {
-            this->result_fx = 0;
+    b2Vec2 dir = pt2-pt1;
+    dir *= 1.f/(dir.Length());
+    this->from = pt1;
+    this->num_points = 0;
+    this->reflected = false;
 
-            W->b2->RayCast(this->handler, pt1, pt2);
+    while (this->num_points < RAILGUN_MAX_POINTS) {
+        this->result_fx = 0;
 
-            if (result_fx) {
-                p_entity *e = static_cast<p_entity*>(result_fx->GetUserData());
+        W->b2->RayCast(this->handler, pt1, pt2);
 
-                this->points[num_points] = result_pt;
-                this->num_points ++;
+        if (result_fx) {
+            p_entity *e = static_cast<p_entity*>(result_fx->GetUserData());
 
-                if (e) {
-                    if (e->g_id == O_LASER_BOUNCER) {
+            this->points[num_points] = result_pt;
+            this->num_points ++;
 
-                        b2Vec2 reflection = dir - b2Dot(dir, result_nor)*2.f*result_nor;
+            if (e) {
+                if (e->g_id == O_LASER_BOUNCER) {
 
-                        pt1 = result_pt;
-                        pt2 = pt1 + RAILGUN_REACH * reflection;
-                        dir = reflection;
-                        this->reflected = true;
-                        continue;
-                    }
+                    b2Vec2 reflection = dir - b2Dot(dir, result_nor)*2.f*result_nor;
 
-                    if (W->is_playing()) {
-                        float dmg = 50.f * this->c->get_attack_damage_modifier();
+                    pt1 = result_pt;
+                    pt2 = pt1 + RAILGUN_REACH * reflection;
+                    dir = reflection;
+                    this->reflected = true;
+                    continue;
+                }
 
-                        if (e->is_creature()) {
-                            ((creature*)e)->damage(dmg, this->result_fx, DAMAGE_TYPE_PLASMA, DAMAGE_SOURCE_BULLET, this->c->id);
-                        } else if (e->g_id == O_LAND_MINE || e->g_id == O_BOMB) {
-                            ((explosive*)e)->damage(dmg);
-                        }
+                if (W->is_playing()) {
+                    float dmg = 50.f * this->c->get_attack_damage_modifier();
+
+                    if (e->is_creature()) {
+                        ((creature*)e)->damage(dmg, this->result_fx, DAMAGE_TYPE_PLASMA, DAMAGE_SOURCE_BULLET, this->c->id);
+                    } else if (e->g_id == O_LAND_MINE || e->g_id == O_BOMB) {
+                        ((explosive*)e)->damage(dmg);
                     }
                 }
-            } else {
-                this->points[num_points] = pt2;
-                this->num_points ++;
             }
-
-            break;
+        } else {
+            this->points[num_points] = pt2;
+            this->num_points ++;
         }
-        this->fired = false;
-    }
 
+        break;
+    }
+    this->fired = false;
 }
 
-void
-robot_parts::railgun::attack(int add_cooldown/*=0*/)
-{
+void robot_parts::railgun::attack(int add_cooldown/*=0*/) {
     if (this->cooldown_timer <= 0) {
         tms_debugf("attacked!");
         this->active = 1.25f;
@@ -836,9 +762,7 @@ robot_parts::railgun::attack(int add_cooldown/*=0*/)
     }
 }
 
-void
-robot_parts::railgun::update_effects()
-{
+void robot_parts::railgun::update_effects() {
     if (!this->c) return;
     if (this->active < 0.0001f) {
         this->num_points = 0;
@@ -870,18 +794,14 @@ robot_parts::railgun::update_effects()
     spritebuffer::add(last.x, last.y, this->last_z, 1.f, 1.f, 1.f, a, .3f, .3f, 1, cos((double)(_tms.last_time + rand()%100000)/100000.) * .25f);
 }
 
-float32
-robot_parts::railgun::cb_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
+float32 robot_parts::railgun::cb_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
     p_entity *r = static_cast<p_entity*>(f->GetUserData());
 
-    if (f->IsSensor()) {
+    if (f->IsSensor())
         return -1.f;
-    }
 
-    if (!world::fixture_in_layer(f, self->c->get_layer(), 6)) {
+    if (!world::fixture_in_layer(f, self->c->get_layer(), 6))
         return -1.f;
-    }
 
     if (r) {
         if (this->self->reflected == false && this->self->c == r) return -1.f;
@@ -889,9 +809,8 @@ robot_parts::railgun::cb_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, 
         if (r->is_creature()) {
             creature *c = static_cast<creature*>(r);
 
-            if (c->is_foot_fixture(f)) {
+            if (c->is_foot_fixture(f))
                 return -1.f;
-            }
         }
     }
 
@@ -902,9 +821,7 @@ robot_parts::railgun::cb_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, 
     return fraction;
 }
 
-robot_parts::weapon*
-robot_parts::weapon::make(int weapon_id, creature *c)
-{
+robot_parts::weapon* robot_parts::weapon::make(int weapon_id, creature *c) {
     robot_parts::weapon *w;
 
     switch (weapon_id) {
@@ -936,9 +853,7 @@ robot_parts::weapon::make(int weapon_id, creature *c)
     return w;
 }
 
-robot_parts::tool*
-robot_parts::tool::make(int tool_id, creature *c)
-{
+robot_parts::tool* robot_parts::tool::make(int tool_id, creature *c) {
     robot_parts::tool *t;
 
     switch (tool_id) {
@@ -957,15 +872,11 @@ robot_parts::tool::make(int tool_id, creature *c)
     return t;
 }
 
-robot_parts::tool::tool(creature *c)
-    : arm(c)
-{
+robot_parts::tool::tool(creature *c) : arm(c) {
     adventure::bars[BAR_TOOL_CD].color = (tvec3){.7f, .7f, .7f};
 }
 
-void
-robot_parts::tool::step()
-{
+void robot_parts::tool::step() {
     if (this->cooldown_timer > 0) {
         this->cooldown_timer -= G->timemul(WORLD_STEP) * this->c->cooldown_multiplier;
         float a = (float)this->cooldown_timer;
@@ -978,47 +889,35 @@ robot_parts::tool::step()
     }
 }
 
-robot_parts::nulltool::nulltool(creature *c)
-    : tool(c)
-{
+robot_parts::nulltool::nulltool(creature *c) : tool(c) {
     this->set_material(&m_robot_arm);
     this->set_mesh(mesh_factory::get_mesh(MODEL_ROBOT_DRAGARM));
     this->set_uniform("~color", .9f, .9f, .9f, 1.f);
 }
 
-int
-robot_parts::nulltool::action(uint32_t type, uint64_t pointer_id, tvec2 pos)
-{
+int robot_parts::nulltool::action(uint32_t type, uint64_t pointer_id, tvec2 pos) {
     return EVENT_CONT;
 }
 
-robot_parts::builder::builder(creature *c)
-    : tool(c)
-{
+robot_parts::builder::builder(creature *c) : tool(c) {
     this->set_material(&m_weapon_nospecular);
     this->set_mesh(mesh_factory::get_mesh(MODEL_BUILDER));
     this->set_uniform("~color", .9f, .9f, .9f, 1.f);
 }
 
-int
-robot_parts::builder::action(uint32_t type, uint64_t pointer_id, tvec2 pos)
-{
+int robot_parts::builder::action(uint32_t type, uint64_t pointer_id, tvec2 pos) {
     /* due to general spaghetti, the code is still in game.cc */
     return EVENT_CONT;
 }
 
-void
-robot_parts::builder::stop()
-{
+void robot_parts::builder::stop() {
     if (this->c->is_player()) {
         G->drop_interacting();
     }
     tool::stop();
 }
 
-robot_parts::faction_wand::faction_wand(creature *c)
-    : tool(c)
-{
+robot_parts::faction_wand::faction_wand(creature *c) : tool(c) {
     this->controlling_id = 0;
     this->effect = 0;
 
@@ -1028,9 +927,7 @@ robot_parts::faction_wand::faction_wand(creature *c)
     this->do_update_effects = true;
 }
 
-void
-robot_parts::faction_wand::update_effects()
-{
+void robot_parts::faction_wand::update_effects() {
     if (!W->is_paused() && this->controlling_id != 0) {
         p_entity *e = W->get_entity_by_id(this->controlling_id);
 
@@ -1050,79 +947,75 @@ robot_parts::faction_wand::update_effects()
     }
 }
 
-void
-robot_parts::faction_wand::stop()
-{
+void robot_parts::faction_wand::stop() {
     tms_warnf("faction_wand::stop needs implementing!");
 }
 
-int
-robot_parts::faction_wand::action(uint32_t type, uint64_t pointer_id, tvec2 pos)
-{
+int robot_parts::faction_wand::action(uint32_t type, uint64_t pointer_id, tvec2 pos) {
     if (!settings["touch_controls"]->v.b && pointer_id != 0)
         return EVENT_CONT;
 
     switch (type) {
-        case TMS_EV_POINTER_DOWN:
-            {
-                tvec3 tproj;
-                W->get_layer_point(G->cam, (int)pos.x, (int)pos.y, this->c->get_layer(), &tproj);
+        case TMS_EV_POINTER_DOWN: {
+            tvec3 tproj;
+            W->get_layer_point(G->cam, (int)pos.x, (int)pos.y, this->c->get_layer(), &tproj);
 
-                p_entity *e = 0;
-                b2Body *b;
-                tvec2 offs;
-                uint8_t frame;
-                b2Fixture *fx = 0;
-                W->query(G->cam, (int)pos.x, (int)pos.y, &e, &b, &offs, &frame, G->layer_vis, false, &fx);
-                /* Check if we're trying to set a new control target */
-                if (e && tvec2_dist(tvec2b(this->c->get_position()), tvec2b(e->get_position())) < 2.f && e->is_robot() && this->c->is_friend(e)) {
-                    creature *control = static_cast<creature*>(e);
+            p_entity *e = 0;
+            b2Body *b;
+            tvec2 offs;
+            uint8_t frame;
+            b2Fixture *fx = 0;
+            W->query(G->cam, (int)pos.x, (int)pos.y, &e, &b, &offs, &frame, G->layer_vis, false, &fx);
+            /* Check if we're trying to set a new control target */
+            if (e && tvec2_dist(tvec2b(this->c->get_position()), tvec2b(e->get_position())) < 2.f && e->is_robot() && this->c->is_friend(e)) {
+                creature *control = static_cast<creature*>(e);
 
-                    /*if (!control->is_roaming()) {
-                        control->roam = true;
-                    }*/
-                    this->controlling_id = e->id;
-                    if (!this->effect) {
-                        tms_debugf("emitted effect!");
-                        this->effect = new magic_effect(e->get_position(), e->get_layer(), 10);
-                        this->effect->continuous = true;
-                        this->effect->color = tvec4f(0.5f, 1.f, 1.f, 1.f);
-                        this->effect->speed_mod = 2.f;
-                        G->emit(this->effect);
-                    }
-                } else if (this->controlling_id) {
-                    creature *control = static_cast<creature*>(W->get_entity_by_id(this->controlling_id));
+                /*if (!control->is_roaming()) {
+                    control->roam = true;
+                }*/
+                this->controlling_id = e->id;
+                if (!this->effect) {
+                    tms_debugf("emitted effect!");
+                    this->effect = new magic_effect(e->get_position(), e->get_layer(), 10);
+                    this->effect->continuous = true;
+                    this->effect->color = tvec4f(0.5f, 1.f, 1.f, 1.f);
+                    this->effect->speed_mod = 2.f;
+                    G->emit(this->effect);
+                }
+            } else if (this->controlling_id) {
+                creature *control = static_cast<creature*>(W->get_entity_by_id(this->controlling_id));
 
-                    if (control) {
-                        tms_debugf("set target to something!");
+                if (control) {
+                    tms_debugf("set target to something!");
 
-                        if (e && e->g_id != O_CHUNK) {
-                            if (e != control) {
-                                control->roam_unset_target();
-                                control->roam_target_id = e->id;
-
-                                magic_effect *f = new magic_effect(e->get_position(), e->get_layer(), 10);
-                                f->color = tvec4f(1.0f, 0.2f, 0.2f, 1.f);
-                                f->speed_mod = 1.f;
-                                G->emit(f);
-                            }
-                        } else {
+                    if (e && e->g_id != O_CHUNK) {
+                        if (e != control) {
                             control->roam_unset_target();
+                            control->roam_target_id = e->id;
 
-                            control->roam_target_type = TARGET_POSITION;
-                            control->roam_target_pos.x = tproj.x;
-                            control->roam_target_pos.y = tproj.y;
-                            tms_debugf("set target to pos!");
-
-                            magic_effect *f = new magic_effect(control->roam_target_pos, 1, 10);
-                            f->color = tvec4f(0.2f, 1.0f, 0.2f, 1.f);
+                            magic_effect *f = new magic_effect(e->get_position(), e->get_layer(), 10);
+                            f->color = tvec4f(1.0f, 0.2f, 0.2f, 1.f);
                             f->speed_mod = 1.f;
                             G->emit(f);
                         }
+                    } else {
+                        control->roam_unset_target();
+
+                        control->roam_target_type = TARGET_POSITION;
+                        control->roam_target_pos.x = tproj.x;
+                        control->roam_target_pos.y = tproj.y;
+                        tms_debugf("set target to pos!");
+
+                        magic_effect *f = new magic_effect(control->roam_target_pos, 1, 10);
+                        f->color = tvec4f(0.2f, 1.0f, 0.2f, 1.f);
+                        f->speed_mod = 1.f;
+                        G->emit(f);
                     }
                 }
             }
             break;
+        }
+
     }
 
     return EVENT_CONT;
@@ -1135,11 +1028,7 @@ struct tms_mesh **compressor_light_meshes[COMPRESSOR_NUM_ITEMS] = {
     &mesh_factory::models[MODEL_COMPRESSOR_LAMP4].mesh,
 };
 
-robot_parts::compressor::compressor(creature *c)
-    : tool(c)
-    , emit_timer(0)
-    , item_index(0)
-{
+robot_parts::compressor::compressor(creature *c) : tool(c), emit_timer(0), item_index(0) {
     this->do_update_effects = true;
 
     this->set_material(&m_item);
@@ -1159,9 +1048,7 @@ robot_parts::compressor::compressor(creature *c)
     }
 }
 
-int
-robot_parts::compressor::action(uint32_t type, uint64_t pointer_id, tvec2 pos)
-{
+int robot_parts::compressor::action(uint32_t type, uint64_t pointer_id, tvec2 pos) {
     if (!settings["touch_controls"]->v.b && pointer_id != 0)
         return EVENT_CONT;
 
@@ -1169,159 +1056,148 @@ robot_parts::compressor::action(uint32_t type, uint64_t pointer_id, tvec2 pos)
         case TMS_EV_POINTER_DOWN:
             this->emit_timer = 0;
             this->active = true;
-        case TMS_EV_POINTER_DRAG:
-            {
-                if (this->active) {
-                    tvec3 tproj;
-                    W->get_layer_point(G->cam, (int)pos.x, (int)pos.y, this->c->get_layer(), &tproj);
+        case TMS_EV_POINTER_DRAG: {
+            if (this->active) {
+                tvec3 tproj;
+                W->get_layer_point(G->cam, (int)pos.x, (int)pos.y, this->c->get_layer(), &tproj);
 
-                    b2Vec2 creature_pos = this->c->get_position();
+                b2Vec2 creature_pos = this->c->get_position();
 
-                    b2Vec2 oo = b2Vec2(tproj.x, tproj.y);
-                    oo -= creature_pos;
+                b2Vec2 oo = b2Vec2(tproj.x, tproj.y);
+                oo -= creature_pos;
 
-                    float a = atan2f(oo.y, oo.x);
+                float a = atan2f(oo.y, oo.x);
 
-                    a -= this->c->get_angle();
+                a -= this->c->get_angle();
 
-                    this->set_arm_angle(a);
+                this->set_arm_angle(a);
 
-                    p_entity *e = 0;
-                    b2Body *b;
-                    tvec2 offs;
-                    uint8_t frame;
-                    b2Fixture *fx = 0;
+                p_entity *e = 0;
+                b2Body *b;
+                tvec2 offs;
+                uint8_t frame;
+                b2Fixture *fx = 0;
 
-                    W->query(G->cam, (int)pos.x, (int)pos.y, &e, &b, &offs, &frame, G->layer_vis, false, &fx);
+                W->query(G->cam, (int)pos.x, (int)pos.y, &e, &b, &offs, &frame, G->layer_vis, false, &fx);
 
-                    if (e && b2Distance(creature_pos, e->get_position()) <= 3.f && e->is_compressable() && item_index < COMPRESSOR_NUM_ITEMS) {
-                        b2Body *b = e->get_body(0);
-                        if (b) {
-                            float x = -3.f * oo.x;
-                            float y = -3.f * oo.y;
-                            b->SetLinearVelocity(b2Vec2(x, y) + this->c->get_body(0)->GetLinearVelocity());
-                        }
-
-                        float sn,cs;
-                        tmath_sincos(this->c->get_angle() + M_PI*1.5f + this->c->look_dir*this->get_arm_angle() * M_PI, &sn, &cs);
-                        b2Vec2 absorb_point = b2Vec2(0.f+cs*.5f, .33f+sn*.5f);
-
-                        G->lock();
-                        if (G->absorb(e, false, this->c, absorb_point, 0)) {
-
-                            G->finished_tt(TUTORIAL_PICKUP_EQUIPMENT);
-                            G->close_tt(TUTORIAL_TEXT_PICKUP_EQUIPMENT);
-
-                            G->play_sound(SND_COMPRESSOR, tproj.x, tproj.y, 0, 1.f);
-                            struct compressor_item &ci = this->storage[this->item_index ++];
-
-                            ci.g_id = e->g_id;
-                            ci.sub_id = e->get_sub_id();
-
-                            if (this->c->is_robot()) {
-                                robot_base *rob = static_cast<robot_base*>(c);
-                                rob->consume_timer = 1.f;
-                            }
-                        }
-                        this->emit_timer = 0;
-                        G->unlock();
-
-                        this->active = false;
+                if (e && b2Distance(creature_pos, e->get_position()) <= 3.f && e->is_compressable() && item_index < COMPRESSOR_NUM_ITEMS) {
+                    b2Body *b = e->get_body(0);
+                    if (b) {
+                        float x = -3.f * oo.x;
+                        float y = -3.f * oo.y;
+                        b->SetLinearVelocity(b2Vec2(x, y) + this->c->get_body(0)->GetLinearVelocity());
                     }
-                }
 
-                if (this->active) {
-                    if (type == TMS_EV_POINTER_DRAG) {
-                        return EVENT_DONE;
+                    float sn,cs;
+                    tmath_sincos(this->c->get_angle() + M_PI*1.5f + this->c->look_dir*this->get_arm_angle() * M_PI, &sn, &cs);
+                    b2Vec2 absorb_point = b2Vec2(0.f+cs*.5f, .33f+sn*.5f);
+
+                    G->lock();
+                    if (G->absorb(e, false, this->c, absorb_point, 0)) {
+
+                        G->finished_tt(TUTORIAL_PICKUP_EQUIPMENT);
+                        G->close_tt(TUTORIAL_TEXT_PICKUP_EQUIPMENT);
+
+                        G->play_sound(SND_COMPRESSOR, tproj.x, tproj.y, 0, 1.f);
+                        struct compressor_item &ci = this->storage[this->item_index ++];
+
+                        ci.g_id = e->g_id;
+                        ci.sub_id = e->get_sub_id();
+
+                        if (this->c->is_robot()) {
+                            robot_base *rob = static_cast<robot_base*>(c);
+                            rob->consume_timer = 1.f;
+                        }
                     }
+                    this->emit_timer = 0;
+                    G->unlock();
+
+                    this->active = false;
                 }
             }
+
+            if (this->active && type == TMS_EV_POINTER_DRAG)
+                return EVENT_DONE;
+
             break;
-
+        }
         case TMS_EV_POINTER_UP:
-            {
-                this->active = false;
-            }
+            this->active = false;
             break;
     }
 
     return EVENT_CONT;
 }
 
-void
-robot_parts::compressor::step()
-{
-    if (this->active) {
-        if (this->item_index == 0) {
-            this->active = false;
-            return;
-        }
+void robot_parts::compressor::step() {
+    if (!this->active)
+        return;
 
-        this->emit_timer += G->timemul(WORLD_STEP);
-
-        float time = 0.3f;
-
-        if (this->emit_timer >= COMPRESSOR_EMIT_TIME) {
-            time = 0.f;
-            this->active = false;
-
-            this->emit_timer = 0;
-            tms_infof("EMIT!!!!!!!");
-
-            struct compressor_item &ci = this->storage[-- this->item_index];
-
-            p_entity *result = 0;
-
-            switch (ci.g_id) {
-                case O_ITEM:
-                    {
-                        item *i = static_cast<item*>(of::create(O_ITEM));
-                        i->set_item_type(ci.sub_id);
-
-                        result = i;
-                    }
-                    break;
-
-                default:
-                    tms_errorf("Unhandled compressor item emit: %u - %u",
-                            ci.g_id, ci.sub_id);
-                    break;
-            }
-
-            if (result) {
-                float a = this->c->get_angle() + M_PI*1.5f + this->c->look_dir*this->get_arm_angle() * M_PI;
-                float sn,cs;
-                tmath_sincos(a, &sn, &cs);
-
-                b2Vec2 _v = b2Vec2(cs, sn);
-
-                b2Vec2 pos = this->c->local_to_world(b2Vec2(this->c->look_dir*1.f+cs*.5f, .25f+sn*.6f), 0);
-                result->set_position(pos);
-                result->set_layer(this->c->get_layer());
-                G->lock();
-                G->play_sound(SND_COMPRESSOR_REVERSE, pos.x, pos.y, 0, 1.f);
-                G->emit(result, this->c, 4.f*_v + this->c->get_body(0)->GetLinearVelocity());
-                G->unlock();
-            }
-
-            ci.g_id = 0;
-            ci.sub_id = 0;
-        }
-
-        G->add_hp(this->c, (float)this->emit_timer / COMPRESSOR_EMIT_TIME, TV_HP_COMPRESSOR, time);
+    if (this->item_index == 0) {
+        this->active = false;
+        return;
     }
+
+    this->emit_timer += G->timemul(WORLD_STEP);
+
+    float time = 0.3f;
+
+    if (this->emit_timer >= COMPRESSOR_EMIT_TIME) {
+        time = 0.f;
+        this->active = false;
+
+        this->emit_timer = 0;
+        tms_infof("EMIT!!!!!!!");
+
+        struct compressor_item &ci = this->storage[-- this->item_index];
+
+        p_entity *result = 0;
+
+        switch (ci.g_id) {
+            case O_ITEM:
+                {
+                    item *i = static_cast<item*>(of::create(O_ITEM));
+                    i->set_item_type(ci.sub_id);
+
+                    result = i;
+                }
+                break;
+
+            default:
+                tms_errorf("Unhandled compressor item emit: %u - %u",
+                        ci.g_id, ci.sub_id);
+                break;
+        }
+
+        if (result) {
+            float a = this->c->get_angle() + M_PI*1.5f + this->c->look_dir*this->get_arm_angle() * M_PI;
+            float sn,cs;
+            tmath_sincos(a, &sn, &cs);
+
+            b2Vec2 _v = b2Vec2(cs, sn);
+
+            b2Vec2 pos = this->c->local_to_world(b2Vec2(this->c->look_dir*1.f+cs*.5f, .25f+sn*.6f), 0);
+            result->set_position(pos);
+            result->set_layer(this->c->get_layer());
+            G->lock();
+            G->play_sound(SND_COMPRESSOR_REVERSE, pos.x, pos.y, 0, 1.f);
+            G->emit(result, this->c, 4.f*_v + this->c->get_body(0)->GetLinearVelocity());
+            G->unlock();
+        }
+
+        ci.g_id = 0;
+        ci.sub_id = 0;
+    }
+
+    G->add_hp(this->c, (float)this->emit_timer / COMPRESSOR_EMIT_TIME, TV_HP_COMPRESSOR, time);
 }
 
-void
-robot_parts::compressor::stop()
-{
+void robot_parts::compressor::stop() {
     this->active = false;
     this->emit_timer = 0;
 }
 
-void
-robot_parts::compressor::update()
-{
+void robot_parts::compressor::update() {
     tool::update();
 
     for (int x=0; x<COMPRESSOR_NUM_ITEMS; ++x) {
@@ -1335,17 +1211,14 @@ robot_parts::compressor::update()
 
         hl += r + sin((double)_tms.last_time * .000004)*r;
 
-        if (this->item_index > x) {
+        if (this->item_index > x)
             tms_entity_set_uniform4f(&light, "~color", 0.f+hl, .5f+1.f*hl, 0.f+hl, 1.75f);
-        } else {
+        else
             tms_entity_set_uniform4f(&light, "~color", 0.f+hl, 0.f+hl, 0.f+hl, 1.75f);
-        }
     }
 }
 
-void
-robot_parts::compressor::write_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void robot_parts::compressor::write_state(lvlinfo *lvl, lvlbuf *lb) {
     lb->ensure(sizeof(uint32_t)*2*COMPRESSOR_NUM_ITEMS);
 
     for (int x=0; x<COMPRESSOR_NUM_ITEMS; ++x) {
@@ -1355,26 +1228,20 @@ robot_parts::compressor::write_state(lvlinfo *lvl, lvlbuf *lb)
     }
 }
 
-void
-robot_parts::compressor::read_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void robot_parts::compressor::read_state(lvlinfo *lvl, lvlbuf *lb) {
     for (int x=0; x<COMPRESSOR_NUM_ITEMS; ++x) {
         this->storage[x].g_id = lb->r_uint32();
         this->storage[x].sub_id = lb->r_uint32();
     }
 }
 
-robot_parts::miner::miner(creature *c)
-    : tool(c)
-{
+robot_parts::miner::miner(creature *c) : tool(c) {
     this->set_material(&m_weapon_nospecular);
     this->set_mesh(mesh_factory::get_mesh(MODEL_MINER));
     this->set_damage(2.f);
 }
 
-void
-robot_parts::miner::step()
-{
+void robot_parts::miner::step() {
     if (adventure::mining) {
         tvec3 tproj;
         W->get_layer_point(G->cam, adventure::last_mouse_x, adventure::last_mouse_y, this->c->get_layer(), &tproj);
@@ -1382,9 +1249,7 @@ robot_parts::miner::step()
     }
 }
 
-void
-robot_parts::miner::set_damage(float new_damage)
-{
+void robot_parts::miner::set_damage(float new_damage) {
     if (new_damage > MINER_MAX_DAMAGE) new_damage = MINER_MAX_DAMAGE;
     this->damage = new_damage;
 
@@ -1396,88 +1261,76 @@ robot_parts::miner::set_damage(float new_damage)
                       MINER_BASE_A);
 }
 
-void
-robot_parts::miner::stop()
-{
+void robot_parts::miner::stop() {
     if (this->c->id == G->state.adventure_id) {
-        for (int x=0; x<MAX_P; x++) {
+        for (int x=0; x<MAX_P; x++)
             G->mining[x] = false;
-        }
+
         adventure::end_mining();
     }
 
     tool::stop();
 }
 
-int
-robot_parts::miner::action(uint32_t type, uint64_t pointer_id, tvec2 pos)
-{
+int robot_parts::miner::action(uint32_t type, uint64_t pointer_id, tvec2 pos) {
     switch (type) {
-        case TMS_EV_POINTER_DOWN:
-            {
-                p_entity *e = 0;
-                b2Body *b;
-                tvec2 offs;
-                uint8_t frame;
-                b2Fixture *fx = 0;
-                W->query(G->cam, (int)pos.x, (int)pos.y, &e, &b, &offs, &frame, G->layer_vis, false, &fx);
+        case TMS_EV_POINTER_DOWN: {
+            p_entity *e = 0;
+            b2Body *b;
+            tvec2 offs;
+            uint8_t frame;
+            b2Fixture *fx = 0;
+            W->query(G->cam, (int)pos.x, (int)pos.y, &e, &b, &offs, &frame, G->layer_vis, false, &fx);
 
-                if (!e) {
-                    return EVENT_CONT;
-                }
+            if (!e)
+                return EVENT_CONT;
 
-                /*
-                if (e->get_layer() != this->c->get_layer()) {
-                    return EVENT_CONT;
-                }
-                */
+            /*
+            if (e->get_layer() != this->c->get_layer()) {
+                return EVENT_CONT;
+            }
+            */
 
-                if (e->g_id == O_TPIXEL
-                        || e->g_id == O_CHUNK
-                        || e->g_id == O_PLANT
-                        || e->g_id == O_ITEM
-                        || e->is_creature()
-                        || e->is_zappable()
-                   ) {
-                    tvec3 tproj;
-                    W->get_layer_point(G->cam, (int)pos.x, (int)pos.y, this->c->get_layer(), &tproj);
-                    adventure::update_mining_pos(tproj.x, tproj.y);
-                    adventure::begin_mining();
-                    G->mining[pointer_id] = true;
-                    tms_debugf("set mining to true");
-                    return EVENT_DONE;
-                }
+            if (e->g_id == O_TPIXEL
+                    || e->g_id == O_CHUNK
+                    || e->g_id == O_PLANT
+                    || e->g_id == O_ITEM
+                    || e->is_creature()
+                    || e->is_zappable()
+                ) {
+                tvec3 tproj;
+                W->get_layer_point(G->cam, (int)pos.x, (int)pos.y, this->c->get_layer(), &tproj);
+                adventure::update_mining_pos(tproj.x, tproj.y);
+                adventure::begin_mining();
+                G->mining[pointer_id] = true;
+                tms_debugf("set mining to true");
+                return EVENT_DONE;
             }
             break;
+        }
+        case TMS_EV_POINTER_DRAG: {
+            if (G->mining[pointer_id]) {
+                tvec3 tproj;
+                W->get_layer_point(G->cam, (int)pos.x, (int)pos.y, this->c->get_layer(), &tproj);
+                adventure::update_mining_pos(tproj.x, tproj.y);
 
-        case TMS_EV_POINTER_DRAG:
-            {
-                if (G->mining[pointer_id]) {
-                    tvec3 tproj;
-                    W->get_layer_point(G->cam, (int)pos.x, (int)pos.y, this->c->get_layer(), &tproj);
-                    adventure::update_mining_pos(tproj.x, tproj.y);
-
-                    return EVENT_DONE;
-                }
+                return EVENT_DONE;
             }
             break;
-
-        case TMS_EV_POINTER_UP:
-            {
-                if (G->mining[pointer_id]) {
-                    G->mining[pointer_id] = false;
-                    adventure::end_mining();
-                    return EVENT_DONE;
-                }
+        }
+        case TMS_EV_POINTER_UP: {
+            if (G->mining[pointer_id]) {
+                G->mining[pointer_id] = false;
+                adventure::end_mining();
+                return EVENT_DONE;
             }
             break;
+        }
     }
     return EVENT_CONT;
 }
 
-robot_parts::timectrl::timectrl(creature *c)
-    : tool(c)
-{
+robot_parts::timectrl::timectrl(creature *c) : tool(c) {
     this->is_down = false;
     this->chargeup_timer = 0;
     this->fire_timer = 0;
@@ -1488,9 +1341,7 @@ robot_parts::timectrl::timectrl(creature *c)
     this->set_uniform("~color", .1f, .1f, .9f, 1.f);
 }
 
-int
-robot_parts::timectrl::action(uint32_t type, uint64_t pointer_id, tvec2 pos)
-{
+int robot_parts::timectrl::action(uint32_t type, uint64_t pointer_id, tvec2 pos) {
     switch (type) {
         case TMS_EV_POINTER_DOWN:
             if (!this->is_down && this->cooldown_timer <= 0) {
@@ -1526,9 +1377,7 @@ robot_parts::timectrl::action(uint32_t type, uint64_t pointer_id, tvec2 pos)
 
 #define MAX_FIRE_TIMER 3*1000*1000
 
-void
-robot_parts::timectrl::step()
-{
+void robot_parts::timectrl::step() {
     tool::step();
 
     if (this->is_down && this->chargeup_timer > 0) {
@@ -1570,9 +1419,7 @@ robot_parts::timectrl::step()
     }
 }
 
-robot_parts::debugger::debugger(creature *c)
-    : tool(c)
-{
+robot_parts::debugger::debugger(creature *c) : tool(c) {
     this->cooldown = TIMECTRL_COOLDOWN;
     this->edev = 0;
 
@@ -1581,69 +1428,57 @@ robot_parts::debugger::debugger(creature *c)
     this->set_uniform("~color", .9f, .1f, .9f, 1.f);
 }
 
-int
-robot_parts::debugger::action(uint32_t type, uint64_t pointer_id, tvec2 pos)
-{
+int robot_parts::debugger::action(uint32_t type, uint64_t pointer_id, tvec2 pos) {
     switch (type) {
-        case TMS_EV_POINTER_DOWN:
-            {
-                p_entity *e = 0;
-                b2Body *b;
-                tvec2 offs;
-                uint8_t frame;
-                W->query(G->cam, (int)pos.x, (int)pos.y, &e, &b, &offs, &frame, G->layer_vis);
-                if (e && e->flag_active(ENTITY_IS_EDEVICE)) {
-                    this->edev = e;
-                    tms_debugf("clicked on edevice %p", e);
+        case TMS_EV_POINTER_DOWN: {
+            p_entity *e = 0;
+            b2Body *b;
+            tvec2 offs;
+            uint8_t frame;
+            W->query(G->cam, (int)pos.x, (int)pos.y, &e, &b, &offs, &frame, G->layer_vis);
+            if (e && e->flag_active(ENTITY_IS_EDEVICE)) {
+                this->edev = e;
+                tms_debugf("clicked on edevice %p", e);
 
-                    // point arm at edevice
-                    b2Vec2 oo = e->get_position() - this->c->get_position();
-                    float a = atan2f(oo.y, oo.x) - this->c->get_angle();
-                    this->set_arm_angle(a);
-                    this->pointer_id = pointer_id;
+                // point arm at edevice
+                b2Vec2 oo = e->get_position() - this->c->get_position();
+                float a = atan2f(oo.y, oo.x) - this->c->get_angle();
+                this->set_arm_angle(a);
+                this->pointer_id = pointer_id;
 
-                    return EVENT_DONE;
-                }
+                return EVENT_DONE;
             }
             break;
-
+        }
         case TMS_EV_POINTER_DRAG:
-            {
-                // don't allow camera movements if we pressed down on an edevice
+            // don't allow camera movements if we pressed down on an edevice
+            if (this->edev)
+                return EVENT_DONE;
+
+            break;
+
+        case TMS_EV_POINTER_UP: {
+            if (pointer_id == this->pointer_id) {
+                // reset arm angle
+                // this->arm_angle = 0.f;
+
                 if (this->edev) {
-                    return EVENT_DONE;
+                    edevice *ed = this->edev->get_edevice();
+                    G->ss_edev = ed;
+                    tms_debugf("show connection dialog");
+                    G->set_mode(GAME_MODE_SELECT_SOCKET);
                 }
+                this->edev = 0;
             }
             break;
-
-        case TMS_EV_POINTER_UP:
-            {
-                if (pointer_id == this->pointer_id) {
-                    // reset arm angle
-                    // this->arm_angle = 0.f;
-
-                    if (this->edev) {
-                        edevice *ed = this->edev->get_edevice();
-                        G->ss_edev = ed;
-                        tms_debugf("show connection dialog");
-                        G->set_mode(GAME_MODE_SELECT_SOCKET);
-                    }
-                    this->edev = 0;
-                }
-            }
-            break;
+        }
     }
     return EVENT_CONT;
 }
 
-void
-robot_parts::debugger::step()
-{
-}
+void robot_parts::debugger::step() {}
 
-robot_parts::painter::painter(creature *c)
-    : tool(c)
-{
+robot_parts::painter::painter(creature *c) : tool(c) {
 //    this->set_flag(ENTITY_HAS_CONFIG, true); // XXX: Should this be replaced with in-game config?
 
     this->painting = false;
@@ -1663,53 +1498,47 @@ robot_parts::painter::painter(creature *c)
     this->set_uniform("~color", .9f, .1f, .3f, 1.f);
 }
 
-int
-robot_parts::painter::action(uint32_t type, uint64_t pointer_id, tvec2 pos)
-{
+int robot_parts::painter::action(uint32_t type, uint64_t pointer_id, tvec2 pos) {
     switch (type) {
         case TMS_EV_POINTER_DOWN:
-        case TMS_EV_POINTER_DRAG:
-            {
-                // don't allow camera movements if we are painting
-                if (this->painting || type == TMS_EV_POINTER_DOWN) {
-                    p_entity *e = 0;
-                    b2Body *b;
-                    tvec2 offs;
-                    uint8_t frame;
-                    W->query(G->cam, (int)pos.x, (int)pos.y, &e, &b, &offs, &frame, G->layer_vis);
-                    if (e) {
-                        // point arm at entity
-                        b2Vec2 oo = e->get_position() - this->c->get_position();
-                        float a = atan2f(oo.y, oo.x) - this->c->get_angle();
-                        this->set_arm_angle(a);
-                        this->pointer_id = pointer_id;
-                        this->painting = true;
+        case TMS_EV_POINTER_DRAG: {
+            // don't allow camera movements if we are painting
+            if (this->painting || type == TMS_EV_POINTER_DOWN) {
+                p_entity *e = 0;
+                b2Body *b;
+                tvec2 offs;
+                uint8_t frame;
+                W->query(G->cam, (int)pos.x, (int)pos.y, &e, &b, &offs, &frame, G->layer_vis);
+                if (e) {
+                    // point arm at entity
+                    b2Vec2 oo = e->get_position() - this->c->get_position();
+                    float a = atan2f(oo.y, oo.x) - this->c->get_angle();
+                    this->set_arm_angle(a);
+                    this->pointer_id = pointer_id;
+                    this->painting = true;
 
-                        //e->set_color4(this->properties[0].v.f, this->properties[1].v.f, this->properties[2].v.f);
-                    }
-
-                    return EVENT_DONE;
+                    //e->set_color4(this->properties[0].v.f, this->properties[1].v.f, this->properties[2].v.f);
                 }
+
+                return EVENT_DONE;
             }
             break;
+        }
 
-        case TMS_EV_POINTER_UP:
-            {
-                if (pointer_id == this->pointer_id) {
-                    // reset arm angle
-                    this->arm_angle = 0.f;
+        case TMS_EV_POINTER_UP: {
+            if (pointer_id == this->pointer_id) {
+                // reset arm angle
+                this->arm_angle = 0.f;
 
-                    this->painting = false;
-                }
+                this->painting = false;
             }
             break;
+        }
     }
     return EVENT_CONT;
 }
 
-void
-robot_parts::painter::update_appearance()
-{
+void robot_parts::painter::update_appearance() {
     /*
     float r = this->properties[0].v.f;
     float g = this->properties[1].v.f;
@@ -1719,22 +1548,17 @@ robot_parts::painter::update_appearance()
     */
 }
 
-void
-robot_parts::arm::set_arm_angle(float a, float speed)
-{
+void robot_parts::arm::set_arm_angle(float a, float speed) {
     a = creature::real_arm_angle(this->c, a);
 
     this->arm_angle = this->arm_angle*(1.f-speed) + a*speed;
 }
 
-void
-robot_parts::arm::set_arm_angle_raw(float a)
-{
+void robot_parts::arm::set_arm_angle_raw(float a) {
     this->arm_angle = a;
 }
 
-robot_parts::arm::arm(creature *c)
-{
+robot_parts::arm::arm(creature *c) {
     this->do_update_effects = false;
     this->used = false;
     this->c = c;
@@ -1749,9 +1573,7 @@ robot_parts::arm::arm(creature *c)
     tmat3_load_identity(this->N);
 }
 
-uint32_t
-robot_parts::arm::get_item_id() const
-{
+uint32_t robot_parts::arm::get_item_id() const {
     switch (this->get_arm_category()) {
         case ARM_WEAPON: return _weapon_to_item[this->get_arm_type()];
         case ARM_TOOL: return _tool_to_item[this->get_arm_type()];
@@ -1763,9 +1585,7 @@ robot_parts::arm::get_item_id() const
     return 0;
 }
 
-robot_parts::bomber::bomber(creature *c)
-    : weapon(c)
-{
+robot_parts::bomber::bomber(creature *c) : weapon(c) {
     this->terror = 0.1f;
     this->max_range = 9.f;
     this->cooldown = 750 * 1000;
@@ -1785,8 +1605,7 @@ robot_parts::bomber::bomber(creature *c)
     this->bomb_fired = 0;
 }
 
-static void on_bomb_absorbed(entity *self, void *userdata)
-{
+static void on_bomb_absorbed(entity *self, void *userdata) {
     if (self->flag_active(ENTITY_IS_ROBOT)) {
         robot_base *r = static_cast<robot_base*>(self);
         robot_parts::weapon *w = r->has_weapon(WEAPON_BOMBER);
@@ -1796,9 +1615,7 @@ static void on_bomb_absorbed(entity *self, void *userdata)
     }
 }
 
-int
-robot_parts::bomber::pre_attack()
-{
+int robot_parts::bomber::pre_attack() {
     if (this->bomb_fired) {
         this->bomb_fired->triggered = true;
         this->bomb_fired = 0;
@@ -1809,9 +1626,7 @@ robot_parts::bomber::pre_attack()
     return EVENT_CONT;
 }
 
-void
-robot_parts::bomber::attack(int add_cooldown/*=0*/)
-{
+void robot_parts::bomber::attack(int add_cooldown/*=0*/) {
     if (this->cooldown_timer <= 0) {
         float angle = this->c->get_angle() + M_PI*1.5f + this->c->look_dir*this->get_arm_angle() * M_PI;
         this->chamber_rotation = (this->chamber_rotation + BOMBER_CHAMBER_ROTATION) % 360;
@@ -1847,9 +1662,7 @@ robot_parts::bomber::attack(int add_cooldown/*=0*/)
     }
 }
 
-void
-robot_parts::bomber::update()
-{
+void robot_parts::bomber::update() {
     weapon::update();
 
     tmat4_copy(this->chamber.M, this->M);
@@ -1865,8 +1678,7 @@ robot_parts::bomber::update()
     tmat3_copy_mat4_sub3x3(this->chamber.N, this->chamber.M);
 }
 
-robot_parts::equipment::equipment(creature *r)
-{
+robot_parts::equipment::equipment(creature *r) {
     this->r = r;
     this->fx = 0;
     this->layer_mask = 15;
@@ -1880,9 +1692,7 @@ robot_parts::equipment::equipment(creature *r)
     this->set_uniform("~color", ROBOT_COLOR, 1.f);
 }
 
-uint32_t
-robot_parts::equipment::get_item_id()
-{
+uint32_t robot_parts::equipment::get_item_id() {
     switch (this->get_equipment_category()) {
         case EQUIPMENT_BACK: return _back_to_item[this->get_equipment_type()];
         case EQUIPMENT_FRONT: return _front_to_item[this->get_equipment_type()];
@@ -1894,9 +1704,7 @@ robot_parts::equipment::get_item_id()
     return 0;
 }
 
-robot_parts::equipment*
-robot_parts::equipment::make(creature *c, int e_category, int e_type)
-{
+robot_parts::equipment* robot_parts::equipment::make(creature *c, int e_category, int e_type) {
     equipment *h = 0;
 
     switch (e_category) {
@@ -1906,10 +1714,8 @@ robot_parts::equipment::make(creature *c, int e_category, int e_type)
                 case FEET_MINIWHEELS: h = new robot_parts::miniwheels(c); break;
                 case FEET_QUADRUPED: h = new robot_parts::quadruped(c); break;
                 case FEET_MONOWHEEL: h = new robot_parts::monowheel(c); break;
-                default:
-                     tms_errorf("Unhandled feet: %d", e_type);
-                case FEET_NULL:
-                     return 0;
+                default: tms_errorf("Unhandled feet: %d", e_type);
+                case FEET_NULL: return 0;
             }
             break;
 
@@ -1921,10 +1727,8 @@ robot_parts::equipment::make(creature *c, int e_category, int e_type)
                 case HEAD_PIG: h = new robot_parts::pig_head(c); break;
                 case HEAD_OSTRICH: h = new robot_parts::ostrich_head(c); break;
                 case HEAD_DUMMY: h = new robot_parts::dummy_head(c); break;
-                default:
-                     tms_errorf("Unhandled head: %d", e_type);
-                case HEAD_NULL:
-                     return 0;
+                default: tms_errorf("Unhandled head: %d", e_type);
+                case HEAD_NULL: return 0;
             }
             break;
 
@@ -1933,10 +1737,8 @@ robot_parts::equipment::make(creature *c, int e_category, int e_type)
                 case FRONT_EQUIPMENT_ROBOT_FRONT: h = new robot_parts::robot_front(c); break;
                 case FRONT_EQUIPMENT_BLACK_ROBOT_FRONT: h = new robot_parts::black_robot_front(c); break;
                 case FRONT_EQUIPMENT_PIONEER_FRONT: h = new robot_parts::pioneer_front(c); break;
-                default:
-                    tms_errorf("unhandled front %d", e_type);
-                case FRONT_EQUIPMENT_NULL:
-                    return 0;
+                default: tms_errorf("unhandled front %d", e_type);
+                case FRONT_EQUIPMENT_NULL: return 0;
             }
             break;
 
@@ -1948,10 +1750,8 @@ robot_parts::equipment::make(creature *c, int e_category, int e_type)
                 case BACK_EQUIPMENT_UPGRADED_JETPACK: h = new robot_parts::upgraded_jetpack(c); break;
                 case BACK_EQUIPMENT_ADVANCED_JETPACK: h = new robot_parts::advanced_jetpack(c); break;
                 case BACK_EQUIPMENT_PIONEER_BACK: h = new robot_parts::pioneer_back(c); break;
-                default:
-                    tms_errorf("unhandled back %d", e_type);
-                case BACK_EQUIPMENT_NULL:
-                    return 0;
+                default: tms_errorf("unhandled back %d", e_type);
+                case BACK_EQUIPMENT_NULL: return 0;
             }
             break;
 
@@ -1968,21 +1768,16 @@ robot_parts::equipment::make(creature *c, int e_category, int e_type)
                 case HEAD_EQUIPMENT_WITCH_HAT: h = new robot_parts::witch_hat(c); break;
                 case HEAD_EQUIPMENT_HARD_HAT: h = new robot_parts::hard_hat(c); break;
                 case HEAD_EQUIPMENT_VIKING_HELMET: h = new robot_parts::vikinghelmet(c); break;
-                default:
-                    tms_errorf("unhandled headwear %d", e_type);
-                case HEAD_EQUIPMENT_NULL:
-                    return 0;
+                default: tms_errorf("unhandled headwear %d", e_type);
+                case HEAD_EQUIPMENT_NULL: return 0;
             }
             break;
-
     }
 
     return h;
 }
 
-void
-robot_parts::equipment::separate()
-{
+void robot_parts::equipment::separate() {
     uint32_t item_id = this->get_item_id();
 
     if (item_id != ITEM_INVALID) {
@@ -2014,9 +1809,7 @@ robot_parts::equipment::separate()
     this->r->set_equipment(this->get_equipment_category(), 0);
 }
 
-void
-robot_parts::equipment::get_shape_for_dir(b2Vec2 *out, int dir)
-{
+void robot_parts::equipment::get_shape_for_dir(b2Vec2 *out, int dir) {
     if (dir == 1) {
         memcpy(out, this->shape.m_vertices, 4*sizeof(b2Vec2));
     } else {
@@ -2027,29 +1820,21 @@ robot_parts::equipment::get_shape_for_dir(b2Vec2 *out, int dir)
     }
 }
 
-void
-robot_parts::equipment::add_as_child()
-{
+void robot_parts::equipment::add_as_child() {
     tms_entity_add_child(this->r, this);
 
-    if (this->r->scene) {
+    if (this->r->scene)
         tms_scene_add_entity(this->r->scene, this);
-    }
 }
 
-void
-robot_parts::equipment::remove_as_child()
-{
+void robot_parts::equipment::remove_as_child() {
     tms_entity_remove_child(this->r, this);
 
-    if (this->scene) {
+    if (this->scene)
         tms_scene_remove_entity(this->scene, this);
-    }
 }
 
-void
-robot_parts::equipment::on_dir_change()
-{
+void robot_parts::equipment::on_dir_change() {
     if (this->fx) {
         int i_dir = (int)roundf(this->r->i_dir);
 
@@ -2060,22 +1845,18 @@ robot_parts::equipment::on_dir_change()
     }
 }
 
-void
-robot_parts::equipment::add_to_world()
-{
+void robot_parts::equipment::add_to_world() {
     b2PolygonShape sh;
 
     //tms_debugf("equipment add to world in layer %d", this->r->get_layer());
 
     int i_dir = (int)roundf(this->r->i_dir);
-    if (i_dir != -1 && i_dir != 1) {
+    if (i_dir != -1 && i_dir != 1)
         i_dir = 1;
-    }
 
     b2Vec2 verts[4];
-    for (int x=0; x<4; x++) {
+    for (int x=0; x<4; x++)
         verts[x] = i_dir * this->shape.m_vertices[x];
-    }
 
     sh.Set(verts, 4);
 
@@ -2093,21 +1874,16 @@ robot_parts::equipment::add_to_world()
     this->fx->SetUserData(this->r);
 }
 
-void
-robot_parts::equipment::remove_from_world()
-{
+void robot_parts::equipment::remove_from_world() {
     this->r->get_body(0)->DestroyFixture(this->fx);
     this->fx = 0;
 }
 
-robot_parts::headwear::headwear(creature *r) : equipment(r)
-{
+robot_parts::headwear::headwear(creature *r) : equipment(r) {
     this->r = r;
 }
 
-void
-robot_parts::head_base::on_dir_change()
-{
+void robot_parts::head_base::on_dir_change() {
     int new_dir = (int)roundf(this->r->i_dir);
 
     //tms_debugf("dir change head base");
@@ -2118,20 +1894,15 @@ robot_parts::head_base::on_dir_change()
     }
 }
 
-void
-robot_parts::head_base::separate()
-{
+void robot_parts::head_base::separate() {
     /* make sure the headwear is also separated */
-    if (this->r->equipments[EQUIPMENT_HEADWEAR]) {
+    if (this->r->equipments[EQUIPMENT_HEADWEAR])
         this->r->equipments[EQUIPMENT_HEADWEAR]->separate();
-    }
 
     equipment::separate();
 }
 
-void
-robot_parts::headwear::update()
-{
+void robot_parts::headwear::update() {
     if (!this->r->head) {
         /* XXX */
         return;
@@ -2141,28 +1912,23 @@ robot_parts::headwear::update()
     b2Vec2 offs = this->get_offset();
 
     switch (this->get_attachment_point()) {
-        case HEADWEAR_ATTACHMENT_TOP:
-            {
-                b2Vec2 anchor = this->r->head->get_top_anchor();
-                tmat4_translate(this->M, 0, anchor.y, anchor.x);
-                tmat4_rotate(this->M, this->r->head->get_top_angle(), -1.f, 0.f, 0.f);
-                tmat4_translate(this->M, offs.x, offs.y, 0.f);
-            }
+        case HEADWEAR_ATTACHMENT_TOP: {
+            b2Vec2 anchor = this->r->head->get_top_anchor();
+            tmat4_translate(this->M, 0, anchor.y, anchor.x);
+            tmat4_rotate(this->M, this->r->head->get_top_angle(), -1.f, 0.f, 0.f);
+            tmat4_translate(this->M, offs.x, offs.y, 0.f);
             break;
-
-        case HEADWEAR_ATTACHMENT_CENTRE:
-            {
-                b2Vec2 anchor = this->r->head->get_centre_anchor() + this->get_offset();
-                tmat4_translate(this->M, anchor.x, anchor.y, 0.f);
-            }
+        }
+        case HEADWEAR_ATTACHMENT_CENTRE: {
+            b2Vec2 anchor = this->r->head->get_centre_anchor() + this->get_offset();
+            tmat4_translate(this->M, anchor.x, anchor.y, 0.f);
             break;
+        }
     }
     tmat3_copy_mat4_sub3x3(this->N, this->M);
 }
 
-void
-robot_parts::equipment::update()
-{
+void robot_parts::equipment::update() {
 #if 0
     if (this->r->flag_active(ENTITY_IS_ROBOT)) {
         robot_base *r = static_cast<robot_base*>(this->r);
@@ -2173,141 +1939,105 @@ robot_parts::equipment::update()
     tmat3_copy(this->N, this->r->N);
 }
 
-robot_parts::heisenberghat::heisenberghat(creature *r)
-    : headwear(r)
-{
+robot_parts::heisenberghat::heisenberghat(creature *r) : headwear(r) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_HAT));
     this->set_material(&m_edev_dark);
 }
 
-robot_parts::wizardhat::wizardhat(creature *r)
-    : headwear(r)
-{
+robot_parts::wizardhat::wizardhat(creature *r) : headwear(r) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_WIZARDHAT));
     this->set_material(&m_item);
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);
 }
 
-robot_parts::witch_hat::witch_hat(creature *r)
-    : headwear(r)
-{
+robot_parts::witch_hat::witch_hat(creature *r) : headwear(r) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_WITCH_HAT));
     this->set_material(&m_item);
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);
 }
 
-robot_parts::tophat::tophat(creature *r)
-    : headwear(r)
-{
+robot_parts::tophat::tophat(creature *r) : headwear(r) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_TOPHAT));
     this->set_material(&m_item_shiny);
     //this->set_uniform("~color", .2f, .2f, .2f, 1.f);
 }
 
-robot_parts::kingscrown::kingscrown(creature *r)
-    : headwear(r)
-{
+robot_parts::kingscrown::kingscrown(creature *r) : headwear(r) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_KINGSCROWN));
     this->set_material(&m_item_shiny);
     //this->set_uniform("~color", .2f, .2f, .2f, 1.f);
 }
 
-robot_parts::jesterhat::jesterhat(creature *r)
-    : headwear(r)
-{
+robot_parts::jesterhat::jesterhat(creature *r) : headwear(r) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_JESTERHAT));
     this->set_material(&m_item);
 }
 
-robot_parts::conicalhat::conicalhat(creature *r)
-    : headwear(r)
-{
+robot_parts::conicalhat::conicalhat(creature *r) : headwear(r) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_CONICALHAT));
     this->set_material(&m_item);
     //this->set_uniform("~color", .8f, .9f, .5f, 1.f);
 }
 
-robot_parts::policehat::policehat(creature *r)
-    : headwear(r)
-{
+robot_parts::policehat::policehat(creature *r) : headwear(r) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_POLICEHAT));
     this->set_material(&m_item);
 }
 
-robot_parts::ninjahelmet::ninjahelmet(creature *r)
-    : headwear(r)
-{
+robot_parts::ninjahelmet::ninjahelmet(creature *r) : headwear(r) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_NINJAHELMET));
     this->set_material(&m_edev_dark);
 }
 
-robot_parts::hard_hat::hard_hat(creature *r)
-    : headwear(r)
-{
+robot_parts::hard_hat::hard_hat(creature *r) : headwear(r) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_HARD_HAT));
     this->set_material(&m_item_shiny);
 }
 
-robot_parts::vikinghelmet::vikinghelmet(creature *r)
-    : headwear(r)
-{
+robot_parts::vikinghelmet::vikinghelmet(creature *r) : headwear(r) {
     this->set_mesh(mesh_factory::get_mesh(MODEL_VIKING_HELMET));
     this->set_material(&m_item_shiny);
 }
 
-robot_parts::robot_back::robot_back(creature *r)
-    : back(r)
-{
+robot_parts::robot_back::robot_back(creature *r) : back(r) {
     this->shape.SetAsBox(.375f/2.f, .75f/2.f, b2Vec2(-.375f/2.f, 0.f), 0);
     this->set_mesh(mesh_factory::get_mesh(MODEL_ROBOT_BACK));
     this->set_material(&m_robot_tinted);
 }
 
-robot_parts::black_robot_back::black_robot_back(creature *r)
-    : back(r)
-{
+robot_parts::black_robot_back::black_robot_back(creature *r) : back(r) {
     this->shape.SetAsBox(.375f/2.f, .75f/2.f, b2Vec2(-.375f/2.f, 0.f), 0);
     this->set_mesh(mesh_factory::get_mesh(MODEL_ROBOT_BACK));
     this->set_material(&m_robot_tinted_light);
     this->set_uniform("~color", 0.2f, 0.2f, 0.2f, 1.f);
 }
 
-robot_parts::robot_front::robot_front(creature *r)
-    : front(r)
-{
+robot_parts::robot_front::robot_front(creature *r) : front(r) {
     this->shape.SetAsBox(.375f/2.f, .75f/2.f, b2Vec2(.375f/2.f, 0.f), 0);
     this->set_mesh(mesh_factory::get_mesh(MODEL_ROBOT_FRONT));
     this->set_material(&m_robot_tinted);
 }
 
-robot_parts::black_robot_front::black_robot_front(creature *r)
-    : front(r)
-{
+robot_parts::black_robot_front::black_robot_front(creature *r) : front(r) {
     this->shape.SetAsBox(.375f/2.f, .75f/2.f, b2Vec2(.375f/2.f, 0.f), 0);
     this->set_mesh(mesh_factory::get_mesh(MODEL_ROBOT_FRONT));
     this->set_material(&m_robot_tinted_light);
     this->set_uniform("~color", 0.2f, 0.2f, 0.2f, 1.f);
 }
 
-robot_parts::pioneer_front::pioneer_front(creature *r)
-    : front(r)
-{
+robot_parts::pioneer_front::pioneer_front(creature *r) : front(r) {
     this->shape.SetAsBox(.375f/2.f, .75f/2.f, b2Vec2(.375f/2.f, 0.f), 0);
     this->set_mesh(mesh_factory::get_mesh(MODEL_PIONEER_FRONT));
     this->set_material(&m_robot_armor);
 }
 
-robot_parts::pioneer_back::pioneer_back(creature *r)
-    : back(r)
-{
+robot_parts::pioneer_back::pioneer_back(creature *r) : back(r) {
     this->shape.SetAsBox(.375f/2.f, .75f/2.f, b2Vec2(-.375f/2.f, 0.f), 0);
     this->set_mesh(mesh_factory::get_mesh(MODEL_PIONEER_BACK));
     this->set_material(&m_robot_armor);
 }
 
-robot_parts::base_jetpack::base_jetpack(creature *c)
-    : back(c)
-{
+robot_parts::base_jetpack::base_jetpack(creature *c) : back(c) {
     this->active = false;
 
     /* Only enable audio for one of the two flames. */
@@ -2327,9 +2057,7 @@ robot_parts::base_jetpack::base_jetpack(creature *c)
     this->shape.Set(verts, 4);
 }
 
-void
-robot_parts::base_jetpack::add_to_world()
-{
+void robot_parts::base_jetpack::add_to_world() {
     back::add_to_world();
 
     if (W->is_playing()) {
@@ -2341,34 +2069,26 @@ robot_parts::base_jetpack::add_to_world()
     }
 }
 
-robot_parts::jetpack::jetpack(creature *c)
-    : base_jetpack(c)
-{
+robot_parts::jetpack::jetpack(creature *c) : base_jetpack(c) {
     this->fuel = JETPACK_MAX_FUEL;
 
     this->set_material(&m_edev_dark);
     this->set_mesh(mesh_factory::get_mesh(MODEL_JETPACK));
 }
 
-bool
-robot_parts::jetpack::on_jump()
-{
+bool robot_parts::jetpack::on_jump() {
     this->active = true;
     this->r->motion = MOTION_BODY_EQUIPMENT;
     return false;
 }
 
-bool
-robot_parts::jetpack::on_stop_jump()
-{
+bool robot_parts::jetpack::on_stop_jump() {
     this->active = false;
     this->r->motion = MOTION_DEFAULT;
     return false;
 }
 
-void
-robot_parts::jetpack::step()
-{
+void robot_parts::jetpack::step() {
     if (this->r->is_dead()) {
         this->r->motion = MOTION_DEFAULT;
         this->active = false;
@@ -2422,33 +2142,25 @@ robot_parts::jetpack::step()
     this->fuel += JETPACK_FUEL_RECHARGE_RATE * G->get_time_mul();
 }
 
-robot_parts::upgraded_jetpack::upgraded_jetpack(creature *r)
-    : base_jetpack(r)
-{
+robot_parts::upgraded_jetpack::upgraded_jetpack(creature *r) : base_jetpack(r) {
     this->fuel = UPGRADED_JETPACK_MAX_FUEL;
 
     this->set_mesh(mesh_factory::get_mesh(MODEL_JETPACK));
 }
 
-bool
-robot_parts::upgraded_jetpack::on_jump()
-{
+bool robot_parts::upgraded_jetpack::on_jump() {
     this->active = true;
     this->r->motion = MOTION_BODY_EQUIPMENT;
     return false;
 }
 
-bool
-robot_parts::upgraded_jetpack::on_stop_jump()
-{
+bool robot_parts::upgraded_jetpack::on_stop_jump() {
     this->active = false;
     this->r->motion = MOTION_DEFAULT;
     return false;
 }
 
-void
-robot_parts::upgraded_jetpack::step()
-{
+void robot_parts::upgraded_jetpack::step() {
     if (this->r->is_dead()) {
         this->active = false;
         this->r->motion = MOTION_DEFAULT;
@@ -2494,19 +2206,15 @@ robot_parts::upgraded_jetpack::step()
 
         this->fuel -= UPGRADED_JETPACK_FUEL_CONSUMPTION_RATE * G->get_time_mul();
     } else {
-        for (int x=0; x<2; x++) {
-            if (this->flames[x]) {
+        for (int x=0; x<2; x++)
+            if (this->flames[x])
                 this->flames[x]->set_thrustmul(0.f);
-            }
-        }
     }
 
     this->fuel += UPGRADED_JETPACK_FUEL_RECHARGE_RATE * G->get_time_mul();
 }
 
-void
-robot_parts::feet_base::add_to_world()
-{
+void robot_parts::feet_base::add_to_world() {
     tms_assertf(this->r, "no creature set for feet!");
 
     b2BodyDef bd;
@@ -2522,13 +2230,10 @@ robot_parts::feet_base::add_to_world()
 
     this->create_fixtures();
 
-    if (!this->soft) {
+    if (!this->soft)
         this->r->create_feet_joint(0);
-    }
 }
-void
-robot_parts::feet_base::remove_from_world()
-{
+void robot_parts::feet_base::remove_from_world() {
     this->r->destroy_feet_joint();
 
     if (this->body) {
@@ -2537,9 +2242,7 @@ robot_parts::feet_base::remove_from_world()
     }
 }
 
-void
-robot_parts::head_base::add_to_world()
-{
+void robot_parts::head_base::add_to_world() {
     int new_dir = (int)roundf(this->r->i_dir);
 
     b2BodyDef bd;
@@ -2555,9 +2258,7 @@ robot_parts::head_base::add_to_world()
 
     this->r->create_head_joint();
 }
-void
-robot_parts::head_base::remove_from_world()
-{
+void robot_parts::head_base::remove_from_world() {
     this->r->destroy_head_joint();
 
     if (this->body) {
@@ -2566,9 +2267,7 @@ robot_parts::head_base::remove_from_world()
     }
 }
 
-void
-robot_parts::feet::reset_angles()
-{
+void robot_parts::feet::reset_angles() {
     float ga = this->r->get_gravity_angle();
 
     this->foot_normal[0] = ga;
@@ -2577,9 +2276,7 @@ robot_parts::feet::reset_angles()
     this->gangle[1] = ga;
 }
 
-robot_parts::feet_base::feet_base(creature *c) :
-    equipment(c)
-{
+robot_parts::feet_base::feet_base(creature *c) : equipment(c) {
     this->soft = false;
     this->disable_sound = false;
     this->body_index = 0;
@@ -2592,9 +2289,7 @@ robot_parts::feet_base::feet_base(creature *c) :
     this->do_step = false;
 }
 
-void
-robot_parts::quadruped::update_fixture()
-{
+void robot_parts::quadruped::update_fixture() {
     this->feets[0]->local_x_offset = -(this->x_offset*this->r->get_scale())/2.f;
     this->feets[1]->local_x_offset = +(this->x_offset*this->r->get_scale())/2.f;
 
@@ -2602,9 +2297,7 @@ robot_parts::quadruped::update_fixture()
     this->feets[1]->update_fixture();
 }
 
-void
-robot_parts::monowheel::update_fixture()
-{
+void robot_parts::monowheel::update_fixture() {
     const float mod = this->r->get_scale();
 
     if (this->f) {
@@ -2615,14 +2308,11 @@ robot_parts::monowheel::update_fixture()
         this->f->Refilter();
     }
 
-    if (this->body) {
+    if (this->body)
         this->body->ResetMassData();
-    }
 }
 
-void
-robot_parts::miniwheels::update_fixture()
-{
+void robot_parts::miniwheels::update_fixture() {
     float mod = this->r->get_scale();
 
     tms_debugf("feet update fixture");
@@ -2646,9 +2336,7 @@ robot_parts::miniwheels::update_fixture()
     }
 }
 
-void
-robot_parts::feet::update()
-{
+void robot_parts::feet::update() {
     tmat4_copy(this->M, this->r->M);
     tmat3_copy(this->N, this->r->N);
     //tmat4_scale(this->M, this->r->get_scale(), this->r->get_scale(), this->r->get_scale());
@@ -2656,9 +2344,7 @@ robot_parts::feet::update()
     this->legs[1]->update();
 }
 
-void
-robot_parts::feet::update_fixture()
-{
+void robot_parts::feet::update_fixture() {
     tms_debugf("feet update fixture");
     if (this->f0) {
         b2CircleShape *shape = static_cast<b2CircleShape*>(this->f0->GetShape());
@@ -2680,9 +2366,7 @@ robot_parts::feet::update_fixture()
     }
 }
 
-void
-robot_parts::feet::create_fixtures()
-{
+void robot_parts::feet::create_fixtures() {
     const int layer = this->get_layer();
 
     tms_debugf("!!!!!!!!!!!!!!!!!!!!!!!!!!! creating feet in layer %d", layer);
@@ -2717,9 +2401,7 @@ robot_parts::feet::create_fixtures()
     (this->f1 = this->body->CreateFixture(&fd_foot2))->SetUserData(this->r);
 }
 
-void
-robot_parts::monowheel::create_fixtures()
-{
+void robot_parts::monowheel::create_fixtures() {
     b2CircleShape c1;
     c1.m_radius = MONOWHEEL_SIZE * .75f;
     c1.m_p = b2Vec2(0.f, -this->get_offset());
@@ -2736,9 +2418,7 @@ robot_parts::monowheel::create_fixtures()
     (this->f = this->body->CreateFixture(&fd_foot1))->SetUserData(this->r);
 }
 
-void
-robot_parts::miniwheels::create_fixtures()
-{
+void robot_parts::miniwheels::create_fixtures() {
     b2CircleShape c1;
     c1.m_radius = .25f;
     c1.m_p = b2Vec2(-.2f, -this->get_offset());
@@ -2768,9 +2448,7 @@ robot_parts::miniwheels::create_fixtures()
     (this->f1 = this->body->CreateFixture(&fd_foot2))->SetUserData(this->r);
 }
 
-float
-robot_parts::feet_base::get_offset()
-{
+float robot_parts::feet_base::get_offset() {
     float robot_feet_offset = 0.f;
     float robot_scale = 1.f;
     if (this->r) {
@@ -2782,32 +2460,24 @@ robot_parts::feet_base::get_offset()
         + ((1.f-robot_scale) * .125f); /* XXX this should not be done if the feet aren't made of circles with radius .25 */
 }
 
-void
-robot_parts::monowheel::set_layer(int n)
-{
+void robot_parts::monowheel::set_layer(int n) {
     tms_entity_set_prio_all(static_cast<struct tms_entity*>(this), n);
     if (this->f) this->f->SetFilterData(world::get_filter_for_layer(n, 15));
 }
 
-void
-robot_parts::miniwheels::set_layer(int n)
-{
+void robot_parts::miniwheels::set_layer(int n) {
     tms_entity_set_prio_all(static_cast<struct tms_entity*>(this), n);
     if (this->f0) this->f0->SetFilterData(world::get_filter_for_layer(n, 15));
     if (this->f1) this->f1->SetFilterData(world::get_filter_for_layer(n, 15));
 }
 
-void
-robot_parts::feet::set_layer(int n)
-{
+void robot_parts::feet::set_layer(int n) {
     tms_entity_set_prio_all(static_cast<struct tms_entity*>(this), n);
     if (this->f0) this->f0->SetFilterData(world::get_filter_for_layer(n, 15));
     if (this->f1) this->f1->SetFilterData(world::get_filter_for_layer(n, 15));
 }
 
-robot_parts::monowheel::monowheel(creature *c) :
-    feet_base(c)
-{
+robot_parts::monowheel::monowheel(creature *c) :     feet_base(c) {
     this->offset = 0.2f;//.05f;
 
     this->damage_sensitivity = 50.f;
@@ -2820,9 +2490,7 @@ robot_parts::monowheel::monowheel(creature *c) :
     this->reset();
 }
 
-void
-robot_parts::monowheel::step()
-{
+void robot_parts::monowheel::step() {
     if (this->r->is_walking()) {
         float inc = WORLD_STEP/1000000.f * this->r->get_speed() * G->get_time_mul() * (1.f/this->r->get_scale());
         this->stepcount += this->r->look_dir != this->r->dir ? -inc : inc;
@@ -2830,9 +2498,7 @@ robot_parts::monowheel::step()
     }
 }
 
-robot_parts::miniwheels::miniwheels(creature *c) :
-    feet_base(c)
-{
+robot_parts::miniwheels::miniwheels(creature *c) :     feet_base(c) {
     this->wheels[0] = new wheel(this, -1.f, 1.f);
     this->wheels[1] = new wheel(this, 1.f, 1.f);
     this->wheels[2] = new wheel(this, -1.f, -1.f);
@@ -2846,9 +2512,7 @@ robot_parts::miniwheels::miniwheels(creature *c) :
     this->reset();
 }
 
-void
-robot_parts::miniwheels::add_as_child()
-{
+void robot_parts::miniwheels::add_as_child() {
     tms_entity_add_child(this->r, this->wheels[0]);
     tms_entity_add_child(this->r, this->wheels[1]);
     tms_entity_add_child(this->r, this->wheels[2]);
@@ -2862,31 +2526,23 @@ robot_parts::miniwheels::add_as_child()
     }
 }
 
-void
-robot_parts::miniwheels::remove_as_child()
-{
+void robot_parts::miniwheels::remove_as_child() {
     tms_entity_remove_child(this->r, this->wheels[0]);
     tms_entity_remove_child(this->r, this->wheels[1]);
     tms_entity_remove_child(this->r, this->wheels[2]);
     tms_entity_remove_child(this->r, this->wheels[3]);
 
-    if (this->wheels[0]->scene) {
+    if (this->wheels[0]->scene)
         tms_scene_remove_entity(this->wheels[0]->scene, this->wheels[0]);
-    }
-    if (this->wheels[1]->scene) {
+    if (this->wheels[1]->scene)
         tms_scene_remove_entity(this->wheels[1]->scene, this->wheels[1]);
-    }
-    if (this->wheels[2]->scene) {
+    if (this->wheels[2]->scene)
         tms_scene_remove_entity(this->wheels[2]->scene, this->wheels[2]);
-    }
-    if (this->wheels[3]->scene) {
+    if (this->wheels[3]->scene)
         tms_scene_remove_entity(this->wheels[3]->scene, this->wheels[3]);
-    }
 }
 
-void
-robot_parts::miniwheels::step()
-{
+void robot_parts::miniwheels::step() {
     if (this->do_step) {
         float inc = WORLD_STEP/1000000.f * this->r->get_speed() * G->get_time_mul() * (1.f/this->r->get_scale());
         this->stepcount += this->r->look_dir != this->r->dir ? -inc : inc;
@@ -2894,8 +2550,7 @@ robot_parts::miniwheels::step()
     }
 }
 
-robot_parts::miniwheels::wheel::wheel(miniwheels *parent, float pos, float z)
-{
+robot_parts::miniwheels::wheel::wheel(miniwheels *parent, float pos, float z) {
     this->parent = parent;
     this->pos = pos;
     this->z = z;
@@ -2903,9 +2558,7 @@ robot_parts::miniwheels::wheel::wheel(miniwheels *parent, float pos, float z)
     this->set_material(&m_wheel);
 }
 
-void
-robot_parts::miniwheels::wheel::update()
-{
+void robot_parts::miniwheels::wheel::update() {
     tmat4_copy(this->M, this->parent->r->M);
     tmat4_translate(this->M, -.02f+(.2f*this->z) + (this->z > 0 ? .05f:0), -.175f/2.f - this->parent->get_offset(), this->pos*.225f);
     tmat4_rotate(this->M, 90 + (this->z > 0 ? 180:0), 0, 1.f, 0);
@@ -2915,8 +2568,7 @@ robot_parts::miniwheels::wheel::update()
     tmat4_scale(this->M, .3f, .3f, .4f);
 }
 
-void robot_parts::monowheel::update()
-{
+void robot_parts::monowheel::update() {
     tmat4_copy(this->M, this->r->M);
     tmat4_translate(this->M,
             -.07f,
@@ -2929,9 +2581,7 @@ void robot_parts::monowheel::update()
     tmat4_scale(this->M, MONOWHEEL_SIZE, MONOWHEEL_SIZE, MONOWHEEL_SIZE*1.75f);
 }
 
-void
-robot_parts::monowheel::handle_contact(b2Contact *contact, b2Fixture *rf, b2Fixture *o, const b2Manifold *man, float base_tangent, bool rev)
-{
+void robot_parts::monowheel::handle_contact(b2Contact *contact, b2Fixture *rf, b2Fixture *o, const b2Manifold *man, float base_tangent, bool rev) {
     float input_tangent = base_tangent;
 
     if (!this->on) {
@@ -2965,9 +2615,7 @@ robot_parts::monowheel::handle_contact(b2Contact *contact, b2Fixture *rf, b2Fixt
             );
 }
 
-void
-robot_parts::miniwheels::handle_contact(b2Contact *contact, b2Fixture *rf, b2Fixture *o, const b2Manifold *man, float base_tangent, bool rev)
-{
+void robot_parts::miniwheels::handle_contact(b2Contact *contact, b2Fixture *rf, b2Fixture *o, const b2Manifold *man, float base_tangent, bool rev) {
     float input_tangent = base_tangent;
 
     if (!this->on) {
@@ -3005,9 +2653,7 @@ robot_parts::miniwheels::handle_contact(b2Contact *contact, b2Fixture *rf, b2Fix
             );
 }
 
-robot_parts::quadruped::quadruped(creature *c) :
-    feet_base(c)
-{
+robot_parts::quadruped::quadruped(creature *c) :     feet_base(c) {
     this->feets[0] = new robot_parts::feet(c);
     this->feets[1] = new robot_parts::feet(c);
 
@@ -3031,15 +2677,12 @@ robot_parts::quadruped::quadruped(creature *c) :
     this->reset();
 }
 
-robot_parts::quadruped::~quadruped()
-{
+robot_parts::quadruped::~quadruped() {
     delete this->feets[0];
     delete this->feets[1];
 }
 
-void
-robot_parts::quadruped::add_as_child()
-{
+void robot_parts::quadruped::add_as_child() {
     tms_entity_add_child(this->r, this->feets[0]);
     tms_entity_add_child(this->r, this->feets[1]);
 
@@ -3049,84 +2692,61 @@ robot_parts::quadruped::add_as_child()
     }
 }
 
-void
-robot_parts::quadruped::remove_as_child()
-{
+void robot_parts::quadruped::remove_as_child() {
     tms_entity_remove_child(this->r, this->feets[0]);
     tms_entity_remove_child(this->r, this->feets[1]);
 
-    if (this->feets[0]->scene) {
+    if (this->feets[0]->scene)
         tms_scene_remove_entity(this->feets[0]->scene, this->feets[0]);
-    }
-    if (this->feets[1]->scene) {
+    if (this->feets[1]->scene)
         tms_scene_remove_entity(this->feets[1]->scene, this->feets[1]);
-    }
 }
 
-void
-robot_parts::quadruped::update()
-{
+void robot_parts::quadruped::update() {
     this->feets[0]->update();
     this->feets[1]->update();
 }
 
-void
-robot_parts::quadruped::reset_angles()
-{
+void robot_parts::quadruped::reset_angles() {
     this->feets[0]->reset_angles();
     this->feets[1]->reset_angles();
 }
 
-b2Body*
-robot_parts::quadruped::get_body(uint8_t x)
-{
-    if (x < this->get_num_bodies()) {
+b2Body* robot_parts::quadruped::get_body(uint8_t x) {
+    if (x < this->get_num_bodies())
         return this->feets[x]->body;
-    }
 
     return 0;
 }
 
-void
-robot_parts::quadruped::dangle()
-{
+void robot_parts::quadruped::dangle() {
     this->feets[0]->dangle();
     this->feets[1]->dangle();
 }
 
-void
-robot_parts::quadruped::remove_from_world()
-{
+void robot_parts::quadruped::remove_from_world() {
     this->feets[0]->remove_from_world();
     this->feets[1]->remove_from_world();
 }
 
-void
-robot_parts::quadruped::step()
-{
+void robot_parts::quadruped::step() {
     this->feets[0]->step();
     this->feets[1]->step();
 }
 
-void
-robot_parts::quadruped::add_to_world()
-{
+void robot_parts::quadruped::add_to_world() {
     this->feets[0]->add_to_world();
     this->feets[1]->add_to_world();
 
     this->r->create_feet_joint(0);
 }
 
-void
-robot_parts::quadruped::create_fixtures()
-{
+void robot_parts::quadruped::create_fixtures() {
     //this->feets[0]->create_fixtures(layer);
     //this->feets[1]->create_fixtures(layer);
 }
 
-bool
-robot_parts::quadruped::is_foot_fixture(b2Fixture *f)
-{
+bool robot_parts::quadruped::is_foot_fixture(b2Fixture *f) {
 
     /*tms_debugf("comparing %p with %p %p %p %p", f,  this->feets[0]->f0, this->feets[0]->f1
             , this->feets[1]->f0, this->feets[1]->f1);*/
@@ -3134,24 +2754,18 @@ robot_parts::quadruped::is_foot_fixture(b2Fixture *f)
             || f == this->feets[1]->f0 || f == this->feets[1]->f1);
 }
 
-void
-robot_parts::quadruped::set_layer(int l)
-{
+void robot_parts::quadruped::set_layer(int l) {
     tms_entity_set_prio_all(static_cast<struct tms_entity*>(this), l);
     this->feets[0]->set_layer(l);
     this->feets[1]->set_layer(l);
 }
 
-void
-robot_parts::quadruped::handle_contact(b2Contact *contact, b2Fixture *f, b2Fixture *other, const b2Manifold *man, float base_tangent, bool rev)
-{
+void robot_parts::quadruped::handle_contact(b2Contact *contact, b2Fixture *f, b2Fixture *other, const b2Manifold *man, float base_tangent, bool rev) {
     if (this->feets[0]->is_foot_fixture(f)) this->feets[0]->handle_contact(contact,f,other,man,base_tangent,rev);
     else this->feets[1]->handle_contact(contact,f,other,man,base_tangent,rev);
 }
 
-robot_parts::feet::feet(creature *c) :
-    feet_base(c)
-{
+robot_parts::feet::feet(creature *c) :     feet_base(c) {
     this->legs[0] = new robot_parts::leg(0, c, this);
     this->legs[1] = new robot_parts::leg(1, c, this);
 
@@ -3172,9 +2786,7 @@ robot_parts::feet::feet(creature *c) :
     this->set_material(&m_robot_tinted);
 }
 
-void
-robot_parts::feet::handle_contact(b2Contact *contact, b2Fixture *rf, b2Fixture *o, const b2Manifold *man, float base_tangent, bool rev)
-{
+void robot_parts::feet::handle_contact(b2Contact *contact, b2Fixture *rf, b2Fixture *o, const b2Manifold *man, float base_tangent, bool rev) {
     float input_tangent = base_tangent;
 
     if ((o->GetUserData()) && ((p_entity*)(o->GetUserData()))->flag_active(ENTITY_IS_BULLET)) {
@@ -3290,9 +2902,7 @@ robot_parts::feet::handle_contact(b2Contact *contact, b2Fixture *rf, b2Fixture *
     contact->SetTangentSpeed(base_tangent);
 }
 
-void
-robot_parts::feet::step()
-{
+void robot_parts::feet::step() {
     for (int x=0; x<2; x++) {
         this->gangle_timer[x] -= WORLD_STEP/1000000.f * G->get_time_mul();
         if (this->gangle_timer[x] <= 0.f) {
@@ -3345,32 +2955,25 @@ robot_parts::feet::step()
     }
 }
 
-void
-robot_parts::feet_base::set_on(bool on)
-{
+void robot_parts::feet_base::set_on(bool on) {
     if (this->body) {
-        if (on) {
+        if (on)
             this->body->SetAngularDamping(r?r->angular_damping:CREATURE_DAMPING);
-        } else {
+        else
             this->body->SetAngularDamping(0.5f);
-        }
     }
 
     this->on = on;
 }
 
-robot_parts::advanced_jetpack::advanced_jetpack(creature *r)
-    : base_jetpack(r)
-{
+robot_parts::advanced_jetpack::advanced_jetpack(creature *r) : base_jetpack(r) {
     this->fuel = ADVANCED_JETPACK_MAX_FUEL;
 
     this->set_material(&m_edev_dark);
     this->set_mesh(mesh_factory::get_mesh(MODEL_ADVANCED_JETPACK));
 }
 
-bool
-robot_parts::advanced_jetpack::on_jump()
-{
+bool robot_parts::advanced_jetpack::on_jump() {
     if (this->active) {
         this->active = false;
         this->r->motion = MOTION_DEFAULT;
@@ -3385,9 +2988,7 @@ robot_parts::advanced_jetpack::on_jump()
     return false;
 }
 
-void
-robot_parts::advanced_jetpack::step()
-{
+void robot_parts::advanced_jetpack::step() {
     if (this->r->is_dead()) {
         this->active = false;
         this->r->motion = MOTION_DEFAULT;
@@ -3458,9 +3059,7 @@ robot_parts::advanced_jetpack::step()
     this->fuel += ADVANCED_JETPACK_FUEL_RECHARGE_RATE * G->get_time_mul();
 }
 
-robot_parts::teslagun::teslagun(creature *c)
-    : weapon(c)
-{
+robot_parts::teslagun::teslagun(creature *c) : weapon(c) {
     this->terror = 0.55f;
     this->do_update_effects = true;
 
@@ -3477,14 +3076,11 @@ robot_parts::teslagun::teslagun(creature *c)
     this->tesla = new tesla_effect(c, b2Vec2(0.f, 0.f), 0);
 }
 
-robot_parts::teslagun::~teslagun()
-{
+robot_parts::teslagun::~teslagun() {
     delete this->tesla;
 }
 
-void
-robot_parts::teslagun::step()
-{
+void robot_parts::teslagun::step() {
     weapon::step();
 
     if (this->active) {
@@ -3504,9 +3100,7 @@ robot_parts::teslagun::step()
     }
 }
 
-void
-robot_parts::teslagun::attack(int add_cooldown/*=0*/)
-{
+void robot_parts::teslagun::attack(int add_cooldown/*=0*/) {
     this->active = true;
 
 #if 0
@@ -3531,29 +3125,19 @@ robot_parts::teslagun::attack(int add_cooldown/*=0*/)
     this->on_attack();
 }
 
-void
-robot_parts::teslagun::attack_stop()
-{
+void robot_parts::teslagun::attack_stop() {
     sm::stop(&sm::discharge, this);
     this->active = false;
 }
 
-void
-robot_parts::teslagun::update_effects()
-{
+void robot_parts::teslagun::update_effects() {
     if (!this->c) return;
 
-    if (this->active) {
+    if (this->active)
         this->tesla->update_effects();
-    }
 }
 
-/**
- * Plasma Gun
- **/
-robot_parts::plasmagun::plasmagun(creature *c)
-    : weapon(c)
-{
+robot_parts::plasmagun::plasmagun(creature *c) : weapon(c) {
     this->terror = 0.1f;
     this->do_update_effects = true;
 
@@ -3573,13 +3157,10 @@ robot_parts::plasmagun::plasmagun(creature *c)
     tms_entity_add_child(this, &this->inner);
 }
 
-robot_parts::plasmagun::~plasmagun()
-{
+robot_parts::plasmagun::~plasmagun() {
 }
 
-void
-robot_parts::plasmagun::update()
-{
+void robot_parts::plasmagun::update() {
     weapon::update();
 
     tmat4_copy(this->inner.M, this->M);
@@ -3593,9 +3174,7 @@ robot_parts::plasmagun::update()
     tms_entity_set_uniform4f(&this->inner, "~color", 0.f+hl, .5f+1.f*hl, 0.f+hl, .75f);
 }
 
-void
-robot_parts::plasmagun::step()
-{
+void robot_parts::plasmagun::step() {
     weapon::step();
 
     if (this->active) {
@@ -3633,29 +3212,18 @@ robot_parts::plasmagun::step()
     if (this->highlight < 0.f) this->highlight = 0.f;
 }
 
-void
-robot_parts::plasmagun::attack(int add_cooldown/*=0*/)
-{
+void robot_parts::plasmagun::attack(int add_cooldown/*=0*/) {
     this->active = true;
 }
 
-void
-robot_parts::plasmagun::attack_stop()
-{
+void robot_parts::plasmagun::attack_stop() {
     this->active = false;
 }
 
-void
-robot_parts::plasmagun::update_effects()
-{
+void robot_parts::plasmagun::update_effects() {
 }
 
-/**
- * Mega Buster
- **/
-robot_parts::megabuster::megabuster(creature *c)
-    : weapon(c)
-{
+robot_parts::megabuster::megabuster(creature *c) : weapon(c) {
     this->terror = 0.1f;
     this->do_update_effects = true;
 
@@ -3669,13 +3237,10 @@ robot_parts::megabuster::megabuster(creature *c)
     this->set_uniform("~color", MEGA_BUSTER_COLOR, 1.f);
 }
 
-robot_parts::megabuster::~megabuster()
-{
+robot_parts::megabuster::~megabuster() {
 }
 
-void
-robot_parts::megabuster::update()
-{
+void robot_parts::megabuster::update() {
     weapon::update();
 
     double hl = (double)this->charge / (double)MEGABUSTER_CHARGE_MAX;
@@ -3686,9 +3251,7 @@ robot_parts::megabuster::update()
             MEGA_BUSTER_COLOR_B, 1.f);
 }
 
-void
-robot_parts::megabuster::step()
-{
+void robot_parts::megabuster::step() {
     weapon::step();
 
     if (this->active) {
@@ -3715,9 +3278,7 @@ robot_parts::megabuster::step()
     }
 }
 
-void
-robot_parts::megabuster::attack(int add_cooldown/*=0*/)
-{
+void robot_parts::megabuster::attack(int add_cooldown/*=0*/) {
     if (!this->active) {
         this->active = true;
         this->charge = 0;
@@ -3726,9 +3287,7 @@ robot_parts::megabuster::attack(int add_cooldown/*=0*/)
     }
 }
 
-void
-robot_parts::megabuster::attack_stop()
-{
+void robot_parts::megabuster::attack_stop() {
     if (this->cooldown_timer <= 0 && this->active) {
         //tms_debugf("shooting with charge %", this->charge);
 
@@ -3771,32 +3330,19 @@ robot_parts::megabuster::attack_stop()
 }
 
 robot_parts::melee_weapon::melee_weapon(creature *c)
-    : weapon(c)
-    , arm_offset(0.5f)
-    , pending_arm_angle(0.f)
-    , target_arm_angle(0.f)
-    , arm_movement(0.f)
-    , block_dmg_multiplier(0.f)
-    , plant_dmg_multiplier(0.f)
-    , strength(1.f)
-    , first_hit(true)
-    , shape(0)
-{
+    : weapon(c), arm_offset(0.5f), pending_arm_angle(0.f), target_arm_angle(0.f), arm_movement(0.f)
+    , block_dmg_multiplier(0.f), plant_dmg_multiplier(0.f), strength(1.f), first_hit(true), shape(0) {
     this->dmg_type = DAMAGE_TYPE_BLUNT;
     this->max_range = 1.25f;
 }
 
-void
-robot_parts::melee_weapon::set_arm_angle(float a, float speed/*=1.f*/)
-{
+void robot_parts::melee_weapon::set_arm_angle(float a, float speed/*=1.f*/) {
     a = creature::real_arm_angle(this->c, a);
 
     this->pending_arm_angle = a - this->arm_offset;
 }
 
-void
-robot_parts::melee_weapon::on_attack()
-{
+void robot_parts::melee_weapon::on_attack() {
     weapon::on_attack();
 
     this->first_hit = true;
@@ -3806,15 +3352,11 @@ robot_parts::melee_weapon::on_attack()
     this->force_multiplier = 1.f;
 }
 
-void
-robot_parts::melee_weapon::attack_stop()
-{
+void robot_parts::melee_weapon::attack_stop() {
     this->active = false;
 }
 
-void
-robot_parts::melee_weapon::raycast(const b2Vec2 &from, const b2Vec2 &to)
-{
+void robot_parts::melee_weapon::raycast(const b2Vec2 &from, const b2Vec2 &to) {
     /* XXX: ugly and bad */
     if (std::abs((from-to).x) > FLT_EPSILON && std::abs((from-to).y) > FLT_EPSILON) {
         this->dmg_multiplier += 1.5f;
@@ -3825,23 +3367,18 @@ robot_parts::melee_weapon::raycast(const b2Vec2 &from, const b2Vec2 &to)
     }
 }
 
-float32
-robot_parts::melee_weapon::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
-    if (f->IsSensor()) {
+float32 robot_parts::melee_weapon::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
+    if (f->IsSensor())
         return -1.f;
-    }
 
-    if (!world::fixture_in_layer(f, this->c->get_layer(), 2+4)) {
+    if (!world::fixture_in_layer(f, this->c->get_layer(), 2+4))
         return -1.f;
-    }
 
     p_entity *e = static_cast<p_entity*>(f->GetUserData());
 
     if (e) {
-        if (e == this->c) {
+        if (e == this->c)
             return -1.f;
-        }
 
         if (/*e->is_static()*/ /*!e->is_creature()*/
             f->GetBody()->GetMass() > .3f || f->GetBody()->GetMass() <= 0.f
@@ -3916,8 +3453,7 @@ robot_parts::melee_weapon::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b
     return fraction;
 }
 
-class shape_tester : public b2QueryCallback
-{
+class shape_tester : public b2QueryCallback {
   public:
     // IN
     b2Shape *shape;
@@ -3932,12 +3468,9 @@ class shape_tester : public b2QueryCallback
     bool ReportFixture(b2Fixture *fx);
 } shape_tester;
 
-bool
-shape_tester::ReportFixture(b2Fixture *fx)
-{
-    if (fx->IsSensor()) {
+bool shape_tester::ReportFixture(b2Fixture *fx) {
+    if (fx->IsSensor())
         return true;
-    }
 
     if (!world::fixture_in_layer(fx, layer, sublayer)) {
         // XXX
@@ -3960,9 +3493,7 @@ shape_tester::ReportFixture(b2Fixture *fx)
     return true;
 }
 
-const std::vector<struct entity_hit>&
-robot_parts::melee_weapon::test_shape()
-{
+const std::vector<struct entity_hit>& robot_parts::melee_weapon::test_shape() {
     this->m_results.clear();
 
     if (this->shape) {
@@ -4012,9 +3543,7 @@ robot_parts::melee_weapon::test_shape()
     return this->m_results;
 }
 
-void
-robot_parts::base_sword::step()
-{
+void robot_parts::base_sword::step() {
     arm::step(); // important!
 
     const float realdist    = this->arm_movement * this->swing_speed;
@@ -4024,9 +3553,8 @@ robot_parts::base_sword::step()
     this->arm_movement -= dist;
     this->arm_angle += dist;
 
-    if (absrealdist <= 0.001f) {
+    if (absrealdist <= 0.001f)
         return;
-    }
 
     const b2Vec2 arm_pos = ROBOT_ARM_POS;
     float angle = this->c->look_dir * (((this->get_arm_angle() + this->arm_offset) * M_PI));
@@ -4055,9 +3583,7 @@ robot_parts::base_sword::step()
             );
 }
 
-void
-robot_parts::base_sword::attack(int add_cooldown/*=0*/)
-{
+void robot_parts::base_sword::attack(int add_cooldown/*=0*/) {
     if (this->cooldown_timer <= 0) {
         this->target_arm_angle = this->pending_arm_angle + .1f;
 
@@ -4080,9 +3606,7 @@ robot_parts::base_sword::attack(int add_cooldown/*=0*/)
     }
 }
 
-void
-robot_parts::base_hammer::step()
-{
+void robot_parts::base_hammer::step() {
     arm::step(); // important!
 
     float swing_speed = this->swing_speed;
@@ -4172,17 +3696,14 @@ robot_parts::base_hammer::step()
     }
 }
 
-void
-robot_parts::base_hammer::attack(int add_cooldown/*=0*/)
-{
+void robot_parts::base_hammer::attack(int add_cooldown/*=0*/) {
     if (this->cooldown_timer <= 0) {
-        if (this->c->look_dir == DIR_RIGHT) {
+        if (this->c->look_dir == DIR_RIGHT)
             this->target_arm_angle = -.1f;
-        } else if (this->c->look_dir == DIR_LEFT) {
+        else if (this->c->look_dir == DIR_LEFT)
             this->target_arm_angle = -.1f;
-        } else {
+        else
             return;
-        }
 
         this->hammering = true;
 
@@ -4208,9 +3729,7 @@ robot_parts::base_hammer::attack(int add_cooldown/*=0*/)
     }
 }
 
-void
-robot_parts::base_axe::step()
-{
+void robot_parts::base_axe::step() {
     arm::step(); // important!
 
     const float realdist    = this->arm_movement * this->swing_speed;
@@ -4220,9 +3739,8 @@ robot_parts::base_axe::step()
     this->arm_movement -= dist;
     this->arm_angle += dist;
 
-    if (absrealdist <= 0.001f) {
+    if (absrealdist <= 0.001f)
         return;
-    }
 
     const b2Vec2 arm_pos = ROBOT_ARM_POS;
     float angle = this->c->look_dir * (((this->get_arm_angle() + this->arm_offset) * M_PI));
@@ -4251,17 +3769,14 @@ robot_parts::base_axe::step()
             );
 }
 
-void
-robot_parts::base_axe::attack(int add_cooldown/*=0*/)
-{
+void robot_parts::base_axe::attack(int add_cooldown/*=0*/) {
     if (this->cooldown_timer <= 0) {
-        if (this->c->look_dir == DIR_LEFT) {
+        if (this->c->look_dir == DIR_LEFT)
             this->target_arm_angle = this->pending_arm_angle - 0.1f;
-        } else if (this->c->look_dir == DIR_RIGHT) {
+        else if (this->c->look_dir == DIR_RIGHT)
             this->target_arm_angle = this->pending_arm_angle - 0.1f;
-        } else {
+        else
             return;
-        }
 
         const float a = M_PI * this->arm_angle;
         const float b = M_PI * this->target_arm_angle;
@@ -4289,9 +3804,7 @@ robot_parts::base_axe::attack(int add_cooldown/*=0*/)
     }
 }
 
-void
-robot_parts::base_chainsaw::step()
-{
+void robot_parts::base_chainsaw::step() {
     arm::step(); // important!
 
     const b2Vec2& pos = this->c->get_position();
@@ -4376,9 +3889,7 @@ robot_parts::base_chainsaw::step()
     }
 }
 
-void
-robot_parts::base_chainsaw::attack(int add_cooldown/*=0*/)
-{
+void robot_parts::base_chainsaw::attack(int add_cooldown/*=0*/) {
     if (this->cooldown_timer <= 0) {
         this->arm_angle = this->pending_arm_angle;
 
@@ -4397,9 +3908,7 @@ robot_parts::base_chainsaw::attack(int add_cooldown/*=0*/)
     }
 }
 
-void
-robot_parts::base_spear::step()
-{
+void robot_parts::base_spear::step() {
     arm::step(); // important!
 
     const b2Vec2& pos = this->c->get_position();
@@ -4470,9 +3979,7 @@ robot_parts::base_spear::step()
     }
 }
 
-void
-robot_parts::base_spear::attack(int add_cooldown/*=0*/)
-{
+void robot_parts::base_spear::attack(int add_cooldown/*=0*/) {
     if (this->state == SPEAR_IDLE || this->state == SPEAR_RETRACTING) {
         this->arm_angle = this->pending_arm_angle;
 
@@ -4489,17 +3996,13 @@ robot_parts::base_spear::attack(int add_cooldown/*=0*/)
     }
 }
 
-void
-robot_parts::base_spear::update()
-{
+void robot_parts::base_spear::update() {
     melee_weapon::update();
 
     tmat4_translate(this->M, 0.f, -1.f*this->state_pos, 0.f);
 }
 
-robot_parts::training_sword::training_sword(creature *c)
-    : base_sword(c)
-{
+robot_parts::training_sword::training_sword(creature *c) : base_sword(c) {
     this->set_material(&m_item);
     this->set_mesh(mesh_factory::get_mesh(MODEL_WOODSWORD));
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);
@@ -4512,9 +4015,7 @@ robot_parts::training_sword::training_sword(creature *c)
     this->plant_dmg_multiplier = 0.1f;
 }
 
-robot_parts::war_hammer::war_hammer(creature *c)
-    : base_hammer(c)
-{
+robot_parts::war_hammer::war_hammer(creature *c) : base_hammer(c) {
     this->set_material(&m_item);
     this->set_mesh(mesh_factory::get_mesh(MODEL_HAMMER));
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);
@@ -4527,9 +4028,7 @@ robot_parts::war_hammer::war_hammer(creature *c)
     this->block_dmg_multiplier = 1.5f;
 }
 
-robot_parts::simple_axe::simple_axe(creature *c)
-    : base_axe(c)
-{
+robot_parts::simple_axe::simple_axe(creature *c) : base_axe(c) {
     this->set_material(&m_item);
     this->set_mesh(mesh_factory::get_mesh(MODEL_SIMPLE_AXE));
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);
@@ -4541,9 +4040,7 @@ robot_parts::simple_axe::simple_axe(creature *c)
     this->plant_dmg_multiplier = .8f;
 }
 
-robot_parts::chainsaw::chainsaw(creature *c)
-    : base_chainsaw(c)
-{
+robot_parts::chainsaw::chainsaw(creature *c) : base_chainsaw(c) {
     this->set_material(&m_item_shiny);
     this->set_mesh(mesh_factory::get_mesh(MODEL_SAW));
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);
@@ -4569,9 +4066,7 @@ robot_parts::chainsaw::chainsaw(creature *c)
     //this->tick_rate = 10;
 }
 
-void
-robot_parts::chainsaw::update()
-{
+void robot_parts::chainsaw::update() {
     base_chainsaw::update();
 
     tmat4_copy(this->inner.M, this->M);
@@ -4586,9 +4081,7 @@ robot_parts::chainsaw::update()
     tmat3_copy_mat4_sub3x3(this->inner.N, this->inner.M);
 }
 
-robot_parts::spiked_club::spiked_club(creature *c)
-    : base_hammer(c)
-{
+robot_parts::spiked_club::spiked_club(creature *c) : base_hammer(c) {
     this->set_material(&m_item);
     this->set_mesh(mesh_factory::get_mesh(MODEL_SPIKED_CLUB));
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);
@@ -4601,9 +4094,7 @@ robot_parts::spiked_club::spiked_club(creature *c)
     this->block_dmg_multiplier = 1.5f;
 }
 
-robot_parts::steel_sword::steel_sword(creature *c)
-    : base_sword(c)
-{
+robot_parts::steel_sword::steel_sword(creature *c) : base_sword(c) {
     this->set_material(&m_item_shiny);
     this->set_mesh(mesh_factory::get_mesh(MODEL_STEEL_SWORD));
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);
@@ -4615,9 +4106,7 @@ robot_parts::steel_sword::steel_sword(creature *c)
     this->plant_dmg_multiplier = 0.5f;
 }
 
-robot_parts::baseballbat::baseballbat(creature *c)
-    : base_sword(c)
-{
+robot_parts::baseballbat::baseballbat(creature *c) : base_sword(c) {
     this->set_material(&m_item_shiny);
     this->set_mesh(mesh_factory::get_mesh(MODEL_BASEBALLBAT));
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);
@@ -4630,9 +4119,7 @@ robot_parts::baseballbat::baseballbat(creature *c)
     this->plant_dmg_multiplier = 0.1f;
 }
 
-robot_parts::spear::spear(creature *c)
-    : base_spear(c)
-{
+robot_parts::spear::spear(creature *c) : base_spear(c) {
     this->set_material(&m_item_shiny);
     this->set_mesh(mesh_factory::get_mesh(MODEL_SPEAR));
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);
@@ -4651,9 +4138,7 @@ robot_parts::spear::spear(creature *c)
     this->sting_length = 0.25f;
 }
 
-robot_parts::war_axe::war_axe(creature *c)
-    : base_axe(c)
-{
+robot_parts::war_axe::war_axe(creature *c) : base_axe(c) {
     this->set_material(&m_item_shiny);
     this->set_mesh(mesh_factory::get_mesh(MODEL_WAR_AXE));
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);
@@ -4665,9 +4150,7 @@ robot_parts::war_axe::war_axe(creature *c)
     this->plant_dmg_multiplier = 1.f;
 }
 
-robot_parts::pixel_sword::pixel_sword(creature *c)
-    : base_sword(c)
-{
+robot_parts::pixel_sword::pixel_sword(creature *c) : base_sword(c) {
     this->set_material(&m_item);
     this->set_mesh(mesh_factory::get_mesh(MODEL_PIXEL_SWORD));
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);
@@ -4680,9 +4163,7 @@ robot_parts::pixel_sword::pixel_sword(creature *c)
     this->plant_dmg_multiplier = 0.2f;
 }
 
-robot_parts::serpent_sword::serpent_sword(creature *c)
-    : base_sword(c)
-{
+robot_parts::serpent_sword::serpent_sword(creature *c) : base_sword(c) {
     this->set_material(&m_item_shiny);
     this->set_mesh(mesh_factory::get_mesh(MODEL_SERPENT_SWORD));
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);
@@ -4694,9 +4175,7 @@ robot_parts::serpent_sword::serpent_sword(creature *c)
     this->plant_dmg_multiplier = 0.9f;
 }
 
-robot_parts::pickaxe::pickaxe(creature *c)
-    : base_axe(c)
-{
+robot_parts::pickaxe::pickaxe(creature *c) : base_axe(c) {
     this->set_material(&m_item);
     this->set_mesh(mesh_factory::get_mesh(MODEL_PICKAXE));
     this->set_uniform("~color", .2f, .2f, .2f, 1.f);

@@ -148,7 +148,7 @@ static SDL_Surface* note_render_shaded(p_font *f, const char *text) {
     return srf;
 }
 
-void sticky::_init(void) {
+void sticky::_init() {
     int unused;
 
     for (int size_idx = 0; size_idx < NUM_SIZES; size_idx++) {
@@ -174,7 +174,7 @@ void sticky::_init(void) {
     initialized = true;
 }
 
-void sticky::_deinit(void) {
+void sticky::_deinit() {
     for (int x=0; x<NUM_SIZES; x++) {
         if (note_font[x]) {
             delete note_font[x];
@@ -450,7 +450,7 @@ void sticky::add_to_world() {
     this->body->GetFixtureList()[0].SetSensor(true);
 }
 
-void sticky::update(void) {
+void sticky::update() {
     if (this->body) {
         b2Transform t;
         t = this->body->GetTransform();

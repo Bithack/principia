@@ -29,8 +29,7 @@ p_text::p_text(p_font *font, uint8_t horizontal_align/*=ALIGN_CENTER*/, uint8_t 
     this->outline_color = tvec4f(0.f, 0.f, 0.0f, 1.f);
 }
 
-p_text::~p_text()
-{
+p_text::~p_text() {
     delete [] this->glyphs;
 
     if (this->text) {
@@ -39,15 +38,12 @@ p_text::~p_text()
 }
 
 /* NOTE: This function is not threadsafe */
-void
-p_text::set_text(const char *new_text, bool calculate/*=true*/)
-{
+void p_text::set_text(const char *new_text, bool calculate/*=true*/) {
     tms_assertf(this->rendering == false, "p_text::set_text rendering == true");
 
     if (this->text && new_text) {
-        if (strcmp(this->text, new_text) == 0) {
+        if (strcmp(this->text, new_text) == 0)
             return;
-        }
     }
 
     if (this->text) {
@@ -69,37 +65,31 @@ p_text::set_text(const char *new_text, bool calculate/*=true*/)
 
         for (int i=0; i<this->num_glyphs; ++i) {
             glyph *g = this->font->get_glyph(this->text[i]);
-            if (!g) {
+            if (!g)
                 g = this->font->get_glyph('?');
-            }
+
             this->glyphs[i].set_parent(g);
             this->glyphs[i].c = this->text[i];
         }
 
-        if (calculate) {
+        if (calculate)
             this->calculate();
-        }
     }
 }
 
-void
-p_text::set_position(float x, float y)
-{
+void p_text::set_position(float x, float y) {
     this->x = x;
     this->y = y;
 }
 
-void
-p_text::calculate(uint8_t horizontal_align/*=ALIGN_CENTER*/, uint8_t vertical_align/*=ALIGN_CENTER*/, int nl_dir/*=0*/)
-{
+void p_text::calculate(uint8_t horizontal_align/*=ALIGN_CENTER*/, uint8_t vertical_align/*=ALIGN_CENTER*/, int nl_dir/*=0*/) {
     this->num_lines = 1;
 
     if (nl_dir == 0) {
-        if (vertical_align == ALIGN_BOTTOM) {
+        if (vertical_align == ALIGN_BOTTOM)
             nl_dir = NL_DIR_UP;
-        } else {
+        else
             nl_dir = NL_DIR_DOWN;
-        }
     }
 
     float x = 0;
@@ -122,9 +112,8 @@ p_text::calculate(uint8_t horizontal_align/*=ALIGN_CENTER*/, uint8_t vertical_al
         g = &this->glyphs[i];
 
         if (g->is_newline()) {
-            if (x > max_width) {
+            if (x > max_width)
                 max_width = x;
-            }
             x = 0.f;
             y += nl_dir * this->font->get_height();
             ++ this->num_lines;
@@ -151,39 +140,32 @@ p_text::calculate(uint8_t horizontal_align/*=ALIGN_CENTER*/, uint8_t vertical_al
         x += g->get_ax();
         y += g->get_ay();
 
-        if (!g->get_bw() || !g->get_bh()) {
+        if (!g->get_bw() || !g->get_bh())
             continue;
-        }
 
         g->x = x2;
         g->y = y2;
 
-        if (g->y + g->get_bh() > max_height) {
+        if (g->y + g->get_bh() > max_height)
             max_height = g->y + g->get_bh();
-        }
 
         _z = _x + g->parent->minx;
-        if (minx > _z) {
+        if (minx > _z)
             minx = _z;
-        }
 
-        if (g->parent->advance > g->parent->maxx) {
+        if (g->parent->advance > g->parent->maxx)
             _z = _x + g->parent->advance;
-        } else {
+        else
             _z = _x + g->parent->maxx;
-        }
 
-        if (maxx < _z) {
+        if (maxx < _z)
             maxx = _z;
-        }
         _x += g->parent->advance;
 
-        if (g->parent->miny < miny) {
+        if (g->parent->miny < miny)
             miny = g->parent->miny;
-        }
-        if (g->parent->maxy > maxy) {
+        if (g->parent->maxy > maxy)
             maxy = g->parent->maxy;
-        }
 
         p = c;
     }
@@ -215,16 +197,15 @@ p_text::calculate(uint8_t horizontal_align/*=ALIGN_CENTER*/, uint8_t vertical_al
 
     switch (vertical_align) {
         case ALIGN_TOP:
-            if (nl_dir == NL_DIR_UP) {
+            if (nl_dir == NL_DIR_UP)
                 y_offset = -this->get_height();
-            } else {
+            else
                 y_offset = -this->font->get_height();
-            }
             break;
         case ALIGN_CENTER:
-            if (nl_dir == NL_DIR_UP) {
+            if (nl_dir == NL_DIR_UP)
                 y_offset = -this->get_height() / 2.f;
-            } else {
+            else {
                 //y_offset = -this->font->get_height() + this->get_height() / 2.f;
                 //y_offset = (maxy - miny) / 2.f;
                 y_offset = -this->get_height() / 2.f - miny;
@@ -236,9 +217,8 @@ p_text::calculate(uint8_t horizontal_align/*=ALIGN_CENTER*/, uint8_t vertical_al
 
         case ALIGN_BOTTOM:
         default:
-            if (nl_dir == NL_DIR_DOWN) {
+            if (nl_dir == NL_DIR_DOWN)
                 y_offset = height_sub1;
-            }
             break;
     }
 
@@ -250,15 +230,11 @@ p_text::calculate(uint8_t horizontal_align/*=ALIGN_CENTER*/, uint8_t vertical_al
     }
 }
 
-void
-p_text::render(struct tms_ddraw *dd, bool outline/*=false*/, bool call_opengl_stuff/*=true*/)
-{
+void p_text::render(struct tms_ddraw *dd, bool outline/*=false*/, bool call_opengl_stuff/*=true*/) {
     this->render_at_pos(dd, this->get_x(), this->get_y(), outline, call_opengl_stuff);
 }
 
-void
-p_text::render_at_pos(struct tms_ddraw *dd, float x, float y, bool outline/*=false*/, bool call_opengl_stuff/*=true*/)
-{
+void p_text::render_at_pos(struct tms_ddraw *dd, float x, float y, bool outline/*=false*/, bool call_opengl_stuff/*=true*/) {
     if (!this->text) {
         return;
     }
@@ -272,7 +248,6 @@ p_text::render_at_pos(struct tms_ddraw *dd, float x, float y, bool outline/*=fal
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, gui_spritesheet::atlas_text->texture.gl_texture);
     }
-
 
     p_text::text_glyph *g = 0;
     float base_x = x;
@@ -322,9 +297,7 @@ p_text::render_at_pos(struct tms_ddraw *dd, float x, float y, bool outline/*=fal
     this->rendering = false;
 }
 
-void
-p_text::tb_render(bool outline/*=false*/)
-{
+void p_text::tb_render(bool outline/*=false*/) {
     p_text::text_glyph *g = 0;
     for (int i=0; i<this->num_glyphs; ++i) {
         g = &this->glyphs[i];
@@ -350,9 +323,7 @@ p_text::tb_render(bool outline/*=false*/)
     }
 }
 
-tms::texture*
-p_text::create_texture()
-{
+tms::texture* p_text::create_texture() {
     //tms_infof("\n\n\n -------------\n\n");
     tms::texture *tex = new tms::texture();
     unsigned char *texbuf = tex->alloc_buffer(this->get_width(), this->get_max_height(), 4);
@@ -385,14 +356,12 @@ p_text::create_texture()
     for (int i=0; i<this->num_glyphs; ++i) {
         g = &this->glyphs[i];
 
-        if (!g) {
+        if (!g)
             continue;
-        }
 
         width = g->get_bw();
-        if (width > g->parent->maxx - g->parent->minx) {
+        if (width > g->parent->maxx - g->parent->minx)
             width = g->parent->maxx - g->parent->minx;
-        }
 
         if (prev_index && g->parent->index) {
             FT_Vector delta;
@@ -408,13 +377,11 @@ p_text::create_texture()
 
         int bh = g->get_bh();
         for (row=0; row<bh; ++row) {
-            if (row + g->parent->yoffset < 0) {
+            if (row + g->parent->yoffset < 0)
                 continue;
-            }
 
-            if (row + g->parent->yoffset >= tex->get_height()) {
+            if (row + g->parent->yoffset >= tex->get_height())
                 continue;
-            }
 
             dst = (uint32_t*)texbuf +
                 (row+g->parent->yoffset) * pitch/4 +
@@ -441,9 +408,7 @@ p_text::create_texture()
     return tex;
 }
 
-struct tms_sprite*
-p_text::add_to_atlas(struct tms_atlas *a, const char *text)
-{
+struct tms_sprite* p_text::add_to_atlas(struct tms_atlas *a, const char *text) {
     struct tms_sprite *s;
     tms::texture *tex;
     this->set_text(text);

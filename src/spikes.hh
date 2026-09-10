@@ -4,8 +4,12 @@
 
 class spikes_ray_cb;
 
-class spikes : public entity_multiconnect
-{
+/**
+ * Class representing the Spikes object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Spikes
+ */
+class spikes : public entity_multiconnect {
   private:
     entity *result;
     b2Vec2 result_point;
@@ -18,14 +22,14 @@ class spikes : public entity_multiconnect
   public:
     spikes();
 
-    const char* get_name(){return "Spikes";}
+    const char* get_name() { return "Spikes"; }
 
     void add_to_world();
 
     void on_touch(b2Fixture *my, b2Fixture *other);
 
-    const char *get_slider_label(int s) { return "Damage"; };
-    float get_slider_snap(int s) { return 0.05f; };
-    float get_slider_value(int s) { return this->properties[s].v.f / 2.f; };
+    const char *get_slider_label(int s) { return "Damage"; }
+    float get_slider_snap(int s) { return 0.05f; }
+    float get_slider_value(int s) { return this->properties[s].v.f / 2.f; }
     void on_slider_change(int s, float value);
 };

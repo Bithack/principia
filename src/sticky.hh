@@ -5,8 +5,12 @@
 #define STICKY_MAX_LINES 8
 #define STICKY_MAX_PER_LINE 32
 
-class sticky : public entity
-{
+/**
+ * Class representing the Sticky Note object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Sticky_Note
+ */
+class sticky : public entity {
   private:
     int slot;
     char lines[STICKY_MAX_LINES][STICKY_MAX_PER_LINE];
@@ -34,7 +38,7 @@ class sticky : public entity
     void set_text(const char *txt);
     void next_line();
     inline int get_slot(){return this->slot;};
-    virtual void update(void);
+    virtual void update();
     virtual void add_to_world();
-    const char *get_name(void){return "Sticky Note";};
+    const char *get_name() { return "Sticky Note"; }
 };

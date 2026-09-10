@@ -3,8 +3,7 @@
 #include "material.hh"
 #include "game.hh"
 
-tiltmeter::tiltmeter()
-{
+tiltmeter::tiltmeter() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_TILTMETER));
     this->set_material(&m_metal);
 
@@ -26,9 +25,7 @@ tiltmeter::tiltmeter()
     this->set_as_rect(.375f, .5f);
 }
 
-edevice*
-tiltmeter::solve_electronics()
-{
+edevice* tiltmeter::solve_electronics() {
     float a = (this->get_angle()/(M_PI*2.f)) * this->properties[0].v.f;
 
     if (a < 0.f) {
@@ -45,27 +42,19 @@ tiltmeter::solve_electronics()
     return 0;
 }
 
-float
-tiltmeter::get_slider_value(int s)
-{
+float tiltmeter::get_slider_value(int s) {
     return (this->properties[0].v.f - 1.f)/20.f;
 }
 
-float
-tiltmeter::get_slider_snap(int s)
-{
+float tiltmeter::get_slider_snap(int s) {
     return .05f;
 }
 
-const char*
-tiltmeter::get_slider_label(int s)
-{
+const char* tiltmeter::get_slider_label(int s) {
     return "Sensitivity";
 }
 
-void
-tiltmeter::on_slider_change(int s, float value)
-{
+void tiltmeter::on_slider_change(int s, float value) {
     float v = 1.f + value * 20.f;
     this->properties[0].v.f = v;
     G->show_numfeed(v);

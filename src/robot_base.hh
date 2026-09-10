@@ -37,8 +37,10 @@ class faction_info;
 
 class item;
 
-class robot_base : public creature, public b2QueryCallback
-{
+/**
+ * Generic class for robots.
+ */
+class robot_base : public creature, public b2QueryCallback {
   public:
     bool ReportFixture(b2Fixture *f);
     float consume_timer;
@@ -46,8 +48,7 @@ class robot_base : public creature, public b2QueryCallback
     faction_info* set_faction(uint8_t faction_id);
     faction_info* set_faction(faction_info *faction);
 
-    faction_info *get_faction()
-    {
+    faction_info *get_faction() {
         return this->faction;
     }
     faction_info *faction;
@@ -63,21 +64,18 @@ class robot_base : public creature, public b2QueryCallback
   private:
     bool        action_active;
 
-    class cb_handler : public b2RayCastCallback
-    {
+    class cb_handler : public b2RayCastCallback {
       private:
         robot_base *self;
 
       public:
-        cb_handler(robot_base *s)
-        {
+        cb_handler(robot_base *s) {
             this->self = s;
-        };
+        }
 
         float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction);
     };
-    class cb_vision_handler : public b2RayCastCallback
-    {
+    class cb_vision_handler : public b2RayCastCallback {
       private:
         robot_base *self;
 
@@ -86,12 +84,11 @@ class robot_base : public creature, public b2QueryCallback
         int test_layer;
         entity *target;
 
-        cb_vision_handler(robot_base *s)
-        {
+        cb_vision_handler(robot_base *s) {
             this->can_see = false;
             this->self = s;
             this->target = 0;
-        };
+        }
 
         float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction);
     };
@@ -99,7 +96,8 @@ class robot_base : public creature, public b2QueryCallback
     cb_vision_handler *vision_handler;
 
   public:
-    b2Vec2 eye_pos; /* eye position, from where a ray is casted to look for the target */
+    /// eye position, from where a ray is casted to look for the target
+    b2Vec2 eye_pos;
 
     int         robot_type;
 
@@ -143,26 +141,22 @@ class robot_base : public creature, public b2QueryCallback
     virtual bool jump(bool forward_force, float force_mul=1.f);
     void on_jump_begin();
 
-    void set_i_dir(float v)
-    {
+    void set_i_dir(float v) {
         this->i_dir = v;
     }
 
-    b2Fixture *get_body_fixture()
-    {
+    b2Fixture *get_body_fixture() {
         return this->f_body;
     }
 
     inline bool is_sensor_fixture(b2Fixture *f) { return this->f_sensor == f; }
     inline bool is_body_fixture(b2Fixture *f) { return this->f_body == f; }
 
-    inline b2Fixture *get_sensor_fixture()
-    {
+    inline b2Fixture *get_sensor_fixture() {
         return this->f_sensor;
     }
 
-    inline void finish()
-    {
+    inline void finish() {
         tms_infof("GOAL");
         this->stop();
         this->set_state(CREATURE_IDLE);
@@ -178,7 +172,10 @@ class robot_base : public creature, public b2QueryCallback
     int get_default_head_equipment_type(){return (int)this->properties[ROBOT_PROPERTY_HEAD_EQUIPMENT].v.i8;};
     int get_default_bolt_set(){return (int)this->properties[ROBOT_PROPERTY_BOLT_SET].v.i8;};
 
+    /// Gather information on what we can see, particularly about our target
     void roam_gather_sight();
+    /// Default target picker can target robots only, minibot replaces this with
+    /// a target picker that picks scrap and dead robots
     bool roam_can_target(entity *e, bool must_see=true);
     void roam_set_target_type();
     void roam_set_target(entity *e);
@@ -186,18 +183,17 @@ class robot_base : public creature, public b2QueryCallback
     virtual bool is_friend(entity *e);
     virtual bool is_neutral(entity *e);
     virtual bool is_enemy(entity *e);
-    inline bool is_action_active() { return this->action_active; };
+    inline bool is_action_active() { return this->action_active; }
 
     float get_slider_snap(int s);
     float get_slider_value(int s);
     void on_slider_change(int s, float value);
     const char *get_slider_label(int s) {
-        if (s == 0) {
+        if (s == 0)
             return "Speed";
-        } else {
+        else
             return "Initial HP";
-        }
-    };
+    }
 
     void reset_angles();
 

@@ -5,17 +5,20 @@
 #define NUM_WAVEFORMS 5
 extern const char *speaker_options[NUM_WAVEFORMS];
 
-class speaker : public i2o0gate
-{
+/**
+ * Class representing the Synthesizer object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Synthesizer
+ */
+class speaker : public i2o0gate {
     int slot;
 
   public:
     speaker();
-    const char* get_name(){return "Synthesizer";};
-    edevice* solve_electronics(void);
+    const char* get_name() { return "Synthesizer"; }
+    edevice* solve_electronics();
 
-    void init()
-    {
+    void init() {
         this->slot = -1;
     }
 };

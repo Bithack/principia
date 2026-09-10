@@ -4,9 +4,7 @@
 #include "model.hh"
 #include "gui.hh"
 
-float32
-splank::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
+float32 splank::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
     if (f->IsSensor()) {
         return -1.f;
     }
@@ -53,11 +51,9 @@ splank::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32
     return ret;
 }
 
-splank::splank()
-{
-    if (W->level.version >= LEVEL_VERSION_1_5) {
+splank::splank() {
+    if (W->level.version >= LEVEL_VERSION_1_5)
         this->set_flag(ENTITY_ALLOW_AXIS_ROT, true);
-    }
 
     this->type = ENTITY_PLANK;
     this->menu_scale = .5f;
@@ -82,18 +78,14 @@ splank::splank()
     this->c[1].type = CONN_GROUP;
 }
 
-connection*
-splank::load_connection(connection &conn)
-{
+connection* splank::load_connection(connection &conn) {
     this->c[conn.o_index] = conn;
     this->c[0].angle = M_PI;
     this->c[1].angle = 0.f;
     return &this->c[conn.o_index];
 }
 
-void
-splank::on_slider_change(int s, float value)
-{
+void splank::on_slider_change(int s, float value) {
     uint32_t size = (uint32_t)roundf(value * 3.f);
     G->animate_disconnect(this);
     this->disconnect_all();
@@ -104,40 +96,29 @@ splank::on_slider_change(int s, float value)
     G->show_numfeed(size);
 }
 
-void
-splank::toggle_axis_rot()
-{
+void splank::toggle_axis_rot() {
     this->set_flag(ENTITY_AXIS_ROT, !this->flag_active(ENTITY_AXIS_ROT));
 
     this->on_load(false, false);
 }
 
-struct tms_sprite*
-splank::get_axis_rot_sprite()
-{
-    if (this->flag_active(ENTITY_AXIS_ROT)) {
+struct tms_sprite* splank::get_axis_rot_sprite() {
+    if (this->flag_active(ENTITY_AXIS_ROT))
         return gui_spritesheet::get_sprite(S_FLOOR);
-    } else {
+    else
         return gui_spritesheet::get_sprite(S_NOT_FLOOR);
-    }
 }
 
-const char*
-splank::get_axis_rot_tooltip()
-{
-    if (this->flag_active(ENTITY_AXIS_ROT)) {
+const char* splank::get_axis_rot_tooltip() {
+    if (this->flag_active(ENTITY_AXIS_ROT))
         return "Make wide";
-    } else {
+    else
         return "Make thin";
-    }
 }
 
-void
-splank::on_load(bool created, bool has_state)
-{
-    if (this->properties[0].v.i > 3) {
+void splank::on_load(bool created, bool has_state) {
+    if (this->properties[0].v.i > 3)
         this->properties[0].v.i = 3;
-    }
 
     if (!this->flag_active(ENTITY_AXIS_ROT)) {
         this->layer_mask = (1<<this->properties[0].v.i);
@@ -157,9 +138,7 @@ splank::on_load(bool created, bool has_state)
     this->recreate_shape();
 }
 
-void
-splank::find_pairs()
-{
+void splank::find_pairs() {
     for (int x=0; x<2; x++) {
         b2Vec2 dir[2];
         float sign = (x == 0 ? 1.f : -1.f);

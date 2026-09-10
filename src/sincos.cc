@@ -1,20 +1,9 @@
 #include "sincos.hh"
 #include "game.hh"
 
-/**
- * OUT0: Positive Y
- * OUT1: Positive X
- * OUT2: Negative Y
- * Out3: Negative X
- **/
-esincos::esincos()
-{
+esincos::esincos() {}
 
-}
-
-edevice*
-esincos::solve_electronics()
-{
+edevice* esincos::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 

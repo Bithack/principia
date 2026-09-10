@@ -60,8 +60,12 @@ enum {
 
 class robot_base;
 
-class robotman : public brcomp_multiconnect
-{
+/**
+ * Class representing the Robot Manager object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Robot_Manager
+ */
+class robotman : public brcomp_multiconnect {
   private:
     float previous_values[RMAN_NUM_IN];
     float values[RMAN_NUM_IN];
@@ -69,25 +73,23 @@ class robotman : public brcomp_multiconnect
 
   public:
     robotman();
-    const char *get_name(){return "Robot Manager";};
+    const char *get_name() { return "Robot Manager"; }
 
     void init();
     void setup();
 
     void step();
 
-    edevice* solve_electronics(void);
+    edevice* solve_electronics();
 
     void write_state(lvlinfo *lvl, lvlbuf *lb);
     void read_state(lvlinfo *lvl, lvlbuf *lb);
 
-    inline robot_base *get_target()
-    {
+    inline robot_base *get_target() {
         return this->target;
     }
 
-    inline void set_target(robot_base *new_target)
-    {
+    inline void set_target(robot_base *new_target) {
         this->target = new_target;
     }
 };

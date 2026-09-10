@@ -38,18 +38,14 @@ const int num_tips_mobile = sizeof(tips_mobile)/sizeof(char*);
 int ctip = -1;
 int ui::next_action = ACTION_IGNORE;
 
-void
-ui::message(const char *msg, bool long_duration)
-{
+void ui::message(const char *msg, bool long_duration) {
 #ifndef NO_UI
     pscreen::message->show(msg, long_duration ? 5.0 : 2.5);
 #endif
 }
 
 /* always assume short duration */
-void
-ui::messagef(const char *format, ...)
-{
+void ui::messagef(const char *format, ...) {
     va_list vl;
     va_start(vl, format);
 

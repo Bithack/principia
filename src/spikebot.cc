@@ -4,8 +4,7 @@
 
 static const float SPIKEBOT_BASE_RADIUS = 0.65f;
 
-spikebot::spikebot(float scale/*=1.f*/)
-{
+spikebot::spikebot(float scale/*=1.f*/) {
     this->m_scale = scale;
 
     this->body_angle = 0.f;
@@ -35,50 +34,39 @@ spikebot::spikebot(float scale/*=1.f*/)
     this->circuits_compat = CREATURE_CIRCUIT_RIDING;
 }
 
-void
-spikebot::setup()
-{
+void spikebot::setup() {
     robot_base::setup();
 
     this->body_angle = 0.f;
     this->angry = false;
 }
 
-void
-spikebot::action_on()
-{
+void spikebot::action_on() {
     robot_base::action_on();
 
     this->angry = true;
     G->add_highlight(this, false, 0.4f);
 }
 
-void
-spikebot::action_off()
-{
+void spikebot::action_off() {
     robot_base::action_off();
 
     this->angry = false;
     G->add_highlight(this, false, 0.4f);
 }
 
-void
-spikebot::step()
-{
+void spikebot::step() {
     robot_base::step();
 
     if (!this->is_dead()) {
-        if (this->angry) {
+        if (this->angry)
             this->body_angle += 0.1f;
-        } else {
+        else
             this->body_angle += 0.025f;
-        }
     }
 }
 
-void
-spikebot::update()
-{
+void spikebot::update() {
     b2Transform t;
     if (this->body != 0) {
         t = this->body->GetTransform();
@@ -108,37 +96,28 @@ spikebot::update()
     creature::update();
 }
 
-void
-spikebot::on_death()
-{
+void spikebot::on_death() {
     robot_base::on_death();
 }
 
-void
-spikebot::roam_attack()
-{
+void spikebot::roam_attack() {
     if (this->target_dist < 4.f) {
         this->set_speed(this->properties[0].v.f+10.f);
         this->angry = true;
     }
 }
 
-void
-spikebot::roam_update_dir()
-{
+void spikebot::roam_update_dir() {
     b2Vec2 r = this->get_position();
     b2Vec2 target_pos = this->roam_target->get_position();
 
     /* move toward the target */
-    if (this->get_tangent_distance(target_pos) < 0.f) {
+    if (this->get_tangent_distance(target_pos) < 0.f)
         new_dir = DIR_LEFT;
-    } else {
+    else
         new_dir = DIR_RIGHT;
-    }
 }
 
-float
-spikebot::get_damage()
-{
+float spikebot::get_damage() {
     return 0.25f * G->get_time_mul() * this->get_scale();
 }

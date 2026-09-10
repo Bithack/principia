@@ -3,8 +3,7 @@
 
 #define STEPS_PER_FREQUENCY 125
 
-sawtooth::sawtooth()
-{
+sawtooth::sawtooth() {
 #ifdef PRECISE_SAWTOOTH
     this->elapsed = 0;
 #else
@@ -21,9 +20,7 @@ sawtooth::sawtooth()
     this->properties[1].v.f = 0.f;
 }
 
-void
-sawtooth::setup()
-{
+void sawtooth::setup() {
 #ifdef PRECISE_SAWTOOTH
     double x = roundf(this->properties[1].v.f * (STEPS_PER_FREQUENCY / this->properties[0].v.f));
     this->elapsed = (int)x;
@@ -32,9 +29,7 @@ sawtooth::setup()
 #endif
 }
 
-edevice*
-sawtooth::solve_electronics(void)
-{
+edevice* sawtooth::solve_electronics() {
     float v;
 
 #ifdef PRECISE_SAWTOOTH
@@ -55,14 +50,10 @@ sawtooth::solve_electronics(void)
     return 0;
 }
 
-void
-sawtooth::on_slider_change(int s, float value)
-{
-    if (s == 0) {
-        //if (value == 0) value = 0.1f/4.f;
-        //this->properties[s].v.f = tmath_logstep(value, 0.01, 10.01);
+void sawtooth::on_slider_change(int s, float value) {
+    if (s == 0)
         this->properties[s].v.f = value * 4.f;
-    } else
+    else
         this->properties[s].v.f = value;
 
     G->show_numfeed(this->properties[s].v.f);

@@ -7,8 +7,10 @@
 
 class rope;
 
-class rope_end : public entity
-{
+/**
+ * Class representing the Rope object (secondary partial).
+ */
+class rope_end : public entity {
   private:
     rope *r;
 
@@ -20,9 +22,12 @@ class rope_end : public entity
     friend class rope;
 };
 
-class rope : public entity,
-             public b2RayCastCallback
-{
+/**
+ * Class representing the Rope object (main partial).
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Rope
+ */
+class rope : public entity, public b2RayCastCallback {
   private:
     b2Body *rb[ROPE_LENGTH];
     rope_end *ends[2];
@@ -39,9 +44,9 @@ class rope : public entity,
 
     void add_to_world();
     void remove_from_world();
-    void update(void);
+    void update();
     void refresh_predef_form();
-    void ghost_update(void);
+    void ghost_update();
     void set_position(float x, float y, uint8_t frame=0);
     void set_angle(float a, uint8_t frame);
     float get_angle(uint8_t frame);
@@ -52,8 +57,8 @@ class rope : public entity,
     void pre_write();
     void set_layer(int l);
 
-    static void reset_counter(void);
-    static void upload_buffers(void);
+    static void reset_counter();
+    static void upload_buffers();
     static void _init();
     static bool initialized;
 

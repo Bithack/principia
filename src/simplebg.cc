@@ -2,8 +2,7 @@
 #include "model.hh"
 #include "material.hh"
 
-simplebg::simplebg()
-{
+simplebg::simplebg() {
     this->bottom_only = false;
     this->set_mesh(static_cast<tms::mesh*>(const_cast<tms_mesh*>(tms_meshfactory_get_square())));
     this->set_material(&m_bg);
@@ -27,56 +26,46 @@ simplebg::simplebg()
     tmat3_load_identity(this->N);
 }
 
-void
-simplebg::set_repeating(bool repeat)
-{
-    if (repeat) {
+void simplebg::set_repeating(bool repeat) {
+    if (repeat)
         this->set_material(&m_bg);
-    } else {
+    else
         this->set_material(&m_bg_fixed);
-    }
 }
 
-bool
-simplebg::set_level_size(uint16_t left, uint16_t right, uint16_t down, uint16_t up)
-{
+bool simplebg::set_level_size(uint16_t left, uint16_t right, uint16_t down, uint16_t up) {
     float border_extra_span = 20.f;
 
     float w = (float)left+(float)right;
     float h = (float)down+(float)up;
 
     switch (material_factory::background_id) {
-        case BG_OUTDOOR:
-            {
-                //this->set_mesh((struct tms_mesh*)0);
-                this->set_material(&m_bg2);
-                m_bg2.pipeline[0].texture[0] = m_breadboard.pipeline[0].texture[0];
+        case BG_OUTDOOR: {
+            //this->set_mesh((struct tms_mesh*)0);
+            this->set_material(&m_bg2);
+            m_bg2.pipeline[0].texture[0] = m_breadboard.pipeline[0].texture[0];
 
-                m_border.pipeline[0].texture[0] = m_bedrock.pipeline[0].texture[0];
-                m_border.pipeline[1].program = 0;
-                m_border.pipeline[3].program = 0;
-            }
+            m_border.pipeline[0].texture[0] = m_bedrock.pipeline[0].texture[0];
+            m_border.pipeline[1].program = 0;
+            m_border.pipeline[3].program = 0;
             break;
+        }
+        case BG_COLORED: {
+            this->set_material(&m_bg_colored);
 
-        case BG_COLORED:
-            {
-                this->set_material(&m_bg_colored);
-
-                m_border.pipeline[0].texture[0] = m_border.pipeline[2].texture[0];
-                m_border.pipeline[1].program = m_wood.pipeline[1].program;
-                m_border.pipeline[3].program = m_bedrock.pipeline[3].program;
-            }
+            m_border.pipeline[0].texture[0] = m_border.pipeline[2].texture[0];
+            m_border.pipeline[1].program = m_wood.pipeline[1].program;
+            m_border.pipeline[3].program = m_bedrock.pipeline[3].program;
             break;
+        }
+        default: {
+            this->set_material(&m_bg);
 
-        default:
-            {
-                this->set_material(&m_bg);
-
-                m_border.pipeline[0].texture[0] = m_border.pipeline[2].texture[0];
-                m_border.pipeline[1].program = m_wood.pipeline[1].program;
-                m_border.pipeline[3].program = m_bedrock.pipeline[3].program;
-            }
+            m_border.pipeline[0].texture[0] = m_border.pipeline[2].texture[0];
+            m_border.pipeline[1].program = m_wood.pipeline[1].program;
+            m_border.pipeline[3].program = m_bedrock.pipeline[3].program;
             break;
+        }
     }
 
     if (w < 5.f || h < 5.f) {
@@ -150,9 +139,6 @@ simplebg::set_level_size(uint16_t left, uint16_t right, uint16_t down, uint16_t 
     return true;
 }
 
-
-void
-simplebg::set_color(tvec4 c)
-{
+void simplebg::set_color(tvec4 c) {
     this->set_uniform("~color", TVEC4_INLINE(c));
 }

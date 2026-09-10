@@ -2,25 +2,28 @@
 
 #include "edevice.hh"
 
-class trampoline : public edev
-{
+/**
+ * Class representing the Trampoline object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Trampoline
+ */
+class trampoline : public edev {
   private:
     int status;
     float last_force;
     float last_factor;
     float input_voltage;
 
-    class tpad : public entity
-    {
-        private:
-          trampoline *parent;
-        public:
-          tpad(trampoline *parent);
-          const char *get_name() { return "Trampoline pad"; }
-          b2Vec2 get_position();
-          float get_angle();
-          void update();
-          void add_to_world(){};
+    class tpad : public entity {
+      private:
+        trampoline *parent;
+      public:
+        tpad(trampoline *parent);
+        const char *get_name() { return "Trampoline pad"; }
+        b2Vec2 get_position();
+        float get_angle();
+        void update();
+        void add_to_world() {}
     };
 
     tpad *pad;
@@ -30,9 +33,9 @@ class trampoline : public edev
     b2Body *pad_body;
     b2PrismaticJoint *joint;
     trampoline();
-    void update(void);
-    void ghost_update(void);
-    void pre_write(void);
+    void update();
+    void ghost_update();
+    void pre_write();
     void step();
     void add_to_world();
     void remove_from_world();
@@ -43,9 +46,9 @@ class trampoline : public edev
     uint32_t get_num_bodies();
     b2Body* get_body(uint8_t body);
 
-    void setup(){this->input_voltage = 0.f;};
+    void setup() { this->input_voltage = 0.f; }
 
     edevice* solve_electronics();
 
-    const char *get_name(){return "Trampoline";};
+    const char *get_name() { return "Trampoline"; }
 };

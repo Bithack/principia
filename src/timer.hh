@@ -4,8 +4,12 @@
 
 #define TIMER_MIN_TIME 16
 
-class timer : public i2o2gate
-{
+/**
+ * Class representing the Timer object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Timer
+ */
+class timer : public i2o2gate {
   private:
     int time;
     uint64_t last_tick;
@@ -15,18 +19,8 @@ class timer : public i2o2gate
 
   public:
     timer();
-    const char *get_name(){return "Timer";};
-    void write_quickinfo(char *out)
-    {
-        float s = floor((float)(this->properties[0].v.i) / 1000.f);
-        float ms = (float)(this->properties[0].v.i % 1000);
-        float cool_time = s + (ms / 1000.f);
-        if (this->properties[1].v.i8 > 0) {
-            sprintf(out, "%s (%gs, %d ticks)", this->get_name(), cool_time, this->properties[1].v.i8);
-        } else {
-            sprintf(out, "%s (%gs)", this->get_name(), cool_time);
-        }
-    }
+    const char *get_name() { return "Timer"; }
+    void write_quickinfo(char *out);
 
     uint64_t refresh_time();
 
@@ -35,8 +29,7 @@ class timer : public i2o2gate
     void step();
     edevice* solve_electronics();
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::write_state(lvl, lb);
 
         lb->w_s_uint32((uint32_t)this->time);
@@ -45,8 +38,7 @@ class timer : public i2o2gate
         lb->w_s_uint8(this->tick ? 1 : 0);
     }
 
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::read_state(lvl, lb);
 
         this->time = (int)lb->r_uint32();
@@ -55,19 +47,22 @@ class timer : public i2o2gate
         this->tick = (lb->r_uint8() != 0);
     }
 
-    void restore()
-    {
+    void restore() {
         entity::restore();
 
         this->last_tick = _tms.last_time;
     }
 };
 
-class ifelse : public i2o2gate
-{
+/**
+ * Class representing the IF-else object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/IF-else
+ */
+class ifelse : public i2o2gate {
   public:
     ifelse();
     edevice* solve_electronics();
 
-    const char *get_name(){return "IF-else";};
+    const char *get_name() { return "IF-else"; }
 };

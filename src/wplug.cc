@@ -4,30 +4,23 @@
 #include "settings.hh"
 #include "textbuffer.hh"
 
-float
-wplug::get_angle()
-{
+float wplug::get_angle() {
     if (this->is_connected())
         return this->plugged_edev->get_entity()->get_angle()+this->s->angle;
 
     return M_PI/2.f;
 }
 
-b2Vec2
-wplug::get_position()
-{
+b2Vec2 wplug::get_position() {
     if (this->is_connected()) {
         return this->plugged_edev->get_entity()->local_to_world(
                 this->s->lpos/* + b2Vec2(cosf(this->s->angle)*.15f, sinf(this->s->angle)*.15f)*/
                 , 0);
-    } else {
+    } else
         return entity::get_position();
-    }
 }
 
-int
-wplug::connect(edevice *e, isocket *s)
-{
+int wplug::connect(edevice *e, isocket *s) {
     if (s->ctype != CABLE_RED) {
         tms_warnf("incompatible cable types");
         return 3;
@@ -51,9 +44,7 @@ wplug::connect(edevice *e, isocket *s)
     return T_OK;
 }
 
-void
-wplug::disconnect()
-{
+void wplug::disconnect() {
     if (this->is_connected()) {
         /* displace the plug a little not visualize the disconnect */
         float cs = cosf(this->s->angle);
@@ -75,9 +66,7 @@ wplug::disconnect()
     }
 }
 
-void
-wplug::reconnect()
-{
+void wplug::reconnect() {
     if (!this->is_connected() && this->properties[1].v.i != 0) {
         entity *e = W->get_entity_by_id(this->properties[1].v.i);
         uint8_t s = this->properties[2].v.i;
@@ -116,9 +105,7 @@ wplug::reconnect()
     }
 }
 
-void
-wplug::create_body()
-{
+void wplug::create_body() {
     b2BodyDef bd;
     bd.type = this->get_dynamic_type();
     bd.fixedRotation = true;
@@ -143,15 +130,11 @@ wplug::create_body()
     this->update_color();
 }
 
-void
-wireless_plug::write_quickinfo(char *out)
-{
+void wireless_plug::write_quickinfo(char *out) {
     sprintf(out, "%s (f:%u)", this->get_name(), this->properties[0].v.i);
 }
 
-void
-wireless_plug::update_effects()
-{
+void wireless_plug::update_effects() {
     float z = this->get_layer()*LAYER_DEPTH + .65f;
     b2Vec2 p = this->get_position();
 
@@ -166,9 +149,7 @@ wireless_plug::update_effects()
 
 }
 
-bool
-wireless_plug::compatible_with(entity *o)
-{
+bool wireless_plug::compatible_with(entity *o) {
     return (this->num_properties == o->num_properties &&
             (o->g_id == O_RECEIVER || o->g_id == O_MINI_TRANSMITTER));
 }

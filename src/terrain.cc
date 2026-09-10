@@ -8,13 +8,11 @@
 #include "gentype.hh"
 #include "decorations.hh"
 
-bool operator <(const terrain_coord& lhs, const terrain_coord &rhs)
-{
-    if (lhs.chunk_x != rhs.chunk_x) {
+bool operator <(const terrain_coord& lhs, const terrain_coord &rhs) {
+    if (lhs.chunk_x != rhs.chunk_x)
         return lhs.chunk_x < rhs.chunk_x;
-    } else {
+    else
         return lhs.chunk_y < rhs.chunk_y;
-    }
 }
 
 /**
@@ -33,9 +31,7 @@ bool operator <(const terrain_coord& lhs, const terrain_coord &rhs)
  * Merge pixels
  **/
 
-static double
-t_height(double x)
-{
+static double t_height(double x) {
     x -= ((W->level.seed & 0xff0) >> 4)*13.33f;
     double height = 0;
 
@@ -59,9 +55,7 @@ t_height(double x)
 /**
  * Occupy all chunk slots
  **/
-void
-terrain_transaction::occupy(gentype *gt)
-{
+void terrain_transaction::occupy(gentype *gt) {
     typedef std::multimap<terrain_coord, terrain_edit>::iterator iterator;
     iterator i, ii;
 
@@ -105,9 +99,7 @@ terrain_transaction::occupy(gentype *gt)
     this->state = TERRAIN_TRANSACTION_OCCUPIED;
 }
 
-void
-terrain_transaction::apply()
-{
+void terrain_transaction::apply() {
 #ifdef DEBUG
     tms_assertf(this->state != TERRAIN_TRANSACTION_APPLIED, "wtf?");
 #endif
@@ -135,9 +127,8 @@ terrain_transaction::apply()
         i = range.second;
     }
 
-    if (this->state != TERRAIN_TRANSACTION_OCCUPIED) {
+    if (this->state != TERRAIN_TRANSACTION_OCCUPIED)
         return;
-    }
 
     tms_debugf("transaction apply, state is %d", this->state );
     this->state = TERRAIN_TRANSACTION_APPLIED;
@@ -166,34 +157,29 @@ terrain_transaction::apply()
                 int new_mat = e.data;
 
                 for (int z=0; z<3; z++) {
-                    if (!(e.flags & (TERRAIN_EDIT_LAYER0 << z))) {
+                    if (!(e.flags & (TERRAIN_EDIT_LAYER0 << z)))
                         continue;
-                    }
 
                     int prev = chunk->get_pixel(local_x, local_y, z);
                     bool apply = true;
 
-                    if (e.flags & TERRAIN_EDIT_INC) {
+                    if (e.flags & TERRAIN_EDIT_INC)
                         apply = (prev < new_mat);
-                    } else if (e.flags & TERRAIN_EDIT_DEC) {
+                    else if (e.flags & TERRAIN_EDIT_DEC)
                         apply = (prev > new_mat);
-                    }
 
-                    if (e.flags & TERRAIN_EDIT_SOFTEN) {
+                    if (e.flags & TERRAIN_EDIT_SOFTEN)
                         new_mat = prev - 1;
-                    } else if (e.flags & TERRAIN_EDIT_HARDEN) {
+                    else if (e.flags & TERRAIN_EDIT_HARDEN)
                         new_mat = prev + 1;
-                    }
 
-                    if (e.flags & TERRAIN_EDIT_SOFT) {
+                    if (e.flags & TERRAIN_EDIT_SOFT)
                         apply = (apply && !prev);
-                    } else if (e.flags & TERRAIN_EDIT_NONEMPTY) {
+                    else if (e.flags & TERRAIN_EDIT_NONEMPTY)
                         apply = (apply && prev);
-                    }
 
-                    if (apply) {
+                    if (apply)
                         chunk->set_pixel(local_x, local_y, z, new_mat);
-                    }
                 }
             }
         }
@@ -210,9 +196,8 @@ terrain_transaction::apply()
                 W->cwindow->load_slot(s, chunk);
             }
 
-            if (chunk->body) {
+            if (chunk->body)
                 chunk->recreate_fixtures(true);
-            }
         }
 #endif
 
@@ -224,8 +209,7 @@ terrain_transaction::apply()
  * 3 = very stony
  * 0 = very grassy
  **/
-double t_tundra(double x)
-{
+double t_tundra(double x) {
     double r = 0.;
 
     x -= 453.346f;
@@ -242,8 +226,7 @@ double t_tundra(double x)
     return r;
 }
 
-double roughness(double x, double y)
-{
+double roughness(double x, double y) {
     double r = 0.;
 
     float f = (/*_n5ise1(x*.3)*.05 + */_noise1(x*.002)*.2 + _noise1(x*.002*.25)*.1);
@@ -260,8 +243,7 @@ double roughness(double x, double y)
     return r;
 }
 
-double cave(double x, double y, double depth)
-{
+double cave(double x, double y, double depth) {
     double r = 0;
 
     for (int n=0; n<3; n++) {
@@ -287,8 +269,7 @@ double cave(double x, double y, double depth)
     return r;
 }
 
-unsigned flp2(unsigned x)
-{
+unsigned flp2(unsigned x) {
    x = x | (x >> 1);
    x = x | (x >> 2);
    x = x | (x >> 4);
@@ -297,17 +278,13 @@ unsigned flp2(unsigned x)
    return x - (x >> 1);
 }
 
-void
-chunk_window::set_seed(uint64_t seed)
-{
+void chunk_window::set_seed(uint64_t seed) {
     this->seed = seed;
     tms_infof("chunk window set seed to %" PRIu64, seed);
     _noise_init_perm(seed & 0xffffffff);
 }
 
-float *
-chunk_window::generate_heightmap(int chunk_x, bool search)
-{
+float * chunk_window::generate_heightmap(int chunk_x, bool search) {
     if (search) {
         level_chunk *c = this->get_chunk(chunk_x, 0);
         c->generate(this, 2);
@@ -328,9 +305,7 @@ chunk_window::generate_heightmap(int chunk_x, bool search)
     }
 }
 
-void
-level_chunk::generate_phase6(chunk_window *win)
-{
+void level_chunk::generate_phase6(chunk_window *win) {
     this->generate_phase = 6;
     float *heights = win->get_heights(this->pos_x);
 
@@ -340,12 +315,9 @@ level_chunk::generate_phase6(chunk_window *win)
     }
 }
 
-void
-level_chunk::generate(chunk_window *win, int up_to_phase/*=5*/)
-{
-    if (win->seed == 0) {
+void level_chunk::generate(chunk_window *win, int up_to_phase/*=5*/) {
+    if (win->seed == 0)
         return;
-    }
 
 #ifdef DEBUG_SPECIFIC_CHUNK
     if (up_to_phase > this->generate_phase && this->pos_x == DEBUG_CHUNK_X && this->pos_y == DEBUG_CHUNK_Y) {
@@ -385,9 +357,7 @@ level_chunk::generate(chunk_window *win, int up_to_phase/*=5*/)
     }
 }
 
-void
-level_chunk::make_smooth(chunk_window *win)
-{
+void level_chunk::make_smooth(chunk_window *win) {
     /* XXX */
     double h[16];
     double t[16];
@@ -427,15 +397,12 @@ level_chunk::make_smooth(chunk_window *win)
 
                     depth2 -= depth_tbl[y][x];
 
-                    if (depth < mat_depths[x][0]) {
+                    if (depth < mat_depths[x][0])
                         mat = 2;
-                    }
-                    if (depth2 < mat_depths[x][1]) {
+                    if (depth2 < mat_depths[x][1])
                         mat ++;
-                    }
-                    if (depth2 < mat_depths[x][2]) {
+                    if (depth2 < mat_depths[x][2])
                         mat = 4;
-                    }
 
                     if (mat < 1) mat = 1;
                     if (mat > 4) mat = 4;
@@ -450,12 +417,9 @@ level_chunk::make_smooth(chunk_window *win)
 /**
  * Phase 1: base outline of the terrain, heights
  **/
-void
-level_chunk::generate_phase1(chunk_window *win)
-{
-    if (this->generate_phase == 0) {
+void level_chunk::generate_phase1(chunk_window *win) {
+    if (this->generate_phase == 0)
         this->generate_phase = 1;
-    }
 
     double h[16];
     double rough[16][16];
@@ -471,14 +435,12 @@ level_chunk::generate_phase1(chunk_window *win)
                 double wx = (x*.5 + this->pos_x*8.);
 
                 /* setup heights */
-                if (z == 0 && y == 0) {
+                if (z == 0 && y == 0)
                     h[x] = t_height(((double)x)*.5+(double)this->pos_x*8.);
-                }
 
                 /* setup roughness */
-                if (z == 0) {
+                if (z == 0)
                     rough[y][x] = roughness(wx, wy);
-                }
 
                 double r = 0.f;
 
@@ -488,18 +450,16 @@ level_chunk::generate_phase1(chunk_window *win)
 
                 double depth = wy - height + z*.5;
 
-                if (z > 0) {
+                if (z > 0)
                     depth += z*.5* _noise1(wx*.2)*1.25;
-                }
 
                 if (depth < 0.) {
-                    if (z == 0 && heights[x] < wy) {
+                    if (z == 0 && heights[x] < wy)
                         heights[x] = wy;
-                    }
+
                     this->pixels[z][y][x] = 1;
-                } else {
+                } else
                     this->pixels[z][y][x] = 0;
-                }
             }
         }
     }
@@ -508,9 +468,7 @@ level_chunk::generate_phase1(chunk_window *win)
 /**
  * Phase 2: set materials
  **/
-void
-level_chunk::generate_phase2(chunk_window *win)
-{
+void level_chunk::generate_phase2(chunk_window *win) {
     if (this->generate_phase == 1) this->generate_phase = 2;
 
     /* make sure some chunks up are generated to phase 1
@@ -544,9 +502,8 @@ level_chunk::generate_phase2(chunk_window *win)
             /* heights didn't change, the chunk we checked
              * is above ground or already generated */
 
-            if ((curr_y)*8.f > heights[0]) {
+            if ((curr_y)*8.f > heights[0])
                 break;
-            }
         }
 
         if (curr_y > 500) {
@@ -560,9 +517,7 @@ level_chunk::generate_phase2(chunk_window *win)
     this->make_smooth(win);
 }
 
-void
-level_chunk::generate_caves(float *heights)
-{
+void level_chunk::generate_caves(float *heights) {
     for (int y=0; y<16; y++) {
         double wy = (y*.5 + this->pos_y*8.);
         for (int x=0; x<16; x++) {
@@ -570,19 +525,15 @@ level_chunk::generate_caves(float *heights)
             float depth = wy - heights[x];
             double c = cave(wx, wy, depth);
 
-            if (c > .75f && depth < -1.f) {
+            if (c > .75f && depth < -1.f)
                 this->pixels[1][y][x] = 0;
-            }
         }
     }
 }
 
-bool
-level_chunk::find_ground(terrain_coord *in, int layer, terrain_coord *out, float *heights, int tolerance)
-{
-    if (!heights) {
+bool level_chunk::find_ground(terrain_coord *in, int layer, terrain_coord *out, float *heights, int tolerance) {
+    if (!heights)
         heights = W->cwindow->get_heights(this->pos_x, true);
-    }
 
 #ifdef DEBUG_PRELOADER_SANITY
     tms_assertf(heights[0] > -1000.f, "suspicious height %f as base for find_ground", heights[0]);
@@ -593,12 +544,11 @@ level_chunk::find_ground(terrain_coord *in, int layer, terrain_coord *out, float
     terrain_coord c = *in;
 
     for (int s=0; s<8; s++, c.step(0, -1)) {
-        if (c.chunk_y < this->pos_y) {
+        if (c.chunk_y < this->pos_y)
             break;
-        }
-        if (c.chunk_y > this->pos_y || c.get_local_y() == 15) {
+
+        if (c.chunk_y > this->pos_y || c.get_local_y() == 15)
             continue;
-        }
 
         if (this->pixels[layer][c.get_local_y()][c.get_local_x()]) {
             c.step(0, 1);
@@ -619,9 +569,7 @@ level_chunk::find_ground(terrain_coord *in, int layer, terrain_coord *out, float
     return false;
 }
 
-void
-level_chunk::generate_vegetation(float *heights)
-{
+void level_chunk::generate_vegetation(float *heights) {
     float last_noise;
     for (int x=0; x<16; x+=2) {
         double wx = (x*.5 + this->pos_x*8.);
@@ -652,32 +600,30 @@ level_chunk::generate_vegetation(float *heights)
             plant *r=0;
 
             if (true || !W->is_paused()) {
-                if (noise < .15f && last_noise >= .15f) {
+                if (noise < .15f && last_noise >= .15f)
                     r = static_cast<plant*>(of::create(O_PLANT));
-                }
+
 
                 if (r) {
                     int rnd = rand()%200;
                     if (tundra < .5f) {
-                        if (rnd < 30) {
+                        if (rnd < 30)
                             r->set_from_predef(PLANT_COLORFUL_BUSH);
-                        } else if (rnd < 100) {
+                        else if (rnd < 100)
                             r->set_from_predef(PLANT_SAND_TREE);
-                        } else {
+                        else
                             r->set_from_predef(PLANT_BUSH);
-                        }
                     } else {
-                        if (rnd < 2) {
+                        if (rnd < 2)
                             r->set_from_predef(PLANT_COLORFUL_BUSH);
-                        } else if (rnd < 5) {
+                        else if (rnd < 5)
                             r->set_from_predef(PLANT_BIG_TREE);
-                        } else if (rnd < 100) {
+                        else if (rnd < 100)
                             r->set_from_predef(PLANT_TREE);
-                        } else if (rnd < 120) {
+                        else if (rnd < 120)
                             r->set_from_predef(PLANT_ROUGH_TREE);
-                        } else {
+                        else
                             r->set_from_predef(PLANT_BUSH);
-                        }
                     }
                     r->set_layer(layer);
 
@@ -720,10 +666,9 @@ level_chunk::generate_vegetation(float *heights)
  *
  * Occupy gentypes
  **/
-void
-level_chunk::generate_phase3(chunk_window *win)
-{
-    if (this->generate_phase == 2) this->generate_phase = 3;
+void level_chunk::generate_phase3(chunk_window *win) {
+    if (this->generate_phase == 2)
+        this->generate_phase = 3;
 
     float *heights = win->get_heights(this->pos_x, true);
 
@@ -735,12 +680,9 @@ level_chunk::generate_phase3(chunk_window *win)
 /**
  * Phase 4: Apply any gentypes allocated in this chunk
  **/
-void
-level_chunk::generate_phase4(chunk_window *win)
-{
-    if (this->generate_phase == 3) {
+void level_chunk::generate_phase4(chunk_window *win) {
+    if (this->generate_phase == 3)
         this->generate_phase = 4;
-    }
 
     /* before we can generate phase 4, we must make sure that a certain amount of
      * chunks nearby is generated to phase 3, incase they have gentypes of higher priority */
@@ -765,27 +707,22 @@ level_chunk::generate_phase4(chunk_window *win)
 /**
  * Phase 5: Apply gentypes that modify other gentypes (minerals etc)
  **/
-void
-level_chunk::generate_phase5(chunk_window *win)
-{
+void level_chunk::generate_phase5(chunk_window *win) {
 #if 0
     if (this->generate_phase < 5) {
         tms_debugf("GENERATE PHASE 5 for %d %d", this->pos_x, this->pos_y);
     }
 #endif
 
-    if (this->generate_phase == 4) {
+    if (this->generate_phase == 4)
         this->generate_phase = 5;
-    }
 
     this->apply_gentypes(1);
 
     this->remerge();
 }
 
-void
-level_chunk::apply_gentypes(int sorting)
-{
+void level_chunk::apply_gentypes(int sorting) {
     /* TODO: to handle delete of gentypes, we first must make sure that
      * all relevant chunks are done generating, we can use reference counting in the
      * gentypes, and when a chunk generates it decrements the gentypes reference count,
@@ -799,10 +736,8 @@ level_chunk::apply_gentypes(int sorting)
         for (int y=0; y<GENSLOT_SIZE_Y; ++y) {
             gentype *gt = this->genslots[x][y][sorting];
 
-            if (!gt) {
+            if (!gt)
                 continue;
-            }
-
 
             tms_debugf("applying %p %u", gt, gt->id);
 
@@ -834,9 +769,7 @@ level_chunk::apply_gentypes(int sorting)
     }*/
 }
 
-void
-level_chunk::remerge()
-{
+void level_chunk::remerge() {
     for (int z=0; z<3; ++z) {
         this->num_merged[z] = 0;
         this->min_merged[z] = 0;
@@ -853,9 +786,7 @@ level_chunk::remerge()
 #endif
 }
 
-void
-level_chunk::merge(int _x, int _y, int _z, int _w, int _h, int _d)
-{
+void level_chunk::merge(int _x, int _y, int _z, int _w, int _h, int _d) {
     uint8_t pixels[16][16];
 
     for (int z=_z; z<_d; z++) {
@@ -889,11 +820,9 @@ level_chunk::merge(int _x, int _y, int _z, int _w, int _h, int _d)
                     int size = (int)floorf(log2(ss));
 
                     /* mark pixels as taken */
-                    for (sy=0; sy<ss; sy++) {
-                        for (sx=0; sx<ss; sx++) {
+                    for (sy=0; sy<ss; sy++)
+                        for (sx=0; sx<ss; sx++)
                             pixels[y+sy][x+sx] = 0;
-                        }
-                    }
 
                     struct tpixel_desc desc;
                     desc.size = size;
@@ -926,9 +855,8 @@ level_chunk::merge(int _x, int _y, int _z, int _w, int _h, int _d)
                         desc.oil = 0.f;
                     }
                     if (this->generate_phase < 6) {
-                        if (y < 15 && px == 1 && size == 0 && !(this->pixels[z][y+1][x])) {
+                        if (y < 15 && px == 1 && size == 0 && !(this->pixels[z][y+1][x]))
                             desc.grass = (uint8_t)(_noise1((x+this->pos_x)*.1)*128 + 127);
-                        }
                     }
                     /* TODO: check out of bands and loop through and look for destroyed pixels to take their place */
 

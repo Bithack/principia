@@ -27,8 +27,7 @@ struct sfxemitter_option sfxemitter_options[NUM_SFXEMITTER_OPTIONS] = {
     {"8-bit drum 12", &sm::drum2, 3},
 };
 
-sfxemitter::sfxemitter()
-{
+sfxemitter::sfxemitter() {
     this->set_flag(ENTITY_HAS_CONFIG, true);
 
     this->dialog_id = DIALOG_SFXEMITTER;
@@ -40,15 +39,11 @@ sfxemitter::sfxemitter()
     this->properties[1].v.i8 = 0;
 }
 
-edevice*
-sfxemitter::solve_electronics()
-{
-    if (!this->s_in[0].is_ready()) {
+edevice *sfxemitter::solve_electronics() {
+    if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
-    }
-    if (!this->s_in[1].is_ready()) {
+    if (!this->s_in[1].is_ready())
         return this->s_in[1].get_connected_edevice();
-    }
 
     if ((bool)roundf(this->s_in[0].get_value())) {
         b2Vec2 p = this->get_position();
@@ -76,8 +71,7 @@ sfxemitter::solve_electronics()
  * Property 3, int32: chunk_id
  * Property 4, uint8(bool): Loop
  **/
-sfxemitter_2::sfxemitter_2()
-{
+sfxemitter_2::sfxemitter_2() {
     this->set_flag(ENTITY_HAS_CONFIG, true);
 
     this->dialog_id = DIALOG_SFXEMITTER_2;
@@ -93,15 +87,11 @@ sfxemitter_2::sfxemitter_2()
     this->properties[3].v.i8 = 0;
 }
 
-edevice*
-sfxemitter_2::solve_electronics()
-{
-    if (!this->s_in[0].is_ready()) {
+edevice *sfxemitter_2::solve_electronics() {
+    if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
-    }
-    if (!this->s_in[1].is_ready()) {
+    if (!this->s_in[1].is_ready())
         return this->s_in[1].get_connected_edevice();
-    }
 
     if (this->properties[0].v.i < SND__NUM) {
         sm_sound *snd = sm::sound_lookup[this->properties[0].v.i];
@@ -127,5 +117,3 @@ sfxemitter_2::solve_electronics()
 
     return 0;
 }
-
-

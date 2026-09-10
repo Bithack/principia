@@ -17,8 +17,7 @@
  * 1 = Number of ticks (0=infinite)
  * 2 = Use system time
  **/
-timer::timer()
-{
+timer::timer() {
     this->set_flag(ENTITY_DO_STEP,      true);
     this->set_flag(ENTITY_HAS_CONFIG,   true);
 
@@ -46,15 +45,21 @@ timer::timer()
     this->properties[2].v.i = 0;
 }
 
-void
-timer::on_pause()
-{
+void timer::write_quickinfo(char *out) {
+    float s = floor((float)(this->properties[0].v.i) / 1000.f);
+    float ms = (float)(this->properties[0].v.i % 1000);
+    float cool_time = s + (ms / 1000.f);
+    if (this->properties[1].v.i8 > 0)
+        sprintf(out, "%s (%gs, %d ticks)", this->get_name(), cool_time, this->properties[1].v.i8);
+    else
+        sprintf(out, "%s (%gs)", this->get_name(), cool_time);
+}
+
+void timer::on_pause() {
     this->setup();
 }
 
-void
-timer::setup()
-{
+void timer::setup() {
     this->time = 0;
     this->tick = false;
     this->started = false;
@@ -62,9 +67,7 @@ timer::setup()
     this->last_tick = _tms.last_time;
 }
 
-uint64_t
-timer::refresh_time()
-{
+uint64_t timer::refresh_time() {
     uint64_t curr_time, delta;
 
     struct timeval t;
@@ -77,9 +80,7 @@ timer::refresh_time()
     return delta;
 }
 
-void
-timer::step()
-{
+void timer::step() {
     if (this->started) {
         if (this->properties[2].v.i) {
             this->time += refresh_time();
@@ -101,9 +102,7 @@ timer::step()
     }
 }
 
-edevice*
-timer::solve_electronics()
-{
+edevice *timer::solve_electronics() {
     /* Stop always takes priority over start */
     bool start = true;
     bool stop = false;
@@ -137,16 +136,7 @@ timer::solve_electronics()
     return 0;
 }
 
-/**
- * Sockets:
- * IN0 = Value
- * IN1 = Conditional
- *
- * OUT0 = IN0 if IN1=true else 0
- * OUT1 = IN0 if IN1=false else 0
- **/
-ifelse::ifelse()
-{
+ifelse::ifelse() {
     this->menu_scale = 1.5f;
 
     this->s_in[0].tag = SOCK_TAG_VALUE;
@@ -156,9 +146,7 @@ ifelse::ifelse()
     this->s_out[1].tag = SOCK_TAG_VALUE;
 }
 
-edevice*
-ifelse::solve_electronics()
-{
+edevice *ifelse::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())

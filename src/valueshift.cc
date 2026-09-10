@@ -2,24 +2,19 @@
 #include "game.hh"
 #include "model.hh"
 
-valueshift::valueshift()
-{
+valueshift::valueshift() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_I1O1_EMPTY));
     this->num_sliders = 1;
     this->set_num_properties(1);
     this->set_property(0, 0.5f);
 }
 
-void
-valueshift::on_slider_change(int s, float value)
-{
+void valueshift::on_slider_change(int s, float value) {
     this->properties[s].v.f = value;
     G->show_numfeed(value);
-};
+}
 
-edevice*
-valueshift::solve_electronics()
-{
+edevice* valueshift::solve_electronics() {
     if (!this->s_in[0].is_ready())
         this->s_in[0].get_connected_edevice();
 

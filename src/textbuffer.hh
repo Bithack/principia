@@ -5,8 +5,10 @@
 
 #define TEXTBUFFER_MAX 512
 
-class textbuffer
-{
+/**
+ * Graphics buffer for text glyphs.
+ */
+class textbuffer {
   public:
     static void _init();
     static void reset();

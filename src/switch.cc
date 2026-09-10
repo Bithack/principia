@@ -3,9 +3,7 @@
 #include "model.hh"
 #include "ledbuffer.hh"
 
-switcher::switcher()
-    : n_out(0)
-{
+switcher::switcher() : n_out(0) {
     this->set_flag(ENTITY_DO_UPDATE_EFFECTS, true);
 
     this->scaleselect = true;
@@ -42,15 +40,11 @@ switcher::switcher()
     this->set_as_rect(.375f, 0.75f);
 }
 
-void
-switcher::setup()
-{
+void switcher::setup() {
     this->n_out = 0;
 }
 
-void
-switcher::update_effects()
-{
+void switcher::update_effects() {
     float z = this->get_layer() * LAYER_DEPTH + LED_Z_OFFSET;
 
     for (int x=0; x<5; x++) {
@@ -59,9 +53,7 @@ switcher::update_effects()
     }
 }
 
-edevice*
-switcher::solve_electronics(void)
-{
+edevice* switcher::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 
@@ -70,11 +62,10 @@ switcher::solve_electronics(void)
 
     for (int x=0; x<5; x++) {
         if (!this->s_out[x].written()) {/* we haven't written the value yet, do that */
-            if (x == this->n_out) {
+            if (x == this->n_out)
                 this->s_out[x].write(input);
-            } else {
+            else
                 this->s_out[x].write(0.f);
-            }
         }
     }
 
@@ -95,4 +86,3 @@ switcher::solve_electronics(void)
 
     return 0;
 }
-

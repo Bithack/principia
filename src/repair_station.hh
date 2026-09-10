@@ -31,8 +31,12 @@ struct rs_item {
     float durability;
 };
 
-class repair_station : public edev_multiconnect, public activator
-{
+/**
+ * Class representing the Repair Station object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Repair_Station
+ */
+class repair_station : public edev_multiconnect, public activator {
   private:
     b2Fixture *absorb_sensor;
     b2Fixture *detection_sensor;

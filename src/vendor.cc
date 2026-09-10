@@ -14,8 +14,7 @@
  * OUT0 = Bought one item
  * OUT1 = Fraction of items remaining
  **/
-vendor::vendor()
-{
+vendor::vendor() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_VENDOR));
     this->set_material(&m_iomisc);
 
@@ -51,9 +50,7 @@ vendor::vendor()
     this->num_sliders = 1;
 }
 
-void
-vendor::init()
-{
+void vendor::init() {
     if (this->get_body(0)) {
         b2Body *b = this->get_body(0);
 
@@ -72,9 +69,7 @@ vendor::init()
     }
 }
 
-void
-vendor::setup()
-{
+void vendor::setup() {
     this->deposited = 0;
     this->num_bought = 0;
     this->active = false;
@@ -82,9 +77,7 @@ vendor::setup()
     this->last_bought = false;
 }
 
-void
-vendor::on_touch(b2Fixture *my, b2Fixture *other)
-{
+void vendor::on_touch(b2Fixture *my, b2Fixture *other) {
     // make sure we accept currencies in our current state
     if (!this->active) return;
     if (this->properties[0].v.i == 0) {
@@ -124,16 +117,12 @@ vendor::on_touch(b2Fixture *my, b2Fixture *other)
     }
 }
 
-void
-vendor::on_slider_change(int s, float value)
-{
+void vendor::on_slider_change(int s, float value) {
     this->properties[2].v.i = (1+(uint32_t)roundf(value * 14.f));
     G->show_numfeed(this->properties[2].v.i);
 }
 
-void
-vendor::step()
-{
+void vendor::step() {
     if (this->do_reset) {
         // reset stuff
         this->deposited = 0;
@@ -147,9 +136,7 @@ vendor::step()
     }
 }
 
-edevice*
-vendor::solve_electronics()
-{
+edevice* vendor::solve_electronics() {
     if (!this->s_out[0].written()) {
         if (this->num_bought && !this->last_bought) {
             this->last_bought = true;
@@ -172,11 +159,10 @@ vendor::solve_electronics()
     if (!this->s_in[1].is_ready())
         return this->s_in[1].get_connected_edevice();
 
-    if (this->s_in[0].p == 0) {
+    if (this->s_in[0].p == 0)
         this->active = true;
-    } else {
+    else
         this->active = (bool)((int)roundf(this->s_in[0].get_value()));
-    }
 
     this->do_reset = (bool)((int)roundf(this->s_in[1].get_value()));
 

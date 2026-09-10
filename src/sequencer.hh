@@ -6,8 +6,12 @@
 #define SEQUENCER_MAX_LENGTH   2048
 #define SEQUENCER_MIN_TIME 16 /* in milliseconds, must be below 1000 */
 
-class sequencer : public i1o1gate_mini
-{
+/**
+ * Class representing the Sequencer object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Sequencer
+ */
+class sequencer : public i1o1gate_mini {
   private:
     uint32_t time;
     uint32_t cur_step;
@@ -17,7 +21,7 @@ class sequencer : public i1o1gate_mini
 
   public:
     sequencer();
-    const char *get_name(){return "Sequencer";};
+    const char *get_name() { return "Sequencer"; }
 
     void on_load(bool created, bool has_state);
     void on_pause() {this->setup();};
@@ -29,8 +33,7 @@ class sequencer : public i1o1gate_mini
     void step();
     edevice* solve_electronics();
 
-    void write_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void write_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::write_state(lvl, lb);
 
         lb->w_s_uint32(this->time);
@@ -38,8 +41,7 @@ class sequencer : public i1o1gate_mini
         lb->w_s_uint8(this->started ? 1 : 0);
     }
 
-    void read_state(lvlinfo *lvl, lvlbuf *lb)
-    {
+    void read_state(lvlinfo *lvl, lvlbuf *lb) {
         entity::read_state(lvl, lb);
 
         this->time = lb->r_uint32();

@@ -1,12 +1,11 @@
 #include "spikes.hh"
+#include "fxemitter.hh"
+#include "game.hh"
 #include "material.hh"
 #include "model.hh"
-#include "game.hh"
-#include "robot.hh"
-#include "fxemitter.hh"
+#include "robot_base.hh"
 
-spikes::spikes()
-{
+spikes::spikes() {
     this->type = ENTITY_PLANK;
     this->menu_scale = .75f;
 
@@ -35,9 +34,7 @@ spikes::spikes()
     this->query_sides[3].Set( qw, 0.f); /* right */
 }
 
-void
-spikes::add_to_world()
-{
+void spikes::add_to_world() {
     b2BodyDef bd;
     bd.type = this->get_dynamic_type();
     bd.position = _pos;
@@ -72,9 +69,7 @@ spikes::add_to_world()
     this->body = b;
 }
 
-void
-spikes::on_touch(b2Fixture *my, b2Fixture *other)
-{
+void spikes::on_touch(b2Fixture *my, b2Fixture *other) {
     entity *e;
     if (!other->IsSensor() && (e = static_cast<entity*>(other->GetUserData()))) {
         if (e->flag_active(ENTITY_IS_ROBOT)) {
@@ -93,9 +88,7 @@ spikes::on_touch(b2Fixture *my, b2Fixture *other)
     }
 }
 
-void
-spikes::on_slider_change(int s, float value)
-{
+void spikes::on_slider_change(int s, float value) {
     float v = value * 2.f;
     this->properties[0].v.f = v;
 

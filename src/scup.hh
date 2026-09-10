@@ -7,11 +7,15 @@
 #define SCUP_NUM_JOINTS  3
 #define SCUP_WIDTH       .6f
 
-class scup : public ecomp_multiconnect
-{
+/**
+ * Class representing the Suction Cup object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Suction_Cup
+ */
+class scup : public ecomp_multiconnect {
   public:
     scup();
-    const char *get_name() { return "Suction Cup"; };
+    const char *get_name() { return "Suction Cup"; }
 
     void setup();
     void restore();

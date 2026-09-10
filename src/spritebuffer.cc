@@ -21,15 +21,12 @@ struct spritebuf_vert {
 
 spritebuf_vert spritebuffer::base[4];
 
-void spritebuffer::reset()
-{
+void spritebuffer::reset() {
     n = 0;
     n2 = 0;
 }
 
-tms::entity *
-spritebuffer::get_entity()
-{
+tms::entity *spritebuffer::get_entity() {
     if (e) return e;
 
     e = new tms::entity();
@@ -45,9 +42,7 @@ spritebuffer::get_entity()
     return e;
 }
 
-tms::entity *
-spritebuffer::get_entity2()
-{
+tms::entity *spritebuffer::get_entity2() {
     if (e2) return e2;
 
     e2 = new tms::entity();
@@ -63,8 +58,7 @@ spritebuffer::get_entity2()
     return e2;
 }
 
-void spritebuffer::_init()
-{
+void spritebuffer::_init() {
     tms_infof("Initializing spritebuffer...");
 
     verts = new tms::gbuffer(4*SPRITEBUFFER_MAX*sizeof(struct spritebuf_vert));
@@ -126,8 +120,7 @@ void spritebuffer::_init()
     reset();
 }
 
-void
-spritebuffer::add(float x, float y, float z,
+void spritebuffer::add(float x, float y, float z,
         float r, float g, float b, float a,
         float w, float h, int sprite, float rot)
 {
@@ -163,8 +156,7 @@ spritebuffer::add(float x, float y, float z,
     }
 }
 
-void
-spritebuffer::add(float x, float y, float z,
+void spritebuffer::add(float x, float y, float z,
         float r, float g, float b, float a,
         float w, float h, int sprite)
 {
@@ -192,8 +184,7 @@ spritebuffer::add(float x, float y, float z,
     }
 }
 
-void
-spritebuffer::add2(float x, float y, float z,
+void spritebuffer::add2(float x, float y, float z,
         float r, float g, float b, float a,
         float w, float h, int sprite, float rot)
 {
@@ -229,8 +220,7 @@ spritebuffer::add2(float x, float y, float z,
     }
 }
 
-void
-spritebuffer::add2(float x, float y, float z,
+void spritebuffer::add2(float x, float y, float z,
         float r, float g, float b, float a,
         float w, float h, int sprite)
 {
@@ -271,4 +261,3 @@ void spritebuffer::upload()
     if (n) verts->upload_partial(n*4*sizeof(struct spritebuf_vert));
     if (n2) verts2->upload_partial(n2*4*sizeof(struct spritebuf_vert));
 }
-

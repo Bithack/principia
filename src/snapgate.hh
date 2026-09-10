@@ -3,12 +3,16 @@
 #include "edevice.hh"
 #include "i1o1gate.hh"
 
-class snapgate : public i1o1gate_mini
-{
+/**
+ * Class representing the Snap gate.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Snap
+ */
+class snapgate : public i1o1gate_mini {
   public:
     snapgate();
     edevice* solve_electronics();
-    const char* get_name(){return "Snap";}
+    const char* get_name() { return "Snap"; }
 
     const char *get_slider_label(int s) { return "Steps"; }
     float get_slider_snap(int s) { return 1.f/20.f; }

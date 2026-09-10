@@ -4,8 +4,7 @@
 #include "world.hh"
 #include "game.hh"
 
-seesaw::seesaw()
-{
+seesaw::seesaw() {
     this->width = 4.f;
     this->menu_scale = 1.f;
 
@@ -22,9 +21,7 @@ seesaw::seesaw()
     tmat3_load_identity(this->N);
 }
 
-connection *
-seesaw::load_connection(connection &conn)
-{
+connection *seesaw::load_connection(connection &conn) {
     if (conn.o_index == 0) {
         this->c = conn;
         return &this->c;
@@ -34,9 +31,7 @@ seesaw::load_connection(connection &conn)
     }
 }
 
-void
-seesaw::connection_create_joint(connection *c)
-{
+void seesaw::connection_create_joint(connection *c) {
     b2RevoluteJointDef rjd;
     rjd.collideConnected = true;
     rjd.bodyA = this->body;
@@ -47,12 +42,9 @@ seesaw::connection_create_joint(connection *c)
     c->j = w->CreateJoint(&rjd);
 }
 
-bool
-seesaw::ReportFixture(b2Fixture *f)
-{
-    if (f->IsSensor()) {
+bool seesaw::ReportFixture(b2Fixture *f) {
+    if (f->IsSensor())
         return true;
-    }
 
     entity *e = (entity*)f->GetUserData();
 
@@ -69,12 +61,9 @@ seesaw::ReportFixture(b2Fixture *f)
     return true;
 }
 
-float32
-seesaw::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
-    if (f->IsSensor()) {
+float32 seesaw::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
+    if (f->IsSensor())
         return -1.f;
-    }
 
     b2Body *b = f->GetBody();
     entity *e = (entity*)f->GetUserData();
@@ -89,9 +78,7 @@ seesaw::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32
     return -1;
 }
 
-void
-seesaw::find_pairs()
-{
+void seesaw::find_pairs() {
     if (this->c.pending && this->body) {
         b2Vec2 p;
         this->query_point = p = this->local_to_world(b2Vec2(0.f, 0.f), 0);
@@ -135,14 +122,9 @@ seesaw::find_pairs()
     }
 }
 
-void
-seesaw::setup()
-{
-}
+void seesaw::setup() {}
 
-void
-seesaw::add_to_world()
-{
+void seesaw::add_to_world() {
     b2BodyDef bd;
     bd.type = this->get_dynamic_type();
     bd.position = this->_pos;

@@ -7,8 +7,7 @@
 
 #define CABLE_Z .375f
 
-screenshot_marker::screenshot_marker()
-{
+screenshot_marker::screenshot_marker() {
     this->set_flag(ENTITY_IS_HIGH_PRIO,         true);
     this->set_flag(ENTITY_ALLOW_ROTATION,       false);
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
@@ -35,9 +34,7 @@ screenshot_marker::screenshot_marker()
     this->hidden = false;
 }
 
-void
-screenshot_marker::add_to_world()
-{
+void screenshot_marker::add_to_world() {
     if (W->is_paused()) {
         b2BodyDef bd;
         bd.type = b2_staticBody;
@@ -63,9 +60,7 @@ screenshot_marker::add_to_world()
     W->cam_markers.insert(std::make_pair(this->id, this));
 }
 
-void
-screenshot_marker::update()
-{
+void screenshot_marker::update() {
     b2Vec2 p = this->get_position();
     float a = this->get_angle() + M_PI/2.f;
 
@@ -83,48 +78,37 @@ screenshot_marker::update()
     tmat3_copy_mat4_sub3x3(this->N, this->M);
 }
 
-void
-screenshot_marker::setup()
-{
+void screenshot_marker::setup() {
     this->hide();
 }
 
-void
-screenshot_marker::on_pause()
-{
+void screenshot_marker::on_pause() {
     if (G->state.sandbox)
         this->show();
     else
         this->hide();
 }
 
-void
-screenshot_marker::hide()
-{
+void screenshot_marker::hide() {
     if (this->is_hidden()) return;
     this->saved_position = get_position();
     this->set_position(HIDDEN_X, HIDDEN_Y);
     this->hidden = true;
 }
 
-void
-screenshot_marker::show()
-{
+void screenshot_marker::show() {
     if (!this->is_hidden()) return;
     this->set_position(this->saved_position.x, this->saved_position.y);
     this->hidden = false;
 }
 
-void
-screenshot_marker::on_slider_change(int s, float value)
-{
+void screenshot_marker::on_slider_change(int s, float value) {
     float zoom = (value * 56.f) + 4.f;
     this->set_property(0, zoom);
     G->show_numfeed(zoom);
 }
 
-camtargeter::camtargeter()
-{
+camtargeter::camtargeter() {
     this->set_flag(ENTITY_HAS_TRACKER,  true);
     this->set_flag(ENTITY_HAS_CONFIG,   true);
 
@@ -161,9 +145,7 @@ camtargeter::camtargeter()
     this->properties[4].v.f = 0.f;
 }
 
-edevice*
-camtargeter::solve_electronics()
-{
+edevice* camtargeter::solve_electronics() {
     if (!this->s_in[0].is_ready()) return this->s_in[0].get_connected_edevice();
 
     if (this->s_in[0].p == 0 || (bool)roundf(this->s_in[0].get_value())) {
@@ -196,8 +178,7 @@ camtargeter::solve_electronics()
     return 0;
 }
 
-zoomer::zoomer()
-{
+zoomer::zoomer() {
     this->num_sliders = 2;
 
     this->set_num_properties(2);
@@ -212,9 +193,7 @@ zoomer::zoomer()
     this->properties[1].v.f = 1.f;
 }
 
-edevice*
-zoomer::solve_electronics()
-{
+edevice* zoomer::solve_electronics() {
     if (!this->s_in[0].is_ready()) return this->s_in[0].get_connected_edevice();
 
     if (this->s_in[0].p == 0 || (bool)roundf(this->s_in[0].get_value())) {
@@ -227,17 +206,14 @@ zoomer::solve_electronics()
     return 0;
 }
 
-float zoomer::get_slider_value(int s)
-{
+float zoomer::get_slider_value(int s) {
     if (s == 0)
         return ((this->properties[0].v.f - 4.f) / 56.f);
     else
         return 1.f-(this->properties[1].v.f+.025f);
 }
 
-void
-zoomer::on_slider_change(int s, float value)
-{
+void zoomer::on_slider_change(int s, float value) {
     if (s == 0) {
         float zoom = (value * 56.f) + 4.f;
         this->set_property(0, zoom);
@@ -247,4 +223,3 @@ zoomer::on_slider_change(int s, float value)
         G->show_numfeed(this->properties[1].v.f);
     }
 }
-

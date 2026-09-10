@@ -4,17 +4,20 @@
 
 class item;
 
-class robot : public robot_base
-{
+/**
+ * Class representing the Robot object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Robot
+ */
+class robot : public robot_base {
   public:
     bool pending_action_off;
 
     robot();
     ~robot();
-    const char *get_name() { return "Robot"; };
+    const char *get_name() { return "Robot"; }
 
-    bool can_layermove()
-    {
+    bool can_layermove() {
         return !this->is_action_active();
     }
 
@@ -30,15 +33,13 @@ class robot : public robot_base
 
     void modify_aim(float da);
 
-    bool can_jump()
-    {
+    bool can_jump() {
         return !this->action_active;
     }
 
-    float get_aim()
-    {
+    float get_aim() {
         return this->weapon->get_arm_angle();
-    };
+    }
 
     void attack(int add_cooldown=0);
     void attack_stop();

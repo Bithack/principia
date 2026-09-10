@@ -2,8 +2,12 @@
 
 #include "edevice.hh"
 
-class vendor : public brcomp_multiconnect
-{
+/**
+ * Class representing the Vendor object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Vendor
+ */
+class vendor : public brcomp_multiconnect {
   public:
     vendor();
     const char *get_name() { return "Vendor"; }

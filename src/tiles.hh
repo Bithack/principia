@@ -11,15 +11,13 @@ enum {
     NUM_TILES
 };
 
-struct tile_object
-{
+struct tile_object {
   public:
     int id;
     tvec2 position;
 };
 
-class tilemap
-{
+class tilemap {
   public:
     int width;
     int height;
@@ -27,8 +25,7 @@ class tilemap
 
     std::deque<struct tile_object> entities;
 
-    tilemap()
-    {
+    tilemap() {
         for (int x=0; x<3; ++x) {
             this->layers[x] = 0;
         }
@@ -46,8 +43,7 @@ class tile_factory
   public:
     static struct tile_load_data tiles[NUM_TILES];
 
-    static inline tilemap *get_tilemap(int tile_id)
-    {
+    static inline tilemap *get_tilemap(int tile_id) {
         return tile_factory::tiles[tile_id].tm;
     }
 

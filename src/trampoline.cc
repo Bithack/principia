@@ -6,8 +6,7 @@
 
 #define SPEED 50.f
 
-trampoline::trampoline()
-{
+trampoline::trampoline() {
     this->set_flag(ENTITY_IS_STATIC,            true);
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
     this->set_flag(ENTITY_DISABLE_LAYERS,       true);
@@ -19,11 +18,10 @@ trampoline::trampoline()
 
     this->update_method = ENTITY_UPDATE_CUSTOM;
 
-    if (settings["gamma_correct"]->v.b) {
+    if (settings["gamma_correct"]->v.b)
         this->set_uniform("~color", .1f, .1f, .1f, 1.f);
-    } else {
+    else
         this->set_uniform("~color", sqrtf(.1f), sqrtf(.1f), sqrtf(.1f), 1.f);
-    }
 
     this->k = 700.f;
 
@@ -59,16 +57,12 @@ trampoline::trampoline()
     tmat3_load_identity(this->N);
 }
 
-bool
-trampoline::allow_connection(entity *asker, uint8_t frame, b2Vec2 p)
-{
+bool trampoline::allow_connection(entity *asker, uint8_t frame, b2Vec2 p) {
     if (frame == 0) return false;
     return this->world_to_local(p, 1).y > -0.2f;
 }
 
-edevice*
-trampoline::solve_electronics()
-{
+edevice* trampoline::solve_electronics() {
     if (!this->s_out[0].written()) {
         float displ = this->joint->GetJointTranslation();
         displ = 1.f - (displ-.25f)/(1.f-.125f-.25f+.5f);
@@ -95,9 +89,7 @@ trampoline::solve_electronics()
     return 0;
 }
 
-void
-trampoline::step()
-{
+void trampoline::step() {
     float displ = this->joint->GetJointTranslation();
 
     displ = 1.f - (displ-.25f)/(1.f-.125f-.25f+.5f);
@@ -143,19 +135,14 @@ trampoline::step()
     this->joint->SetMotorSpeed(SPEED);
 }
 
-void
-trampoline::set_angle(float a)
-{
-    if (this->pad_body) {
+void trampoline::set_angle(float a) {
+    if (this->pad_body)
         this->pad_body->SetAwake(true);
-    }
 
     entity::set_angle(a);
 }
 
-void
-trampoline::set_position(float x, float y, uint8_t frame/*=0*/)
-{
+void trampoline::set_position(float x, float y, uint8_t frame/*=0*/) {
     if (this->pad_body) {
         b2Vec2 diff = this->pad_body->GetPosition() - this->get_position();
 
@@ -167,30 +154,22 @@ trampoline::set_position(float x, float y, uint8_t frame/*=0*/)
     entity::set_position(x, y, frame);
 }
 
-void
-trampoline::pre_write(void)
-{
+void trampoline::pre_write() {
     this->properties[0].v.f = this->pad->get_position().x;
     this->properties[1].v.f = this->pad->get_position().y;
     entity::pre_write();
 }
 
-uint32_t
-trampoline::get_num_bodies()
-{
+uint32_t trampoline::get_num_bodies() {
     return 2;
 }
 
-b2Body*
-trampoline::get_body(uint8_t body)
-{
+b2Body* trampoline::get_body(uint8_t body) {
     if (body == 0) return this->body;
     else return this->pad_body;
 }
 
-void
-trampoline::add_to_world()
-{
+void trampoline::add_to_world() {
     this->status = 0;
     this->last_force = 0.f;
     b2Fixture *f;
@@ -232,24 +211,18 @@ trampoline::add_to_world()
     this->joint = static_cast<b2PrismaticJoint*>(W->b2->CreateJoint(&pjd));
 }
 
-void
-trampoline::remove_from_world()
-{
+void trampoline::remove_from_world() {
     if (this->pad_body) W->b2->DestroyBody(this->pad_body);
     this->pad_body = 0;
     entity::remove_from_world();
 }
 
-void
-trampoline::ghost_update(void)
-{
+void trampoline::ghost_update() {
     this->pad->update();
     entity_fast_update(this);
 }
 
-void
-trampoline::update(void)
-{
+void trampoline::update() {
     this->pad->update();
     entity_fast_update(this);
     //entity::update();
@@ -269,23 +242,17 @@ trampoline::tpad::tpad(trampoline *parent)
         this->set_uniform("~color", sqrtf(.5f), sqrtf(.5f), sqrtf(.5f), 1.f);
 }
 
-b2Vec2
-trampoline::tpad::get_position()
-{
+b2Vec2 trampoline::tpad::get_position() {
     if (this->parent->pad_body)
         return this->parent->pad_body->GetPosition();
     return this->parent->_pos + b2Vec2(0, .5f);
 }
 
-float
-trampoline::tpad::get_angle()
-{
+float trampoline::tpad::get_angle() {
     return this->parent->get_angle();
 }
 
-void
-trampoline::tpad::update()
-{
+void trampoline::tpad::update() {
     b2Vec2 p = this->get_position();
     float a = this->parent->get_angle();
 

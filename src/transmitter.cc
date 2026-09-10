@@ -10,17 +10,13 @@
 
 /* Old frequency method, this gave a variable amount of ticks
  * per frequency assuming IN1 was used */
-uint32_t
-frequency_solver_old(uint32_t base, float extra)
-{
+uint32_t frequency_solver_old(uint32_t base, float extra) {
     return (base + (uint32_t)roundf(extra * 10.f));
 }
 
 /* The new frequency method, extra verbose for now and probably more "complex" than it
  * needs to be. */
-uint32_t
-frequency_solver_new(uint32_t base, float extra)
-{
+uint32_t frequency_solver_new(uint32_t base, float extra) {
     float v = extra;
     if (v == 1.f) v -= 0.001f;
     double offset_d = (double)v * 10.0;
@@ -31,9 +27,7 @@ frequency_solver_new(uint32_t base, float extra)
 }
 
 transmitter::transmitter(int _is_broadcaster)
-    : pending_value(0.f)
-    , is_broadcaster(_is_broadcaster)
-{
+    : pending_value(0.f)     , is_broadcaster(_is_broadcaster) {
     this->set_flag(ENTITY_HAS_CONFIG, true);
 
     this->set_mesh(mesh_factory::get_mesh(MODEL_TRANSMITTER));
@@ -71,26 +65,17 @@ transmitter::transmitter(int _is_broadcaster)
     }
 }
 
-void
-transmitter::construct()
-{
+void transmitter::construct() {
     this->pending_value = 0.f;
 }
 
-void
-transmitter::on_pause()
-{
+void transmitter::on_pause() {
     this->pending_value = 0.f;
 }
 
-void
-transmitter::setup()
-{
-}
+void transmitter::setup() {}
 
-edevice*
-transmitter::solve_electronics()
-{
+edevice* transmitter::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())
@@ -132,8 +117,6 @@ transmitter::solve_electronics()
     return 0;
 }
 
-void
-transmitter::write_quickinfo(char *out)
-{
+void transmitter::write_quickinfo(char *out) {
     sprintf(out, "%s (f:%u)", this->get_name(), this->properties[0].v.i);
 }

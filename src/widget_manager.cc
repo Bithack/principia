@@ -23,9 +23,7 @@ const static float BASE_WIDGET_HEIGHT = 64.f;
 static int MARGIN_X = 0;
 static int MARGIN_Y = 0;
 
-static void
-base_touch_up(struct tms_wdg *w, int pid, int bid, int ox, int oy, float rx, float ry)
-{
+static void base_touch_up(struct tms_wdg *w, int pid, int bid, int ox, int oy, float rx, float ry) {
     principia_wdg *pwdg = static_cast<principia_wdg*>(w->data2);
     pwdg->moved_out = false;
 
@@ -45,9 +43,8 @@ base_touch_up(struct tms_wdg *w, int pid, int bid, int ox, int oy, float rx, flo
         float dist = sqrtf((float)(ox*ox + oy*oy));
 
         hovered = (dist < w->size.w);
-    } else {
+    } else
         hovered = w->hovered;
-    }
 
     if (hovered) {
         if (settings["touch_controls"]->v.b)
@@ -55,38 +52,30 @@ base_touch_up(struct tms_wdg *w, int pid, int bid, int ox, int oy, float rx, flo
 
         uint8_t button_id = VOID_TO_UINT8(w->data);
 
-
         if (pid == 0 || pid == 1) {
             bool ret = pwdg->get_home()->widget_clicked(pwdg, button_id, pid);
 
-            if (ret) {
+            if (ret)
                 sm::play(&sm::click, sm::position.x, sm::position.y, rand(), 0.5f, false, 0, true);
-            }
         }
     }
 }
 
-static void
-draggable_touch_down(struct tms_wdg *w, int pid, int bid, int ox, int oy, float rx, float ry)
-{
+static void draggable_touch_down(struct tms_wdg *w, int pid, int bid, int ox, int oy, float rx, float ry) {
     principia_wdg *pwdg = static_cast<principia_wdg*>(w->data2);
     w->value[0] = 1.f;
 
     pwdg->set_dragging(true);
 }
 
-static void
-draggable_touch_up(struct tms_wdg *w, int pid, int bid, int ox, int oy, float rx, float ry)
-{
+static void draggable_touch_up(struct tms_wdg *w, int pid, int bid, int ox, int oy, float rx, float ry) {
     principia_wdg *pwdg = static_cast<principia_wdg*>(w->data2);
     w->value[0] = 0.f;
 
     pwdg->set_dragging(false);
 }
 
-static void
-draggable_touch_drag(struct tms_wdg *w, int pid, int bid, int ox, int oy, float rx, float ry)
-{
+static void draggable_touch_drag(struct tms_wdg *w, int pid, int bid, int ox, int oy, float rx, float ry) {
     principia_wdg *pwdg = static_cast<principia_wdg*>(w->data2);
 
     float value_x = 0.f;
@@ -96,11 +85,10 @@ draggable_touch_drag(struct tms_wdg *w, int pid, int bid, int ox, int oy, float 
         pwdg->pos.x += ox;
 
         if (pwdg->has_limit_x) {
-            if (pwdg->pos.x < pwdg->lower_limit_x) {
+            if (pwdg->pos.x < pwdg->lower_limit_x)
                 pwdg->pos.x = pwdg->lower_limit_x;
-            } else if (pwdg->pos.x > pwdg->upper_limit_x) {
+            else if (pwdg->pos.x > pwdg->upper_limit_x)
                 pwdg->pos.x = pwdg->upper_limit_x;
-            }
 
             value_x = (pwdg->pos.x - pwdg->lower_limit_x) / (pwdg->upper_limit_x - pwdg->lower_limit_x);
         }
@@ -111,24 +99,20 @@ draggable_touch_drag(struct tms_wdg *w, int pid, int bid, int ox, int oy, float 
         pwdg->pos.y += oy;
 
         if (pwdg->has_limit_y) {
-            if (pwdg->pos.y < pwdg->lower_limit_y) {
+            if (pwdg->pos.y < pwdg->lower_limit_y)
                 pwdg->pos.y = pwdg->lower_limit_y;
-            } else if (pwdg->pos.y > pwdg->upper_limit_y) {
+            else if (pwdg->pos.y > pwdg->upper_limit_y)
                 pwdg->pos.y = pwdg->upper_limit_y;
-            }
 
             value_y = (pwdg->pos.y - pwdg->lower_limit_y) / (pwdg->upper_limit_y - pwdg->lower_limit_y);
         }
     }
 
-    if (pwdg->on_dragged) {
+    if (pwdg->on_dragged)
         pwdg->on_dragged(pwdg, value_x, value_y);
-    }
 }
 
-static void
-down_label(struct tms_wdg *w, int pid, int bid, int ox, int oy, float rx, float ry)
-{
+static void down_label(struct tms_wdg *w, int pid, int bid, int ox, int oy, float rx, float ry) {
     if (w->on_change) {
         float new_values[2] = { 1.f };
         w->on_change(w, new_values);
@@ -137,24 +121,20 @@ down_label(struct tms_wdg *w, int pid, int bid, int ox, int oy, float rx, float 
     w->value[0] = 1.f;
 }
 
-static void
-knob_render(struct tms_wdg *w, struct tms_surface *s)
-{
+static void knob_render(struct tms_wdg *w, struct tms_surface *s) {
     principia_wdg *pwdg = static_cast<principia_wdg*>(w->data2);
 
     pscreen *ps = pwdg->get_home();
 
-    if (!ps) {
+    if (!ps)
         return;
-    }
 
     const float ow = 10.f;
 
     tvec4 color = tvec4f(1.f, 1.f, 1.f, 0.8f);
 
-    if (pwdg->hovered || pwdg->value[0] > 0.5f) {
+    if (pwdg->hovered || pwdg->value[0] > 0.5f)
         color.a = 0.9f;
-    }
 
     float width = w->size.w - ow*2;
     float height = w->size.h - ow*2;
@@ -163,29 +143,22 @@ knob_render(struct tms_wdg *w, struct tms_surface *s)
     ps->add_rounded_square(w->pos.x, w->pos.y, width - 2.f, height - 2.f, color, ow);
 }
 
-static void
-label_render(struct tms_wdg *w, struct tms_surface *s)
-{
+static void label_render(struct tms_wdg *w, struct tms_surface *s) {
     principia_wdg *pwdg = static_cast<principia_wdg*>(w->data2);
 
     float color = 1.f;
 
-    if (pwdg->hovered) {
+    if (pwdg->hovered)
         color += .2f;
-    }
 
-    if (pwdg->focused) {
+    if (pwdg->focused)
         color += .2f;
-    }
 
-    if (pwdg->label) {
+    if (pwdg->label)
         pwdg->label->color = tvec4f(color, color, color, pwdg->label->color.a);
-    }
 }
 
-static void
-my_post_render(struct tms_wdg *w, struct tms_surface *s)
-{
+static void my_post_render(struct tms_wdg *w, struct tms_surface *s) {
     principia_wdg *pwdg = static_cast<principia_wdg*>(w->data2);
 
     if (pwdg->marker) {
@@ -213,14 +186,10 @@ my_post_render(struct tms_wdg *w, struct tms_surface *s)
     }
 }
 
-static void
-on_mouse_over(struct tms_wdg *w)
-{
+static void on_mouse_over(struct tms_wdg *w) {
 }
 
-static void
-on_mouse_out(struct tms_wdg *w)
-{
+static void on_mouse_out(struct tms_wdg *w) {
     principia_wdg *pwdg = static_cast<principia_wdg*>(w->data2);
 
     pwdg->moved_out = true;
@@ -291,28 +260,21 @@ principia_wdg::principia_wdg(tms::surface *surface, int widget_type,
     this->padding = tvec2f(_tms.xppcm * 0.1f, _tms.yppcm * 0.1f);
 }
 
-principia_wdg::~principia_wdg()
-{
-    if (this->tooltip) {
+principia_wdg::~principia_wdg() {
+    if (this->tooltip)
         delete this->tooltip;
-    }
 
-    if (this->label) {
+    if (this->label)
         delete this->label;
-    }
 }
 
-void
-principia_wdg::step()
-{
+void principia_wdg::step() {
     if (!settings["touch_controls"]->v.b) {
-        if (this->hovered) {
+        if (this->hovered)
             this->tooltip_time += _tms.dt;
-        }
 
-        if (this->value[0] > 0.5f && this->type == TMS_WDG_BUTTON) {
+        if (this->value[0] > 0.5f && this->type == TMS_WDG_BUTTON)
             this->tooltip_time = -0.5;
-        }
 
         bool prev_tooltip_active = this->tooltip_active;
         this->tooltip_active = this->tooltip_time >= TOOLTIP_ACTIVATION_TIME;
@@ -360,49 +322,36 @@ principia_wdg::step()
 }
 
 /* Emulate a click event. This will only reliably work on a button */
-void
-principia_wdg::click()
-{
+void principia_wdg::click() {
     this->value[0] = 1.f;
     this->hovered = true;
 
-    if (this->touch_up) {
+    if (this->touch_up)
         this->touch_up(this, 0, SDL_BUTTON_LEFT, 0, 0, 0.f, 0.f);
-    }
 
     this->value[0] = 0.f;
     this->hovered = false;
 }
 
-void
-principia_wdg::add()
-{
-    if (this->surface) {
+void principia_wdg::add() {
+    if (this->surface)
         return;
-    }
 
-    if (this->area->enabled) {
+    if (this->area->enabled)
         this->_surface->add_widget(this);
-    }
 }
 
-void
-principia_wdg::remove()
-{
-    if (!this->surface) {
+void principia_wdg::remove() {
+    if (!this->surface)
         return;
-    }
 
     this->set_dragging(false);
     this->_surface->remove_widget(this);
 }
 
-void
-principia_wdg::set_tooltip(const char *text, p_font *font/*=font::medium*/)
-{
-    if (!this->tooltip) {
+void principia_wdg::set_tooltip(const char *text, p_font *font/*=font::medium*/) {
+    if (!this->tooltip)
         this->tooltip = new p_text(font);
-    }
 
     if (!text) {
         this->tooltip->active = false;
@@ -413,9 +362,8 @@ principia_wdg::set_tooltip(const char *text, p_font *font/*=font::medium*/)
 
     uint8_t horizontal_align = ALIGN_LEFT;
 
-    if (this->area->tmodx < -0.5f) {
+    if (this->area->tmodx < -0.5f)
         horizontal_align = ALIGN_RIGHT;
-    }
 
     this->tooltip->set_text(text, false);
     this->tooltip->calculate(horizontal_align, ALIGN_CENTER);
@@ -423,12 +371,9 @@ principia_wdg::set_tooltip(const char *text, p_font *font/*=font::medium*/)
     this->tooltip->outline_color = tvec4f(0.f, 0.f, 0.f, 1.f);
 }
 
-void
-principia_wdg::set_label(const char *text, p_font *font/*=font::medium*/)
-{
-    if (!this->label) {
+void principia_wdg::set_label(const char *text, p_font *font/*=font::medium*/) {
+    if (!this->label)
         this->label = new p_text(font);
-    }
 
     if (this->_type == TMS_WDG_LABEL) {
         //this->label->set_alignment(this->area->label_halign, ALIGN_CENTER);
@@ -447,9 +392,7 @@ principia_wdg::set_label(const char *text, p_font *font/*=font::medium*/)
 void
 principia_wdg::resize_percentage(
         int base_width,  float max_width_percentage,
-        int base_height, float max_height_percentage
-        )
-{
+        int base_height, float max_height_percentage         ) {
     if (this->is_label() && this->label) {
         float w = this->label->get_width();
         float h = this->label->get_height();
@@ -489,9 +432,7 @@ principia_wdg::resize_percentage(
     }
 }
 
-void
-principia_wdg::set_draggable(bool val)
-{
+void principia_wdg::set_draggable(bool val) {
     this->draggable = val;
 
     this->touch_down = draggable_touch_down;
@@ -499,31 +440,23 @@ principia_wdg::set_draggable(bool val)
     this->touch_drag = draggable_touch_drag;
 }
 
-void
-principia_wdg::set_dragging(bool val)
-{
+void principia_wdg::set_dragging(bool val) {
     bool prev = this->dragging;
 
-    if (prev != val) {
+    if (prev != val)
         this->dragging = val;
-    }
 }
 
-pscreen*
-principia_wdg::get_home()
-{
-    if (this->parent) {
+pscreen* principia_wdg::get_home() {
+    if (this->parent)
         return this->parent->get_home();
-    }
 
     return 0;
 }
 
 widget_manager::widget_manager(pscreen *_home, bool _override_down, bool _override_up)
     : home(_home)
-    , override_down(_override_down)
-    , override_up(_override_up)
-{
+    , override_down(_override_down)     , override_up(_override_up) {
     MARGIN_X = _tms.xppcm * 0.1f;
     MARGIN_Y = _tms.yppcm * 0.1f;
 
@@ -538,21 +471,15 @@ widget_manager::~widget_manager()
     }
 }
 
-int
-widget_manager::get_margin_x()
-{
+int widget_manager::get_margin_x() {
     return MARGIN_X;
 }
 
-int
-widget_manager::get_margin_y()
-{
+int widget_manager::get_margin_y() {
     return MARGIN_Y;
 }
 
-void
-widget_manager::init_areas()
-{
+void widget_manager::init_areas() {
     this->areas[AREA_TOP_LEFT].base_x = MARGIN_X + 0.f;
     this->areas[AREA_TOP_LEFT].base_y = _tms.window_height - MARGIN_Y;
     this->areas[AREA_TOP_LEFT].imodx  =  1.0f;
@@ -825,9 +752,7 @@ widget_manager::init_areas()
     this->areas[AREA_MENU_BOTTOM_CENTER].last_width = 0.f;
 }
 
-void
-widget_manager::refresh_areas()
-{
+void widget_manager::refresh_areas() {
     if (this->get_home() == G) {
         if (W->is_paused() && G->state.sandbox) {
             this->areas[AREA_GAME_TOP_RIGHT].base_x = _tms.window_width - MARGIN_X - G->get_menu_width();
@@ -859,9 +784,7 @@ widget_manager::refresh_areas()
 principia_wdg*
 widget_manager::create_widget(tms::surface *surface, int widget_type,
                               uint8_t id, WidgetArea area,
-                              struct tms_sprite *s0, struct tms_sprite *s1,
-                              float scale/*=1.f*/)
-{
+                              struct tms_sprite *s0, struct tms_sprite *s1,                               float scale/*=1.f*/) {
     principia_wdg *wdg = new principia_wdg(surface, widget_type, s0, s1, scale);
     wdg->data = UINT_TO_VOID(id);
     wdg->area = &this->areas[area];
@@ -873,18 +796,15 @@ widget_manager::create_widget(tms::surface *surface, int widget_type,
         //wdg->touch_down = this->touch_down;
     }
 
-    if (this->override_up) {
+    if (this->override_up)
         wdg->touch_up = base_touch_up;
-    }
 
     this->widgets.push_back(wdg);
 
     return wdg;
 }
 
-principia_wdg*
-widget_manager::get_widget(enum WidgetArea area_id, uint8_t id)
-{
+principia_wdg* widget_manager::get_widget(enum WidgetArea area_id, uint8_t id) {
     if (area_id >= NUM_AREAS) {
         tms_errorf("Invalid area %u", area_id);
         return 0;
@@ -909,9 +829,7 @@ widget_manager::get_widget(enum WidgetArea area_id, uint8_t id)
     return 0;
 }
 
-void
-widget_manager::step()
-{
+void widget_manager::step() {
     for (std::deque<principia_wdg*>::iterator it = this->widgets.begin();
             it != this->widgets.end(); ++it) {
         principia_wdg *w = *it;
@@ -926,9 +844,7 @@ widget_manager::step()
     }
 }
 
-void
-widget_manager::remove_all()
-{
+void widget_manager::remove_all() {
     for (std::deque<principia_wdg*>::iterator it = this->widgets.begin();
             it != this->widgets.end(); ++it) {
         principia_wdg *w = *it;
@@ -937,21 +853,16 @@ widget_manager::remove_all()
     }
 }
 
-struct widget_sorter
-{
-    static bool order(principia_wdg* a, principia_wdg* b)
-    {
-        if (a->area == b->area) {
+struct widget_sorter {
+    static bool order(principia_wdg* a, principia_wdg* b) {
+        if (a->area == b->area)
             return a->priority > b->priority;
-        }
 
         return a->area < b->area;
     }
 };
 
-void
-widget_manager::render()
-{
+void widget_manager::render() {
 #ifdef DRAW_AREA_BOUNDING_BOX
     {
         const float cr = 2.5f;
@@ -1119,9 +1030,7 @@ widget_manager::render()
  * Loop through all active widgets and set their positions according to
  * their areas and priorities
  **/
-void
-widget_manager::rearrange()
-{
+void widget_manager::rearrange() {
     this->refresh_areas();
 
     /* Reset x/y for all areas */

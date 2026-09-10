@@ -5,8 +5,7 @@
 #include "game.hh"
 #include "ui.hh"
 
-wheel::wheel()
-{
+wheel::wheel() {
     this->set_flag(ENTITY_IS_MOVEABLE, true);
     this->set_flag(ENTITY_ALLOW_AXIS_ROT, true);
     this->set_flag(ENTITY_DO_TICK, true);
@@ -15,11 +14,10 @@ wheel::wheel()
         this->dialog_id = DIALOG_RUBBER;
     }
 
-    if (W->level.version >= LEVEL_VERSION_1_1_6) {
+    if (W->level.version >= LEVEL_VERSION_1_1_6)
         m_wheel.friction = 2.5f;
-    } else {
+    else
         m_wheel.friction = 1.5f;
-    }
 
     this->set_mesh(mesh_factory::get_mesh(MODEL_WHEEL));
     this->set_material(&m_wheel);
@@ -55,9 +53,7 @@ wheel::wheel()
     this->do_update_fixture = true;
 }
 
-void
-wheel::tick()
-{
+void wheel::tick() {
     if (this->do_update_fixture) {
         if (W->level.version >= LEVEL_VERSION_1_4) {
             m_wheel.restitution = this->properties[1].v.f;
@@ -70,9 +66,7 @@ wheel::tick()
     }
 }
 
-bool
-wheel::ReportFixture(b2Fixture *f)
-{
+bool wheel::ReportFixture(b2Fixture *f) {
     entity *e = static_cast<entity*>(f->GetUserData());
     uint8_t fr = (uint8_t)(uintptr_t)f->GetBody()->GetUserData();
 
@@ -99,9 +93,7 @@ wheel::ReportFixture(b2Fixture *f)
     return true;
 }
 
-void
-wheel::find_pairs()
-{
+void wheel::find_pairs() {
     if (this->c_back.pending|| this->c_front.pending) {
         b2Vec2 p = this->get_position();
         b2AABB aabb;
@@ -139,18 +131,14 @@ wheel::find_pairs()
     }
 }
 
-void
-wheel::setup()
-{
+void wheel::setup() {
     if (W->level.version >= LEVEL_VERSION_1_4) {
         this->fd.friction = m_wheel.friction = this->properties[2].v.f;
         this->fd.restitution = m_wheel.restitution = this->properties[1].v.f;
     }
 }
 
-void
-wheel::on_load(bool created, bool has_state)
-{
+void wheel::on_load(bool created, bool has_state) {
     this->on_slider_change(-1, (float)this->properties[0].v.i / 2.f);
 
     if (W->level.version >= LEVEL_VERSION_1_4) {
@@ -159,9 +147,7 @@ wheel::on_load(bool created, bool has_state)
     }
 }
 
-connection *
-wheel::load_connection(connection &conn)
-{
+connection * wheel::load_connection(connection &conn) {
     if (conn.o_index == 0) {
         this->c_back = conn;
         return &this->c_back;
@@ -171,21 +157,15 @@ wheel::load_connection(connection &conn)
     }
 }
 
-float
-wheel::get_slider_value(int s)
-{
+float wheel::get_slider_value(int s) {
     return this->properties[0].v.i / 2.f;
 }
 
-float
-wheel::get_slider_snap(int s)
-{
+float wheel::get_slider_snap(int s) {
     return .5f;
 }
 
-void
-wheel::on_slider_change(int s, float value)
-{
+void wheel::on_slider_change(int s, float value) {
     uint32_t size = (uint32_t)roundf(value*2.f);
     if (size > 2) size = 2;
 
@@ -198,9 +178,7 @@ wheel::on_slider_change(int s, float value)
     this->recreate_shape();
 }
 
-void
-wheel::update()
-{
+void wheel::update() {
     //if (this->body) {
         b2Vec2 p = this->get_position();
         float a = this->get_angle();
@@ -224,8 +202,6 @@ wheel::update()
 */
 }
 
-void
-wheel::toggle_axis_rot()
-{
+void wheel::toggle_axis_rot() {
     this->set_flag(ENTITY_AXIS_ROT, !this->flag_active(ENTITY_AXIS_ROT));
 }

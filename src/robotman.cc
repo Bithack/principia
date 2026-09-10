@@ -53,9 +53,7 @@
  * 17 = Cycle faction
  **/
 
-robotman::robotman()
-    : target(0)
-{
+robotman::robotman() : target(0) {
     this->set_flag(ENTITY_HAS_TRACKER,  true);
     this->set_flag(ENTITY_DO_STEP,      true);
 
@@ -118,17 +116,13 @@ robotman::robotman()
     this->s_in[RMAN_FREEZE].tag = SOCK_TAG_FREEZE;
 }
 
-void
-on_robotman_target_absorbed(entity *self, void *userdata)
-{
+void on_robotman_target_absorbed(entity *self, void *userdata) {
     robotman *rm = static_cast<robotman*>(self);
     rm->unsubscribe((entity*)rm->get_target());
     rm->set_target(0);
 }
 
-void
-robotman::init()
-{
+void robotman::init() {
     if (this->properties[0].v.i != 0) {
         entity *e = W->get_entity_by_id(this->properties[0].v.i);
         if (e && e->is_robot()) {
@@ -138,16 +132,12 @@ robotman::init()
     }
 }
 
-void
-robotman::setup()
-{
+void robotman::setup() {
     memset(this->values, 0, sizeof(float)*RMAN_NUM_IN);
     memset(this->previous_values, 0, sizeof(float)*RMAN_NUM_IN);
 }
 
-void
-robotman::step()
-{
+void robotman::step() {
     if (!this->target) return;
 
     for (int x=0; x<RMAN_NUM_IN; ++x) {
@@ -158,27 +148,23 @@ robotman::step()
         bool prev_v = (bool)(prev_val > 0.f && (int)roundf(prev_val));
         switch (x) {
             case RMAN_ENABLE_GODMODE:
-                if (val > 0.f) {
+                if (val > 0.f)
                     this->target->set_creature_flag(CREATURE_GODMODE, v);
-                }
                 break;
 
             case RMAN_SPEED_MODIFIER:
-                if (val > 0.f) {
+                if (val > 0.f)
                     this->target->speed_modifier = val;
-                }
                 break;
 
             case RMAN_DISABLE_ACTION:
-                if (val > 0.f) {
+                if (val > 0.f)
                     this->target->set_creature_flag(CREATURE_DISABLE_ACTION, v);
-                }
                 break;
 
             case RMAN_JUMP_STRENGTH_MODIFIER:
-                if (val > 0.f) {
+                if (val > 0.f)
                     this->target->jump_strength_multiplier = tclampf(val, 0.f, 1.f);
-                }
                 break;
 
             case RMAN_HP_INCREASE:
@@ -199,9 +185,8 @@ robotman::step()
                 if (val > 0.f) {
                     float amount = (val * BASE_HP_MODIFIER);
 
-                    if (this->target->increase_max_hp(amount)) {
+                    if (this->target->increase_max_hp(amount))
                         this->target->damage(-amount, 0, DAMAGE_TYPE_OTHER, DAMAGE_SOURCE_WORLD, 0);
-                    }
                 }
                 break;
 
@@ -214,18 +199,16 @@ robotman::step()
                 break;
 
             case RMAN_WEAPON_DAMAGE_MULTIPLIER:
-                if (val > 0.f) {
+                if (val > 0.f)
                     this->target->set_attack_damage_modifier(val*5.f);
-                }
                 break;
 
             case RMAN_TOGGLE_ACTION:
                 if (v && !this->target->is_dead()) {
-                    if (this->target->is_action_active()) {
+                    if (this->target->is_action_active())
                         this->target->action_off();
-                    } else {
+                    else
                         this->target->action_on();
-                    }
                 }
                 break;
 
@@ -260,11 +243,9 @@ robotman::step()
                 break;
 
             case RMAN_JUMP:
-                if (val > 0.f) {
-                    if (v && this->target->is_standing()) {
+                if (val > 0.f)
+                    if (v && this->target->is_standing())
                         this->target->jump(false);
-                    }
-                }
                 break;
 
             case RMAN_AIM:
@@ -283,27 +264,23 @@ robotman::step()
                 break;
 
             case RMAN_ATTACK:
-                if (v) {
+                if (v)
                     this->target->attack();
-                }
                 break;
 
             case RMAN_ATTACH_NEAREST:
-                if (v && !this->target->is_attached_to_activator()) {
+                if (v && !this->target->is_attached_to_activator())
                     this->target->activate_closest_activator();
-                }
                 break;
 
             case RMAN_DEATTACH:
-                if (v) {
+                if (v)
                     this->target->detach();
-                }
                 break;
 
             case RMAN_RESPAWN:
-                if (v) {
+                if (v)
                     this->target->respawn();
-                }
                 break;
 
             case RMAN_FREEZE:
@@ -317,9 +294,8 @@ robotman::step()
                 break;
 
             case RMAN_TOGGLE_ROAM:
-                if (v && this->target != adventure::player) {
+                if (v && this->target != adventure::player)
                     this->target->properties[ROBOT_PROPERTY_ROAMING].v.i8 = !this->target->properties[ROBOT_PROPERTY_ROAMING].v.i8;
-                }
                 break;
 
             case RMAN_CYCLE_WEAPONS:
@@ -348,9 +324,7 @@ robotman::step()
     }
 }
 
-edevice*
-robotman::solve_electronics(void)
-{
+edevice* robotman::solve_electronics() {
     for (int x=0; x<RMAN_NUM_OUT; ++x) {
         if (this->s_out[x].written()) continue;
 
@@ -360,33 +334,24 @@ robotman::solve_electronics(void)
             float v = 0.f;
 
             switch (x) {
-                case RMAN_WEAPON_ARM_ANGLE:
-                    {
-                        robot_parts::weapon *w = this->target->get_weapon();
-                        if (w) {
-                            v = w->get_arm_angle();
-                        }
-                    }
+                case RMAN_WEAPON_ARM_ANGLE: {
+                    robot_parts::weapon *w = this->target->get_weapon();
+                    if (w)
+                        v = w->get_arm_angle();
                     break;
-
-                case RMAN_TOOL_ARM_ANGLE:
-                    {
-                        robot_parts::tool *t = this->target->get_tool();
-                        if (t) {
-                            v = t->get_arm_angle();
-                        }
-                    }
+                }
+                case RMAN_TOOL_ARM_ANGLE: {
+                    robot_parts::tool *t = this->target->get_tool();
+                    if (t)
+                        v = t->get_arm_angle();
                     break;
-
-                case RMAN_ON_WEAPON_FIRE:
-                    {
-                        robot_parts::weapon *w = this->target->get_weapon();
-                        if (w && w->fired) {
-                            v = 1.f;
-                        }
-                    }
+                }
+                case RMAN_ON_WEAPON_FIRE: {
+                    robot_parts::weapon *w = this->target->get_weapon();
+                    if (w && w->fired)
+                        v = 1.f;
                     break;
-
+                }
                 case RMAN_ON_TOOL_USE:
                     // XXX: Not implemented
                     break;
@@ -396,9 +361,8 @@ robotman::solve_electronics(void)
                     break;
 
                 case RMAN_HEAD_REMOVED:
-                    if (this->target->head == 0) {
+                    if (this->target->head == 0)
                         v = 1.f;
-                    }
                     break;
 
                 case RMAN_MOVING_LEFT:
@@ -483,9 +447,7 @@ robotman::solve_electronics(void)
     return 0;
 }
 
-void
-robotman::write_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void robotman::write_state(lvlinfo *lvl, lvlbuf *lb) {
     entity::write_state(lvl, lb);
 
     for (int x=0; x<RMAN_NUM_IN; ++x) {
@@ -494,9 +456,7 @@ robotman::write_state(lvlinfo *lvl, lvlbuf *lb)
     }
 }
 
-void
-robotman::read_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void robotman::read_state(lvlinfo *lvl, lvlbuf *lb) {
     entity::read_state(lvl, lb);
 
     for (int x=0; x<RMAN_NUM_IN; ++x) {

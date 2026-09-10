@@ -15,20 +15,28 @@ extern struct sfxemitter_option sfxemitter_options[NUM_SFXEMITTER_OPTIONS];
 #include "edevice.hh"
 #include "i2o0gate.hh"
 
-class sfxemitter : public i2o0gate
-{
+/**
+ * Class representing the legacy SFX Emitter object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/SFX_Emitter
+ */
+class sfxemitter : public i2o0gate {
   public:
     sfxemitter();
     edevice* solve_electronics();
-    const char* get_name(){return "SFX Emitter";}
+    const char* get_name() { return "SFX Emitter"; }
 };
 
-class sfxemitter_2 : public i2o0gate
-{
+/**
+ * Class representing the new SFX Emitter object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/SFX_Emitter
+ */
+class sfxemitter_2 : public i2o0gate {
   public:
     sfxemitter_2();
     edevice* solve_electronics();
-    const char* get_name(){return "SFX Emitter";}
+    const char* get_name() { return "SFX Emitter"; }
 };
 
 #endif

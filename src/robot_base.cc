@@ -18,8 +18,7 @@
 creature_effect *robot_base::panic_effect    = new creature_effect(EFFECT_TYPE_SPEED, EFFECT_METHOD_MULTIPLICATIVE, 1.5f, 2*1000*1000);
 creature_effect *robot_base::slowdown_effect = new creature_effect(EFFECT_TYPE_SPEED, EFFECT_METHOD_MULTIPLICATIVE, 0.1f, 1*1000*1000);
 
-robot_base::robot_base()
-{
+robot_base::robot_base() {
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
     this->set_flag(ENTITY_CUSTOM_GHOST_UPDATE,  true);
     this->set_flag(ENTITY_IS_ROBOT,             true);
@@ -103,9 +102,7 @@ robot_base::robot_base()
 }
 
 
-void
-robot_base::construct()
-{
+void robot_base::construct() {
     /* set roaming to true automatically if this is an adventure level */
     this->properties[2].v.i8 = (G && W && W->level.type == LCAT_ADVENTURE);
 }
@@ -116,9 +113,7 @@ robot_base::~robot_base()
     delete this->vision_handler;
 }
 
-void
-robot_base::on_load(bool created, bool has_state)
-{
+void robot_base::on_load(bool created, bool has_state) {
     creature::on_load(created, has_state);
 
     this->angular_damping = ROBOT_DAMPING;
@@ -132,13 +127,12 @@ robot_base::on_load(bool created, bool has_state)
         this->equip_defaults();
     }
 
-    if (this->properties[4].v.i8 == 1) {
+    if (this->properties[4].v.i8 == 1)
         this->new_dir = DIR_LEFT;
-    } else if (this->properties[4].v.i8 == 2) {
+    else if (this->properties[4].v.i8 == 2)
         this->new_dir = DIR_RIGHT;
-    } else {
+    else
         this->new_dir = (rand()%2 == 0)?1:-1;
-    }
 
     this->dir = this->new_dir;
     this->look_dir = this->new_dir;
@@ -147,9 +141,7 @@ robot_base::on_load(bool created, bool has_state)
     this->reset_angles();
 }
 
-void
-robot_base::init()
-{
+void robot_base::init() {
     /* TODO: move over things from setup() */
     creature::init();
 
@@ -163,17 +155,13 @@ robot_base::init()
     this->mood.data = this;
 }
 
-void
-robot_base::restore()
-{
+void robot_base::restore() {
     creature::restore();
 
     this->recalculate_effects();
 }
 
-void
-robot_base::read_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void robot_base::read_state(lvlinfo *lvl, lvlbuf *lb) {
     creature::read_state(lvl, lb);
 
     memset(this->tools, 0, sizeof(this->tools));
@@ -186,15 +174,13 @@ robot_base::read_state(lvlinfo *lvl, lvlbuf *lb)
 
             this->weapons[x] = robot_parts::weapon::make(weapon_id, this);
 
-            if (this->weapons[x]) {
+            if (this->weapons[x])
                 this->weapons[x]->read_state(lvl, lb);
-            }
         }
 
         uint8_t active_weapon_slot = lb->r_uint8();
-        if (this->weapons[active_weapon_slot]) {
+        if (this->weapons[active_weapon_slot])
             this->set_weapon(this->weapons[active_weapon_slot]->get_weapon_type(), this->weapons[active_weapon_slot]);
-        }
     }
     if (this->has_feature(CREATURE_FEATURE_TOOLS)) {
         this->num_tools = lb->r_uint16();
@@ -203,21 +189,17 @@ robot_base::read_state(lvlinfo *lvl, lvlbuf *lb)
 
             this->tools[x] = robot_parts::tool::make(tool_id, this);
 
-            if (this->tools[x]) {
+            if (this->tools[x])
                 this->tools[x]->read_state(lvl, lb);
-            }
         }
 
         uint8_t active_tool_slot = lb->r_uint8();
-        if (this->tools[active_tool_slot]) {
+        if (this->tools[active_tool_slot])
             this->set_tool(this->tools[active_tool_slot]->get_tool_type(), this->tools[active_tool_slot]);
-        }
     }
 }
 
-void
-robot_base::write_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void robot_base::write_state(lvlinfo *lvl, lvlbuf *lb) {
     creature::write_state(lvl, lb);
 
     if (this->has_feature(CREATURE_FEATURE_WEAPONS)) {
@@ -231,9 +213,8 @@ robot_base::write_state(lvlinfo *lvl, lvlbuf *lb)
             lb->w_s_uint8(w->get_weapon_type());
             w->write_state(lvl, lb);
 
-            if (curr == w) {
+            if (curr == w)
                 active_weapon_slot = x;
-            }
         }
 
         lb->w_s_uint8(active_weapon_slot);
@@ -249,24 +230,20 @@ robot_base::write_state(lvlinfo *lvl, lvlbuf *lb)
             lb->w_s_uint8(t->get_tool_type());
             t->write_state(lvl, lb);
 
-            if (curr == t) {
+            if (curr == t)
                 active_tool_slot = x;
-            }
         }
 
         lb->w_s_uint8(active_tool_slot);
     }
 }
 
-void
-robot_base::setup()
-{
+void robot_base::setup() {
     tms_debugf("robot_base::setup");
     creature::setup();
 
-    if (this->properties[5].v.f <= 0.f) {
+    if (this->properties[5].v.f <= 0.f)
         this->set_creature_flag(CREATURE_GODMODE, true);
-    }
 
     this->jump_strength = this->base_jump_strength = ROBOT_JUMP_FORCE;
 
@@ -290,39 +267,28 @@ robot_base::setup()
 
     this->recalculate_effects();
 
-    if (W->is_playing()) {
+    if (W->is_playing())
         this->create_layermove_sensors();
-    }
 }
 
-void
-robot_base::equip_defaults()
-{
+void robot_base::equip_defaults() {
     /* equip the weapon and tool with the highest id */
 
-    if (this->num_weapons) {
+    if (this->num_weapons)
         this->equip_weapon(this->weapons[this->num_weapons-1]->get_weapon_type(), false);
-    }
-    if (this->num_tools) {
+    if (this->num_tools)
         this->equip_tool(this->tools[this->num_tools-1]->get_tool_type(), false);
-    }
 }
 
-void
-robot_base::clear_equipment()
-{
-    for (int x=0; x<NUM_WEAPONS; ++x) {
+void robot_base::clear_equipment() {
+    for (int x=0; x<NUM_WEAPONS; ++x)
         this->remove_weapon(this->weapons[x]);
-    }
 
-    for (int x=0; x<NUM_TOOLS; ++x) {
+    for (int x=0; x<NUM_TOOLS; ++x)
         this->remove_tool(this->tools[x]);
-    }
 }
 
-void
-robot_base::refresh_equipment()
-{
+void robot_base::refresh_equipment() {
     this->num_weapons = 0;
     this->num_tools = 0;
 
@@ -340,18 +306,14 @@ robot_base::refresh_equipment()
     }
 }
 
-void
-robot_base::on_pause()
-{
+void robot_base::on_pause() {
     creature::on_pause();
 
     this->refresh_equipment();
     this->equip_defaults();
 }
 
-void
-robot_base::on_damage(float dmg, b2Fixture *f, damage_type dt, uint8_t damage_source, uint32_t attacker_id)
-{
+void robot_base::on_damage(float dmg, b2Fixture *f, damage_type dt, uint8_t damage_source, uint32_t attacker_id) {
     creature::on_damage(dmg, f, dt, damage_source, attacker_id);
 
     if (this->hp <= 0.f) {
@@ -399,9 +361,7 @@ robot_base::on_damage(float dmg, b2Fixture *f, damage_type dt, uint8_t damage_so
     }
 }
 
-void
-robot_base::roam_set_target(entity *e)
-{
+void robot_base::roam_set_target(entity *e) {
     creature::roam_set_target(e);
 
     /* signal nearby friends of our finding */
@@ -435,9 +395,7 @@ robot_base::roam_set_target(entity *e)
     }
 }
 
-void
-robot_base::on_death()
-{
+void robot_base::on_death() {
     creature::on_death();
 
     {
@@ -495,9 +453,7 @@ robot_base::on_death()
  * Apply default motion specials, when no other thing is involved
  * called when motion is MOTION_DEFAULT
  **/
-void
-robot_base::apply_default_motion()
-{
+void robot_base::apply_default_motion() {
     bool apply = false;
 
     if (!this->creature_flag_active(CREATURE_LOST_BALANCE)) {
@@ -574,9 +530,7 @@ robot_base::apply_default_motion()
     }
 }
 
-void
-robot_base::apply_climbing_motion()
-{
+void robot_base::apply_climbing_motion() {
     /* XXX currently only the adventure robot can climb ladders */
     entity *la = W->get_entity_by_id(this->ladder_id);
 
@@ -635,34 +589,28 @@ robot_base::apply_climbing_motion()
             //this->natural_forces += force;
         }
 
-        if (this->look_dir - DIR_BACKWARD_1 > this->look_dir - DIR_BACKWARD_2) {
+        if (this->look_dir - DIR_BACKWARD_1 > this->look_dir - DIR_BACKWARD_2)
             this->look_dir = DIR_BACKWARD_2;
-        } else {
+        else
             this->look_dir = DIR_BACKWARD_1;
-        }
 
         robot_parts::tool *t = this->get_tool();
-        if (t) {
+        if (t)
             t->set_arm_angle(6.5f+cos(stepcount*.8f)*.25f);
-        }
 
         robot_parts::weapon *w = this->get_weapon();
-        if (w) {
+        if (w)
             w->set_arm_angle(6.5f+cos(M_PI+stepcount*.8f)*.25f);
-        }
 
-        if (this->ladder_time < 16000) {
+        if (this->ladder_time < 16000)
             return;
-        }
     }
 
     /* reach here if we're not climbing */
     this->stop_climbing();
 }
 
-void
-robot_base::stop_climbing()
-{
+void robot_base::stop_climbing() {
     this->set_creature_flag(CREATURE_CLIMBING_LADDER, false);
     this->ladder_time = 16000;
     this->ladder_id = 0;
@@ -674,9 +622,7 @@ robot_base::stop_climbing()
     }
 }
 
-void
-robot_base::step()
-{
+void robot_base::step() {
     creature::step();
 
     float ga = this->get_gravity_angle();
@@ -702,16 +648,13 @@ robot_base::step()
     }
 }
 
-void
-robot_base::perform_logic()
-{
+void robot_base::perform_logic() {
     if (this->is_alive()) {
         float mval[NUM_MOODS];
         for (int x=0; x<NUM_MOODS; ++x) {
             mval[x] = this->mood.get(x);
-            if (mval[x] > this->faction->mood_base[x]) {
+            if (mval[x] > this->faction->mood_base[x])
                 this->mood.add(x, this->faction->mood_decr[x]);
-            }
         }
 
         if (this != adventure::player && !this->creature_flag_active(CREATURE_IS_ZOMBIE)) {
@@ -720,17 +663,12 @@ robot_base::perform_logic()
                 float cowardice = mval[MOOD_FEAR] > mval[MOOD_BRAVERY] ? mval[MOOD_FEAR] - mval[MOOD_BRAVERY] : 0.f;
 
                 if (cowardice > .3f) {
-                    if (!this->is_panicked()) {
-                        if (rand()%5 == 0) {
-                            this->set_creature_flag(CREATURE_PANICKED, true);
-                        }
-                    }
+                    if (!this->is_panicked() && rand() % 5 == 0)
+                        this->set_creature_flag(CREATURE_PANICKED, true);
+
                 } else if (cowardice < .15f) {
-                    if (this->is_panicked()) {
-                        if (rand()%3 == 0) {
-                            this->set_creature_flag(CREATURE_PANICKED, false);
-                        }
-                    }
+                    if (this->is_panicked() && rand() % 3 == 0)
+                        this->set_creature_flag(CREATURE_PANICKED, false);
                 }
             }
 
@@ -789,29 +727,25 @@ robot_base::perform_logic()
         }
 
         if (this->is_roaming() && this->id != G->state.adventure_id) {
-            if (this->is_panicked()) {
+            if (this->is_panicked())
                 this->apply_effect(PANIC_ID, *panic_effect);
-            }
 
             this->roam_target = 0;
 
-            if (rand()%10 == 0) {
+            if (rand() % 10 == 0)
                 this->look_for_target();
-            }
 
             this->roam_setup_target();
 
             if (this->roam_target || this->roam_target_type == TARGET_POSITION) {
                 // disable wandering speed if we were previously wandering
-                if (this->is_wandering()) {
+                if (this->is_wandering())
                     this->set_creature_flag(CREATURE_WANDERING, false);
-                }
 
                 bool hostile = false;
 
-                if (this->roam_target_type == TARGET_ENEMY) {
+                if (this->roam_target_type == TARGET_ENEMY)
                     hostile = true;
-                }
 
                 this->refresh_optimal_distance();
 
@@ -838,21 +772,18 @@ robot_base::perform_logic()
 
                 this->roam_look();
 
-                if (hostile && !this->is_panicked()) {
+                if (hostile && !this->is_panicked())
                     this->roam_attack();
-                }
 
                 this->roam_jump();
 
-                if (!W->level.flag_active(LVL_DISABLE_ROAM_LAYER_SWITCH)) {
+                if (!W->level.flag_active(LVL_DISABLE_ROAM_LAYER_SWITCH))
                     this->roam_layermove();
-                }
 
                 this->roam_walk();
 
-                if (!this->is_panicked()) {
+                if (!this->is_panicked())
                     this->roam_aim();
-                }
 
                 this->roam_perform_target_actions();
             } else {
@@ -871,9 +802,7 @@ robot_base::perform_logic()
     }
 }
 
-void
-robot_base::roam_set_target_type()
-{
+void robot_base::roam_set_target_type() {
     if (this->roam_target->flag_active(ENTITY_IS_ROBOT)) {
         switch (this->faction->relationship[((robot_base*)this->roam_target)->faction->id]) {
             case FRIENDLY:
@@ -885,32 +814,25 @@ robot_base::roam_set_target_type()
                 this->roam_target_type = TARGET_ENEMY;
                 break;
         }
-    } else if (this->roam_target->g_id == O_GUARDPOINT) {
+    } else if (this->roam_target->g_id == O_GUARDPOINT)
         this->roam_target_type = TARGET_ANCHOR;
-    } else if (this->roam_target->g_id == O_ITEM) {
+    else if (this->roam_target->g_id == O_ITEM)
         this->roam_target_type = TARGET_ITEM;
-    } else {
+    else
         this->roam_target_type = TARGET_POSITION;
-    }
 }
 
-void
-robot_base::mstep()
-{
-    if (!this->body) {
+void robot_base::mstep() {
+    if (!this->body)
         return;
-    }
 
     creature::mstep();
 
-    if (this->is_roaming() && this->is_alive()) {
+    if (this->is_roaming() && this->is_alive())
         this->aim(this->roam_target_aim);
-    }
 }
 
-void
-robot_base::reset_angles()
-{
+void robot_base::reset_angles() {
     float ga = this->get_gravity_angle();
     this->balance->target = ga + M_PI/2.f;
 
@@ -918,17 +840,13 @@ robot_base::reset_angles()
 }
 
 
-void
-robot_base::ghost_update()
-{
+void robot_base::ghost_update() {
     this->update();
 }
 
 #define CONSUME_SCALE .3f
 
-void
-robot_base::update()
-{
+void robot_base::update() {
     b2Transform t;
     if (this->body != 0) {
         t = this->body->GetTransform();
@@ -945,9 +863,8 @@ robot_base::update()
     tmat4_rotate(this->M, this->get_angle()*(180.f/M_PI), 0, 0, -1);
     tmat4_rotate(this->M, -90 * this->i_dir + tilt * (180.f/M_PI), 0, 1, 0);
     tmat3_copy_mat4_sub3x3(this->N, this->M);
-    if (this->get_scale() != 1.f) {
+    if (this->get_scale() != 1.f)
         tmat4_scale(this->M, this->get_scale(), this->get_scale(), this->get_scale());
-    }
 
     if (this->consume_timer > 0.f) {
         tmat4_scale(this->M, 1.f, 1.f, 1.f+this->consume_timer*CONSUME_SCALE);
@@ -957,15 +874,11 @@ robot_base::update()
     creature::update();
 }
 
-void
-robot_base::on_jump_begin()
-{
+void robot_base::on_jump_begin() {
     //if (this->f_body) this->f_body->SetFriction(0.f);
 }
 
-bool
-robot_base::jump(bool forward_force, float force_mul/*=1.f*/)
-{
+bool robot_base::jump(bool forward_force, float force_mul/*=1.f*/) {
     if (this->is_currently_climbing()) {
         this->stop_climbing();
         this->motion = MOTION_DEFAULT;
@@ -975,21 +888,15 @@ robot_base::jump(bool forward_force, float force_mul/*=1.f*/)
     return creature::jump(forward_force, force_mul);
 }
 
-void
-robot_base::on_jump_end()
-{
+void robot_base::on_jump_end() {
     //if (this->f_body) this->f_body->SetFriction(this->get_material()->friction);
 }
 
-void
-robot_base::reset_friction()
-{
+void robot_base::reset_friction() {
     this->set_friction(m_robot.friction);
 }
 
-void
-robot_base::create_fixtures()
-{
+void robot_base::create_fixtures() {
     if (!this->body_shape) {
         this->body_shape = static_cast<b2Shape*>(new b2PolygonShape());
         ((b2PolygonShape*)this->body_shape)->SetAsBox(.375f, .375f, b2Vec2(0,0), 0);
@@ -1004,9 +911,8 @@ robot_base::create_fixtures()
     fd_body.restitution     = this->get_material()->restitution;
     fd_body.filter = world::get_filter_for_layer(this->get_layer(), 15);
 
-    if (!this->f_body) {
+    if (!this->f_body)
         (this->f_body = this->body->CreateFixture(&fd_body))->SetUserData(this);
-    }
 
     b2Body *b = this->body;
 
@@ -1022,65 +928,49 @@ robot_base::create_fixtures()
     fd_sensor.isSensor = true;
     fd_sensor.filter = world::get_filter_for_layer(this->get_layer(), 15);
 
-    if (!this->f_sensor) {
+    if (!this->f_sensor)
         (this->f_sensor = b->CreateFixture(&fd_sensor))->SetUserData(this);
-    }
 }
 
-void
-robot_base::action_on()
-{
+void robot_base::action_on() {
     if (this->creature_flag_active(CREATURE_DISABLE_ACTION)) return;
     if (this->is_frozen()) return;
 
     this->action_active = true;
 }
 
-void
-robot_base::action_off()
-{
+void robot_base::action_off() {
     this->action_active = false;
 }
 
-float
-robot_base::get_slider_snap(int s)
-{
-    if (s == 0) {
+float robot_base::get_slider_snap(int s) {
+    if (s == 0)
         return 1.f / 19.f;
-    } else {
+    else
         return 1.f / 20.f;
-    }
 }
 
-float
-robot_base::get_slider_value(int s)
-{
-    if (s == 0) {
+float robot_base::get_slider_value(int s) {
+    if (s == 0)
         return (this->properties[0].v.f - 1.f) / 19.f;
-    } else {
+    else
         return this->properties[5].v.f;
-    }
 }
 
-void
-robot_base::on_slider_change(int s, float value)
-{
+void robot_base::on_slider_change(int s, float value) {
     if (s == 0) {
         this->set_property(0, (value * 19.f) + 1.f);
-        if (this == adventure::player && W->is_adventure()) {
+        if (this == adventure::player && W->is_adventure())
             G->show_numfeed(this->properties[0].v.f*2.f);
-        } else {
+        else
             G->show_numfeed(this->properties[0].v.f);
-        }
     } else {
         this->properties[5].v.f = value;
         G->show_numfeed(value * this->max_hp);
     }
 }
 
-void
-robot_base::init_adventure()
-{
+void robot_base::init_adventure() {
     creature::init_adventure();
 
     tms_debugf("init_adventure called on %u", this->id);
@@ -1095,9 +985,7 @@ robot_base::init_adventure()
     this->set_speed(3.f + (this->properties[0].v.f * 2.f));
 }
 
-bool
-robot_base::can_see(entity *e)
-{
+bool robot_base::can_see(entity *e) {
     this->vision_handler->can_see = false;
     this->vision_handler->target = e;
 
@@ -1109,33 +997,27 @@ robot_base::can_see(entity *e)
         b2Vec2 to = e->local_to_world(b2Vec2(0.f, .5-.5f*(rand()%100)/100.f), 0);
         W->raycast(this->vision_handler, from, to);
 
-        if (this->vision_handler->can_see) {
+        if (this->vision_handler->can_see)
             return true;
-        }
     }
 
     return false;
 }
 
-float32
-robot_base::cb_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
+float32 robot_base::cb_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
     entity *e = static_cast<entity*>(f->GetUserData());
 
-    if (f->IsSensor()) {
+    if (f->IsSensor())
         return -1.f;
-    }
 
     if (e) {
         /* ignore self */
-        if (e == this->self) {
+        if (e == this->self)
             return -1.f;
-        }
 
         /* if the layer of the robot and entity are different, continue searching */
-        if (!world::fixture_in_layer(f, this->self->get_layer(), 15)) {
+        if (!world::fixture_in_layer(f, this->self->get_layer(), 15))
             return -1;
-        }
 
         if (e->id == this->self->roam_target_id) {
             this->self->shoot_target = true;
@@ -1164,53 +1046,44 @@ robot_base::cb_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Ve
     return fraction;
 }
 
-float32
-robot_base::cb_vision_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
-    if (f->IsSensor()) {
+float32 robot_base::cb_vision_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
+    if (f->IsSensor())
         return -1.f;
-    }
 
     entity *e = static_cast<entity*>(f->GetUserData());
 
-    if (e) {
-        if (e == this->self) {
-            return -1.f;
+    if (!e)
+        return -1;
+
+    if (e == this->self)
+        return -1.f;
+
+    if (!world::fixture_in_layer(f, this->test_layer, 15))
+        return -1;
+
+    this->can_see = false;
+
+    if (e == this->target) {
+        b2Vec2 target_pos = this->target->get_position();
+        b2Vec2 my_pos = this->self->get_position();
+
+        if (this->self->look_dir == DIR_LEFT && this->self->get_tangent_distance(target_pos) < 2.0f) {
+            this->can_see = true;
+            return 0;
+        } else if (this->self->look_dir == DIR_RIGHT && this->self->get_tangent_distance(target_pos) > -2.0f) {
+            this->can_see = true;
+            return 0;
         }
 
-        if (!world::fixture_in_layer(f, this->test_layer, 15)) {
-            return -1;
-        }
-
-        this->can_see = false;
-
-        if (e == this->target) {
-            b2Vec2 target_pos = this->target->get_position();
-            b2Vec2 my_pos = this->self->get_position();
-
-            if (this->self->look_dir == DIR_LEFT && this->self->get_tangent_distance(target_pos) < 2.0f) {
-                this->can_see = true;
-                return 0;
-            } else if (this->self->look_dir == DIR_RIGHT && this->self->get_tangent_distance(target_pos) > -2.0f) {
-                this->can_see = true;
-                return 0;
-            }
-
-            //this->can_see = true;
-        }
-        return fraction;
+        //this->can_see = true;
     }
-
-    return -1;
+    return fraction;
 }
 
-bool
-robot_base::consume(item *c, bool silent, bool first/*=false*/)
-{
+bool robot_base::consume(item *c, bool silent, bool first/*=false*/) {
     // might be a very unnecessary check ;-)
-    if (!G) {
+    if (!G)
         return false;
-    }
 
     bool ret = false;
 
@@ -1286,26 +1159,24 @@ robot_base::consume(item *c, bool silent, bool first/*=false*/)
             if (!silent && ret) this->equip_tool(c->data_id);
             break;
 
-        case ITEM_CATEGORY_CIRCUIT:
-            {
-                if (first) {
-                    uint32_t circuit = c->data_id;
-                    if (circuit & this->circuits_compat) {
-                        tms_debugf("compatible circuit");
-                        if (this->has_circuit(circuit)) {
-                            tms_debugf("we aleardy have this circuit!");
-                        } else {
-                            tms_debugf("consuming circuit");
-                            this->set_has_circuit(circuit, true);
-                            ret = true;
-                        }
+        case ITEM_CATEGORY_CIRCUIT: {
+            if (first) {
+                uint32_t circuit = c->data_id;
+                if (circuit & this->circuits_compat) {
+                    tms_debugf("compatible circuit");
+                    if (this->has_circuit(circuit)) {
+                        tms_debugf("we aleardy have this circuit!");
                     } else {
-                        tms_debugf("incompatible circuit");
+                        tms_debugf("consuming circuit");
+                        this->set_has_circuit(circuit, true);
+                        ret = true;
                     }
+                } else {
+                    tms_debugf("incompatible circuit");
                 }
             }
             break;
-
+        }
         default:
             tms_errorf("Unhandled item :(");
             break;
@@ -1327,25 +1198,19 @@ robot_base::consume(item *c, bool silent, bool first/*=false*/)
     return ret;
 }
 
-void
-robot_base::write_quickinfo(char *out)
-{
+void robot_base::write_quickinfo(char *out) {
     sprintf(out, "%s, %sroaming", this->get_name(), this->properties[2].v.i8 == 1 ? "":"not ");
 }
 
-bool
-robot_base::ReportFixture(b2Fixture *f)
-{
-    if (f->IsSensor()) {
+bool robot_base::ReportFixture(b2Fixture *f) {
+    if (f->IsSensor())
         return true;
-    }
 
     entity *e = static_cast<entity*>(f->GetUserData());
 
     if (this->creature_flag_active(CREATURE_QUERY_ROBOTS)) {
-        if (e && e->flag_active(ENTITY_IS_ROBOT) && e != this) {
+        if (e && e->flag_active(ENTITY_IS_ROBOT) && e != this)
             this->results.insert(e);
-        }
 
         return true;
     } else if (this->creature_flag_active(CREATURE_QUERY_OIL)) {
@@ -1376,15 +1241,11 @@ robot_base::ReportFixture(b2Fixture *f)
     return true;
 }
 
-bool
-robot_base::is_roaming()
-{
+bool robot_base::is_roaming() {
     return (bool)this->properties[ROBOT_PROPERTY_ROAMING].v.i8 && this->id != G->state.adventure_id;
 }
 
-void
-robot_base::look_for_target()
-{
+void robot_base::look_for_target() {
     // search for enemy
     b2AABB aabb;
 #if 0
@@ -1403,9 +1264,7 @@ robot_base::look_for_target()
     W->b2->QueryAABB(this, aabb);
 }
 
-robot_parts::weapon *
-robot_base::equip_weapon(uint8_t weapon_id, bool announce/*=true*/)
-{
+robot_parts::weapon * robot_base::equip_weapon(uint8_t weapon_id, bool announce/*=true*/) {
     robot_parts::weapon *w;
 
     if (!(w = this->has_weapon(weapon_id))) {
@@ -1413,61 +1272,45 @@ robot_base::equip_weapon(uint8_t weapon_id, bool announce/*=true*/)
         return 0;
     }
 
-    if (!this->set_weapon(weapon_id, w)) {
+    if (!this->set_weapon(weapon_id, w))
         return 0;
-    }
 
-    if (announce && this->id == G->state.adventure_id) {
+    if (announce && this->id == G->state.adventure_id)
         ui::messagef("Equipped weapon: %s", w->get_name());
-    }
 
     return w;
 }
 
-robot_parts::weapon*
-robot_base::has_weapon(uint8_t weapon_id)
-{
-    for (int x=0; x<this->num_weapons; x++) {
-        if (this->weapons[x]->get_weapon_type() == weapon_id) {
+robot_parts::weapon* robot_base::has_weapon(uint8_t weapon_id) {
+    for (int x=0; x<this->num_weapons; x++)
+        if (this->weapons[x]->get_weapon_type() == weapon_id)
             return this->weapons[x];
-        }
-    }
 
     return 0;
 }
 
-robot_parts::tool*
-robot_base::has_tool(uint8_t tool_id)
-{
-    for (int x=0; x<this->num_tools; x++) {
-        if (this->tools[x]->get_tool_type() == tool_id) {
+robot_parts::tool* robot_base::has_tool(uint8_t tool_id) {
+    for (int x=0; x<this->num_tools; x++)
+        if (this->tools[x]->get_tool_type() == tool_id)
             return this->tools[x];
-        }
-    }
 
     return 0;
 }
 
-bool
-robot_base::add_weapon(uint8_t weapon_id)
-{
+bool robot_base::add_weapon(uint8_t weapon_id) {
     robot_parts::weapon *w;
 
-    if (!this->has_feature(CREATURE_FEATURE_WEAPONS)) {
+    if (!this->has_feature(CREATURE_FEATURE_WEAPONS))
         return false;
-    }
 
-    if (weapon_id >= NUM_WEAPONS) {
+    if (weapon_id >= NUM_WEAPONS)
         return false;
-    }
 
-    if (this->has_weapon(weapon_id)) {
+    if (this->has_weapon(weapon_id))
         return false;
-    }
 
-    if (!(w = robot_parts::weapon::make(weapon_id, this))) {
+    if (!(w = robot_parts::weapon::make(weapon_id, this)))
         return false;
-    }
 
     this->weapons[this->num_weapons] = w;
     this->num_weapons ++;
@@ -1475,26 +1318,20 @@ robot_base::add_weapon(uint8_t weapon_id)
     return true;
 }
 
-bool
-robot_base::add_tool(uint8_t tool_id)
-{
+bool robot_base::add_tool(uint8_t tool_id) {
     robot_parts::tool *t;
 
-    if (!this->has_feature(CREATURE_FEATURE_TOOLS)) {
+    if (!this->has_feature(CREATURE_FEATURE_TOOLS))
         return false;
-    }
 
-    if (tool_id >= NUM_TOOLS) {
+    if (tool_id >= NUM_TOOLS)
         return false;
-    }
 
-    if (this->has_tool(tool_id)) {
+    if (this->has_tool(tool_id))
         return false;
-    }
 
-    if (!(t = robot_parts::tool::make(tool_id, this))) {
+    if (!(t = robot_parts::tool::make(tool_id, this)))
         return false;
-    }
 
     this->tools[this->num_tools] = t;
     this->num_tools ++;
@@ -1502,9 +1339,7 @@ robot_base::add_tool(uint8_t tool_id)
     return true;
 }
 
-bool
-robot_base::equip_tool(uint8_t tool_id, bool announce/*=true*/)
-{
+bool robot_base::equip_tool(uint8_t tool_id, bool announce/*=true*/) {
     robot_parts::tool *t;
 
     if (!(t = this->has_tool(tool_id))) {
@@ -1518,9 +1353,8 @@ robot_base::equip_tool(uint8_t tool_id, bool announce/*=true*/)
             return false;
         }
 
-        if (this->is_player() && tool->get_tool_type() == TOOL_BUILDER) {
+        if (this->is_player() && tool->get_tool_type() == TOOL_BUILDER)
             G->do_drop_interacting = true;
-        }
     }
 
     this->set_tool(tool_id, t);
@@ -1533,17 +1367,13 @@ robot_base::equip_tool(uint8_t tool_id, bool announce/*=true*/)
     return true;
 }
 
-faction_info*
-robot_base::set_faction(uint8_t faction_id)
-{
+faction_info *robot_base::set_faction(uint8_t faction_id) {
     if (faction_id > NUM_FACTIONS) return 0;
 
     return this->set_faction(&factions[faction_id]);
 }
 
-faction_info*
-robot_base::set_faction(faction_info *faction)
-{
+faction_info *robot_base::set_faction(faction_info *faction) {
     this->properties[6].v.i8 = faction->id;
     this->faction = faction;
 
@@ -1555,9 +1385,7 @@ robot_base::set_faction(faction_info *faction)
     return faction;
 }
 
-void
-robot_base::refresh_optimal_distance(void)
-{
+void robot_base::refresh_optimal_distance() {
     switch (this->roam_target_type) {
         case TARGET_ENEMY:
             this->roam_optimal_big_distance = 8.f;
@@ -1586,95 +1414,75 @@ robot_base::refresh_optimal_distance(void)
     }
 }
 
-void
-robot_base::reset_limbs()
-{
+void robot_base::reset_limbs() {
     this->roam_target_aim = -M_PI/2.f;
 }
 
-/**
- * Gather information on what we can see, particularly about our target
- **/
-void
-robot_base::roam_gather_sight()
-{
+void robot_base::roam_gather_sight() {
     b2Vec2 r = this->get_position();
 
     b2Vec2 target_pos;
-    if (this->roam_target_type == TARGET_POSITION) {
+    if (this->roam_target_type == TARGET_POSITION)
         target_pos = this->roam_target_pos;
-    } else {
+    else
         target_pos = this->roam_target->get_position();
-    }
 
     this->shoot_target = false;
 
-    if (this->get_layer() == target_layer
-            && this->target_dist < 9.f) {
+    if (this->get_layer() == target_layer && this->target_dist < 9.f)
         W->raycast(this->handler, r, target_pos);
-    }
 }
 
-/**
- * Default target picker can target robots only, minibot replaces this with
- * a target picker that picks scrap and dead robots
- **/
-bool
-robot_base::roam_can_target(entity *e, bool must_see)
-{
-    if (!e->flag_active(ENTITY_IS_ROBOT)) return false;
+
+bool robot_base::roam_can_target(entity *e, bool must_see) {
+    if (!e->flag_active(ENTITY_IS_ROBOT))
+        return false;
 
     robot_base *r = static_cast<robot_base*>(e);
 
-    if (!this->is_enemy(e)) return false;
-    if (r->is_dead()) return false;
+    if (!this->is_enemy(e))
+        return false;
+
+    if (r->is_dead())
+        return false;
 
     return !must_see || this->can_see(e);
 }
 
-bool
-robot_base::is_friend(entity *e)
-{
+bool robot_base::is_friend(entity *e) {
     if (e->flag_active(ENTITY_IS_ROBOT)) {
         robot_base *r = static_cast<robot_base*>(e);
 
-        if (this->faction->relationship[r->faction->id] == FRIENDLY) {
+        if (this->faction->relationship[r->faction->id] == FRIENDLY)
             return true;
-        } else {
+        else
             return false;
-        }
     }
 
     return false;
 }
 
-bool
-robot_base::is_neutral(entity *e)
-{
+bool robot_base::is_neutral(entity *e) {
     if (e->flag_active(ENTITY_IS_ROBOT)) {
         robot_base *r = static_cast<robot_base*>(e);
 
-        if (this->faction->relationship[r->faction->id] == NEUTRAL) {
+        if (this->faction->relationship[r->faction->id] == NEUTRAL)
             return true;
-        } else {
+        else
             return false;
-        }
     }
 
     return false;
 }
 
-bool
-robot_base::is_enemy(entity *e)
-{
+bool robot_base::is_enemy(entity *e) {
     if (e->flag_active(ENTITY_IS_ROBOT)) {
         robot_base *r = static_cast<robot_base*>(e);
 
-        if (this->faction->relationship[r->faction->id] == ENEMY) {
+        if (this->faction->relationship[r->faction->id] == ENEMY)
             return true;
-        } else {
+        else
             return false;
-        }
     }
 
     return false;

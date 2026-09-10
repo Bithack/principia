@@ -3,8 +3,7 @@
 #include "world.hh"
 #include "game.hh"
 
-class scup_ray_cb : public b2RayCastCallback
-{
+class scup_ray_cb : public b2RayCastCallback {
   public:
     entity *result[SCUP_NUM_JOINTS];
     b2Fixture *result_fx[SCUP_NUM_JOINTS];
@@ -14,11 +13,9 @@ class scup_ray_cb : public b2RayCastCallback
     entity *ignore;
     int n;
 
-    float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-    {
-        if (f->IsSensor()) {
+    float32 ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
+        if (f->IsSensor())
             return -1.f;
-        }
 
         entity *e = (entity*)f->GetUserData();
 
@@ -35,9 +32,7 @@ class scup_ray_cb : public b2RayCastCallback
     }
 } scup_cb;
 
-static void
-create_joint(b2Joint **dest, joint_info *ji, entity *a, entity *b, uint8_t fr, float force, b2Vec2 pt=b2Vec2(0.f, 0.f))
-{
+static void create_joint(b2Joint **dest, joint_info *ji, entity *a, entity *b, uint8_t fr, float force, b2Vec2 pt=b2Vec2(0.f, 0.f)) {
     b2WeldJointDef wjd;
     wjd.localAnchorA = a->world_to_body(a->get_position(), 0);
     wjd.localAnchorB = (pt.Length() < .0001f ? b->world_to_body(a->get_position(), fr) : pt);
@@ -52,8 +47,7 @@ create_joint(b2Joint **dest, joint_info *ji, entity *a, entity *b, uint8_t fr, f
     G->add_destructable_joint(*dest, force);
 }
 
-scup::scup()
-{
+scup::scup() {
     this->ji = new joint_info(JOINT_TYPE_SCUP, this);
 
     /* memory leakage!! :-) */
@@ -76,9 +70,7 @@ scup::scup()
     this->query_sides[2].SetZero(); /* Disable connections downwards */
 }
 
-void
-scup::setup()
-{
+void scup::setup() {
     this->stuck = false;
     this->strength_mod = 0.f;
 
@@ -88,9 +80,7 @@ scup::setup()
     }
 }
 
-void
-scup::restore()
-{
+void scup::restore() {
     entity *e;
 
     for (int x=0; x<SCUP_NUM_JOINTS; x++) {
@@ -105,16 +95,12 @@ scup::restore()
     }
 }
 
-void
-scup::step()
-{
-    if (this->strength_mod <= 0.f) {
+void scup::step() {
+    if (this->strength_mod <= 0.f)
         this->stuck = false;
-    }
 
-    if (this->stuck) {
+    if (this->stuck)
         return;
-    }
 
     for (int x=0; x<SCUP_NUM_JOINTS; ++x) {
         if (this->j[x]) {
@@ -141,9 +127,8 @@ scup::step()
             scup_cb.n = n;
 
             W->b2->RayCast(&scup_cb, from[n], to[n]);
-            if (scup_cb.result[n]) {
+            if (scup_cb.result[n])
                 num_results ++;
-            }
         }
 
         if (num_results == SCUP_NUM_JOINTS) {
@@ -187,9 +172,7 @@ scup::step()
     }
 }
 
-void
-scup::write_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void scup::write_state(lvlinfo *lvl, lvlbuf *lb) {
     entity::write_state(lvl, lb);
 
     lb->w_uint8((uint8_t)this->stuck);
@@ -203,15 +186,12 @@ scup::write_state(lvlinfo *lvl, lvlbuf *lb)
             lb->w_s_float(this->a[x].force);
             lb->w_s_float(this->a[x].body_pt.x);
             lb->w_s_float(this->a[x].body_pt.y);
-        } else {
+        } else
             lb->w_s_uint8(0);
-        }
     }
 }
 
-void
-scup::read_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void scup::read_state(lvlinfo *lvl, lvlbuf *lb) {
     entity::read_state(lvl, lb);
 
     this->stuck = (bool)lb->r_uint8();
@@ -231,15 +211,12 @@ scup::read_state(lvlinfo *lvl, lvlbuf *lb)
             this->a[x].frame = fr;
             this->a[x].force = force;
             this->a[x].body_pt = b2Vec2(ptx, pty);
-        } else {
+        } else
             this->a[x].id = 0;
-        }
     }
 }
 
-edevice*
-scup::solve_electronics()
-{
+edevice *scup::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 

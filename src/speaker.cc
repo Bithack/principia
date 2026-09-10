@@ -12,8 +12,7 @@ const char *speaker_options[NUM_WAVEFORMS] = {
     "Triangle",
 };
 
-speaker::speaker()
-{
+speaker::speaker() {
     this->set_flag(ENTITY_HAS_CONFIG, true);
 
     this->dialog_id = DIALOG_SYNTHESIZER;
@@ -49,9 +48,7 @@ speaker::speaker()
     this->properties[8].v.f = 0.25f;
 }
 
-edevice*
-speaker::solve_electronics()
-{
+edevice *speaker::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
     if (!this->s_in[1].is_ready())

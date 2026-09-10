@@ -55,8 +55,7 @@ static int rs_padding_y;
 static int inner_padding_x;
 static int inner_padding_y;
 
-struct rs_item *rs_item_alloc(uint32_t gid, uint32_t item_type, uint32_t category)
-{
+struct rs_item *rs_item_alloc(uint32_t gid, uint32_t item_type, uint32_t category) {
     struct rs_item *i = (struct rs_item*)calloc(1, sizeof(struct rs_item));
 
     i->g_id = gid;
@@ -66,24 +65,18 @@ struct rs_item *rs_item_alloc(uint32_t gid, uint32_t item_type, uint32_t categor
     return i;
 }
 
-static void
-refresh_highlight(tvec2 sp)
-{
-    if (sp.x < inventory_width) {
+static void refresh_highlight(tvec2 sp) {
+    if (sp.x < inventory_width)
         highlight_id = floorf((_tms.window_height + inventory_top - rs_padding_y - sp.y) / (inventory_row_h+rs_padding_y));
-    } else {
+    else
         highlight_id = -1;
-    }
 }
 
-static void
-equip(int slot_id, repair_station *rs, int inventory_id)
-{
-    if (slot_id == 0) { /* equipping headwear, require head */
-        if (!eq_slots[1].item) {
+static void equip(int slot_id, repair_station *rs, int inventory_id) {
+    if (slot_id == 0) /* equipping headwear, require head */
+        if (!eq_slots[1].item)
             return;
-        }
-    }
+
     if (eq_slots[slot_id].item) {
         std::swap(eq_slots[slot_id].item, rs->inventory[inventory_id]);
     } else {
@@ -93,13 +86,7 @@ equip(int slot_id, repair_station *rs, int inventory_id)
     }
 }
 
-repair_station::repair_station()
-    : activator(ATTACHMENT_NONE)
-    , sensor_radius(1.25f)
-    , sensor_offset(-0.25f, 2.75f)
-    , ladder_ud2(UD2_CLIMBABLE)
-    , ladder_step_ud2(UD2_LADDER_STEP)
-{
+repair_station::repair_station() : activator(ATTACHMENT_NONE), sensor_radius(1.25f), sensor_offset(-0.25f, 2.75f), ladder_ud2(UD2_CLIMBABLE), ladder_step_ud2(UD2_LADDER_STEP) {
     this->set_flag(ENTITY_IS_BETA,              true);
     this->set_flag(ENTITY_IS_LOW_PRIO,          true);
     this->set_flag(ENTITY_ALLOW_CONNECTIONS,    false);
@@ -168,9 +155,7 @@ repair_station::repair_station()
 #define Y_TRANSLATE  0.275f
 #define Z_COOL       0.350f
 
-void
-repair_station::update()
-{
+void repair_station::update() {
     //tmat4_load_identity(this->M);
     entity_fast_update(static_cast<struct tms_entity*>(this));
 
@@ -213,19 +198,13 @@ repair_station::update()
     }
 }
 
-void
-repair_station::update_effects()
-{
-
-}
+void repair_station::update_effects() { }
 
 #undef X_OFFSET
 #undef Y_SCALE
 #undef Y_TRANSLATE
 
-void
-repair_station::add_to_world()
-{
+void repair_station::add_to_world() {
     this->bottom = 0;
 
     b2PolygonShape box;
@@ -306,15 +285,11 @@ repair_station::add_to_world()
     this->body->SetSleepingAllowed(false);
 }
 
-void
-repair_station::init()
-{
+void repair_station::init() {
     this->targets.clear();
 }
 
-void
-repair_station::read_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void repair_station::read_state(lvlinfo *lvl, lvlbuf *lb) {
     this->repair_state = lb->r_uint8();
     this->repair_target_id = lb->r_id();
     this->side_door_state = lb->r_float();
@@ -333,9 +308,7 @@ repair_station::read_state(lvlinfo *lvl, lvlbuf *lb)
     }
 }
 
-void
-repair_station::write_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void repair_station::write_state(lvlinfo *lvl, lvlbuf *lb) {
     lb->w_s_uint8(this->repair_state);
     lb->w_s_id(this->repair_target_id);
     lb->w_s_float(this->side_door_state);
@@ -354,30 +327,22 @@ repair_station::write_state(lvlinfo *lvl, lvlbuf *lb)
 }
 
 
-void
-repair_station::restore()
-{
+void repair_station::restore() {
     entity::restore();
 }
 
-void
-repair_station::setup()
-{
+void repair_station::setup() {
     this->repair_state = RS_PENDING;
     this->repair_target_id = 0;
     this->side_door_state = 0.f;
     this->front_door_state = 0.f;
 }
 
-void
-repair_station::on_pause()
-{
+void repair_station::on_pause() {
     this->setup();
 }
 
-void
-repair_station::on_touch(b2Fixture *my, b2Fixture *other)
-{
+void repair_station::on_touch(b2Fixture *my, b2Fixture *other) {
     if (other->IsSensor()) return;
 
     entity *e;
@@ -386,39 +351,35 @@ repair_station::on_touch(b2Fixture *my, b2Fixture *other)
         this->activator_touched(other);
     } else if (my == this->absorb_sensor) {
         if ((e = static_cast<entity*>(other->GetUserData()))) {
-            switch (e->g_id) {
-                case O_ITEM:
-                    {
-                        uint32_t item_type = ((item*)e)->get_item_type();
-                        uint32_t item_category = ((item*)e)->item_category;
-                        struct rs_item *i;
-                        if (!(i = (struct rs_item*)calloc(1, sizeof(struct rs_item)))) {
-                            return;
-                        }
+            if (e->g_id == O_ITEM) {
+                uint32_t item_type = ((item*)e)->get_item_type();
+                uint32_t item_category = ((item*)e)->item_category;
+                struct rs_item *i;
+                if (!(i = (struct rs_item*)calloc(1, sizeof(struct rs_item)))) {
+                    return;
+                }
 
-                        if (item_category != ITEM_CATEGORY_HEAD
-                            && item_category != ITEM_CATEGORY_BACK
-                            && item_category != ITEM_CATEGORY_FEET
-                            && item_category != ITEM_CATEGORY_CIRCUIT
-                            && item_category != ITEM_CATEGORY_LOOSE_HEAD
-                            && item_category != ITEM_CATEGORY_FRONT
-                            && item_category != ITEM_CATEGORY_BOLT_SET
-                            ) {
-                            return;
-                        }
+                if (item_category != ITEM_CATEGORY_HEAD
+                    && item_category != ITEM_CATEGORY_BACK
+                    && item_category != ITEM_CATEGORY_FEET
+                    && item_category != ITEM_CATEGORY_CIRCUIT
+                    && item_category != ITEM_CATEGORY_LOOSE_HEAD
+                    && item_category != ITEM_CATEGORY_FRONT
+                    && item_category != ITEM_CATEGORY_BOLT_SET
+                    ) {
+                    return;
+                }
 
-                        if (G->absorb(e)) {
-                            i->g_id = e->g_id;
-                            i->item_type = item_type;
-                            i->category = item_category;
+                if (G->absorb(e)) {
+                    i->g_id = e->g_id;
+                    i->item_type = item_type;
+                    i->category = item_category;
 
-                            G->finished_tt(TUTORIAL_REPAIR_STATION_DROP);
-                            G->close_tt(TUTORIAL_TEXT_REPAIR_STATION_DROP);
+                    G->finished_tt(TUTORIAL_REPAIR_STATION_DROP);
+                    G->close_tt(TUTORIAL_TEXT_REPAIR_STATION_DROP);
 
-                            this->inventory.push_back(i);
-                        }
-                    }
-                    break;
+                    this->inventory.push_back(i);
+                }
             }
         }
     } else if (my == this->detection_sensor) {
@@ -431,9 +392,7 @@ repair_station::on_touch(b2Fixture *my, b2Fixture *other)
     }
 }
 
-void
-repair_station::on_untouch(b2Fixture *my, b2Fixture *other)
-{
+void repair_station::on_untouch(b2Fixture *my, b2Fixture *other) {
     if (other->IsSensor()) return;
 
     if (my == this->activator_sensor) {
@@ -449,22 +408,17 @@ repair_station::on_untouch(b2Fixture *my, b2Fixture *other)
     }
 }
 
-void
-repair_station::on_target_disappear()
-{
+void repair_station::on_target_disappear() {
     tms_debugf("target absorbed?");
     this->repair_target_id = 0;
     this->repair_state = RS_OPEN_DOORS;
 }
 
-void
-repair_station::step()
-{
+void repair_station::step() {
     creature *repair_target = 0;
 
-    if (this->repair_target_id != 0) {
+    if (this->repair_target_id != 0)
         repair_target = static_cast<creature*>(W->get_entity_by_id(this->repair_target_id));
-    }
 
     if (!repair_target) {
         if (this->repair_target_id != 0) {
@@ -519,29 +473,25 @@ repair_station::step()
             }
             break;
 
-        case RS_WAIT_FOR_ROBOT:
-            {
-                float tangent_dist = repair_target->get_tangent_distance(this->local_to_world(b2Vec2(.45f, .275f), 0));
-                if (std::abs(tangent_dist) > .02f) {
-                    repair_target->apply_effect(SLOWDOWN_ID, *robot_base::slowdown_effect);
-                    if (tangent_dist < 0.f) {
-                        repair_target->move(DIR_LEFT, true);
-                    } else if (tangent_dist) {
-                        repair_target->move(DIR_RIGHT, true);
-                    }
-                } else {
-                    repair_target->stop();
-                    if (repair_target->flag_active(ENTITY_IS_ROBOT)) {
-                        repair_target->look(DIR_FORWARD);
-                        if (std::abs(repair_target->i_dir) < .0125f) {
-                            this->repair_state ++;
-                        }
-                    } else {
+        case RS_WAIT_FOR_ROBOT: {
+            float tangent_dist = repair_target->get_tangent_distance(this->local_to_world(b2Vec2(.45f, .275f), 0));
+            if (std::abs(tangent_dist) > .02f) {
+                repair_target->apply_effect(SLOWDOWN_ID, *robot_base::slowdown_effect);
+                if (tangent_dist < 0.f)
+                    repair_target->move(DIR_LEFT, true);
+                else if (tangent_dist)
+                    repair_target->move(DIR_RIGHT, true);
+            } else {
+                repair_target->stop();
+                if (repair_target->flag_active(ENTITY_IS_ROBOT)) {
+                    repair_target->look(DIR_FORWARD);
+                    if (std::abs(repair_target->i_dir) < .0125f)
                         this->repair_state ++;
-                    }
-                }
+                } else
+                    this->repair_state ++;
             }
             break;
+        }
 
         case RS_CLOSE_DOORS:
             if (this->side_door_state < 1.f) {
@@ -644,17 +594,13 @@ repair_station::step()
     }
 }
 
-static void
-swapify(struct rs_item **a, struct rs_item **b)
-{
+static void swapify(struct rs_item **a, struct rs_item **b) {
     struct rs_item *tmp = *a;
     *a = *b;
     *b = tmp;
 }
 
-void
-game::render_repair_station(void)
-{
+void game::render_repair_station() {
     if (!this->sel_p_ent || this->sel_p_ent->g_id != O_REPAIR_STATION) {
         this->set_mode(GAME_MODE_DEFAULT);
         return;
@@ -710,14 +656,12 @@ game::render_repair_station(void)
             tms_ddraw_set_color(this->get_surface()->ddraw, MENU_GRAY_FI, .5f);
         } else {
             if (dragging_id >= 0 && dragging_id < rs->inventory.size()) {
-                if ((rsi = rs->inventory.at(dragging_id)) && rsi->category == eq_slots[i].category) {
+                if ((rsi = rs->inventory.at(dragging_id)) && rsi->category == eq_slots[i].category)
                     tms_ddraw_set_color(this->get_surface()->ddraw, .7f, 1.f, .7f, .5f);
-                } else {
+                else
                     tms_ddraw_set_color(this->get_surface()->ddraw, 1.0f, .7f, .7f, .5f);
-                }
-            } else {
+            } else
                 tms_ddraw_set_color(this->get_surface()->ddraw, MENU_WHITE_FI, .5f);
-            }
         }
 
         tms_ddraw_square(this->get_surface()->ddraw,
@@ -741,11 +685,11 @@ game::render_repair_station(void)
                     inventory_row_h);
         } else {
             if (highlight_id == n) {
-                if (rs_down[0] || rs_down[1]) {
+                if (rs_down[0] || rs_down[1])
                     tms_ddraw_set_color(this->get_surface()->ddraw, .65f, .65f, .65f, .85f);
-                } else {
+                else
                     tms_ddraw_set_color(this->get_surface()->ddraw, .6f, .6f, .6f, .80f);
-                }
+
                 tms_ddraw_square(this->get_surface()->ddraw,
                         inventory_width/2.f,
                         y,
@@ -845,9 +789,8 @@ game::render_repair_station(void)
         struct tms_sprite *img = 0;
         struct rs_item *rsi = *i;
 
-        if (rsi->g_id == O_ITEM) {
+        if (rsi->g_id == O_ITEM)
             img = item_options[rsi->item_type].name_spr;
-        }
 
         if (img) {
             tms_ddraw_sprite(this->get_surface()->ddraw, img,
@@ -863,9 +806,7 @@ game::render_repair_station(void)
     glDisable(GL_BLEND);
 }
 
-void
-repair_station::clear_slots()
-{
+void repair_station::clear_slots() {
     for (int x=0; x<NUM_EQ_SLOTS; x++) {
         if (eq_slots[x].item) {
             free(eq_slots[x].item);
@@ -874,9 +815,7 @@ repair_station::clear_slots()
     }
 }
 
-void
-repair_station::load_equipments(creature *repair_target)
-{
+void repair_station::load_equipments(creature *repair_target) {
     this->clear_slots();
 
     uint32_t circuit_counter = 0;
@@ -889,38 +828,33 @@ repair_station::load_equipments(creature *repair_target)
         switch (eq_slots[x].category) {
             case ITEM_CATEGORY_LOOSE_HEAD:
                 eq_slots[x].compat = (repair_target->has_feature(CREATURE_FEATURE_HEAD));
-                if (repair_target->equipments[EQUIPMENT_HEAD]) {
+                if (repair_target->equipments[EQUIPMENT_HEAD])
                     item_id = repair_target->equipments[EQUIPMENT_HEAD]->get_item_id();
-                }
                 break;
 
             case ITEM_CATEGORY_HEAD:
                 eq_slots[x].compat = (repair_target->has_feature(CREATURE_FEATURE_HEAD));
-                if (repair_target->equipments[EQUIPMENT_HEADWEAR]) {
+                if (repair_target->equipments[EQUIPMENT_HEADWEAR])
                     item_id = repair_target->equipments[EQUIPMENT_HEADWEAR]->get_item_id();
-                }
                 break;
 
             case ITEM_CATEGORY_BACK:
                 eq_slots[x].compat = (repair_target->has_feature(CREATURE_FEATURE_BACK_EQUIPMENT));
-                if (repair_target->equipments[EQUIPMENT_BACK]) {
+                if (repair_target->equipments[EQUIPMENT_BACK])
                     item_id = repair_target->equipments[EQUIPMENT_BACK]->get_item_id();
-                }
                 break;
 
             case ITEM_CATEGORY_FRONT:
                 eq_slots[x].compat = (repair_target->has_feature(CREATURE_FEATURE_FRONT_EQUIPMENT));
-                if (repair_target->equipments[EQUIPMENT_FRONT]) {
+                if (repair_target->equipments[EQUIPMENT_FRONT])
                     item_id = repair_target->equipments[EQUIPMENT_FRONT]->get_item_id();
-                }
                 break;
 
             case ITEM_CATEGORY_FEET:
                 eq_slots[x].compat = true;
 
-                if (repair_target->equipments[EQUIPMENT_FEET]) {
+                if (repair_target->equipments[EQUIPMENT_FEET])
                     item_id = repair_target->equipments[EQUIPMENT_FEET]->get_item_id();
-                }
                 break;
 
             case ITEM_CATEGORY_CIRCUIT:
@@ -953,9 +887,7 @@ repair_station::load_equipments(creature *repair_target)
     }
 }
 
-void
-repair_station::apply_equipments(creature *repair_target)
-{
+void repair_station::apply_equipments(creature *repair_target) {
     /* Remove any movement flags from the robot when exiting the repair station */
     uint64_t mask = ~(
               (this->id == G->state.adventure_id ? CREATURE_MOVING_LEFT : 0)
@@ -986,11 +918,10 @@ repair_station::apply_equipments(creature *repair_target)
 
         switch (eq_slots[x].category) {
             case ITEM_CATEGORY_LOOSE_HEAD:
-                if (item_id == ITEM_INVALID) {
+                if (item_id == ITEM_INVALID)
                     repair_target->set_equipment(EQUIPMENT_HEAD, 0);
-                } else {
+                else
                     repair_target->set_equipment(EQUIPMENT_HEAD, i->data_id);
-                }
                 break;
 
             case ITEM_CATEGORY_HEAD:
@@ -1018,23 +949,20 @@ repair_station::apply_equipments(creature *repair_target)
                 break;
 
             case ITEM_CATEGORY_FEET:
-                if (item_id == ITEM_INVALID) {
+                if (item_id == ITEM_INVALID)
                     repair_target->set_equipment(EQUIPMENT_FEET, 0);
-                } else {
+                else
                     repair_target->set_equipment(EQUIPMENT_FEET, i->data_id);
-                }
                 break;
 
             case ITEM_CATEGORY_CIRCUIT:
-                if (item_id != ITEM_INVALID) {
+                if (item_id != ITEM_INVALID)
                     repair_target->set_has_circuit(i->data_id, true);
-                }
                 break;
 
             case ITEM_CATEGORY_BOLT_SET:
-                if (item_id != ITEM_INVALID) {
+                if (item_id != ITEM_INVALID)
                     repair_target->set_bolt_set(i->data_id);
-                }
                 break;
         }
     }
@@ -1042,9 +970,7 @@ repair_station::apply_equipments(creature *repair_target)
     this->clear_slots();
 }
 
-int
-game::repair_station_handle_event(tms::event *ev)
-{
+int game::repair_station_handle_event(tms::event *ev) {
     if (!this->sel_p_ent || this->sel_p_ent->g_id != O_REPAIR_STATION) {
         this->set_mode(GAME_MODE_DEFAULT);
         return EVENT_DONE;
@@ -1074,179 +1000,169 @@ game::repair_station_handle_event(tms::event *ev)
             }
             break;
 
-        case TMS_EV_POINTER_DOWN:
-            {
-                int pid = ev->data.motion.pointer_id;
-                tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
-                rs->down_step = W->step_count;
+        case TMS_EV_POINTER_DOWN: {
+            int pid = ev->data.motion.pointer_id;
+            tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
+            rs->down_step = W->step_count;
 
-                rs_down[pid] = true;
-                start[pid] = sp;
-            }
+            rs_down[pid] = true;
+            start[pid] = sp;
             break;
+        }
 
-        case TMS_EV_POINTER_DRAG:
-            {
-                int pid = ev->data.motion.pointer_id;
-                tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
+        case TMS_EV_POINTER_DRAG: {
+            int pid = ev->data.motion.pointer_id;
+            tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
 
-                if (rs_down[pid]) {
-                    if (start[pid].x < inventory_width) {
-                        if (!rs_dragging[pid] && !rs_sliding[pid]) {
-                            float xdiff = sp.x - start[pid].x;
-                            float ydiff = std::abs(sp.y - start[pid].y);
-                            if (xdiff > _tms.xppcm) {
-                                dragging_id = floorf((_tms.window_height + inventory_top - start[pid].y) / (inventory_row_h+rs_padding_y));
-                                rs_dragging[pid] = true;
-                                highlight_id = -1;
-                                if (dragging_id >= 0 && dragging_id < rs->inventory.size()) {
-                                    struct rs_item *rsi = rs->inventory.at(dragging_id);
-                                    rsi->dragging = true;
-                                }
-                            } else if (ydiff > _tms.yppcm) {
-                                rs_sliding[pid] = true;
-                                begin_offset = inventory_top;
-                            }
-                        } else if (rs_dragging[pid]) {
+            if (rs_down[pid]) {
+                if (start[pid].x < inventory_width) {
+                    if (!rs_dragging[pid] && !rs_sliding[pid]) {
+                        float xdiff = sp.x - start[pid].x;
+                        float ydiff = std::abs(sp.y - start[pid].y);
+                        if (xdiff > _tms.xppcm) {
+                            dragging_id = floorf((_tms.window_height + inventory_top - start[pid].y) / (inventory_row_h+rs_padding_y));
+                            rs_dragging[pid] = true;
+                            highlight_id = -1;
                             if (dragging_id >= 0 && dragging_id < rs->inventory.size()) {
                                 struct rs_item *rsi = rs->inventory.at(dragging_id);
-                                rsi->pos = sp;
-
-                                /* check if we're hovering over an item slot */
-                                hover_x = floorf((sp.x - (inventory_width + (screen_padding*1.f))) / (inventory_item_w + rs_padding_x));
-                                hover_y = floorf((_tms.window_height - rs_padding_y - sp.y) / (inventory_item_h+rs_padding_y));
+                                rsi->dragging = true;
                             }
-                        } else if (rs_sliding[pid]) {
-                            inventory_top = begin_offset+sp.y-start[pid].y;
+                        } else if (ydiff > _tms.yppcm) {
+                            rs_sliding[pid] = true;
+                            begin_offset = inventory_top;
                         }
+                    } else if (rs_dragging[pid]) {
+                        if (dragging_id >= 0 && dragging_id < rs->inventory.size()) {
+                            struct rs_item *rsi = rs->inventory.at(dragging_id);
+                            rsi->pos = sp;
+
+                            /* check if we're hovering over an item slot */
+                            hover_x = floorf((sp.x - (inventory_width + (screen_padding*1.f))) / (inventory_item_w + rs_padding_x));
+                            hover_y = floorf((_tms.window_height - rs_padding_y - sp.y) / (inventory_item_h+rs_padding_y));
+                        }
+                    } else if (rs_sliding[pid]) {
+                        inventory_top = begin_offset+sp.y-start[pid].y;
                     }
                 }
             }
             break;
+        }
+        case TMS_EV_POINTER_MOVE: {
+            tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
 
-        case TMS_EV_POINTER_MOVE:
-            {
-                tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
-
-                refresh_highlight(sp);
-            }
+            refresh_highlight(sp);
             break;
+        }
+        case TMS_EV_POINTER_UP: {
+            int pid = ev->data.motion.pointer_id;
+            tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
 
-        case TMS_EV_POINTER_UP:
-            {
-                int pid = ev->data.motion.pointer_id;
-                tvec2 sp = (tvec2){ev->data.motion.x, ev->data.motion.y};
+            if (rs_down[pid]) {
+                rs_down[pid] = false;
 
-                if (rs_down[pid]) {
-                    rs_down[pid] = false;
+                if (rs_dragging[pid]) {
+                    struct rs_item *rsi = 0;
+                    if (dragging_id >= 0 && dragging_id < rs->inventory.size()) {
+                        rsi = rs->inventory[dragging_id];
+                        rsi->dragging = false;
+                        int release_x = floorf((sp.x - (inventory_width + (screen_padding*1.f))) / (inventory_item_w + rs_padding_x));
+                        int release_y = floorf((_tms.window_height - rs_padding_y - sp.y) / (inventory_item_h+rs_padding_y));
+                        for (int i=0; i<NUM_EQ_SLOTS; ++i) {
+                            if (eq_slots[i].x != release_x) continue;
+                            if (eq_slots[i].y != release_y) continue;
+                            if (eq_slots[i].category != rsi->category) continue;
+                            if (!eq_slots[i].compat) continue;
 
-                    if (rs_dragging[pid]) {
+                            equip(i, rs, dragging_id);
+
+
+                            break;
+                        }
+                    }
+                    rs_dragging[pid] = false;
+                    dragging_id = -1;
+                    hover_x = -1;
+                    hover_y = -1;
+
+                } else if (rs_sliding[pid]) {
+                    rs_sliding[pid] = false;
+                } else if (pid == 0) {
+                    uint32_t step_diff = W->step_count - rs->down_step;
+                    if (step_diff < CLICK_MAX_STEPS) {
                         struct rs_item *rsi = 0;
-                        if (dragging_id >= 0 && dragging_id < rs->inventory.size()) {
-                            rsi = rs->inventory[dragging_id];
+                        if (highlight_id >= 0 && highlight_id < rs->inventory.size()) {
+                            rsi = rs->inventory[highlight_id];
                             rsi->dragging = false;
+                            int first_prio_id = -1;
+                            int second_prio_id = -1;
+                            for (int i=0; i<NUM_EQ_SLOTS; ++i) {
+                                if (eq_slots[i].category != rsi->category) continue;
+
+                                if (eq_slots[i].item) {
+                                    second_prio_id = i;
+                                } else {
+                                    first_prio_id = i;
+                                    break;
+                                }
+                            }
+
+                            if (first_prio_id != -1) {
+                                equip(first_prio_id, rs, highlight_id);
+                            } else if (second_prio_id != -1) {
+                                equip(second_prio_id, rs, highlight_id);
+                            }
+                        } else {
+                            /* unequipping? */
                             int release_x = floorf((sp.x - (inventory_width + (screen_padding*1.f))) / (inventory_item_w + rs_padding_x));
                             int release_y = floorf((_tms.window_height - rs_padding_y - sp.y) / (inventory_item_h+rs_padding_y));
                             for (int i=0; i<NUM_EQ_SLOTS; ++i) {
                                 if (eq_slots[i].x != release_x) continue;
                                 if (eq_slots[i].y != release_y) continue;
-                                if (eq_slots[i].category != rsi->category) continue;
-                                if (!eq_slots[i].compat) continue;
+                                if (!eq_slots[i].compat) break;
 
-                                equip(i, rs, dragging_id);
+                                /* do not unequip feet and bolt set */
+                                if (eq_slots[i].category == ITEM_CATEGORY_BOLT_SET
+                                    || eq_slots[i].category == ITEM_CATEGORY_FEET) {
+                                    ui::message("Can not unequip that!");
+                                    break;
+                                }
 
+                                if (eq_slots[i].item) {
+                                    if (eq_slots[i].category == ITEM_CATEGORY_LOOSE_HEAD) {
+                                        /* if we're unequipping the head, force uniequip of the headwear */
+                                        if (eq_slots[0].item) {
+                                            rs->inventory.push_back(eq_slots[0].item);
+                                            eq_slots[0].item = 0;
+                                        }
+                                    }
+                                    rs->inventory.push_back(eq_slots[i].item);
+                                    eq_slots[i].item = 0;
+                                }
 
                                 break;
                             }
                         }
-                        rs_dragging[pid] = false;
-                        dragging_id = -1;
-                        hover_x = -1;
-                        hover_y = -1;
-
-                    } else if (rs_sliding[pid]) {
-                        rs_sliding[pid] = false;
-                    } else if (pid == 0) {
-                        uint32_t step_diff = W->step_count - rs->down_step;
-                        if (step_diff < CLICK_MAX_STEPS) {
-                            struct rs_item *rsi = 0;
-                            if (highlight_id >= 0 && highlight_id < rs->inventory.size()) {
-                                rsi = rs->inventory[highlight_id];
-                                rsi->dragging = false;
-                                int first_prio_id = -1;
-                                int second_prio_id = -1;
-                                for (int i=0; i<NUM_EQ_SLOTS; ++i) {
-                                    if (eq_slots[i].category != rsi->category) continue;
-
-                                    if (eq_slots[i].item) {
-                                        second_prio_id = i;
-                                    } else {
-                                        first_prio_id = i;
-                                        break;
-                                    }
-                                }
-
-                                if (first_prio_id != -1) {
-                                    equip(first_prio_id, rs, highlight_id);
-                                } else if (second_prio_id != -1) {
-                                    equip(second_prio_id, rs, highlight_id);
-                                }
-                            } else {
-                                /* unequipping? */
-                                int release_x = floorf((sp.x - (inventory_width + (screen_padding*1.f))) / (inventory_item_w + rs_padding_x));
-                                int release_y = floorf((_tms.window_height - rs_padding_y - sp.y) / (inventory_item_h+rs_padding_y));
-                                for (int i=0; i<NUM_EQ_SLOTS; ++i) {
-                                    if (eq_slots[i].x != release_x) continue;
-                                    if (eq_slots[i].y != release_y) continue;
-                                    if (!eq_slots[i].compat) break;
-
-                                    /* do not unequip feet and bolt set */
-                                    if (eq_slots[i].category == ITEM_CATEGORY_BOLT_SET
-                                        || eq_slots[i].category == ITEM_CATEGORY_FEET) {
-                                        ui::message("Can not unequip that!");
-                                        break;
-                                    }
-
-                                    if (eq_slots[i].item) {
-                                        if (eq_slots[i].category == ITEM_CATEGORY_LOOSE_HEAD) {
-                                            /* if we're unequipping the head, force uniequip of the headwear */
-                                            if (eq_slots[0].item) {
-                                                rs->inventory.push_back(eq_slots[0].item);
-                                                eq_slots[0].item = 0;
-                                            }
-                                        }
-                                        rs->inventory.push_back(eq_slots[i].item);
-                                        eq_slots[i].item = 0;
-                                    }
-
-                                    break;
-                                }
-                            }
-                        }
                     }
                 }
-
-                refresh_highlight(sp);
             }
+
+            refresh_highlight(sp);
             break;
+        }
+        case TMS_EV_POINTER_SCROLL: {
+            float mx, my;
+            SDL_GetMouseState(&mx, &my);
 
-        case TMS_EV_POINTER_SCROLL:
-            {
-                float mx, my;
-                SDL_GetMouseState(&mx, &my);
+            if (mx < inventory_width)
+                inventory_top -= (float)ev->data.scroll.y * _tms.yppcm;
 
-                if (mx < inventory_width) {
-                    inventory_top -= (float)ev->data.scroll.y * _tms.yppcm;
-                }
-            }
             return EVENT_DONE;
+        }
     }
     return EVENT_DONE;
 }
 
-void
-repair_station::activate(creature *by)
-{
+void repair_station::activate(creature *by) {
     tms_infof("repair station activate");
     creature *repair_target;
 
@@ -1255,7 +1171,6 @@ repair_station::activate(creature *by)
         this->load_equipments(repair_target);
         G->sel_p_ent = this;
         G->set_mode(GAME_MODE_REPAIR_STATION);
-    } else {
+    } else
         ui::message("No target creature in repair station.");
-    }
 }

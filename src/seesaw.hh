@@ -2,10 +2,12 @@
 
 #include "entity.hh"
 
-class seesaw : public entity,
-               public b2QueryCallback,
-               public b2RayCastCallback
-{
+/**
+ * Class representing the Seesaw Base object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Seesaw_Base
+ */
+class seesaw : public entity, public b2QueryCallback, public b2RayCastCallback {
   private:
     connection c;
     connection c_floor;
@@ -17,7 +19,7 @@ class seesaw : public entity,
 
   public:
     seesaw();
-    const char* get_name(){return "Seesaw Base";}
+    const char* get_name() { return "Seesaw Base"; }
     void setup();
     void add_to_world();
     bool ReportFixture(b2Fixture *f);

@@ -7,8 +7,7 @@
 #include "explosive.hh"
 #include "creature.hh"
 
-mirror::mirror()
-{
+mirror::mirror() {
     this->type = ENTITY_PLANK; /* enabnle plank cross-layer conns */
     this->set_mesh(mesh_factory::get_mesh(MODEL_MIRROR));
     this->set_material(&m_gear);
@@ -19,8 +18,7 @@ mirror::mirror()
     this->query_len = .25f;
 }
 
-laser_sensor::laser_sensor()
-{
+laser_sensor::laser_sensor() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_LASERSENSOR));
     this->set_material(&m_edev);
     this->set_as_rect(.125f, .25f);
@@ -44,17 +42,14 @@ laser_sensor::laser_sensor()
     this->num_sliders = 2;
 }
 
-edevice*
-laser_sensor::solve_electronics()
-{
+edevice* laser_sensor::solve_electronics() {
     this->s_out[0].write(this->laserhit ? 1.f : 0.f);
     this->laserhit = false;
 
     return 0;
 }
 
-scanner::scanner()
-{
+scanner::scanner() {
     this->set_flag(ENTITY_DO_STEP,              true);
     this->set_flag(ENTITY_DO_TICK,              true);
     this->set_flag(ENTITY_DO_UPDATE_EFFECTS,    true);
@@ -85,20 +80,15 @@ scanner::scanner()
     this->query_sides[2].SetZero(); /* down */
 }
 
-scanner::~scanner()
-{
+scanner::~scanner() {
     delete this->handler;
 }
 
-void
-scanner::init()
-{
+void scanner::init() {
     this->active = (this->s_in[0].p == 0);
 }
 
-void
-scanner::step()
-{
+void scanner::step() {
     b2Vec2 pt1 = this->local_to_world(b2Vec2(0.f, -.35f), 0);
     b2Vec2 pt2 = this->local_to_world(b2Vec2(0.f, -SCANNER_REACH), 0);
     b2Vec2 dir = pt2-pt1;
@@ -157,20 +147,15 @@ scanner::step()
     }
 }
 
-void
-scanner::tick()
-{
+void scanner::tick() {
     step();
 }
 
-float32
-scanner::cb_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
+float32 scanner::cb_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
     entity *r = static_cast<entity*>(f->GetUserData());
 
-    if (f->IsSensor()) {
+    if (f->IsSensor())
         return -1.f;
-    }
 
     if (r) {
         /* if the layer of the scanner and entity are different, continue scanning */
@@ -186,9 +171,7 @@ scanner::cb_handler::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 
     return fraction;
 }
 
-void
-scanner::update_effects()
-{
+void scanner::update_effects() {
     float z = this->get_layer() * LAYER_DEPTH;
 
     b2Vec2 last = this->local_to_world(b2Vec2(0.f, -.35f), 0);
@@ -206,14 +189,11 @@ scanner::update_effects()
         last = this->points[x];
     }
 
-    if (this->num_points > 0) {
+    if (this->num_points > 0)
         spritebuffer::add(last.x, last.y, z, 1.f, 1.f, 1.f, 1.f, .2f, .2f, 1, cos((double)(_tms.last_time + rand()%100000)/100000.) * .25f);
-    }
 }
 
-edevice*
-scanner::solve_electronics()
-{
+edevice* scanner::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 
@@ -222,9 +202,7 @@ scanner::solve_electronics()
     return 0;
 }
 
-void
-laser_sensor::on_slider_change(int s, float value)
-{
+void laser_sensor::on_slider_change(int s, float value) {
     if (s == 0) {
         this->properties[0].v.f = value;
         G->show_numfeed(value);
@@ -234,9 +212,7 @@ laser_sensor::on_slider_change(int s, float value)
     }
 }
 
-void
-laser_sensor::on_load(bool created, bool has_state)
-{
+void laser_sensor::on_load(bool created, bool has_state) {
     if (this->properties[1].v.i == 0) {
         this->set_as_rect(.125f, .25f);
         this->query_vec = b2Vec2(0.f, .35f);
@@ -252,16 +228,11 @@ laser_sensor::on_load(bool created, bool has_state)
     this->recreate_shape();
 }
 
-void
-scanner::on_slider_change(int s, float value)
-{
+void scanner::on_slider_change(int s, float value) {
     this->properties[0].v.f = value;
     G->show_numfeed(value);
 }
 
-
-void
-scanner::write_quickinfo(char *out)
-{
+void scanner::write_quickinfo(char *out) {
     sprintf(out, "%s (wavelength: %f)", this->get_name(), this->properties[0].v.f);
 }

@@ -25,8 +25,7 @@ textbuf_vert textbuffer::base[4];
 #define TEX_WIDTH  1024.f
 #define TEX_HEIGHT 1024.f
 
-void textbuffer::_init()
-{
+void textbuffer::_init() {
     tms_infof("Initializing textbuffer...");
 
     verts = new tms::gbuffer(4*TEXTBUFFER_MAX*sizeof(struct textbuf_vert));
@@ -88,16 +87,12 @@ void textbuffer::_init()
     reset();
 }
 
-void
-textbuffer::reset()
-{
+void textbuffer::reset() {
     n = 0;
     n2 = 0;
 }
 
-void
-textbuffer::upload()
-{
+void textbuffer::upload() {
     if (mesh) {
         mesh->i_start = 0;
         mesh->i_count = n*6;
@@ -111,9 +106,7 @@ textbuffer::upload()
     if (n2) verts2->upload_partial(n2*4*sizeof(struct textbuf_vert));
 }
 
-tms::entity *
-textbuffer::get_entity()
-{
+tms::entity * textbuffer::get_entity() {
     if (e) return e;
 
     e = new tms::entity();
@@ -129,15 +122,11 @@ textbuffer::get_entity()
     return e;
 }
 
-void
-custom_update(struct tms_entity *e)
-{
+void custom_update(struct tms_entity *e) {
     tms_debugf("hello");
 }
 
-tms::entity *
-textbuffer::get_entity2()
-{
+tms::entity * textbuffer::get_entity2() {
     if (e2) return e2;
 
     mesh2 = new tms::mesh(va2, indices);
@@ -152,8 +141,7 @@ textbuffer::get_entity2()
     return e2;
 }
 
-void
-textbuffer::add_char(glyph *gl,
+void textbuffer::add_char(glyph *gl,
         float x, float y, float z,
         float r, float g, float b, float a,
         float w, float h)
@@ -195,8 +183,7 @@ textbuffer::add_char(glyph *gl,
     }
 }
 
-void
-textbuffer::add_bg(
+void textbuffer::add_bg(
         float x, float y, float z,
         float r, float g, float b, float a,
         float w, float h)
@@ -226,8 +213,7 @@ textbuffer::add_bg(
     }
 }
 
-void
-textbuffer::add_char2(glyph *gl,
+void textbuffer::add_char2(glyph *gl,
         float x, float y, float z,
         float r, float g, float b, float a,
         float w, float h)
@@ -269,9 +255,7 @@ textbuffer::add_char2(glyph *gl,
     }
 }
 
-void
-textbuffer::add_text(p_text *text, float scale)
-{
+void textbuffer::add_text(p_text *text, float scale) {
     p_text::text_glyph *g = 0;
     for (int i=0; i<text->num_glyphs; ++i) {
         g = &text->glyphs[i];
@@ -286,8 +270,7 @@ textbuffer::add_text(p_text *text, float scale)
     }
 }
 
-void
-textbuffer::add_text(const char *text, p_font *font,
+void textbuffer::add_text(const char *text, p_font *font,
         float x, float y, float z,
         float r, float g, float b, float a,
         float scale,

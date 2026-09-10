@@ -3,8 +3,7 @@
 #include "material.hh"
 #include "game.hh"
 
-weight::weight()
-{
+weight::weight() {
     this->set_flag(ENTITY_ALLOW_CONNECTIONS, false);
     this->set_flag(ENTITY_IS_MOVEABLE, true);
 
@@ -22,9 +21,7 @@ weight::weight()
     this->query_pt  = b2Vec2(0.f, -0.25f);
 }
 
-void
-weight::add_to_world()
-{
+void weight::add_to_world() {
     b2Vec2 verts[4] = {
         b2Vec2(0.2268f, .324f),
         b2Vec2(-0.2268f, .324f),
@@ -53,21 +50,15 @@ weight::add_to_world()
     this->height = .25f;
 }
 
-float
-weight::get_slider_value(int s)
-{
+float weight::get_slider_value(int s) {
     return this->properties[0].v.f - 0.5f;
 }
 
-float
-weight::get_slider_snap(int s)
-{
+float weight::get_slider_snap(int s) {
     return 1.f / 20.f;
 }
 
-void
-weight::on_slider_change(int s, float value)
-{
+void weight::on_slider_change(int s, float value) {
     float v = (.5f + value*2);
     this->set_property(0, v);
     G->show_numfeed(v);

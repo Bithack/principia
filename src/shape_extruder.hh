@@ -2,6 +2,11 @@
 
 #include "entity.hh"
 
+/**
+ * Class representing the Shape Extruder object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Shape_Extruder
+ */
 class shape_extruder : public entity, public b2QueryCallback {
   public:
     connection c;

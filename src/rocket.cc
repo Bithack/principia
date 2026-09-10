@@ -10,8 +10,7 @@
 #define ROCKET_TYPE_THRUSTER 0
 #define ROCKET_TYPE_ROCKET   1
 
-rocket::rocket(int size)
-{
+rocket::rocket(int size) {
     this->set_flag(ENTITY_DO_STEP, true);
     this->set_flag(ENTITY_DO_UPDATE_EFFECTS, true);
     this->set_flag(ENTITY_IS_MAGNETIC, true);
@@ -45,72 +44,55 @@ rocket::rocket(int size)
 
     this->layer_mask = 14; /* sublayer 2, 3, 4 */
 
-    if (size == 0) {
+    if (size == 0)
         this->set_as_rect(.25f/2.f, .75f/2.f);
-    } else {
+    else
         this->set_as_rect(.5f/2.f, 1.688f/2.f);
-    }
 
     this->query_sides[2].SetZero(); /* down */
 
     this->flames = 0;
 }
 
-void
-rocket::on_pause()
-{
+void rocket::on_pause() {
     this->flames = 0;
 
     this->set_thrustmul(0.f);
 }
 
-void
-rocket::on_absorb()
-{
-    if (this->flames) {
+void rocket::on_absorb() {
+    if (this->flames)
         this->flames->done = true;
-    }
 }
 
-void
-rocket::setup()
-{
+void rocket::setup() {
     this->set_thrustmul(0.f);
 }
 
-float
-rocket::get_slider_snap(int s)
-{
+float rocket::get_slider_snap(int s) {
     return .05f;
 }
 
-float
-rocket::get_slider_value(int s)
-{
+float rocket::get_slider_value(int s) {
     return this->properties[0].v.f / 40.f;
 }
 
-void
-rocket::on_slider_change(int s, float value)
-{
+void rocket::on_slider_change(int s, float value) {
     this->properties[0].v.f = value * 40.f;
     float factor = (this->rtype == 0 ? 1.f : ROCKET_THRUST_MUL);
     G->show_numfeed(this->properties[0].v.f*factor);
 }
 
-void
-rocket::step()
-{
+void rocket::step() {
     if (this->thrustmul > 0.f) {
         if (!this->flames) {
             this->flames = new flame_effect(this->_pos, this->get_layer(), this->rtype);
             tms_debugf("rocket %p flame effect: %p", this, this->flames);
             this->flames->set_thrustmul(0.f);
-            if (this->rtype == ROCKET_TYPE_THRUSTER) {
+            if (this->rtype == ROCKET_TYPE_THRUSTER)
                 this->flames->set_z_offset(.1f);
-            } else {
+            else
                 this->flames->set_z_offset(.08f);
-            }
         }
 
         G->emit(flames, this, b2Vec2(0.f, 0.f));
@@ -152,44 +134,35 @@ rocket::step()
         W->b2->QueryAABB(this, aabb);
     }
 
-    if (this->flames) {
+    if (this->flames)
         this->flames->set_thrustmul(this->thrustmul);
-    }
 }
 
-bool
-rocket::ReportFixture(b2Fixture *f)
-{
+bool rocket::ReportFixture(b2Fixture *f) {
     entity *e = (entity*)f->GetUserData();
 
-    if (!e) {
+    if (!e)
         return true;
-    }
 
     if (W->level.version < LEVEL_VERSION_1_5) {
-        if (e->g_id == O_BOMB) {
+        if (e->g_id == O_BOMB)
             ((explosive*)e)->triggered = true;
-        }
+
     } else {
-        if (!world::fixture_in_layer(f, this->get_layer())) {
+        if (!world::fixture_in_layer(f, this->get_layer()))
             return true;
-        }
 
-        if (W->level.flag_active(LVL_DISABLE_ROCKET_TRIGGER_EXPLOSIVES)) {
+        if (W->level.flag_active(LVL_DISABLE_ROCKET_TRIGGER_EXPLOSIVES))
             return true;
-        }
 
-        if (e->is_explosive()) {
+        if (e->is_explosive())
             ((explosive*)e)->triggered = true;
-        }
     }
 
     return true;
 }
 
-edevice*
-rocket::solve_electronics(void)
-{
+edevice* rocket::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 
@@ -205,8 +178,6 @@ rocket::solve_electronics(void)
     return 0;
 }
 
-void
-rocket::set_thrustmul(float thrustmul)
-{
+void rocket::set_thrustmul(float thrustmul) {
     this->thrustmul = thrustmul;
 }

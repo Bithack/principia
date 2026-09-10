@@ -66,21 +66,18 @@ struct entity_action
 };
 
 
-struct pending_absorb
-{
+struct pending_absorb {
     entity *e;
     entity *absorber;
     b2Vec2 absorber_point;
     uint8_t absorber_frame;
 
-    pending_absorb(entity *e)
-    {
+    pending_absorb(entity *e) {
         this->e = e;
         this->absorber = 0;
     }
 
-    pending_absorb(entity *e, entity *absorber, b2Vec2 absorber_point, uint8_t absorber_frame)
-    {
+    pending_absorb(entity *e, entity *absorber, b2Vec2 absorber_point, uint8_t absorber_frame) {
         this->e = e;
         this->absorber = absorber;
         this->absorber_point = absorber_point;
@@ -88,13 +85,11 @@ struct pending_absorb
     }
 };
 
-static inline bool operator <(const pending_absorb& lhs, const pending_absorb &rhs)
-{
+static inline bool operator <(const pending_absorb& lhs, const pending_absorb &rhs) {
     return lhs.e < rhs.e;
 }
 
-class pending_emit
-{
+class pending_emit {
   public:
     bool partial;
 
@@ -114,8 +109,7 @@ class pending_emit
         } multi;
     } data;
 
-    pending_emit(entity *e, entity *emitter, b2Vec2 velocity)
-    {
+    pending_emit(entity *e, entity *emitter, b2Vec2 velocity) {
         this->partial = false;
         this->data.single.e = e;
         this->data.single.emitter = emitter;
@@ -123,8 +117,7 @@ class pending_emit
         this->data.single.velocity_y = velocity.y;
     }
 
-    pending_emit(const char *buf, uint16_t buf_len, b2Vec2 displacement)
-    {
+    pending_emit(const char *buf, uint16_t buf_len, b2Vec2 displacement) {
         this->partial = true;
         this->data.multi.displacement_x = displacement.x;
         this->data.multi.displacement_y = displacement.y;
@@ -133,17 +126,14 @@ class pending_emit
     }
 };
 
-class world : public b2QueryCallback
-{
+class world : public b2QueryCallback {
   private:
-    class b2_destruction_listener : public b2DestructionListener
-    {
+    class b2_destruction_listener : public b2DestructionListener {
         void SayGoodbye(b2Joint *j);
         void SayGoodbye(b2Fixture *f);
     } *destruction_listener;
 
-    class b2_sleep_listener : public b2SleepListener
-    {
+    class b2_sleep_listener : public b2SleepListener {
       public:
         void OnWakeup(b2Body *b);
         void OnSleep(b2Body *b);
@@ -240,25 +230,34 @@ class world : public b2QueryCallback
     b2World *b2;
     world();
     bool step();
+
+    /**
+     * Insert and call add_to_world
+     */
     void add(entity *e);
+
+    /**
+     * Erase and call remove_from_world
+     *
+     * return true if we removed an emitted entity
+     */
     bool remove(entity *e);
     void insert(entity *e);
     void erase(entity *e);
     void draw_debug(tms::camera *cam);
-    void init_simulation(void);
+    void init_simulation();
     void reload_modified_chunks();
 
     void add_action(uint32_t entity_id, uint32_t action_id, void *data=0);
-    void perform_actions(void);
+    void perform_actions();
 
-    inline bool is_paused(){return this->paused;}
-    inline bool is_playing(){return !this->is_paused();}
-    inline bool is_puzzle(){return this->level.type == LCAT_PUZZLE;}
-    inline bool is_adventure(){return this->level.type == LCAT_ADVENTURE;}
-    inline bool is_custom(){return this->level.type == LCAT_CUSTOM;}
+    inline bool is_paused() { return this->paused; }
+    inline bool is_playing() { return !this->is_paused(); }
+    inline bool is_puzzle() { return this->level.type == LCAT_PUZZLE; }
+    inline bool is_adventure() { return this->level.type == LCAT_ADVENTURE; }
+    inline bool is_custom() { return this->level.type == LCAT_CUSTOM; }
 
-    inline bool is_buildable()
-    {
+    inline bool is_buildable() {
         return this->is_paused() || this->is_adventure();
     }
 
@@ -300,6 +299,10 @@ class world : public b2QueryCallback
     void calculate_bounds(std::set<entity*> *entities, float *min_x, float *max_x, float *min_y, float *max_y);
     bool load_partial_from_buffer(lvlbuf *lb, b2Vec2 position, std::map<uint32_t, entity*> *entities, std::map<uint32_t, group*> *groups, std::set<connection*> *connections, std::set<cable*> *cables);
     bool load_partial(uint32_t id, b2Vec2 position, std::map<uint32_t, entity*> *entities, std::map<uint32_t, group*> *groups, std::set<connection*> *connections, std::set<cable*> *cables);
+    /**
+     * Save a partial set of entities from the world, including all related connections, groups and cables.
+     * Used by game to save a multiselect.
+     */
     void save_partial(std::set<entity*> *entity_list, const char *name, uint32_t id);
     void fill_buffer(lvlinfo *lvl, lvlbuf *buf, std::map<uint32_t, group*> *groups, std::map<uint32_t, entity*> *entities, std::set<connection*> *connections, std::set<cable*> *cables, uint32_t id_modifier=0, b2Vec2 displacement=b2Vec2(0.f,0.f), bool fill_unloaded=false, bool fill_states=false);
     bool load_buffer(lvlinfo *lvl, lvlbuf *buf, uint32_t id_modifier=0, b2Vec2 displacement=b2Vec2(0.f,0.f), std::map<uint32_t, entity*> *entities=0, std::map<uint32_t, group*> *groups =0, std::set<connection*> *connections =0, std::set<cable*> *cables=0);
@@ -311,13 +314,13 @@ class world : public b2QueryCallback
     cable  *load_cable(lvlbuf *buf, int version, uint64_t flags, uint32_t id_modifier=0, b2Vec2 displacement=b2Vec2(0.f,0.f), std::set<cable*> *cables=0);
     connection *load_connection(lvlbuf *buf, int version, uint64_t flags, uint32_t id_modifier=0, b2Vec2 displacement=b2Vec2(0.f,0.f), std::set<connection*> *connections=0);
 
-    void reset(void);
+    void reset();
     void set_level_type(int type);
 
     bool ReportFixture(b2Fixture *f);
     int query(tms::camera *cam, int x, int y, entity **out_ent, b2Body **out_body, tvec2 *offs, uint8_t *frame, int layer_mask, bool force_selection=false, b2Fixture **out_fx=0, bool is_exact=false);
     int get_layer_point(tms::camera *cam, int x, int y, float layer, tvec3 *out);
-    void solve_electronics(void);
+    void solve_electronics();
     void apply_local_gravities();
     int solve_edevice(edevice *e);
 
@@ -340,8 +343,7 @@ class world : public b2QueryCallback
     /* chunk stuff */
     float get_height(float x);
 
-    static inline b2Filter get_filter_for_layer(int z)
-    {
+    static inline b2Filter get_filter_for_layer(int z) {
         b2Filter r;
         r.categoryBits = (15 << z*4);
         r.maskBits = (15 << z*4);
@@ -349,8 +351,7 @@ class world : public b2QueryCallback
         return r;
     }
 
-    static inline b2Filter get_filter_for_layer(int z, int mask)
-    {
+    static inline b2Filter get_filter_for_layer(int z, int mask) {
         b2Filter r;
         r.categoryBits = (mask << z*4);
         r.maskBits = (mask << z*4);
@@ -358,8 +359,7 @@ class world : public b2QueryCallback
         return r;
     }
 
-    static inline b2Filter get_filter_for_multilayer(int mask_0, int mask_1, int mask_2)
-    {
+    static inline b2Filter get_filter_for_multilayer(int mask_0, int mask_1, int mask_2) {
         b2Filter r;
         r.categoryBits = (mask_0) | (mask_1 << 4) | (mask_2 << 8);
         r.maskBits = (mask_0) | (mask_1 << 4) | (mask_2 << 8);
@@ -367,30 +367,25 @@ class world : public b2QueryCallback
         return r;
     }
 
-    static inline int fixture_get_layer(b2Fixture *f)
-    {
+    static inline int fixture_get_layer(b2Fixture *f) {
         return (f->GetFilterData().categoryBits & (15 << 8)) ? 2 :
                 ((f->GetFilterData().categoryBits & (15<<4)) ? 1 : 0);
     }
 
-    static inline int fixture_get_lower_layer(b2Fixture *f)
-    {
+    static inline int fixture_get_lower_layer(b2Fixture *f) {
         return (f->GetFilterData().categoryBits & (15)) ? 0 :
                 ((f->GetFilterData().categoryBits & (15<<4)) ? 1 : 2);
     }
 
-    static inline bool fixture_in_layer(b2Fixture *f, int layer, int sublayer=15)
-    {
+    static inline bool fixture_in_layer(b2Fixture *f, int layer, int sublayer=15) {
         return (f->GetFilterData().categoryBits & (sublayer << (layer*4)));
     }
 
-    inline b2Vec2 get_gravity()
-    {
+    inline b2Vec2 get_gravity() {
         return this->b2->GetGravity();
     }
 
-    inline void set_gravity(float x, float y)
-    {
+    inline void set_gravity(float x, float y) {
         if (x == this->gravity_x && y == this->gravity_y)
             return;
 
@@ -398,8 +393,7 @@ class world : public b2QueryCallback
         this->gravity_y = y;
     }
 
-    std::map<uint32_t, entity*> get_all_entities()
-    {
+    std::map<uint32_t, entity*> get_all_entities() {
         return this->all_entities;
     }
 

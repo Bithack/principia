@@ -36,8 +36,7 @@ typedef struct Mix_Chunk {
 #define SM_GENWAVE_STOP       1
 #define SM_GENWAVE_START      2
 
-struct genwave_data
-{
+struct genwave_data {
     bool available;
     bool started;
     double phase;
@@ -58,14 +57,12 @@ struct genwave_data
     } ticks[SM_GENWAVE_NUM_TICKS];
 };
 
-struct sm_chunk
-{
+struct sm_chunk {
     Mix_Chunk *chunk;
     const char *name;
 };
 
-class sm_sound
-{
+class sm_sound {
   public:
     sm_chunk   chunks[SM_MAX_CHUNKS];
     int        num_chunks;
@@ -76,17 +73,15 @@ class sm_sound
 
     sm_sound(){this->num_chunks=0;this->reset();this->min_repeat_ms = 50;};
 
-    void reset()
-    {
+    void reset() {
         this->last_chan = -1;
         this->last_time = 0;
-    };
+    }
 
     void add_chunk(const char *filename, const char *chunk_name);
 };
 
-class sm_channel
-{
+class sm_channel {
   public:
     int        chan;
     tvec2      position;
@@ -100,8 +95,7 @@ class sm_channel
     void update_position();
 };
 
-class sm
-{
+class sm {
     static bool  initialized;
 
   public:
@@ -179,12 +173,12 @@ class sm
     static sm_sound       swish_axe;
 
     static bool gen_started;
-    static void pause_all(void);
-    static void resume_all(void);
+    static void pause_all();
+    static void resume_all();
     static void play_gen(int x);
     static void step();
     static void init();
     static bool stop(sm_sound *snd, void *ident);
-    static void stop_all(void);
+    static void stop_all();
     static void play(sm_sound *snd, float x, float y, uint8_t random, float volume, bool loop=false, void *ident=0, bool global=false);
 };

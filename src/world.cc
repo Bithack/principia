@@ -1,40 +1,38 @@
 #include "world.hh"
+#include "adventure.hh"
+#include "animal.hh"
 #include "artificial_gravity.hh"
-#include "luascript.hh"
+#include "connection.hh"
+#include "crane.hh"
+#include "damper.hh"
+#include "debugdraw.hh"
 #include "eventlistener.hh"
+#include "faction.hh"
+#include "factory.hh"
+#include "fxemitter.hh"
+#include "game.hh"
+#include "group.hh"
+#include "i0o1gate.hh"
+#include "impact_sensor.hh"
+#include "luascript.hh"
+#include "misc.hh"
+#include "model.hh"
+#include "object_factory.hh"
+#include "pivot.hh"
+#include "ragdoll.hh"
+#include "receiver.hh"
+#include "repair_station.hh"
+#include "robot_base.hh"
+#include "rubberband.hh"
+#include "screenshot_marker.hh"
+#include "scup.hh"
+#include "simplebg.hh"
 #include "solver.hh"
 #include "solver_ingame.hh"
-#include "group.hh"
-#include "debugdraw.hh"
-#include "object_factory.hh"
-#include "game.hh"
-#include "receiver.hh"
 #include "soundman.hh"
-#include "screenshot_marker.hh"
-#include "ui.hh"
-#include "model.hh"
-#include "connection.hh"
-#include "ragdoll.hh"
-#include "fxemitter.hh"
-#include "adventure.hh"
-#include "i0o1gate.hh"
-#include "worker.hh"
-#include "damper.hh"
-#include "pivot.hh"
-#include "rubberband.hh"
 #include "soundmanager.hh"
-#include "simplebg.hh"
-#include "scup.hh"
-#include "factory.hh"
-#include "gravityman.hh"
-#include "faction.hh"
-#include "robot_base.hh"
-#include "impact_sensor.hh"
-#include "animal.hh"
-#include "misc.hh"
-#include "crane.hh"
-#include "repair_station.hh"
-
+#include "ui.hh"
+#include "worker.hh"
 #include <algorithm>
 
 #define QUERY_EPS .5f
@@ -42,9 +40,7 @@
 
 world *W;
 
-world::world()
-    : level_id_type(LEVEL_LOCAL)
-{
+world::world() : level_id_type(LEVEL_LOCAL) {
     tms_debugf("world initing");
     this->score_helper = 0 ^ SCORE_XOR;
     this->first_solve = false;
@@ -71,57 +67,41 @@ world::world()
     this->cwindow = new chunk_window();
 }
 
-void
-world::draw_debug(tms::camera *cam)
-{
+void world::draw_debug(tms::camera *cam) {
     glLineWidth(1.f);
     this->debug->begin(cam);
     this->b2->DrawDebugData();
     this->debug->end();
 }
 
-void
-world::insert_connection(connection *cc)
-{
+void world::insert_connection(connection *cc) {
     this->connections.insert(cc);
 }
 
-void
-world::erase_connection(connection *cc)
-{
-    if (cc->j) {
+void world::erase_connection(connection *cc) {
+    if (cc->j)
         this->destructable_joints.erase(cc->j);
-    }
 
-    if (cc->self_ent && cc->self_ent->scene) {
+    if (cc->self_ent && cc->self_ent->scene)
         G->remove_entity(cc->self_ent);
-    }
 
     this->connections.erase(cc);
 }
 
-void
-world::insert(entity *e)
-{
+void world::insert(entity *e) {
     if (this->paused) {
-        if (e->flag_active(ENTITY_DO_TICK)) {
+        if (e->flag_active(ENTITY_DO_TICK))
             this->tickable.insert(e);
-        }
     } else {
-        if (e->flag_active(ENTITY_DO_STEP)) {
+        if (e->flag_active(ENTITY_DO_STEP))
             this->stepable.insert(e);
-        }
-        if (e->flag_active(ENTITY_DO_MSTEP)) {
+        if (e->flag_active(ENTITY_DO_MSTEP))
             this->mstepable.insert(e);
-        }
-        if (e->flag_active(ENTITY_DO_PRE_STEP)) {
+        if (e->flag_active(ENTITY_DO_PRE_STEP))
             this->prestepable.insert(e);
-        }
-        if (e->flag_active(ENTITY_HAS_ACTIVATOR)) {
+        if (e->flag_active(ENTITY_HAS_ACTIVATOR))
             this->activators.insert(e->get_activator());
-        }
     }
-
 
     if (e->type == ENTITY_EDEVICE && e->get_edevice()->do_solve_electronics) {
         std::vector<edevice*>::iterator i;
@@ -151,12 +131,7 @@ world::insert(entity *e)
     }
 }
 
-/**
- * insert and call add_to_world
- **/
-void
-world::add(entity *e)
-{
+void world::add(entity *e) {
     this->insert(e);
 
     if (!e->gr) {
@@ -170,14 +145,11 @@ world::add(entity *e)
         }
     }
 
-    if (this->paused) {
+    if (this->paused)
         this->step_count = 0;
-    }
 }
 
-void
-world::erase(entity *e)
-{
+void world::erase(entity *e) {
     if (this->paused) {
         this->tickable.erase(e);
     } else {
@@ -214,14 +186,7 @@ world::erase(entity *e)
     }
 }
 
-/**
- * Erase and call remove_from_world
- *
- * return true if we removed an emitted entity
- **/
-bool
-world::remove(entity *e)
-{
+bool world::remove(entity *e) {
     bool ret = true;
 
     this->erase(e);
@@ -232,9 +197,8 @@ world::remove(entity *e)
         e->signal(ENTITY_EVENT_REMOVE);
         G->destroy_possible_mover(e);
 
-        if (G->follow_object == e) {
+        if (G->follow_object == e)
             G->follow_object = 0;
-        }
     }
 
     e->remove_from_world();
@@ -242,34 +206,25 @@ world::remove(entity *e)
     return ret;
 }
 
-void
-world::add_gravity_force(int key, b2Vec2 force)
-{
+void world::add_gravity_force(int key, b2Vec2 force) {
     std::pair<std::map<int, b2Vec2>::iterator, bool> ret;
     ret = this->gravity_forces.insert(std::pair<int, b2Vec2>(key, force));
 
     if (ret.second) {
         tms_infof("new object inserted");
-    } else {
+    } else
         (ret.first)->second = force;
-    }
 }
 
-void
-world::remove_gravity_force(int key)
-{
+void world::remove_gravity_force(int key) {
     this->gravity_forces.erase(key);
 }
 
-void
-world::add_receiver(uint32_t frequency, receiver_base *t)
-{
+void world::add_receiver(uint32_t frequency, receiver_base *t) {
     this->receivers.insert(std::pair<uint32_t, receiver_base*>(frequency, t));
 }
 
-void
-world::remove_receiver(uint32_t frequency, receiver_base *t)
-{
+void world::remove_receiver(uint32_t frequency, receiver_base *t) {
     typedef std::multimap<uint32_t, receiver_base*>::iterator iterator;
     std::pair<iterator, iterator> ip = this->receivers.equal_range(frequency);
 
@@ -282,15 +237,11 @@ world::remove_receiver(uint32_t frequency, receiver_base *t)
     }
 }
 
-void
-world::add_soundman(uint32_t sound_id, soundman *sm)
-{
+void world::add_soundman(uint32_t sound_id, soundman *sm) {
     this->soundmanagers.insert(std::pair<uint32_t, soundman*>(sound_id, sm));
 }
 
-void
-world::remove_soundman(uint32_t sound_id, soundman *sm)
-{
+void world::remove_soundman(uint32_t sound_id, soundman *sm) {
     typedef std::multimap<uint32_t, soundman*>::iterator iterator;
     std::pair<iterator, iterator> ip = this->soundmanagers.equal_range(sound_id);
 
@@ -305,9 +256,7 @@ world::remove_soundman(uint32_t sound_id, soundman *sm)
 
 //#define PROFILING
 //
-void
-world::reload_modified_chunks()
-{
+void world::reload_modified_chunks() {
     for (std::set<level_chunk*>::iterator i = this->to_be_reloaded.begin();
             i != this->to_be_reloaded.end(); i++) {
         level_chunk *c = (*i);
@@ -324,16 +273,13 @@ world::reload_modified_chunks()
 }
 
 /* return true if we have another step to do */
-bool
-world::step()
-{
+bool world::step() {
     if (this->is_playing()) {
         /*struct timeval start;
         gettimeofday(&start, 0);*/
 
-        if (_tms.time_accum > WORLD_STEP*3) {
+        if (_tms.time_accum > WORLD_STEP*3)
             _tms.time_accum = WORLD_STEP*3;
-        }
 
         if (_tms.time_accum >= WORLD_STEP) {
             this->step_count ++;
@@ -421,19 +367,16 @@ world::step()
 
             for (std::set<luascript*>::iterator i = this->escripts.begin();
                     i != this->escripts.end(); i++) {
-                for (int x=0; x<WORLD_EVENT__NUM; x++) {
-                    if (this->events[x]) {
+
+                for (int x=0; x<WORLD_EVENT__NUM; x++)
+                    if (this->events[x])
                         (*i)->events[x] ++;
-                    }
-                }
             }
 
             /* decrement event counters */
-            for (int x=0; x<WORLD_EVENT__NUM; x++) {
-                if (this->events[x] > 0) {
-                    this->events[x] --;
-                }
-            }
+            for (int x=0; x<WORLD_EVENT__NUM; x++)
+                if (this->events[x] > 0)
+                    this->events[x]--;
 
             b2Vec2 gravity(0,0);
 
@@ -555,9 +498,7 @@ world::step()
     return false;
 }
 
-void
-world::add_action(uint32_t entity_id, uint32_t action_id, void *data/*=0*/)
-{
+void world::add_action(uint32_t entity_id, uint32_t action_id, void *data/*=0*/) {
     struct entity_action ea = {
         entity_id,
         action_id,
@@ -567,61 +508,51 @@ world::add_action(uint32_t entity_id, uint32_t action_id, void *data/*=0*/)
     this->actions.push_back(ea);
 }
 
-void
-world::perform_actions()
-{
-    if (!this->actions.empty()) {
-        for (std::deque<struct entity_action>::iterator it = this->actions.begin();
-                it != this->actions.end(); ++it) {
-            struct entity_action &ea = *it;
+void world::perform_actions() {
+    if (this->actions.empty())
+        return;
 
-            entity *e = W->get_entity_by_id(ea.entity_id);
+    for (std::deque<struct entity_action>::iterator it = this->actions.begin();
+            it != this->actions.end(); ++it) {
+        struct entity_action &ea = *it;
 
-            if (!e) continue;
+        entity *e = W->get_entity_by_id(ea.entity_id);
 
-            switch (ea.action_id) {
-                case ACTION_FINALIZE_GROUP:
-                    if (e->gr) {
-                        e->gr->finalize();
-                    }
-                    break;
+        if (!e) continue;
 
-                case ACTION_REBUILD_GROUP:
-                    if (e->gr) {
-                        e->gr->rebuild();
-                    }
-                    break;
+        switch (ea.action_id) {
+            case ACTION_FINALIZE_GROUP:
+                if (e->gr)
+                    e->gr->finalize();
+                break;
 
-                case ACTION_MOVE_ENTITY:
-                    {
-                        b2Vec2 *pos = static_cast<b2Vec2*>(ea.data);
-                        e->set_position(pos->x, pos->y);
-                        delete pos;
-                    }
-                    break;
+            case ACTION_REBUILD_GROUP:
+                if (e->gr)
+                    e->gr->rebuild();
+                break;
 
-                case ACTION_SET_ANIMAL_TYPE:
-                    {
-                        ((animal*)e)->set_animal_type(VOID_TO_UINT32(ea.data));
-                        ((animal*)e)->do_recreate_shape = true;
-                    }
-                    break;
-
-                case ACTION_CALL_ON_LOAD:
-                    {
-                        e->on_load(false, false);
-                    }
-                    break;
+            case ACTION_MOVE_ENTITY: {
+                b2Vec2 *pos = static_cast<b2Vec2*>(ea.data);
+                e->set_position(pos->x, pos->y);
+                delete pos;
+                break;
             }
-        }
 
-        this->actions.clear();
+            case ACTION_SET_ANIMAL_TYPE:
+                ((animal*)e)->set_animal_type(VOID_TO_UINT32(ea.data));
+                ((animal*)e)->do_recreate_shape = true;
+                break;
+
+            case ACTION_CALL_ON_LOAD:
+                e->on_load(false, false);
+                break;
+        }
     }
+
+    this->actions.clear();
 }
 
-void
-world::apply_local_gravities()
-{
+void world::apply_local_gravities() {
     /* step local gravities separately */
     for (std::set<artificialgravity*>::iterator i = this->localgravities.begin();
             i != this->localgravities.end(); i++) {
@@ -633,14 +564,11 @@ world::apply_local_gravities()
 #define SOLVE_ERR 1
 #define SOLVE_SKIP 2
 
-int
-world::solve_edevice(edevice *e)
-{
+int world::solve_edevice(edevice *e) {
     edevice *next, *last_next = 0;
 
-    if (e->step_count == edev_step_count) {
+    if (e->step_count == edev_step_count)
         return SOLVE_SKIP;
-    }
 
     e->step_count = edev_step_count;
 
@@ -669,11 +597,10 @@ world::solve_edevice(edevice *e)
         }
 
         this->electronics.erase(it);
-        if (this->edevice_order > this->electronics.size()) {
+        if (this->edevice_order > this->electronics.size())
             this->electronics.push_back(e);
-        } else {
+        else
             this->electronics.insert(this->electronics.begin()+this->edevice_order, e);
-        }
     }
 
     this->edevice_order ++;
@@ -681,9 +608,7 @@ world::solve_edevice(edevice *e)
     return SOLVE_OK;
 }
 
-void
-world::solve_electronics()
-{
+void world::solve_electronics() {
 //#define PROFILING
 
 #ifdef PROFILING
@@ -720,9 +645,8 @@ world::solve_electronics()
         }
 
         this->electronics_accum = 0;
-        if (sm::gen_started) {
+        if (sm::gen_started)
             sm::write_counter++;
-        }
     }
 
 #ifdef PROFILING
@@ -730,9 +654,7 @@ world::solve_electronics()
 #endif
 }
 
-int
-world::get_layer_point(tms::camera *cam, int x, int y, float layer, tvec3 *out)
-{
+int world::get_layer_point(tms::camera *cam, int x, int y, float layer, tvec3 *out) {
     float invcam[16];
 
     tvec2 v = {
@@ -766,9 +688,7 @@ world::get_layer_point(tms::camera *cam, int x, int y, float layer, tvec3 *out)
     return T_OK;
 }
 
-bool
-world::ReportFixture(b2Fixture *f)
-{
+bool world::ReportFixture(b2Fixture *f) {
     entity *e = (entity*)f->GetUserData();
 
     if (this->is_playing() && e && this->level.type != LCAT_ADVENTURE) {
@@ -784,9 +704,8 @@ world::ReportFixture(b2Fixture *f)
     }
 
     if (f->GetFilterData().categoryBits & (15 << (this->query_layer*4))) {
-        if (this->is_paused() && e && e->g_id == O_CHUNK) {
+        if (this->is_paused() && e && e->g_id == O_CHUNK)
             return true;
-        }
 
         if (!this->is_paused() && e && e->g_id == O_CURSOR_FIELD) {
             if (f->TestPoint(this->query_point)) {
@@ -801,22 +720,19 @@ world::ReportFixture(b2Fixture *f)
 
         if (e && (!f->IsSensor() || this->is_paused() || IS_FACTORY(e->g_id))) {
 
-            if (this->is_paused() && !G->state.sandbox && !e->get_property_entity()->is_moveable() && !this->query_force) {
+            if (this->is_paused() && !G->state.sandbox && !e->get_property_entity()->is_moveable() && !this->query_force)
                 return true;
-            }
 
             if (this->level.type == LCAT_ADVENTURE && !this->is_paused()) {
                 if (adventure::player) {
                     if (world::fixture_in_layer(f, 2)) {
-                        if ((adventure::player->get_position() - this->query_point).Length() < G->caveview_size) {
+                        if ((adventure::player->get_position() - this->query_point).Length() < G->caveview_size)
                             return true;
-                        }
                     }
 
                     if (adventure::player->get_tool() && adventure::player->get_tool()->get_arm_type() == TOOL_BUILDER) {
-                        if ((e->g_id == O_TPIXEL || e->g_id == O_CHUNK)) {
+                        if ((e->g_id == O_TPIXEL || e->g_id == O_CHUNK))
                             return true;
-                        }
                     }
 
                 }
@@ -894,11 +810,7 @@ world::ReportFixture(b2Fixture *f)
     return true;
 }
 
-void
-world::explode(entity *source, b2Vec2 pos, int layer,
-               int num_rays, float force,
-               float damage_multiplier, float dist_multiplier)
-{
+void world::explode(entity *source, b2Vec2 pos, int layer, int num_rays, float force, float damage_multiplier, float dist_multiplier) {
     class _cb : public b2RayCastCallback {
       public:
         entity    *source;
@@ -910,18 +822,16 @@ world::explode(entity *source, b2Vec2 pos, int layer,
         {
             entity *e = static_cast<entity*>(f->GetUserData());
 
-            if (f->IsSensor()) {
+            if (f->IsSensor())
                 return -1;
-            }
 
             if (e) {
-                if (e == this->source) {
+                if (e == this->source)
                     return -1.f;
-                }
+
                 if (this->source) {
-                    if (this->layer != this->source->get_layer()) {
+                    if (this->layer != this->source->get_layer())
                         return -1;
-                    }
 
                     if (!world::fixture_in_layer(f, this->layer)) {
                         if (W->level.flag_active(LVL_SINGLE_LAYER_EXPLOSIONS)
@@ -933,9 +843,8 @@ world::explode(entity *source, b2Vec2 pos, int layer,
                 }
 
                 if (e->g_id == O_TPIXEL) {
-                    if ((e->interactive_hp < 0.f && e->properties[0].v.i8 == 0) || e->get_layer() != this->layer) {
+                    if ((e->interactive_hp < 0.f && e->properties[0].v.i8 == 0) || e->get_layer() != this->layer)
                         return -1;
-                    }
                 }
             }
 
@@ -943,7 +852,7 @@ world::explode(entity *source, b2Vec2 pos, int layer,
             this->result_pt = pt;
 
             return fraction;
-        };
+        }
     } cb(source, layer);
 
     for (int x=0; x<num_rays; x++) {
@@ -969,13 +878,11 @@ world::explode(entity *source, b2Vec2 pos, int layer,
             b2Body *b = cb.result->GetBody();
 
             if (W->level.version >= LEVEL_VERSION_1_5) {
-                if (dist < 1.0f) {
+                if (dist < 1.0f)
                     dist = 1.0f;
-                }
             } else {
-                if (dist < 0.001f) {
+                if (dist < 0.001f)
                     dist = 0.001f;
-                }
             }
 
             r.x *= force * fminf(1.f, 1.f/dist) / G->get_time_mul();
@@ -991,9 +898,8 @@ world::explode(entity *source, b2Vec2 pos, int layer,
                     creature *c = static_cast<creature*>(e);
                     damage = (rlen*.05f) * damage_multiplier;
 
-                    if (W->level.version >= LEVEL_VERSION_1_5) {
+                    if (W->level.version >= LEVEL_VERSION_1_5)
                         c->shock_forces += rlen;
-                    }
 
                     c->damage(damage, cb.result, DAMAGE_TYPE_FORCE, DAMAGE_SOURCE_WORLD, 0);
                 } else if ((e->is_interactive()
@@ -1018,14 +924,12 @@ world::explode(entity *source, b2Vec2 pos, int layer,
     }
 }
 
-int
-world::query(tms::camera *cam, int x, int y,
+int world::query(tms::camera *cam, int x, int y,
         entity **out_ent, b2Body **out_body,
         tvec2 *offs, uint8_t *frame, int layer_mask,
         bool force_selection/*=false*/,
         b2Fixture **out_fx/*=0*/,
-        bool is_exact/*=false*/)
-{
+        bool is_exact/*=false*/) {
     tvec3 p;
 
     this->query_exact = false;
@@ -1075,9 +979,7 @@ world::query(tms::camera *cam, int x, int y,
     return 1;
 }
 
-void
-world::init(bool paused)
-{
+void world::init(bool paused) {
     if (paused) {
         tms_infof("world init PAUSE");
         this->paused = true;
@@ -1101,9 +1003,7 @@ world::init(bool paused)
     }
 }
 
-void
-world::init_simulation(void)
-{
+void world::init_simulation() {
     bool INGAME_ALLOW_SLEEP = true;
     bool PAUSE_ALLOW_SLEEP = false;
 
@@ -1130,9 +1030,7 @@ world::init_simulation(void)
     }
 }
 
-void
-world::absorb_all(void)
-{
+void world::absorb_all() {
     if (!this->to_be_absorbed.empty()) {
         std::set<cable*> r_cables;
         std::set<group*> r_groups;
@@ -1149,9 +1047,8 @@ world::absorb_all(void)
                 entity *e = a.e;
 
                 if (a.absorber) {
-                    if (!ev->entities.empty()) {
+                    if (!ev->entities.empty())
                         break;
-                    }
 
                     ev->absorber = a.absorber;
                     ev->absorber_point = a.absorber_point;
@@ -1165,26 +1062,24 @@ world::absorb_all(void)
 
                 bool is_culled = false;
 
-                if (e->scene) {
+                if (e->scene)
                     is_culled = tms_graph_is_entity_culled(G->graph, e);
-                }
 
                 if (G->current_panel == e) {
-                    if (this->is_adventure() && adventure::player)  {
+                    if (this->is_adventure() && adventure::player)
                         G->set_control_panel(adventure::player);
-                    } else {
+                    else
                         G->set_control_panel(0);
-                    }
                 }
 
                 if (this->is_adventure() || this->is_custom()) {
-                    if (e->g_id == O_OPEN_PIVOT) {
+                    if (e->g_id == O_OPEN_PIVOT)
                         this->erase_connection(&((pivot_1*)e)->dconn);
-                    } else if (e->g_id == O_DAMPER) {
+                    else if (e->g_id == O_DAMPER)
                         this->erase_connection(&((damper_1*)e)->dconn);
-                    } else if (e->g_id == O_RUBBERBAND) {
+                    else if (e->g_id == O_RUBBERBAND)
                         this->erase_connection(&((rubberband_1*)e)->dconn);
-                    } else if (e->g_id == O_CRANE) {
+                    else if (e->g_id == O_CRANE) {
                         this->erase_connection(&((crane*)e)->pc);
                         this->erase_connection(&((crane*)e)->rc);
                     }
@@ -1214,9 +1109,8 @@ world::absorb_all(void)
                 fe.e = e;
                 fe.velocity = (e->get_body(0) ? .45f * e->get_body(0)->GetLinearVelocity()  : b2Vec2(0.f, 0.f));
 
-                if (e->flag_active(ENTITY_FADE_ON_ABSORB) && !is_culled) {
+                if (e->flag_active(ENTITY_FADE_ON_ABSORB) && !is_culled)
                     e->prepare_fadeout();
-                }
 
                 if (e->gr) r_groups.insert(e->gr);
                 edevice *ed = e->get_edevice();
@@ -1251,21 +1145,18 @@ world::absorb_all(void)
                     c = next;
                 }
 
-                if (!(e->flag_active(ENTITY_FADE_ON_ABSORB))) {
+                if (!(e->flag_active(ENTITY_FADE_ON_ABSORB)))
                     r_free.insert(e);
-                }
 
                 fe.do_free = true;
 
-                if (e->flag_active(ENTITY_FADE_ON_ABSORB) && !is_culled) {
+                if (e->flag_active(ENTITY_FADE_ON_ABSORB) && !is_culled)
                     ev->entities.push_back(fe);
-                }
 
                 this->to_be_absorbed.erase(i++);
 
-                if (a.absorber) {
+                if (a.absorber)
                     break;
-                }
             }
 
             G->fadeouts.insert(ev);
@@ -1301,15 +1192,12 @@ world::absorb_all(void)
             delete *i;
         }
 
-        if (G->force_static_update == 2) {
+        if (G->force_static_update == 2)
             G->force_static_update = 1;
-        }
     }
 }
 
-void
-world::emit_all()
-{
+void world::emit_all() {
     for (std::vector<pending_emit>::iterator i = this->to_be_emitted.begin();
             i != this->to_be_emitted.end(); i++) {
 
@@ -1337,9 +1225,8 @@ world::emit_all()
             dummy.buf = 0; /* prevent destructor from freeing it */
             dummy.size = 0;
         } else {
-            if (ee.data.single.emitter) {
+            if (ee.data.single.emitter)
                 ee.data.single.e->emitted_by = ee.data.single.emitter->id;
-            }
 
             ee.data.single.e->emit_step = this->step_count;
 
@@ -1363,21 +1250,15 @@ world::emit_all()
     this->post_to_be_emitted.clear();
 }
 
-void
-world::destroy_connection_joint(connection *c)
-{
+void world::destroy_connection_joint(connection *c) {
     /* TODO: make sure we allow destroying the joint */
-    if (c->j) {
+    if (c->j)
         this->to_be_destroyed.insert(c->j);
-    }
 }
 
-void
-world::destroy_joints(void)
-{
-    if (this->to_be_destroyed.empty()) {
+void world::destroy_joints() {
+    if (this->to_be_destroyed.empty())
         return;
-    }
 
     for (std::set<b2Joint*>::iterator i = this->to_be_destroyed.begin();
             i != this->to_be_destroyed.end(); i++) {
@@ -1393,46 +1274,40 @@ world::destroy_joints(void)
         joint_info *ji = static_cast<joint_info*>(j->GetUserData());
         if (ji) {
             switch (ji->type) {
-                case JOINT_TYPE_CONN:
-                    {
-                        connection *c = static_cast<connection*>(ji->data);
+                case JOINT_TYPE_CONN: {
+                    connection *c = static_cast<connection*>(ji->data);
 
-                        if (c) {
-                            c->destroyed = true;
-                            G->emit(new break_effect(c->e->local_to_world(c->p, c->f[0]), c->layer), 0);
-                            c->e->destroy_connection(c);
-                            this->destructable_joints.erase(j);
+                    if (c) {
+                        c->destroyed = true;
+                        G->emit(new break_effect(c->e->local_to_world(c->p, c->f[0]), c->layer), 0);
+                        c->e->destroy_connection(c);
+                        this->destructable_joints.erase(j);
 
-                            remove_joint = false;
+                        remove_joint = false;
+                    }
+                    break;
+                }
+                case JOINT_TYPE_SCUP: {
+                    tms_debugf("Destroying suction cup joint");
+                    scup *e = static_cast<scup*>(ji->data);
+                    for (int n=0; n<SCUP_NUM_JOINTS; ++n) {
+                        if (j == e->j[n]) {
+                            e->j[n] = 0;
+                        }
+                    }
+
+                    e->stuck = false;
+                    break;
+                }
+                case JOINT_TYPE_RAGDOLL: {
+                    ragdoll *r = static_cast<ragdoll*>(ji->data);
+                    for (int x=0; x<9; x++) {
+                        if (r->joints[x] == j) {
+                            r->joints[x] = 0;
                         }
                     }
                     break;
-
-                case JOINT_TYPE_SCUP:
-                    {
-                        tms_debugf("Destroying suction cup joint");
-                        scup *e = static_cast<scup*>(ji->data);
-                        for (int n=0; n<SCUP_NUM_JOINTS; ++n) {
-                            if (j == e->j[n]) {
-                                e->j[n] = 0;
-                            }
-                        }
-
-                        e->stuck = false;
-                    }
-                    break;
-
-                case JOINT_TYPE_RAGDOLL:
-                    {
-                        ragdoll *r = static_cast<ragdoll*>(ji->data);
-                        for (int x=0; x<9; x++) {
-                            if (r->joints[x] == j) {
-                                r->joints[x] = 0;
-                            }
-                        }
-                    }
-                    break;
-
+                }
                 default:
                     tms_debugf("Destroyed unhandled joint %d", ji->type);
                     break;
@@ -1449,9 +1324,7 @@ world::destroy_joints(void)
     this->to_be_destroyed.clear();
 }
 
-void
-world::reset()
-{
+void world::reset() {
     of::_id = 1;
 
     this->locked = false;
@@ -1538,18 +1411,14 @@ world::reset()
     this->connections.clear();
 }
 
-float
-world::get_height(float x)
-{
-    if (this->level.seed) {
+float world::get_height(float x) {
+    if (this->level.seed)
         return this->cwindow->get_height(x)+1.f;
-    } else
+    else
         return -this->level.size_y[0];
 }
 
-void
-world::create(int type, uint64_t seed, bool play)
-{
+void world::create(int type, uint64_t seed, bool play) {
     of::_id = 1;
     this->level_id_type = LEVEL_LOCAL;
     this->reset();
@@ -1591,9 +1460,7 @@ world::create(int type, uint64_t seed, bool play)
     }
 }
 
-void
-world::set_level_type(int type)
-{
+void world::set_level_type(int type) {
     int previous_type = this->level.type;
 
     if (type != previous_type) {
@@ -1618,9 +1485,7 @@ world::set_level_type(int type)
     }
 }
 
-void
-world::init_level(bool soft)
-{
+void world::init_level(bool soft) {
     tms_debugf("init level (soft=%s)", soft?"true":"false");
     /* create the level borders */
     float w = (float)this->level.size_x[0]+(float)this->level.size_x[1];
@@ -1716,9 +1581,7 @@ world::init_level(bool soft)
  * - Make dynamic bodies connected to static bodies static, if the max force is inf
  * - Remove joints between static entities
  **/
-void
-world::optimize_connections()
-{
+void world::optimize_connections() {
     for (std::set<connection*>::iterator i = this->connections.begin();
             i != this->connections.end(); i++) {
         connection *c = (*i);
@@ -1752,9 +1615,7 @@ world::optimize_connections()
     }
 }
 
-void
-world::init_level_entities(std::map<uint32_t, entity*> *entities, std::map<uint32_t, group*> *groups)
-{
+void world::init_level_entities(std::map<uint32_t, entity*> *entities, std::map<uint32_t, group*> *groups) {
     if (entities == 0) entities = &this->all_entities;
 
     /* loop through all entities and run setup or on_pause depending on state */
@@ -1769,15 +1630,13 @@ world::init_level_entities(std::map<uint32_t, entity*> *entities, std::map<uint3
 
             i->second->init();
 
-            if (i->second->get_edevice()) {
+            if (i->second->get_edevice())
                 i->second->get_edevice()->begin();
-            }
 
-            if (i->second->state_size) {
+            if (i->second->state_size)
                 i->second->restore();
-            } else {
+            else
                 i->second->setup();
-            }
 
             /* XXX TODO do we need this one for state shit */
             i->second->on_entity_play();
@@ -1786,17 +1645,14 @@ world::init_level_entities(std::map<uint32_t, entity*> *entities, std::map<uint3
         if (groups) {
             for (std::map<uint32_t, group*>::iterator i = groups->begin();
                     i != groups->end(); i++) {
-                if (i->second->state_size) {
+                if (i->second->state_size)
                     i->second->restore();
-                }
             }
         }
     }
 }
 
-bool
-world::load_buffer(lvlinfo *lvl, lvlbuf *buf, uint32_t id_modifier, b2Vec2 displacement, std::map<uint32_t, entity*> *entities, std::map<uint32_t, group*> *groups, std::set<connection*> *connections, std::set<cable*> *cables)
-{
+bool world::load_buffer(lvlinfo *lvl, lvlbuf *buf, uint32_t id_modifier, b2Vec2 displacement, std::map<uint32_t, entity*> *entities, std::map<uint32_t, group*> *groups, std::set<connection*> *connections, std::set<cable*> *cables) {
     /* XXX keep in sync with chunk_preloader::preload() */
     uint32_t num_entities, num_groups, num_connections, num_cables, n_read = 0, num_chunks = 0, num_gentypes = 0;
 
@@ -1808,9 +1664,8 @@ world::load_buffer(lvlinfo *lvl, lvlbuf *buf, uint32_t id_modifier, b2Vec2 displ
     tms_infof("load buffer[%p]: (id mod: %u, displ: %f %f)", buf, id_modifier, displacement.x, displacement.y);
     tms_infof("num groups %d, num entities %d, num connections %d, num_cables %d", num_groups, num_entities, num_connections, num_cables);
 
-    for (n_read = 0; (!buf->eof() && n_read < num_groups); n_read++) {
+    for (n_read = 0; (!buf->eof() && n_read < num_groups); n_read++)
         this->load_group(buf, lvl->version, id_modifier, displacement, groups);
-    }
 
     for (n_read = 0; (!buf->eof() && n_read < num_entities); n_read++) {
         entity *e = this->load_entity(buf, lvl->version, id_modifier, displacement, entities);
@@ -1822,20 +1677,16 @@ world::load_buffer(lvlinfo *lvl, lvlbuf *buf, uint32_t id_modifier, b2Vec2 displ
         }
     }
 
-    for (n_read = 0; (!buf->eof() && n_read < num_cables); n_read++) {
+    for (n_read = 0; (!buf->eof() && n_read < num_cables); n_read++)
         this->load_cable(buf, lvl->version, lvl->flags, id_modifier, displacement, cables);
-    }
 
-    for (n_read = 0; (!buf->eof() && n_read < num_connections); n_read++) {
+    for (n_read = 0; (!buf->eof() && n_read < num_connections); n_read++)
         this->load_connection(buf, lvl->version, lvl->flags, id_modifier, displacement, connections);
-    }
 
     return true;
 }
 
-entity *
-world::load_entity(lvlbuf *buf, int version, uint32_t id_modifier, b2Vec2 displacement, std::map<uint32_t, entity*> *entities, std::vector<chunk_pos> *affected_chunks)
-{
+entity * world::load_entity(lvlbuf *buf, int version, uint32_t id_modifier, b2Vec2 displacement, std::map<uint32_t, entity*> *entities, std::vector<chunk_pos> *affected_chunks) {
     entity *e = of::read(buf, version, id_modifier, displacement, affected_chunks);
 
     if (e) {
@@ -1879,9 +1730,7 @@ world::load_entity(lvlbuf *buf, int version, uint32_t id_modifier, b2Vec2 displa
     return e;
 }
 
-group *
-world::load_group(lvlbuf *buf, int version, uint32_t id_modifier, b2Vec2 displacement, std::map<uint32_t, group*> *groups)
-{
+group * world::load_group(lvlbuf *buf, int version, uint32_t id_modifier, b2Vec2 displacement, std::map<uint32_t, group*> *groups) {
     group *g = of::read_group(buf, version, id_modifier, displacement);
     if (g) {
         if (/*this->initial_add && */ /* XXX */this->level.type == LCAT_PUZZLE) {
@@ -1904,9 +1753,7 @@ world::load_group(lvlbuf *buf, int version, uint32_t id_modifier, b2Vec2 displac
     return g;
 }
 
-cable*
-world::load_cable(lvlbuf *buf, int version, uint64_t flags, uint32_t id_modifier, b2Vec2 displacement, std::set<cable*> *cables)
-{
+cable* world::load_cable(lvlbuf *buf, int version, uint64_t flags, uint32_t id_modifier, b2Vec2 displacement, std::set<cable*> *cables) {
     uint8_t ctype = buf->r_uint8();
     uint32_t id = buf->r_uint32()+id_modifier;
 
@@ -1963,16 +1810,13 @@ world::load_cable(lvlbuf *buf, int version, uint64_t flags, uint32_t id_modifier
 
     this->add(c);
 
-    if (cables) {
+    if (cables)
         cables->insert(c);
-    }
 
     return c;
 }
 
-connection*
-world::load_connection(lvlbuf *buf, int version, uint64_t flags, uint32_t id_modifier, b2Vec2 displacement, std::set<connection*> *connections)
-{
+connection* world::load_connection(lvlbuf *buf, int version, uint64_t flags, uint32_t id_modifier, b2Vec2 displacement, std::set<connection*> *connections) {
     /* XXX keep in sync with chunk_preloader::preload_connection */
 
     connection c;
@@ -1994,10 +1838,8 @@ world::load_connection(lvlbuf *buf, int version, uint64_t flags, uint32_t id_mod
         chunk_pos_y = buf->r_uint32();
         c.e_data = buf->r_uint32();
         c.o_data = buf->r_uint32();
-    } else {
+    } else
         c.o = this->get_entity_by_id(_o_id + id_modifier);
-    }
-
 
     c.owned = (int)buf->r_uint8() == 1;
     c.fixed = (int)buf->r_uint8() == 1;
@@ -2088,9 +1930,7 @@ world::load_connection(lvlbuf *buf, int version, uint64_t flags, uint32_t id_mod
 }
 
 void
-world::calculate_bounds(std::set<entity*> *entities, float *min_x, float *max_x,
-                        float *min_y, float *max_y)
-{
+world::calculate_bounds(std::set<entity*> *entities, float *min_x, float *max_x,                         float *min_y, float *max_y) {
     entity *first = *entities->begin();
 
     *min_x = 0;
@@ -2138,9 +1978,7 @@ world::fill_buffer(lvlinfo *lvl, lvlbuf *buf,
                    std::set<cable*>            *cables,
                    uint32_t id_modifier, b2Vec2 displacement,
                    bool fill_unloaded,
-                   bool fill_states
-                   )
-{
+                   bool fill_states                    ) {
     for (std::map<uint32_t, group*>::iterator i = groups->begin();
             i != groups->end(); i++) {
         i->second->pre_write();
@@ -2173,15 +2011,14 @@ world::fill_buffer(lvlinfo *lvl, lvlbuf *buf,
         buf->w_uint8(c->ctype);
         buf->w_uint32(c->id + id_modifier);
 
-        if (lvl->version >= 11) {
+        if (lvl->version >= 11)
             buf->w_float(c->extra_length);
-        }
-        if (lvl->version >= LEVEL_VERSION_1_5) {
+
+        if (lvl->version >= LEVEL_VERSION_1_5)
             buf->w_float(c->length);
-        }
-        if (lvl->version >= 15) {
+
+        if (lvl->version >= 15)
             buf->w_uint8(c->is_moveable());
-        }
 
         tms_debugf("cable plug 0 is connected? %d %u", c->p[0]->is_connected(), c->p[0]->is_connected() ? c->p[0]->plugged_edev->get_entity()->id : 0);
         buf->w_uint32((c->p[0]->is_connected() ? c->p[0]->plugged_edev->get_entity()->id + id_modifier: 0));
@@ -2252,21 +2089,16 @@ world::fill_buffer(lvlinfo *lvl, lvlbuf *buf,
         buf->w_float((*i)->p_s.y);
         buf->w_uint8((*i)->f[0]);
         buf->w_uint8((*i)->f[1]);
-        if (lvl->version >= 4) {
+        if (lvl->version >= 4)
             buf->w_float((*i)->max_force);
-        }
-        if (lvl->version >= 5) {
+        if (lvl->version >= 5)
             buf->w_uint8((*i)->option);
-        }
-        if (lvl->version >= 8) {
+        if (lvl->version >= 8)
             buf->w_float((*i)->damping);
-        }
-        if (lvl->version >= 14) {
+        if (lvl->version >= 14)
             buf->w_float((*i)->angle);
-        }
-        if (lvl->version >= 14) {
+        if (lvl->version >= 14)
             buf->w_uint8((*i)->render_type);
-        }
 
         if (this->is_paused()) {
             /* if we're paused and saving, we recalculate the relative angles of
@@ -2274,9 +2106,8 @@ world::fill_buffer(lvlinfo *lvl, lvlbuf *buf,
             (*i)->update_relative_angle(false);
         }
 
-        if (lvl->version >= LEVEL_VERSION_1_2_4) {
+        if (lvl->version >= LEVEL_VERSION_1_2_4)
             buf->w_float((*i)->relative_angle);
-        }
 
         (*i)->write_size = buf->size - (*i)->write_ptr;
     }
@@ -2289,9 +2120,7 @@ world::fill_buffer(lvlinfo *lvl, lvlbuf *buf,
  *
  * very slow function
  **/
-bool
-world::has_num_entities_with_gid(uint32_t gid, int count)
-{
+bool world::has_num_entities_with_gid(uint32_t gid, int count) {
     /* XXX TODO this is not compatible with chunked level loading! check preloader */
     for (std::map<uint32_t, entity*>::iterator i = this->all_entities.begin();
             i != this->all_entities.end(); i++) {
@@ -2304,13 +2133,7 @@ world::has_num_entities_with_gid(uint32_t gid, int count)
     return false;
 }
 
-/**
- * Save a partial set of entities from the world, including all related connections, groups and cables.
- * Used by game to save a multiselect.
- **/
-void
-world::save_partial(std::set<entity*> *entity_list, const char *name, uint32_t partial_id)
-{
+void world::save_partial(std::set<entity*> *entity_list, const char *name, uint32_t partial_id) {
     uint32_t min_id = 0xffffffff;
 
     lvlinfo tmp;
@@ -2435,15 +2258,11 @@ world::save_partial(std::set<entity*> *entity_list, const char *name, uint32_t p
     }
 }
 
-void
-world::open_autosave()
-{
+void world::open_autosave() {
     this->open(LEVEL_LOCAL, 0, true, false);
 }
 
-bool
-world::save(int save_type)
-{
+bool world::save(int save_type) {
     tms_infof("Saving (%d)", save_type);
     this->lb.clear();
 
@@ -2489,13 +2308,12 @@ world::save(int save_type)
                 tms_infof("Assigned level ID: %d", this->level.local_id);
             }
 
-            if (G->state.is_main_puzzle) {
+            if (G->state.is_main_puzzle)
                 snprintf(filename, 1023, "%s/7.%d.psol", pkgman::get_level_path(LEVEL_LOCAL), this->level.local_id);
-            } else if (G->state.puzzle_state) {
+            else if (G->state.puzzle_state)
                 snprintf(filename, 1023, "%s/%d.plvl", pkgman::get_level_path(LEVEL_SYS), this->level.local_id);
-            } else {
+            else
                 snprintf(filename, 1023, "%s/%d.plvl", pkgman::get_level_path(LEVEL_LOCAL), this->level.local_id);
-            }
             break;
 
         case SAVE_TYPE_AUTOSAVE:
@@ -2508,15 +2326,13 @@ world::save(int save_type)
                 //return false;
             }
 
-            if (this->level.save_id == 0) {
+            if (this->level.save_id == 0)
                 this->level.save_id = (uint32_t)time(0);
-            }
 
             uint8_t level_type = this->level_id_type;
 
-            if (level_type < LEVEL_LOCAL_STATE) {
+            if (level_type < LEVEL_LOCAL_STATE)
                 level_type += LEVEL_LOCAL_STATE;
-            }
 
             pkgman::get_level_full_path(level_type, this->level.local_id, this->level.save_id, filename);
             this->save_cache(level_type, this->level.local_id, this->level.save_id);
@@ -2548,16 +2364,13 @@ world::save(int save_type)
         zlb.size = this->level.get_size() + dest_len;
 
         ret = this->write_level(filename, &zlb);
-    } else {
+    } else
         ret = this->write_level(filename, &this->lb);
-    }
 
     return ret;
 }
 
-bool
-world::write_level(const char *filename, lvlbuf *out_lb)
-{
+bool world::write_level(const char *filename, lvlbuf *out_lb) {
     FILE *fp = fopen(filename, "wb");
 
     tms_infof("saving level: %s", filename);
@@ -2597,9 +2410,8 @@ world::load_partial_from_buffer(lvlbuf *lb, b2Vec2 position,
 
     W->level.version = old_version;
 
-    if (!status) {
+    if (!status)
         ui::message("An error occurred while reading the object.");
-    }
 
     return status;
 }
@@ -2608,9 +2420,7 @@ bool
 world::load_partial(uint32_t id, b2Vec2 position,
                     std::map<uint32_t, entity*> *entities,
                     std::map<uint32_t, group*> *groups,
-                    std::set<connection*> *connections,
-                    std::set<cable*> *cables)
-{
+                    std::set<connection*> *connections,                     std::set<cable*> *cables) {
     char filename[1024];
     snprintf(filename, 1023, "%s/%d.pobj", pkgman::get_level_path(LEVEL_LOCAL), id);
 
@@ -2653,9 +2463,7 @@ world::load_partial(uint32_t id, b2Vec2 position,
     return false;
 }
 
-bool
-world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_id/*=0*/)
-{
+bool world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_id/*=0*/) {
     bool is_autosave = false;
 
     this->reset();
@@ -2715,19 +2523,17 @@ world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_i
         }
 
         this->level_id_type = id_type;
-        if (is_autosave) {
+        if (is_autosave)
             this->level.local_id = this->level.autosave_id;
-        } else {
+        else
             this->level.local_id = id;
-        }
 
         G->init_background();
 
         this->init_level();
 
-        if (this->level.version >= LEVEL_VERSION_1_5) {
+        if (this->level.version >= LEVEL_VERSION_1_5)
             this->lb.zuncompress(this->level);
-        }
 
         /* save the location of the state buffer so game can load it later */
         this->state_ptr = this->lb.rp;
@@ -2760,9 +2566,7 @@ world::open(int id_type, uint32_t id, bool paused, bool sandbox, uint32_t save_i
     return false;
 }
 
-void
-world::begin()
-{
+void world::begin() {
     this->init_level_entities(&this->all_entities, &this->groups);
 
     tms_assertf(this->to_be_absorbed.empty(),  "Pending absorbs not empty in world::begin");
@@ -2798,9 +2602,7 @@ world::begin()
 
 /**
  **/
-void
-world::apply_puzzle_constraints()
-{
+void world::apply_puzzle_constraints() {
     if (this->level.type == LCAT_PUZZLE) {
         for (std::set<connection*>::iterator i = this->connections.begin();
                 i != this->connections.end(); i++) {
@@ -2812,9 +2614,7 @@ world::apply_puzzle_constraints()
     }
 }
 
-bool
-world::read_cache(int level_type, uint32_t id, uint32_t save_id/*=0*/)
-{
+bool world::read_cache(int level_type, uint32_t id, uint32_t save_id/*=0*/) {
     char cache_path[1024];
 
     pkgman::get_cache_full_path(level_type, id, save_id, cache_path);
@@ -2860,11 +2660,10 @@ world::read_cache(int level_type, uint32_t id, uint32_t save_id/*=0*/)
                 continue;
             }
 
-            if (on_key) {
+            if (on_key)
                 key[k++] = buf[i];
-            } else {
+            else
                 val[k++] = buf[i];
-            }
         }
 
         val[k] = '\0';
@@ -2878,9 +2677,7 @@ world::read_cache(int level_type, uint32_t id, uint32_t save_id/*=0*/)
     return true;
 }
 
-bool
-world::save_cache(int level_type, uint32_t id, uint32_t save_id/*=0*/)
-{
+bool world::save_cache(int level_type, uint32_t id, uint32_t save_id/*=0*/) {
     char cache_path[1024];
 
     pkgman::get_cache_full_path(level_type, id, save_id, cache_path);
@@ -2904,9 +2701,7 @@ world::save_cache(int level_type, uint32_t id, uint32_t save_id/*=0*/)
     return true;
 }
 
-entity *
-world::get_entity_by_id(uint32_t id)
-{
+entity * world::get_entity_by_id(uint32_t id) {
     if (id) {
         std::map<uint32_t, entity*>::const_iterator i = this->all_entities.find(id);
 
@@ -2918,9 +2713,7 @@ world::get_entity_by_id(uint32_t id)
     return 0;
 }
 
-void
-world::b2_sleep_listener::OnSleep(b2Body *b)
-{
+void world::b2_sleep_listener::OnSleep(b2Body *b) {
     /*tms_debugf("body %p went to sleep", b);
     tms_debugf("%p", b->GetFixtureList()->GetUserData());*/
     /*if (b->GetFixtureList()->GetUserData()) {
@@ -2967,12 +2760,9 @@ world::b2_sleep_listener::OnSleep(b2Body *b)
     }
 }
 
-void
-world::b2_sleep_listener::OnWakeup(b2Body *b)
-{
-    if (!(W->level.flags & LVL_CHUNKED_LEVEL_LOADING)) {
+void world::b2_sleep_listener::OnWakeup(b2Body *b) {
+    if (!(W->level.flags & LVL_CHUNKED_LEVEL_LOADING))
         return;
-    }
 
     b2Fixture *f, *my;
     entity *e;
@@ -3013,24 +2803,18 @@ world::b2_sleep_listener::OnWakeup(b2Body *b)
     b->m_flags &= ~b2Body::e_forceSleepFlag3;
 }
 
-void
-world::b2_destruction_listener::SayGoodbye(b2Joint *j)
-{
+void world::b2_destruction_listener::SayGoodbye(b2Joint *j) {
     G->say_goodbye(j);
 }
 
-void
-world::b2_destruction_listener::SayGoodbye(b2Fixture *f)
-{
+void world::b2_destruction_listener::SayGoodbye(b2Fixture *f) {
     //G->say_goodbye(f);
 }
 
 void
 world::raycast(b2RayCastCallback *callback,
         const b2Vec2 &point1, const b2Vec2 &point2,
-        float r/*=.3f*/, float g/*=.9f*/, float b/*=.3f*/,
-        int64_t life/*=1.7f*/)
-{
+        float r/*=.3f*/, float g/*=.9f*/, float b/*=.3f*/,         int64_t life/*=1.7f*/) {
     this->b2->RayCast(callback, point1, point2);
 
 #ifdef DEBUG
@@ -3053,9 +2837,7 @@ world::raycast(b2RayCastCallback *callback,
 
 #ifdef DEBUG
 
-static struct game_debug_line*
-create_gdl(float x1, float y1, float x2, float y2, float r, float g, float b, int64_t life)
-{
+static struct game_debug_line* create_gdl(float x1, float y1, float x2, float y2, float r, float g, float b, int64_t life) {
     struct game_debug_line *gdl = static_cast<struct game_debug_line*>(malloc(sizeof(struct game_debug_line)));
 
     gdl->x1 = x1;
@@ -3076,9 +2858,7 @@ create_gdl(float x1, float y1, float x2, float y2, float r, float g, float b, in
 void
 world::query_aabb(b2QueryCallback *callback,
         const b2AABB &aabb,
-        float r/*=.3f*/, float g/*=.9f*/, float b/*=.3f*/,
-        int64_t life/*=1.7f*/)
-{
+        float r/*=.3f*/, float g/*=.9f*/, float b/*=.3f*/,         int64_t life/*=1.7f*/) {
     this->b2->QueryAABB(callback, aabb);
 
 #ifdef DEBUG

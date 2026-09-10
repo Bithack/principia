@@ -486,9 +486,7 @@ robot::get_optimal_walking_dir(float tangent_dist)
     return 0;
 }
 
-void
-robot::on_death()
-{
+void robot::on_death() {
     robot_base::on_death();
 
     b2Fixture *fx = this->get_head_fixture();
@@ -502,8 +500,7 @@ robot::on_death()
 #define PANICKED_AIM_HI  .125f
 
 void
-robot::aim(float a)
-{
+robot::aim(float a) {
     if (this->is_action_active()) return;
     if (this->finished) return;
     if (!this->weapon) return;
@@ -513,9 +510,7 @@ robot::aim(float a)
     this->weapon->set_arm_angle(a, this->is_roaming()?(CREATURE_ROAM_AIM_SPEED * G->get_time_mul()):1.f);
 }
 
-float
-robot::get_adjusted_damage(float amount, b2Fixture *f, damage_type dt, uint8_t damage_source, uint32_t attacker_id)
-{
+float robot::get_adjusted_damage(float amount, b2Fixture *f, damage_type dt, uint8_t damage_source, uint32_t attacker_id) {
     if (this->is_action_active()) {
         if (fx == this->get_head_fixture()) {
             return 0.f;

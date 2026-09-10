@@ -35,9 +35,7 @@ static const int MAX_ENTITY_COUNT = 15;
  * Max value: 150
  * Increasing it by 150 would mean the chest is always of epic quality.
  **/
-treasure_chest::treasure_chest()
-    : activator(ATTACHMENT_NONE)
-{
+treasure_chest::treasure_chest() : activator(ATTACHMENT_NONE) {
     this->set_flag(ENTITY_ALLOW_CONNECTIONS, false);
     this->set_flag(ENTITY_HAS_ACTIVATOR,    true);
 #ifndef SDL_PLATFORM_ANDROID
@@ -62,17 +60,14 @@ treasure_chest::treasure_chest()
     this->properties[1].v.i = 0;
 }
 
-void
-treasure_chest::activate(creature *by)
-{
+void treasure_chest::activate(creature *by) {
     this->disconnect_all();
 
     if (G->absorb(this)) {
         uint32_t quality = QUALITY_COMMON;
 
-        if (this->properties[0].v.s.len == 0) {
+        if (this->properties[0].v.s.len == 0)
             quality = this->randomize_loot();
-        }
 
         this->emit_contents();
 
@@ -480,15 +475,12 @@ static int num_possible_drops = sizeof(possible_loots) / sizeof(possible_loots[0
 
 #define MAX_ITEMS_IN_CHEST 5
 
-uint32_t
-treasure_chest::randomize_loot()
-{
+uint32_t treasure_chest::randomize_loot() {
     int qual_rand = 150;
     qual_rand -= this->properties[1].v.i;
 
-    if (qual_rand < 1) {
+    if (qual_rand < 1)
         qual_rand = 1;
-    }
 
     int rqual = rand()%qual_rand;
 
@@ -559,9 +551,7 @@ treasure_chest::randomize_loot()
     return quality;
 }
 
-struct treasure_chest_item
-treasure_chest::parse_item(char *str)
-{
+struct treasure_chest_item treasure_chest::parse_item(char *str) {
     char *sg_id;
     char *ssub_id;
     char *scount;
@@ -602,9 +592,7 @@ treasure_chest::parse_item(char *str)
     return treasure_chest_item(-1, -1, -1);
 }
 
-std::vector<struct treasure_chest_item>
-treasure_chest::parse_items(char *str)
-{
+std::vector<struct treasure_chest_item> treasure_chest::parse_items(char *str) {
     std::vector<struct treasure_chest_item> ret;
     int len = strlen(str);
 
@@ -618,9 +606,7 @@ treasure_chest::parse_items(char *str)
     return ret;
 }
 
-void
-treasure_chest::emit_item(struct treasure_chest_item &tci)
-{
+void treasure_chest::emit_item(struct treasure_chest_item &tci) {
     if (tci.count < 0) {
         tms_warnf("Invalid count: %d", tci.count);
         return;
@@ -631,91 +617,83 @@ treasure_chest::emit_item(struct treasure_chest_item &tci)
     b2Vec2 p = this->get_position();
 
     switch (tci.g_id) {
-        case O_ITEM:
-            {
-                if (tci.count > MAX_ENTITY_COUNT) {
-                    tms_warnf("Count was set to %d, reducing it to %d", tci.count, MAX_ENTITY_COUNT);
-                    tci.count = MAX_ENTITY_COUNT;
-                }
+        case O_ITEM: {
+            if (tci.count > MAX_ENTITY_COUNT) {
+                tms_warnf("Count was set to %d, reducing it to %d", tci.count, MAX_ENTITY_COUNT);
+                tci.count = MAX_ENTITY_COUNT;
+            }
 
-                if (tci.sub_id < 0 || tci.sub_id > NUM_ITEMS) {
-                    tms_warnf("Invalid item ID: %d", tci.sub_id);
-                    return;
-                }
+            if (tci.sub_id < 0 || tci.sub_id > NUM_ITEMS) {
+                tms_warnf("Invalid item ID: %d", tci.sub_id);
+                return;
+            }
 
-                for (; tci.count > 0; --tci.count) {
-                    item *i = static_cast<item*>(of::create(tci.g_id));
-                    if (i) {
-                        i->set_item_type(tci.sub_id);
-                        i->set_position(rx, ry);
-                        i->set_layer(this->get_layer());
-                        G->emit(i, this, b2Vec2(0, 0));
-                    } else {
-                        break;
-                    }
-                }
+            for (; tci.count > 0; --tci.count) {
+                item *i = static_cast<item*>(of::create(tci.g_id));
+                if (i) {
+                    i->set_item_type(tci.sub_id);
+                    i->set_position(rx, ry);
+                    i->set_layer(this->get_layer());
+                    G->emit(i, this, b2Vec2(0, 0));
+                } else
+                    break;
             }
             break;
+        }
+        case O_RESOURCE: {
+            if (tci.sub_id < 0 || tci.sub_id > NUM_RESOURCES) {
+                tms_warnf("Invalid resource ID: %d", tci.sub_id);
+                return;
+            }
 
-        case O_RESOURCE:
-            {
-                if (tci.sub_id < 0 || tci.sub_id > NUM_RESOURCES) {
-                    tms_warnf("Invalid resource ID: %d", tci.sub_id);
-                    return;
+            int split = 1;
+
+            if (tci.count > 5) {
+                /* if the count is > 5, we split them up into chunks
+                    * of <=10 per resource */
+                split = 10;
+            }
+
+            while (tci.count > 0) {
+                int out = std::min(split, tci.count);
+
+                resource *r = static_cast<resource*>(of::create(tci.g_id));
+                if (r) {
+                    r->set_resource_type(tci.sub_id);
+                    r->set_amount(out);
+                    r->set_position(rx, ry);
+                    r->set_layer(this->get_layer());
+                    G->emit(r, this, b2Vec2(0, 0));
                 }
 
-                int split = 1;
-
-                if (tci.count > 5) {
-                    /* if the count is > 5, we split them up into chunks
-                     * of <=10 per resource */
-                    split = 10;
-                }
-
-                while (tci.count > 0) {
-                    int out = std::min(split, tci.count);
-
-                    resource *r = static_cast<resource*>(of::create(tci.g_id));
-                    if (r) {
-                        r->set_resource_type(tci.sub_id);
-                        r->set_amount(out);
-                        r->set_position(rx, ry);
-                        r->set_layer(this->get_layer());
-                        G->emit(r, this, b2Vec2(0, 0));
-                    }
-
-                    tci.count -= out;
-                }
+                tci.count -= out;
             }
             break;
+        }
+        default: {
+            if (tci.count > MAX_ENTITY_COUNT) {
+                tms_warnf("Count was set to %d, reducing it to %d", tci.count, MAX_ENTITY_COUNT);
+                tci.count = MAX_ENTITY_COUNT;
+            }
 
-        default:
-            {
-                if (tci.count > MAX_ENTITY_COUNT) {
-                    tms_warnf("Count was set to %d, reducing it to %d", tci.count, MAX_ENTITY_COUNT);
-                    tci.count = MAX_ENTITY_COUNT;
-                }
-
-                for (; tci.count > 0; --tci.count) {
-                    entity *e = of::create(tci.g_id);
-                    if (e) {
-                        e->set_position(rx, ry);
-                        e->set_layer(this->get_layer());
-                        G->emit(e, this, b2Vec2(0, 0));
-                    } else {
-                        break;
-                    }
-                }
+            for (; tci.count > 0; --tci.count) {
+                entity *e = of::create(tci.g_id);
+                if (e) {
+                    e->set_position(rx, ry);
+                    e->set_layer(this->get_layer());
+                    G->emit(e, this, b2Vec2(0, 0));
+                } else
+                    break;
             }
             break;
+        }
+
     }
 #undef rx
 #undef ry
 }
 
-void
-treasure_chest::emit_contents()
-{
+void treasure_chest::emit_contents() {
     tms_debugf("Emitting contents of treasure chest");
 
     char *str = strdup(this->properties[0].v.s.buf);
@@ -733,18 +711,12 @@ treasure_chest::emit_contents()
     G->unlock();
 }
 
-void
-treasure_chest::on_touch(b2Fixture *my, b2Fixture *other)
-{
-    if (my == this->fx_sensor) {
+void treasure_chest::on_touch(b2Fixture *my, b2Fixture *other) {
+    if (my == this->fx_sensor)
         this->activator_touched(other);
-    }
 }
 
-void
-treasure_chest::on_untouch(b2Fixture *my, b2Fixture *other)
-{
-    if (my == this->fx_sensor) {
+void treasure_chest::on_untouch(b2Fixture *my, b2Fixture *other) {
+    if (my == this->fx_sensor)
         this->activator_untouched(other);
-    }
 }

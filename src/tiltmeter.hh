@@ -2,12 +2,16 @@
 
 #include "edevice.hh"
 
-class tiltmeter : public ecomp_multiconnect
-{
+/**
+ * Class representing the Tiltmeter object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Tiltmeter
+ */
+class tiltmeter : public ecomp_multiconnect {
   public:
     tiltmeter();
     edevice* solve_electronics();
-    const char *get_name(){return "Tiltmeter";};
+    const char *get_name() { return "Tiltmeter"; }
 
     float get_slider_snap(int s);
     float get_slider_value(int s);

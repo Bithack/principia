@@ -4,12 +4,9 @@
 #include <Box2D/Box2D.h>
 #include <tms/cpp.hh>
 
-sm_sound*
-sm::get_sound_by_id(uint32_t sound_id)
-{
-    if (sound_id < SND__NUM) {
+sm_sound* sm::get_sound_by_id(uint32_t sound_id) {
+    if (sound_id < SND__NUM)
         return sound_lookup[sound_id];
-    }
 
     return 0;
 }
@@ -837,8 +834,7 @@ Mix_Chunk *sm::genchunk;
 
 sm_channel sm::channels[SM_MAX_CHANNELS];
 
-void genwave(int chan, void *stream, int len, void *udata)
-{
+void genwave(int chan, void *stream, int len, void *udata) {
     Sint16* pstream = (Sint16*) stream;
 
     //int vol = roundf((65535./2. *.75) *data->volume);
@@ -954,16 +950,13 @@ void genwave(int chan, void *stream, int len, void *udata)
     }
 }
 
-void genwave_cleanup(int chan, void *udata)
-{
+void genwave_cleanup(int chan, void *udata) {
   //free(udata);
 }
 
 static char genbuf[2048*20];
 
-void
-sm::play_gen(int x)
-{
+void sm::play_gen(int x) {
     if (!sm::gen_started) {
         sm::gen_started = true;
         sm::read_counter = 0;
@@ -987,18 +980,13 @@ sm::play_gen(int x)
     sm::generated[x].available = false;
 }
 
-void
-sm::load_settings()
-{
+void sm::load_settings() {
     sm::volume = settings["volume"]->v.f;
-    if (settings["muted"]->v.b) {
+    if (settings["muted"]->v.b)
         sm::volume = 0.f;
-    }
 }
 
-void
-sm::init()
-{
+void sm::init() {
     tms_infof("Initializing audio device...");
     SDL_AudioSpec soundmanager_spec = {SDL_AUDIO_S16, 2, 44100};
     if (!Mix_OpenAudio(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &soundmanager_spec)) {
@@ -1021,16 +1009,14 @@ sm::init()
         sm::genchunk = Mix_QuickLoad_RAW((uint8_t*)genbuf, 2048*20);
 
         int x;
-        for (x=0; x<SM_MAX_CHANNELS; x++) {
+        for (x=0; x<SM_MAX_CHANNELS; x++)
             sm::generated[x].available = true;
-        }
 
         Mix_Volume(x, MIX_MAX_VOLUME);
     }
 
-    for (int x=0; x<SM_MAX_CHANNELS; x++) {
+    for (int x=0; x<SM_MAX_CHANNELS; x++)
         sm::channels[x].playing = false;
-    }
 
     /* load all sound effects */
     tms_infof("Initializing sound effects... ");
@@ -1046,27 +1032,21 @@ sm::init()
 
         sm::sound_lookup[data->sound_id] = data->sound_ptr;
 
-        if (data->root_name) {
+        if (data->root_name)
             data->sound_ptr->name = data->root_name;
-        }
     }
 }
 
-static void channel_finished_cb(int channel)
-{
+static void channel_finished_cb(int channel) {
     //tms_debugf("finish");
-    if (channel < SM_MAX_CHANNELS) {
+    if (channel < SM_MAX_CHANNELS)
         sm::channels[channel].playing = false;
-    }
 }
 
-void
-sm::play(sm_sound *snd, float x, float y, uint8_t random, float volume, bool loop/*=false*/, void *ident/*=0*/, bool global/*=false*/)
-{
+void sm::play(sm_sound *snd, float x, float y, uint8_t random, float volume, bool loop/*=false*/, void *ident/*=0*/, bool global/*=false*/) {
     volume *= sm::volume;
-    if (volume <= SM_MIN_VOLUME) {
+    if (volume <= SM_MIN_VOLUME)
         return;
-    }
 
     if (sm::initialized && sm::enabled) {
         if (snd->last_chan != -1 && loop) {
@@ -1130,9 +1110,7 @@ sm::play(sm_sound *snd, float x, float y, uint8_t random, float volume, bool loo
     }
 }
 
-bool
-sm::stop(sm_sound *snd, void *ident)
-{
+bool sm::stop(sm_sound *snd, void *ident) {
 #ifdef DEBUG
     if (snd->last_chan != -1 && sm::channels[snd->last_chan].ident != ident) {
         tms_debugf("last chan was something, but it wasnt our ident! %p %p", sm::channels[snd->last_chan].ident, ident);
@@ -1148,22 +1126,16 @@ sm::stop(sm_sound *snd, void *ident)
     return false;
 }
 
-void
-sm::pause_all(void)
-{
+void sm::pause_all() {
     Mix_Pause(-1);
 
 }
 
-void
-sm::resume_all(void)
-{
+void sm::resume_all() {
     Mix_Resume(-1);
 }
 
-void
-sm::stop_all(void)
-{
+void sm::stop_all() {
     for (int x=0; x<SM_MAX_CHANNELS; x++) {
         Mix_HaltChannel(x);
     }
@@ -1189,14 +1161,11 @@ sm::stop_all(void)
     sm::absorb.reset();
     sm::emit.reset();
 
-    for (int x=0; x<SM_MAX_CHANNELS; x++) {
+    for (int x=0; x<SM_MAX_CHANNELS; x++)
         sm::channels[x].playing = false;
-    }
 }
 
-void
-sm_sound::add_chunk(const char *filename, const char *chunk_name)
-{
+void sm_sound::add_chunk(const char *filename, const char *chunk_name) {
     if (this->num_chunks < SM_MAX_CHUNKS) {
         this->chunks[this->num_chunks].chunk = Mix_LoadWAV(filename);
         this->chunks[this->num_chunks].name = chunk_name;
@@ -1206,9 +1175,7 @@ sm_sound::add_chunk(const char *filename, const char *chunk_name)
     }
 }
 
-void
-sm::step(void)
-{
+void sm::step() {
     for (int x=0; x<SM_MAX_CHANNELS; x++) {
         if (sm::channels[x].playing) {
             Mix_Volume(x, (int)(roundf(tclampf(channels[x].volume, 0.f, 1.f)*MIX_MAX_VOLUME)));
@@ -1217,9 +1184,7 @@ sm::step(void)
     }
 }
 
-void
-sm_channel::update_position()
-{
+void sm_channel::update_position() {
     if (this->global) {
         Mix_SetPosition(this->chan, 0, 0);
     } else {
@@ -1249,9 +1214,9 @@ void sm::load_settings() { }
 void sm::init() {}
 void sm::play(sm_sound *snd, float x, float y, uint8_t random, float volume, bool loop, void *ident, bool global) { }
 bool sm::stop(sm_sound *snd, void *ident) { return false; }
-void sm::pause_all(void) { }
-void sm::resume_all(void) { }
-void sm::stop_all(void) { }
-void sm::step(void) { }
+void sm::pause_all() { }
+void sm::resume_all() { }
+void sm::stop_all() { }
+void sm::step() { }
 
 #endif

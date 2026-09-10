@@ -36,21 +36,15 @@ std::set<entity*>       *w_mstep_set;
 static bool workers_init = false;
 static int num_running_workers = 0;
 
-bool
-w_is_enabled()
-{
+bool w_is_enabled() {
     return num_running_workers > 0;
 }
 
-int
-w_get_num_workers()
-{
+int w_get_num_workers() {
     return num_running_workers;
 }
 
-void
-w_init()
-{
+void w_init() {
     if (!workers_init) {
         workers_init = true;
         num_running_workers = 0;
@@ -87,9 +81,7 @@ w_init()
     }
 }
 
-void
-w_wait(int w)
-{
+void w_wait(int w) {
     if (w == -1) {
         /* wait for all workers */
         int num_running;
@@ -115,9 +107,7 @@ w_wait(int w)
     }
 }
 
-int
-w_run(int runmode, void *data)
-{
+int w_run(int runmode, void *data) {
     int selected = -1;
 
     /* wait for an available thread */
@@ -149,9 +139,7 @@ w_run(int runmode, void *data)
     return selected;
 }
 
-static int
-_worker_main(void *in)
-{
+static int _worker_main(void *in) {
     int x = (int)(intptr_t)in;
     int r_msg = W_RUN_NULL;
 
@@ -188,38 +176,29 @@ _worker_main(void *in)
     return 0;
 }
 
-static void
-_w_do_solve(struct worker *w)
-{
+static void _w_do_solve(struct worker *w) {
     b2Profile profile;
     w->data.solve.island->Solve(&profile, w_solve_step, w_solve_gravity, w_solve_allow_sleep);
 }
 
-static void
-_w_finish_solve(struct worker *w)
-{
+static void _w_finish_solve(struct worker *w) {
     w_solve_island_slots[w->data.solve.island_slot] = true;
 }
 
-static b2Contact* _collide_get_next(b2Contact *c)
-{
-    for (int x=0; c && x<num_running_workers; x++) {
+static b2Contact* _collide_get_next(b2Contact *c) {
+    for (int x=0; c && x<num_running_workers; x++)
         c = c->GetNext();
-    }
 
     return c;
 }
 
-static void _collide_destroy(b2Contact *c)
-{
+static void _collide_destroy(b2Contact *c) {
     SDL_LockMutex(w_collide_destroy_lock);
     w_collide_destroy_list.push_back(c);
     SDL_UnlockMutex(w_collide_destroy_lock);
 }
 
-static void
-_w_do_collide(struct worker *w)
-{
+static void _w_do_collide(struct worker *w) {
     b2Contact* c = w->data.collide.contact;
     b2ContactManager *man = w_collide_contact_manager;
 
@@ -283,15 +262,9 @@ _w_do_collide(struct worker *w)
     }
 }
 
-static void
-_w_finish_collide(struct worker *w)
-{
+static void _w_finish_collide(struct worker *w) {}
 
-}
-
-static void
-_w_do_updatec(struct worker *w)
-{
+static void _w_do_updatec(struct worker *w) {
     std::set<entity*>::iterator i = w_updatec_set->begin();
     std::set<entity*>::iterator end = w_updatec_set->end();
 
@@ -307,15 +280,9 @@ _w_do_updatec(struct worker *w)
     }
 }
 
-static void
-_w_finish_updatec(struct worker *w)
-{
+static void _w_finish_updatec(struct worker *w) {}
 
-}
-
-static void
-_w_do_mstep(struct worker *w)
-{
+static void _w_do_mstep(struct worker *w) {
     std::set<entity*>::iterator i = w_mstep_set->begin();
     std::set<entity*>::iterator end = w_mstep_set->end();
 
@@ -330,9 +297,4 @@ _w_do_mstep(struct worker *w)
 
 }
 
-static void
-_w_finish_mstep(struct worker *w)
-{
-
-}
-
+static void _w_finish_mstep(struct worker *w) {}

@@ -2,8 +2,12 @@
 
 #include "robot_base.hh"
 
-class spikebot : public robot_base
-{
+/**
+ * Class representing the Spikebot object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Spikebot
+ */
+class spikebot : public robot_base {
   private:
     tms::entity *e_body;
     float body_angle;
@@ -11,7 +15,7 @@ class spikebot : public robot_base
 
   public:
     spikebot(float scale=1.f);
-    const char *get_name() { return "Spikebot"; };
+    const char *get_name() { return "Spikebot"; }
 
     void action_on();
     void action_off();
@@ -29,13 +33,14 @@ class spikebot : public robot_base
     inline bool is_spikebot() { return true; }
 };
 
-class mini_spikebot : public spikebot
-{
+/**
+ * Class representing the Mini Spikebot object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Mini_Spikebot
+ */
+class mini_spikebot : public spikebot {
   public:
-    mini_spikebot()
-        : spikebot(0.33f)
-    {
-    }
+    mini_spikebot() : spikebot(0.33f) {}
 
-    const char *get_name() { return "Mini Spikebot"; };
+    const char *get_name() { return "Mini Spikebot"; }
 };

@@ -4,8 +4,7 @@
 #include "activator.hh"
 #include <vector>
 
-struct treasure_chest_item
-{
+struct treasure_chest_item {
     int g_id;
     int sub_id;
     int count;
@@ -17,8 +16,12 @@ struct treasure_chest_item
     { }
 };
 
-class treasure_chest : public composable_simpleconnect, public activator
-{
+/**
+ * Class representing the Treasure Chest object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Treasure_Chest
+ */
+class treasure_chest : public composable_simpleconnect, public activator {
   protected:
     void emit_item(struct treasure_chest_item &tci);
     void emit_contents();
@@ -28,14 +31,11 @@ class treasure_chest : public composable_simpleconnect, public activator
     const char *get_name() { return "Treasure Chest"; }
     activator *get_activator() { return this; }
 
-
-    float get_sensor_radius()
-    {
+    float get_sensor_radius() {
         return 1.25f;
     }
 
-    b2Vec2 get_sensor_offset()
-    {
+    b2Vec2 get_sensor_offset() {
         return b2Vec2(0.f, 0.f);
     }
 

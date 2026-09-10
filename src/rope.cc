@@ -27,9 +27,7 @@ struct rope_vert {
     tvec2 tex;
 } __attribute__ ((packed));
 
-void
-rope::_init()
-{
+void rope::_init() {
     if (initialized)
         return;
 
@@ -95,15 +93,11 @@ rope::_init()
     initialized = true;
 }
 
-struct tms_entity*
-rope::get_entity(void)
-{
+struct tms_entity* rope::get_entity() {
     return _e;
 }
 
-void
-rope::reset_counter(void)
-{
+void rope::reset_counter() {
     counter = 0;
 
     if (G) {
@@ -117,36 +111,25 @@ rope::reset_counter(void)
     }
 }
 
-uint32_t
-rope::get_num_bodies()
-{
+uint32_t rope::get_num_bodies() {
     return 2;
 }
 
-b2Body*
-rope::get_body(uint8_t frame)
-{
+b2Body* rope::get_body(uint8_t frame) {
     return this->ends[frame]->body;
 }
 
-void
-rope::set_angle(float a, uint8_t frame)
-{
+void rope::set_angle(float a, uint8_t frame) {
     this->ends[frame]->body->SetTransform(this->ends[frame]->body->GetPosition(), a);
 }
 
-void
-rope::set_position(float x, float y, uint8_t frame)
-{
+void rope::set_position(float x, float y, uint8_t frame) {
     b2Body *b = this->ends[frame]->body;
-    if (b) {
+    if (b)
         b->SetTransform(b2Vec2(x,y), b->GetAngle());
-    }
 }
 
-void
-rope::upload_buffers(void)
-{
+void rope::upload_buffers() {
     if (counter > MAX_ROPES-1) counter = MAX_ROPES-1;
     _mesh->i_start = 0;
     _mesh->i_count = counter*(ibuf->size/MAX_ROPES) / sizeof(uint16_t);
@@ -155,9 +138,7 @@ rope::upload_buffers(void)
     //ibuf->upload();
 }
 
-void
-rope::find_pairs()
-{
+void rope::find_pairs() {
     //tms_infof("find pairs ---");
     for (int x=0; x<2; x++) {
         if (this->end_conns[x].pending) {
@@ -187,16 +168,13 @@ rope::find_pairs()
     }
 }
 
-connection *
-rope::load_connection(connection &conn)
-{
+connection * rope::load_connection(connection &conn) {
     this->end_conns[conn.o_index] = conn;
     this->end_conns[conn.o_index].render_type = CONN_RENDER_SMALL;
     return &this->end_conns[conn.o_index];
 }
 
-rope_end::rope_end()
-{
+rope_end::rope_end() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_ROPEEND));
     this->set_material(&m_wood);
 
@@ -206,27 +184,25 @@ rope_end::rope_end()
     tmat3_load_identity(this->N);
 }
 
-void
-rope_end::add_to_world()
-{
+void rope_end::add_to_world() {
     this->create_rect(b2_dynamicBody, .125f, .125f, this->material);
-    if (this->body) {this->body->GetFixtureList()[0].SetDensity(2.f);this->body->ResetMassData();}
+    if (this->body) {
+        this->body->GetFixtureList()[0].SetDensity(2.f);
+        this->body->ResetMassData();
+    }
 }
 
-float32
-rope::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction)
-{
-    if (f->IsSensor()) {
+float32 rope::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 fraction) {
+    if (f->IsSensor())
         return -1.f;
-    }
 
     b2Body *b = f->GetBody();
     entity *e = static_cast<entity*>(f->GetUserData());
 
     if (e && e->allow_connections() && e->get_layer() == this->get_layer()) {
-        if (e == this) {
+        if (e == this)
             return 1;
-        }
+
         this->query_result = e;
         this->query_result_fx = f;
         this->query_frame = VOID_TO_UINT8(b->GetUserData());
@@ -236,9 +212,7 @@ rope::ReportFixture(b2Fixture *f, const b2Vec2 &pt, const b2Vec2 &nor, float32 f
     return -1;
 }
 
-void
-rope::set_layer(int l)
-{
+void rope::set_layer(int l) {
     this->ends[0]->set_layer(l);
     this->ends[1]->set_layer(l);
 
@@ -264,8 +238,7 @@ rope::set_layer(int l)
         tms_scene_add_entity(scene, this);
 }
 
-rope::rope()
-{
+rope::rope() {
     rope::_init();
 
     this->set_flag(ENTITY_CUSTOM_GHOST_UPDATE, true);
@@ -316,9 +289,7 @@ rope::rope()
     this->refresh_predef_form();
 }
 
-void
-rope::pre_write()
-{
+void rope::pre_write() {
     for (int x=0; x<(ROPE_LENGTH-1); x++) {
         b2Vec2 p = this->rb[x]->GetPosition();
         float a = this->rb[x]->GetAngle();
@@ -349,15 +320,11 @@ rope::pre_write()
     this->properties[(ROPE_LENGTH-1)*3+5].v.f = this->ends[1]->get_angle();
 }
 
-float
-rope::get_angle(uint8_t frame)
-{
+float rope::get_angle(uint8_t frame) {
     return this->ends[frame]->get_angle();
 }
 
-void
-rope::refresh_predef_form()
-{
+void rope::refresh_predef_form() {
     this->properties[0*3+0].v.f = 0.166879+this->_pos.x;
     this->properties[0*3+1].v.f = 1.112272+this->_pos.y;
     this->properties[0*3+2].v.f = -0.432185;
@@ -399,9 +366,7 @@ rope::refresh_predef_form()
     this->properties[12*3+2].v.f = -0.895622;
 }
 
-void
-rope::ghost_update(void)
-{
+void rope::ghost_update() {
     this->num = __sync_fetch_and_add(&counter, 1);
 
     if (this->num >= MAX_ROPES) this->num = MAX_ROPES-1;
@@ -494,14 +459,9 @@ rope::ghost_update(void)
     this->ends[1]->update();
 }
 
-void
-rope::construct()
-{
-}
+void rope::construct() {}
 
-void
-rope::update(void)
-{
+void rope::update() {
     this->num = __sync_fetch_and_add(&counter, 1);
 
     if (this->num >= MAX_ROPES) this->num = MAX_ROPES-1;
@@ -568,13 +528,10 @@ rope::update(void)
     this->ends[1]->update();
 }
 
-void
-rope::remove_from_world()
-{
+void rope::remove_from_world() {
     if (this->rb[0]) {
-        for (int x=0; x<ROPE_LENGTH-1; x++) {
+        for (int x=0; x<ROPE_LENGTH-1; x++)
             W->b2->DestroyBody(this->rb[x]);
-        }
 
         this->rb[0] = 0;
     }
@@ -584,9 +541,7 @@ rope::remove_from_world()
     this->ends[1]->remove_from_world();
 }
 
-void
-rope::add_to_world()
-{
+void rope::add_to_world() {
     tmat4_load_identity(this->M);
     tmat3_load_identity(this->N);
     this->ends[0]->_pos = b2Vec2(this->properties[(ROPE_LENGTH-1)*3+0].v.f, this->properties[(ROPE_LENGTH-1)*3+1].v.f);
@@ -715,9 +670,7 @@ rope::add_to_world()
     }
 }
 
-void
-rope::write_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void rope::write_state(lvlinfo *lvl, lvlbuf *lb) {
     for (uint32_t x=0; x<this->get_num_bodies(); ++x) {
         b2Vec2 velocity = this->get_body(x) ? this->get_body(x)->GetLinearVelocity() : b2Vec2(0.f, 0.f);
         float avel = this->get_body(x) ? this->get_body(x)->GetAngularVelocity() : 0.f;
@@ -741,9 +694,7 @@ rope::write_state(lvlinfo *lvl, lvlbuf *lb)
     }
 }
 
-void
-rope::read_state(lvlinfo *lvl, lvlbuf *lb)
-{
+void rope::read_state(lvlinfo *lvl, lvlbuf *lb) {
     for (uint32_t x=0; x<this->get_num_bodies(); ++x) {
         this->state[x*3 + 0] = lb->r_float();
         this->state[x*3 + 1] = lb->r_float();
@@ -758,9 +709,7 @@ rope::read_state(lvlinfo *lvl, lvlbuf *lb)
     }
 }
 
-void
-rope::restore()
-{
+void rope::restore() {
     for (uint32_t x=0; x<this->get_num_bodies(); ++x) {
         this->get_body(x)->SetLinearVelocity(b2Vec2(this->state[x*3 + 0], this->state[x*3 + 1]));
         this->get_body(x)->SetAngularVelocity(this->state[x*3 + 2]);
@@ -774,9 +723,6 @@ rope::restore()
     }
 }
 
-void
-rope::step()
-{
-}
+void rope::step() {}
 
 #undef WIDTH

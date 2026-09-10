@@ -3,8 +3,7 @@
 #include "game.hh"
 #include "model.hh"
 
-tester::tester()
-{
+tester::tester() {
     this->set_mesh(mesh_factory::get_mesh(MODEL_DEBUGGER1));
     this->set_material(&m_edev_dark);
 
@@ -31,14 +30,11 @@ tester::tester()
     this->set_shape();
 }
 
-tester::~tester()
-{
+tester::~tester() {
     tms_entity_uninit(&this->lamp);
 }
 
-void
-tester::update()
-{
+void tester::update() {
     b2Vec2 p = this->get_position();
     float a = this->get_angle();
     float cs,sn;
@@ -60,15 +56,11 @@ tester::update()
     tmat3_copy(this->lamp.N, this->N);
 }
 
-void
-tester::on_load(bool created, bool has_state)
-{
+void tester::on_load(bool created, bool has_state) {
     this->set_shape();
 }
 
-void
-tester::set_shape()
-{
+void tester::set_shape() {
     if (this->properties[0].v.i > 1) this->properties[0].v.i = 1;
 
     this->set_mesh(mesh_factory::get_mesh(MODEL_DEBUGGER0+this->properties[0].v.i));
@@ -96,9 +88,7 @@ tester::set_shape()
     this->query_sides[3].SetZero(); /* right */
 }
 
-edevice*
-tester::solve_electronics()
-{
+edevice* tester::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 
@@ -110,9 +100,7 @@ tester::solve_electronics()
     return 0;
 }
 
-void
-tester::on_slider_change(int s, float value)
-{
+void tester::on_slider_change(int s, float value) {
     uint32_t size = (uint32_t)roundf(value);
     if (size > 1) size = 1;
     this->set_property(0, size);

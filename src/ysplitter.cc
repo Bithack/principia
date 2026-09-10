@@ -1,12 +1,9 @@
 #include "ysplitter.hh"
 #include "game.hh"
 
-edevice*
-ysplitter::solve_electronics()
-{
-    if (!this->s_in[0].is_ready()) {
+edevice *ysplitter::solve_electronics() {
+    if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
-    }
 
     float v = this->s_in[0].get_value();
 
@@ -16,12 +13,9 @@ ysplitter::solve_electronics()
     return 0;
 }
 
-edevice*
-megasplitter::solve_electronics()
-{
-    if (!this->s_in[0].is_ready()) {
+edevice *megasplitter::solve_electronics() {
+    if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
-    }
 
     const float v = this->s_in[0].get_value();
 
@@ -37,9 +31,7 @@ megasplitter::solve_electronics()
     return 0;
 }
 
-edevice*
-halfunpack::solve_electronics()
-{
+edevice *halfunpack::solve_electronics() {
     if (!this->s_in[0].is_ready())
         return this->s_in[0].get_connected_edevice();
 

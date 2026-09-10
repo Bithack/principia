@@ -47,8 +47,7 @@ enum WidgetArea {
     NUM_AREAS
 };
 
-struct widget_area
-{
+struct widget_area {
     float base_x;
     float x;
     float base_y;
@@ -121,8 +120,7 @@ struct widget_area
 
 typedef void (*touch_cb)(struct tms_wdg *w, int pid, int ox, int oy, float rx, float ry);
 
-class principia_wdg : public tms_wdg
-{
+class principia_wdg : public tms_wdg {
   private:
     tms::surface *_surface;
     bool draggable;
@@ -161,8 +159,7 @@ class principia_wdg : public tms_wdg
 
     void set_tooltip(const char *text, p_font *font=font::medium);
     void set_label(const char *text, p_font *font=font::medium);
-    inline void set_position(float x, float y)
-    {
+    inline void set_position(float x, float y) {
         this->pos.x = x;
         this->pos.y = y;
     }
@@ -172,8 +169,7 @@ class principia_wdg : public tms_wdg
             int base_height, float height_percentage
             );
 
-    inline void set_padding(float x, float y)
-    {
+    inline void set_padding(float x, float y) {
         this->padding.x = x;
         this->padding.y = y;
     }
@@ -181,15 +177,13 @@ class principia_wdg : public tms_wdg
     void set_draggable(bool val);
     void set_dragging(bool val);
 
-    inline void set_draggable_x(bool val, bool has_limit=false, float lower_limit=0.f, float upper_limit=0.f)
-    {
+    inline void set_draggable_x(bool val, bool has_limit=false, float lower_limit=0.f, float upper_limit=0.f) {
         this->draggable_x = val;
         this->has_limit_x = has_limit;
         this->lower_limit_x = lower_limit;
         this->upper_limit_x = upper_limit;
     }
-    inline void set_draggable_y(bool val, bool has_limit=false, float lower_limit=0.f, float upper_limit=0.f)
-    {
+    inline void set_draggable_y(bool val, bool has_limit=false, float lower_limit=0.f, float upper_limit=0.f) {
         this->draggable_y = val;
         this->has_limit_y = has_limit;
         this->lower_limit_y = lower_limit;
@@ -224,8 +218,7 @@ class principia_wdg : public tms_wdg
     friend class widget_manager;
 };
 
-class widget_manager
-{
+class widget_manager {
   private:
     std::deque<principia_wdg*> widgets;
 
@@ -241,8 +234,7 @@ class widget_manager
 
     struct widget_area areas[NUM_AREAS];
 
-    struct widget_area* get_area(enum WidgetArea area)
-    {
+    struct widget_area* get_area(enum WidgetArea area) {
         return &this->areas[area];
     }
 
@@ -263,8 +255,7 @@ class widget_manager
     void render();
     void rearrange();
 
-    inline pscreen* get_home()
-    {
+    inline pscreen* get_home() {
         return this->home;
     }
 };

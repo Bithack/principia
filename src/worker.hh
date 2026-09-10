@@ -75,7 +75,7 @@ extern struct tms_graph        *w_updatec_graph;
 /* shared data between mstep workers */
 extern std::set<entity*>       *w_mstep_set;
 
-void w_init(void);
+void w_init();
 bool w_is_enabled();
 int  w_get_num_workers();
 void w_wait(int w); /* send -1 to wait for all */

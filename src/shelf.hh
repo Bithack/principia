@@ -2,11 +2,15 @@
 
 #include "entity.hh"
 
-class shelf : public entity
-{
+/**
+ * Class representing the Platform object.
+ *
+ * Player Wiki ref: https://principia-web.se/wiki/Platform
+ */
+class shelf : public entity {
   public:
     shelf();
-    const char* get_name(){return "Platform";}
+    const char* get_name() { return "Platform"; }
 
     void add_to_world();
 

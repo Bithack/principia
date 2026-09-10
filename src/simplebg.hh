@@ -38,8 +38,10 @@ enum {
     BG_COLORED_SPACE,
 };
 
-class simplebg : public entity
-{
+/**
+ * World background entity
+ */
+class simplebg : public entity {
     tms::entity *borders[4];
 
   public:
@@ -49,13 +51,12 @@ class simplebg : public entity
     bool set_level_size(uint16_t left, uint16_t right, uint16_t down, uint16_t up);
     void set_repeating(bool repeat);
     void set_color(tvec4 c);
-    void set_color(uint32_t color)
-    {
+    void set_color(uint32_t color) {
         float r,g,b,a;
         unpack_rgba(color, &r, &g, &b, &a);
 
         this->set_color(tvec4f(r, g, b, a));
     }
 
-    void add_to_world(){};
+    void add_to_world() {}
 };
