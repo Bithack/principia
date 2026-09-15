@@ -338,16 +338,18 @@ edevice* robotman::solve_electronics() {
                     robot_parts::weapon *w = this->target->get_weapon();
                     if (w)
                         v = w->get_arm_angle();
-						// Adjust value so touch controls return the same values as on PC.
-						v = 1.f - std::abs(std::fmod(std::abs(v), 2.f) - 1.f);
+
+                    // Adjust value so touch controls return the same values as on PC.
+                    v = 1.f - std::abs(std::fmod(std::abs(v), 2.f) - 1.f);
                     break;
                 }
                 case RMAN_TOOL_ARM_ANGLE: {
                     robot_parts::tool *t = this->target->get_tool();
                     if (t)
                         v = t->get_arm_angle();
-						// Adjust value so touch controls return the same values as on PC.
-						v = 1.f - std::abs(std::fmod(std::abs(v), 2.f) - 1.f);
+
+                    // Adjust value so touch controls return the same values as on PC.
+                    v = 1.f - std::abs(std::fmod(std::abs(v), 2.f) - 1.f);
                     break;
                 }
                 case RMAN_ON_WEAPON_FIRE: {
