@@ -1115,6 +1115,8 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS6
         // Update distance to grab now that we have seek'ed and saturated
         //if (seek_absolute)
         //    g.ScrollbarClickDeltaToGrabCenter = clicked_v_norm - grab_v_norm - grab_h_norm * 0.5f;
+
+        SetDragAction();
     }
 
     // Render
@@ -2564,6 +2566,7 @@ bool ImGui::DragBehaviorT(ImGuiDataType data_type, TYPE* v, float v_speed, const
             adjust_delta *= 1.0f / 100.0f;
         if (g.IO.KeyShift && !(flags & ImGuiSliderFlags_NoSpeedTweaks))
             adjust_delta *= 10.0f;
+        SetDragAction();
     }
     else if (g.ActiveIdSource == ImGuiInputSource_Keyboard || g.ActiveIdSource == ImGuiInputSource_Gamepad)
     {
@@ -3186,6 +3189,8 @@ bool ImGui::SliderBehaviorT(const ImRect& bb, ImGuiID id, ImGuiDataType data_typ
                 const float grab_pos = ImLerp(slider_usable_pos_min, slider_usable_pos_max, grab_t);
                 const bool clicked_around_grab = (mouse_abs_pos >= grab_pos - grab_sz * 0.5f - 1.0f) && (mouse_abs_pos <= grab_pos + grab_sz * 0.5f + 1.0f); // No harm being extra generous here.
                 g.SliderGrabClickOffset = (clicked_around_grab && is_floating_point) ? mouse_abs_pos - grab_pos : 0.0f;
+
+                SetDragAction();
             }
             if (slider_usable_sz > 0.0f)
                 clicked_t = ImSaturate((mouse_abs_pos - g.SliderGrabClickOffset - slider_usable_pos_min) / slider_usable_sz);
@@ -5151,6 +5156,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
             stb_textedit_drag(state, state->Stb, mouse_x, mouse_y);
             state->CursorAnimReset();
             state->CursorFollow = true;
+            SetDragAction();
         }
         if (state->SelectedAllMouseLock && !io.MouseDown[0])
             state->SelectedAllMouseLock = false;
@@ -6568,6 +6574,9 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
         g.ColorEditCurrentID = 0;
     PopID();
 
+    if (value_changed)
+        SetDragAction();
+
     if (g.DisabledStackSize > 0)
         g.Style.Alpha = backup_alpha;
 
@@ -7144,7 +7153,7 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
 
     // Open behaviors can be altered with the _OpenOnArrow and _OnOnDoubleClick flags.
     // Some alteration have subtle effects (e.g. toggle on MouseUp vs MouseDown events) due to requirements for multi-selection and drag and drop support.
-    // - Single-click on label = Toggle on MouseUp (default, when _OpenOnArrow=0)
+    // - Single-click on label = Toggle on MouseUp (default, when _OpenOnArrow=0), or MouseDown (IO.ConfigDragScroll = true)
     // - Single-click on arrow = Toggle on MouseDown (when _OpenOnArrow=0)
     // - Single-click on arrow = Toggle on MouseDown (when _OpenOnArrow=1)
     // - Double-click on label = Toggle on MouseDoubleClick (when _OpenOnDoubleClick=1)
@@ -7152,7 +7161,7 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
     // It is rather standard that arrow click react on Down rather than Up.
     // We set ImGuiButtonFlags_PressedOnClickRelease on OpenOnDoubleClick because we want the item to be active on the initial MouseDown in order for drag and drop to work.
     if (is_mouse_x_over_arrow)
-        button_flags |= ImGuiButtonFlags_PressedOnClick;
+        button_flags |= g.IO.ConfigDragScroll ? ImGuiButtonFlags_PressedOnClickRelease : ImGuiButtonFlags_PressedOnClick;
     else if (flags & ImGuiTreeNodeFlags_OpenOnDoubleClick)
         button_flags |= ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_PressedOnDoubleClick;
     else
@@ -7918,6 +7927,7 @@ static void BoxSelectPreStartDrag(ImGuiID id, ImGuiSelectionUserData clicked_ite
     bs->KeyMods = g.IO.KeyMods;
     bs->StartPosRel = bs->EndPosRel = ImGui::WindowPosAbsToRel(g.CurrentWindow, g.IO.MousePos);
     bs->ScrollAccum = ImVec2(0.0f, 0.0f);
+    ImGui::SetDragAction();
 }
 
 static void BoxSelectActivateDrag(ImGuiBoxSelectState* bs, ImGuiWindow* window)
@@ -9550,7 +9560,10 @@ bool ImGui::BeginMenuEx(const char* label, const char* icon, bool enabled)
 
     const float backup_rounding = style.SelectableRounding;
     style.SelectableRounding = style.MenuItemRounding;
-    const ImGuiSelectableFlags selectable_flags = ImGuiSelectableFlags_NoAutoClosePopups | (ImGuiSelectableFlags)ImGuiSelectableFlags_SelectOnClick;
+    ImGuiSelectableFlags selectable_flags = ImGuiSelectableFlags_NoAutoClosePopups;
+    // SelectOnClick is not compatible with drag scrolling.
+    if (!g.IO.ConfigDragScroll)
+        selectable_flags |= ImGuiSelectableFlags_SelectOnClick;
     ImGuiMenuColumns* offsets = &window->DC.MenuColumns;
     if (window->DC.LayoutType == ImGuiLayoutType_Horizontal)
     {
@@ -9772,7 +9785,10 @@ bool ImGui::MenuItemEx(const char* label, const char* icon, const char* shortcut
     // We use ImGuiSelectableFlags_NoSetKeyOwner to allow down on one menu item, move, up on another.
     const float backup_rounding = style.SelectableRounding;
     style.SelectableRounding = style.MenuItemRounding;
-    const ImGuiSelectableFlags selectable_flags = (ImGuiSelectableFlags)ImGuiSelectableFlags_SelectOnRelease | (ImGuiSelectableFlags)ImGuiSelectableFlags_SetNavIdOnHover;
+    ImGuiSelectableFlags selectable_flags = ImGuiSelectableFlags_SetNavIdOnHover;
+    // SelectOnRelease is not compatible with drag scrolling.
+    if (!g.IO.ConfigDragScroll)
+        selectable_flags |= ImGuiSelectableFlags_SelectOnRelease;
     ImGuiMenuColumns* offsets = &window->DC.MenuColumns;
     if (window->DC.LayoutType == ImGuiLayoutType_Horizontal)
     {
@@ -10864,7 +10880,8 @@ bool    ImGui::TabItemEx(ImGuiTabBar* tab_bar, const char* label, bool* p_open, 
         return tab_contents_visible;
     }
 
-    if (tab_bar->SelectedTabId == id)
+    const bool tab_is_selected = tab_bar->SelectedTabId == id;
+    if (tab_is_selected)
         tab->LastFrameSelected = g.FrameCount;
 
     // Backup current layout position
@@ -10896,7 +10913,9 @@ bool    ImGui::TabItemEx(ImGuiTabBar* tab_bar, const char* label, bool* p_open, 
 
     // Click to Select a tab
     // Allow the close button to overlap
-    ImGuiButtonFlags button_flags = ((ImGuiButtonFlags)(is_tab_button ? ImGuiButtonFlags_PressedOnClickRelease : ImGuiButtonFlags_PressedOnClick) | ImGuiButtonFlags_AllowOverlap);
+    ImGuiButtonFlags button_flags = (ImGuiButtonFlags)(is_tab_button || g.IO.ConfigDragScroll ? ImGuiButtonFlags_PressedOnClickRelease : ImGuiButtonFlags_PressedOnClick);
+    if (!g.IO.ConfigDragScroll || tab_is_selected)
+        button_flags |= ImGuiButtonFlags_AllowOverlap;
     if (g.DragDropActive)
         button_flags |= ImGuiButtonFlags_PressedOnDragDropHold;
     bool hovered, held, pressed;
@@ -10922,6 +10941,7 @@ bool    ImGui::TabItemEx(ImGuiTabBar* tab_bar, const char* label, bool* p_open, 
                 TabBarQueueReorderFromMousePos(tab_bar, tab, g.IO.MousePos);
             }
         }
+        SetDragAction();
     }
 
 #if 0

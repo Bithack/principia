@@ -146,6 +146,7 @@ void ImguiDriver::init() {
     //io.ConfigInputTrickleEventQueue = false;
     io.ConfigWindowsResizeFromEdges = true; //XXX: not active until custom cursors are implemented...
     io.ConfigDragClickToInputText = true;
+    io.ConfigDragScroll = _tms.touch_controls;
 
     //Disable saving state/logging
     io.IniFilename = NULL;

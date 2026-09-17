@@ -136,7 +136,8 @@ CODE
    - Click [X]:                     Close a window, available when 'bool* p_open' is passed to ImGui::Begin().
    - Click ^, Double-Click title:   Collapse window.
    - Drag on corner/border:         Resize window (double-click to auto fit window to its contents).
-   - Drag on any empty space:       Move window (unless io.ConfigWindowsMoveFromTitleBarOnly = true).
+   - Drag on any empty space:       Move window (unless io.ConfigWindowsMoveFromTitleBarOnly = true)
+   - Drag inside window:            Scroll contents (when io.ConfigDragScroll = true) unless drag move is possible.
    - Left-click outside popup:      Close popup stack (right-click over underlying popup: Partially close popup stack).
 
  - TEXT EDITOR
@@ -1732,6 +1733,13 @@ ImGuiIO::ImGuiIO()
     MouseDragThreshold = 6.0f;
     KeyRepeatDelay = 0.275f;
     KeyRepeatRate = 0.050f;
+
+    // Drag scroll options
+    ConfigDragScroll = false;
+    DragScrollButton = ImGuiMouseButton_Left;
+    DragScrollDecel = 5000.0f;
+    DragScrollMinSpeed = 120.0f;
+    DragFlickThreshold = 600.0f;
 
     // Platform Functions
     // Note: Initialize() will setup default clipboard/ime handlers.
@@ -4260,6 +4268,10 @@ ImGuiContext::ImGuiContext(ImFontAtlas* shared_font_atlas)
     WheelingWindow = NULL;
     WheelingWindowStartFrame = WheelingWindowScrolledFrame = -1;
     WheelingWindowReleaseTimer = 0.0f;
+    DragScrollWindow = NULL;
+    DragScrollOldValue = ImVec2(0.0f, 0.0f);
+    DragScrollVelocity = ImVec2(0.0f, 0.0f);
+    DragScrollActive = false;
 
     DebugDrawIdConflictsId = 0;
     DebugHookIdInfoId = 0;
@@ -4292,6 +4304,7 @@ ImGuiContext::ImGuiContext(ImFontAtlas* shared_font_atlas)
     LastActiveId = 0;
     LastActiveIdTimer = 0.0f;
     LastActiveIdWasSelected = LastActiveIdWasSoleSelected = false;
+    DragAction = false;
 
     LastKeyboardKeyPressTime = LastKeyModsChangeTime = LastKeyModsChangeFromNoneTime = -1.0;
 
@@ -5708,6 +5721,7 @@ void ImGui::NewFrame()
     g.DeactivatedItemData.IsAlive = false;
     if (g.InputTextDeactivatedState.ElapseFrame < g.FrameCount)
         g.InputTextDeactivatedState.ID = 0;
+    g.DragAction = false;
 
     // Record when we have been stationary as this state is preserved while over same item.
     // FIXME: The way this is expressed means user cannot alter HoverStationaryDelay during the frame to use varying values.
@@ -6181,6 +6195,8 @@ void ImGui::EndFrame()
     for (ImFontAtlas* atlas : g.FontAtlases)
         atlas->Locked = false;
 
+    HandleDragScroll();
+
     // Clear Input data for next frame
     g.IO.MousePosPrev = g.IO.MousePos;
     g.IO.AppFocusLost = false;
@@ -6485,6 +6501,279 @@ void ImGui::SetActiveIdUsingAllKeyboardKeys()
     g.ActiveIdUsingNavDirMask = (1 << ImGuiDir_COUNT) - 1;
     g.ActiveIdUsingAllKeyboardKeys = true;
     NavMoveRequestCancel();
+}
+
+// Walk up the window hierarchy (up to a root window) until a scrollable window is found.
+static ImGuiWindow* FindScrollableWindow(ImGuiWindow* win)
+{
+    for (ImGuiWindow* target = win; target; target = target->ParentWindow)
+    {
+        const bool mouse_inputs_forbidden = target->Flags & ImGuiWindowFlags_NoMouseInputs;
+        const bool mouse_scroll_forbidden = target->Flags & ImGuiWindowFlags_NoScrollWithMouse;
+        const bool is_scrollable = target->ScrollMax.x > 0 || target->ScrollMax.y > 0;
+        if (!mouse_inputs_forbidden && !mouse_scroll_forbidden && is_scrollable)
+            return target;
+        // Stop if target is a root window.
+        if (target->ParentWindow == target)
+            return NULL;
+    }
+    return NULL;
+}
+
+void ImGui::HandleDragScroll()
+{
+    ImGuiContext& g = *GImGui;
+    ImGuiIO& io = g.IO;
+
+    // Bail out if DragScroll is disabled.
+    if (!io.ConfigDragScroll)
+    {
+        g.DragScrollWindow = NULL;
+        return;
+    }
+
+    // Bail out if a widget is performing a drag action.
+    if (IsDragAction())
+    {
+        g.DragScrollWindow = NULL;
+        return;
+    }
+
+    // Bail out if a drag-and-drop operation is ongoing.
+    if (IsDragDropActive())
+    {
+        g.DragScrollWindow = NULL;
+        return;
+    }
+
+    // Bail out if a window is being moved.
+    if (g.MovingWindow)
+    {
+        g.DragScrollWindow = NULL;
+        return;
+    }
+
+    if (g.DragScrollWindow)
+    {
+        // Bail out if it was garbage-collected.
+        if (g.DragScrollWindow->MemoryCompacted)
+        {
+            g.DragScrollWindow = NULL;
+            return;
+        }
+
+        // Bail out if the window is collapsed.
+        if (g.DragScrollWindow->Collapsed)
+        {
+            g.DragScrollWindow = NULL;
+            return;
+        }
+
+        // Bail out when drag move conflicts with drag scroll.
+        const bool is_movable = !(g.DragScrollWindow->Flags & ImGuiWindowFlags_NoMove);
+        const bool is_drag_movable = g.DragScrollWindow->BgClickFlags & ImGuiWindowBgClickFlags_Move;
+        if (is_movable && is_drag_movable)
+        {
+            g.DragScrollWindow = NULL;
+            return;
+        }
+
+        // Bail out if window content is not hoverable (e.g. modal on top.)
+        if (!IsWindowContentHoverable(g.DragScrollWindow))
+        {
+            g.DragScrollWindow = NULL;
+            return;
+        }
+    }
+
+    ImVec2& vel = g.DragScrollVelocity;
+
+    g.DragScrollActive = false;
+
+    if (IsMouseDown(io.DragScrollButton))
+    {
+        // Button is down.
+
+        // Low-resolution screens can have inconsistent drag speed, so try to smooth it by this amount.
+        float smoothVelFactor = 0.25f;
+
+        if (IsMouseClicked(io.DragScrollButton))
+        {
+            // Just clicked.
+            const ImVec2 clicked_pos = io.MouseClickedPos[io.DragScrollButton];
+
+            // Bail out if clicked position is not valid.
+            if (!IsMousePosValid(&clicked_pos))
+                return;
+
+            ImGuiWindow* pointed_window = NULL;
+            FindHoveredWindowEx(clicked_pos, false, &pointed_window, NULL);
+
+            g.DragScrollWindow = FindScrollableWindow(pointed_window);
+            // Save original scroll value.
+            if (g.DragScrollWindow) {
+                // Started a new drag, so we zero the velocity, and remember the original scroll value.
+                smoothVelFactor = 0.0f; // Don't smooth the velocity when starting a new drag.
+                vel = ImVec2(0.0f, 0.0f);
+                g.DragScrollOldValue = g.DragScrollWindow->Scroll;
+                g.DragScrollActive = true;
+            }
+        }
+
+        // Bail out if there's no window to scroll.
+        if (!g.DragScrollWindow)
+            return;
+
+        g.DragScrollActive = true;
+
+        // Bail out if not (yet) in a dragging state (too small of a drag) to change the scroll position.
+        if (!IsMouseDragging(io.DragScrollButton))
+            return;
+
+        // Perform drag scroll.
+        ImVec2 drag_delta = GetMouseDragDelta(io.DragScrollButton);
+        SetScrollX(g.DragScrollWindow, g.DragScrollOldValue.x - drag_delta.x);
+        SetScrollY(g.DragScrollWindow, g.DragScrollOldValue.y - drag_delta.y);
+
+        // Remember velocity for when the button is released.
+        ImVec2 newVel = - io.MouseDelta / io.DeltaTime;
+        vel = ImLerp(newVel, vel, smoothVelFactor);
+
+        // Ensure no widget is active, to avoid activating buttons, menus,etc.
+        ClearActiveID();
+    }
+    else
+    {
+        // Button is not down.
+
+        // Bail out if no window to scroll.
+        if (!g.DragScrollWindow)
+            return;
+
+        const float min_speed_2 = io.DragScrollMinSpeed * io.DragScrollMinSpeed;
+        const float speed_2 = ImLengthSqr(vel);
+
+        // Check if speed high is enough to keep gliding.
+        const bool is_gliding = speed_2 > min_speed_2;
+
+        // Perform kinetic scrolling if gliding.
+        if (is_gliding && (g.DragScrollWindow->Flags & ImGuiWindowFlags_NoGlide) == 0)
+        {
+            const ImVec2 old_pos = g.DragScrollWindow->Scroll;
+            const ImVec2 new_pos = old_pos + io.DeltaTime * vel;
+            SetScrollX(g.DragScrollWindow, new_pos.x);
+            SetScrollY(g.DragScrollWindow, new_pos.y);
+
+            // Decelerate scroll velocity.
+            // integrate deceleration over the delta time
+            const float decel_speed = io.DragScrollDecel * io.DeltaTime;
+            const float speed = ImSqrt(speed_2);
+            if (speed <= decel_speed)
+                vel = ImVec2(0.0f, 0.0f);
+            else
+                // deceleration velocity is always opposed to velocity (vel / speed == normalized(vel))
+                vel -= decel_speed / speed * vel;
+
+            // Cancel velocity when hitting a scroll boundary.
+            const ImVec2 max = g.DragScrollWindow->ScrollMax;
+            if ((new_pos.x <= 0 && vel.x < 0) || (new_pos.x >= max.x && vel.x > 0))
+                vel.x = 0;
+            if ((new_pos.y <= 0 && vel.y < 0) || (new_pos.y >= max.y && vel.y > 0))
+                vel.y = 0;
+
+            // When gliding, we don't want any hover events.
+            ClearActiveID();
+            // If Touchscreen, invalidate mouse position and drag delta, so we don't generate hover events.
+            if (io.MouseSource == ImGuiMouseSource_TouchScreen) {
+                io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+                ResetMouseDragDelta(io.DragScrollButton);
+            }
+        }
+        else
+        {
+            vel = ImVec2(0.0f, 0.0f);
+        }
+    }
+}
+
+bool ImGui::IsDragScrolling()
+{
+    const ImGuiContext& g = *GImGui;
+    const ImGuiIO& io = g.IO;
+    if (!io.ConfigDragScroll)
+        return false;
+    if (g.DragScrollWindow != GetCurrentWindowRead())
+        return false;
+    return g.DragScrollActive;
+}
+
+bool ImGui::IsDragScrollGliding()
+{
+    const ImGuiContext& g = *GImGui;
+    const ImGuiIO& io = g.IO;
+    if (IsDragScrolling())
+        return false;
+    if (GetCurrentWindowRead()->Flags & ImGuiWindowFlags_NoGlide)
+        return false;
+    const ImVec2 vel = GetDragScrollVelocity();
+    const float speed_2 = ImLengthSqr(vel);
+    const float min_speed_2 = io.DragScrollMinSpeed * io.DragScrollMinSpeed;
+    return speed_2 > min_speed_2;
+}
+
+ImVec2 ImGui::GetDragScrollFlick(float threshold)
+{
+    const ImGuiContext& g = *GImGui;
+    const ImGuiIO& io = g.IO;
+    ImVec2 result{0, 0};
+
+    if (!io.ConfigDragScroll)
+        return result;
+    if (!g.DragScrollWindow)
+        return result;
+    if (g.DragScrollWindow != GetCurrentWindowRead())
+        return result;
+    // Flick can only happen if the button was just released.
+    if (!IsMouseReleased(io.DragScrollButton))
+        return result;
+
+    if (threshold < 0.0f)
+        threshold = io.DragFlickThreshold;
+
+    if (ImAbs(g.DragScrollVelocity.x) >= threshold)
+        result.x = g.DragScrollVelocity.x;
+    if (ImAbs(g.DragScrollVelocity.y) >= threshold)
+        result.y = g.DragScrollVelocity.y;
+
+    return result;
+}
+
+ImVec2 ImGui::GetDragScrollVelocity()
+{
+    ImGuiContext& g = *GImGui;
+    ImGuiIO& io = g.IO;
+    if (!io.ConfigDragScroll)
+        return ImVec2{0, 0};
+    if (!g.DragScrollWindow)
+        return ImVec2{0, 0};
+    if (g.DragScrollWindow != GetCurrentWindowRead())
+        return ImVec2{0, 0};
+    return g.DragScrollVelocity;
+}
+
+void ImGui::SetDragScrollVelocity(const ImVec2& vel)
+{
+    ImGuiContext& g = *GImGui;
+    ImGuiIO& io = g.IO;
+    if (!io.ConfigDragScroll)
+        return;
+    if (!g.DragScrollWindow)
+        return;
+    if (g.DragScrollWindow != GetCurrentWindowRead())
+        return;
+    if (g.DragScrollWindow->Flags & ImGuiWindowFlags_NoGlide)
+        return;
+    g.DragScrollVelocity = vel;
 }
 
 ImGuiID ImGui::GetItemID()
@@ -7088,6 +7377,7 @@ static int ImGui::UpdateWindowManualResize(ImGuiWindow* window, int* border_hove
             ImVec2 corner_target = g.IO.MousePos - g.ActiveIdClickOffset + ImLerp(def.InnerDir * grip_hover_outer_size, def.InnerDir * -grip_hover_inner_size, def.CornerPosN); // Corner of the window corresponding to our corner grip
             corner_target = ImClamp(corner_target, clamp_min, clamp_max);
             CalcResizePosSizeFromAnyCorner(window, corner_target, def.CornerPosN, &pos_target, &size_target);
+            SetDragAction();
         }
 
         // Only lower-left grip is visible before hovering/activating
@@ -7167,8 +7457,10 @@ static int ImGui::UpdateWindowManualResize(ImGuiWindow* window, int* border_hove
             ImVec2 clamp_min(border_n == ImGuiDir_Right ? clamp_rect.Min.x : -FLT_MAX, border_n == ImGuiDir_Down || (border_n == ImGuiDir_Up && window_move_from_title_bar) ? clamp_rect.Min.y : -FLT_MAX);
             ImVec2 clamp_max(border_n == ImGuiDir_Left ? clamp_rect.Max.x : +FLT_MAX, border_n == ImGuiDir_Up ? clamp_rect.Max.y : +FLT_MAX);
             border_target = ImClamp(border_target, clamp_min, clamp_max);
-            if (!ignore_resize)
+            if (!ignore_resize) {
                 CalcResizePosSizeFromAnyCorner(window, border_target, ImMin(def.SegmentN1, def.SegmentN2), &pos_target, &size_target);
+                SetDragAction();
+            }
         }
         if (hovered)
             *border_hovered = border_n;
@@ -10296,6 +10588,11 @@ void ImGui::ResetMouseDragDelta(ImGuiMouseButton button)
     g.IO.MouseClickedPos[button] = g.IO.MousePos;
 }
 
+void ImGui::SuppressDragScroll()
+{
+    SetDragAction();
+}
+
 // Get desired mouse cursor shape.
 // Important: this is meant to be used by a platform backend, it is reset in ImGui::NewFrame(),
 // updated during the frame, and locked in EndFrame()/Render().
@@ -10715,11 +11012,27 @@ void ImGui::UpdateInputEvents(bool trickle_fast_inputs)
             IM_ASSERT(button >= 0 && button < ImGuiMouseButton_COUNT);
             if (trickle_fast_inputs && ((mouse_button_changed & (1 << button)) || mouse_wheeled))
                 break;
+#if 0
+            // NOTE: touch screen inputs should always send position, followed by click event.
             if (trickle_fast_inputs && e->MouseButton.MouseSource == ImGuiMouseSource_TouchScreen && mouse_moved) // #2702: TouchScreen have no initial hover.
                 break;
+#endif
             io.MouseDown[button] = e->MouseButton.Down;
             io.MouseSource = e->MouseButton.MouseSource;
             mouse_button_changed |= (1 << button);
+
+            // If TouchScreen and button released, stop processing, replace current event with a
+            // mouse move to invalidate current cursor position.
+            // This prevents hover events from happening.
+            if (e->MouseButton.MouseSource == ImGuiMouseSource_TouchScreen && !e->MouseButton.Down) {
+                e->Type = ImGuiInputEventType_MousePos;
+                e->MousePos = ImGuiInputEventMousePos{
+                    -FLT_MAX,
+                    -FLT_MAX,
+                    ImGuiMouseSource_TouchScreen,
+                };
+                break;
+            }
         }
         else if (e->Type == ImGuiInputEventType_MouseWheel)
         {

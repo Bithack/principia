@@ -1,13 +1,8 @@
 # Dear Imgui
-These are source files from the Dear Imgui library, for Principia's experimental Dear Imgui dialog backend.
+These are source files from the Dear Imgui library, for Principia's Dear Imgui dialog backend.
 
-All files are currently taken from commit 8d3e37eb5343d4a5aa15718ea0a1889c6e4f2d6c with the following modifications:
+We carry some patches in Dear Imgui for Principia and the patchset is maintained at https://github.com/principia-game/imgui.
 
-- `imconfig.h` is entirely custom and should be kept
-- `imgui_impl_opengl3.cpp`:
-	- Desktop GL / GLES2 is dynamically determined at runtime using `_tms.use_gles`
-	- Fix for Haiku OS
-
-All downstream modifications should have a `// XXX PRINCIPIA XXX` comment for keeping track of them.
+All files in this directory are currently taken from commit f489b17d329754da9e2893a8aaa463268fa22546 in the forked repo.
 
 To update from upstream, see the `copy.sh` script in this folder.

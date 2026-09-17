@@ -396,6 +396,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
     static bool no_background = false;
     static bool no_bring_to_front = false;
     static bool unsaved_document = false;
+    static bool no_glide = false;
 
     ImGuiWindowFlags window_flags = 0;
     if (no_titlebar)        window_flags |= ImGuiWindowFlags_NoTitleBar;
@@ -408,6 +409,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
     if (no_background)      window_flags |= ImGuiWindowFlags_NoBackground;
     if (no_bring_to_front)  window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
     if (unsaved_document)   window_flags |= ImGuiWindowFlags_UnsavedDocument;
+    if (no_glide)           window_flags |= ImGuiWindowFlags_NoGlide;
     if (no_close)           p_open = NULL; // Don't pass our bool* to Begin
 
     // We specify a default position/size in case there's no data in the .ini file.
@@ -562,6 +564,20 @@ void ImGui::ShowDemoWindow(bool* p_open)
             if (!io.ConfigErrorRecoveryEnableAssert && !io.ConfigErrorRecoveryEnableDebugLog && !io.ConfigErrorRecoveryEnableTooltip)
                 io.ConfigErrorRecoveryEnableAssert = io.ConfigErrorRecoveryEnableDebugLog = io.ConfigErrorRecoveryEnableTooltip = true;
 
+            ImGui::SeparatorText("Dragging and scrolling");
+            ImGui::Checkbox("io.ConfigDragScroll", &io.ConfigDragScroll);
+            ImGui::SameLine(); HelpMarker("Enable drag-to-scroll interactions.");
+            ImGui::PushItemWidth(-ImGui::GetContentRegionAvail().x * 0.5f);
+            ImGui::DragFloat("io.MouseDragThreshold", &io.MouseDragThreshold, 0.5f, 0.0f, 100.0f, "%.0f");
+            ImGui::SameLine(); HelpMarker("Distance threshold before considering we are dragging.");
+            ImGui::DragFloat("io.DragScrollDecel", &io.DragScrollDecel, 10.0f, 0.0f, 10000.0f, "%.0f");
+            ImGui::SameLine(); HelpMarker("How much of the scroll speed decelerates, in pixels per second.");
+            ImGui::DragFloat("io.DragScrollMinSpeed", &io.DragScrollMinSpeed, 1.0f, 0.0f, 1000.0f, "%.0f");
+            ImGui::SameLine(); HelpMarker("Minimum kinetic scroll speed, in pixels per second, before the scroll is stopped.");
+            ImGui::DragFloat("io.DragFlickThreshold", &io.DragFlickThreshold, 1.0f, 0.0f, 10000.0f, "%.0f");
+            ImGui::SameLine(); HelpMarker("Minimum speed to consider a drag scroll as a flick action.");
+            ImGui::PopItemWidth();
+
             // Also read: https://github.com/ocornut/imgui/wiki/Debug-Tools
             ImGui::SeparatorText("Debug");
             ImGui::Checkbox("io.ConfigDebugIsDebuggerPresent", &io.ConfigDebugIsDebuggerPresent);
@@ -649,6 +665,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
             ImGui::TableNextColumn(); ImGui::Checkbox("No background", &no_background);
             ImGui::TableNextColumn(); ImGui::Checkbox("No bring to front", &no_bring_to_front);
             ImGui::TableNextColumn(); ImGui::Checkbox("Unsaved document", &unsaved_document);
+            ImGui::TableNextColumn(); ImGui::Checkbox("No glide", &no_glide);
             ImGui::EndTable();
         }
     }
@@ -1746,8 +1763,11 @@ static void DemoWindowWidgetsDragAndDrop()
                 const char* item = item_names[n];
                 ImGui::Selectable(item);
 
+                if (ImGui::IsItemHovered())
+                    ImGui::SuppressDragScroll();
                 if (ImGui::IsItemActive() && !ImGui::IsItemHovered())
                 {
+                    ImGui::SuppressDragScroll();
                     int n_next = n + (ImGui::GetMouseDragDelta(0).y < 0.0f ? -1 : 1);
                     if (n_next >= 0 && n_next < IM_COUNTOF(item_names))
                     {
@@ -8788,10 +8808,14 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
                     CheckboxFlags("ImGuiHoveredFlags_NoSharedDelay", p, ImGuiHoveredFlags_NoSharedDelay);
                     TreePop();
                 }
+            SliderFloat("HoverDelayShort", &style.HoverDelayShort, 0.0f, 2.0f, "%.2f");
+            SliderFloat("HoverDelayNormal", &style.HoverDelayNormal, 0.0f, 2.0f, "%.2f");
+            SliderFloat("HoverStationaryDelay", &style.HoverStationaryDelay, 0.0f, 2.0f, "%.2f");
 
             SeparatorText("Misc");
             SliderFloat2("DisplayWindowPadding", (float*)&style.DisplayWindowPadding, 0.0f, 30.0f, "%.0f"); SameLine(); HelpMarker("Apply to regular windows: amount which we enforce to keep visible when moving near edges of your screen.");
             SliderFloat2("DisplaySafeAreaPadding", (float*)&style.DisplaySafeAreaPadding, 0.0f, 30.0f, "%.0f"); SameLine(); HelpMarker("Apply to every windows, menus, popups, tooltips: amount where we avoid displaying contents. Adjust if you cannot see the edges of your screen (e.g. on a TV where scaling has not been configured).");
+            SliderFloat("InputTextCursorSize", &style.InputTextCursorSize, 1.0f, 5.0f, "%.0f");
 
             EndTabItem();
         }

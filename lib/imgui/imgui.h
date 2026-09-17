@@ -480,6 +480,11 @@ namespace ImGui
     IMGUI_API ImVec2        GetWindowSize();                            // get current window size (IT IS UNLIKELY YOU EVER NEED TO USE THIS. Consider always using GetCursorScreenPos() and GetContentRegionAvail() instead)
     IMGUI_API float         GetWindowWidth();                           // get current window width (IT IS UNLIKELY YOU EVER NEED TO USE THIS). Shortcut for GetWindowSize().x.
     IMGUI_API float         GetWindowHeight();                          // get current window height (IT IS UNLIKELY YOU EVER NEED TO USE THIS). Shortcut for GetWindowSize().y.
+    IMGUI_API bool          IsDragScrolling();                          // Is the user performing a drag scroll action on this window?
+    IMGUI_API bool          IsDragScrollGliding();                      // Is the window gliding after a drag scroll action?
+    IMGUI_API ImVec2        GetDragScrollFlick(float threshold = -1.0f); // Get the flick test for this window. If threshold == -1, the global threshold from io.DragFlickThreshold is used. To pass the test, the drag scroll button must have been just released, and the drag scroll velocity must have absolute value larger than the threshold.
+    IMGUI_API ImVec2        GetDragScrollVelocity();                    // Get the drag scroll velocity.
+    IMGUI_API void          SetDragScrollVelocity(const ImVec2& vel);   // Set the drag scroll velocity. If you're changing this, it's usually to force it to zero (to manually stop any gliding.)
 
     // Window manipulation
     // - Prefer using SetNextXXX functions (before Begin) rather that SetXXX functions (after Begin).
@@ -1130,6 +1135,7 @@ namespace ImGui
     IMGUI_API bool          IsMouseDragging(ImGuiMouseButton button, float lock_threshold = -1.0f);         // is mouse dragging? (uses io.MouseDraggingThreshold if lock_threshold < 0.0f)
     IMGUI_API ImVec2        GetMouseDragDelta(ImGuiMouseButton button = 0, float lock_threshold = -1.0f);   // return the delta from the initial clicking position while the mouse button is pressed or was just released. This is locked and return 0.0f until the mouse moves past a distance threshold at least once (uses io.MouseDraggingThreshold if lock_threshold < 0.0f)
     IMGUI_API void          ResetMouseDragDelta(ImGuiMouseButton button = 0);                   //
+    IMGUI_API void          SuppressDragScroll();                                               // Pevent drag scrolling, if enabled, during this frame. Use this if you intend to manually handle mouse dragging and don't want the window to be scrolled by accident.
     IMGUI_API ImGuiMouseCursor GetMouseCursor();                                                // get desired mouse cursor shape. Important: reset in ImGui::NewFrame(), this is updated during the frame. valid before Render(). If you use software rendering by setting io.MouseDrawCursor ImGui will render those for you
     IMGUI_API void          SetMouseCursor(ImGuiMouseCursor cursor_type);                       // set desired mouse cursor shape
     IMGUI_API void          SetNextFrameWantCaptureMouse(bool want_capture_mouse);              // Override io.WantCaptureMouse flag next frame (said flag is left for your application to handle, typical when true it instructs your app to ignore inputs). This is equivalent to setting "io.WantCaptureMouse = want_capture_mouse;" after the next NewFrame() call.
@@ -1200,6 +1206,7 @@ enum ImGuiWindowFlags_
     ImGuiWindowFlags_NoNavInputs            = 1 << 16,  // No keyboard/gamepad navigation within the window
     ImGuiWindowFlags_NoNavFocus             = 1 << 17,  // No focusing toward this window with keyboard/gamepad navigation (e.g. skipped by Ctrl+Tab)
     ImGuiWindowFlags_UnsavedDocument        = 1 << 18,  // Display a dot next to the title. When used in a tab/docking context, tab is selected when clicking the X + closure is not assumed (will wait for user to stop submitting the tab). Otherwise closure is assumed when pressing the X, so if you keep submitting the tab may reappear at end of tab bar.
+    ImGuiWindowFlags_NoGlide                = 1 << 19,  // Prevent any gliding when doing drag scrolling: the window stops scrolling instantnly when the mouse button is released.
     ImGuiWindowFlags_NoNav                  = ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus,
     ImGuiWindowFlags_NoDecoration           = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse,
     ImGuiWindowFlags_NoInputs               = ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus,
@@ -2510,6 +2517,13 @@ struct ImGuiIO
     float       MouseDragThreshold;             // = 6.0f           // Distance threshold before considering we are dragging.
     float       KeyRepeatDelay;                 // = 0.275f         // When holding a key/button, time before it starts repeating, in seconds (for buttons in Repeat mode, etc.).
     float       KeyRepeatRate;                  // = 0.050f         // When holding a key/button, rate at which it repeats, in seconds.
+
+    // Drag scrolling behavior.
+    bool        ConfigDragScroll;               // = false          // Dragging with a mouse button will scroll the content.
+    ImGuiMouseButton DragScrollButton;          // ImGuiMouseButton_Left // What mouse button is used to detect drag scrolling. See ImGuiConfigFlags_DragScroll.
+    float       DragScrollDecel;                // = 5000.0f        // How much of the scroll speed decelerates, in pixels per second per second.
+    float       DragScrollMinSpeed;             // = 120.0f         // Minimum kinetic scroll speed, in pixels per second, before the scroll is stopped.
+    float       DragFlickThreshold;             // = 600.0f        // Minimum drag scroll speed that will be considered a flick.
 
     //------------------------------------------------------------------
     // Debug options

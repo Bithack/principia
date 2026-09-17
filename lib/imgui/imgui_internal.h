@@ -2308,6 +2308,10 @@ struct ImGuiContext
     float                   WheelingWindowReleaseTimer;
     ImVec2                  WheelingWindowWheelRemainder;
     ImVec2                  WheelingAxisAvg;
+    ImGuiWindow*            DragScrollWindow;                   // Track which window is the target of a drag scroll.
+    ImVec2                  DragScrollOldValue;                 // Store original scroll value before a drag scroll starts.
+    ImVec2                  DragScrollVelocity;
+    bool                    DragScrollActive;
 
     // Item/widgets state and tracking information
     const char*             MixedValueLabel;                    // Value replacement when displaying a mixed value. Default to "-" (Unreal uses "Multiple values", Unity uses "---"). May be interpreted as a format: must not contain single %. Set to NULL to display original value.
@@ -2346,6 +2350,7 @@ struct ImGuiContext
     float                   LastActiveIdTimer;                  // Store the last non-zero ActiveId timer since the beginning of activation, useful for animation.
     bool                    LastActiveIdWasSelected;
     bool                    LastActiveIdWasSoleSelected;
+    bool                    DragAction;                         // True when a widget is handling a drag-like action, to avoid conflicts with the drag scrolling code.
 
     // Key/Input Ownership + Shortcut Routing system
     // - The idea is that instead of "eating" a given key, we can link to an owner.
@@ -3601,6 +3606,10 @@ namespace ImGui
     IMGUI_API void          TeleportMousePos(const ImVec2& pos);
     IMGUI_API void          SetActiveIdUsingAllKeyboardKeys();
     inline bool             IsActiveIdUsingNavDir(ImGuiDir dir)                         { ImGuiContext& g = *GImGui; return (g.ActiveIdUsingNavDirMask & (1 << dir)) != 0; }
+
+    inline void             SetDragAction(bool state = true)                            { ImGuiContext& g = *GImGui; g.DragAction = state; } // Set to true when a widget is using a mouse drag interaction.
+    inline bool             IsDragAction()                                              { ImGuiContext& g = *GImGui; return g.DragAction; } // Query if a widget is using a mouse drag interaction.
+    IMGUI_API void          HandleDragScroll();
 
     // [EXPERIMENTAL] Low-Level: Key/Input Ownership
     // - The idea is that instead of "eating" a given input, we can link to an owner id.

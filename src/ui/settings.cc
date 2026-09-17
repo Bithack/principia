@@ -88,6 +88,8 @@ namespace UiSettings {
 
         sm::load_settings();
         _tms.touch_controls = settings["touch_controls"]->v.b;
+        ImGuiIO& io = ImGui::GetIO();
+        io.ConfigDragScroll = _tms.touch_controls;
         P.can_reload_graphics = true;
         is_saving = false;
     }
