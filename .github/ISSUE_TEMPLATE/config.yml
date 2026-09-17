@@ -1,5 +1,8 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
+  - name: Feature Requests
+    url: https://principia-web.se/forum/
+    about: To discuss new features for Principia, post about it on the forums. If the feature is good it will be added to the issue tracker by the maintainer.
   - name: Questions
     url: https://principia-web.se/forum/
     about: For asking more general questions about Principia, please see the Principia forums.
