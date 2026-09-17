@@ -105,7 +105,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     setlocale(LC_ALL, "C");
 #endif
 
-    setup_pipe(argc, argv);
+    bool ignore_pipe = false;
+    if (argc > 1 && strncmp(argv[1], "--ignore-pipe", 14) == 0) {
+        tms_infof("Ignoring IPC pipe.");
+        ignore_pipe = true;
+    } else
+        setup_pipe(argc, argv);
 
     const char* exedir = SDL_GetBasePath();
     tms_infof("chdirring to %s", exedir);
