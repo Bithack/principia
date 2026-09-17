@@ -20,3 +20,11 @@
 
 // Use imgui_freetype for font rendering
 #define IMGUI_ENABLE_FREETYPE
+
+#ifndef IMGUI_DEFINE_MATH_OPERATORS
+#define IMGUI_DEFINE_MATH_OPERATORS
+#endif
+
+#if defined(TMS_USE_GLES) && !defined(IMGUI_IMPL_OPENGL_ES2)
+    #define IMGUI_IMPL_OPENGL_ES2
+#endif

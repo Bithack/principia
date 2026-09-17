@@ -69,6 +69,9 @@ else()
 	set(BACKEND_IMGUI TRUE)
 endif()
 
+# Enable experimental usage of certain Imgui dialogs on Android
+#set(EXPERIMENTAL_IMGUI_ON_ANDROID TRUE)
+
 if(LINUX)
 	option(USE_GLES "Use OpenGL ES on Linux (Experimental)" FALSE)
 endif()
@@ -126,7 +129,7 @@ else()
 	list(APPEND SRCS ${MAIN_SRCS})
 endif()
 
-if(BACKEND_IMGUI)
+if(BACKEND_IMGUI OR EXPERIMENTAL_IMGUI_ON_ANDROID)
 	if(UNITY_BUILD)
 		list(APPEND SRCS lib/imgui/_unity_chunk.cc)
 	else()
@@ -225,11 +228,11 @@ elseif(SCREENSHOT_BUILD)
 endif()
 
 if(BACKEND_IMGUI)
-	add_definitions(-DPRINCIPIA_BACKEND_IMGUI -DIMGUI_DEFINE_MATH_OPERATORS)
+	add_definitions(-DPRINCIPIA_BACKEND_IMGUI)
+endif()
 
-	if(SHOULD_USE_GLES)
-		add_definitions(-DIMGUI_IMPL_OPENGL_ES2)
-	endif()
+if(EXPERIMENTAL_IMGUI_ON_ANDROID)
+	add_definitions(-DEXPERIMENTAL_IMGUI_ON_ANDROID)
 endif()
 
 # Use a safe subset of fast math flags

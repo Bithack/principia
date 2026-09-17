@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(PRINCIPIA_BACKEND_IMGUI)
+#if defined(PRINCIPIA_BACKEND_IMGUI) || defined(EXPERIMENTAL_IMGUI_ON_ANDROID)
 
 #include "imgui.h"
 #include "imgui_stdlib.h"

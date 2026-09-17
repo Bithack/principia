@@ -36,7 +36,19 @@
 #include <jni.h>
 #include <sstream>
 
-void ui::init() {}
+#ifdef EXPERIMENTAL_IMGUI_ON_ANDROID
+#include "imgui.hh"
+#include "ui_imgui.hh"
+
+static ImguiDriver imgui_driver;
+#endif
+
+void ui::init() {
+#ifdef EXPERIMENTAL_IMGUI_ON_ANDROID
+    imgui_driver = ImguiDriver();
+    imgui_driver.init();
+#endif
+}
 
 void ui::set_next_action(int action_id) {
     ui::next_action = action_id;
@@ -141,6 +153,23 @@ void ui::open_dialog(int num, void *data/*=0*/) {
     jclass cls = env->GetObjectClass(activity);
 
     switch (num) {
+#ifdef EXPERIMENTAL_IMGUI_ON_ANDROID
+        case DIALOG_SANDBOX_MODE:
+            UiSandboxMode::open();
+            break;
+
+        case DIALOG_ANIMAL:
+            UiAnimal::open();
+            break;
+
+        case DIALOG_KEY_LISTENER:
+            UiKeyListener::open();
+            break;
+
+        case DIALOG_SET_FACTION:
+            UiSetFaction::open();
+            break;
+#endif
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -178,7 +207,18 @@ void ui::open_sandbox_tips() {
         tms_errorf("could not run showSandboxTips");
 }
 
-void ui::render() {}
+void ui::render() {
+#ifdef EXPERIMENTAL_IMGUI_ON_ANDROID
+    imgui_driver.pre_render();
+
+    UiSandboxMode::layout();
+    UiAnimal::layout();
+    UiKeyListener::layout();
+    UiSetFaction::layout();
+
+    imgui_driver.post_render();
+#endif
+}
 bool ui::is_blocking() { return false; }
 
 /** ++Generic **/

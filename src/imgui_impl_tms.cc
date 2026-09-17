@@ -1,9 +1,9 @@
-#include "imgui.h"
+#include "imgui.hh"
 #include "settings.hh"
 #include <tms/cpp.hh>
 #include <SDL3/SDL.h>
 
-#if defined(PRINCIPIA_BACKEND_IMGUI)
+#if defined(PRINCIPIA_BACKEND_IMGUI) || defined(EXPERIMENTAL_IMGUI_ON_ANDROID)
 
 // This is a modified version of the SDL3 platform implementation for Dear Imgui,
 // which rewrites some things (notably events) to work more tightly with TMS.
