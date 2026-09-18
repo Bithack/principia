@@ -249,7 +249,7 @@
 	#include "tms/backend/pipe.cc"
 #endif
 
-#if defined(PRINCIPIA_BACKEND_IMGUI) || defined(EXPERIMENTAL_IMGUI_ON_ANDROID)
+#if defined(PRINCIPIA_BACKEND_IMGUI)
 	#include "ui/animal.cc"
 	#include "ui/camtargeter.cc"
 	#include "ui/command_pad.cc"
