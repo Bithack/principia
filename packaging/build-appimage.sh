@@ -17,7 +17,7 @@ rm -rf AppDir
 
 # Compile
 cmake .. -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=AppDir/usr/ \
-	-DUSE_VENDORED_SDL3=ON -DUNITY_BUILD=ON
+	-DUSE_VENDORED_SDL3=ON
 ninja
 
 # Strip binary and create debug symbol file

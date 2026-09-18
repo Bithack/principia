@@ -95,7 +95,6 @@ build_principia() {
 	cmake .. \
 		-DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN_FILE" \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DUNITY_BUILD=ON \
 		-DUSE_VENDORED_SDL3=ON \
 		-DCURL_INCLUDE_DIR="$INCLUDE" \
 		-DCURL_LIBRARY="$LIB/libcurl.a;$LIB/libz.a;ws2_32.lib;crypt32.lib;bcrypt.lib;secur32.lib;iphlpapi.lib" \
