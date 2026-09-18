@@ -2706,7 +2706,10 @@ int game::render() {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         } else if (material_factory::background_id == BG_SPACE || material_factory::background_id == BG_OUTDOOR) {
             tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render before space bg", ierr);
-            glClearColor(4.f/255.f, 11.f/255.f, 19/255.f, 1.f);
+            if (_tms.gamma_correct)
+                glClearColor(0.001214f, 0.003347f, 0.006512f, 1.f);
+            else
+                glClearColor(4.f/255.f, 11.f/255.f, 19.f/255.f, 1.f);
             glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
             glDisable(GL_CULL_FACE);
             glDisable(GL_DEPTH_TEST);
