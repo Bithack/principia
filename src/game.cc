@@ -2726,13 +2726,6 @@ int game::render() {
 
 #define HORIZON_DIST 2500.f
 
-	            glClearColor(
-	                4.f/255.f * 4.f/255.f, // dunno why it doesn't take the RGB as-is
-	                11.f/255.f * 11.f/255.f,
-	                19.f/255.f * 19.f/255.f,
-	                1.f);
-            	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
                 this->cam->p_far = HORIZON_DIST+1.f;
                 this->cam->p_near = -10.f;
                 this->cam->calculate();
