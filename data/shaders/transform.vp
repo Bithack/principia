@@ -5,11 +5,17 @@ varying lowp vec2 FS_texcoord;
 uniform vec2 texcoord_trans;
 uniform vec2 position_trans;
 uniform vec2 position_trans_lower;
+uniform vec2 up;
+uniform float xyratio; // = x / y
 
 void main() {
 	vec2 tx = texcoord+texcoord_trans;
 	vec2 trans = position_trans;
 	if (position.y < 0.01) trans = position_trans_lower;
 	FS_texcoord = tx;
-	gl_Position = vec4(position+trans, .99, 1.);
+	vec2 right = vec2(up.y, -up.x);
+	vec2 scaledpos = vec2(position.x * xyratio, position.y);
+	vec2 pos = position+trans;
+	vec2 npos = pos.x*right*xyratio*1.5 + pos.y*up;
+	gl_Position = vec4(npos.x / xyratio, npos.y, .99, 1.);
 }

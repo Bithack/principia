@@ -232,6 +232,8 @@ GLuint trans_program_shift_loc;
 GLuint trans_program_scale_loc;
 GLuint trans_program_pos_loc;
 GLuint trans_program_poslower_loc;
+GLuint trans_program_up_loc;
+GLuint trans_program_xyratio_loc;
 
 static void deactive_misc_wdg(panel::widget **wdg) {
     tms_debugf("DEACTIVATE");
@@ -1081,6 +1083,8 @@ void game::init_shaders() {
     trans_program_shift_loc = tms_program_get_uniform(trans_program, "texcoord_trans");
     trans_program_pos_loc = tms_program_get_uniform(trans_program, "position_trans");
     trans_program_poslower_loc = tms_program_get_uniform(trans_program, "position_trans_lower");
+    trans_program_up_loc = tms_program_get_uniform(trans_program, "up");
+    trans_program_xyratio_loc = tms_program_get_uniform(trans_program, "xyratio");
 
     sh = tms_shader_read("postprocess");
     prg_output = tms_shader_get_program(sh, TMS_NO_PIPELINE);
@@ -2718,6 +2722,7 @@ int game::render() {
 
                 float ff = this->cam->p_far;
                 float nn = this->cam->p_near;
+                tvec3 uu = this->cam->up;
 
 #define HORIZON_DIST 2500.f
 
@@ -2737,9 +2742,14 @@ int game::render() {
                 glUniform2f(trans_program_shift_loc, 0.f,0* (this->cam->_position.y > 0? .01f : .075f) * this->cam->_position.y);
                 glUniform2f(trans_program_pos_loc, 0.f, pp);
                 glUniform2f(trans_program_poslower_loc, 0.f, pp);
+                glUniform2f(trans_program_up_loc, -uu.x, uu.y);
+                glUniform1f(trans_program_xyratio_loc, this->cam->width / this->cam->height);
                 tms_fb_render(&fb, trans_program);
 
                 //fb.fb_texture[0][0] = tex_bedrock->gl_texture;
+
+                this->cam->up = tvec3f(0,1,0);
+                this->cam->calculate();
 
                 v1 = tms_camera_project(this->cam, this->cam->_position.x, -1.f, -.5f);
                 float pp2 = (v1.y / this->cam->height) * 2.f;
@@ -2748,7 +2758,12 @@ int game::render() {
                 glUniform2f(trans_program_shift_loc, 0.f,0* (this->cam->_position.y > 0? .01f : .075f) * this->cam->_position.y);
                 glUniform2f(trans_program_pos_loc, 0.f, pp2-2.f);
                 glUniform2f(trans_program_poslower_loc, 0.f, pp);
+                glUniform2f(trans_program_up_loc, -uu.x, uu.y);
+                glUniform1f(trans_program_xyratio_loc, this->cam->width / this->cam->height);
                 tms_fb_render(&fb, trans_program);
+
+                this->cam->up = uu;
+                this->cam->calculate();
             } else {
                 tms_texture_render(tex_bg);
             }
