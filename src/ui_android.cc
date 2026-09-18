@@ -153,6 +153,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiSetFaction::open();
             break;
 
+        case DIALOG_KEY_LISTENER:
+            UiKeyListener::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -194,6 +198,7 @@ void ui::render() {
     imgui_driver.pre_render();
 
     UiSetFaction::layout();
+    UiKeyListener::layout();
 
     imgui_driver.post_render();
 }
@@ -1138,21 +1143,6 @@ JNI_FUNC(void, fixed)(JNIEnv *env, jclass _jcls) {
         P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
         P.add_action(ACTION_RESELECT, 0);
     }
-}
-
-JNI_FUNC(jstring, getKeys)(JNIEnv *env, jclass _jcls) {
-    std::stringstream ss;
-
-    for (int x=0; x<TMS_KEY__NUM; ++x) {
-        const char *s = key_names[x];
-
-        if (s) {
-            // ;-)
-            ss << x << "=_=" << s << ",.,";
-        }
-    }
-
-    return env->NewStringUTF(ss.str().c_str());
 }
 
 JNI_FUNC(jstring, getDecorations)(JNIEnv *env, jclass _jcls) {

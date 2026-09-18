@@ -195,7 +195,6 @@ public class PrincipiaBackend
 
     public static native void fixed();
 
-    public static native String getKeys();
     public static native String getDecorations();
     public static native String getAnimals();
     public static native String getSounds();
