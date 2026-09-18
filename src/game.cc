@@ -8569,41 +8569,35 @@ void game::check_select_object(int x, int y, int pid) {
         entity *e = this->sel_p_ent;
 
         switch (this->selection.e_saved->g_id) {
-            case O_LUASCRIPT:
-                {
-                    down[pid] = false;
-                    char msg[2048];
+            case O_LUASCRIPT: {
+                down[pid] = false;
+                char msg[2048];
 
-                    if (this->sel_p_ent) {
-                        entity *e = this->sel_p_ent;
-                        snprintf(msg, 2047,
-                                      "Name: %s\n"
-                                      "ID: %u\n"
-                                      "Type ID (g_id): %u\n"
-                                      "Position: %.2f/%.2f\n"
-                                      "Angle: %.2f\n",
-                                      e->get_name(),
-                                      e->id,
-                                      e->g_id,
-                                      e->get_position().x, e->get_position().y,
-                                      e->get_angle()
-                                );
-                    } else {
-                        tvec3 p;
-                        W->get_layer_point(this->cam, x, y, 0, &p);
-                        snprintf(msg, 2047,
-                                      "No entity selected.\n"
-                                      "Click position: %.2f/%.2f\n",
-                                      p.x, p.y
-                                );
-                    }
-
-                    ui::alert(msg);
-                    this->selection.load();
-                    this->set_mode(GAME_MODE_DEFAULT);
-
+                if (this->sel_p_ent) {
+                    entity *e = this->sel_p_ent;
+                    snprintf(msg, 2047,
+                        "Name: %s\n"
+                        "ID: %u\n"
+                        "Type ID (g_id): %u\n"
+                        "Position: x: %.2f, y: %.2f\n"
+                        "Angle: %.2f",
+                        e->get_name(), e->id,e->g_id,
+                        e->get_position().x, e->get_position().y,
+                        e->get_angle());
+                } else {
+                    tvec3 p;
+                    W->get_layer_point(this->cam, x, y, 0, &p);
+                    snprintf(msg, 2047,
+                        "No entity selected.\n\n"
+                        "Click position: %.2f/%.2f\n",
+                        p.x, p.y);
                 }
+
+                ui::alert(msg);
+                this->selection.load();
+                this->set_mode(GAME_MODE_DEFAULT);
                 break;
+            }
 
             case O_RC_ACTIVATOR:
                 {
