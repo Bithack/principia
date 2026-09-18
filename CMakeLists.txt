@@ -262,6 +262,13 @@ if(NOT APPLE)
 	string(APPEND CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-s ")
 endif()
 
+if(ANDROID)
+	# Try to trim the size of the Android binary (TODO: do this for other platforms too)
+	target_compile_options(${PROJECT_NAME} PRIVATE -ffunction-sections -fdata-sections -fvisibility=hidden)
+
+	target_link_options(${PROJECT_NAME} PRIVATE -Wl,--gc-sections)
+endif()
+
 # Register protocol handler util on Windows
 # -----------------------------------------
 

@@ -203,7 +203,7 @@ bool ui::is_blocking() { return false; }
 
 extern "C" {
 
-#define JNI_FUNC(type, name) type Java_com_bithack_principia_PrincipiaBackend_##name
+#define JNI_FUNC(type, name) __attribute__((visibility("default"), used, retain)) type Java_com_bithack_principia_PrincipiaBackend_##name
 
 JNI_FUNC(jstring, getLevelPage)(JNIEnv *env, jclass jcls) {
     COMMUNITY_URL("level/%d", W->level.community_id);
