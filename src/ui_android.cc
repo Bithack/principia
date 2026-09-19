@@ -193,6 +193,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiRubber::open();
             break;
 
+        case DIALOG_VENDOR:
+            UiVendor::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -244,6 +248,7 @@ void ui::render() {
     UiEmitter::layout();
     UiPolygon::layout();
     UiRubber::layout();
+    UiVendor::layout();
 
     imgui_driver.post_render();
 }

@@ -44,7 +44,6 @@ import com.bithack.principia.shared.TouchFieldDialog;
 import com.bithack.principia.shared.VariableDialog;
 import com.bithack.principia.shared.SoundManDialog;
 import com.bithack.principia.shared.MultiSelectDialog;
-import com.bithack.principia.shared.VendorDialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -628,7 +627,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_DECORATION:         d = DecorationDialog.get_dialog(); break;
         case DIALOG_SOUNDMAN:           d = SoundManDialog.get_dialog(); break;
         case DIALOG_MULTI_CONFIG:       d = MultiSelectDialog.get_dialog(); break;
-        case DIALOG_VENDOR:             d = VendorDialog.get_dialog(); break;
 
         case DIALOG_FACTORY:            d = FactoryDialog.get_dialog(); break;
 
@@ -793,7 +791,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_DECORATION:         DecorationDialog.prepare(dialog); break;
             case DIALOG_SOUNDMAN:           SoundManDialog.prepare(dialog); break;
             case DIALOG_MULTI_CONFIG:       MultiSelectDialog.prepare(dialog); break;
-            case DIALOG_VENDOR:             VendorDialog.prepare(dialog); break;
 
             case DIALOG_FACTORY:            FactoryDialog.prepare(dialog); break;
 
