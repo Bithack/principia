@@ -103,9 +103,6 @@ public class PrincipiaBackend
     public static native String getFxEmitterEffects();
     public static native void setFxEmitterEffects(int effect_1, int effect_2, int effect_3, int effect_4);
 
-    public static native int getPkgItemLevelId();
-    public static native void setPkgItemLevelId(int pkg_level_id);
-
     public static native int getEntityColor();
     public static native void setEntityColor(int color);
     public static native float getEntityAlpha();

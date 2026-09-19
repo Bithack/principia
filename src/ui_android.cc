@@ -205,6 +205,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiResource::open();
             break;
 
+        case DIALOG_SET_PKG_LEVEL:
+            UiPkgLvlSelector::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -259,6 +263,7 @@ void ui::render() {
     UiVendor::layout();
     UiCommandPad::layout();
     UiResource::layout();
+    UiPkgLvlSelector::layout();
 
     imgui_driver.post_render();
 }
@@ -899,24 +904,6 @@ JNI_FUNC(void, setFxEmitterEffects)(JNIEnv *env, jclass _jcls, jint effect_1, ji
             e->properties[3+3].v.i = effect_4 - 1;
 
         ui::message("FX Emitter properties saved!");
-        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-        P.add_action(ACTION_RESELECT, 0);
-    }
-}
-
-/** ++Package level chooser **/
-JNI_FUNC(jint, getPkgItemLevelId)(JNIEnv *env, jclass _jcls) {
-    if (G->selection.e && (G->selection.e->g_id == 131 || G->selection.e->g_id == 132))
-        return (jint)G->selection.e->properties[0].v.i8;
-
-    return 0;
-}
-
-JNI_FUNC(void, setPkgItemLevelId)(JNIEnv *env, jclass _jcls, jint level_id) {
-    if (G->selection.e && (G->selection.e->g_id == 131 || G->selection.e->g_id == 132)) {
-        G->selection.e->properties[0].v.i8 = level_id;
-
-        ui::message("Package object properties saved!");
         P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
         P.add_action(ACTION_RESELECT, 0);
     }
