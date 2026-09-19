@@ -179,7 +179,6 @@ public class PrincipiaBackend
 
     public static native void fixed();
 
-    public static native String getDecorations();
     public static native String getSounds();
 
     public static native void openState(int level_type, int level_id, int save_id, boolean from_menu);

@@ -209,6 +209,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiPkgLvlSelector::open();
             break;
 
+        case DIALOG_DECORATION:
+            UiDecoration::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -264,6 +268,7 @@ void ui::render() {
     UiCommandPad::layout();
     UiResource::layout();
     UiPkgLvlSelector::layout();
+    UiDecoration::layout();
 
     imgui_driver.post_render();
 }
@@ -1101,15 +1106,6 @@ JNI_FUNC(void, fixed)(JNIEnv *env, jclass _jcls) {
         P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
         P.add_action(ACTION_RESELECT, 0);
     }
-}
-
-JNI_FUNC(jstring, getDecorations)(JNIEnv *env, jclass _jcls) {
-    std::stringstream ss;
-
-    for (int x=0; x<NUM_DECORATIONS; ++x)
-        ss << decorations[x].name << ",.,";
-
-    return env->NewStringUTF(ss.str().c_str());
 }
 
 JNI_FUNC(jstring, getSounds)(JNIEnv *env, jclass _jcls) {
