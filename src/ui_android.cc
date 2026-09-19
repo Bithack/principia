@@ -185,6 +185,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiEmitter::open();
             break;
 
+        case DIALOG_POLYGON:
+            UiPolygon::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -234,6 +238,7 @@ void ui::render() {
     UiShapeExtruder::layout();
     UiCamTargeter::layout();
     UiEmitter::layout();
+    UiPolygon::layout();
 
     imgui_driver.post_render();
 }

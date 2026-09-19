@@ -37,7 +37,6 @@ import com.bithack.principia.shared.SequencerDialog;
 import com.bithack.principia.shared.SettingsDialog;
 import com.bithack.principia.shared.Sfx2Dialog;
 import com.bithack.principia.shared.SfxDialog;
-import com.bithack.principia.shared.PolygonDialog;
 import com.bithack.principia.shared.DecorationDialog;
 import com.bithack.principia.shared.StickyDialog;
 import com.bithack.principia.shared.SynthesizerDialog;
@@ -628,7 +627,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_LUASCRIPT:          d = ScriptDialog.get_dialog(); break;
         case DIALOG_ITEM:               d = ConsumableDialog.get_dialog(); break;
         case DIALOG_RUBBER:             d = RubberDialog.get_dialog(); break;
-        case DIALOG_POLYGON:            d = PolygonDialog.get_dialog(); break;
         case DIALOG_DECORATION:         d = DecorationDialog.get_dialog(); break;
         case DIALOG_SOUNDMAN:           d = SoundManDialog.get_dialog(); break;
         case DIALOG_MULTI_CONFIG:       d = MultiSelectDialog.get_dialog(); break;
@@ -795,7 +793,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_LUASCRIPT:          ScriptDialog.prepare(dialog); break;
             case DIALOG_ITEM:               ConsumableDialog.prepare(dialog); break;
             case DIALOG_RUBBER:             RubberDialog.prepare(dialog); break;
-            case DIALOG_POLYGON:            PolygonDialog.prepare(dialog); break;
             case DIALOG_DECORATION:         DecorationDialog.prepare(dialog); break;
             case DIALOG_SOUNDMAN:           SoundManDialog.prepare(dialog); break;
             case DIALOG_MULTI_CONFIG:       MultiSelectDialog.prepare(dialog); break;
