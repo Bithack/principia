@@ -1,0 +1,5 @@
+- Some native Android dialogs have been replaced with new Imgui implementations from the desktop version.
+- Fix validation of HTTPS certificates when communicating with the community site.
+- Fix Robot aim angle being wrongly represented in the Robot Manager.
+
+For a full list of bugfixes in this release see the Changelog.
