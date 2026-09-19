@@ -44,7 +44,6 @@ import com.bithack.principia.shared.ShapeExtruderDialog;
 import com.bithack.principia.shared.PolygonDialog;
 import com.bithack.principia.shared.EmitterDialog;
 import com.bithack.principia.shared.DecorationDialog;
-import com.bithack.principia.shared.AnimalDialog;
 import com.bithack.principia.shared.StickyDialog;
 import com.bithack.principia.shared.SynthesizerDialog;
 import com.bithack.principia.shared.TimerDialog;
@@ -643,7 +642,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_POLYGON:            d = PolygonDialog.get_dialog(); break;
         case DIALOG_EMITTER:            d = EmitterDialog.get_dialog(); break;
         case DIALOG_DECORATION:         d = DecorationDialog.get_dialog(); break;
-        case DIALOG_ANIMAL:             d = AnimalDialog.get_dialog(); break;
         case DIALOG_SOUNDMAN:           d = SoundManDialog.get_dialog(); break;
         case DIALOG_MULTI_CONFIG:       d = MultiSelectDialog.get_dialog(); break;
         case DIALOG_VENDOR:             d = VendorDialog.get_dialog(); break;
@@ -815,7 +813,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_POLYGON:            PolygonDialog.prepare(dialog); break;
             case DIALOG_EMITTER:            EmitterDialog.prepare(dialog); break;
             case DIALOG_DECORATION:         DecorationDialog.prepare(dialog); break;
-            case DIALOG_ANIMAL:             AnimalDialog.prepare(dialog); break;
             case DIALOG_SOUNDMAN:           SoundManDialog.prepare(dialog); break;
             case DIALOG_MULTI_CONFIG:       MultiSelectDialog.prepare(dialog); break;
             case DIALOG_VENDOR:             VendorDialog.prepare(dialog); break;

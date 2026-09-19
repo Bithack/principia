@@ -157,6 +157,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiKeyListener::open();
             break;
 
+        case DIALOG_ANIMAL:
+            UiAnimal::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -199,6 +203,7 @@ void ui::render() {
 
     UiSetFaction::layout();
     UiKeyListener::layout();
+    UiAnimal::layout();
 
     imgui_driver.post_render();
 }
@@ -1150,16 +1155,6 @@ JNI_FUNC(jstring, getDecorations)(JNIEnv *env, jclass _jcls) {
 
     for (int x=0; x<NUM_DECORATIONS; ++x)
         ss << decorations[x].name << ",.,";
-
-    return env->NewStringUTF(ss.str().c_str());
-}
-
-JNI_FUNC(jstring, getAnimals)(JNIEnv *env, jclass _jcls) {
-    std::stringstream ss;
-
-    for (int x=0; x<NUM_ANIMAL_TYPES; ++x) {
-        ss << animal_data[x].name << ",.,";
-    }
 
     return env->NewStringUTF(ss.str().c_str());
 }
