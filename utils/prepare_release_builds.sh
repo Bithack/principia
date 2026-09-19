@@ -7,15 +7,25 @@ NIGHTLY_URL="https://nightly.link/Bithack/principia/workflows"
 mkdir -p /tmp/principia_releases
 cd /tmp/principia_releases
 
-# Windows installer
-wget ${NIGHTLY_URL}/windows/${BRANCH}/principia-setup.exe.zip
-unzip principia-setup.exe.zip
-mv principia-setup.exe principia_${VERSION}_win64.exe
+# Windows 64-bit installer
+wget ${NIGHTLY_URL}/windows/${BRANCH}/principia_win64.exe.zip
+unzip principia_win64.exe.zip
+mv principia_win64.exe principia_${VERSION}_win64.exe
 
-# Windows portable
-wget ${NIGHTLY_URL}/windows/${BRANCH}/principia-portable.7z.zip
-unzip principia-portable.7z.zip
-mv principia-portable.7z principia_${VERSION}_win64.7z
+# Windows 64-bit portable
+wget ${NIGHTLY_URL}/windows/${BRANCH}/principia_win64.7z.zip
+unzip principia_win64.7z.zip
+mv principia_win64.7z principia_${VERSION}_win64.7z
+
+# Windows 32-bit installer
+wget ${NIGHTLY_URL}/windows/${BRANCH}/principia_win32.exe.zip
+unzip principia_win32.exe.zip
+mv principia_win32.exe principia_${VERSION}_win32.exe
+
+# Windows 32-bit portable
+wget ${NIGHTLY_URL}/windows/${BRANCH}/principia_win32.7z.zip
+unzip principia_win32.7z.zip
+mv principia_win32.7z principia_${VERSION}_win32.7z
 
 # Linux AppImage
 wget ${NIGHTLY_URL}/linux/${BRANCH}/Principia-x86_64.AppImage.zip

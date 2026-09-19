@@ -138,23 +138,6 @@ local function write_version_header(verinfo)
 	write_to_file('src/version_info.hh', content)
 end
 
--- Update version info in the Windows NSIS installer file (`principia_install.nsi`).
-local function update_nsis_version(verinfo)
-	print("Updating NSIS installer version...")
-
-	local verdigits = split_vername(verinfo.name)
-	local lines = read_lines_from_file(nsi_file)
-
-	lines_replace(lines, {
-		['!define VER_MAJOR'] = '!define VER_MAJOR '..verdigits[1],
-		['!define VER_MINOR'] = '!define VER_MINOR '..verdigits[2],
-		['!define VER_BUILD'] = '!define VER_BUILD '..verdigits[3],
-		['!define VERSION']   = '!define VERSION "' ..verinfo.name..'"',
-	})
-
-	write_lines_to_file(nsi_file, lines)
-end
-
 -- Update version info in the Windows executable resource file (`principia.rc`)
 local function update_windows_resource(verinfo)
 	print("Updating Windows resource file...")
@@ -196,7 +179,6 @@ end
 local function apply_changes(ver)
 	update_android_version(ver)
 	write_version_header(ver)
-	update_nsis_version(ver)
 	update_windows_resource(ver)
 	update_appstream_metainfo(ver)
 	write_version_info(ver)
