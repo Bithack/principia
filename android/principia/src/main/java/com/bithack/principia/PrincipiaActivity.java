@@ -8,7 +8,6 @@ import com.bithack.principia.shared.ConfirmDialog;
 import com.bithack.principia.shared.ConfirmDialog.OnOptionSelectedListener;
 import com.bithack.principia.shared.ConsumableDialog;
 import com.bithack.principia.shared.DigitalDisplayDialog;
-import com.bithack.principia.shared.EventListenerDialog;
 import com.bithack.principia.shared.ExportDialog;
 import com.bithack.principia.shared.FactoryDialog;
 import com.bithack.principia.shared.FrequencyDialog;
@@ -610,7 +609,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_CAMTARGETER:        d = CamTargeterDialog.get_dialog(); break;
         case DIALOG_SET_COMMAND:        d = CommandPadDialog.get_dialog(); break;
         case DIALOG_FXEMITTER:          d = FxEmitterDialog.get_dialog(); break;
-        case DIALOG_EVENTLISTENER:      d = EventListenerDialog.get_dialog(); break;
         case DIALOG_SET_PKG_LEVEL:      d = PkgLevelDialog.get_dialog(); break;
         case DIALOG_PIXEL_COLOR:        d = ColorChooserDialog.get_dialog(); break;
         case DIALOG_BEAM_COLOR:         d = ColorChooserDialog.get_dialog(); break;
@@ -785,7 +783,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_CAMTARGETER:        CamTargeterDialog.prepare(dialog); break;
             case DIALOG_SET_COMMAND:        CommandPadDialog.prepare(dialog); break;
             case DIALOG_FXEMITTER:          FxEmitterDialog.prepare(dialog); break;
-            case DIALOG_EVENTLISTENER:      EventListenerDialog.prepare(dialog); break;
             case DIALOG_SET_PKG_LEVEL:      PkgLevelDialog.prepare(dialog); break;
             case DIALOG_PIXEL_COLOR:        ColorChooserDialog.prepare(dialog, true); break;
             case DIALOG_BEAM_COLOR:         ColorChooserDialog.prepare(dialog, false); break;

@@ -165,6 +165,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiSandboxMode::open();
             break;
 
+        case DIALOG_EVENTLISTENER:
+            UiEventListener::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -209,6 +213,7 @@ void ui::render() {
     UiKeyListener::layout();
     UiAnimal::layout();
     UiSandboxMode::layout();
+    UiEventListener::layout();
 
     imgui_driver.post_render();
 }
@@ -916,24 +921,6 @@ JNI_FUNC(void, setFxEmitterEffects)(JNIEnv *env, jclass _jcls, jint effect_1, ji
             e->properties[3+3].v.i = effect_4 - 1;
 
         ui::message("FX Emitter properties saved!");
-        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-        P.add_action(ACTION_RESELECT, 0);
-    }
-}
-
-/** ++Event Listener **/
-JNI_FUNC(jint, getEventListenerEventType)(JNIEnv *env, jclass _jcls) {
-    if (G->selection.e && G->selection.e->g_id == 156)
-        return (jint)G->selection.e->properties[0].v.i;
-
-    return 0;
-}
-
-JNI_FUNC(void, setEventListenerEventType)(JNIEnv *env, jclass _jcls, jint event_type) {
-    if (G->selection.e && G->selection.e->g_id == 156) {
-        G->selection.e->properties[0].v.i = event_type;
-
-        ui::message("Event listener properties saved!");
         P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
         P.add_action(ACTION_RESELECT, 0);
     }
