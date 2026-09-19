@@ -201,6 +201,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiCommandPad::open();
             break;
 
+        case DIALOG_RESOURCE:
+            UiResource::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -254,6 +258,7 @@ void ui::render() {
     UiRubber::layout();
     UiVendor::layout();
     UiCommandPad::layout();
+    UiResource::layout();
 
     imgui_driver.post_render();
 }

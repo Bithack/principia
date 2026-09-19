@@ -26,7 +26,6 @@ import com.bithack.principia.shared.PublishDialog;
 import com.bithack.principia.shared.PublishedDialog;
 import com.bithack.principia.shared.QuickaddDialog;
 import com.bithack.principia.shared.RegisterDialog;
-import com.bithack.principia.shared.ResourceDialog;
 import com.bithack.principia.shared.RobotDialog;
 import com.bithack.principia.shared.SandboxTipsDialog;
 import com.bithack.principia.shared.SaveAsDialog;
@@ -627,8 +626,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_MULTI_CONFIG:       d = MultiSelectDialog.get_dialog(); break;
 
         case DIALOG_FACTORY:            d = FactoryDialog.get_dialog(); break;
-
-        case DIALOG_RESOURCE:           d = ResourceDialog.get_dialog(); break;
         case DIALOG_OPEN_STATE:         d = (new OpenDialog(true)).get_dialog(); break;
 
         case DIALOG_PUBLISH:            d = PublishDialog.get_dialog(); break;
@@ -790,9 +787,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_MULTI_CONFIG:       MultiSelectDialog.prepare(dialog); break;
 
             case DIALOG_FACTORY:            FactoryDialog.prepare(dialog); break;
-
-            case DIALOG_RESOURCE:           ResourceDialog.prepare(dialog); break;
-
             case DIALOG_PUBLISH:            PublishDialog.prepare(dialog); break;
             case DIALOG_LOGIN:              LoginDialog.prepare(dialog); break;
         }
