@@ -19,7 +19,6 @@ import com.bithack.principia.shared.JumperDialog;
 import com.bithack.principia.shared.Level;
 import com.bithack.principia.shared.LevelDialog;
 import com.bithack.principia.shared.LoginDialog;
-import com.bithack.principia.shared.NewLevelDialog;
 import com.bithack.principia.shared.OpenDialog;
 import com.bithack.principia.shared.PkgLevelDialog;
 import com.bithack.principia.shared.PlayDialog;
@@ -568,7 +567,7 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
                         /* TODO: Use dialog fragments */
                         switch (which) {
                             case 0: showDialog(DIALOG_LEVEL_PROPERTIES); break;
-                            case 1: showDialog(DIALOG_NEW_LEVEL); break;
+                            case 1: PrincipiaBackend.openDialog(DIALOG_NEW_LEVEL); break;
                             case 2: if (PrincipiaBackend.getLevelName().isEmpty()) {SaveAsDialog.refresh_name=true; SaveAsDialog.copy=false; showDialog(DIALOG_SAVE);} else PrincipiaBackend.triggerSave(false);  break;
                             case 3: SaveAsDialog.refresh_name = true; SaveAsDialog.copy = true; showDialog(DIALOG_SAVE_COPY); break;
                             case 4: try {SDLActivity.mSingleton.removeDialog(DIALOG_OPEN);} catch(Exception e){}; showDialog(DIALOG_OPEN); break;
@@ -604,7 +603,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_SAVE:               d = SaveAsDialog.get_dialog(); break;
         case DIALOG_LEVEL_INFO:         d = (new InfoDialog()).get_dialog(); break;
         case DIALOG_STICKY:             d = StickyDialog.get_dialog(); break;
-        case DIALOG_NEW_LEVEL:          d = (new NewLevelDialog()).get_dialog(); break;
         case DIALOG_ROBOT:              d = RobotDialog.get_dialog(); break;
         case DIALOG_CAMTARGETER:        d = CamTargeterDialog.get_dialog(); break;
         case DIALOG_SET_COMMAND:        d = CommandPadDialog.get_dialog(); break;

@@ -169,6 +169,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiEventListener::open();
             break;
 
+        case DIALOG_NEW_LEVEL:
+            UiNewLevel::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -214,6 +218,7 @@ void ui::render() {
     UiAnimal::layout();
     UiSandboxMode::layout();
     UiEventListener::layout();
+    UiNewLevel::layout();
 
     imgui_driver.post_render();
 }
@@ -1874,8 +1879,8 @@ JNI_FUNC(void, triggerSave)(JNIEnv *env, jclass _jcls, jboolean save_copy) {
         P.add_action(ACTION_SAVE, 0);
 }
 
-JNI_FUNC(void, triggerCreateLevel)(JNIEnv *env, jclass _jcls, jint level_type) {
-    P.add_action(ACTION_NEW_LEVEL, level_type);
+JNI_FUNC(void, openDialog)(JNIEnv *env, jclass _jcls, jint dialog_id) {
+    ui::open_dialog((int)dialog_id);
 }
 
 }

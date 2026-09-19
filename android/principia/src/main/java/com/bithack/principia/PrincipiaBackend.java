@@ -134,7 +134,6 @@ public class PrincipiaBackend
     public static native void setLevelName(String name);
     public static native void setLevelDescription(String descr);
     public static native void triggerSave(boolean save_copy);
-    public static native void triggerCreateLevel(int level_type);
     public static native boolean isPaused();
     public static native void setPaused(boolean b);
 
@@ -195,4 +194,6 @@ public class PrincipiaBackend
     public static native String getSounds();
 
     public static native void openState(int level_type, int level_id, int save_id, boolean from_menu);
+
+    public static native void openDialog(int dialog_id);
 }
