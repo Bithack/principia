@@ -100,9 +100,6 @@ public class PrincipiaBackend
     public static native int getStickySize();
     public static native void setStickyStuff(String text, boolean center_horiz, boolean center_vert, int size);
 
-    public static native int getCommandPadCommand();
-    public static native void setCommandPadCommand(int command);
-
     public static native String getFxEmitterEffects();
     public static native void setFxEmitterEffects(int effect_1, int effect_2, int effect_3, int effect_4);
 

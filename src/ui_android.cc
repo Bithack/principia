@@ -197,6 +197,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiVendor::open();
             break;
 
+        case DIALOG_SET_COMMAND:
+            UiCommandPad::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -249,6 +253,7 @@ void ui::render() {
     UiPolygon::layout();
     UiRubber::layout();
     UiVendor::layout();
+    UiCommandPad::layout();
 
     imgui_driver.post_render();
 }
@@ -842,24 +847,6 @@ JNI_FUNC(jstring, getCurrentCommunityUrl)(JNIEnv *env, jclass _jcls) {
     COMMUNITY_URL("level/%d", W->level.community_id);
 
     return env->NewStringUTF(url);
-}
-
-/** ++Command pad **/
-JNI_FUNC(jint, getCommandPadCommand)(JNIEnv *env, jclass _jcls) {
-    if (G->selection.e && G->selection.e->g_id == 64)
-        return (jint)((command*)G->selection.e)->get_command();
-
-    return 0;
-}
-
-JNI_FUNC(void, setCommandPadCommand)(JNIEnv *env, jclass _jcls, jint cmd) {
-    if (G->selection.e && G->selection.e->g_id == 64) {
-        ((command*)G->selection.e)->set_command(cmd);
-
-        ui::message("Command pad properties saved!");
-        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-        P.add_action(ACTION_RESELECT, 0);
-    }
 }
 
 /** ++FX Emitter **/
