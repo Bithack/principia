@@ -1,6 +1,5 @@
 package com.bithack.principia;
 
-import com.bithack.principia.shared.CamTargeterDialog;
 import com.bithack.principia.shared.ColorChooserDialog;
 import com.bithack.principia.shared.CommandPadDialog;
 import com.bithack.principia.shared.CommunityDialog;
@@ -603,7 +602,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_LEVEL_INFO:         d = (new InfoDialog()).get_dialog(); break;
         case DIALOG_STICKY:             d = StickyDialog.get_dialog(); break;
         case DIALOG_ROBOT:              d = RobotDialog.get_dialog(); break;
-        case DIALOG_CAMTARGETER:        d = CamTargeterDialog.get_dialog(); break;
         case DIALOG_SET_COMMAND:        d = CommandPadDialog.get_dialog(); break;
         case DIALOG_FXEMITTER:          d = FxEmitterDialog.get_dialog(); break;
         case DIALOG_SET_PKG_LEVEL:      d = PkgLevelDialog.get_dialog(); break;
@@ -776,7 +774,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_SAVE:               SaveAsDialog.prepare(dialog); break;
             case DIALOG_SAVE_COPY:          SaveAsDialog.prepare(dialog); break;
             case DIALOG_ROBOT:              RobotDialog.prepare(dialog); break;
-            case DIALOG_CAMTARGETER:        CamTargeterDialog.prepare(dialog); break;
             case DIALOG_SET_COMMAND:        CommandPadDialog.prepare(dialog); break;
             case DIALOG_FXEMITTER:          FxEmitterDialog.prepare(dialog); break;
             case DIALOG_SET_PKG_LEVEL:      PkgLevelDialog.prepare(dialog); break;

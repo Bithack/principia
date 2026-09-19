@@ -100,9 +100,6 @@ public class PrincipiaBackend
     public static native int getStickySize();
     public static native void setStickyStuff(String text, boolean center_horiz, boolean center_vert, int size);
 
-    public static native int getCamTargeterFollowMode();
-    public static native void setCamTargeterFollowMode(int follow_mode);
-
     public static native int getCommandPadCommand();
     public static native void setCommandPadCommand(int command);
 

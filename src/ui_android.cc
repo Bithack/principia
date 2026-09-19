@@ -177,6 +177,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiShapeExtruder::open();
             break;
 
+        case DIALOG_CAMTARGETER:
+            UiCamTargeter::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -224,6 +228,7 @@ void ui::render() {
     UiEventListener::layout();
     UiNewLevel::layout();
     UiShapeExtruder::layout();
+    UiCamTargeter::layout();
 
     imgui_driver.post_render();
 }
@@ -798,24 +803,6 @@ JNI_FUNC(jstring, getStickyText)(JNIEnv *env, jclass _jcls) {
         return env->NewStringUTF("");
 
     return env->NewStringUTF(nm);
-}
-
-/** ++Cam targeter **/
-JNI_FUNC(jint, getCamTargeterFollowMode)(JNIEnv *env, jclass _jcls) {
-    if (G->selection.e && G->selection.e->g_id == 133)
-        return (jint)G->selection.e->properties[1].v.i;
-
-    return 0;
-}
-
-JNI_FUNC(void, setCamTargeterFollowMode)(JNIEnv *env, jclass _jcls, jint follow_mode) {
-    if (G->selection.e && G->selection.e->g_id == 133) {
-        G->selection.e->properties[1].v.i = follow_mode;
-
-        ui::message("Cam targeter properties saved!");
-        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-        P.add_action(ACTION_RESELECT, 0);
-    }
 }
 
 JNI_FUNC(jstring, getConsumables)(JNIEnv *env, jclass _jcls) {
