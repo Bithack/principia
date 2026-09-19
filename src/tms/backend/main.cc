@@ -1,4 +1,5 @@
 #include "main.hh"
+#include "misc.hh"
 #include "pipe.hh"
 #include "settings.hh"
 #include "version.hh"
@@ -395,24 +396,13 @@ int mouse_button_to_pointer_id(int button) {
     }
 }
 
-#ifdef MAX_P
-#undef MAX_P
-#endif
-
-#define MAX_P 10
-
 static uint64_t finger_ids[MAX_P];
 
 static int finger_to_pointer(uint64_t finger, bool create) {
-#ifdef SDL_PLATFORM_WINDOWS
-    // Windows gives each finger tap session an unique incrementing ID that starts on each boot, so
-    // we need to keep track of them and allocate in slots that fit TMS' pointer ID system.
-
     for (int x = 0; x < MAX_P; x++) {
         // If create=true, find first empty slot
-        // else, find the slot that matches the finger ID returned from Windows
+        // else, find the slot that matches the finger ID returned from SDL
         if ((finger_ids[x] == 0 && create) || finger_ids[x] == finger) {
-            tms_infof("found %" PRIu64 " at %d", finger, x);
             finger_ids[x] = finger;
             return x;
         }
@@ -423,10 +413,6 @@ static int finger_to_pointer(uint64_t finger, bool create) {
     // Just replace the last one with this new finger ID.
     finger_ids[MAX_P-1] = finger;
     return MAX_P-1;
-#else
-    // Linux, Android - Easy, they handle finger IDs basically the way we want them to.
-    return finger - 1;
-#endif
 }
 
 int T_intercept_input(SDL_Event ev) {
