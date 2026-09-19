@@ -189,6 +189,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiPolygon::open();
             break;
 
+        case DIALOG_RUBBER:
+            UiRubber::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -239,6 +243,7 @@ void ui::render() {
     UiCamTargeter::layout();
     UiEmitter::layout();
     UiPolygon::layout();
+    UiRubber::layout();
 
     imgui_driver.post_render();
 }
@@ -467,23 +472,6 @@ JNI_FUNC(jstring, getSandboxTip)(JNIEnv *env, jclass _jcls) {
     ctip = (ctip+1)%num_tips_mobile;
 
     return str;
-}
-
-JNI_FUNC(void, updateRubberEntity)(JNIEnv *env, jclass _jcls, jfloat restitution, jfloat friction) {
-    entity *e = G->selection.e;
-
-    if (e && (e->g_id == O_WHEEL || e->g_id == O_RUBBER_BEAM)) {
-        e->properties[1].v.f = restitution;
-        e->properties[2].v.f = friction;
-
-        if (e->g_id == O_RUBBER_BEAM)
-            ((beam*)e)->do_update_fixture = true;
-        else
-            ((wheel*)e)->do_update_fixture = true;
-
-        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-        P.add_action(ACTION_RESELECT, 0);
-    }
 }
 
 JNI_FUNC(void, updateJumper)(JNIEnv *env, jclass _jcls, jfloat value) {
