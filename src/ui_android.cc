@@ -173,6 +173,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiNewLevel::open();
             break;
 
+        case DIALOG_SHAPEEXTRUDER:
+            UiShapeExtruder::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -219,6 +223,7 @@ void ui::render() {
     UiSandboxMode::layout();
     UiEventListener::layout();
     UiNewLevel::layout();
+    UiShapeExtruder::layout();
 
     imgui_driver.post_render();
 }
@@ -460,20 +465,6 @@ JNI_FUNC(void, updateRubberEntity)(JNIEnv *env, jclass _jcls, jfloat restitution
             ((beam*)e)->do_update_fixture = true;
         else
             ((wheel*)e)->do_update_fixture = true;
-
-        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-        P.add_action(ACTION_RESELECT, 0);
-    }
-}
-
-JNI_FUNC(void, updateShapeExtruder)(JNIEnv *env, jclass _jcls, jfloat right, jfloat up, jfloat left, jfloat down) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_SHAPE_EXTRUDER) {
-        e->properties[0].v.f = (float)right;
-        e->properties[1].v.f = (float)up;
-        e->properties[2].v.f = (float)left;
-        e->properties[3].v.f = (float)down;
 
         P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
         P.add_action(ACTION_RESELECT, 0);
