@@ -169,7 +169,6 @@ public class PrincipiaBackend
     public static native String getConsumables();
     public static native void setConsumableType(int consumable_type);
     public static native String getCurrentCommunityUrl();
-    public static native void setGameMode(int i);
 
     public static native void updateRubberEntity(float restitution, float friction);
     public static native void updateShapeExtruder(float v_right, float v_up, float v_left, float v_down);

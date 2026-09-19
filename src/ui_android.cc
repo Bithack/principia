@@ -161,6 +161,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiAnimal::open();
             break;
 
+        case DIALOG_SANDBOX_MODE:
+            UiSandboxMode::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -204,6 +208,7 @@ void ui::render() {
     UiSetFaction::layout();
     UiKeyListener::layout();
     UiAnimal::layout();
+    UiSandboxMode::layout();
 
     imgui_driver.post_render();
 }
@@ -846,10 +851,6 @@ JNI_FUNC(jstring, getCurrentCommunityUrl)(JNIEnv *env, jclass _jcls) {
     COMMUNITY_URL("level/%d", W->level.community_id);
 
     return env->NewStringUTF(url);
-}
-
-JNI_FUNC(void, setGameMode)(JNIEnv *env, jclass _jcls, jint mode) {
-    G->set_mode(mode);
 }
 
 /** ++Command pad **/

@@ -47,7 +47,6 @@ import com.bithack.principia.shared.DecorationDialog;
 import com.bithack.principia.shared.StickyDialog;
 import com.bithack.principia.shared.SynthesizerDialog;
 import com.bithack.principia.shared.TimerDialog;
-import com.bithack.principia.shared.ToolDialog;
 import com.bithack.principia.shared.TouchFieldDialog;
 import com.bithack.principia.shared.VariableDialog;
 import com.bithack.principia.shared.SoundManDialog;
@@ -636,7 +635,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_TOUCHFIELD:         d = TouchFieldDialog.get_dialog(); break;
         case DIALOG_LUASCRIPT:          d = ScriptDialog.get_dialog(); break;
         case DIALOG_ITEM:               d = ConsumableDialog.get_dialog(); break;
-        case DIALOG_SANDBOX_MODE:       d = (new ToolDialog()).get_dialog(); break;
         case DIALOG_RUBBER:             d = RubberDialog.get_dialog(); break;
         case DIALOG_SHAPEEXTRUDER:      d = ShapeExtruderDialog.get_dialog(); break;
         case DIALOG_POLYGON:            d = PolygonDialog.get_dialog(); break;
