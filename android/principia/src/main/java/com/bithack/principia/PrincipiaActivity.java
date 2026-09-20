@@ -35,7 +35,6 @@ import com.bithack.principia.shared.SfxDialog;
 import com.bithack.principia.shared.StickyDialog;
 import com.bithack.principia.shared.SynthesizerDialog;
 import com.bithack.principia.shared.TimerDialog;
-import com.bithack.principia.shared.TouchFieldDialog;
 import com.bithack.principia.shared.SoundManDialog;
 import com.bithack.principia.shared.MultiSelectDialog;
 
@@ -611,7 +610,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_SYNTHESIZER:        d = SynthesizerDialog.get_dialog(); break;
         case DIALOG_SEQUENCER:          d = SequencerDialog.get_dialog(); break;
         case DIALOG_JUMPER:             d = JumperDialog.get_dialog(); break;
-        case DIALOG_TOUCHFIELD:         d = TouchFieldDialog.get_dialog(); break;
         case DIALOG_LUASCRIPT:          d = ScriptDialog.get_dialog(); break;
         case DIALOG_ITEM:               d = ConsumableDialog.get_dialog(); break;
         case DIALOG_SOUNDMAN:           d = SoundManDialog.get_dialog(); break;
@@ -768,7 +766,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_SYNTHESIZER:        SynthesizerDialog.prepare(dialog); break;
             case DIALOG_SEQUENCER:          SequencerDialog.prepare(dialog); break;
             case DIALOG_JUMPER:             JumperDialog.prepare(dialog); break;
-            case DIALOG_TOUCHFIELD:         TouchFieldDialog.prepare(dialog); break;
             case DIALOG_LUASCRIPT:          ScriptDialog.prepare(dialog); break;
             case DIALOG_ITEM:               ConsumableDialog.prepare(dialog); break;
             case DIALOG_SOUNDMAN:           SoundManDialog.prepare(dialog); break;

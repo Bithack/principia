@@ -221,6 +221,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiVariable::open();
             break;
 
+        case DIALOG_CURSORFIELD:
+            UiCursorField::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -279,6 +283,7 @@ void ui::render() {
     UiDecoration::layout();
     UiFXEmitter::layout();
     UiVariable::layout();
+    UiCursorField::layout();
 
     imgui_driver.post_render();
 }
