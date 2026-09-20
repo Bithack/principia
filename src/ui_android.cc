@@ -229,6 +229,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiSynthesizer::open();
             break;
 
+        case DIALOG_DIGITALDISPLAY:
+            UiDigitalDisplay::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -289,6 +293,7 @@ void ui::render() {
     UiVariable::layout();
     UiCursorField::layout();
     UiSynthesizer::layout();
+    UiDigitalDisplay::layout();
 
     imgui_driver.post_render();
 }
@@ -1171,28 +1176,6 @@ JNI_FUNC(void, setEntityAlpha)(JNIEnv *env, jclass _jcls, jfloat alpha) {
         G->selection.e->properties[4].v.i8 = (uint8_t)(alpha * 255);
 }
 
-/** ++Digital Display **/
-JNI_FUNC(void, setDigitalDisplayStuff)(JNIEnv *env, jclass _jcls, jboolean wrap_around, jint initial_position, jstring new_symbols) {
-    entity *e = G->selection.e;
-
-    if (e && (e->g_id == O_PASSIVE_DISPLAY || e->g_id == O_ACTIVE_DISPLAY)) {
-        display *d = static_cast<display*>(e);
-        const char *symbols = env->GetStringUTFChars(new_symbols, 0);
-
-        d->properties[0].v.i8 = (wrap_around?1:0);
-        d->properties[1].v.i8 = initial_position;
-        d->set_property(2, symbols);
-
-        d->set_active_symbol(initial_position);
-        d->load_symbols();
-
-        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-        P.add_action(ACTION_RESELECT, 0);
-
-        env->ReleaseStringUTFChars(new_symbols, symbols);
-    }
-}
-
 /** ++Frequency Dialog **/
 JNI_FUNC(void, setFrequency)(JNIEnv *env, jclass _jcls, jlong frequency) {
     if (G->selection.e && G->selection.e->is_wireless()) {
@@ -1406,14 +1389,6 @@ JNI_FUNC(jstring, getLevels)(JNIEnv *env, jclass _jcls, jint level_type) {
     jstring str;
     str = env->NewStringUTF(b.str().c_str());
     return str;
-}
-
-JNI_FUNC(jint, getSelectionGid)(JNIEnv *env, jclass _jcls) {
-    if (G->selection.e) {
-        return (jint)G->selection.e->g_id;
-    }
-
-    return 0;
 }
 
 JNI_FUNC(jstring, getSfxSounds)(JNIEnv *env, jclass _jcls) {

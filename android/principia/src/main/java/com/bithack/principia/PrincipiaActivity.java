@@ -5,7 +5,6 @@ import com.bithack.principia.shared.CommunityDialog;
 import com.bithack.principia.shared.ConfirmDialog;
 import com.bithack.principia.shared.ConfirmDialog.OnOptionSelectedListener;
 import com.bithack.principia.shared.ConsumableDialog;
-import com.bithack.principia.shared.DigitalDisplayDialog;
 import com.bithack.principia.shared.ExportDialog;
 import com.bithack.principia.shared.FactoryDialog;
 import com.bithack.principia.shared.FrequencyDialog;
@@ -592,7 +591,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_PIXEL_COLOR:        d = ColorChooserDialog.get_dialog(); break;
         case DIALOG_BEAM_COLOR:         d = ColorChooserDialog.get_dialog(); break;
         case DIALOG_POLYGON_COLOR:      d = ColorChooserDialog.get_dialog(); break;
-        case DIALOG_DIGITAL_DISPLAY:    d = DigitalDisplayDialog.get_dialog(); break;
         case DIALOG_SET_FREQUENCY:      d = FrequencyDialog.get_dialog(); break;
         case DIALOG_SET_FREQ_RANGE:     d = FrequencyRangeDialog.get_dialog(); break;
         case DIALOG_EXPORT:             d = ExportDialog.get_dialog(); break;
@@ -751,7 +749,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_PIXEL_COLOR:        ColorChooserDialog.prepare(dialog, true); break;
             case DIALOG_BEAM_COLOR:         ColorChooserDialog.prepare(dialog, false); break;
             case DIALOG_POLYGON_COLOR:      ColorChooserDialog.prepare(dialog, false); break;
-            case DIALOG_DIGITAL_DISPLAY:    DigitalDisplayDialog.prepare(dialog); break;
             case DIALOG_SET_FREQUENCY:      FrequencyDialog.prepare(dialog); break;
             case DIALOG_SET_FREQ_RANGE:     FrequencyRangeDialog.prepare(dialog); break;
             case DIALOG_EXPORT:             ExportDialog.prepare(dialog); break;

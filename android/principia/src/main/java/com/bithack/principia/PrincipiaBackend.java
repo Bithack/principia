@@ -105,8 +105,6 @@ public class PrincipiaBackend
     public static native float getEntityAlpha();
     public static native void setEntityAlpha(float alpha);
 
-    public static native void setDigitalDisplayStuff(boolean wrap_around, int initial_position, String symbols);
-
     public static native int setFrequency(long frequency);
     public static native int setFrequencyRange(long frequency, long range);
 
@@ -131,8 +129,6 @@ public class PrincipiaBackend
     public static native void refreshPrompt();
 
     public static native String getSfxSounds();
-
-    public static native int getSelectionGid();
 
     public static native void setLevelType(int type);
     public static native int getLevelType();
