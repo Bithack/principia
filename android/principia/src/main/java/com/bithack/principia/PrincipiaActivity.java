@@ -33,7 +33,6 @@ import com.bithack.principia.shared.SettingsDialog;
 import com.bithack.principia.shared.Sfx2Dialog;
 import com.bithack.principia.shared.SfxDialog;
 import com.bithack.principia.shared.StickyDialog;
-import com.bithack.principia.shared.SynthesizerDialog;
 import com.bithack.principia.shared.TimerDialog;
 import com.bithack.principia.shared.SoundManDialog;
 import com.bithack.principia.shared.MultiSelectDialog;
@@ -77,7 +76,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.net.Uri;
@@ -91,7 +89,7 @@ import org.libsdl.app.SDLActivity;
 
 import java.util.List;
 
-public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVisibilityChangeListener, DialogInterface.OnDismissListener, DialogInterface.OnShowListener, OnSeekBarChangeListener {
+public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVisibilityChangeListener, DialogInterface.OnDismissListener, DialogInterface.OnShowListener {
     private static final String TAG = "PrincipiaActivity";
 
     public static Dialog wv_dialog;
@@ -607,7 +605,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_PROMPT:             d = (new PromptDialog()).get_dialog(); break;
         case DIALOG_SFX_EMITTER:        d = SfxDialog.get_dialog(); break;
         case DIALOG_SFX_EMITTER_2:      d = Sfx2Dialog.get_dialog(); break;
-        case DIALOG_SYNTHESIZER:        d = SynthesizerDialog.get_dialog(); break;
         case DIALOG_SEQUENCER:          d = SequencerDialog.get_dialog(); break;
         case DIALOG_JUMPER:             d = JumperDialog.get_dialog(); break;
         case DIALOG_LUASCRIPT:          d = ScriptDialog.get_dialog(); break;
@@ -763,7 +760,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_PROMPT_SETTINGS:    PromptSettingsDialog.prepare(dialog); break;
             case DIALOG_SFX_EMITTER:        SfxDialog.prepare(dialog); break;
             case DIALOG_SFX_EMITTER_2:      Sfx2Dialog.prepare(dialog); break;
-            case DIALOG_SYNTHESIZER:        SynthesizerDialog.prepare(dialog); break;
             case DIALOG_SEQUENCER:          SequencerDialog.prepare(dialog); break;
             case DIALOG_JUMPER:             JumperDialog.prepare(dialog); break;
             case DIALOG_LUASCRIPT:          ScriptDialog.prepare(dialog); break;
@@ -827,37 +823,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         if (num_dialogs == 1) {
             PrincipiaBackend.focusGL(false);
         }
-    }
-
-    @Override
-    public void onProgressChanged(SeekBar sb, int progress,
-            boolean fromUser) {
-        Log.v("Principia", "Progress changed");
-        if (sb == SynthesizerDialog.synth_pulse_width) {
-            SynthesizerDialog.synth_pulse_width_tv.setText(String.format(Locale.US, "%.3f", ((float)progress) / 100.f));
-        } else if (sb == SynthesizerDialog.synth_bitcrushing) {
-            SynthesizerDialog.synth_bitcrushing_tv.setText(Integer.toString(progress));
-        } else if (sb == SynthesizerDialog.synth_volume_vibrato_hz) {
-            SynthesizerDialog.synth_volume_vibrato_hz_tv.setText(Integer.toString(progress));
-        } else if (sb == SynthesizerDialog.synth_volume_vibrato_extent) {
-            SynthesizerDialog.synth_volume_vibrato_extent_tv.setText(String.format(Locale.US, "%.3f", ((float)progress) / 100.f));
-        } else if (sb == SynthesizerDialog.synth_freq_vibrato_hz) {
-            SynthesizerDialog.synth_freq_vibrato_hz_tv.setText(Integer.toString(progress));
-        } else if (sb == SynthesizerDialog.synth_freq_vibrato_extent) {
-            SynthesizerDialog.synth_freq_vibrato_extent_tv.setText(String.format(Locale.US, "%.3f", ((float)progress) / 100.f));
-        }
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-        // TODO Auto-generated method stub
-
     }
 
     private void handle_intent(Intent i)

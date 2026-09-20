@@ -225,6 +225,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiCursorField::open();
             break;
 
+        case DIALOG_SYNTHESIZER:
+            UiSynthesizer::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -284,6 +288,7 @@ void ui::render() {
     UiFXEmitter::layout();
     UiVariable::layout();
     UiCursorField::layout();
+    UiSynthesizer::layout();
 
     imgui_driver.post_render();
 }
@@ -1437,19 +1442,6 @@ JNI_FUNC(void, setLevelType)(JNIEnv *env, jclass _jcls, jint type) {
     if (type >= LCAT_PUZZLE && type <= LCAT_CUSTOM) {
         P.add_action(ACTION_SET_LEVEL_TYPE, (void*)type);
     }
-}
-
-JNI_FUNC(jstring, getSynthWaveforms)(JNIEnv *env, jclass _jcls) {
-    std::stringstream b("", std::ios_base::app | std::ios_base::out);
-
-    for (int x=0; x<NUM_WAVEFORMS; x++) {
-        if (x != 0) b << ',';
-        b << speaker_options[x];
-    }
-
-    jstring str;
-    str = env->NewStringUTF(b.str().c_str());
-    return str;
 }
 
 JNI_FUNC(jstring, getAvailableBgs)(JNIEnv *env, jclass _jcls) {

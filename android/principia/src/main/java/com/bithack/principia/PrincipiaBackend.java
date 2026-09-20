@@ -131,7 +131,6 @@ public class PrincipiaBackend
     public static native void refreshPrompt();
 
     public static native String getSfxSounds();
-    public static native String getSynthWaveforms();
 
     public static native int getSelectionGid();
 
