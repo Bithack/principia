@@ -24,8 +24,6 @@ public class PrincipiaBackend
     public static native void setPropertyFloat(int property_index, float value);
     public static native String getAvailableBgs();
 
-    public static native void setResourceType(long value);
-
     public static native void setSettings(
             boolean enable_shadows,
             boolean enable_ao,

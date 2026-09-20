@@ -1,62 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Principia</string>
-    <string-array name="follow_modes">
-        <item>Smooth follow</item>
-        <item>Snap to object</item>
-        <item>Relative follow</item>
-        <item>Linear follow</item>
-    </string-array>
-    <string-array name="offset_modes">
-        <item>Global</item>
-        <item>Relative</item>
-    </string-array>
-    <string-array name="commands">
-        <item>Stop</item>
-        <item>Start/Stop toggle</item>
-        <item>Left</item>
-        <item>Right</item>
-        <item>Left/Right toggle</item>
-        <item>Jump</item>
-        <item>Aim</item>
-        <item>Attack</item>
-        <item>Layer up</item>
-        <item>Layer down</item>
-        <item>Increase speed</item>
-        <item>Decrease speed</item>
-        <item>Set speed</item>
-        <item>Full health</item>
-    </string-array>
-    <string-array name="resource_types">
-        <item>Ruby</item>
-        <item>Sapphire</item>
-        <item>Emerald</item>
-        <item>Topaz</item>
-        <item>Diamond</item>
-        <item>Copper</item>
-        <item>Iron</item>
-        <item>Wood</item>
-        <item>Aluminium</item>
-    </string-array>
-    <string-array name="events">
-        <item>Player die</item>
-        <item>Enemy die</item>
-        <item>Interactive object destroyed</item>
-        <item>Player respawn</item>
-        <item>Touch/Mouse click</item>
-        <item>Touch/Mouse release</item>
-        <item>Any object absorbed</item>
-    </string-array>
-    <string-array name="effects">
-        <item></item>
-        <item>Explosion</item>
-        <item>Highlight</item>
-        <item>Destroy connections</item>
-        <item>Smoke</item>
-        <item>Magic</item>
-        <item>Break</item>
-    </string-array>
-
     <string name="initial_dir">Initial Direction</string>
     <string name="dir_right">Right</string>
     <string name="random">Random</string>
@@ -71,21 +15,11 @@
     <string name="walking">Walking</string>
     <string name="dead">Dead</string>
     <string name="roaming">Roaming</string>
-    <string name="follow_mode">Follow mode</string>
-    <string name="offset_mode">Offset mode</string>
     <string name="command">Command</string>
-    <string name="event">Event</string>
-    <string name="effect_1">Effect 1</string>
-    <string name="effect_2">Effect 2</string>
-    <string name="effect_3">Effect 3</string>
-    <string name="effect_4">Effect 4</string>
-    <string name="level_id">Level ID</string>
-    <string name="initial_position">Initial Position</string>
     <string name="wrap_around">Wrap around</string>
     <string name="remove">Remove</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-    <string name="current_symbol">Current symbol:</string>
     <string name="delim">/</string>
     <string name="frequency">Frequency</string>
     <string name="frequency_requirements">Min frequency: 0 Max frequency: 4,294,967,295</string>
@@ -145,9 +79,6 @@
     <string name="milliseconds">Milliseconds</string>
     <string name="num_ticks">Num ticks</string>
     <string name="num_ticks_descr">0 = Infinite ticks</string>
-    <string name="radius">Radius</string>
-    <string name="count">Count</string>
-    <string name="interval">Interval</string>
     <string name="high">High</string>
     <string name="presets">Presets</string>
     <string name="medium">Medium</string>
@@ -186,21 +117,7 @@
     <string name="red">Red</string>
     <string name="disable_camera_rc_snap">Disable RC camera snap</string>
     <string name="portrait_mode">Portrait mode</string>
-    <string name="variable_name">Variable name</string>
-    <string name="reset_this_variable">Reset this variable</string>
-    <string name="reset_all_variables">Reset all variables</string>
-    <string name="sound_effect">Sound effect</string>
-    <string name="base_frequency">Base frequency</string>
-    <string name="peak_frequency">Peak frequency</string>
-    <string name="waveform">Waveform</string>
-    <string name="bitcrushing">Bitcrushing</string>
-    <string name="global_sound">Global sound</string>
     <string name="disable_physics">Disable physics</string>
-    <string name="pulse_width">Pulse width</string>
-    <string name="volume_vibrato_hz">Volume vibrato Hz</string>
-    <string name="volume_vibrato_extent">Volume vibrato extent</string>
-    <string name="freq_vibrato_hz">Freq vibrato Hz</string>
-    <string name="freq_vibrato_extent">Freq vibrato extent</string>
     <string name="zero">0</string>
     <string name="color_preview">Color preview</string>
     <string name="cam_speed">Camera swipe speed</string>
@@ -211,8 +128,6 @@
     <string name="sequence">Sequence</string>
     <string name="sequence_description">Enter a sequence of zeros and ones to specify what the sequencer should output at the given step.</string>
     <string name="value">Value</string>
-    <string name="vertical_borders">Vertical borders</string>
-    <string name="horizontal_borders">Horizontal borders</string>
     <string name="do_not_require_dragfield">Do not require dragfield</string>
     <string name="published_successfully_message_p1">Your level has been successfully published on the community website.</string>
     <string name="published_successfully_message_p2">To view your level, or to submit it to a running contest, please click the button below.</string>
@@ -228,8 +143,6 @@
     <string name="confirm_level_upgrade"><b>Are you sure you want to upgrade the version of this level?</b>\n\nTo get access to new features the version associated with this level must be upgraded. This action can not be undone. Please save a copy before upgrading your level.\n\nBy upgrading this level, some object properties such as density, restitution, friction and applied forces might differ from earlier versions and affect how your level is simulated.</string>
     <string name="confirm_cancel_script_dialog">Are you sure you want to cancel the LuaScript dialog? Any unsaved changes will be lost!</string>
     <string name="close">Close</string>
-    <string name="restitution">Restitution</string>
-    <string name="friction">Friction</string>
     <string name="display_object_id">Display object IDs</string>
     <string name="loading">Loading…</string>
     <string name="prismatic_tolerance">Prismatic tolerance</string>
@@ -239,7 +152,6 @@
     <string name="up">Up</string>
     <string name="left">Left</string>
     <string name="down">Down</string>
-    <string name="shape_extruder">Shape Extruder</string>
     <string name="disable_robot_special_action">Disable robot boxing</string>
     <string name="disable_adventure_max_zoom">Disable adventure zoom constraints</string>
     <string name="reload">Reload</string>
@@ -289,20 +201,7 @@
     <string name="creature_absorb_time">Creature absorb time</string>
     <string name="player_respawn_time">Player respawn time</string>
     <string name="confirm_quit_level">Are you sure you want to quit this level?</string>
-    <string name="x_offset">X offset</string>
-    <string name="y_offset">Y offset</string>
-    <string name="sublayer_depth">Sublayer depth</string>
-    <string name="front_align">Front align</string>
-    <string name="plastic_polygon">Plastic polygon</string>
-    <string name="key_listener">Key listener</string>
-    <string name="absorb_entity_after">Absorb entity:</string>
-    <string name="emitter">Emitter</string>
     <string name="item">Item</string>
-    <string name="resource">Resource</string>
-    <string name="decoration">Decoration</string>
-    <string name="animal">Animal</string>
-    <string name="sound_manager">Sound Manager</string>
-    <string name="catch_all">Catch all</string>
     <string name="display_fps">Display FPS</string>
     <string name="selfdestruct">Self-destruct</string>
 
@@ -320,6 +219,4 @@
     <string name="apply">Apply</string>
     <string name="dec_zero">0.0</string>
     <string name="amount">Amount</string>
-    <string name="vendor">Vendor</string>
-    <string name="loop">Loop</string>
 </resources>

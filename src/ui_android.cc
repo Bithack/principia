@@ -1075,16 +1075,6 @@ JNI_FUNC(void, fixed)(JNIEnv *env, jclass _jcls) {
     }
 }
 
-JNI_FUNC(void, setResourceType)(JNIEnv *env, jclass _jcls, jlong value) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_RESOURCE) {
-        ((resource*)e)->set_resource_type((uint32_t)value);
-        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-        P.add_action(ACTION_RESELECT, 0);
-    }
-}
-
 JNI_FUNC(jstring, getRobotData)(JNIEnv *env, jclass _jcls) {
     std::stringstream ss;
 
