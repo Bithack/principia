@@ -130,9 +130,6 @@ public class PrincipiaBackend
     public static native String getPromptPropertyString(int property_index);
     public static native void refreshPrompt();
 
-    public static native void resetVariable(String variable_name);
-    public static native void resetAllVariables();
-
     public static native String getSfxSounds();
     public static native String getSynthWaveforms();
 

@@ -217,6 +217,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiFXEmitter::open();
             break;
 
+        case DIALOG_VARIABLE:
+            UiVariable::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -274,6 +278,7 @@ void ui::render() {
     UiPkgLvlSelector::layout();
     UiDecoration::layout();
     UiFXEmitter::layout();
+    UiVariable::layout();
 
     imgui_driver.post_render();
 }
@@ -867,29 +872,6 @@ JNI_FUNC(jstring, getCurrentCommunityUrl)(JNIEnv *env, jclass _jcls) {
     COMMUNITY_URL("level/%d", W->level.community_id);
 
     return env->NewStringUTF(url);
-}
-
-JNI_FUNC(void, resetVariable)(JNIEnv *env, jclass _jcls, jstring variable_name) {
-    const char *vn = env->GetStringUTFChars(variable_name, 0);
-
-    std::map<std::string, float>::size_type num_deleted = W->level_variables.erase(vn);
-    if (num_deleted != 0) {
-        if (W->save_cache(W->level_id_type, W->level.local_id))
-            ui::message("Successfully deleted data for this variable");
-        else
-            ui::message("Unable to delete variable data for this level.");
-    } else
-        ui::message("No data found for this variable");
-
-    env->ReleaseStringUTFChars(variable_name, vn);
-}
-
-JNI_FUNC(void, resetAllVariables)(JNIEnv *env, jclass _jcls) {
-    W->level_variables.clear();
-    if (W->save_cache(W->level_id_type, W->level.local_id))
-        ui::message("All level-specific variables cleared.");
-    else
-        ui::message("Unable to delete variable data for this level.");
 }
 
 JNI_FUNC(jint, getLevelIdType)(JNIEnv *env, jclass _jcls) {
