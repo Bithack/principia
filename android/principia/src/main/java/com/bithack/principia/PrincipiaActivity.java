@@ -33,7 +33,6 @@ import com.bithack.principia.shared.Sfx2Dialog;
 import com.bithack.principia.shared.SfxDialog;
 import com.bithack.principia.shared.StickyDialog;
 import com.bithack.principia.shared.TimerDialog;
-import com.bithack.principia.shared.SoundManDialog;
 import com.bithack.principia.shared.MultiSelectDialog;
 
 import android.app.AlertDialog;
@@ -607,7 +606,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_JUMPER:             d = JumperDialog.get_dialog(); break;
         case DIALOG_LUASCRIPT:          d = ScriptDialog.get_dialog(); break;
         case DIALOG_ITEM:               d = ConsumableDialog.get_dialog(); break;
-        case DIALOG_SOUNDMAN:           d = SoundManDialog.get_dialog(); break;
         case DIALOG_MULTI_CONFIG:       d = MultiSelectDialog.get_dialog(); break;
 
         case DIALOG_FACTORY:            d = FactoryDialog.get_dialog(); break;
@@ -761,7 +759,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_JUMPER:             JumperDialog.prepare(dialog); break;
             case DIALOG_LUASCRIPT:          ScriptDialog.prepare(dialog); break;
             case DIALOG_ITEM:               ConsumableDialog.prepare(dialog); break;
-            case DIALOG_SOUNDMAN:           SoundManDialog.prepare(dialog); break;
             case DIALOG_MULTI_CONFIG:       MultiSelectDialog.prepare(dialog); break;
 
             case DIALOG_FACTORY:            FactoryDialog.prepare(dialog); break;

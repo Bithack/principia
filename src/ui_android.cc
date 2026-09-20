@@ -233,6 +233,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiDigitalDisplay::open();
             break;
 
+        case DIALOG_SOUNDMAN:
+            UiSoundManager::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -294,6 +298,7 @@ void ui::render() {
     UiCursorField::layout();
     UiSynthesizer::layout();
     UiDigitalDisplay::layout();
+    UiSoundManager::layout();
 
     imgui_driver.post_render();
 }
