@@ -29,8 +29,6 @@ import com.bithack.principia.shared.SaveAsDialog;
 import com.bithack.principia.shared.ScriptDialog;
 import com.bithack.principia.shared.SequencerDialog;
 import com.bithack.principia.shared.SettingsDialog;
-import com.bithack.principia.shared.Sfx2Dialog;
-import com.bithack.principia.shared.SfxDialog;
 import com.bithack.principia.shared.StickyDialog;
 import com.bithack.principia.shared.TimerDialog;
 import com.bithack.principia.shared.MultiSelectDialog;
@@ -600,8 +598,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_COMMUNITY:          d = (new CommunityDialog()).get_dialog(); break;
         case DIALOG_PROMPT_SETTINGS:    d = PromptSettingsDialog.get_dialog(); break;
         case DIALOG_PROMPT:             d = (new PromptDialog()).get_dialog(); break;
-        case DIALOG_SFX_EMITTER:        d = SfxDialog.get_dialog(); break;
-        case DIALOG_SFX_EMITTER_2:      d = Sfx2Dialog.get_dialog(); break;
         case DIALOG_SEQUENCER:          d = SequencerDialog.get_dialog(); break;
         case DIALOG_JUMPER:             d = JumperDialog.get_dialog(); break;
         case DIALOG_LUASCRIPT:          d = ScriptDialog.get_dialog(); break;
@@ -753,8 +749,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_STICKY:             StickyDialog.prepare(dialog); break;
             case DIALOG_TIMER:              TimerDialog.prepare(dialog); break;
             case DIALOG_PROMPT_SETTINGS:    PromptSettingsDialog.prepare(dialog); break;
-            case DIALOG_SFX_EMITTER:        SfxDialog.prepare(dialog); break;
-            case DIALOG_SFX_EMITTER_2:      Sfx2Dialog.prepare(dialog); break;
             case DIALOG_SEQUENCER:          SequencerDialog.prepare(dialog); break;
             case DIALOG_JUMPER:             JumperDialog.prepare(dialog); break;
             case DIALOG_LUASCRIPT:          ScriptDialog.prepare(dialog); break;

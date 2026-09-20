@@ -237,6 +237,14 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiSoundManager::open();
             break;
 
+        case DIALOG_SFXEMITTER:
+            UiSfxEmitterLegacy::open();
+            break;
+
+        case DIALOG_SFXEMITTER_2:
+            UiSfxEmitter::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -299,6 +307,8 @@ void ui::render() {
     UiSynthesizer::layout();
     UiDigitalDisplay::layout();
     UiSoundManager::layout();
+    UiSfxEmitter::layout();
+    UiSfxEmitterLegacy::layout();
 
     imgui_driver.post_render();
 }
@@ -1065,16 +1075,6 @@ JNI_FUNC(void, fixed)(JNIEnv *env, jclass _jcls) {
     }
 }
 
-JNI_FUNC(jstring, getSounds)(JNIEnv *env, jclass _jcls) {
-    std::stringstream ss;
-
-    for (int x=0; x<SND__NUM; x++) {
-        ss << sm::sound_lookup[x]->name << ",.,";
-    }
-
-    return env->NewStringUTF(ss.str().c_str());
-}
-
 JNI_FUNC(void, setResourceType)(JNIEnv *env, jclass _jcls, jlong value) {
     entity *e = G->selection.e;
 
@@ -1390,19 +1390,6 @@ JNI_FUNC(jstring, getLevels)(JNIEnv *env, jclass _jcls, jint level_type) {
     }
 
     tms_infof("getLevels: %s", b.str().c_str());
-
-    jstring str;
-    str = env->NewStringUTF(b.str().c_str());
-    return str;
-}
-
-JNI_FUNC(jstring, getSfxSounds)(JNIEnv *env, jclass _jcls) {
-    std::stringstream b("", std::ios_base::app | std::ios_base::out);
-
-    for (int x=0; x<NUM_SFXEMITTER_OPTIONS; x++) {
-        if (x != 0) b << ',';
-        b << sfxemitter_options[x].name;
-    }
 
     jstring str;
     str = env->NewStringUTF(b.str().c_str());

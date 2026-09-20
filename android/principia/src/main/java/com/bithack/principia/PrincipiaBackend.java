@@ -128,8 +128,6 @@ public class PrincipiaBackend
     public static native String getPromptPropertyString(int property_index);
     public static native void refreshPrompt();
 
-    public static native String getSfxSounds();
-
     public static native void setLevelType(int type);
     public static native int getLevelType();
     public static native void setSequencerData(String sequence, int seconds, int milliseconds, boolean wrap_around);
@@ -167,8 +165,6 @@ public class PrincipiaBackend
     public static native String getCompatibleCircuits();
 
     public static native void fixed();
-
-    public static native String getSounds();
 
     public static native void openState(int level_type, int level_id, int save_id, boolean from_menu);
 
