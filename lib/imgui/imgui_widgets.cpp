@@ -5780,6 +5780,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
             ime_data->InputPos = ImVec2(cursor_screen_pos.x - 1.0f, cursor_screen_pos.y - g.FontSize);
             ime_data->InputLineHeight = g.FontSize;
             ime_data->ViewportId = window->Viewport->ID;
+            ime_data->NumericInputRequested = (flags & (ImGuiInputTextFlags)ImGuiInputTextFlags_LocalizeDecimalPoint) != 0;
         }
     }
 

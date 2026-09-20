@@ -4155,6 +4155,8 @@ struct ImGuiPlatformImeData
     float   InputLineHeight;        // Line height (for IME).
     ImGuiID ViewportId;             // ID of platform window/viewport.
 
+    bool NumericInputRequested;
+
     ImGuiPlatformImeData()          { memset((void*)this, 0, sizeof(*this)); }
 };
 
