@@ -100,9 +100,6 @@ public class PrincipiaBackend
     public static native int getStickySize();
     public static native void setStickyStuff(String text, boolean center_horiz, boolean center_vert, int size);
 
-    public static native String getFxEmitterEffects();
-    public static native void setFxEmitterEffects(int effect_1, int effect_2, int effect_3, int effect_4);
-
     public static native int getEntityColor();
     public static native void setEntityColor(int color);
     public static native float getEntityAlpha();

@@ -213,6 +213,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiDecoration::open();
             break;
 
+        case DIALOG_FXEMITTER:
+            UiFXEmitter::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -269,6 +273,7 @@ void ui::render() {
     UiResource::layout();
     UiPkgLvlSelector::layout();
     UiDecoration::layout();
+    UiFXEmitter::layout();
 
     imgui_driver.post_render();
 }
@@ -862,56 +867,6 @@ JNI_FUNC(jstring, getCurrentCommunityUrl)(JNIEnv *env, jclass _jcls) {
     COMMUNITY_URL("level/%d", W->level.community_id);
 
     return env->NewStringUTF(url);
-}
-
-/** ++FX Emitter **/
-JNI_FUNC(jstring, getFxEmitterEffects)(JNIEnv *env, jclass _jcls) {
-    if (G->selection.e && G->selection.e->g_id == 135) {
-        entity *e = G->selection.e;
-        char effects[128];
-
-        sprintf(effects, "%u,%u,%u,%u",
-                e->properties[3+0].v.i, e->properties[3+1].v.i,
-                e->properties[3+2].v.i, e->properties[3+3].v.i);
-
-        jstring str;
-        str = env->NewStringUTF(effects);
-
-        return str;
-    }
-
-    /* XXX: Will this break? */
-    return 0;
-}
-
-JNI_FUNC(void, setFxEmitterEffects)(JNIEnv *env, jclass _jcls, jint effect_1, jint effect_2, jint effect_3, jint effect_4) {
-    if (G->selection.e && G->selection.e->g_id == 135) {
-        entity *e = G->selection.e;
-
-        if (effect_1 == 0)
-            e->properties[3+0].v.i = FX_INVALID;
-        else
-            e->properties[3+0].v.i = effect_1 - 1;
-
-        if (effect_2 == 0)
-            e->properties[3+1].v.i = FX_INVALID;
-        else
-            e->properties[3+1].v.i = effect_2 - 1;
-
-        if (effect_3 == 0)
-            e->properties[3+2].v.i = FX_INVALID;
-        else
-            e->properties[3+2].v.i = effect_3 - 1;
-
-        if (effect_4 == 0)
-            e->properties[3+3].v.i = FX_INVALID;
-        else
-            e->properties[3+3].v.i = effect_4 - 1;
-
-        ui::message("FX Emitter properties saved!");
-        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-        P.add_action(ACTION_RESELECT, 0);
-    }
 }
 
 JNI_FUNC(void, resetVariable)(JNIEnv *env, jclass _jcls, jstring variable_name) {

@@ -144,6 +144,7 @@ void ImguiDriver::init() {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     //io.ConfigInputTrickleEventQueue = false;
+    io.ConfigWindowsMoveFromTitleBarOnly = true;
     io.ConfigWindowsResizeFromEdges = true; //XXX: not active until custom cursors are implemented...
     io.ConfigDragClickToInputText = true;
     io.ConfigDragScroll = _tms.touch_controls;

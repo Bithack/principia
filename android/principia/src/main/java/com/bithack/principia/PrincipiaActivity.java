@@ -10,7 +10,6 @@ import com.bithack.principia.shared.ExportDialog;
 import com.bithack.principia.shared.FactoryDialog;
 import com.bithack.principia.shared.FrequencyDialog;
 import com.bithack.principia.shared.FrequencyRangeDialog;
-import com.bithack.principia.shared.FxEmitterDialog;
 import com.bithack.principia.shared.InfoDialog;
 import com.bithack.principia.shared.ImportDialog;
 import com.bithack.principia.shared.JumperDialog;
@@ -594,7 +593,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_LEVEL_INFO:         d = (new InfoDialog()).get_dialog(); break;
         case DIALOG_STICKY:             d = StickyDialog.get_dialog(); break;
         case DIALOG_ROBOT:              d = RobotDialog.get_dialog(); break;
-        case DIALOG_FXEMITTER:          d = FxEmitterDialog.get_dialog(); break;
         case DIALOG_PIXEL_COLOR:        d = ColorChooserDialog.get_dialog(); break;
         case DIALOG_BEAM_COLOR:         d = ColorChooserDialog.get_dialog(); break;
         case DIALOG_POLYGON_COLOR:      d = ColorChooserDialog.get_dialog(); break;
@@ -757,7 +755,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_SAVE:               SaveAsDialog.prepare(dialog); break;
             case DIALOG_SAVE_COPY:          SaveAsDialog.prepare(dialog); break;
             case DIALOG_ROBOT:              RobotDialog.prepare(dialog); break;
-            case DIALOG_FXEMITTER:          FxEmitterDialog.prepare(dialog); break;
             case DIALOG_PIXEL_COLOR:        ColorChooserDialog.prepare(dialog, true); break;
             case DIALOG_BEAM_COLOR:         ColorChooserDialog.prepare(dialog, false); break;
             case DIALOG_POLYGON_COLOR:      ColorChooserDialog.prepare(dialog, false); break;
