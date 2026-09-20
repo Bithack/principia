@@ -134,9 +134,6 @@ public class PrincipiaBackend
     public static native String getObjects();
     public static native void createObject(String str);
     public static native int getMaxLevelVersion();
-    public static native int getConsumableType();
-    public static native String getConsumables();
-    public static native void setConsumableType(int consumable_type);
     public static native String getCurrentCommunityUrl();
 
     public static native String getResources();

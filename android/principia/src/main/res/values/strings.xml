@@ -192,7 +192,6 @@
     <string name="creature_absorb_time">Creature absorb time</string>
     <string name="player_respawn_time">Player respawn time</string>
     <string name="confirm_quit_level">Are you sure you want to quit this level?</string>
-    <string name="item">Item</string>
     <string name="display_fps">Display FPS</string>
     <string name="selfdestruct">Self-destruct</string>
 

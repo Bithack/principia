@@ -4,7 +4,6 @@ import com.bithack.principia.shared.ColorChooserDialog;
 import com.bithack.principia.shared.CommunityDialog;
 import com.bithack.principia.shared.ConfirmDialog;
 import com.bithack.principia.shared.ConfirmDialog.OnOptionSelectedListener;
-import com.bithack.principia.shared.ConsumableDialog;
 import com.bithack.principia.shared.ExportDialog;
 import com.bithack.principia.shared.FactoryDialog;
 import com.bithack.principia.shared.FrequencyDialog;
@@ -597,7 +596,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_PROMPT:             d = (new PromptDialog()).get_dialog(); break;
         case DIALOG_JUMPER:             d = JumperDialog.get_dialog(); break;
         case DIALOG_LUASCRIPT:          d = ScriptDialog.get_dialog(); break;
-        case DIALOG_ITEM:               d = ConsumableDialog.get_dialog(); break;
         case DIALOG_MULTI_CONFIG:       d = MultiSelectDialog.get_dialog(); break;
 
         case DIALOG_FACTORY:            d = FactoryDialog.get_dialog(); break;
@@ -746,7 +744,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_PROMPT_SETTINGS:    PromptSettingsDialog.prepare(dialog); break;
             case DIALOG_JUMPER:             JumperDialog.prepare(dialog); break;
             case DIALOG_LUASCRIPT:          ScriptDialog.prepare(dialog); break;
-            case DIALOG_ITEM:               ConsumableDialog.prepare(dialog); break;
             case DIALOG_MULTI_CONFIG:       MultiSelectDialog.prepare(dialog); break;
 
             case DIALOG_FACTORY:            FactoryDialog.prepare(dialog); break;

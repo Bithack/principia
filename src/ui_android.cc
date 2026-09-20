@@ -253,6 +253,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiSequencer::open();
             break;
 
+        case DIALOG_ITEM:
+            UiItem::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -319,6 +323,7 @@ void ui::render() {
     UiSfxEmitterLegacy::layout();
     UiTimer::layout();
     UiSequencer::layout();
+    UiItem::layout();
 
     imgui_driver.post_render();
 }
@@ -876,36 +881,6 @@ JNI_FUNC(jstring, getStickyText)(JNIEnv *env, jclass _jcls) {
         return env->NewStringUTF("");
 
     return env->NewStringUTF(nm);
-}
-
-JNI_FUNC(jstring, getConsumables)(JNIEnv *env, jclass _jcls) {
-    std::stringstream b("", std::ios_base::app | std::ios_base::out);
-
-    for (int x=0; x<NUM_ITEMS; x++) {
-        if (x != 0) b << ',';
-        b << item_options[x].name;
-    }
-
-    jstring str;
-    str = env->NewStringUTF(b.str().c_str());
-    return str;
-}
-
-JNI_FUNC(jint, getConsumableType)(JNIEnv *env, jclass _jcls) {
-    if (G->selection.e && G->selection.e->g_id == O_ITEM)
-        return (jint)(((item*)G->selection.e)->get_item_type());
-
-    return 0;
-}
-
-JNI_FUNC(void, setConsumableType)(JNIEnv *env, jclass _jcls, jint t) {
-    if (G->selection.e && G->selection.e->g_id == O_ITEM) {
-        tms_debugf("New item type: %d", t);
-        ((item*)G->selection.e)->set_item_type(t);
-        ((item*)G->selection.e)->do_recreate_shape = true;
-        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-        P.add_action(ACTION_RESELECT, 0);
-    }
 }
 
 JNI_FUNC(jstring, getCurrentCommunityUrl)(JNIEnv *env, jclass _jcls) {
