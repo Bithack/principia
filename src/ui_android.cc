@@ -245,6 +245,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiSfxEmitter::open();
             break;
 
+        case DIALOG_TIMER:
+            UiTimer::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -309,6 +313,7 @@ void ui::render() {
     UiSoundManager::layout();
     UiSfxEmitter::layout();
     UiSfxEmitterLegacy::layout();
+    UiTimer::layout();
 
     imgui_driver.post_render();
 }
@@ -1239,32 +1244,6 @@ JNI_FUNC(void, setSequencerData)(JNIEnv *env, jclass _jcls,
         ((sequencer*)e)->refresh_sequence();
 
         ui::message("Sequencer properties saved!");
-
-        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-        P.add_action(ACTION_RESELECT, 0);
-    }
-}
-
-/** ++Timer **/
-JNI_FUNC(void, setTimerData)(JNIEnv *env, jclass _jcls,
-        jint _seconds, jint _milliseconds, jint _num_ticks, jboolean use_system_time) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_TIMER) {
-        uint32_t seconds = (uint32_t)_seconds;
-        uint32_t milliseconds = (uint32_t)_milliseconds;
-        uint32_t full_time = (seconds * 1000) + milliseconds;
-        uint8_t num_ticks = (uint8_t)_num_ticks;
-
-        if (full_time < TIMER_MIN_TIME) {
-            full_time = TIMER_MIN_TIME;
-        }
-
-        e->properties[0].v.i = full_time;
-        e->properties[1].v.i8 = num_ticks;
-        e->properties[2].v.i = use_system_time ? 1 : 0;
-
-        ui::message("Timer properties saved!");
 
         P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
         P.add_action(ACTION_RESELECT, 0);

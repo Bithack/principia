@@ -30,7 +30,6 @@ import com.bithack.principia.shared.ScriptDialog;
 import com.bithack.principia.shared.SequencerDialog;
 import com.bithack.principia.shared.SettingsDialog;
 import com.bithack.principia.shared.StickyDialog;
-import com.bithack.principia.shared.TimerDialog;
 import com.bithack.principia.shared.MultiSelectDialog;
 
 import android.app.AlertDialog;
@@ -593,7 +592,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_EXPORT:             d = ExportDialog.get_dialog(); break;
         case DIALOG_MULTIEMITTER:       d = (new ImportDialog(true)).get_dialog(); break;
         case DIALOG_OPEN_OBJECT:        d = (new ImportDialog(false)).get_dialog(); break;
-        case DIALOG_TIMER:              d = TimerDialog.get_dialog(); break;
         case DIALOG_PLAY_MENU:          d = (PlayDialog.create_dialog()); break;
         case DIALOG_COMMUNITY:          d = (new CommunityDialog()).get_dialog(); break;
         case DIALOG_PROMPT_SETTINGS:    d = PromptSettingsDialog.get_dialog(); break;
@@ -747,7 +745,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_SET_FREQ_RANGE:     FrequencyRangeDialog.prepare(dialog); break;
             case DIALOG_EXPORT:             ExportDialog.prepare(dialog); break;
             case DIALOG_STICKY:             StickyDialog.prepare(dialog); break;
-            case DIALOG_TIMER:              TimerDialog.prepare(dialog); break;
             case DIALOG_PROMPT_SETTINGS:    PromptSettingsDialog.prepare(dialog); break;
             case DIALOG_SEQUENCER:          SequencerDialog.prepare(dialog); break;
             case DIALOG_JUMPER:             JumperDialog.prepare(dialog); break;

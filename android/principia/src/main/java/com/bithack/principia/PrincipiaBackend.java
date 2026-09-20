@@ -108,8 +108,6 @@ public class PrincipiaBackend
 
     public static native int saveObject(String name);
 
-    public static native void setTimerData(int seconds, int milliseconds, int num_ticks, boolean use_system_time);
-
     public static native int getRobotState();
     public static native boolean getRobotRoam();
     public static native int getRobotDir();

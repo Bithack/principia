@@ -77,8 +77,6 @@
     <string name="autofit_borders">Auto-fit borders</string>
     <string name="seconds">Seconds</string>
     <string name="milliseconds">Milliseconds</string>
-    <string name="num_ticks">Num ticks</string>
-    <string name="num_ticks_descr">0 = Infinite ticks</string>
     <string name="high">High</string>
     <string name="presets">Presets</string>
     <string name="medium">Medium</string>
@@ -156,7 +154,6 @@
     <string name="disable_adventure_max_zoom">Disable adventure zoom constraints</string>
     <string name="reload">Reload</string>
     <string name="disable_roam_layer_switch">Disable roam layer switch</string>
-    <string name="use_system_time">Use system time</string>
     <string name="chunked_level_loading">Chunked level loading</string>
     <string name="disable_caveview">Disable caveview</string>
     <string name="disable_rocket_trigger_explosives">Disable rocket trigger explosives</string>
