@@ -126,7 +126,6 @@ public class PrincipiaBackend
 
     public static native void setLevelType(int type);
     public static native int getLevelType();
-    public static native void setSequencerData(String sequence, int seconds, int milliseconds, boolean wrap_around);
 
     public static native boolean isAdventure();
 

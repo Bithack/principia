@@ -68,6 +68,10 @@ namespace UiSequencer {
 
             ImGui::InputText("Sequence", &sequence, ImGuiInputTextFlags_CharsNoBlank);
 
+            ImGui::TextDisabled("Enter a sequence of zeros and ones to specify what\nthe sequencer should output at the given step.");
+
+            ImGui::Text("Step width:");
+
             ImGuiSliderFlags flags = ImGuiSliderFlags_AlwaysClamp;
             ImGui::DragInt("Seconds", &seconds, .1, 0, 360, "%d", flags);
             ImGui::DragInt("Milliseconds", &milliseconds, .1, 0, 950, "%d", flags);

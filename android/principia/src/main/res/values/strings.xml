@@ -16,7 +16,6 @@
     <string name="dead">Dead</string>
     <string name="roaming">Roaming</string>
     <string name="command">Command</string>
-    <string name="wrap_around">Wrap around</string>
     <string name="remove">Remove</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
@@ -75,8 +74,6 @@
     <string name="velocity_iterations">Velocity iterations</string>
     <string name="iterations_warning">It is recommended that you set the number of iterations as low as possible, as it will allow players with less powerful devices to play your level.</string>
     <string name="autofit_borders">Auto-fit borders</string>
-    <string name="seconds">Seconds</string>
-    <string name="milliseconds">Milliseconds</string>
     <string name="high">High</string>
     <string name="presets">Presets</string>
     <string name="medium">Medium</string>
@@ -122,9 +119,6 @@
     <string name="zoom_speed">Zoom speed</string>
     <string name="smooth_cam">Smooth camera</string>
     <string name="smooth_zoom">Smooth zoom</string>
-    <string name="step_width">Step width</string>
-    <string name="sequence">Sequence</string>
-    <string name="sequence_description">Enter a sequence of zeros and ones to specify what the sequencer should output at the given step.</string>
     <string name="value">Value</string>
     <string name="do_not_require_dragfield">Do not require dragfield</string>
     <string name="published_successfully_message_p1">Your level has been successfully published on the community website.</string>

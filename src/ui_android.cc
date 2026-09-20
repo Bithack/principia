@@ -249,6 +249,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiTimer::open();
             break;
 
+        case DIALOG_SEQUENCER:
+            UiSequencer::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -314,6 +318,7 @@ void ui::render() {
     UiSfxEmitter::layout();
     UiSfxEmitterLegacy::layout();
     UiTimer::layout();
+    UiSequencer::layout();
 
     imgui_driver.post_render();
 }
@@ -1220,34 +1225,6 @@ JNI_FUNC(void, saveObject)(JNIEnv *env, jclass _jcls, jstring name) {
     ui::message("Saved object!");
 
     env->ReleaseStringUTFChars(name, tmp);
-}
-
-/** ++Sequencer **/
-JNI_FUNC(void, setSequencerData)(JNIEnv *env, jclass _jcls,
-        jstring _sequence, jint _seconds, jint _milliseconds, jboolean _wrap_around) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_SEQUENCER) {
-        const char *sequence = env->GetStringUTFChars(_sequence, 0);
-        uint32_t seconds = (uint32_t)_seconds;
-        uint32_t milliseconds = (uint32_t)_milliseconds;
-        uint32_t full_time = (seconds * 1000) + milliseconds;
-        uint8_t wrap_around = _wrap_around ? 1 : 0;
-
-        if (full_time < TIMER_MIN_TIME)
-            full_time = TIMER_MIN_TIME;
-
-        e->set_property(0, sequence);
-        e->properties[1].v.i = full_time;
-        e->properties[2].v.i8 = wrap_around;
-
-        ((sequencer*)e)->refresh_sequence();
-
-        ui::message("Sequencer properties saved!");
-
-        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-        P.add_action(ACTION_RESELECT, 0);
-    }
 }
 
 /** ++Robot **/
