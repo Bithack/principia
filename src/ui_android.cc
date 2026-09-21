@@ -261,6 +261,14 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiMultiConfig::open();
             break;
 
+        case DIALOG_SET_FREQUENCY:
+            UiFrequency::open(false);
+            break;
+
+        case DIALOG_SET_FREQ_RANGE:
+            UiFrequency::open(true);
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -329,6 +337,7 @@ void ui::render() {
     UiSequencer::layout();
     UiItem::layout();
     UiMultiConfig::layout();
+    UiFrequency::layout();
 
     imgui_driver.post_render();
 }
@@ -1159,41 +1168,6 @@ JNI_FUNC(jfloat, getEntityAlpha)(JNIEnv *env, jclass _jcls, jfloat alpha) {
 JNI_FUNC(void, setEntityAlpha)(JNIEnv *env, jclass _jcls, jfloat alpha) {
     if (G->selection.e && G->selection.e->g_id == O_PIXEL)
         G->selection.e->properties[4].v.i8 = (uint8_t)(alpha * 255);
-}
-
-/** ++Frequency Dialog **/
-JNI_FUNC(void, setFrequency)(JNIEnv *env, jclass _jcls, jlong frequency) {
-    if (G->selection.e && G->selection.e->is_wireless()) {
-        int64_t f = (int64_t)frequency;
-
-        if (f < 0) f = 0;
-
-        G->selection.e->properties[0].v.i = (uint32_t)f;
-
-        ui::messagef("Frequency set to %u", G->selection.e->properties[0].v.i);
-
-        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-        P.add_action(ACTION_RESELECT, 0);
-    }
-}
-
-JNI_FUNC(void, setFrequencyRange)(JNIEnv *env, jclass _jcls, jlong frequency, jlong range) {
-    if (G->selection.e && G->selection.e->g_id == 125) {
-        int64_t f, r;
-        f = (int64_t)frequency;
-        r = (int64_t)range;
-
-        if (f < 0) f = 0;
-        if (r < 0) r = 0;
-
-        G->selection.e->properties[0].v.i = (uint32_t)f;
-        G->selection.e->properties[1].v.i = (uint32_t)r;
-
-        ui::messagef("Frequency set to %u (+%u)", G->selection.e->properties[0].v.i, G->selection.e->properties[1].v.i);
-
-        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-        P.add_action(ACTION_RESELECT, 0);
-    }
 }
 
 /** ++Export **/

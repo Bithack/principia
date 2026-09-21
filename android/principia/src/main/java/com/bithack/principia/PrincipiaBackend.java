@@ -103,9 +103,6 @@ public class PrincipiaBackend
     public static native float getEntityAlpha();
     public static native void setEntityAlpha(float alpha);
 
-    public static native int setFrequency(long frequency);
-    public static native int setFrequencyRange(long frequency, long range);
-
     public static native int saveObject(String name);
 
     public static native int getRobotState();

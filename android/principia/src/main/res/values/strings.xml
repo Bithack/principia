@@ -20,10 +20,6 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
     <string name="delim">/</string>
-    <string name="frequency">Frequency</string>
-    <string name="frequency_requirements">Min frequency: 0 Max frequency: 4,294,967,295</string>
-    <string name="frequency_start">Frequency start</string>
-    <string name="frequency_range">Frequency range</string>
     <string name="insert">Insert</string>
     <string name="append">Append</string>
     <string name="object_name">Object name</string>
