@@ -74,21 +74,6 @@ void ui::emit_signal(int signal_id, void *data/*=0*/) {
         case SIGNAL_REFRESH_BORDERS:
             /* XXX */
             break;
-
-        default:
-            {
-                /* By default, passthrough the signal to the Java part */
-                JNIEnv *env = (JNIEnv *) SDL_GetAndroidJNIEnv();
-                jobject activity = (jobject) SDL_GetAndroidActivity();
-                jclass cls = env->GetObjectClass(activity);
-
-                jmethodID mid = env->GetStaticMethodID(cls, "emit_signal", "(I)V");
-
-                if (mid) {
-                    env->CallStaticVoidMethod(cls, mid, (jvalue*)(jint)signal_id);
-                }
-            }
-            break;
     }
 
     ui::next_action = ACTION_IGNORE;
@@ -273,6 +258,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiTips::open();
             break;
 
+        case DIALOG_QUICKADD:
+            UiQuickadd::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -330,6 +319,7 @@ void ui::render() {
     UiMultiConfig::layout();
     UiFrequency::layout();
     UiTips::layout();
+    UiQuickadd::layout();
 
     imgui_driver.post_render();
 }
@@ -503,48 +493,6 @@ JNI_FUNC(void, setPropertyFloat)(JNIEnv *env, jclass _jcls, jint property_index,
         e->properties[property_index].v.f = (float)value;
     else
         tms_errorf("Invalid set_property float");
-}
-
-JNI_FUNC(void, createObject)(JNIEnv *env, jclass _jcls, jstring _name) {
-    const char *name = env->GetStringUTFChars(_name, 0);
-    /* there seems to be absolutely no way of retrieving the top completion entry...
-     * we have to find it manually */
-
-    int len = strlen(name);
-    uint32_t gid = 0;
-    entity *found = 0;
-
-    for (int x=0; x<menu_objects.size(); x++) {
-        if (strncasecmp(name, menu_objects[x].e->get_name(), len) == 0) {
-            found = menu_objects[x].e;
-            break;
-        }
-    }
-
-    if (found) {
-        uint32_t g_id = found->g_id;
-        P.add_action(ACTION_CONSTRUCT_ENTITY, g_id);
-    } else
-        tms_infof("'%s' matched no entity name", name);
-
-    env->ReleaseStringUTFChars(_name, name);
-}
-
-JNI_FUNC(jstring, getObjects)(JNIEnv *env, jclass _jcls) {
-    std::stringstream b("", std::ios_base::app | std::ios_base::out);
-
-    tms_infof("menu_objects size: %d", (int)menu_objects.size());
-    for (int x=0; x<menu_objects.size(); x++) {
-        const char *n = menu_objects[x].e->get_name();
-        if (x != 0) b << ',';
-        b << n;
-    }
-
-    tms_infof("got objects: '%s'", b.str().c_str());
-
-    jstring str;
-    str = env->NewStringUTF(b.str().c_str());
-    return str;
 }
 
 JNI_FUNC(void, updateJumper)(JNIEnv *env, jclass _jcls, jfloat value) {

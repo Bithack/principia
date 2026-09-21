@@ -1735,8 +1735,6 @@ static int initial_loader(int step) {
 
             tms_infof("%27s: %u", "Total", total);
 #endif
-
-            ui::emit_signal(SIGNAL_QUICKADD_REFRESH);
             return LOAD_DONE;
         }
 

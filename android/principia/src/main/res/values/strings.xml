@@ -126,7 +126,6 @@
     <string name="border_scroll_speed">Border scroll speed</string>
     <string name="code">insert_code_here();</string>
     <string name="save">Save</string>
-    <string name="quickadd">Object name (will add to center of screen)</string>
     <string name="confirm_level_upgrade"><b>Are you sure you want to upgrade the version of this level?</b>\n\nTo get access to new features the version associated with this level must be upgraded. This action can not be undone. Please save a copy before upgrading your level.\n\nBy upgrading this level, some object properties such as density, restitution, friction and applied forces might differ from earlier versions and affect how your level is simulated.</string>
     <string name="confirm_cancel_script_dialog">Are you sure you want to cancel the LuaScript dialog? Any unsaved changes will be lost!</string>
     <string name="close">Close</string>

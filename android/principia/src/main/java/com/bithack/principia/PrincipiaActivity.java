@@ -18,7 +18,6 @@ import com.bithack.principia.shared.PromptDialog;
 import com.bithack.principia.shared.PromptSettingsDialog;
 import com.bithack.principia.shared.PublishDialog;
 import com.bithack.principia.shared.PublishedDialog;
-import com.bithack.principia.shared.QuickaddDialog;
 import com.bithack.principia.shared.RegisterDialog;
 import com.bithack.principia.shared.RobotDialog;
 import com.bithack.principia.shared.SaveAsDialog;
@@ -260,9 +259,7 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
 
         this.handle_intent(this.getIntent());
 
-        open_adapter = new ArrayAdapter<Level>(SDLActivity.mSingleton,
-                android.R.layout.select_dialog_item);
-        QuickaddDialog.object_adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
+        open_adapter = new ArrayAdapter<Level>(SDLActivity.mSingleton, android.R.layout.select_dialog_item);
     }
 
 
@@ -277,25 +274,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
                     last_toast = Toast.makeText(SDLActivity.mSingleton, s, longd==1?Toast.LENGTH_LONG:Toast.LENGTH_SHORT);
                 }
                 last_toast.show();
-        }
-        });
-    }
-
-    public static void emit_signal(final int signal_id)
-    {
-        SDLActivity.mSingleton.runOnUiThread(new Runnable(){
-            public void run() {
-                if (signal_id == 200) { // SIGNAL_QUICKADD_REFRESH
-                    Log.v("Principia", "Quickadd refresh.");
-                    QuickaddDialog.object_adapter.clear();
-                    String[] objects = PrincipiaBackend.getObjects().split(",");
-
-                    Log.v("Principia", String.format("Number of objects: %d", objects.length));
-
-                    for (String name : objects) {
-                        QuickaddDialog.object_adapter.add(name);
-                    }
-                }
             }
         });
     }
@@ -560,7 +538,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             }
             break;
 
-        case DIALOG_QUICKADD:           d = QuickaddDialog.get_dialog(); break;
         case DIALOG_OPEN:               d = (new OpenDialog(false)).get_dialog(); break;
         case DIALOG_LEVEL_PROPERTIES:   d = LevelDialog.get_dialog(); break;
         case DIALOG_SAVE_COPY:          d = SaveAsDialog.get_dialog(); break;
@@ -710,7 +687,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
                 }
                 break;
 
-            case DIALOG_QUICKADD:           QuickaddDialog.prepare(dialog); break;
             case DIALOG_LEVEL_PROPERTIES:   LevelDialog.prepare(dialog); break;
             case DIALOG_SAVE:               SaveAsDialog.prepare(dialog); break;
             case DIALOG_SAVE_COPY:          SaveAsDialog.prepare(dialog); break;
@@ -730,7 +706,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
 
         /* Dialogs that need a separate onShowListener */
         switch (d) {
-            case DIALOG_QUICKADD:
             case DIALOG_PUBLISH:
             case DIALOG_LOGIN:
             case DIALOG_REGISTER:

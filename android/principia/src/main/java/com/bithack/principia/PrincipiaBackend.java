@@ -127,8 +127,6 @@ public class PrincipiaBackend
 
     public static native void updateJumper(float value);
     public static native String getLevelPage();
-    public static native String getObjects();
-    public static native void createObject(String str);
     public static native int getMaxLevelVersion();
     public static native String getCurrentCommunityUrl();
 
