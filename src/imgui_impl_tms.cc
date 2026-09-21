@@ -98,6 +98,11 @@ static void ImGui_ImplSDL3_PlatformSetImeData(ImGuiContext*, ImGuiViewport*, ImG
     ImGui_ImplSDL3_UpdateIme();
 }
 
+// https://developer.android.com/reference/android/text/InputType
+#define TYPE_CLASS_TEXT                         0x00000001
+#define TYPE_TEXT_FLAG_AUTO_COMPLETE            0x00010000
+#define TYPE_TEXT_VARIATION_FILTER              0x000000b0
+
 // We discard viewport passed via ImGuiPlatformImeData and always call SDL_StartTextInput() on SDL_GetKeyboardFocus().
 static void ImGui_ImplSDL3_UpdateIme()
 {
@@ -130,7 +135,11 @@ static void ImGui_ImplSDL3_UpdateIme()
         SDL_PropertiesID props = SDL_CreateProperties();
         SDL_SetNumberProperty(props, SDL_PROP_TEXTINPUT_CAPITALIZATION_NUMBER, SDL_CAPITALIZE_NONE);
         SDL_SetBooleanProperty(props, SDL_PROP_TEXTINPUT_AUTOCORRECT_BOOLEAN, false);
-        SDL_SetNumberProperty(props, SDL_PROP_TEXTINPUT_TYPE_NUMBER, data->NumericInputRequested ? SDL_TEXTINPUT_TYPE_NUMBER : SDL_TEXTINPUT_TYPE_TEXT);
+        if (data->NumericInputRequested) {
+            SDL_SetNumberProperty(props, SDL_PROP_TEXTINPUT_TYPE_NUMBER, SDL_TEXTINPUT_TYPE_NUMBER);
+        } else {
+            SDL_SetNumberProperty(props, SDL_PROP_TEXTINPUT_ANDROID_INPUTTYPE_NUMBER, TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_FILTER | TYPE_TEXT_FLAG_AUTO_COMPLETE);
+        }
         SDL_StartTextInputWithProperties(window, props);
         SDL_DestroyProperties(props);
     }
