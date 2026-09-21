@@ -269,6 +269,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiFrequency::open(true);
             break;
 
+        case DIALOG_SANDBOX_TIPS:
+            UiTips::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -291,19 +295,6 @@ void ui::open_dialog(int num, void *data/*=0*/) {
 
 void ui::quit() {
     _tms.state = TMS_STATE_QUITTING;
-}
-
-void ui::open_sandbox_tips() {
-    JNIEnv *env = (JNIEnv *) SDL_GetAndroidJNIEnv();
-    jobject activity = (jobject) SDL_GetAndroidActivity();
-    jclass cls = env->GetObjectClass(activity);
-
-    jmethodID mid = env->GetStaticMethodID(cls, "showSandboxTips", "()V");
-
-    if (mid) {
-        env->CallStaticVoidMethod(cls, mid, 0);
-    } else
-        tms_errorf("could not run showSandboxTips");
 }
 
 void ui::render() {
@@ -338,6 +329,7 @@ void ui::render() {
     UiItem::layout();
     UiMultiConfig::layout();
     UiFrequency::layout();
+    UiTips::layout();
 
     imgui_driver.post_render();
 }
@@ -552,19 +544,6 @@ JNI_FUNC(jstring, getObjects)(JNIEnv *env, jclass _jcls) {
 
     jstring str;
     str = env->NewStringUTF(b.str().c_str());
-    return str;
-}
-
-JNI_FUNC(jstring, getSandboxTip)(JNIEnv *env, jclass _jcls) {
-    jstring str;
-    char *nm = 0;
-
-    if (ctip == -1) ctip = rand()%num_tips_mobile;
-
-    str = env->NewStringUTF(tips_mobile[ctip]);
-
-    ctip = (ctip+1)%num_tips_mobile;
-
     return str;
 }
 

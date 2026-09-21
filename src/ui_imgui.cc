@@ -198,14 +198,13 @@ void ui::open_dialog(int num, void *data/*=0*/) {
         case DIALOG_PROMPT_SETTINGS:
             UiPromptSettings::open();
             break;
+        case DIALOG_SANDBOX_TIPS:
+            UiTips::open();
+            break;
         default:
             tms_warnf("Unhandled dialog ID: %d", num);
             break;
     }
-}
-
-void ui::open_sandbox_tips() {
-    UiTips::open();
 }
 
 void ui::set_next_action(int action_id) {

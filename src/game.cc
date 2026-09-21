@@ -1276,7 +1276,7 @@ int game::resume() {
         this->create_level(level_type, this->resume_action == GAME_RESUME_NEW_EMPTY, false);
 
         if (!settings["hide_tips"]->v.b) {
-            ui::open_sandbox_tips();
+            ui::open_dialog(DIALOG_SANDBOX_TIPS);
         }
     }
 

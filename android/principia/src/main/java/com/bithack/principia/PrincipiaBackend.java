@@ -52,7 +52,6 @@ public class PrincipiaBackend
     public static native void setSetting(String setting_name, boolean value);
     public static native void focusGL(boolean f);
 
-    public static native String getSandboxTip();
     public static native void setNextAction(int action_id);
     public static native void login(String username, String password);
     public static native void register(String username, String email, String password);

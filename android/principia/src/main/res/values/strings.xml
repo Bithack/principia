@@ -88,7 +88,6 @@
     <string name="locked_description">Disallow players from seeing or playing this level outside of packages.</string>
     <string name="password">Password</string>
     <string name="username">Username</string>
-    <string name="dont_show_again">Don\'t show this dialog again</string>
     <string name="disable_3rd_layer">Disable third layer</string>
     <string name="confirm_password">Confirm password</string>
     <string name="password_limits">Your password must contain a minimum of 6 characters.</string>

@@ -6,7 +6,6 @@
 
 void ui::init() {}
 void ui::open_dialog(int num, void *data/*=0*/) {}
-void ui::open_sandbox_tips() {}
 void ui::emit_signal(int num, void *data/*=0*/) {}
 void ui::quit() {}
 void ui::set_next_action(int action_id) {}

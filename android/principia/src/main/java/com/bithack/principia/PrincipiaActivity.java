@@ -21,7 +21,6 @@ import com.bithack.principia.shared.PublishedDialog;
 import com.bithack.principia.shared.QuickaddDialog;
 import com.bithack.principia.shared.RegisterDialog;
 import com.bithack.principia.shared.RobotDialog;
-import com.bithack.principia.shared.SandboxTipsDialog;
 import com.bithack.principia.shared.SaveAsDialog;
 import com.bithack.principia.shared.ScriptDialog;
 import com.bithack.principia.shared.SettingsDialog;
@@ -499,16 +498,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         });
     }
 
-    public static void showSandboxTips()
-    {
-        SDLActivity.mSingleton.runOnUiThread(new Runnable(){
-            public void run() {
-                try {SDLActivity.mSingleton.removeDialog(DIALOG_SANDBOX_TIPS);} catch(Exception e){};
-                SDLActivity.mSingleton.showDialog(DIALOG_SANDBOX_TIPS);
-            }
-        });
-    }
-
     @Override
     protected Dialog onCreateDialog(int num)
     {
@@ -597,7 +586,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_PUBLISH:            d = PublishDialog.get_dialog(); break;
         case DIALOG_PUBLISHED:          d = (new PublishedDialog()).get_dialog(); break;
         case DIALOG_LOGIN:              d = LoginDialog.get_dialog(); break;
-        case DIALOG_SANDBOX_TIPS:       d = (new SandboxTipsDialog()).get_dialog(); break;
         case DIALOG_REGISTER:           d = RegisterDialog.get_dialog(); break;
 
         case CLOSE_ALL_DIALOGS:         break; /* do nothing */
@@ -745,7 +733,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_QUICKADD:
             case DIALOG_PUBLISH:
             case DIALOG_LOGIN:
-            case DIALOG_SANDBOX_TIPS:
             case DIALOG_REGISTER:
             case DIALOG_PROMPT_SETTINGS:
             case DIALOG_OPEN:
