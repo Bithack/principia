@@ -174,7 +174,7 @@ namespace UiMultiConfig {
                 0,
                 std::min(viewport->WorkSize.y * 0.98f, UI(250) + footer_height)),
             ImGuiCond_Always);
-        if (ImGui::BeginPopupModal("Multi config", REF_TRUE, MODAL_FLAGS)) {
+        if (ImGui::BeginPopupModal("Multi config", REF_TRUE, MODAL_FLAGS | ImGuiWindowFlags_HorizontalScrollbar)) {
             ImGui::BeginChild("##content", ImVec2(0, -footer_height), ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeX);
 
             if (ImGui::BeginTabBar("##tabs")) {

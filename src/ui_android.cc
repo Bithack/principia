@@ -257,6 +257,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiItem::open();
             break;
 
+        case DIALOG_MULTI_CONFIG:
+            UiMultiConfig::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -324,6 +328,7 @@ void ui::render() {
     UiTimer::layout();
     UiSequencer::layout();
     UiItem::layout();
+    UiMultiConfig::layout();
 
     imgui_driver.post_render();
 }

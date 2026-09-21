@@ -28,7 +28,6 @@ import com.bithack.principia.shared.SaveAsDialog;
 import com.bithack.principia.shared.ScriptDialog;
 import com.bithack.principia.shared.SettingsDialog;
 import com.bithack.principia.shared.StickyDialog;
-import com.bithack.principia.shared.MultiSelectDialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -596,8 +595,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_PROMPT:             d = (new PromptDialog()).get_dialog(); break;
         case DIALOG_JUMPER:             d = JumperDialog.get_dialog(); break;
         case DIALOG_LUASCRIPT:          d = ScriptDialog.get_dialog(); break;
-        case DIALOG_MULTI_CONFIG:       d = MultiSelectDialog.get_dialog(); break;
-
         case DIALOG_FACTORY:            d = FactoryDialog.get_dialog(); break;
         case DIALOG_OPEN_STATE:         d = (new OpenDialog(true)).get_dialog(); break;
 
@@ -744,8 +741,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_PROMPT_SETTINGS:    PromptSettingsDialog.prepare(dialog); break;
             case DIALOG_JUMPER:             JumperDialog.prepare(dialog); break;
             case DIALOG_LUASCRIPT:          ScriptDialog.prepare(dialog); break;
-            case DIALOG_MULTI_CONFIG:       MultiSelectDialog.prepare(dialog); break;
-
             case DIALOG_FACTORY:            FactoryDialog.prepare(dialog); break;
             case DIALOG_PUBLISH:            PublishDialog.prepare(dialog); break;
             case DIALOG_LOGIN:              LoginDialog.prepare(dialog); break;
