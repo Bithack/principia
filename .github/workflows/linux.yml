@@ -22,7 +22,15 @@ on:
 
 jobs:
   linux:
-    runs-on: ubuntu-latest
+    name: AppImage (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-latest
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
     container:
       image: debian/eol:bullseye
       env: { LANG: "C.UTF-8" }
@@ -45,8 +53,8 @@ jobs:
       - name: Build
         run: |
           mkdir build; cd build
-          ../packaging/libdecor/install.sh
-          ../packaging/build-appimage.sh
+          ../packaging/install-libdecor-dev.sh ${{ matrix.arch }}
+          ../packaging/build-appimage.sh ${{ matrix.arch }}
         env:
           CC: clang-16
           CXX: clang++-16
@@ -54,14 +62,14 @@ jobs:
       - name: Upload output as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: Principia-x86_64.AppImage
-          path: build/Principia-x86_64.AppImage
+          name: Principia-${{ matrix.arch }}.AppImage
+          path: build/Principia-${{ matrix.arch }}.AppImage
           #archive: false
           if-no-files-found: error
 
       - name: Upload debug symbols as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: linux-appimage-dbgsym
+          name: linux-appimage-dbgsym-${{ matrix.arch }}
           path: build/principia.debug
           if-no-files-found: error

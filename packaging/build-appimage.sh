@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash -e
 
 # Builds an AppImage using appimagetool.
 # You need to run this inside of a build directory in the source tree,
@@ -6,9 +6,11 @@
 
 # This script should be run on Debian 11 Bullseye.
 
+arch="${1:-x86_64}"
+
 # Download appimagetool
 if [ ! -f appimagetool ]; then
-	wget https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+	wget https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${arch}.AppImage -O appimagetool
 	chmod +x appimagetool
 fi
 
@@ -76,9 +78,9 @@ INCLUDE_LIBS=(
 
 mkdir -p usr/lib/
 for i in "${INCLUDE_LIBS[@]}"; do
-	cp /usr/lib/x86_64-linux-gnu/$i usr/lib/
+	cp /usr/lib/${arch}-linux-gnu/$i usr/lib/
 done
 
 # Actually build the appimage
 cd ..
-ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir/
+ARCH=${arch} ./appimagetool --appimage-extract-and-run AppDir/
