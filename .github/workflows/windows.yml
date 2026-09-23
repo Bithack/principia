@@ -29,7 +29,7 @@ jobs:
         include:
           - { display: "32-bit", bits: 32 }
           - { display: "64-bit", bits: 64 }
-          #- { display: "64-bit (ARM)", bits: arm64 }
+          - { display: "64-bit (ARM)", bits: arm64 }
     steps:
       - uses: actions/checkout@v6
 
