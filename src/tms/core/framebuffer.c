@@ -381,10 +381,14 @@ static int _bind(struct tms_fb *f)
 
         glViewport(0, 0, f->width, f->height);
     } else {
+#ifdef SDL_PLATFORM_IOS
+        glBindFramebuffer(GL_FRAMEBUFFER, tms_ios_view_framebuffer());
+#else
         if (glad_glBindFramebuffer)
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         else
             glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+#endif
 
         glViewport(0, 0, tms.opengl_width, tms.opengl_height);
     }
@@ -465,3 +469,11 @@ tms_fb_render_to(struct tms_fb *f,
     tms_fb_unbind(dest);
 }
 
+#ifdef SDL_PLATFORM_IOS
+
+GLuint tms_ios_view_framebuffer(void) {
+	SDL_PropertiesID props = SDL_GetWindowProperties(tms._window);
+	return (GLuint)SDL_GetNumberProperty(props, SDL_PROP_WINDOW_UIKIT_OPENGL_FRAMEBUFFER_NUMBER, 0);
+}
+
+#endif

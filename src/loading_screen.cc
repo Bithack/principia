@@ -39,7 +39,7 @@ int loading_screen::resume() {
 
 int loading_screen::render() {
 #ifdef SDL_PLATFORM_IOS
-    glBindFramebuffer(GL_FRAMEBUFFER, viewFramebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, tms_ios_view_framebuffer());
 #endif
     glClearColor(0.02f, 0.02f, 0.02f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);

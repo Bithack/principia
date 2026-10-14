@@ -52,3 +52,6 @@ void tms_fb_swap_blur3x3(struct tms_fb *f);
 void tms_fb_render(struct tms_fb *f, struct tms_program *p);
 void tms_fb_render_to(struct tms_fb *f, struct tms_fb *dest, struct tms_program *p);
 void tms_fb_attach_depth(struct tms_fb *fb, int attachment, int name);
+
+/// Get the view framebuffer which is required to render to the screen on iOS.
+GLuint tms_ios_view_framebuffer(void);

@@ -4,6 +4,7 @@
 #include <stdarg.h>
 
 #include "tms.h"
+#include "framebuffer.h"
 #include "screen.h"
 #include "event.h"
 #include "material.h"
@@ -134,7 +135,7 @@ tms_begin_frame(void)
     tms.in_frame = 1;
 
 #ifdef SDL_PLATFORM_IOS
-    glBindFramebuffer(GL_FRAMEBUFFER, viewFramebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, tms_ios_view_framebuffer());
 #endif
 
     tms_screen_begin_frame(tms.active_screen);

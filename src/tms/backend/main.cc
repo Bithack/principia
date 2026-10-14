@@ -165,7 +165,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     _tms.window_width = 1280;
     _tms.window_height = 720;
 
-#elif !defined(SDL_PLATFORM_ANDROID) && !defined(SDL_PLATFORM_SWITCH)
+#elif !defined(SDL_PLATFORM_IOS) && !defined(SDL_PLATFORM_ANDROID) && !defined(SDL_PLATFORM_SWITCH)
     const SDL_DisplayMode *mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
     SDL_Point screen;
     if (mode) {
@@ -195,7 +195,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
 
     uint32_t flags = SDL_WINDOW_OPENGL | 0;
 
-#if defined(SDL_PLATFORM_ANDROID) || defined(SDL_PLATFORM_SWITCH)
+#ifdef SDL_PLATFORM_IOS
+    flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
+#endif
+
+#if defined(SDL_PLATFORM_ANDROID) || defined(SDL_PLATFORM_SWITCH) || defined(SDL_PLATFORM_IOS)
     flags |= SDL_WINDOW_FULLSCREEN;
 #else
     _tms.window_width = settings["window_width"]->v.i;
@@ -224,11 +228,23 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_SetWindowFillDocument(_tms._window, true);
 #endif
 
-#if defined(SDL_PLATFORM_ANDROID) || defined(SDL_PLATFORM_SWITCH)
+#ifdef SDL_PLATFORM_IOS
+    SDL_GetWindowSizeInPixels(_tms._window, &_tms.opengl_width, &_tms.opengl_height);
+
+    // TODO: These probably should not be the same, but it was like this in the old iOS code
+    _tms.window_width = _tms.opengl_width;
+    _tms.window_height = _tms.opengl_height;
+
+#elif defined(SDL_PLATFORM_ANDROID) || defined(SDL_PLATFORM_SWITCH)
     SDL_GetWindowSizeInPixels(_tms._window, &_tms.window_width, &_tms.window_height);
 #endif
 
+#ifdef SDL_PLATFORM_IOS
+    float content_scale = SDL_GetWindowPixelDensity(_tms._window);
+#else
     float content_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+#endif
+
     _tms.xppcm = 108.f / 2.54f * 1.5f * content_scale;
     _tms.yppcm = 107.f / 2.54f * 1.5f * content_scale;
 
@@ -296,7 +312,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *ev) {
     switch (ev->type) {
-        #ifdef __ANDROID__
+        #if defined(SDL_PLATFORM_ANDROID) || defined(SDL_PLATFORM_IOS)
             case SDL_EVENT_WINDOW_MINIMIZED:
                 tproject_soft_pause();
                 do_step = 0;

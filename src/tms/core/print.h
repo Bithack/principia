@@ -25,8 +25,15 @@ static inline int _fatal_exit(void) {
 
 #elif defined(SDL_PLATFORM_IOS)
 
-	// todo
-	#error "NYI"
+	#define tms_infof(...) SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__)
+	#define tms_warnf(...) SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__)
+	#define tms_fatalf(...) (SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__), _fatal_exit())
+	#define tms_errorf(...) SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__)
+
+	#if DEBUG
+		#define tms_printf(...) SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__);
+		#define tms_debugf(...) SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__);
+	#endif
 
 #else
 
