@@ -266,6 +266,18 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiPlayMenu::open();
             break;
 
+        case DIALOG_SANDBOX_MENU:
+            UiSandboxMenu::open();
+            break;
+
+        case DIALOG_SAVE:
+            UiSave::open(false);
+            break;
+
+        case DIALOG_SAVE_COPY:
+            UiSave::open(true);
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -325,6 +337,8 @@ void ui::render() {
     UiTips::layout();
     UiQuickadd::layout();
     UiPlayMenu::layout();
+    UiSandboxMenu::layout();
+    UiSave::layout();
 
     imgui_driver.post_render();
 }

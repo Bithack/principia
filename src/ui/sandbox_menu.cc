@@ -42,6 +42,8 @@ namespace UiSandboxMenu {
 
             //Info panel
 
+#ifndef SDL_PLATFORM_ANDROID
+
             //Cursor:
             ImGui::Text("Cursor: (%.2f, %.2f)", sb_position.x, sb_position.y);
 
@@ -173,6 +175,8 @@ namespace UiSandboxMenu {
 
                 ImGui::Separator();
             }
+
+#endif
 
             if (is_sandbox && ImGui::MenuItem("Level properties"))
                 ui::open_dialog(DIALOG_LEVEL_PROPERTIES);
