@@ -29,7 +29,7 @@ namespace UiMessage {
                 typ = "Level description###info-popup";
                 break;
         }
-        ImGui::SetNextWindowSize(UI(300., 0.));
+        ImGui::SetNextWindowSize(UI(340., 0.));
         if (ImGui::BeginPopupModal(typ, NULL, MODAL_FLAGS)) {
             if (msg_type == MessageType::Message) {
                 ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));

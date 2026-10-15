@@ -6,7 +6,6 @@ import com.bithack.principia.shared.ConfirmDialog;
 import com.bithack.principia.shared.ConfirmDialog.OnOptionSelectedListener;
 import com.bithack.principia.shared.ExportDialog;
 import com.bithack.principia.shared.FactoryDialog;
-import com.bithack.principia.shared.InfoDialog;
 import com.bithack.principia.shared.ImportDialog;
 import com.bithack.principia.shared.JumperDialog;
 import com.bithack.principia.shared.Level;
@@ -441,17 +440,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
 
     private List<Dialog> open_dialogs = new ArrayList<Dialog>();
 
-    public static void showInfoDialog(final String description)
-    {
-        SDLActivity.mSingleton.runOnUiThread(new Runnable(){
-            public void run() {
-                try {SDLActivity.mSingleton.removeDialog(DIALOG_LEVEL_INFO);} catch(Exception e){};
-                InfoDialog.description = description;
-                SDLActivity.mSingleton.showDialog(DIALOG_LEVEL_INFO);
-            }
-        });
-    }
-
     public static void confirm(final String text, final String button1, final int action1, final long action1_data, final String button2, final int action2, final long action2_data, final String button3, final int action3, final long action3_data, final boolean dna_sandbox)
     {
         SDLActivity.mSingleton.runOnUiThread(new Runnable(){
@@ -489,7 +477,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
 
         case DIALOG_OPEN:               d = (new OpenDialog(false)).get_dialog(); break;
         case DIALOG_LEVEL_PROPERTIES:   d = LevelDialog.get_dialog(); break;
-        case DIALOG_LEVEL_INFO:         d = (new InfoDialog()).get_dialog(); break;
         case DIALOG_STICKY:             d = StickyDialog.get_dialog(); break;
         case DIALOG_ROBOT:              d = RobotDialog.get_dialog(); break;
         case DIALOG_PIXEL_COLOR:        d = ColorChooserDialog.get_dialog(); break;

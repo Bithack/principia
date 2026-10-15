@@ -278,16 +278,9 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiSave::open(true);
             break;
 
-        case DIALOG_LEVEL_INFO: {
-            jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
-
-            if (mid) {
-                jstring d = env->NewStringUTF((char *)data);
-                env->CallStaticVoidMethod(cls, mid, (jvalue*)d);
-            } else
-                tms_errorf("could not run showInfoDialog");
+        case DIALOG_LEVEL_INFO:
+            UiMessage::open((char *)data, MessageType::LevelInfo);
             break;
-        }
 
         default: {
             jmethodID mid = env->GetStaticMethodID(cls, "open_dialog", "(IZ)V");
@@ -339,6 +332,7 @@ void ui::render() {
     UiPlayMenu::layout();
     UiSandboxMenu::layout();
     UiSave::layout();
+    UiMessage::layout();
 
     imgui_driver.post_render();
 }
