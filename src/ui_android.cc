@@ -262,6 +262,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiQuickadd::open();
             break;
 
+        case DIALOG_PLAY_MENU:
+            UiPlayMenu::open();
+            break;
+
         case DIALOG_LEVEL_INFO: {
             jmethodID mid = env->GetStaticMethodID(cls, "showInfoDialog", "(Ljava/lang/String;)V");
 
@@ -320,6 +324,7 @@ void ui::render() {
     UiFrequency::layout();
     UiTips::layout();
     UiQuickadd::layout();
+    UiPlayMenu::layout();
 
     imgui_driver.post_render();
 }

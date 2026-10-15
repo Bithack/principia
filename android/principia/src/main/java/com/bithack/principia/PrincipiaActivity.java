@@ -13,7 +13,6 @@ import com.bithack.principia.shared.Level;
 import com.bithack.principia.shared.LevelDialog;
 import com.bithack.principia.shared.LoginDialog;
 import com.bithack.principia.shared.OpenDialog;
-import com.bithack.principia.shared.PlayDialog;
 import com.bithack.principia.shared.PromptDialog;
 import com.bithack.principia.shared.PromptSettingsDialog;
 import com.bithack.principia.shared.PublishDialog;
@@ -551,7 +550,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_EXPORT:             d = ExportDialog.get_dialog(); break;
         case DIALOG_MULTIEMITTER:       d = (new ImportDialog(true)).get_dialog(); break;
         case DIALOG_OPEN_OBJECT:        d = (new ImportDialog(false)).get_dialog(); break;
-        case DIALOG_PLAY_MENU:          d = (PlayDialog.create_dialog()); break;
         case DIALOG_COMMUNITY:          d = (new CommunityDialog()).get_dialog(); break;
         case DIALOG_PROMPT_SETTINGS:    d = PromptSettingsDialog.get_dialog(); break;
         case DIALOG_PROMPT:             d = (new PromptDialog()).get_dialog(); break;
