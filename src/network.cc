@@ -101,16 +101,20 @@ bool parse_featured_levels(char *buf, size_t buf_size) {
         menu_shared::fl[i].id = lb.r_uint32();
 
         uint32_t name_len = lb.r_uint32();
-        char *name = (char*)calloc(name_len+1, 1);
-        lb.r_buf(name, name_len);
-        strcpy(menu_shared::fl[i].name, name);
-        free(name);
+        if (name_len > 255) {
+            tms_errorf("parse_featured_levels: Level name too big!");
+            return false;
+        }
+        lb.r_buf(menu_shared::fl[i].name, name_len);
+        menu_shared::fl[i].name[name_len] = '\0';
 
         uint32_t creator_len = lb.r_uint32();
-        char *creator = (char*)calloc(creator_len+1, 1);
-        lb.r_buf(creator, creator_len);
-        strcpy(menu_shared::fl[i].creator, creator);
-        free(creator);
+        if (creator_len > 255) {
+            tms_errorf("parse_featured_levels: Author name too big!");
+            return false;
+        }
+        lb.r_buf(menu_shared::fl[i].creator, creator_len);
+        menu_shared::fl[i].creator[creator_len] = '\0';
 
         uint32_t thumb_len = lb.r_uint32();
 
