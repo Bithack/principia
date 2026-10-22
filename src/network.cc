@@ -122,6 +122,12 @@ bool parse_featured_levels(char *buf, size_t buf_size) {
             tms_errorf("Featured level received with no thumbnail!");
             continue;
         }
+
+        if (thumb_len > 1*1024*1024) { // 1 MB max to prevent too big allocation
+            tms_errorf("parse_featured_levels: Thumb length too big!");
+            return false;
+        }
+
         char *thumb = (char*)malloc(thumb_len);
         lb.r_buf(thumb, thumb_len);
 
@@ -152,15 +158,25 @@ bool parse_featured_levels(char *buf, size_t buf_size) {
 
     menu_shared::gs_entries.clear();
 
-    for (uint32_t x=0; x<num_getting_started_links; ++x) {
+    n = std::min(num_getting_started_links, 12u);
+    for (uint32_t x=0; x<n; ++x) {
         uint32_t title_len, link_len;
         char    *title,    *link;
 
         title_len = lb.r_uint32();
+        if (title_len > 255) {
+            tms_errorf("parse_featured_levels: Getting started title too big!");
+            return false;
+        }
         title = (char*)calloc(title_len+1, 1);
         lb.r_buf(title, title_len);
 
         link_len = lb.r_uint32();
+        if (link_len > 255) {
+            tms_errorf("parse_featured_levels: Getting started link too big!");
+            free(title);
+            return false;
+        }
         link = (char*)calloc(link_len+1, 1);
         lb.r_buf(link, link_len);
 
