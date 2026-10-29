@@ -1,5 +1,5 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <style name="PrincipiaTheme" parent="@style/Theme.AppCompat">
+    <style name="PrincipiaTheme" parent="@android:style/Theme.Material">
     <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
     <item name="android:windowNoTitle">true</item>
     <item name="android:windowFullscreen">true</item>
@@ -9,7 +9,7 @@
         <item name="android:padding">8dp</item>
     </style>
 
-    <style name="TinyDialog" parent="@style/Theme.AppCompat.Dialog">
+    <style name="TinyDialog" parent="@android:style/Theme.Material">
         <!-- Fill the screen -->
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">fill_parent</item>

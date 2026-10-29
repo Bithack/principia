@@ -2,6 +2,7 @@ package com.bithack.principia.shared;
 
 import java.util.List;
 
+import android.widget.Spinner;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,7 +13,7 @@ import android.widget.ArrayAdapter;
 
 import com.bithack.principia.R;
 
-public class MultiSpinner extends androidx.appcompat.widget.AppCompatSpinner implements OnMultiChoiceClickListener, OnCancelListener {
+public class MultiSpinner extends Spinner implements OnMultiChoiceClickListener, OnCancelListener {
 
     private List<String> items;
     public boolean[] selected;

@@ -20,6 +20,7 @@ package com.bithack.principia.shared;
 //Stealing this class directly from the android internal namespace because why
 //the hell didn't they ship with this public!?!?!?!
 
+import android.widget.ImageButton;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -30,7 +31,7 @@ import com.bithack.principia.R;
 /**
  * This class exists purely to cancel long click events.
  */
-public class NumberPickerButton extends androidx.appcompat.widget.AppCompatImageButton {
+public class NumberPickerButton extends ImageButton {
 
     private NumberPicker mNumberPicker;
 

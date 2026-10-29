@@ -49,10 +49,6 @@ android {
     }
 }
 
-dependencies {
-    implementation 'androidx.appcompat:appcompat:1.3.0'
-}
-
 // get precompiled deps
 def depsVersion = '2026-08-19'
 def depsZipName = "deps-${depsVersion}.zip"
