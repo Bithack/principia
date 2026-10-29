@@ -24,8 +24,6 @@ android {
             //abiFilters "arm64-v8a" // debugging on phone
             //abiFilters "x86_64"    // debugging on emulator
         }
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     externalNativeBuild {

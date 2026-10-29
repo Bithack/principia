@@ -97,130 +97,43 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
     public static final int LEVEL_MAIN_STATE  = 102;
 
     public static final int ACTION_OPEN = 1;
-    public static final int ACTION_RELOAD_GRAPHICS = 2;
-    public static final int ACTION_RELOAD_LEVEL = 3;
-    public static final int ACTION_SAVE = 4;
-    public static final int ACTION_NEW_LEVEL = 5;
     public static final int ACTION_STICKY = 6;
     public static final int ACTION_LOGIN =  7;
-    public static final int ACTION_SAVE_COPY = 8;
-    public static final int ACTION_CONSTRUCT_ENTITY = 9;
-    public static final int ACTION_OPEN_PLAY = 10;
     public static final int ACTION_PUBLISH = 11;
-    public static final int ACTION_PLAY_PKG = 12;
-    public static final int ACTION_WARP = 13;
-    public static final int ACTION_PUBLISH_PKG = 14;
-    public static final int ACTION_PING = 15;
     public static final int ACTION_UPGRADE_LEVEL = 16;
-    public static final int ACTION_DERIVE = 17;
     public static final int ACTION_SET_STICKY_TEXT = 18;
     public static final int ACTION_IMPORT_OBJECT = 19;
     public static final int ACTION_EXPORT_OBJECT = 20;
-    public static final int ACTION_MULTIEMITTER_SET = 21;
-    public static final int ACTION_PUZZLEPLAY = 22;
-    public static final int ACTION_EDIT = 23;
-    public static final int ACTION_AUTOFIT_LEVEL_BORDERS = 24;
-    public static final int ACTION_RESTART_LEVEL = 25;
-    public static final int ACTION_BACK = 26;
-    public static final int ACTION_RESELECT = 27;
     public static final int ACTION_HIGHLIGHT_SELECTED = 28;
-    public static final int ACTION_OPEN_AUTOSAVE = 31;
-    public static final int ACTION_REMOVE_AUTOSAVE = 32;
     public static final int ACTION_GOTO_MAINMENU = 33;
     public static final int ACTION_DELETE_LEVEL = 34;
     public static final int ACTION_DELETE_PARTIAL = 35;
     public static final int ACTION_SET_LEVEL_TYPE = 36;
-    public static final int ACTION_RELOAD_DISPLAY = 37;
     public static final int ACTION_ENTITY_MODIFIED = 38;
-    public static final int ACTION_SET_MODE = 39;
-    public static final int ACTION_MAIN_MENU_PKG = 40;
-    public static final int ACTION_WORLD_PAUSE = 41;
-    public static final int ACTION_CONSTRUCT_ITEM = 45;
-    public static final int ACTION_SUBMIT_SCORE = 46;
-    public static final int ACTION_MULTI_DELETE = 47;
-    public static final int ACTION_OPEN_STATE = 48;
     public static final int ACTION_AUTOSAVE = 49;
 
-    public static final int ACTION_MULTI_JOINT_STRENGTH     = 50;
-    public static final int ACTION_MULTI_PLASTIC_COLOR      = 51;
-    public static final int ACTION_MULTI_PLASTIC_DENSITY    = 52;
-    public static final int ACTION_MULTI_CHANGE_CONNECTION_RENDER_TYPE = 53;
-    public static final int ACTION_MULTI_UNLOCK_ALL         = 54;
-    public static final int ACTION_MULTI_DISCONNECT_ALL     = 55;
-
-    public static final int ACTION_SAVE_STATE = 65;
-    public static final int ACTION_SELF_DESTRUCT = 71;
-
-    public static final int DIALOG_SANDBOX_MENU     = 1;
-    public static final int DIALOG_QUICKADD         = 100;
     public static final int DIALOG_BEAM_COLOR       = 101;
-    public static final int DIALOG_SAVE             = 102;
     public static final int DIALOG_OPEN             = 103;
     public static final int DIALOG_NEW_LEVEL        = 104;
-    public static final int DIALOG_SET_FREQUENCY    = 105;
     public static final int DIALOG_PIXEL_COLOR      = 106;
-    public static final int DIALOG_CONFIRM_QUIT     = 107;
-    public static final int DIALOG_SET_COMMAND      = 108;
     public static final int DIALOG_STICKY           = 109;
-    public static final int DIALOG_FXEMITTER        = 110;
-    public static final int DIALOG_CAMTARGETER      = 111;
-    public static final int DIALOG_SET_FREQ_RANGE   = 112;
     public static final int DIALOG_OPEN_OBJECT      = 113;
     public static final int DIALOG_EXPORT           = 114;
-    public static final int DIALOG_SET_PKG_LEVEL    = 115;
     public static final int DIALOG_ROBOT            = 116;
     public static final int DIALOG_MULTIEMITTER     = 117;
-    public static final int DIALOG_PUZZLE_PLAY      = 118;
-    public static final int DIALOG_TIMER            = 119;
-    public static final int DIALOG_EVENTLISTENER    = 120;
     public static final int DIALOG_SETTINGS         = 121;
-    public static final int DIALOG_SAVE_COPY        = 122;
     public static final int DIALOG_LEVEL_PROPERTIES = 123;
-    public static final int DIALOG_LEVEL_INFO       = 124;
-    public static final int DIALOG_DIGITAL_DISPLAY  = 125;
-    public static final int DIALOG_PLAY_MENU        = 126;
-    public static final int DIALOG_OPEN_AUTOSAVE    = 127;
     public static final int DIALOG_COMMUNITY        = 128;
     public static final int DIALOG_PROMPT_SETTINGS  = 129;
     public static final int DIALOG_PROMPT           = 130;
-    public static final int DIALOG_SFX_EMITTER      = 131;
-    public static final int DIALOG_VARIABLE         = 132;
-    public static final int DIALOG_SYNTHESIZER      = 133;
-    public static final int DIALOG_SEQUENCER        = 134;
-    public static final int DIALOG_SHAPEEXTRUDER    = 135;
     public static final int DIALOG_JUMPER           = 136;
-
     public static final int DIALOG_PUBLISHED        = 138;
-
-    public static final int DIALOG_TOUCHFIELD       = 140;
     public static final int DIALOG_LUASCRIPT        = 141;
-    public static final int DIALOG_ITEM             = 142;
-
-    public static final int DIALOG_SANDBOX_MODE     = 143;
-
-    public static final int DIALOG_RUBBER           = 144;
-
-    public static final int DIALOG_SOUNDMAN         = 148;
-
     public static final int DIALOG_FACTORY          = 149;
-
-    public static final int DIALOG_SET_FACTION      = 150;
-    public static final int DIALOG_RESOURCE         = 151;
-    public static final int DIALOG_VENDOR           = 152;
-    public static final int DIALOG_ANIMAL           = 153;
-    public static final int DIALOG_POLYGON          = 154;
-    public static final int DIALOG_KEY_LISTENER     = 155;
     public static final int DIALOG_OPEN_STATE       = 156;
     public static final int DIALOG_POLYGON_COLOR    = 157;
-    public static final int DIALOG_MULTI_CONFIG     = 158;
-    public static final int DIALOG_EMITTER          = 159;
-    public static final int DIALOG_TREASURE_CHEST   = 160;
-    public static final int DIALOG_DECORATION       = 161;
-    public static final int DIALOG_SFX_EMITTER_2    = 162; // New SFX Emitter dialog (1.5.1+)
-
     public static final int DIALOG_PUBLISH          = 300;
     public static final int DIALOG_LOGIN            = 301;
-    public static final int DIALOG_SANDBOX_TIPS     = 302;
     public static final int DIALOG_REGISTER         = 303;
 
     public static final int CLOSE_ALL_DIALOGS            = 200;
@@ -259,34 +172,28 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         open_adapter = new ArrayAdapter<Level>(SDLActivity.mSingleton, android.R.layout.select_dialog_item);
     }
 
-
-    public static void message(final String s, final int longd)
-    {
-        Log.v("tes message", s);
+    public static void message(final String s, final int longd) {
         SDLActivity.mSingleton.runOnUiThread(new Runnable(){
             public void run() {
-                if (last_toast != null) {
+                if (last_toast != null)
                     last_toast.setText(s);
-                } else {
+                else
                     last_toast = Toast.makeText(SDLActivity.mSingleton, s, longd==1?Toast.LENGTH_LONG:Toast.LENGTH_SHORT);
-                }
+
                 last_toast.show();
             }
         });
     }
 
-    public static void open_url(final String url)
-    {
+    public static void open_url(final String url) {
         SDLActivity.mSingleton.runOnUiThread(new Runnable(){
             public void run() {
                 String community_host = PrincipiaBackend.getCommunityHost();
                 if (wv_cm != null) {
                     String curl_token = PrincipiaBackend.getCookies();
 
-                    if (curl_token != null) {
-                        // we got relevant cookies from curl!
+                    if (curl_token != null) // we got relevant cookies from curl!
                         wv_cm.setCookie("."+community_host, "_PRINCSECURITY="+curl_token);
-                    }
                 }
 
                 wv.stopLoading();
@@ -297,8 +204,7 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    public void init_webview()
-    {
+    public void init_webview() {
         wv_dialog = new Dialog(this, android.R.style.Theme_NoTitleBar_Fullscreen) {
             @Override
             protected void onCreate(Bundle saved_instance) {
@@ -353,16 +259,14 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             }
 
             @Override
-            public void onPageFinished(WebView view, String url)
-            {
+            public void onPageFinished(WebView view, String url) {
                 Log.v("Principia", "page finished: " + url);
                 pb.setVisibility(View.GONE);
                 pb_tv.setVisibility(View.GONE);
             }
 
             @Override
-            public void onPageStarted(WebView view, String url, Bitmap favicon)
-            {
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 Log.v("Principia", "page started: " + url);
                 pb.setVisibility(View.VISIBLE);
                 pb_tv.setVisibility(View.VISIBLE);
@@ -395,11 +299,10 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
                     KeyEvent event) {
                 if (event.getAction() == KeyEvent.ACTION_DOWN) {
                     if (keyCode == KeyEvent.KEYCODE_BACK) {
-                        if (wv.canGoBack()) {
+                        if (wv.canGoBack())
                             wv.goBack();
-                        } else {
+                        else
                             wv_dialog.dismiss();
-                        }
 
                         return true;
                     }
@@ -412,21 +315,16 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
 
     public static boolean is_cool = false;
 
-    public static void open_dialog(final int num)
-    {
+    public static void open_dialog(final int num) {
         open_dialog(num, false);
     }
 
-    public static void open_dialog(final int num, final boolean is_cool)
-    {
+    public static void open_dialog(final int num, final boolean is_cool) {
         PrincipiaActivity.is_cool = is_cool;
 
         SDLActivity.mSingleton.runOnUiThread(new Runnable(){
             public void run() {
                 if (num == DIALOG_PROMPT) {
-                    try {SDLActivity.mSingleton.removeDialog(num);} catch(Exception e){};
-                }
-                if (num == DIALOG_PLAY_MENU) {
                     try {SDLActivity.mSingleton.removeDialog(num);} catch(Exception e){};
                 }
                 try {SDLActivity.mSingleton.removeDialog(DIALOG_OPEN);} catch(Exception e){};
@@ -440,21 +338,19 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
 
     private List<Dialog> open_dialogs = new ArrayList<Dialog>();
 
-    public static void confirm(final String text, final String button1, final int action1, final long action1_data, final String button2, final int action2, final long action2_data, final String button3, final int action3, final long action3_data, final boolean dna_sandbox)
-    {
+    public static void confirm(final String text, final String button1, final int action1, final long action1_data, final String button2, final int action2, final long action2_data, final String button3, final int action3, final long action3_data, final boolean dna_sandbox) {
         SDLActivity.mSingleton.runOnUiThread(new Runnable(){
             public void run() {
                 new ConfirmDialog()
                 .set_listener(new OnOptionSelectedListener() {
                     @Override
                     public void onOptionSelected(int option) {
-                        if (option == ConfirmDialog.OPTION_YES) {
+                        if (option == ConfirmDialog.OPTION_YES)
                             PrincipiaBackend.addActionAsInt(action1, action1_data);
-                        } else if (option == ConfirmDialog.OPTION_NO) {
+                        else if (option == ConfirmDialog.OPTION_NO)
                             PrincipiaBackend.addActionAsInt(action2, action2_data);
-                        } else if (option == ConfirmDialog.OPTION_3) {
+                        else if (option == ConfirmDialog.OPTION_3)
                             PrincipiaBackend.addActionAsInt(action3, action3_data);
-                        }
                     }
                 })
                 .run(text, button1, button2, button3, dna_sandbox);
@@ -463,16 +359,14 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
     }
 
     @Override
-    protected Dialog onCreateDialog(int num)
-    {
+    protected Dialog onCreateDialog(int num) {
         Dialog d = null;
 
         switch (num) {
 
         case DIALOG_SETTINGS:
-            if (settings_dialog == null) {
+            if (settings_dialog == null)
                 d = (settings_dialog = new SettingsDialog()).get_dialog();
-            }
             break;
 
         case DIALOG_OPEN:               d = (new OpenDialog(false)).get_dialog(); break;
@@ -540,10 +434,8 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             }
         }
 
-
         return d;
     }
-
 
     public static ArrayAdapter<Level> open_adapter;
 
@@ -615,9 +507,8 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
     {
         switch (d) {
             case DIALOG_SETTINGS:
-                if (settings_dialog != null) {
+                if (settings_dialog != null)
                     settings_dialog.load();
-                }
                 break;
 
             case DIALOG_LEVEL_PROPERTIES:   LevelDialog.prepare(dialog); break;
@@ -686,22 +577,14 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         }
     }
 
-    private void handle_intent(Intent i)
-    {
-        Log.v("Principia", "intent new!");
-
-        if (i != null) {
-            if (i.getScheme() != null && i.getScheme().equals("principia")) {
-                PrincipiaBackend.setarg(i.getDataString());
-            }
-        }
+    private void handle_intent(Intent i) {
+        if (i != null && i.getScheme() != null && i.getScheme().equals("principia"))
+            PrincipiaBackend.setarg(i.getDataString());
     }
 
     @Override
-    public void onNewIntent(Intent i)
-    {
+    public void onNewIntent(Intent i) {
         super.onNewIntent(i);
-
         handle_intent(i);
     }
 }
