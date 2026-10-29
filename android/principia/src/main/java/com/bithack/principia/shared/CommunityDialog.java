@@ -18,8 +18,7 @@ public class CommunityDialog
                 .setMessage("Do you want to return to the community site or to the main menu?")
                 .setPositiveButton("Community", new OnClickListener(){
                     public void onClick(DialogInterface dialog, int which){
-                        PrincipiaActivity.wv.loadUrl(PrincipiaBackend.getCurrentCommunityUrl());
-                        PrincipiaActivity.wv_dialog.show();
+                        PrincipiaActivity.open_url(PrincipiaBackend.getCurrentCommunityUrl());
                     }}
                 )
                 .setNegativeButton("Main menu", new OnClickListener(){
