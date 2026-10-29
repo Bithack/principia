@@ -4,14 +4,14 @@ plugins {
 }
 
 android {
-    compileSdk 35
-    ndkVersion "27.2.12479018"
-    namespace 'com.bithack.principia'
+    compileSdk = 35
+    ndkVersion = "27.2.12479018"
+    namespace = 'com.bithack.principia'
 
     defaultConfig {
         applicationId "com.bithack.principia"
-        minSdk 21
-        targetSdk 35
+        minSdk = 21
+        targetSdk = 35
         versionCode 46
         versionName "2026.10.22"
 
