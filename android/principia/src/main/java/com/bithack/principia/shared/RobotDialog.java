@@ -377,24 +377,31 @@ public class RobotDialog {
         int faction = 0;
         int dir = 0;
 
-        switch (rg_default_state.getCheckedRadioButtonId()) {
-            case R.id.robot_state_idle: state = 0; break;
-            case R.id.robot_state_walk: state = 1; break;
-            case R.id.robot_state_dead: state = 3; break;
-        }
+        int radio = rg_default_state.getCheckedRadioButtonId();
+        if (radio == R.id.robot_state_idle)
+            state = 0;
+        else if (radio == R.id.robot_state_walk)
+            state = 1;
+        else if (radio == R.id.robot_state_dead)
+            state = 3;
 
-        switch (rg_faction.getCheckedRadioButtonId()) {
-            case R.id.robot_friendly: faction = 1; break;
-            case R.id.robot_enemy: faction = 0; break;
-            case R.id.robot_neutral: faction = 2; break;
-            case R.id.robot_chaotic: faction = 3; break;
-        }
+        radio = rg_faction.getCheckedRadioButtonId();
+        if (radio == R.id.robot_friendly)
+            faction = 1;
+        else if (radio == R.id.robot_enemy)
+            faction = 0;
+        else if (radio == R.id.robot_neutral)
+            faction = 2;
+        else if (radio == R.id.robot_chaotic)
+            faction = 3;
 
-        switch (rg_initial_dir.getCheckedRadioButtonId()) {
-            case R.id.robot_dir_left: dir = 1; break;
-            case R.id.robot_dir_random: dir = 0; break;
-            case R.id.robot_dir_right: dir = 2; break;
-        }
+        radio = rg_initial_dir.getCheckedRadioButtonId();
+        if (radio == R.id.robot_dir_left)
+            dir = 1;
+        else if (radio == R.id.robot_dir_random)
+            dir = 0;
+        else if (radio == R.id.robot_dir_right)
+            dir = 2;
 
         PrincipiaBackend.setRobotStuff(state, faction, cb_roam.isChecked(), dir);
 

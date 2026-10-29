@@ -5,12 +5,12 @@ buildscript {
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'de.undercouch:gradle-download-task:4.1.1'
+		classpath 'de.undercouch:gradle-download-task:5.7.0'
 	}
 }
 
 plugins {
-    id 'com.android.application' version '8.8.1' apply false
+    id 'com.android.application' version '9.3.3' apply false
 }
 
 tasks.register('clean', Delete) {

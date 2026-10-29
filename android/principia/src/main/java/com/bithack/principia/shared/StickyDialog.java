@@ -61,13 +61,16 @@ public class StickyDialog {
     public static void save()
     {
         int size = 1;
+        int bid = rg_textsize.getCheckedRadioButtonId();
+        if (bid == R.id.stickysize0)
+            size = 0;
+        else if (bid == R.id.stickysize1)
+            size = 1;
+        else if (bid == R.id.stickysize2)
+            size = 2;
+        else if (bid == R.id.stickysize3)
+            size = 3;
 
-        switch (rg_textsize.getCheckedRadioButtonId()) {
-            case R.id.stickysize0: size = 0; break;
-            case R.id.stickysize1: size = 1; break;
-            case R.id.stickysize2: size = 2; break;
-            case R.id.stickysize3: size = 3; break;
-        }
         PrincipiaBackend.setStickyStuff(et_text.getText().toString(), cb_horiz.isChecked(), cb_vert.isChecked(), size);
     }
 

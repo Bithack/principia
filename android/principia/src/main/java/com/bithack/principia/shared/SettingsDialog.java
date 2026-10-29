@@ -179,12 +179,15 @@ public class SettingsDialog implements OnSeekBarChangeListener, OnClickListener 
         float border_scroll_speed_base = (float)this.settings_border_scroll_speed.getProgress() / 10.f;
         float border_scroll_speed = border_scroll_speed_base + 0.5f;
 
-        switch (rg_ao.getCheckedRadioButtonId()) {
-            case R.id.rg_values_off: enable_ao = false; break;
-            case R.id.rg_values_low: ao_map_res = 128; break;
-            case R.id.rg_values_medium: ao_map_res = 256; break;
-            case R.id.rg_values_high: ao_map_res = 512; break;
-        }
+        int radio = rg_ao.getCheckedRadioButtonId();
+        if (radio == R.id.rg_values_off)
+            enable_ao = false;
+        else if (radio == R.id.rg_values_low)
+            ao_map_res = 128;
+        else if (radio == R.id.rg_values_medium)
+            ao_map_res = 256;
+        else if (radio == R.id.rg_values_high)
+            ao_map_res = 512;
 
         switch (sb_shadowresolution.getProgress()) {
             case 0: shadow_map_resx = 256; shadow_map_resy = 256; break;
@@ -197,11 +200,13 @@ public class SettingsDialog implements OnSeekBarChangeListener, OnClickListener 
 
         int display_fps = 0;
 
-        switch (rg_fps.getCheckedRadioButtonId()) {
-            case R.id.rg_fps_off:       display_fps = 0; break;
-            case R.id.rg_fps_on:        display_fps = 1; break;
-            case R.id.rg_fps_graph:     display_fps = 3; break;
-        }
+        radio = rg_fps.getCheckedRadioButtonId();
+        if (radio == R.id.rg_fps_off)
+            display_fps = 0;
+        else if (radio == R.id.rg_fps_on)
+            display_fps = 1;
+        else if (radio == R.id.rg_fps_graph)
+            display_fps = 3;
 
         shadow_quality = sb_shadowsoftness.getProgress();
 
