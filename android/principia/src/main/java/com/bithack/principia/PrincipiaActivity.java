@@ -12,7 +12,6 @@ import com.bithack.principia.shared.Level;
 import com.bithack.principia.shared.LevelDialog;
 import com.bithack.principia.shared.LoginDialog;
 import com.bithack.principia.shared.OpenDialog;
-import com.bithack.principia.shared.PromptDialog;
 import com.bithack.principia.shared.PromptSettingsDialog;
 import com.bithack.principia.shared.PublishDialog;
 import com.bithack.principia.shared.PublishedDialog;
@@ -95,7 +94,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
     public static final int DIALOG_LEVEL_PROPERTIES = 123;
     public static final int DIALOG_COMMUNITY        = 128;
     public static final int DIALOG_PROMPT_SETTINGS  = 129;
-    public static final int DIALOG_PROMPT           = 130;
     public static final int DIALOG_JUMPER           = 136;
     public static final int DIALOG_PUBLISHED        = 138;
     public static final int DIALOG_LUASCRIPT        = 141;
@@ -110,11 +108,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
     public static final int CLOSE_ABSOLUTELY_ALL_DIALOGS = 201;
     public static final int CLOSE_REGISTER_DIALOG        = 202;
     public static final int DISABLE_REGISTER_LOADER      = 203;
-
-    public static final int PROMPT_RESPONSE_NONE = 0;
-    public static final int PROMPT_RESPONSE_A    = 1;
-    public static final int PROMPT_RESPONSE_B    = 2;
-    public static final int PROMPT_RESPONSE_C    = 3;
 
     public WebViewManager webman;
 
@@ -169,9 +162,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         PrincipiaActivity.is_cool = is_cool;
 
         SDLActivity.mSingleton.runOnUiThread(() -> {
-            if (num == DIALOG_PROMPT) {
-                try {SDLActivity.mSingleton.removeDialog(num);} catch(Exception e){};
-            }
             try {SDLActivity.mSingleton.removeDialog(DIALOG_OPEN);} catch(Exception ignored){}
             try {SDLActivity.mSingleton.removeDialog(DIALOG_OPEN_STATE);} catch(Exception ignored){}
             try {SDLActivity.mSingleton.removeDialog(DIALOG_MULTIEMITTER);} catch(Exception ignored){}
@@ -218,7 +208,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_OPEN_OBJECT:        d = (new ImportDialog(false)).get_dialog(); break;
         case DIALOG_COMMUNITY:          d = (new CommunityDialog()).get_dialog(); break;
         case DIALOG_PROMPT_SETTINGS:    d = PromptSettingsDialog.get_dialog(); break;
-        case DIALOG_PROMPT:             d = (new PromptDialog()).get_dialog(); break;
         case DIALOG_JUMPER:             d = JumperDialog.get_dialog(); break;
         case DIALOG_LUASCRIPT:          d = ScriptDialog.get_dialog(); break;
         case DIALOG_FACTORY:            d = FactoryDialog.get_dialog(); break;

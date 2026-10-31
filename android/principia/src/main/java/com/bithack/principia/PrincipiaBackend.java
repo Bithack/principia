@@ -115,7 +115,6 @@ public class PrincipiaBackend
     public static native boolean isPaused();
     public static native void setPaused(boolean b);
 
-    public static native void setPromptResponse(int response);
     public static native void setPromptPropertyString(int property_index, String str);
     public static native String getPromptPropertyString(int property_index);
     public static native void refreshPrompt();

@@ -45,6 +45,9 @@ namespace UiPrompt {
 
             ImGui::Dummy(UI(0.0f, 25.0f));
 
+            if (_tms.touch_controls)
+                ImGui::PushStyleVarX(ImGuiStyleVar_FramePadding, UI(20.0f));
+
             for (int i = 0; i < 3; ++i) {
                 if (response_text[i].empty())
                     continue;
@@ -63,6 +66,9 @@ namespace UiPrompt {
 
                 ImGui::SameLine();
             }
+
+            if (_tms.touch_controls)
+                ImGui::PopStyleVar();
 
             ImGui::EndPopup();
         }

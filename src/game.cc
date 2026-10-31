@@ -2328,9 +2328,9 @@ bool _box_select_handler::ReportFixture(b2Fixture *f) {
 }
 
 int game::render() {
-    // only delay on android (XXX: why?)
 #ifdef SDL_PLATFORM_ANDROID
-    if (!P.focused)
+    // Delay on Android when a native dialog covers the screen
+    if (!P.focused && (!G->current_prompt || !G->current_prompt->get_base_prompt()))
         SDL_Delay(500);
 #endif
 

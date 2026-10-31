@@ -282,6 +282,12 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiMessage::open((char *)data, MessageType::LevelInfo);
             break;
 
+        case DIALOG_PROMPT:
+            if (G)
+                G->reset_touch(false);
+            UiPrompt::open();
+            break;
+
         default: {
             jmethodID mid = env->GetStaticMethodID(cls, "open_dialog", "(IZ)V");
             if (mid)
@@ -333,6 +339,7 @@ void ui::render() {
     UiSandboxMenu::layout();
     UiSave::layout();
     UiMessage::layout();
+    UiPrompt::layout();
 
     imgui_driver.post_render();
 }
@@ -763,14 +770,6 @@ JNI_FUNC(void, setSettings)(JNIEnv *env, jclass _jcls,
 }
 
 /** ++Prompt **/
-JNI_FUNC(void, setPromptResponse)(JNIEnv *env, jclass _jcls, jint new_response) {
-    if (G->current_prompt) {
-        base_prompt *bp = G->current_prompt->get_base_prompt();
-        if (bp)
-            bp->set_response((uint8_t)new_response);
-    }
-}
-
 JNI_FUNC(void, setPromptPropertyString)(JNIEnv *env, jclass _jcls, jint property_index, jstring value) {
     if (G->current_prompt) {
         const char *tmp = env->GetStringUTFChars(value, 0);
