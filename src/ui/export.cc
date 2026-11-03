@@ -23,8 +23,12 @@ namespace UiExport {
 
         ImGui_CenterNextWindow();
         if (ImGui::BeginPopupModal("Export object", REF_TRUE, MODAL_FLAGS)) {
+            ImGui_CloseOnEsc();
 
             ImGui::Text("Enter a name for this object:");
+
+            if (ImGui::IsWindowAppearing())
+                ImGui::SetKeyboardFocusHere();
 
             bool activate = ImGui::InputText(
                 "##obj_name",

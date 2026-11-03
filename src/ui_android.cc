@@ -288,6 +288,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiPrompt::open();
             break;
 
+        case DIALOG_EXPORT:
+            UiExport::open();
+            break;
+
         default: {
             jmethodID mid = env->GetStaticMethodID(cls, "open_dialog", "(IZ)V");
             if (mid)
@@ -340,6 +344,7 @@ void ui::render() {
     UiSave::layout();
     UiMessage::layout();
     UiPrompt::layout();
+    UiExport::layout();
 
     imgui_driver.post_render();
 }
@@ -1107,17 +1112,6 @@ JNI_FUNC(jfloat, getEntityAlpha)(JNIEnv *env, jclass _jcls, jfloat alpha) {
 JNI_FUNC(void, setEntityAlpha)(JNIEnv *env, jclass _jcls, jfloat alpha) {
     if (G->selection.e && G->selection.e->g_id == O_PIXEL)
         G->selection.e->properties[4].v.i8 = (uint8_t)(alpha * 255);
-}
-
-/** ++Export **/
-JNI_FUNC(void, saveObject)(JNIEnv *env, jclass _jcls, jstring name) {
-    const char *tmp = env->GetStringUTFChars(name, 0);
-    char *_name = strdup(tmp);
-
-    P.add_action(ACTION_EXPORT_OBJECT, _name);
-    ui::message("Saved object!");
-
-    env->ReleaseStringUTFChars(name, tmp);
 }
 
 /** ++Robot **/

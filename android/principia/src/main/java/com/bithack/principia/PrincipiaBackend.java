@@ -102,8 +102,6 @@ public class PrincipiaBackend
     public static native float getEntityAlpha();
     public static native void setEntityAlpha(float alpha);
 
-    public static native int saveObject(String name);
-
     public static native int getRobotState();
     public static native boolean getRobotRoam();
     public static native int getRobotDir();
