@@ -640,8 +640,8 @@ JNI_FUNC(void, login)(JNIEnv *env, jclass _jcls, jstring username, jstring passw
     const char *tmp_password = env->GetStringUTFChars(password, 0);
     struct login_data *data = (struct login_data*)malloc(sizeof(struct login_data));
 
-    strcpy(data->username, tmp_username);
-    strcpy(data->password, tmp_password);
+    snprintf(data->username, 256, "%s", tmp_username);
+    snprintf(data->password, 256, "%s", tmp_password);
 
     env->ReleaseStringUTFChars(username, tmp_username);
     env->ReleaseStringUTFChars(password, tmp_password);
@@ -655,9 +655,9 @@ JNI_FUNC(void, register)(JNIEnv *env, jclass _jcls, jstring username, jstring em
     const char *tmp_password = env->GetStringUTFChars(password, 0);
     struct register_data *data = (struct register_data*)malloc(sizeof(struct register_data));
 
-    strcpy(data->username, tmp_username);
-    strcpy(data->email,    tmp_email);
-    strcpy(data->password, tmp_password);
+    snprintf(data->username, 256, "%s", tmp_username);
+    snprintf(data->email,    256, "%s", tmp_email);
+    snprintf(data->password, 256, "%s", tmp_password);
 
     env->ReleaseStringUTFChars(username, tmp_username);
     env->ReleaseStringUTFChars(email, tmp_email);
