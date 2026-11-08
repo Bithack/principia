@@ -26,6 +26,12 @@ if(SCREENSHOT_BUILD)
 	list(APPEND DISABLED_FEATURES AUDIO DIALOG HIDAPI JOYSTICK OPENGLES WAYLAND)
 endif()
 
+if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
+    # Doing static linking with a library that contains dlopen notes causes a segfault
+    # in the ELF loader on NetBSD, unsure if this may happen on other BSDs.
+    list(APPEND DISABLED_FEATURES DLOPEN_NOTES)
+endif()
+
 foreach(feature ${DISABLED_FEATURES})
 	set(SDL_${feature} OFF CACHE BOOL "" FORCE)
 endforeach()
