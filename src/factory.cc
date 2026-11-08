@@ -791,7 +791,7 @@ void game::render_factory() {
     /* render the current amounts of everythign */
 
     char num[64];
-    sprintf(num, "%.1f", fa->get_oil());
+    snprintf(num, sizeof(num), "%.1f", fa->get_oil());
     int yy = 0;
     int o = 0;
 
@@ -828,11 +828,8 @@ void game::render_factory() {
 
         uint64_t player_resources = adventure::player ? adventure::player->get_num_resources(i) : 0;
 
-        if (player_resources > 0) {
-            sprintf(num, "%u%" PRIu64, fa->get_num_resources(i), player_resources);
-        } else {
-            sprintf(num, "%u", fa->get_num_resources(i));
-        }
+        // Add together the resources stored in the factory as well as what the player is carrying
+        snprintf(num, sizeof(num), "%" PRIu64, (uint64_t)fa->get_num_resources(i) + player_resources);
 
         this->add_text(num, font::small, x, y, TV_WHITE, false, ALIGN_LEFT, ALIGN_TOP);
     }
