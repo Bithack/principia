@@ -11,6 +11,7 @@
 #include "robot_parts.hh"
 #include "settings.hh"
 #include "world.hh"
+#include <iterator>
 
 creature::creature() : cur_activator(0), cur_riding(0), activator_joint(0), last_attacker_id(0), damage_multiplier(1.f) {
     this->last_damage_tick = 0;

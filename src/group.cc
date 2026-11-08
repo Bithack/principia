@@ -4,6 +4,7 @@
 #include "material.hh"
 #include "model.hh"
 #include "object_factory.hh"
+#include <iterator>
 #include <vector>
 
 struct wooden_vert {
