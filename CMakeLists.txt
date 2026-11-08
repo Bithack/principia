@@ -299,8 +299,8 @@ if(APPLE)
 
 	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data" DESTINATION "${SHAREDIR}")
 
-	install(FILES "packaging/principia.icns" DESTINATION "${SHAREDIR}")
-	install(FILES "packaging/Info.plist" DESTINATION "${BUNDLE_PATH}/Contents")
+	install(FILES "packaging/macos/principia.icns" DESTINATION "${SHAREDIR}")
+	install(FILES "packaging/macos/Info.plist" DESTINATION "${BUNDLE_PATH}/Contents")
 
 elseif(EMSCRIPTEN)
 
@@ -336,6 +336,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 if(APPLE)
+	set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-macos")
 	set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)
 	set(CPACK_GENERATOR ZIP)
 	include(CPack)
