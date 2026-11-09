@@ -9314,7 +9314,7 @@ bool game::check_placement_allowed(entity *e) {
             c_sh = *((b2CircleShape*)shh);
             c_sh.m_radius -= fminf(OVERLAP_THRESHOLD, c_sh.m_radius/2.f);
             oq.test_sh = &c_sh;
-        } else if ((shh->m_type = b2Shape::e_polygon)) {
+        } else if (shh->m_type == b2Shape::e_polygon) {
             p_sh = *((b2PolygonShape*)shh);
 
             for (int x=0; x<p_sh.m_count; x++) {
