@@ -1,16 +1,16 @@
 #!/bin/bash
 
-curl_ver=8.21.0
-curl_hash=ad6f2f94934b38e31e48272833c99b891d045b4565fe942a53fbd27bd3910e16
+curl_ver=8.23.0
+curl_hash=95b22eb32bf6d1fa6e3e9463bdb61cece3efc56d86576a9b3cbd428246a6d854
 
 mbedtls_ver=3.6.7
 mbedtls_hash=a7e8bcbec0e6f761b4af24f25677626b35f762f68eef79c08677a363212d11f6
 
-freetype_ver=2.14.3
-freetype_hash=e61b31ab26358b946e767ed7eb7f4bb2e507da1cfefeb7a8861ace7fd5c899a1
+freetype_ver=2.15.0
+freetype_hash=9186627467a616d9a9e3e574748ac0c45fa77398e6364edef3041a8ba8d92f64
 
-libjpeg_ver=3.2.0
-libjpeg_hash=6f30092cef9fb839779646608f4ee14ae3cbac989c47fa05e841b0841f09878e
+libjpeg_ver=3.2.1
+libjpeg_hash=c27ad72a68da151177929aa969ae773a2da5ac2af9ce946079314fdac8cece7f
 
-libpng_ver=1.6.58
-libpng_hash=8c9b05b675ca7301a458df2c2e46f26e1d41ff36b8863f8c33530bc58c2e6225
+libpng_ver=1.6.59
+libpng_hash=86a3e4b501f7f50e392c4e456ea158893e9a595b1c63eb88c7bb9f6cf8772dad

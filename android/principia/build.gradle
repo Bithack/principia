@@ -5,7 +5,7 @@ plugins {
 
 android {
     compileSdk = 35
-    ndkVersion = "27.2.12479018"
+    ndkVersion = "30.0.16248370"
     namespace = 'com.bithack.principia'
 
     defaultConfig {
@@ -52,10 +52,10 @@ android {
 }
 
 // get precompiled deps
-def depsVersion = '2026-08-19'
+def depsVersion = '2026-11-12'
 def depsZipName = "deps-${depsVersion}.zip"
 def depsUrl = "https://dl.principia-web.se/deps/android/${depsZipName}"
-def depsSha256 = '1349d086ef09197babb9a60ca23439c2d9be235512c88179f33be4daab9391c6'
+def depsSha256 = '38bf591ad1e4d7cf29004296d62cf2cd3f0adfb46a4076f5baceb4cbf2f61a0a'
 
 def depsZip = new File(buildDir, depsZipName)
 def depsDir = new File(buildDir.parent, '../deps')
