@@ -40,6 +40,10 @@ static void unlock_curl(const char *invoker="N/A") {
     tms_infof("%s unlocked curl!", invoker);
 }
 
+#ifdef SDL_PLATFORM_ANDROID
+extern const char *mbedtls_platform_dev_random;
+#endif
+
 #ifdef SDL_PLATFORM_SWITCH
 #include <switch.h>
 #endif
@@ -52,6 +56,10 @@ void network::init() {
     P.curl_mutex = SDL_CreateMutex();
     if (!P.curl_mutex)
         tms_fatalf("Unable to create curl mutex.");
+
+#ifdef SDL_PLATFORM_ANDROID
+    mbedtls_platform_dev_random = "/dev/urandom";
+#endif
 
     tms_infof("Initializing curl (v" LIBCURL_VERSION ")...");
     CURLcode r = curl_global_init(CURL_GLOBAL_ALL);
