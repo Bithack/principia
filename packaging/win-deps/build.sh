@@ -166,7 +166,7 @@ build_libjpeg() {
 }
 
 build_libpng() {
-	fetch_tarball "https://downloads.sourceforge.net/sourceforge/libpng/libpng-$1.tar.xz" $2
+	fetch_tarball "https://downloads.sourceforge.net/sourceforge/libpng/libpng-$1.tar.gz" $2
 
 	zlibpath=$(depend_get_path zlib)
 	cmake . "${CMAKE_FLAGS[@]}" \
