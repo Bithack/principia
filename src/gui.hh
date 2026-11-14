@@ -167,10 +167,24 @@ class gui_spritesheet {
 
     static float text_factor;
 
+    /// Factor applied to the pixel size of sprites for text if it is baked
+    /// at a reduced resolution than the pixel density of the screen.
+    static float baked_text_factor;
+
+    /// Pixel density the GUI fonts are currently rendered at.
+    /// May be reduced from the actual screen pixel density when glyph
+    /// bitmaps can not be made to fit in the text atlas at full
+    /// resolution
+    static int text_xppcm;
+
     static bool initialized;
     static void init_atlas();
     static void init_loading_font();
     static void init_fonts();
+
+    /// Create a temporary font to a private atlas that is not shared with any other font,
+    /// growing to fit the font if necessary.
+    static p_font *make_scratch_font(int xppcm, struct tms_atlas **out_atlas);
     static void upload_text_atlas();
     static void init();
     static void deinit();

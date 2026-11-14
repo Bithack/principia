@@ -41,6 +41,63 @@
 #define SIZE_PER_OBJECT_ITEM 64
 #define SIZE_PER_MENU_ITEM   100
 
+/// Upper limit for the label atlas size. Revise this to see if we need to potentially go higher
+#define LABEL_ATLAS_MAX_SIZE 4096
+
+/// Simple simulation of the packing that tms_atlas_add_bitmap() does, to check
+/// whether a set of labels will fit into an atlas
+static bool label_bitmaps_fit(int atlas_size, const std::vector<std::pair<int,int> > &bitmaps) {
+    int current_x = 0, current_y = 0, current_height = 0;
+
+    for (size_t i=0; i<bitmaps.size(); ++i) {
+        int width = bitmaps[i].first;
+        int height = bitmaps[i].second;
+
+        if (width < 1 || height < 1)
+            continue;
+
+        if (width > atlas_size || height > atlas_size)
+            return false;
+
+        int test_x = current_x;
+        int test_y = current_y;
+
+        if (atlas_size - current_x < width + 1) {
+            /* jump to the next "row" */
+            test_y = current_y + current_height;
+            current_height = 1;
+            test_x = 0;
+        }
+
+        if (atlas_size - test_y < height + 1)
+            return false;
+
+        if (current_y + height + 1 > current_y + current_height)
+            current_height = height + 1;
+
+        current_x = test_x + width + 1;
+        current_y = test_y;
+    }
+
+    return true;
+}
+
+/// Find the smallest POT atlas size that fits the given set of bitmap sizes.
+/// Returns 0 if they do not fit in the biggest allowed
+static int find_label_atlas_size(const std::vector<std::pair<int,int> > &bitmaps) {
+    GLint max_tex = LABEL_ATLAS_MAX_SIZE;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex);
+    int max_allowed = std::min((int)LABEL_ATLAS_MAX_SIZE, (int)max_tex);
+    if (max_allowed < 1024) max_allowed = 1024;
+
+    for (int size = 1024; size <= max_allowed; size *= 2) {
+        if (label_bitmaps_fit(size, bitmaps))
+            return size;
+    }
+
+    return 0;
+}
+
 static void forward_slider_on_change(struct tms_wdg *w, float values[2]) {
     entity *e = G->selection.e;
     int slider_id = VOID_TO_INT(w->data3);
@@ -136,8 +193,8 @@ void game::add_menu_item(int cat, entity *e) {
     gid_to_menu_pos[e->g_id] = o.pos;
 
     o.name = this->text_small->add_to_atlas(this->texts, e->get_name());
-    o.name->width *= gui_spritesheet::text_factor;
-    o.name->height *= gui_spritesheet::text_factor;
+    o.name->width *= gui_spritesheet::baked_text_factor;
+    o.name->height *= gui_spritesheet::baked_text_factor;
 
     menu_objects.push_back(o);
     menu_objects_cat[cat].push_back(o.pos);
@@ -1350,7 +1407,108 @@ void game::init_gui() {
 
     this->text_small = new p_text(font::small);
 
-    this->texts = tms_atlas_alloc(1024, 1024, 4);
+    // Create menu entries beforehand so we can measure the needed sizes of the labels
+    int num_objects = 0;
+    std::vector<std::pair<int,entity*> > menu_entities;
+    for (int y = 0; y < of::num_categories; y++) {
+        for (int x = 0; x < of::get_num_objects(y); x++) {
+            int gid = of::get_gid(y, x);
+            entity *e = of::create(gid);
+
+            if (!e) {
+                tms_errorf("Error creating %d", gid);
+                continue;
+            }
+
+            menu_entities.push_back(std::make_pair(y, e));
+            num_objects ++;
+        }
+    }
+
+    // Measure the pixel dims of every bitmap that is baked into the label
+    // atlas. Measurement only calculates the dimensions and doesn't rasterise
+    // until a good size is found.
+    std::vector<std::pair<int,int>> bake_bitmaps;
+    auto measure_bitmaps = [&](p_text *txt) {
+        bake_bitmaps.clear();
+        auto measure_text = [&](const char *str) {
+            txt->set_text(str);
+            bake_bitmaps.push_back(std::make_pair(
+                txt->get_width(),
+                txt->get_max_height()));
+        };
+
+        for (int n = 0; n < of::num_categories; n++) {
+            measure_text(of::get_category_name(n));
+            measure_text(of::get_category_hint(n));
+        }
+        measure_text("(BETA)");
+        measure_text("(DEV)");
+        measure_text("Categories:");
+        measure_text("Faction:");
+        measure_text("Recent");
+
+        for (size_t i = 0; i < menu_entities.size(); ++i)
+            measure_text(menu_entities[i].second->get_name());
+
+        for (int x = 0; x < NUM_ITEMS; ++x)
+            measure_text(item_options[x].name);
+    };
+
+    gui_spritesheet::baked_text_factor = gui_spritesheet::text_factor;
+
+    int atlas_size = 0;
+    int baked_xppcm = gui_spritesheet::text_xppcm;
+    bool baked_degraded = false;
+    struct tms_atlas *scratch_atlas = 0;
+    p_font *bake_font = 0;
+    p_text *bake_text = 0;
+    p_text *old_text_small = this->text_small;
+
+    while (true) {
+        measure_bitmaps(this->text_small);
+        atlas_size = find_label_atlas_size(bake_bitmaps);
+
+        if (atlas_size != 0) {
+            // We fit the atlas!
+
+            if (baked_degraded) // But it's degraded... note down the factor
+                gui_spritesheet::baked_text_factor = (float)_tms.xppcm / (float)baked_xppcm;
+
+            break;
+        }
+
+        // If we exceed the maximum atlas size, degrade the resolution of the atlas and retry
+        if (!baked_degraded) {
+            tms_warnf("Menu labels do not fit in a %dx%d label atlas at full font resolution", LABEL_ATLAS_MAX_SIZE, LABEL_ATLAS_MAX_SIZE);
+            baked_degraded = true;
+        }
+
+        if (baked_xppcm <= 40)
+            tms_fatalf("Unable to fit the menu labels in the label atlas!"); // Does this ever happen?
+
+        baked_xppcm = (int)((float)baked_xppcm * 0.75f);
+        if (baked_xppcm < 40)
+            baked_xppcm = 40;
+
+        tms_infof("Baking menu labels at %d ppcm", baked_xppcm);
+
+        delete bake_font;
+        if (scratch_atlas)
+            tms_atlas_free(scratch_atlas);
+
+        // Make a scratch font for the labels as we need a new one for the downscaled size
+        bake_font = gui_spritesheet::make_scratch_font(baked_xppcm, &scratch_atlas);
+        delete bake_text;
+        bake_text = new p_text(bake_font);
+        this->text_small = bake_text;
+    }
+
+    if (atlas_size > 1024) {
+        tms_infof("Sizing baked menu-label atlas to %dx%d", atlas_size, atlas_size);
+    }
+
+    this->texts = tms_atlas_alloc(atlas_size, atlas_size, 4);
     this->texts->padding_x = 1;
     this->texts->padding_y = 1;
     this->texts->texture.filter = GL_LINEAR;
@@ -1401,23 +1559,24 @@ void game::init_gui() {
     catsprites[n] = this->text_small->add_to_atlas(this->texts, "Recent");
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::init_gui 3", ierr);
-    int num_objects = 0;
-    for (int y=0; y<of::num_categories; y++) {
-        for (int x=0; x<of::get_num_objects(y); x++) {
-            int gid = of::get_gid(y, x);
-            entity *e = of::create(gid);
+    for (size_t i=0; i<menu_entities.size(); ++i) {
+        int y = menu_entities[i].first;
+        entity *e = menu_entities[i].second;
 
-            //tms_infof("%d:'%s'", gid, e->get_name());
-            if (!e) {
-                tms_errorf("Error creating %d", gid);
-                continue;
-            }
-            this->add_menu_item(y, e);
-            num_objects ++;
-        }
+        this->add_menu_item(y, e);
     }
 
     item::_init();
+
+    // If the labels were baked with a lower res font, switch to the old font
+    // and delete the scratch font
+    if (baked_degraded) {
+        this->text_small = old_text_small;
+
+        delete bake_text;
+        delete bake_font;
+        tms_atlas_free(scratch_atlas);
+    }
 
     struct tms_texture *tex = tms_texture_alloc();
 

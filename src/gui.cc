@@ -1,11 +1,16 @@
 #include "gui.hh"
 #include "edevice.hh"
 #include "font.hh"
-#include "settings.hh"
 #include "misc.hh"
+#include "settings.hh"
+#include <glad/gl.h>
 #include <tms/cpp.hh>
 
-#define FONT_CACHE_VERSION 34
+#define FONT_CACHE_VERSION 35
+
+#define ATLAS_TEXT_WIDTH 2048
+#define ATLAS_TEXT_HEIGHT 2048
+#define ATLAS_TEXT_NUM_CHANS 1
 
 static const char *FONT_PATH = "data/fonts/Roboto-Bold.ttf";
 //static const char *FONT_PATH = "data/fonts/DejaVuSans.ttf";
@@ -41,10 +46,14 @@ p_text *gui_spritesheet::t_in[NUM_SOCKET_SPRITES];
 p_text *gui_spritesheet::tx_out[NUM_SOCKET_SPRITES];
 p_text *gui_spritesheet::tx_in[NUM_SOCKET_SPRITES];
 
-static int text_xppcm = 0;
 float gui_spritesheet::text_factor = 1.f;
+float gui_spritesheet::baked_text_factor = 1.f;
+int gui_spritesheet::text_xppcm = 0;
 
 FT_Library gui_spritesheet::ft;
+
+/// Max text atlas size allowed
+static int text_atlas_max_dim = ATLAS_TEXT_WIDTH;
 
 struct sprite_load_data gui_spritesheet::sprites[NUM_SPRITES] = {
     { "data/textures/ui/slider_2.png", &atlas },
@@ -166,10 +175,6 @@ enum {
     NUM_ATLASES
 };
 
-#define ATLAS_TEXT_WIDTH 2048
-#define ATLAS_TEXT_HEIGHT 2048
-#define ATLAS_TEXT_NUM_CHANS 1
-
 static struct atlas_layout cache_atlases[NUM_ATLASES] = {
     {
         &gui_spritesheet::atlas,
@@ -220,8 +225,10 @@ static p_font *read_p_font(lvlbuf *lb) {
     p_font *font = new p_font(FONT_PATH, orig_height);
 
     /* In case we've changed the amount of chars that are stored in the font. */
-    if (num_chars != 128-CHAR_OFFSET)
+    if (num_chars != 128-CHAR_OFFSET) {
+        delete font;
         return 0;
+    }
 
     for (int x=CHAR_OFFSET; x<CHAR_OFFSET+num_chars; ++x) {
         struct glyph *g = font->get_glyph(x);
@@ -272,21 +279,97 @@ static p_font *read_p_font(lvlbuf *lb) {
     return font;
 }
 
+/// Realloc text atlas buffer at the given size and clear.
+static void resize_text_atlas(uint32_t size) {
+    struct atlas_layout *al = &cache_atlases[AL_TEXT];
+    struct tms_atlas *a = gui_spritesheet::atlas_text;
+
+    tms_texture_alloc_buffer(&a->texture, size, size, al->num_channels);
+    tms_texture_clear_buffer(&a->texture, 0);
+
+    al->width = size;
+    al->height = size;
+}
+
+/// Reset the packing position of the text atlas and reserve the small
+/// white piece to render solid backgrounds
+static void reset_text_atlas() {
+    struct tms_atlas *a = gui_spritesheet::atlas_text;
+    int w = a->texture.width;
+    int h = a->texture.height;
+    int n = a->texture.num_channels;
+
+#define BG_RESERVE 4
+    uint8_t *tx = a->texture.data;
+    a->current_x = BG_RESERVE;
+    a->current_y = 0;
+    a->current_height = BG_RESERVE;
+    for (int y=0; y<BG_RESERVE; y++)
+        for (int x=0; x<BG_RESERVE; x++)
+            for (int z=0; z<n; z++)
+                tx[n*(w*(h-1-y)) + n*x + z] = 255;
+#undef BG_RESERVE
+}
+
+/// Returns true if all glyph bitmaps of the font could be packed into the atlas
+/// the font was rendered into.
+static bool p_font_fits(p_font *f) {
+    if (!f)
+        return true;
+
+    return !f->atlas_overflow;
+}
+
+/// Grow the text atlas to the desired resolution or degrade the resolution if it's at max already
+static bool grow_or_degrade_text_atlas() {
+    struct atlas_layout *al = &cache_atlases[AL_TEXT];
+
+    if (al->width < (uint32_t)text_atlas_max_dim) {
+        // Grow atlas size
+        int next = al->width * 2;
+        tms_infof("Enlarging text atlas to %dx%d", next, next);
+        resize_text_atlas(next);
+        reset_text_atlas();
+        return true;
+    }
+
+    if (gui_spritesheet::text_xppcm > 40) {
+        // We have grown too big, need to reduce the resolution of the glyph
+        int reduced = (int)((float)gui_spritesheet::text_xppcm * 0.75f);
+        if (reduced < 40)
+            reduced = 40;
+
+        tms_infof("Text atlas has reached its maximum size, reducing glyph resolution from %d to %d ppcm",
+            gui_spritesheet::text_xppcm, reduced);
+
+        gui_spritesheet::text_xppcm = reduced;
+        gui_spritesheet::text_factor = (float)_tms.xppcm / (float)gui_spritesheet::text_xppcm;
+
+        resize_text_atlas(al->width); // also clears the atlas
+        reset_text_atlas();
+        return true;
+    }
+
+    return false;
+}
+
 static bool read_font_cache(lvlbuf *lb) {
     uint8_t version = lb->r_uint8();
-    float read_text_factor = lb->r_float();
 
     if (version != FONT_CACHE_VERSION) {
         tms_errorf("Mismatching version code in model cache.");
         return false;
     }
 
-    float diff = std::abs(read_text_factor - gui_spritesheet::text_factor);
+    float read_text_density = lb->r_float();
 
-    if (diff > 0.001f) {
+    if (std::abs(read_text_density - _tms.xppcm) > 0.001f) {
         tms_errorf("Mismatching text factor. (i.e. dpi has changed)");
         return false;
     }
+
+    int read_text_xppcm = lb->r_int32();
+    float read_text_factor = lb->r_float();
 
     struct atlas_layout *al = &cache_atlases[AL_TEXT];
     struct tms_atlas *a = *al->atlas;
@@ -295,11 +378,25 @@ static bool read_font_cache(lvlbuf *lb) {
     uint32_t height = lb->r_uint32();
     uint8_t num_channels = lb->r_uint8();
 
-    if (width != al->width || height != al->height || num_channels != al->num_channels) {
-        tms_errorf("Mismatching atlas in texture cache");
-        tms_infof("%d != %d?", width, al->width);
-        tms_infof("%d != %d?", height, al->height);
-        tms_infof("%d != %d?", num_channels, al->num_channels);
+    if (num_channels != al->num_channels || width != height || width < ATLAS_TEXT_WIDTH || width > 8192) {
+        tms_errorf("Malformed text atlas information in font cache");
+        return false;
+    }
+
+    if (width != al->width) {
+        // The atlas was enlarged by a previous run to fit the glyphs
+        tms_infof("Using %dx%d text atlas from font cache", width, height);
+        resize_text_atlas(width);
+    }
+
+    a->current_x = lb->r_int32();
+    a->current_y = lb->r_int32();
+    a->current_height = lb->r_int32();
+
+    if (a->current_x < 0 || a->current_x > (int)width
+            || a->current_y < 0 || a->current_y > (int)height
+            || a->current_height < 0) {
+        tms_errorf("Malformed text atlas packer state in font cache");
         return false;
     }
 
@@ -361,6 +458,9 @@ static bool read_font_cache(lvlbuf *lb) {
 
         font::xlarge = f;
     }
+
+    gui_spritesheet::text_xppcm = read_text_xppcm;
+    gui_spritesheet::text_factor = read_text_factor;
 
     return true;
 }
@@ -556,8 +656,11 @@ static bool write_font_cache(lvlbuf *lb) {
     lb->w_s_uint8(FONT_CACHE_VERSION);
     /* equal required */
 
-    lb->w_s_float(gui_spritesheet::text_factor);
+    lb->w_s_float(_tms.xppcm);
     /* rough equal required */
+
+    lb->w_s_int32(gui_spritesheet::text_xppcm);
+    lb->w_s_float(gui_spritesheet::text_factor);
 
     struct atlas_layout *al = &cache_atlases[AL_TEXT];
     struct tms_atlas *a = *al->atlas;
@@ -568,6 +671,10 @@ static bool write_font_cache(lvlbuf *lb) {
     /* equal required */
     lb->w_s_uint8(al->num_channels);
     /* equal required */
+
+    lb->w_s_int32(a->current_x);
+    lb->w_s_int32(a->current_y);
+    lb->w_s_int32(a->current_height);
 
     uint32_t buf_sz = al->width * al->height * al->num_channels;
     lb->w_s_buf((char*)a->texture.data, buf_sz);
@@ -620,13 +727,23 @@ void gui_spritesheet::init_atlas() {
         *(al->atlas) = a;
     }
 
-    text_xppcm = _tms.xppcm;
-    if (text_xppcm > 120) // XXX: Need to fix this! Glyphs become too big to fit in the atlas.
-        text_xppcm = 120;
+    gui_spritesheet::text_xppcm = (int)round(_tms.xppcm);
+    if (gui_spritesheet::text_xppcm < 1)
+        gui_spritesheet::text_xppcm = 1;
 
-    text_factor = (float)_tms.xppcm / (float)text_xppcm;
+    text_factor = (float)_tms.xppcm / (float)gui_spritesheet::text_xppcm;
 
-    tms_infof("Initialzing freetype...");
+    GLint max_texture_size = text_atlas_max_dim;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_texture_size);
+    // XXX: tms_texture_alloc_buffer() refuses textures larger than 8192,
+    // revisit if we need larger
+    if (max_texture_size < ATLAS_TEXT_WIDTH)
+        max_texture_size = ATLAS_TEXT_WIDTH;
+    else if (max_texture_size > 8192)
+        max_texture_size = 8192;
+    text_atlas_max_dim = max_texture_size;
+
+    tms_infof("Initializing freetype...");
     if (FT_Init_FreeType(&gui_spritesheet::ft)) {
         tms_fatalf("Unable to init freetype library");
     }
@@ -636,6 +753,112 @@ static bool use_font_cache = true;
 static char font_cache_path[512];
 
 static const bool disable_font_cache = false;
+
+static void delete_fonts() {
+    delete font::small;
+    delete font::medium;
+    delete font::xmedium;
+    delete font::large;
+    delete font::xlarge;
+
+    font::small = 0;
+    font::medium = 0;
+    font::xmedium = 0;
+    font::large = 0;
+    font::xlarge = 0;
+}
+
+/// Resize fonts to current scale
+static void resize_fonts_to_current_xppcm() {
+    if (font::medium)  font::medium->orig_height  = (int)(round(gui_spritesheet::text_xppcm/4.5));
+    if (font::small)   font::small->orig_height   = (int)(round(gui_spritesheet::text_xppcm/5.5));
+    if (font::xmedium) font::xmedium->orig_height = (int)(round(gui_spritesheet::text_xppcm/3.5));
+    if (font::large)   font::large->orig_height   = (int)(round(gui_spritesheet::text_xppcm/2.0));
+    if (font::xlarge)  font::xlarge->orig_height  = (int)(round(gui_spritesheet::text_xppcm/1.5));
+}
+
+/// Special case for medium font since it needs to be loaded during init for loading screen
+static void fit_medium_font() {
+    struct atlas_layout *al = &cache_atlases[AL_TEXT];
+
+    while (true) {
+        if (!font::medium)
+            font::medium = new p_font(gui_spritesheet::atlas_text, FONT_PATH, (int)(round(gui_spritesheet::text_xppcm/4.5)));
+
+        if (p_font_fits(font::medium))
+            return;
+
+        tms_errorf("font::medium glyphs don't fit in the %dx%d text atlas", al->width, al->height);
+
+        if (!grow_or_degrade_text_atlas())
+            tms_fatalf("Unable to fit font::medium in the text atlas!");
+
+        resize_fonts_to_current_xppcm();
+
+        // re-render the font into it
+        font::medium->regenerate(gui_spritesheet::atlas_text);
+    }
+}
+
+/// Initialise the rest of the GUI fonts
+static void fit_all_fonts() {
+    struct atlas_layout *al = &cache_atlases[AL_TEXT];
+
+    while (true) {
+        if (!font::small)
+            font::small = new p_font(gui_spritesheet::atlas_text, FONT_PATH, (int)(round(gui_spritesheet::text_xppcm/5.5)));
+        if (!font::xmedium)
+            font::xmedium = new p_font(gui_spritesheet::atlas_text, FONT_PATH, (int)(round(gui_spritesheet::text_xppcm/3.5)));
+        if (!font::large)
+            font::large = new p_font(gui_spritesheet::atlas_text, FONT_PATH, (int)(round(gui_spritesheet::text_xppcm/2.0)));
+        if (!font::xlarge)
+            font::xlarge = new p_font(gui_spritesheet::atlas_text, FONT_PATH, (int)(round(gui_spritesheet::text_xppcm/1.5)));
+
+        if (p_font_fits(font::medium)
+                && p_font_fits(font::small) && p_font_fits(font::xmedium)
+                && p_font_fits(font::large) && p_font_fits(font::xlarge))
+            return;
+
+        tms_errorf("Font glyphs don't fit in the %dx%d text atlas",
+                al->width, al->height);
+
+        if (!grow_or_degrade_text_atlas())
+            tms_fatalf("Unable to fit the UI fonts in the text atlas!");
+
+        resize_fonts_to_current_xppcm();
+
+        // Regenerate every font
+        font::medium->regenerate(gui_spritesheet::atlas_text);
+        font::small->regenerate(gui_spritesheet::atlas_text);
+        font::xmedium->regenerate(gui_spritesheet::atlas_text);
+        font::large->regenerate(gui_spritesheet::atlas_text);
+        font::xlarge->regenerate(gui_spritesheet::atlas_text);
+    }
+}
+
+p_font *gui_spritesheet::make_scratch_font(int xppcm, struct tms_atlas **out_atlas) {
+    struct tms_atlas *a = tms_atlas_alloc(ATLAS_TEXT_WIDTH, ATLAS_TEXT_HEIGHT, 1);
+    int size = ATLAS_TEXT_WIDTH;
+
+    p_font *font = new p_font(a, FONT_PATH, (int)(round(xppcm/5.5)));
+
+    // XXX: tms atlas max size is 8192
+    while (font->atlas_overflow && size < 8192) {
+        size *= 2;
+        tms_infof("Enlarging scratch text atlas to %dx%d", size, size);
+
+        tms_texture_alloc_buffer(&a->texture, size, size, 1);
+        tms_texture_clear_buffer(&a->texture, 0);
+        a->current_x = 0;
+        a->current_y = 0;
+        a->current_height = 0;
+
+        font->regenerate(a);
+    }
+
+    *out_atlas = a;
+    return font;
+}
 
 void gui_spritesheet::init_loading_font() {
     if (base_font_init)
@@ -654,6 +877,7 @@ void gui_spritesheet::init_loading_font() {
         if (!read_font_cache(&lb)) {
             tms_errorf("Error reading font cache at '%s', reverting to non-cached font loading.", font_cache_path);
             use_font_cache = false;
+            delete_fonts();
         }
     }
 
@@ -674,22 +898,13 @@ void gui_spritesheet::init_loading_font() {
     base_font_init = true;
 
     /* Can we load all fonts from cache? */
+    /* I don't know, can we? */
 
-#define BG_RESERVE 4
     /* add a white piece that can be used to render backgrounds */
-    uint8_t *tx = atlas_text->texture.data;
-    atlas_text->current_x = BG_RESERVE;
-    atlas_text->current_y = 0;
-    atlas_text->current_height = BG_RESERVE;
-    for (int y=0; y<BG_RESERVE; y++)
-        for (int x=0; x<BG_RESERVE; x++)
-            for (int z=0; z<ATLAS_TEXT_NUM_CHANS; z++)
-                tx[ATLAS_TEXT_NUM_CHANS*(ATLAS_TEXT_WIDTH*(ATLAS_TEXT_HEIGHT-1-y)) + ATLAS_TEXT_NUM_CHANS*x + z] = 255;
-
-#undef BG_RESERVE
+    reset_text_atlas();
 
     tms_debugf("Initializing medium sized font...");
-    font::medium  = new p_font(atlas_text, FONT_PATH, (int)(round(text_xppcm/4.5)));
+    fit_medium_font();
     tms_debugf("Done");
 
     gui_spritesheet::upload_text_atlas();
@@ -701,11 +916,7 @@ void gui_spritesheet::init_fonts() {
 
     font_init = true;
 
-    font::small = new p_font(atlas_text, FONT_PATH, (int)(round(text_xppcm / 5.5)));
-    font::xmedium = new p_font(atlas_text, FONT_PATH, (int)(round(text_xppcm/3.5)));
-    font::large = new p_font(atlas_text, FONT_PATH, (int)(round(text_xppcm/2.0)));
-    font::xlarge = new p_font(atlas_text, FONT_PATH, (int)(round(text_xppcm/1.5)));
-    //font::small = new p_font(atlas_text, FONT_PATH, 16);
+    fit_all_fonts();
 
     gui_spritesheet::all_fonts_loaded = true;
 

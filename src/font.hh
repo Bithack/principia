@@ -67,9 +67,14 @@ class p_font {
   public:
     int orig_height;
 
+    /// Path of the font file this font was loaded from
+    const char *font_path;
+
     glyph glyphs[256-CHAR_OFFSET];
-    /// Whether 
+    /// Whether the font should use an extended character set
     bool extended;
+    /// Set when glyphs could not fit in the atlas they were rendered into.
+    bool atlas_overflow;
     FT_Face face;
     FT_UInt *glyph_indices_local;
     SDL_IOStream *rw;
@@ -78,6 +83,13 @@ class p_font {
     p_font(struct tms_atlas *atlas, const char *font_path, int height);
     p_font(struct tms_atlas *atlas, const char *font_path, int height, bool extended_charset);
     ~p_font();
+
+    /// Recalculate and re-render the entire font.
+    /// Glyph positions, sprites and buffers are re-used so pointers remain valid
+    void regenerate(struct tms_atlas *atlas);
+
+    /// Render all glyph bitmaps into the atlas, resetting the overflow state.
+    void render_to_atlas(struct tms_atlas *atlas);
 
     int height;
     int ascent;

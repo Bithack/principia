@@ -63,12 +63,19 @@ static unsigned long RWread(FT_Stream stream, unsigned long offset, unsigned cha
     return SDL_ReadIO( src, buffer, 1 * (int)count);
 }
 
+static void stream_close(FT_Stream stream) {
+    free(stream);
+}
+
 void init_p_font(p_font *font, const char *font_path) {
     memset(font->glyphs, 0, sizeof(font->glyphs));
 
+    font->font_path = font_path;
+    font->extended = false;
+    font->atlas_overflow = false;
+
     FT_Error error;
     FT_Open_Args args;
-    FT_Stream stream;
     font->rw = SDL_IOFromFile(font_path, "rb");
     if (font->rw == NULL)
         tms_fatalf("Unable to open font file: %s", SDL_GetError());
@@ -77,11 +84,12 @@ void init_p_font(p_font *font, const char *font_path) {
     if (position < 0)
         tms_fatalf("Unable to seek in font stream.");
 
-    stream = (FT_Stream)malloc(sizeof(*stream));
+    FT_Stream stream = (FT_Stream)calloc(1, sizeof(*stream));
     if (!stream)
         tms_fatalf("Out of memory.");
 
     stream->read = RWread;
+    stream->close = stream_close;
     stream->descriptor.pointer = font->rw;
     stream->pos = (unsigned long)position;
     SDL_SeekIO(font->rw, 0, SDL_IO_SEEK_END);
@@ -123,10 +131,67 @@ p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height, bool 
     : orig_height(height)
 {
     init_p_font(this, font_path);
+    this->extended = extended_charset;
+    this->render_to_atlas(atlas);
+}
+
+/// Free all glyph bitmaps for regeneration or deallocation
+static void free_glyph_data(p_font *font) {
+    int n = font->extended ? 256 : 128;
+
+    for (int x = CHAR_OFFSET; x < n; ++x) {
+        struct glyph *g = font->get_glyph(x);
+
+        if (g->m_sprite_buf) {
+            free(g->m_sprite_buf);
+            g->m_sprite_buf = 0;
+        }
+
+        if (g->m_outline_buf) {
+            free(g->m_outline_buf);
+            g->m_outline_buf = 0;
+        }
+
+        if (g->sprite) {
+            free(g->sprite);
+            g->sprite = 0;
+        }
+
+        if (g->outline) {
+            free(g->outline);
+            g->outline = 0;
+        }
+    }
+
+    if (font->face) {
+        FT_Done_Face(font->face);
+        font->face = 0;
+    }
+}
+
+void p_font::regenerate(struct tms_atlas *atlas) {
+    bool saved_extended = this->extended;
+    free_glyph_data(this);
+
+    if (this->rw) {
+        SDL_CloseIO(this->rw);
+        this->rw = 0;
+    }
+
+    if (this->glyph_indices_local) {
+        delete [] this->glyph_indices_local;
+        this->glyph_indices_local = nullptr;
+    }
+
+    init_p_font(this, this->font_path);
+    this->extended = saved_extended;
+    this->render_to_atlas(atlas);
+}
+
+void p_font::render_to_atlas(struct tms_atlas *atlas) {
     FT_Error error;
 
-    this->glyph_indices_local = nullptr;
-    this->extended = extended_charset;
+    this->atlas_overflow = false;
 
     // rest of atlas-loading code (duplicate of other ctor)
     FT_GlyphSlot slot = this->face->glyph;
@@ -141,14 +206,14 @@ p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height, bool 
     int ft_glyph_top = 0;
     int ft_glyph_left = 0;
 
-    if (extended_charset) {
+    if (this->extended && !this->glyph_indices_local) {
         this->glyph_indices_local = new FT_UInt[256];
         for (int i = CHAR_OFFSET; i < 256; ++i) {
             this->glyph_indices_local[i] = FT_Get_Char_Index(this->face, i);
         }
     }
 
-    for (int i = CHAR_OFFSET; i < (extended_charset ? 256 : 128); ++i) {
+    for (int i = CHAR_OFFSET; i < (this->extended ? 256 : 128); ++i) {
         cur_glyph = this->get_glyph(i);
 
         FT_UInt idx = this->glyph_indices_local ? this->glyph_indices_local[i] : glyph_indices[i];
@@ -197,6 +262,9 @@ p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height, bool 
                 TEXT_ATLAS_CHANNELS,
                 ft_bitmap.buffer
                 );
+
+        if (!cur_glyph->outline)
+            this->atlas_overflow = true;
 
         cur_glyph->obw = ft_bitmap_width;
         cur_glyph->obh = ft_bitmap_rows;
@@ -248,6 +316,9 @@ p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height, bool 
                 ft_bitmap.buffer
                 );
 
+        if (!cur_glyph->sprite)
+            this->atlas_overflow = true;
+
         FT_Done_Glyph(ft_glyph);
     }
 }
@@ -256,8 +327,12 @@ p_font::p_font(struct tms_atlas *atlas, const char *font_path, int height)
     : p_font(atlas, font_path, height, false) { }
 
 p_font::~p_font() {
-    if (this->rw)
+    free_glyph_data(this);
+
+    if (this->rw) {
         SDL_CloseIO(this->rw);
+        this->rw = 0;
+    }
 
     if (this->glyph_indices_local) {
         delete [] this->glyph_indices_local;

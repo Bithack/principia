@@ -1637,8 +1637,8 @@ void item::_init() {
 
         io->name_spr = G->text_small->add_to_atlas(G->texts, io->name);
 
-        io->name_spr->width *= gui_spritesheet::text_factor;
-        io->name_spr->height *= gui_spritesheet::text_factor;
+        io->name_spr->width *= gui_spritesheet::baked_text_factor;
+        io->name_spr->height *= gui_spritesheet::baked_text_factor;
     }
 }
 
