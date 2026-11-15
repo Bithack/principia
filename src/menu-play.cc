@@ -201,8 +201,7 @@ void menu_play::refresh_widgets() {
     this->wdg_browse_community->add();
     this->wdg_open->add();
     this->wdg_open_latest_state->add();
-    if (settings["has_opened_classic_puzzles"]->v.b)
-        this->wdg_puzzles->add();
+    this->wdg_puzzles->add();
 
     this->wm->rearrange();
 }
