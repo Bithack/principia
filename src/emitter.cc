@@ -623,28 +623,37 @@ void emitter::copy_properties(entity *e) {
     this->load_properties();
 }
 
+#define MAX_EMITTER_PROPERTIES 64
+
 void emitter::load_properties() {
-    if (this->properties[4].v.i > 0 && this->properties[5].v.s.len > 0 && this->properties[5].v.s.buf) {
-        if (this->emit_properties)
-            delete [] this->emit_properties;
+    if (this->properties[4].v.i == 0 || this->properties[5].v.s.len == 0 || !this->properties[5].v.s.buf)
+        return;
 
-        this->emit_properties = new property[this->properties[4].v.i];
-
-        char *tmp = strdup(this->properties[5].v.s.buf);
-        /* XXX: This will definitely break if one of the properties contains a newline */
-        char *pch = strtok(tmp, "\n");
-        bool first = true;
-        for (int x=0; x<this->properties[4].v.i; ++x) {
-            if (pch == NULL) {
-                tms_errorf("Mismatching amount of properties");
-                break;
-            }
-
-            this->emit_properties[x].parse(pch);
-
-            /* XXX: This will definitely break if one of the properties contains a newline */
-            pch = strtok(NULL, "\n");
-        }
-        free(tmp);
+    uint32_t num_properties = this->properties[4].v.i;
+    if (num_properties > MAX_EMITTER_PROPERTIES) {
+        tms_errorf("Emitter has too many properties: %u", num_properties);
+        return;
     }
+
+    if (this->emit_properties)
+        delete [] this->emit_properties;
+
+    this->emit_properties = new property[num_properties];
+
+    char *tmp = strdup(this->properties[5].v.s.buf);
+    /* XXX: This will definitely break if one of the properties contains a newline */
+    char *pch = strtok(tmp, "\n");
+    bool first = true;
+    for (int x = 0; x < num_properties; ++x) {
+        if (pch == NULL) {
+            tms_errorf("Mismatching amount of properties");
+            break;
+        }
+
+        this->emit_properties[x].parse(pch);
+
+        /* XXX: This will definitely break if one of the properties contains a newline */
+        pch = strtok(NULL, "\n");
+    }
+    free(tmp);
 }
