@@ -856,6 +856,7 @@ class game : public pscreen {
     game();
     ~game();
     void init_framebuffers();
+    void init_postprocess_framebuffers();
     void init_shaders();
     void init_graphs();
     void init_camera();

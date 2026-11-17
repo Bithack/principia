@@ -1045,6 +1045,10 @@ void game::init_framebuffers() {
         tms_fb_enable_depth(this->icon_fb, GL_DEPTH_COMPONENT16);
     }
 
+    init_postprocess_framebuffers();
+}
+
+void game::init_postprocess_framebuffers() {
     if (this->main_fb) {
         tms_fb_free(this->main_fb);
         this->main_fb = 0;
@@ -1056,7 +1060,6 @@ void game::init_framebuffers() {
     }
 
     if (settings["postprocess"]->v.b) {
-        tms_infof("Postprocess time");
         this->main_fb = tms_fb_alloc(_tms.window_width, _tms.window_height, 0);
         tms_fb_add_texture(this->main_fb, GL_RGBA, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
         tms_fb_enable_depth(this->main_fb, GL_DEPTH_COMPONENT16);
@@ -10310,6 +10313,8 @@ void game::window_size_changed() {
         tmat4_set_ortho(projection, 0, _tms.window_width, 0, _tms.window_height, 1, -1);
         tms_ddraw_set_matrices(this->get_surface()->ddraw, 0, projection);
     }
+
+    this->init_postprocess_framebuffers();
 
     this->refresh_gui();
 }
