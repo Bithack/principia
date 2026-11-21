@@ -97,6 +97,14 @@ static void find_data_dir() {
 
 static int do_step = 1;
 
+#ifdef GLAD_OPTION_GL_DEBUG
+void postGLCall(void *ret, const char* name, GLADapiproc apiproc, int len_args, ...) {
+    GLenum error = glad_glGetError();
+    if (error != GL_NO_ERROR)
+        tms_errorf("GL Error: %u in %s", error, name);
+}
+#endif
+
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
 
 #ifndef SDL_PLATFORM_ANDROID
@@ -274,6 +282,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     else
         version = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
     tms_infof("Loaded GL version %d.%d", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
+
+#ifdef GLAD_OPTION_GL_DEBUG
+    gladSetGLPostCallback(postGLCall);
+#endif
 
     tms_infof("GL Info: %s/%s/%s", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
     tms_infof("GLSL Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
