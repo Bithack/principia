@@ -81,23 +81,6 @@ menu_create::menu_create() : menu_base(false), has_autosave(false) {
     this->wdg_back->priority = 500;
     this->wdg_back->add();
 
-    float w_percentage = 0.25f;
-
-    if (_tms.window_width > 1280.f) {
-        w_percentage /= _tms.window_width/1280.f*.75f;
-    }
-
-    /*
-    if (_tms.window_width > 2000) {
-        w_percentage = 0.15f;
-    } else if (_tms.window_width > 1500) {
-        w_percentage = 0.25f;
-    } else if (_tms.window_width > 1000) {
-        w_percentage = 0.35f;
-    }
-    */
-    float h_percentage = w_percentage * 0.1f;
-
     {
         const enum WidgetArea area = AREA_MENU_LEFT_HCENTER;
         /* LEFT */
@@ -109,10 +92,6 @@ menu_create::menu_create() : menu_base(false), has_autosave(false) {
         this->wdg_create_new_level->clickthrough = true;
         this->wdg_create_new_level->add();
 
-        this->wdg_create_new_level->resize_percentage(
-                _tms.window_width,  w_percentage,
-                _tms.window_height, h_percentage);
-
         this->wdg_custom = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
             BTN_CUSTOM, area);
@@ -120,7 +99,6 @@ menu_create::menu_create() : menu_base(false), has_autosave(false) {
         this->wdg_custom->priority = 990;
         this->wdg_custom->render_background = true;
         this->wdg_custom->add();
-        this->wdg_custom->label->set_scale(this->wdg_create_new_level->label->get_scale());
 
         this->wdg_adventure = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
@@ -129,7 +107,6 @@ menu_create::menu_create() : menu_base(false), has_autosave(false) {
         this->wdg_adventure->priority = 980;
         this->wdg_adventure->render_background = true;
         this->wdg_adventure->add();
-        this->wdg_adventure->label->set_scale(this->wdg_create_new_level->label->get_scale());
 
         this->wdg_procedural_adventure = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
@@ -138,7 +115,6 @@ menu_create::menu_create() : menu_base(false), has_autosave(false) {
         this->wdg_procedural_adventure->priority = 970;
         this->wdg_procedural_adventure->render_background = true;
         this->wdg_procedural_adventure->add();
-        this->wdg_procedural_adventure->label->set_scale(this->wdg_create_new_level->label->get_scale());
 
         this->wdg_puzzle = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
@@ -147,7 +123,6 @@ menu_create::menu_create() : menu_base(false), has_autosave(false) {
         this->wdg_puzzle->priority = 960;
         this->wdg_puzzle->render_background = true;
         this->wdg_puzzle->add();
-        this->wdg_puzzle->label->set_scale(this->wdg_create_new_level->label->get_scale());
     }
 
     {
@@ -161,16 +136,12 @@ menu_create::menu_create() : menu_base(false), has_autosave(false) {
         this->wdg_open->render_background = true;
         this->wdg_open->add();
 
-        this->wdg_open->label->set_scale(this->wdg_create_new_level->label->get_scale());
-
         this->wdg_continue = this->wm->create_widget(
                 this->get_surface(), TMS_WDG_LABEL,
                 BTN_CONTINUE, area);
         this->wdg_continue->set_label("Continue building", font::xmedium);
         this->wdg_continue->render_background = true;
         this->wdg_continue->priority = 900;
-
-        this->wdg_continue->label->set_scale(this->wdg_create_new_level->label->get_scale());
     }
 
     {
@@ -182,8 +153,6 @@ menu_create::menu_create() : menu_base(false), has_autosave(false) {
         this->wdg_getting_started->priority = 1000;
         this->wdg_getting_started->clickthrough = true;
         this->wdg_getting_started->add();
-
-        this->wdg_getting_started->label->set_scale(this->wdg_create_new_level->label->get_scale());
 
         this->wm->areas[AREA_MENU_RIGHT_HCENTER].set_alpha(0.f);
     }
@@ -307,6 +276,25 @@ int menu_create::render() {
 }
 
 void menu_create::refresh_widgets() {
+    float w_percentage = 0.25f;
+    if (_tms.window_width > 1280.f) {
+        w_percentage /= _tms.window_width/1280.f*.75f;
+    }
+
+    this->wdg_create_new_level->label->set_scale(1.f);
+    this->wdg_create_new_level->resize_percentage(
+            _tms.window_width,  w_percentage,
+            _tms.window_height, w_percentage * 0.1f);
+
+    float scale = this->wdg_create_new_level->label->get_scale();
+    this->wdg_custom->label->set_scale(scale);
+    this->wdg_adventure->label->set_scale(scale);
+    this->wdg_procedural_adventure->label->set_scale(scale);
+    this->wdg_puzzle->label->set_scale(scale);
+    this->wdg_open->label->set_scale(scale);
+    this->wdg_continue->label->set_scale(scale);
+    this->wdg_getting_started->label->set_scale(scale);
+
     this->wm->remove_all();
 
     menu_base::refresh_widgets();
@@ -328,6 +316,7 @@ void menu_create::refresh_widgets() {
     this->wdg_getting_started->add();
     for (std::vector<principia_wdg*>::iterator it = this->wdg_gs_entries.begin();
             it != this->wdg_gs_entries.end(); ++it) {
+        (*it)->label->set_scale(scale);
         (*it)->add();
     }
 

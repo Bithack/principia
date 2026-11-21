@@ -64,10 +64,6 @@ menu_play::menu_play() : menu_base(false) {
     this->wdg_browse_community->render_background = true;
     this->wdg_browse_community->add();
 
-    this->wdg_browse_community->resize_percentage(
-            _tms.window_width,  0.50,
-            _tms.window_height, 0.20);
-
     this->wdg_open = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
             BTN_OPEN_STATE_DIALOG, AREA_MENU_CENTER);
@@ -75,7 +71,6 @@ menu_play::menu_play() : menu_base(false) {
     this->wdg_open->priority = 960;
     this->wdg_open->render_background = true;
     this->wdg_open->add();
-    this->wdg_open->label->set_scale(this->wdg_browse_community->label->get_scale());
 
     this->wdg_open_latest_state = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
@@ -84,7 +79,6 @@ menu_play::menu_play() : menu_base(false) {
     this->wdg_open_latest_state->priority = 950;
     this->wdg_open_latest_state->render_background = true;
     this->wdg_open_latest_state->add();
-    this->wdg_open_latest_state->label->set_scale(this->wdg_browse_community->label->get_scale());
 
     this->wdg_puzzles = this->wm->create_widget(
             this->get_surface(), TMS_WDG_LABEL,
@@ -93,7 +87,6 @@ menu_play::menu_play() : menu_base(false) {
     this->wdg_puzzles->render_background = true;
     this->wdg_puzzles->priority = 850;
     this->wdg_puzzles->add();
-    this->wdg_puzzles->label->set_scale(this->wdg_browse_community->label->get_scale());
 
     this->refresh_widgets();
 }
@@ -187,6 +180,16 @@ int menu_play::render() {
 }
 
 void menu_play::refresh_widgets() {
+    this->wdg_browse_community->label->set_scale(1.f);
+    this->wdg_browse_community->resize_percentage(
+            _tms.window_width,  0.50,
+            _tms.window_height, 0.20);
+
+    float scale = this->wdg_browse_community->label->get_scale();
+    this->wdg_open->label->set_scale(scale);
+    this->wdg_open_latest_state->label->set_scale(scale);
+    this->wdg_puzzles->label->set_scale(scale);
+
     this->wm->remove_all();
 
     menu_base::refresh_widgets();

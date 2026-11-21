@@ -222,11 +222,6 @@ void menu_main::refresh_widgets() {
                 struct tms_sprite *s = menu_shared::fl[x].sprite;
 
                 this->wdg_featured_level[x]->s[0] = s;
-                float ratio = s->height / s->width;
-                //this->wdg_featured_level[x]->size.x = s->width;
-                //this->wdg_featured_level[x]->size.y = s->height;
-                this->wdg_featured_level[x]->size.x = _tms.window_width / 4.5;
-                this->wdg_featured_level[x]->size.y = _tms.window_width / 4.5 * ratio;
                 this->wdg_featured_level[x]->data3 = UINT_TO_VOID(menu_shared::fl[x].id);
                 this->wdg_featured_level[x]->set_tooltip(menu_shared::fl[x].name, font::medium);
                 this->wdg_featured_level[x]->set_label(menu_shared::fl[x].creator, font::small);
@@ -242,10 +237,15 @@ void menu_main::refresh_widgets() {
         }
 
         menu_shared::fl_state = FL_ALPHA_IN;
+    }
 
-        /* an extra rearrange to make sure the "browse more community levels"
-         * text is at its proper location */
-        this->wm->rearrange();
+    for (int x=0; x<MAX_FEATURED_LEVELS_FETCHED; ++x) {
+        struct tms_sprite *s = this->wdg_featured_level[x]->s[0];
+        if (s) {
+            float ratio = s->height / s->width;
+            this->wdg_featured_level[x]->size.x = _tms.window_width / 4.5;
+            this->wdg_featured_level[x]->size.y = _tms.window_width / 4.5 * ratio;
+        }
     }
 
     this->wm->rearrange();
