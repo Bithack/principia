@@ -283,6 +283,19 @@ class pkginfo {
 #define LVL_AUTOMATICALLY_SUBMIT_SCORE          (1ULL << 36)
 #define LVL_ENABLE_LUASOCKET                    (1ULL << 37)
 
+#ifdef _NO_TMS
+    // Stubs for byteswap functions when building utility programs.
+    #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+        #error Building utils on big-endian is not supported
+    #else
+        #define SDL_Swap16LE(x) (x)
+        #define SDL_Swap32LE(x) (x)
+        #define SDL_Swap64LE(x) (x)
+    #endif
+#else
+    #include <SDL3/SDL.h>
+#endif
+
 // level format
 class lvlinfo
 {
@@ -464,12 +477,10 @@ class lvlbuf {
             return 0;
 
         uint16_t r;
-        if (rp & 1) {
-            r = 0;
-            r |= (*(uint8_t*)(buf+rp));
-            r |= (*(uint8_t*)(buf+rp+1)) << 8;
-        } else r = *(uint16_t*)(buf+rp);
-        rp+=sizeof(uint16_t);
+        memcpy(&r, buf+rp, sizeof(uint16_t));
+        r = SDL_Swap16LE(r);
+
+        rp += sizeof(uint16_t);
         return r;
     }
 
@@ -479,17 +490,8 @@ class lvlbuf {
             return 0;
 
         uint32_t r;
-
-        if ((rp) & 3) {
-            r = 0;
-
-            // the address is misaligned, alternative fetch
-            r |= (*(uint8_t*)(buf+rp));
-            r |= (*(uint8_t*)(buf+rp+1)) << 8;
-            r |= (*(uint8_t*)(buf+rp+2)) << 16;
-            r |= (*(uint8_t*)(buf+rp+3)) << 24;
-        } else
-            r = *(uint32_t*)(buf+rp);
+        memcpy(&r, buf+rp, sizeof(uint32_t));
+        r = SDL_Swap32LE(r);
 
         rp += sizeof(uint32_t);
         return r;
@@ -505,10 +507,12 @@ class lvlbuf {
         if (eof(sizeof(uint64_t)))
             return 0;
 
-        uint64_t v1 = this->r_uint32();
-        uint64_t v2 = this->r_uint32();
+        uint64_t r;
+        memcpy(&r, buf+rp, sizeof(uint64_t));
+        r = SDL_Swap64LE(r);
 
-        return v1 | (v2 << 32);
+        rp += sizeof(uint64_t);
+        return r;
     }
 
     /// Read signed 64-bit integer
@@ -521,18 +525,12 @@ class lvlbuf {
         if (eof(sizeof(float)))
             return 0;
 
-        float r;
-        if ((rp) & 3) {
-            // the address is misaligned, we need to do two fetches
-            uint32_t r2 = 0;
-            r2 |= (*(uint8_t*)(buf+rp));
-            r2 |= (*(uint8_t*)(buf+rp+1)) << 8;
-            r2 |= (*(uint8_t*)(buf+rp+2)) << 16;
-            r2 |= (*(uint8_t*)(buf+rp+3)) << 24;
+        uint32_t r2;
+        memcpy(&r2, buf+rp, sizeof(uint32_t));
+        r2 = SDL_Swap32LE(r2);
 
-            memcpy(&r, &r2, sizeof(uint32_t));
-        } else
-            r = *(float*)(buf+rp);
+        float r;
+        memcpy(&r, &r2, sizeof(uint32_t));
 
         rp += sizeof(float);
         return r;
