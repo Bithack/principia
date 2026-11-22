@@ -413,6 +413,7 @@ class game : public pscreen {
     _box_select_handler box_select_handler;
     void init_background();
   public:
+    void update_background();
     std::set<er*> errors;
     struct tms_atlas *texts;
     p_text *text_small;

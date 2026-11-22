@@ -1,6 +1,7 @@
 #include "entity.hh"
 #include "game.hh"
 #include "lua.hh"
+#include "material.hh"
 
 /* world:get_entity(entity_id) */
 static int l_world_get_entity(lua_State *L) {
@@ -233,6 +234,20 @@ static int l_world_get_screen_point(lua_State *L) {
     return 2;
 }
 
+/* world:set_bg(id) */
+static int l_world_set_bg(lua_State *L) {
+    lua_Integer id = luaL_checkinteger(L, 2);
+    id = tclampf(id, 0, num_bgs - 1);
+
+    if (W->level.bg == id)
+        return 0;
+
+    W->level.bg = id;
+    G->update_background();
+
+    return 0;
+}
+
 /* world:set_bg_color(r, g, b) */
 static int l_world_set_bg_color(lua_State *L) {
     LUASCRIPT_VERSION_ERROR(L, "world:set_bg_color", "1.5", LEVEL_VERSION_1_5);
@@ -312,6 +327,7 @@ static const luaL_Reg world_methods[] = {
     LUA_REG(get_borders),
     LUA_REG(get_world_point),
     LUA_REG(get_screen_point),
+    LUA_REG(set_bg),
     LUA_REG(set_bg_color),
     LUA_REG(set_ambient_light),
     LUA_REG(set_diffuse_light),

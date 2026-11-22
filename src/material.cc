@@ -422,45 +422,30 @@ void material_factory::load_bg_texture(bool soft) {
         material_factory::background_id = 0;
 
     // color background does not have a texture
-    if (material_factory::background_id == BG_COLORED || material_factory::background_id == BG_COLORED_SPACE) {
+    if (material_factory::background_id == BG_COLORED || material_factory::background_id == BG_COLORED_SPACE)
         return;
-    }
 
     if (!tex_bg) tex_bg = new tms::texture();
     else {
-        if (soft && last_loaded == material_factory::background_id) {
+        if (soft && last_loaded == material_factory::background_id)
             return;
-        }
     }
     last_loaded = material_factory::background_id;
 
-    /* special case for bg 5, always jpg file */
-    switch (material_factory::background_id) {
-        case BG_OUTDOOR:
-            {
-                tex_bg->load("data/bg/5.jpg");
+    sprintf(bgname, "data/bg/%d.jpg", material_factory::background_id);
 
-                tex_bg->format = GL_RGB;
-                tex_bg->wrap = GL_CLAMP_TO_EDGE;
-                tms_texture_set_filtering(tex_bg, GL_LINEAR);
-            }
-            break;
+    if (tex_bg->load(bgname) != T_OK)
+        tex_bg->load("data/bg/0.jpg");
 
-        default:
-            {
-                sprintf(bgname, "data/bg/%d.jpg", material_factory::background_id);
+    tex_bg->format = GL_RGB;
+    tex_bg->gamma_correction = settings["gamma_correct"]->v.b;
 
-                if (tex_bg->load(bgname) != T_OK)
-                    tex_bg->load("data/bg/0.jpg");
+    if (material_factory::background_id == BG_OUTDOOR)
+        tex_bg->wrap = GL_CLAMP_TO_EDGE;
+    else
+        tex_bg->wrap = GL_REPEAT;
 
-                tex_bg->format = GL_RGB;
-
-                tex_bg->wrap = GL_REPEAT;
-                tms_texture_set_filtering(tex_bg, GL_LINEAR);
-                tex_bg->gamma_correction = settings["gamma_correct"]->v.b;
-            }
-            break;
-    }
+    tms_texture_set_filtering(tex_bg, GL_LINEAR);
 
     tex_bg->upload();
     tms_texture_free_buffer(tex_bg);

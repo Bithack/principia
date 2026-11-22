@@ -5075,7 +5075,7 @@ void game::apply_level_properties() {
     this->check_all_entities();
 }
 
-void game::init_background() {
+void game::update_background() {
     if (this->bgent->scene)
         this->get_scene()->remove_entity(this->bgent);
 
@@ -5083,15 +5083,12 @@ void game::init_background() {
     tms_infof("setting bg to %d", material_factory::background_id);
     material_factory::load_bg_texture(true);
 
-    tms_debugf("SETTING BOTTOM ONLY TO %d", (material_factory::background_id == BG_OUTDOOR));
     ((simplebg*)this->bgent)->bottom_only = (material_factory::background_id == BG_OUTDOOR);
     ((simplebg*)this->bgent)->set_color(W->level.bg_color);
 
     bool valid = ((simplebg*)this->bgent)->set_level_size(
-        W->level.size_x[0],
-        W->level.size_x[1],
-        W->level.size_y[0],
-        W->level.size_y[1]);
+        W->level.size_x[0], W->level.size_x[1],
+        W->level.size_y[0], W->level.size_y[1]);
 
     if (!valid) {
         tms_infof("Border sizes invalid, falling back to space background.");
@@ -5105,10 +5102,13 @@ void game::init_background() {
             break;
 
         default:
-            tms_infof("Background ID %d, adding entity.", material_factory::background_id);
             this->get_scene()->add_entity(this->bgent);
             break;
     }
+}
+
+void game::init_background() {
+    update_background();
 
     float r,g,b,a;
     unpack_rgba(W->level.bg_color, &r, &g, &b, &a);
