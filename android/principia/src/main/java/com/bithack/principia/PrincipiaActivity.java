@@ -6,7 +6,6 @@ import com.bithack.principia.shared.ConfirmDialog;
 import com.bithack.principia.shared.ConfirmDialog.OnOptionSelectedListener;
 import com.bithack.principia.shared.FactoryDialog;
 import com.bithack.principia.shared.ImportDialog;
-import com.bithack.principia.shared.JumperDialog;
 import com.bithack.principia.shared.Level;
 import com.bithack.principia.shared.LevelDialog;
 import com.bithack.principia.shared.LoginDialog;
@@ -93,7 +92,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
     public static final int DIALOG_LEVEL_PROPERTIES = 123;
     public static final int DIALOG_COMMUNITY        = 128;
     public static final int DIALOG_PROMPT_SETTINGS  = 129;
-    public static final int DIALOG_JUMPER           = 136;
     public static final int DIALOG_PUBLISHED        = 138;
     public static final int DIALOG_LUASCRIPT        = 141;
     public static final int DIALOG_FACTORY          = 149;
@@ -206,7 +204,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_OPEN_OBJECT:        d = (new ImportDialog(false)).get_dialog(); break;
         case DIALOG_COMMUNITY:          d = (new CommunityDialog()).get_dialog(); break;
         case DIALOG_PROMPT_SETTINGS:    d = PromptSettingsDialog.get_dialog(); break;
-        case DIALOG_JUMPER:             d = JumperDialog.get_dialog(); break;
         case DIALOG_LUASCRIPT:          d = ScriptDialog.get_dialog(); break;
         case DIALOG_FACTORY:            d = FactoryDialog.get_dialog(); break;
         case DIALOG_OPEN_STATE:         d = (new OpenDialog(true)).get_dialog(); break;
@@ -323,7 +320,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
             case DIALOG_POLYGON_COLOR:      ColorChooserDialog.prepare(dialog, false); break;
             case DIALOG_STICKY:             StickyDialog.prepare(dialog); break;
             case DIALOG_PROMPT_SETTINGS:    PromptSettingsDialog.prepare(dialog); break;
-            case DIALOG_JUMPER:             JumperDialog.prepare(dialog); break;
             case DIALOG_LUASCRIPT:          ScriptDialog.prepare(dialog); break;
             case DIALOG_FACTORY:            FactoryDialog.prepare(dialog); break;
             case DIALOG_PUBLISH:            PublishDialog.prepare(dialog); break;

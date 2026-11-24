@@ -122,7 +122,6 @@ public class PrincipiaBackend
 
     public static native boolean isAdventure();
 
-    public static native void updateJumper(float value);
     public static native String getLevelPage();
     public static native int getMaxLevelVersion();
     public static native String getCurrentCommunityUrl();

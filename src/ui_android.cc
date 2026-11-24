@@ -292,6 +292,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiExport::open();
             break;
 
+        case DIALOG_JUMPER:
+            UiJumper::open();
+            break;
+
         default: {
             jmethodID mid = env->GetStaticMethodID(cls, "open_dialog", "(IZ)V");
             if (mid)
@@ -345,6 +349,7 @@ void ui::render() {
     UiMessage::layout();
     UiPrompt::layout();
     UiExport::layout();
+    UiJumper::layout();
 
     imgui_driver.post_render();
 }
@@ -518,21 +523,6 @@ JNI_FUNC(void, setPropertyFloat)(JNIEnv *env, jclass _jcls, jint property_index,
         e->properties[property_index].v.f = (float)value;
     else
         tms_errorf("Invalid set_property float");
-}
-
-JNI_FUNC(void, updateJumper)(JNIEnv *env, jclass _jcls, jfloat value) {
-    entity *e = G->selection.e;
-
-    if (e && e->g_id == O_JUMPER) {
-        float v = (float)value;
-        if (v < 0.f) v = 0.f;
-        else if (v > 1.f) v = 1.f;
-        e->properties[0].v.f = v;
-
-        P.add_action(ACTION_HIGHLIGHT_SELECTED, 0);
-        P.add_action(ACTION_RESELECT, 0);
-        ((jumper*)e)->update_color();
-    }
 }
 
 JNI_FUNC(jobject, getSettings)(JNIEnv *env, jclass _jcls) {

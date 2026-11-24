@@ -39,7 +39,13 @@ namespace UiJumper {
 			ImGui::SliderFloat("Value", &jumper_value, 0.0f, 1.0f, "%.4f",
 				ImGuiSliderFlags_AlwaysClamp);
 
-			ImGui::TextDisabled("Tip: Ctrl+Click to input an exact value");
+			if (_tms.touch_controls) {
+				// A normal number field is accessible without ctrl+click on touchscreens
+				ImGui::InputFloat("Exact value", &jumper_value, 0.f, 0.f, "%.5f");
+				jumper_value = tclampf(jumper_value, 0.f, 1.f);
+			} else {
+				ImGui::TextDisabled("Tip: Ctrl+Click to input an exact value");
+			}
 
 			ImGui_ButtonBar(apply_properties);
 
