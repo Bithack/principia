@@ -280,12 +280,12 @@ void robotman::step() {
                 break;
 
             case RMAN_DEATTACH:
-                if (v)
+                if (v && this->target->is_attached_to_activator())
                     this->target->detach();
                 break;
 
             case RMAN_RESPAWN:
-                if (v)
+                if (v && !prev_v)
                     this->target->respawn();
                 break;
 
