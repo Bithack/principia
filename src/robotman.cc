@@ -123,13 +123,7 @@ void on_robotman_target_absorbed(entity *self, void *userdata) {
 }
 
 void robotman::init() {
-    if (this->properties[0].v.i != 0) {
-        entity *e = W->get_entity_by_id(this->properties[0].v.i);
-        if (e && e->is_robot()) {
-            this->target = static_cast<robot_base*>(e);
-            this->subscribe(this->target, ENTITY_EVENT_REMOVE, &on_robotman_target_absorbed);
-        }
-    }
+    first_step = true;
 }
 
 void robotman::setup() {
@@ -138,6 +132,18 @@ void robotman::setup() {
 }
 
 void robotman::step() {
+    if (first_step) {
+        if (this->properties[0].v.i != 0) {
+            entity *e = W->get_entity_by_id(this->properties[0].v.i);
+            if (e && e->is_robot()) {
+                this->target = static_cast<robot_base*>(e);
+                this->subscribe(this->target, ENTITY_EVENT_REMOVE, &on_robotman_target_absorbed);
+            }
+        }
+
+        first_step = false;
+    }
+
     if (!this->target) return;
 
     for (int x=0; x<RMAN_NUM_IN; ++x) {

@@ -70,6 +70,7 @@ class robotman : public brcomp_multiconnect {
     float previous_values[RMAN_NUM_IN];
     float values[RMAN_NUM_IN];
     robot_base *target;
+    bool first_step = true;
 
   public:
     robotman();
