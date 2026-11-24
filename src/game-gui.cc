@@ -2553,6 +2553,11 @@ void game::create_sandbox_menu() {
             snprintf(override_path, 512, "data-src/override/%u.png", e->g_id);
 
             if (!file_exists(override_path)) {
+                // init the entity
+                e->_pos = e->menu_pos;
+                e->_angle = 0.f;
+                game::update_ghost_entity(e);
+
                 cam->width = 2.0f * 1.f/e->menu_scale;
                 cam->height = 2.0f * 1.f/e->menu_scale;
                 tms_camera_calculate(cam);
