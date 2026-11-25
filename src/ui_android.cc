@@ -296,6 +296,10 @@ void ui::open_dialog(int num, void *data/*=0*/) {
             UiJumper::open();
             break;
 
+        case DIALOG_COMMUNITY:
+            UiCommunity::open();
+            break;
+
         default: {
             jmethodID mid = env->GetStaticMethodID(cls, "open_dialog", "(IZ)V");
             if (mid)
@@ -350,6 +354,7 @@ void ui::render() {
     UiPrompt::layout();
     UiExport::layout();
     UiJumper::layout();
+    UiCommunity::layout();
 
     imgui_driver.post_render();
 }
@@ -829,12 +834,6 @@ JNI_FUNC(jstring, getStickyText)(JNIEnv *env, jclass _jcls) {
         return env->NewStringUTF("");
 
     return env->NewStringUTF(nm);
-}
-
-JNI_FUNC(jstring, getCurrentCommunityUrl)(JNIEnv *env, jclass _jcls) {
-    COMMUNITY_URL("level/%d", W->level.community_id);
-
-    return env->NewStringUTF(url);
 }
 
 JNI_FUNC(jint, getLevelIdType)(JNIEnv *env, jclass _jcls) {

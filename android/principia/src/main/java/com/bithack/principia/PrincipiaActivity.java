@@ -1,7 +1,6 @@
 package com.bithack.principia;
 
 import com.bithack.principia.shared.ColorChooserDialog;
-import com.bithack.principia.shared.CommunityDialog;
 import com.bithack.principia.shared.ConfirmDialog;
 import com.bithack.principia.shared.ConfirmDialog.OnOptionSelectedListener;
 import com.bithack.principia.shared.FactoryDialog;
@@ -72,7 +71,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
     public static final int ACTION_IMPORT_OBJECT = 19;
     public static final int ACTION_EXPORT_OBJECT = 20;
     public static final int ACTION_HIGHLIGHT_SELECTED = 28;
-    public static final int ACTION_GOTO_MAINMENU = 33;
     public static final int ACTION_DELETE_LEVEL = 34;
     public static final int ACTION_DELETE_PARTIAL = 35;
     public static final int ACTION_SET_LEVEL_TYPE = 36;
@@ -90,7 +88,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
     public static final int DIALOG_MULTIEMITTER     = 117;
     public static final int DIALOG_SETTINGS         = 121;
     public static final int DIALOG_LEVEL_PROPERTIES = 123;
-    public static final int DIALOG_COMMUNITY        = 128;
     public static final int DIALOG_PROMPT_SETTINGS  = 129;
     public static final int DIALOG_PUBLISHED        = 138;
     public static final int DIALOG_LUASCRIPT        = 141;
@@ -202,7 +199,6 @@ public class PrincipiaActivity extends SDLActivity implements View.OnSystemUiVis
         case DIALOG_POLYGON_COLOR:      d = ColorChooserDialog.get_dialog(); break;
         case DIALOG_MULTIEMITTER:       d = (new ImportDialog(true)).get_dialog(); break;
         case DIALOG_OPEN_OBJECT:        d = (new ImportDialog(false)).get_dialog(); break;
-        case DIALOG_COMMUNITY:          d = (new CommunityDialog()).get_dialog(); break;
         case DIALOG_PROMPT_SETTINGS:    d = PromptSettingsDialog.get_dialog(); break;
         case DIALOG_LUASCRIPT:          d = ScriptDialog.get_dialog(); break;
         case DIALOG_FACTORY:            d = FactoryDialog.get_dialog(); break;
