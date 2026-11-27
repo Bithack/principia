@@ -97,6 +97,7 @@ repair_station::repair_station() : activator(ATTACHMENT_NONE), sensor_radius(1.2
     this->set_flag(ENTITY_DYNAMIC_UNLOADING,    true);
 
     this->menu_scale = 0.3f;
+    this->menu_pos = b2Vec2(0.f, -0.25f);
 
     this->update_method = ENTITY_UPDATE_CUSTOM;
 

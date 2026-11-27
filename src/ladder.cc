@@ -15,6 +15,9 @@ ladder::ladder() : ladder_ud2(UD2_CLIMBABLE), ladder_step_ud2(UD2_LADDER_STEP) {
 
     this->layer_mask = 1;
 
+    this->menu_scale = 0.75f;
+    this->menu_pos = b2Vec2(0.f, -0.4f);
+
     this->c_back.init_owned(0, this);
     this->c_back.type = CONN_WELD;
     this->c_back.typeselect = false;

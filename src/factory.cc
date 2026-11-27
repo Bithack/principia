@@ -592,7 +592,7 @@ void game::render_factory() {
                 struct menu_obj mo = menu_objects[gid_to_menu_pos[o.gid]];
                 img = &mo.image;
                 cat = mo.category;
-                gltex = this->get_sandbox_texture(cat)->gl_texture;
+                gltex = this->get_sandbox_texture(o.gid / SANDBOX_ATLAS_CAPACITY)->gl_texture;
             }
 
             if (gltex != last_bind) {
@@ -650,7 +650,7 @@ void game::render_factory() {
                 struct menu_obj mo = menu_objects[gid_to_menu_pos[fo.gid]];
                 img = &mo.image;
                 cat = mo.category;
-                gltex = this->get_sandbox_texture(cat)->gl_texture;
+                gltex = this->get_sandbox_texture(fo.gid / SANDBOX_ATLAS_CAPACITY)->gl_texture;
             }
 
             if (gltex != last_bind) {

@@ -17,6 +17,7 @@ clip::clip(int _clip_type) : clip_type(_clip_type) {
     switch (this->clip_type) {
         case CLIP_INTERFACE:
             this->set_mesh(mesh_factory::get_mesh(MODEL_CLIP));
+            this->menu_scale = 1.5f;
 
             this->s_in[0].ctype = CABLE_BLUE;
             this->s_out[0].ctype = CABLE_BLUE;
@@ -29,6 +30,7 @@ clip::clip(int _clip_type) : clip_type(_clip_type) {
 
         case CLIP_SIGNAL:
             this->set_mesh(mesh_factory::get_mesh(MODEL_CCLIP));
+            this->menu_scale = 1.75f;
 
             this->s_in[0].ctype = CABLE_RED;
             this->s_in[0].lpos = b2Vec2(0.f, -.125f);
@@ -39,8 +41,6 @@ clip::clip(int _clip_type) : clip_type(_clip_type) {
             this->set_as_rect( .25f/2.f, .5f/2.f);
             break;
     }
-
-    this->menu_scale = 1.75f;
 
     if (W->level.version < LEVEL_VERSION_1_5_1)
         this->layer_mask = 15;

@@ -6,7 +6,13 @@
 # To begin the process, press S in the main menu on a debug Linux build of the game. You should have gamma correction
 # disabled to generate correct colours.
 
-NUM_TEXTURES=10
+NUM_TEXTURES=${1:?Pass the number of generated object atlases}
+
+# Check if magick exists
+if ! command -v magick &> /dev/null; then
+    echo "ImageMagick is not installed. Please install it to run this script."
+    exit 1
+fi
 
 for ((i = 0; i < $NUM_TEXTURES; i ++)); do
     cp sandbox-menu-$i.png tmp.png

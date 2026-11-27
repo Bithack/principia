@@ -7,6 +7,7 @@
 seesaw::seesaw() {
     this->width = 4.f;
     this->menu_scale = 1.f;
+    this->menu_pos = b2Vec2(0.f, 0.5f);
 
     this->set_mesh(mesh_factory::get_mesh(MODEL_SEESAW));
     this->set_material(&m_gen);

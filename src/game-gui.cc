@@ -40,6 +40,12 @@
 
 #define SIZE_PER_OBJECT_ITEM 64
 #define SIZE_PER_MENU_ITEM   100
+#define SANDBOX_ATLAS_SIZE 1024
+#define SANDBOX_ATLAS_COLUMNS 10
+#define SANDBOX_ATLAS_COUNT ((MAX_OF_ID + SANDBOX_ATLAS_CAPACITY - 1) / SANDBOX_ATLAS_CAPACITY)
+
+static int sandbox_atlas_index(int gid) { return gid / SANDBOX_ATLAS_CAPACITY; }
+static int sandbox_atlas_slot(int gid) { return gid % SANDBOX_ATLAS_CAPACITY; }
 
 /// Upper limit for the label atlas size. Revise this to see if we need to potentially go higher
 #define LABEL_ATLAS_MAX_SIZE 4096
@@ -2430,32 +2436,19 @@ void game::refresh_gui() {
 }
 
 void game::init_sandbox_menu() {
-    int n = 0;
+    for (size_t n = 0; n < menu_objects.size(); n++) {
+        int slot = sandbox_atlas_slot(menu_objects[n].e->g_id);
+        int ix = slot % SANDBOX_ATLAS_COLUMNS;
+        int iy = slot / SANDBOX_ATLAS_COLUMNS;
 
-    for (int y=0; y<of::num_categories; y++){
-        int twidth = 512;
-        int theight = 256;
+        menu_objects[n].image.bl.x = SIZE_PER_MENU_ITEM / (float)SANDBOX_ATLAS_SIZE * ix;
+        menu_objects[n].image.bl.y = SIZE_PER_MENU_ITEM / (float)SANDBOX_ATLAS_SIZE * iy;
 
-        if (of::get_num_objects(y) > 10)
-            theight = 512;
-        if (of::get_num_objects(y) > 25)
-            theight = 1024;
+        menu_objects[n].image.tr.x = SIZE_PER_MENU_ITEM / (float)SANDBOX_ATLAS_SIZE * (ix+1);
+        menu_objects[n].image.tr.y = SIZE_PER_MENU_ITEM / (float)SANDBOX_ATLAS_SIZE * (iy+1);
 
-        for (int x = 0; x < of::get_num_objects(y); x++) {
-            int ix = x % 5;
-            int iy = x / 5;
-
-            menu_objects[n].image.bl.x = SIZE_PER_MENU_ITEM / (float)twidth  * (float)ix;
-            menu_objects[n].image.bl.y = SIZE_PER_MENU_ITEM / (float)theight * (float)iy;
-
-            menu_objects[n].image.tr.x = SIZE_PER_MENU_ITEM / (float)twidth  * (float)(ix+1);
-            menu_objects[n].image.tr.y = SIZE_PER_MENU_ITEM / (float)theight * (float)(iy+1);
-
-            menu_objects[n].image.width  = SIZE_PER_MENU_ITEM;
-            menu_objects[n].image.height = SIZE_PER_MENU_ITEM;
-
-            n++;
-        }
+        menu_objects[n].image.width = SIZE_PER_MENU_ITEM;
+        menu_objects[n].image.height = SIZE_PER_MENU_ITEM;
     }
 
     {
@@ -2484,8 +2477,6 @@ void game::create_sandbox_menu() {
 
     tms_assertf(glGetError() == 0, "VAFAN s 1");
 
-    int n = 0;
-
     struct tms_camera *cam = tms_camera_alloc();
     cam->p_near = -1.f;
     cam->p_far = 1.f;
@@ -2510,25 +2501,14 @@ void game::create_sandbox_menu() {
 
     tms_ddraw_set_color(this->get_surface()->ddraw, 1.f, 1.f, 1.f, 1.f);
 
-    for (int y=0; y<of::num_categories; y++) {
-        int twidth = 512;
-        int theight = 256;
-
-        if (of::get_num_objects(y) > 10)
-            theight = 512;
-        if (of::get_num_objects(y) > 25)
-            theight = 1024;
+    for (int y = 0; y < SANDBOX_ATLAS_COUNT; y++) {
+        int twidth = SANDBOX_ATLAS_SIZE;
+        int theight = SANDBOX_ATLAS_SIZE;
 
         struct tms_fb *fb = tms_fb_alloc(twidth, theight, 0);
         tms_fb_add_texture(fb, GL_RGBA, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
-        tms_assertf(glGetError() == 0, "VAFAN s -1");
         tms_fb_enable_depth(fb, GL_DEPTH_COMPONENT16);
-
-        tms_assertf(glGetError() == 0, "VAFAN s 0");
-
         tms_fb_bind(fb);
-
-        tms_assertf(glGetError() == 0, "VAFAN s BIND");
 
         glClearColor(0.f, .0f, .0f, 0.f);
         //glClearColor(0.f, 0.f, 0.f, 1.0f);
@@ -2538,16 +2518,18 @@ void game::create_sandbox_menu() {
 
         glEnable(GL_SCISSOR_TEST);
 
-        int begin_n = n;
+        for (size_t x = 0; x < menu_objects.size(); x++) {
+            entity *e = menu_objects[x].e;
 
-        for (int x=0; x<of::get_num_objects(y); x++) {
-            int ix = (x % 5)*SIZE_PER_MENU_ITEM;
-            int iy = (x / 5)*SIZE_PER_MENU_ITEM;
+            // Skip objects that won't be in this atlas
+            if (sandbox_atlas_index(e->g_id) != y) continue;
+            int slot = sandbox_atlas_slot(e->g_id);
+
+            int ix = (slot % SANDBOX_ATLAS_COLUMNS) * SIZE_PER_MENU_ITEM;
+            int iy = (slot / SANDBOX_ATLAS_COLUMNS) * SIZE_PER_MENU_ITEM;
 
             glScissor(ix, iy, SIZE_PER_MENU_ITEM, SIZE_PER_MENU_ITEM);
             glViewport(ix, iy, SIZE_PER_MENU_ITEM, SIZE_PER_MENU_ITEM);
-
-            entity *e = menu_objects[n].e;
 
             char override_path[512];
             snprintf(override_path, 512, "data-src/override/%u.png", e->g_id);
@@ -2572,53 +2554,36 @@ void game::create_sandbox_menu() {
 
                 glBindTexture(GL_TEXTURE_2D, 0);
 
-                ix = x%5;
-                iy = x/5;
-
-                menu_objects[n].image.bl.x = SIZE_PER_MENU_ITEM / (float)twidth  * (float)ix;
-                menu_objects[n].image.bl.y = SIZE_PER_MENU_ITEM / (float)theight * (float)iy;
-
-                menu_objects[n].image.tr.x = SIZE_PER_MENU_ITEM / (float)twidth  * (float)(ix+1);
-                menu_objects[n].image.tr.y = SIZE_PER_MENU_ITEM / (float)theight * (float)(iy+1);
-
-                menu_objects[n].image.width  = SIZE_PER_MENU_ITEM;
-                menu_objects[n].image.height = SIZE_PER_MENU_ITEM;
-
-                tms_infof("%u (%s) at %.2f/%.2f.", menu_objects[n].e->g_id, menu_objects[n].e->get_name(), VEC2_INLINE(menu_objects[n].image.bl));
+                tms_infof("%u (%s) at %.2f/%.2f.", e->g_id, e->get_name(), VEC2_INLINE(menu_objects[x].image.bl));
 
                 /* object */
-                tms_graph_add_entity_with_children(menu_graph, menu_objects[n].e);
-
+                tms_graph_add_entity_with_children(menu_graph, e);
                 glColorMask(1,1,1,1);
                 glDepthMask(1);
                 menu_graph->render(cam, this);
-                tms_graph_remove_entity_with_children(menu_graph, menu_objects[n].e);
+                tms_graph_remove_entity_with_children(menu_graph, e);
             } else {
-                tms_infof("%u (%s) is being overridden", menu_objects[n].e->g_id, menu_objects[n].e->get_name());
+                tms_infof("%u (%s) is being overridden", e->g_id, e->get_name());
             }
-
-            n++;
-
-            tms_assertf(glGetError() == 0, "VAFAN s hej %d", n);
         }
-
-        n = begin_n;
 
         glDisable(GL_SCISSOR_TEST);
         glViewport(0, 0, _tms.opengl_width, _tms.opengl_height);
 
-        /* Save all objects to an SDL_Surface. */
+        // Save all objects to an SDL_Surface
         char name[256];
-        sprintf(name, "sandbox-menu-%u.png", y);
+        snprintf(name, sizeof(name), "sandbox-menu-%u.png", y);
         SDL_Surface *srf = SDL_CreateSurface(twidth, theight,
             SDL_GetPixelFormatForMasks(32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000));
         glReadPixels(0, 0, twidth, theight, GL_RGBA, GL_UNSIGNED_BYTE, srf->pixels);
 
-        for (int x=0; x<of::get_num_objects(y); x++) {
-            int ix = (x % 5)*SIZE_PER_MENU_ITEM;
-            int iy = (x / 5)*SIZE_PER_MENU_ITEM;
+        for (size_t x = 0; x < menu_objects.size(); x++) {
+            entity *e = menu_objects[x].e;
 
-            entity *e = menu_objects[n].e;
+            if (sandbox_atlas_index(e->g_id) != y) continue;
+            int slot = sandbox_atlas_slot(e->g_id);
+            int ix = slot % SANDBOX_ATLAS_COLUMNS;
+            int iy = slot / SANDBOX_ATLAS_COLUMNS;
 
             char override_path[512];
             snprintf(override_path, 512, "data-src/override/%u.png", e->g_id);
@@ -2627,22 +2592,8 @@ void game::create_sandbox_menu() {
                 struct tms_texture tex;
                 tms_texture_load(&tex, override_path);
 
-                ix = x%5;
-                iy = x/5;
-
-                menu_objects[n].image.bl.x = SIZE_PER_MENU_ITEM / (float)twidth  * (float)ix;
-                menu_objects[n].image.bl.y = SIZE_PER_MENU_ITEM / (float)theight * (float)iy;
-
-                menu_objects[n].image.tr.x = SIZE_PER_MENU_ITEM / (float)twidth  * (float)(ix+1);
-                menu_objects[n].image.tr.y = SIZE_PER_MENU_ITEM / (float)theight * (float)(iy+1);
-
-                menu_objects[n].image.width  = SIZE_PER_MENU_ITEM;
-                menu_objects[n].image.height = SIZE_PER_MENU_ITEM;
-
                 SDL_Surface *img_srf = SDL_CreateSurface(SIZE_PER_MENU_ITEM, SIZE_PER_MENU_ITEM,
                     SDL_GetPixelFormatForMasks(32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000));
-
-                size_t buf_size = tex.width * tex.height * tex.num_channels;
 
                 SDL_Rect src_rect, dst_rect;
 
@@ -2660,17 +2611,16 @@ void game::create_sandbox_menu() {
                 uint8_t *dst = (uint8_t*)img_srf->pixels;
                 uint8_t *src = (uint8_t*)tex.data;
 
-                for (int j=0; j<buf_size; ++j) {
-                    *dst++ = *src++;
+                for (int row=0; row<tex.height; ++row) {
+                    memcpy(dst + row*img_srf->pitch,
+                        src + row*tex.width*tex.num_channels,
+                        tex.width*tex.num_channels);
                 }
 
                 SDL_BlitSurface(img_srf, &src_rect, srf, &dst_rect);
 
                 SDL_DestroySurface(img_srf);
-
             }
-
-            ++ n;
         }
 
         tms_infof("saved: %s", name);
@@ -2747,7 +2697,7 @@ void game::create_sandbox_menu() {
             menu_graph->render(cam, this);
             tms_graph_remove_entity_with_children(menu_graph, e);
 
-            tms_assertf(glGetError() == 0, "VAFAN s hej %d", n);
+            tms_assertf(glGetError() == 0, "VAFAN s hej %d", x);
 
             delete e;
         }
@@ -2777,7 +2727,9 @@ void game::create_sandbox_menu() {
 
     tms_assertf(glGetError() == 0, "VAFAN s 4");
     tms_infof("Sandbox textures generated successfully. Running ./utils/update-sandbox-menu.sh ...");
-    system("./utils/update-sandbox-menu.sh");
+    char command[128];
+    snprintf(command, sizeof(command), "./utils/update-sandbox-menu.sh %d", SANDBOX_ATLAS_COUNT);
+    system(command);
     tms_infof("OK!");
     return;
 #endif
@@ -3200,9 +3152,8 @@ struct tms_texture* game::get_item_texture() {
 }
 
 struct tms_texture* game::get_sandbox_texture(int n) {
-    static struct tms_texture *sandbox_texture[10]; /* XXX keep in sync with of::num_categories */
+    static struct tms_texture *sandbox_texture[SANDBOX_ATLAS_COUNT];
 
-    /* make sure the current category's texture is loaded */
     if (!sandbox_texture[n]) {
         sandbox_texture[n] = tms_texture_alloc();
         char name[256];
@@ -3222,8 +3173,6 @@ struct tms_texture* game::get_sandbox_texture(int n) {
 void game::render_sandbox_menu() {
     int ierr;
     tms_assertf((ierr = glGetError()) == 0, "gl error %d in game::render_sandbox_menu begin", ierr);
-
-    struct tms_texture *tex = this->get_sandbox_texture(curr_category);
 
     if (this->get_menu_width() < menu_min_width) this->set_menu_width(menu_min_width);
     if (this->get_menu_width() > menu_max_width) this->set_menu_width(menu_max_width);
@@ -3300,10 +3249,18 @@ void game::render_sandbox_menu() {
     float max_y = 0.f;
 
     tms_assertf((ierr = glGetError()) == 0, "gl error %d before rendering menu objects", ierr);
-    glBindTexture(GL_TEXTURE_2D, tex->gl_texture);
+
+    int last_atlas = -1;
     tms_ddraw_set_color(this->get_surface()->ddraw, 1.f, 1.f, 1.f, menu_tint);
-    for (int x=0; x<menu_objects_cat[curr_category].size(); x++) {
+
+    for (int x = 0; x < menu_objects_cat[curr_category].size(); x++) {
         struct menu_obj o = menu_objects[menu_objects_cat[curr_category][x]];
+
+        int atlas = sandbox_atlas_index(o.e->g_id);
+        if (atlas != last_atlas) {
+            glBindTexture(GL_TEXTURE_2D, this->get_sandbox_texture(atlas)->gl_texture);
+            last_atlas = atlas;
+        }
 
         if (x != 0 && (x%div) == 0) {
             a_x += btn_outer_x;
@@ -3445,7 +3402,7 @@ void game::render_sandbox_menu() {
 
     tms_ddraw_set_color(this->get_surface()->ddraw, 1.f*menu_tint, 1.f*menu_tint, 1.f*menu_tint, 1.f);
 
-    int last_cat = -1;
+    last_atlas = -1;
     for (int x=0; x<MAX_RECENT; x++) {
         int p = this->recent[x];
 
@@ -3454,9 +3411,10 @@ void game::render_sandbox_menu() {
 
         struct menu_obj o = menu_objects[gid_to_menu_pos[p]];
 
-        if (o.category != last_cat) {
-            last_cat = o.category;
-            glBindTexture(GL_TEXTURE_2D, this->get_sandbox_texture(last_cat)->gl_texture);
+        int atlas = sandbox_atlas_index(o.e->g_id);
+        if (atlas != last_atlas) {
+            last_atlas = atlas;
+            glBindTexture(GL_TEXTURE_2D, this->get_sandbox_texture(atlas)->gl_texture);
         }
 
         tms_ddraw_sprite(this->get_surface()->ddraw, &o.image,

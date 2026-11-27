@@ -200,6 +200,8 @@ extern int b_margin_x;
 
 #define OVERLAP_THRESHOLD .3f
 
+static const int SANDBOX_ATLAS_CAPACITY = 100;
+
 struct menu_obj {
     entity *e;
     int pos;
